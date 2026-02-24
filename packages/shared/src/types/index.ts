@@ -12,3 +12,4 @@ export * from './enums';
 export * from './entities';
 export * from './auth';
 export * from './api';
+export * from './dashboard';

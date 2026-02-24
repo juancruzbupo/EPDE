@@ -16,3 +16,10 @@ export interface ApiError {
   error?: string;
   details?: Record<string, string[]>;
 }
+
+export type SortOrder = 'asc' | 'desc';
+
+export interface SortParams {
+  sortBy?: string;
+  sortOrder?: SortOrder;
+}

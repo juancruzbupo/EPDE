@@ -3,10 +3,12 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
+import { Sidebar } from '@/components/layout/sidebar';
+import { Header } from '@/components/layout/header';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { isAuthenticated, isLoading, user, logout } = useAuthStore();
+  const { isAuthenticated, isLoading } = useAuthStore();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -28,30 +30,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar placeholder */}
-      <aside className="bg-sidebar hidden w-64 border-r p-6 lg:block">
-        <h2
-          className="text-sidebar-primary text-xl font-bold"
-          style={{ fontFamily: "'Playfair Display', serif" }}
-        >
-          EPDE
-        </h2>
-        <nav className="mt-8 space-y-2">
-          <p className="text-sidebar-foreground/60 text-sm">Dashboard</p>
-        </nav>
-        <div className="absolute bottom-6 left-6">
-          <p className="text-sidebar-foreground text-sm">{user?.name}</p>
-          <button
-            onClick={logout}
-            className="text-sidebar-foreground/60 hover:text-sidebar-foreground mt-1 text-sm"
-          >
-            Cerrar sesión
-          </button>
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <main className="flex-1 p-6">{children}</main>
+      <Sidebar className="hidden lg:flex" />
+      <div className="flex flex-1 flex-col">
+        <Header />
+        <main className="flex-1 p-6">{children}</main>
+      </div>
     </div>
   );
 }

@@ -58,6 +58,18 @@ export const RECURRENCE_TYPE_LABELS: Record<string, string> = {
   CUSTOM: 'Personalizado',
 };
 
+export const USER_STATUS_LABELS: Record<string, string> = {
+  INVITED: 'Invitado',
+  ACTIVE: 'Activo',
+  INACTIVE: 'Inactivo',
+};
+
+export const PLAN_STATUS_LABELS: Record<string, string> = {
+  DRAFT: 'Borrador',
+  ACTIVE: 'Activo',
+  ARCHIVED: 'Archivado',
+};
+
 // ─── Default Categories ─────────────────────────────────
 
 export const CATEGORY_DEFAULTS = [

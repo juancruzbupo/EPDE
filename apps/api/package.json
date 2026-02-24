@@ -13,6 +13,8 @@
     "test": "jest"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.997.0",
+    "@aws-sdk/s3-request-presigner": "^3.997.0",
     "@casl/ability": "^6.8.0",
     "@casl/prisma": "^1.6.1",
     "@epde/shared": "workspace:*",
@@ -44,6 +46,7 @@
     "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5",
     "@types/jest": "^29",
+    "@types/multer": "^2.0.0",
     "@types/node": "^22",
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-local": "^1.0.38",

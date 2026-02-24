@@ -1,33 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { BaseRepository } from '../common/repositories/base.repository';
 
 @Injectable()
-export class UsersRepository {
-  constructor(private readonly prisma: PrismaService) {}
-
-  async findByEmail(email: string) {
-    return this.prisma.softDelete.user.findFirst({ where: { email } });
+export class UsersRepository extends BaseRepository<User> {
+  constructor(prisma: PrismaService) {
+    super(prisma, 'user', true);
   }
 
-  async findById(id: string) {
-    return this.prisma.softDelete.user.findFirst({ where: { id } });
-  }
-
-  async create(data: Prisma.UserCreateInput) {
-    return this.prisma.user.create({ data });
-  }
-
-  async update(id: string, data: Prisma.UserUpdateInput) {
-    return this.prisma.user.update({ where: { id }, data });
-  }
-
-  async findMany(params?: { skip?: number; take?: number; where?: Prisma.UserWhereInput }) {
-    return this.prisma.softDelete.user.findMany({
-      where: params?.where,
-      skip: params?.skip,
-      take: params?.take,
-      orderBy: { createdAt: 'desc' },
-    });
+  async findByEmail(email: string): Promise<User | null> {
+    return this.model.findFirst({ where: { email } });
   }
 }

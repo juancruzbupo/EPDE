@@ -164,6 +164,7 @@ model Task {
   recurrenceType    RecurrenceType @default(ANNUAL)
   recurrenceMonths  Int?
   nextDueDate       DateTime
+  order             Int            @default(0)
   status            TaskStatus     @default(PENDING)
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
