@@ -1,10 +1,22 @@
-import { APP_NAME } from '@epde/shared';
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/stores/auth-store';
 
 export default function Home() {
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuthStore();
+
+  useEffect(() => {
+    if (!isLoading) {
+      router.push(isAuthenticated ? '/dashboard' : '/login');
+    }
+  }, [isAuthenticated, isLoading, router]);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center">
-      <h1 className="text-4xl font-bold">{APP_NAME}</h1>
-      <p className="mt-4 text-lg text-gray-600">Plataforma de Mantenimiento Preventivo</p>
-    </main>
+    <div className="flex min-h-screen items-center justify-center">
+      <p className="text-muted-foreground">Cargando...</p>
+    </div>
   );
 }

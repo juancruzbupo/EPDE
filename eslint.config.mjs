@@ -24,6 +24,13 @@ export default [
       'no-undef': 'off',
     },
   },
+  {
+    // Allow same-name const + type pattern in shared package (e.g., const UserRole = {}; type UserRole = ...)
+    files: ['packages/shared/**/*.ts'],
+    rules: {
+      'no-redeclare': 'off',
+    },
+  },
   prettierConfig,
   {
     ignores: [
