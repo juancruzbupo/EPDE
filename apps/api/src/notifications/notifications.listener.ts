@@ -1,13 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from './notifications.service';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class NotificationsListener {
+  private readonly logger = new Logger(NotificationsListener.name);
+
   constructor(
     private readonly notificationsService: NotificationsService,
     private readonly prisma: PrismaService,
+    private readonly emailService: EmailService,
   ) {}
 
   @OnEvent('budget.created')
@@ -47,6 +51,23 @@ export class NotificationsListener {
       message: `Tu presupuesto "${payload.title}" fue cotizado por $${payload.totalAmount.toLocaleString('es-AR')}`,
       data: { budgetId: payload.budgetId },
     });
+
+    // Send email to requester
+    const requester = await this.prisma.user.findUnique({
+      where: { id: payload.requesterId },
+      select: { email: true, name: true },
+    });
+    if (requester) {
+      await this.emailService
+        .sendBudgetQuotedEmail(
+          requester.email,
+          requester.name,
+          payload.title,
+          payload.totalAmount,
+          payload.budgetId,
+        )
+        .catch((err) => this.logger.error(`Error enviando email de cotización: ${err.message}`));
+    }
   }
 
   @OnEvent('budget.statusChanged')
@@ -88,6 +109,23 @@ export class NotificationsListener {
         message: `Tu presupuesto "${payload.title}" ${message}`,
         data: { budgetId: payload.budgetId },
       });
+
+      // Send email to requester for IN_PROGRESS/COMPLETED
+      const requester = await this.prisma.user.findUnique({
+        where: { id: payload.requesterId },
+        select: { email: true, name: true },
+      });
+      if (requester) {
+        await this.emailService
+          .sendBudgetStatusEmail(
+            requester.email,
+            requester.name,
+            payload.title,
+            payload.newStatus,
+            payload.budgetId,
+          )
+          .catch((err) => this.logger.error(`Error enviando email de estado: ${err.message}`));
+      }
     }
   }
 

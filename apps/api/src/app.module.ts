@@ -16,6 +16,7 @@ import { UploadModule } from './upload/upload.module';
 import { BudgetsModule } from './budgets/budgets.module';
 import { ServiceRequestsModule } from './service-requests/service-requests.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { SchedulerModule } from './scheduler/scheduler.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 
@@ -34,6 +35,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     BudgetsModule,
     ServiceRequestsModule,
     NotificationsModule,
+    SchedulerModule,
   ],
   controllers: [AppController],
   providers: [
