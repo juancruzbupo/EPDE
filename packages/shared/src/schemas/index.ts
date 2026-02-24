@@ -14,3 +14,5 @@ export * from './category';
 export * from './task';
 export * from './maintenance-plan';
 export * from './pagination';
+export * from './task-log';
+export * from './task-note';

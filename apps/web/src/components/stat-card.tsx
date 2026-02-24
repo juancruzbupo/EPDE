@@ -1,16 +1,18 @@
 import { LucideIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 interface StatCardProps {
   title: string;
   value: number | string;
   icon: LucideIcon;
   description?: string;
+  className?: string;
 }
 
-export function StatCard({ title, value, icon: Icon, description }: StatCardProps) {
+export function StatCard({ title, value, icon: Icon, description, className }: StatCardProps) {
   return (
-    <Card>
+    <Card className={cn(className)}>
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { addDays, startOfMonth } from 'date-fns';
 
 @Injectable()
 export class DashboardService {
@@ -61,5 +62,101 @@ export class DashboardService {
     ];
 
     return activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 10);
+  }
+
+  async getClientStats(userId: string) {
+    const now = new Date();
+    const thirtyDaysFromNow = addDays(now, 30);
+    const monthStart = startOfMonth(now);
+
+    const userProperties = await this.prisma.softDelete.property.findMany({
+      where: { userId },
+      select: { id: true },
+    });
+    const propertyIds = userProperties.map((p) => p.id);
+
+    const planIds = propertyIds.length
+      ? (
+          await this.prisma.maintenancePlan.findMany({
+            where: { propertyId: { in: propertyIds } },
+            select: { id: true },
+          })
+        ).map((p) => p.id)
+      : [];
+
+    const taskWhere = {
+      maintenancePlanId: { in: planIds },
+      deletedAt: null,
+    };
+
+    const [totalProperties, pendingTasks, overdueTasks, upcomingTasks, completedThisMonth] =
+      await Promise.all([
+        propertyIds.length,
+        this.prisma.task.count({
+          where: { ...taskWhere, status: 'PENDING' },
+        }),
+        this.prisma.task.count({
+          where: {
+            ...taskWhere,
+            nextDueDate: { lt: now },
+            status: { not: 'COMPLETED' },
+          },
+        }),
+        this.prisma.task.count({
+          where: {
+            ...taskWhere,
+            nextDueDate: { gte: now, lte: thirtyDaysFromNow },
+            status: { not: 'COMPLETED' },
+          },
+        }),
+        this.prisma.taskLog.count({
+          where: {
+            completedBy: userId,
+            completedAt: { gte: monthStart },
+          },
+        }),
+      ]);
+
+    return { totalProperties, pendingTasks, overdueTasks, upcomingTasks, completedThisMonth };
+  }
+
+  async getClientUpcomingTasks(userId: string) {
+    const now = new Date();
+    const thirtyDaysFromNow = addDays(now, 30);
+
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        deletedAt: null,
+        maintenancePlan: {
+          property: { userId, deletedAt: null },
+        },
+        OR: [
+          { nextDueDate: { lt: now }, status: { not: 'COMPLETED' } },
+          { nextDueDate: { gte: now, lte: thirtyDaysFromNow }, status: { not: 'COMPLETED' } },
+        ],
+      },
+      include: {
+        category: { select: { name: true } },
+        maintenancePlan: {
+          select: {
+            id: true,
+            property: { select: { address: true } },
+          },
+        },
+      },
+      orderBy: { nextDueDate: 'asc' },
+      take: 10,
+    });
+
+    return tasks.map((t) => ({
+      id: t.id,
+      name: t.name,
+      nextDueDate: t.nextDueDate.toISOString(),
+      priority: t.priority,
+      status: t.status,
+      propertyAddress: t.maintenancePlan.property.address,
+      categoryName: t.category.name,
+      maintenancePlanId: t.maintenancePlan.id,
+    }));
   }
 }

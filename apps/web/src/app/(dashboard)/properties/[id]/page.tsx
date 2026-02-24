@@ -11,11 +11,14 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { PROPERTY_TYPE_LABELS } from '@epde/shared';
 import Link from 'next/link';
+import { useAuthStore } from '@/stores/auth-store';
 import { PlanEditor } from './plan-editor';
+import { PlanViewer } from './plan-viewer';
 
 export default function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading } = useProperty(id);
+  const isAdmin = useAuthStore((s) => s.user?.role === 'ADMIN');
   const property = data?.data;
 
   if (isLoading) {
@@ -96,7 +99,11 @@ export default function PropertyDetailPage() {
 
         <TabsContent value="plan" className="mt-4">
           {property.maintenancePlan ? (
-            <PlanEditor planId={property.maintenancePlan.id} />
+            isAdmin ? (
+              <PlanEditor planId={property.maintenancePlan.id} />
+            ) : (
+              <PlanViewer planId={property.maintenancePlan.id} />
+            )
           ) : (
             <Card>
               <CardContent className="p-6">

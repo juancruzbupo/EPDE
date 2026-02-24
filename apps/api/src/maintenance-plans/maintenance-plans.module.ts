@@ -3,11 +3,20 @@ import { MaintenancePlansController } from './maintenance-plans.controller';
 import { MaintenancePlansService } from './maintenance-plans.service';
 import { MaintenancePlansRepository } from './maintenance-plans.repository';
 import { TasksRepository } from './tasks.repository';
+import { TaskLogsRepository } from './task-logs.repository';
+import { TaskNotesRepository } from './task-notes.repository';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
   controllers: [MaintenancePlansController],
-  providers: [MaintenancePlansService, MaintenancePlansRepository, TasksRepository, PrismaService],
+  providers: [
+    MaintenancePlansService,
+    MaintenancePlansRepository,
+    TasksRepository,
+    TaskLogsRepository,
+    TaskNotesRepository,
+    PrismaService,
+  ],
   exports: [MaintenancePlansService],
 })
 export class MaintenancePlansModule {}

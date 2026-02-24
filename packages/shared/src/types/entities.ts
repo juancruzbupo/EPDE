@@ -91,6 +91,14 @@ export interface TaskNote {
   createdAt: Date;
 }
 
+export interface TaskLogPublic extends TaskLog {
+  user: { id: string; name: string };
+}
+
+export interface TaskNotePublic extends TaskNote {
+  author: { id: string; name: string };
+}
+
 // ─── Budget Request ─────────────────────────────────────
 
 export interface BudgetRequest extends BaseEntity {
