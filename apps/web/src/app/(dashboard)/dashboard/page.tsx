@@ -14,6 +14,7 @@ import {
   Home,
   AlertTriangle,
   FileText,
+  Wrench,
   Clock,
   CheckCircle,
   ChevronRight,
@@ -48,9 +49,9 @@ function AdminDashboard() {
     <div>
       <PageHeader title="Dashboard" description="Resumen general de la plataforma" />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {statsLoading ? (
-          Array.from({ length: 4 }).map((_, i) => (
+          Array.from({ length: 5 }).map((_, i) => (
             <Card key={i}>
               <CardContent className="p-6">
                 <Skeleton className="h-20 w-full" />
@@ -67,6 +68,7 @@ function AdminDashboard() {
               value={stats.pendingBudgets}
               icon={FileText}
             />
+            <StatCard title="Servicios Pendientes" value={stats.pendingServices} icon={Wrench} />
           </>
         ) : null}
       </div>
@@ -116,9 +118,9 @@ function ClientDashboard({ userName }: { userName: string }) {
         description="Resumen de tus propiedades y tareas"
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {statsLoading ? (
-          Array.from({ length: 4 }).map((_, i) => (
+          Array.from({ length: 6 }).map((_, i) => (
             <Card key={i}>
               <CardContent className="p-6">
                 <Skeleton className="h-20 w-full" />
@@ -140,6 +142,8 @@ function ClientDashboard({ userName }: { userName: string }) {
               value={stats.completedThisMonth}
               icon={CheckCircle}
             />
+            <StatCard title="Presupuestos" value={stats.pendingBudgets} icon={FileText} />
+            <StatCard title="Servicios Abiertos" value={stats.openServices} icon={Wrench} />
           </>
         ) : null}
       </div>

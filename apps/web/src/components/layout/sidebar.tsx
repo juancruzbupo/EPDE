@@ -3,13 +3,15 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
-import { LayoutDashboard, Users, Home, Tags, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Home, Tags, FileText, Wrench, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Clientes', href: '/clients', icon: Users, adminOnly: true },
   { label: 'Propiedades', href: '/properties', icon: Home },
+  { label: 'Presupuestos', href: '/budgets', icon: FileText },
+  { label: 'Servicios', href: '/service-requests', icon: Wrench },
   { label: 'Categorías', href: '/categories', icon: Tags, adminOnly: true },
 ];
 

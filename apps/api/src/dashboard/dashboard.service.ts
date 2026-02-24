@@ -7,38 +7,53 @@ export class DashboardService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getStats() {
-    const [totalClients, totalProperties, overdueTasks, pendingBudgets] = await Promise.all([
-      this.prisma.softDelete.user.count({ where: { role: 'CLIENT' } }),
-      this.prisma.softDelete.property.count(),
-      this.prisma.softDelete.task.count({
-        where: { nextDueDate: { lt: new Date() }, status: { not: 'COMPLETED' } },
-      }),
-      this.prisma.budgetRequest.count({ where: { status: 'PENDING' } }),
-    ]);
+    const [totalClients, totalProperties, overdueTasks, pendingBudgets, pendingServices] =
+      await Promise.all([
+        this.prisma.softDelete.user.count({ where: { role: 'CLIENT' } }),
+        this.prisma.softDelete.property.count(),
+        this.prisma.softDelete.task.count({
+          where: { nextDueDate: { lt: new Date() }, status: { not: 'COMPLETED' } },
+        }),
+        this.prisma.budgetRequest.count({ where: { status: 'PENDING' } }),
+        this.prisma.serviceRequest.count({
+          where: { status: { in: ['OPEN', 'IN_REVIEW'] } },
+        }),
+      ]);
 
-    return { totalClients, totalProperties, overdueTasks, pendingBudgets };
+    return { totalClients, totalProperties, overdueTasks, pendingBudgets, pendingServices };
   }
 
   async getRecentActivity() {
-    const [recentClients, recentProperties, recentTasks] = await Promise.all([
-      this.prisma.softDelete.user.findMany({
-        where: { role: 'CLIENT' },
-        orderBy: { createdAt: 'desc' },
-        take: 5,
-        select: { id: true, name: true, createdAt: true },
-      }),
-      this.prisma.softDelete.property.findMany({
-        orderBy: { createdAt: 'desc' },
-        take: 5,
-        select: { id: true, address: true, city: true, createdAt: true },
-      }),
-      this.prisma.softDelete.task.findMany({
-        where: { status: 'COMPLETED' },
-        orderBy: { updatedAt: 'desc' },
-        take: 5,
-        select: { id: true, name: true, updatedAt: true },
-      }),
-    ]);
+    const [recentClients, recentProperties, recentTasks, recentBudgets, recentServices] =
+      await Promise.all([
+        this.prisma.softDelete.user.findMany({
+          where: { role: 'CLIENT' },
+          orderBy: { createdAt: 'desc' },
+          take: 5,
+          select: { id: true, name: true, createdAt: true },
+        }),
+        this.prisma.softDelete.property.findMany({
+          orderBy: { createdAt: 'desc' },
+          take: 5,
+          select: { id: true, address: true, city: true, createdAt: true },
+        }),
+        this.prisma.softDelete.task.findMany({
+          where: { status: 'COMPLETED' },
+          orderBy: { updatedAt: 'desc' },
+          take: 5,
+          select: { id: true, name: true, updatedAt: true },
+        }),
+        this.prisma.budgetRequest.findMany({
+          orderBy: { createdAt: 'desc' },
+          take: 5,
+          select: { id: true, title: true, createdAt: true },
+        }),
+        this.prisma.serviceRequest.findMany({
+          orderBy: { createdAt: 'desc' },
+          take: 5,
+          select: { id: true, title: true, createdAt: true },
+        }),
+      ]);
 
     const activities = [
       ...recentClients.map((c) => ({
@@ -58,6 +73,18 @@ export class DashboardService {
         type: 'task_completed' as const,
         description: `Tarea completada: ${t.name}`,
         timestamp: t.updatedAt,
+      })),
+      ...recentBudgets.map((b) => ({
+        id: b.id,
+        type: 'budget_requested' as const,
+        description: `Presupuesto solicitado: ${b.title}`,
+        timestamp: b.createdAt,
+      })),
+      ...recentServices.map((s) => ({
+        id: s.id,
+        type: 'service_requested' as const,
+        description: `Solicitud de servicio: ${s.title}`,
+        timestamp: s.createdAt,
       })),
     ];
 
@@ -89,35 +116,62 @@ export class DashboardService {
       deletedAt: null,
     };
 
-    const [totalProperties, pendingTasks, overdueTasks, upcomingTasks, completedThisMonth] =
-      await Promise.all([
-        propertyIds.length,
-        this.prisma.task.count({
-          where: { ...taskWhere, status: 'PENDING' },
-        }),
-        this.prisma.task.count({
-          where: {
-            ...taskWhere,
-            nextDueDate: { lt: now },
-            status: { not: 'COMPLETED' },
-          },
-        }),
-        this.prisma.task.count({
-          where: {
-            ...taskWhere,
-            nextDueDate: { gte: now, lte: thirtyDaysFromNow },
-            status: { not: 'COMPLETED' },
-          },
-        }),
-        this.prisma.taskLog.count({
-          where: {
-            completedBy: userId,
-            completedAt: { gte: monthStart },
-          },
-        }),
-      ]);
+    const [
+      totalProperties,
+      pendingTasks,
+      overdueTasks,
+      upcomingTasks,
+      completedThisMonth,
+      pendingBudgets,
+      openServices,
+    ] = await Promise.all([
+      propertyIds.length,
+      this.prisma.task.count({
+        where: { ...taskWhere, status: 'PENDING' },
+      }),
+      this.prisma.task.count({
+        where: {
+          ...taskWhere,
+          nextDueDate: { lt: now },
+          status: { not: 'COMPLETED' },
+        },
+      }),
+      this.prisma.task.count({
+        where: {
+          ...taskWhere,
+          nextDueDate: { gte: now, lte: thirtyDaysFromNow },
+          status: { not: 'COMPLETED' },
+        },
+      }),
+      this.prisma.taskLog.count({
+        where: {
+          completedBy: userId,
+          completedAt: { gte: monthStart },
+        },
+      }),
+      this.prisma.budgetRequest.count({
+        where: {
+          propertyId: { in: propertyIds },
+          status: { in: ['PENDING', 'QUOTED'] },
+        },
+      }),
+      this.prisma.serviceRequest.count({
+        where: {
+          propertyId: { in: propertyIds },
+          status: { in: ['OPEN', 'IN_REVIEW', 'IN_PROGRESS'] },
+        },
+      }),
+    ]);
 
-    return { totalProperties, pendingTasks, overdueTasks, upcomingTasks, completedThisMonth };
+    return {
+      totalProperties,
+      pendingTasks,
+      overdueTasks,
+      upcomingTasks,
+      completedThisMonth,
+      pendingBudgets,
+      openServices,
+    };
   }
 
   async getClientUpcomingTasks(userId: string) {

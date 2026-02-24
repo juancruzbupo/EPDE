@@ -3,6 +3,7 @@ export interface DashboardStats {
   totalProperties: number;
   overdueTasks: number;
   pendingBudgets: number;
+  pendingServices: number;
 }
 
 export interface ClientDashboardStats {
@@ -11,6 +12,8 @@ export interface ClientDashboardStats {
   overdueTasks: number;
   upcomingTasks: number;
   completedThisMonth: number;
+  pendingBudgets: number;
+  openServices: number;
 }
 
 export interface UpcomingTask {
@@ -26,7 +29,12 @@ export interface UpcomingTask {
 
 export interface ActivityItem {
   id: string;
-  type: 'client_created' | 'property_created' | 'task_completed' | 'budget_requested';
+  type:
+    | 'client_created'
+    | 'property_created'
+    | 'task_completed'
+    | 'budget_requested'
+    | 'service_requested';
   description: string;
   timestamp: Date;
   metadata?: Record<string, unknown>;

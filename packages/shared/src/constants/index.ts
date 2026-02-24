@@ -70,6 +70,20 @@ export const PLAN_STATUS_LABELS: Record<string, string> = {
   ARCHIVED: 'Archivado',
 };
 
+export const SERVICE_URGENCY_LABELS: Record<string, string> = {
+  LOW: 'Baja',
+  MEDIUM: 'Media',
+  HIGH: 'Alta',
+  URGENT: 'Urgente',
+};
+
+export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
+  TASK_REMINDER: 'Recordatorio',
+  BUDGET_UPDATE: 'Presupuesto',
+  SERVICE_UPDATE: 'Servicio',
+  SYSTEM: 'Sistema',
+};
+
 // ─── Default Categories ─────────────────────────────────
 
 export const CATEGORY_DEFAULTS = [
