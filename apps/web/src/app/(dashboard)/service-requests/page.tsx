@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
 import { useServiceRequests } from '@/hooks/use-service-requests';
 import { PageHeader } from '@/components/page-header';
@@ -23,6 +24,7 @@ const urgencyOptions = Object.entries(SERVICE_URGENCY_LABELS).map(([value, label
 }));
 
 export default function ServiceRequestsPage() {
+  const router = useRouter();
   const user = useAuthStore((s) => s.user);
 
   const [status, setStatus] = useState('all');
@@ -80,6 +82,7 @@ export default function ServiceRequestsPage() {
         onLoadMore={() => fetchNextPage()}
         total={total}
         emptyMessage="No se encontraron solicitudes de servicio"
+        onRowClick={(row) => router.push(`/service-requests/${row.id}`)}
       />
 
       {user?.role === 'CLIENT' && (
