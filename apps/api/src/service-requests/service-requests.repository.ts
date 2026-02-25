@@ -9,7 +9,13 @@ import {
 
 const SERVICE_REQUEST_INCLUDE = {
   property: {
-    select: { id: true, address: true, city: true, user: { select: { id: true, name: true } } },
+    select: {
+      id: true,
+      address: true,
+      city: true,
+      userId: true,
+      user: { select: { id: true, name: true } },
+    },
   },
   requester: { select: { id: true, name: true, email: true } },
   photos: true,
