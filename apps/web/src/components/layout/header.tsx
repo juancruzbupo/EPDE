@@ -2,7 +2,8 @@
 
 import { useAuthStore } from '@/stores/auth-store';
 import { Menu } from 'lucide-react';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { VisuallyHidden } from 'radix-ui';
 import { Sidebar } from './sidebar';
 import { NotificationBell } from '@/components/notification-bell';
 
@@ -19,6 +20,9 @@ export function Header() {
             </button>
           </SheetTrigger>
           <SheetContent side="left" className="w-64 p-0">
+            <VisuallyHidden.Root>
+              <SheetTitle>Menú de navegación</SheetTitle>
+            </VisuallyHidden.Root>
             <Sidebar />
           </SheetContent>
         </Sheet>

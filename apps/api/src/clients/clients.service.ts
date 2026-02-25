@@ -35,17 +35,28 @@ export class ClientsService {
 
   async createClient(dto: CreateClientDto) {
     const existing = await this.clientsRepository.findByEmail(dto.email);
-    if (existing) {
-      throw new ConflictException('Ya existe un usuario con ese email');
-    }
 
-    const client = await this.clientsRepository.create({
-      email: dto.email,
-      name: dto.name,
-      phone: dto.phone,
-      role: 'CLIENT',
-      status: 'INVITED',
-    });
+    let client;
+    if (existing && existing.deletedAt) {
+      // Restore soft-deleted user and re-invite
+      client = await this.clientsRepository.update(existing.id, {
+        name: dto.name,
+        phone: dto.phone,
+        status: 'INVITED',
+        passwordHash: null,
+        deletedAt: null,
+      });
+    } else if (existing) {
+      throw new ConflictException('Ya existe un usuario con ese email');
+    } else {
+      client = await this.clientsRepository.create({
+        email: dto.email,
+        name: dto.name,
+        phone: dto.phone,
+        role: 'CLIENT',
+        status: 'INVITED',
+      });
+    }
 
     const token = this.jwtService.sign(
       { sub: client.id, email: client.email, purpose: 'invite' },

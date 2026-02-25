@@ -16,6 +16,7 @@ export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private resend: Resend | null = null;
   private readonly frontendUrl: string;
+  private readonly emailFrom: string;
 
   constructor(private readonly configService: ConfigService) {
     const apiKey = this.configService.get<string>('RESEND_API_KEY');
@@ -23,6 +24,7 @@ export class EmailService {
       this.resend = new Resend(apiKey);
     }
     this.frontendUrl = this.configService.get<string>('FRONTEND_URL') ?? 'http://localhost:3000';
+    this.emailFrom = this.configService.get<string>('EMAIL_FROM') ?? 'EPDE <onboarding@resend.dev>';
   }
 
   private wrapEmailHtml(content: string): string {
@@ -57,7 +59,7 @@ export class EmailService {
     }
 
     await this.resend.emails.send({
-      from: 'EPDE <no-reply@epde.com>',
+      from: this.emailFrom,
       to,
       subject: 'Bienvenido a EPDE - Configurá tu contraseña',
       html: this.wrapEmailHtml(`
@@ -101,7 +103,7 @@ export class EmailService {
       : `<p>Esta tarea vence el <strong>${formattedDate}</strong>.</p>`;
 
     await this.resend.emails.send({
-      from: 'EPDE <no-reply@epde.com>',
+      from: this.emailFrom,
       to,
       subject,
       html: this.wrapEmailHtml(`
@@ -146,7 +148,7 @@ export class EmailService {
     }).format(totalAmount);
 
     await this.resend.emails.send({
-      from: 'EPDE <no-reply@epde.com>',
+      from: this.emailFrom,
       to,
       subject: `Tu presupuesto "${budgetTitle}" fue cotizado`,
       html: this.wrapEmailHtml(`
@@ -176,7 +178,7 @@ export class EmailService {
     const statusLabel = BUDGET_STATUS_LABELS[newStatus] ?? newStatus;
 
     await this.resend.emails.send({
-      from: 'EPDE <no-reply@epde.com>',
+      from: this.emailFrom,
       to,
       subject: `Actualización de presupuesto: ${budgetTitle}`,
       html: this.wrapEmailHtml(`

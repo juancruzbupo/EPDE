@@ -14,7 +14,7 @@ export class ClientsRepository extends BaseRepository<User> {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.model.findFirst({ where: { email } });
+    return this.writeModel.findFirst({ where: { email } });
   }
 
   async findClients(params: {

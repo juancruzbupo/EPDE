@@ -1,4 +1,5 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import {
   getClients,
   getClient,
@@ -39,6 +40,24 @@ export function useUpdateClient() {
     mutationFn: ({ id, ...dto }: { id: string; name?: string; phone?: string; status?: string }) =>
       updateClient(id, dto),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['clients'] }),
+  });
+}
+
+export function useClientSearch(search: string) {
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  return useQuery({
+    queryKey: ['clients', 'search', debouncedSearch],
+    queryFn: async () => {
+      const result = await getClients({ search: debouncedSearch || undefined, take: 20 });
+      return result.data;
+    },
+    enabled: true,
   });
 }
 

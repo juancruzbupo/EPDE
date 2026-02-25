@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface InviteClientDialogProps {
   open: boolean;
@@ -35,6 +36,12 @@ export function InviteClientDialog({ open, onOpenChange }: InviteClientDialogPro
     });
   };
 
+  const errorMessage =
+    createClient.error &&
+    'response' in createClient.error &&
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ((createClient.error as any).response?.data?.message as string);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -42,6 +49,11 @@ export function InviteClientDialog({ open, onOpenChange }: InviteClientDialogPro
           <DialogTitle>Invitar Cliente</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {errorMessage && (
+            <Alert variant="destructive">
+              <AlertDescription>{errorMessage}</AlertDescription>
+            </Alert>
+          )}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" {...register('email')} />
