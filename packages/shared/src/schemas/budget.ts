@@ -29,7 +29,7 @@ export const respondBudgetSchema = z.object({
     .positive('Los días estimados deben ser mayor a 0')
     .optional(),
   notes: z.string().max(2000, 'Las notas no pueden superar 2000 caracteres').optional(),
-  validUntil: z.string().datetime({ message: 'Fecha de validez inválida' }).optional(),
+  validUntil: z.string().date('Fecha de validez inválida').optional(),
 });
 
 export type RespondBudgetInput = z.input<typeof respondBudgetSchema>;

@@ -152,14 +152,27 @@ export function RespondBudgetDialog({ open, onOpenChange, budgetId }: RespondBud
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="estimatedDays">Dias estimados</Label>
-              <Input id="estimatedDays" type="number" min={1} {...register('estimatedDays')} />
+              <Input
+                id="estimatedDays"
+                type="number"
+                min={1}
+                {...register('estimatedDays', {
+                  setValueAs: (v: string) => (v === '' ? undefined : v),
+                })}
+              />
               {errors.estimatedDays && (
                 <p className="text-destructive text-sm">{errors.estimatedDays.message}</p>
               )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="validUntil">Valido hasta</Label>
-              <Input id="validUntil" type="date" {...register('validUntil')} />
+              <Input
+                id="validUntil"
+                type="date"
+                {...register('validUntil', {
+                  setValueAs: (v: string) => (v === '' ? undefined : v),
+                })}
+              />
               {errors.validUntil && (
                 <p className="text-destructive text-sm">{errors.validUntil.message}</p>
               )}
