@@ -9,7 +9,7 @@ import { DataTable } from '@/components/data-table/data-table';
 import { FilterSelect } from '@/components/filter-select';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { BUDGET_STATUS_LABELS } from '@epde/shared';
+import { BUDGET_STATUS_LABELS, UserRole } from '@epde/shared';
 import { budgetColumns } from './columns';
 import { CreateBudgetDialog } from './create-budget-dialog';
 import type { BudgetRequestPublic } from '@/lib/api/budgets';
@@ -43,7 +43,7 @@ export default function BudgetsPage() {
         title="Presupuestos"
         description="Gestion de presupuestos"
         action={
-          user?.role === 'CLIENT' ? (
+          user?.role === UserRole.CLIENT ? (
             <Button onClick={() => setCreateOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Solicitar Presupuesto

@@ -46,8 +46,6 @@ export abstract class BaseRepository<T> {
     const orderBy = params.orderBy ?? { createdAt: 'desc' };
     const include = params.include;
 
-    const total = await this.model.count({ where });
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const queryParams: any = {
       where,
@@ -61,7 +59,11 @@ export abstract class BaseRepository<T> {
       queryParams.skip = 1;
     }
 
-    const items: T[] = await this.model.findMany(queryParams);
+    // Parallelize count + findMany for better performance
+    const [total, items] = await Promise.all([
+      this.model.count({ where }) as Promise<number>,
+      this.model.findMany(queryParams) as Promise<T[]>,
+    ]);
 
     const hasMore = items.length > take;
     const data = hasMore ? items.slice(0, take) : items;

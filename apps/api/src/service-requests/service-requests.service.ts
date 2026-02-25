@@ -1,10 +1,13 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { PrismaService } from '../prisma/prisma.service';
 import { ServiceRequestsRepository } from './service-requests.repository';
-import { CreateServiceRequestDto } from './dto/create-service-request.dto';
-import { UpdateServiceStatusDto } from './dto/update-service-status.dto';
-import { ServiceRequestFiltersDto } from './dto/service-request-filters.dto';
+import { PropertiesRepository } from '../properties/properties.repository';
+import { UserRole } from '@epde/shared';
+import type {
+  CreateServiceRequestInput,
+  UpdateServiceStatusInput,
+  ServiceRequestFiltersInput,
+} from '@epde/shared';
 
 interface CurrentUser {
   id: string;
@@ -15,18 +18,18 @@ interface CurrentUser {
 export class ServiceRequestsService {
   constructor(
     private readonly serviceRequestsRepository: ServiceRequestsRepository,
-    private readonly prisma: PrismaService,
+    private readonly propertiesRepository: PropertiesRepository,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  async listRequests(filters: ServiceRequestFiltersDto, currentUser: CurrentUser) {
+  async listRequests(filters: ServiceRequestFiltersInput, currentUser: CurrentUser) {
     return this.serviceRequestsRepository.findRequests({
       cursor: filters.cursor,
       take: filters.take,
       status: filters.status,
       urgency: filters.urgency,
       propertyId: filters.propertyId,
-      userId: currentUser.role === 'CLIENT' ? currentUser.id : undefined,
+      userId: currentUser.role === UserRole.CLIENT ? currentUser.id : undefined,
     });
   }
 
@@ -36,18 +39,18 @@ export class ServiceRequestsService {
       throw new NotFoundException('Solicitud de servicio no encontrada');
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (currentUser.role === 'CLIENT' && (request as any).property?.userId !== currentUser.id) {
+    if (
+      currentUser.role === UserRole.CLIENT &&
+      (request as any).property?.userId !== currentUser.id
+    ) {
       throw new ForbiddenException('No tenés acceso a esta solicitud');
     }
 
     return request;
   }
 
-  async createRequest(dto: CreateServiceRequestDto, userId: string) {
-    const property = await this.prisma.property.findUnique({
-      where: { id: dto.propertyId },
-    });
+  async createRequest(dto: CreateServiceRequestInput, userId: string) {
+    const property = await this.propertiesRepository.findOwnership(dto.propertyId);
 
     if (!property) {
       throw new NotFoundException('Propiedad no encontrada');
@@ -57,48 +60,29 @@ export class ServiceRequestsService {
       throw new ForbiddenException('No tenés acceso a esta propiedad');
     }
 
-    const result = await this.prisma.$transaction(async (tx) => {
-      const serviceRequest = await tx.serviceRequest.create({
-        data: {
-          propertyId: dto.propertyId,
-          requestedBy: userId,
-          title: dto.title,
-          description: dto.description,
-          urgency: (dto.urgency as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT') ?? 'MEDIUM',
-          status: 'OPEN',
-        },
-      });
+    // Zod applies default('MEDIUM'), so urgency is always present after validation
+    const urgency = dto.urgency ?? 'MEDIUM';
 
-      if (dto.photoUrls?.length) {
-        await tx.serviceRequestPhoto.createMany({
-          data: dto.photoUrls.map((url) => ({
-            serviceRequestId: serviceRequest.id,
-            url,
-          })),
-        });
-      }
-
-      return tx.serviceRequest.findUnique({
-        where: { id: serviceRequest.id },
-        include: {
-          property: { select: { id: true, address: true, city: true } },
-          requester: { select: { id: true, name: true } },
-          photos: true,
-        },
-      });
+    const result = await this.serviceRequestsRepository.createWithPhotos({
+      propertyId: dto.propertyId,
+      requestedBy: userId,
+      title: dto.title,
+      description: dto.description,
+      urgency,
+      photoUrls: dto.photoUrls,
     });
 
     this.eventEmitter.emit('service.created', {
       serviceRequestId: result!.id,
       title: dto.title,
       requesterId: userId,
-      urgency: dto.urgency ?? 'MEDIUM',
+      urgency,
     });
 
     return result;
   }
 
-  async updateStatus(id: string, dto: UpdateServiceStatusDto) {
+  async updateStatus(id: string, dto: UpdateServiceStatusInput) {
     const request = await this.serviceRequestsRepository.findByIdWithDetails(id);
     if (!request) {
       throw new NotFoundException('Solicitud de servicio no encontrada');

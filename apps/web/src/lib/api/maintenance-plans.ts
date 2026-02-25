@@ -1,55 +1,14 @@
 import { apiClient } from '../api-client';
-import type { ApiResponse } from '@epde/shared';
+import type {
+  ApiResponse,
+  TaskPublic,
+  TaskDetailPublic,
+  TaskLogPublic,
+  TaskNotePublic,
+  PlanPublic,
+} from '@epde/shared';
 
-export interface TaskPublic {
-  id: string;
-  maintenancePlanId: string;
-  name: string;
-  description: string | null;
-  priority: string;
-  recurrenceType: string;
-  recurrenceMonths: number | null;
-  nextDueDate: string;
-  order: number;
-  status: string;
-  category: { id: string; name: string; icon: string | null };
-}
-
-export interface TaskLogPublic {
-  id: string;
-  taskId: string;
-  completedAt: string;
-  notes: string | null;
-  photoUrl: string | null;
-  user: { id: string; name: string };
-}
-
-export interface TaskNotePublic {
-  id: string;
-  taskId: string;
-  content: string;
-  createdAt: string;
-  author: { id: string; name: string };
-}
-
-export interface TaskDetailPublic extends TaskPublic {
-  taskLogs: TaskLogPublic[];
-  taskNotes: TaskNotePublic[];
-}
-
-export interface PlanPublic {
-  id: string;
-  propertyId: string;
-  name: string;
-  status: string;
-  tasks: TaskPublic[];
-  property?: {
-    id: string;
-    address: string;
-    city: string;
-    user?: { id: string; name: string; email: string };
-  };
-}
+export type { TaskPublic, TaskDetailPublic, TaskLogPublic, TaskNotePublic, PlanPublic };
 
 export async function getPlan(id: string): Promise<ApiResponse<PlanPublic>> {
   const { data } = await apiClient.get(`/maintenance-plans/${id}`);

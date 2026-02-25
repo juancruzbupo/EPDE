@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { PrismaService } from '../prisma/prisma.service';
+import { TasksRepository } from '../maintenance-plans/tasks.repository';
+import { NotificationsRepository } from '../notifications/notifications.repository';
+import { UsersRepository } from '../common/repositories/users.repository';
 import { NotificationsService } from '../notifications/notifications.service';
 import { EmailService } from '../email/email.service';
-import { addDays } from 'date-fns';
 import { getNextDueDate, recurrenceTypeToMonths } from '@epde/shared';
 
 @Injectable()
@@ -11,7 +12,9 @@ export class TaskSchedulerService {
   private readonly logger = new Logger(TaskSchedulerService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly tasksRepository: TasksRepository,
+    private readonly notificationsRepository: NotificationsRepository,
+    private readonly usersRepository: UsersRepository,
     private readonly notificationsService: NotificationsService,
     private readonly emailService: EmailService,
   ) {}
@@ -27,39 +30,15 @@ export class TaskSchedulerService {
   async recalculateTaskStatuses(): Promise<void> {
     this.logger.log('Starting daily task status recalculation...');
 
-    const now = new Date();
-    const thirtyDaysFromNow = addDays(now, 30);
-
-    const overdueResult = await this.prisma.task.updateMany({
-      where: {
-        nextDueDate: { lt: now },
-        status: { notIn: ['COMPLETED', 'OVERDUE'] },
-        deletedAt: null,
-      },
-      data: { status: 'OVERDUE' },
-    });
-
-    const upcomingResult = await this.prisma.task.updateMany({
-      where: {
-        nextDueDate: { gte: now, lte: thirtyDaysFromNow },
-        status: 'PENDING',
-        deletedAt: null,
-      },
-      data: { status: 'UPCOMING' },
-    });
-
-    const resetResult = await this.prisma.task.updateMany({
-      where: {
-        nextDueDate: { gt: thirtyDaysFromNow },
-        status: 'UPCOMING',
-        deletedAt: null,
-      },
-      data: { status: 'PENDING' },
-    });
+    const [overdueCount, upcomingCount, resetCount] = await Promise.all([
+      this.tasksRepository.markOverdue(),
+      this.tasksRepository.markUpcoming(),
+      this.tasksRepository.resetUpcomingToPending(),
+    ]);
 
     this.logger.log(
-      `Status recalculation complete: ${overdueResult.count} overdue, ` +
-        `${upcomingResult.count} upcoming, ${resetResult.count} reset to pending`,
+      `Status recalculation complete: ${overdueCount} overdue, ` +
+        `${upcomingCount} upcoming, ${resetCount} reset to pending`,
     );
   }
 
@@ -78,38 +57,11 @@ export class TaskSchedulerService {
     this.logger.log('Starting upcoming task reminders...');
 
     const now = new Date();
-    const sevenDaysFromNow = addDays(now, 7);
 
-    const taskInclude = {
-      category: true,
-      maintenancePlan: {
-        include: {
-          property: {
-            include: {
-              user: { select: { id: true, name: true, email: true } },
-            },
-          },
-        },
-      },
-    } as const;
-
-    const upcomingTasks = await this.prisma.task.findMany({
-      where: {
-        nextDueDate: { gte: now, lte: sevenDaysFromNow },
-        status: { not: 'COMPLETED' },
-        deletedAt: null,
-      },
-      include: taskInclude,
-    });
-
-    const overdueTasks = await this.prisma.task.findMany({
-      where: {
-        nextDueDate: { lt: now },
-        status: 'OVERDUE',
-        deletedAt: null,
-      },
-      include: taskInclude,
-    });
+    const [upcomingTasks, overdueTasks] = await Promise.all([
+      this.tasksRepository.findUpcomingWithOwners(7),
+      this.tasksRepository.findOverdueWithOwners(),
+    ]);
 
     const allTasks = [...upcomingTasks, ...overdueTasks];
 
@@ -118,24 +70,13 @@ export class TaskSchedulerService {
       return;
     }
 
-    // Check for today's existing reminders to avoid duplicates
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
+    const hasOverdue = overdueTasks.length > 0;
 
-    const existingReminders = await this.prisma.notification.findMany({
-      where: {
-        type: 'TASK_REMINDER',
-        createdAt: { gte: todayStart },
-      },
-      select: { data: true },
-    });
-
-    const alreadyRemindedTaskIds = new Set(
-      existingReminders
-        .filter((n) => n.data && typeof n.data === 'object')
-        .map((n) => (n.data as Record<string, unknown>).taskId as string)
-        .filter(Boolean),
-    );
+    // Fetch admins once (not inside loop) and dedup reminders in parallel
+    const [alreadyRemindedTaskIds, adminIds] = await Promise.all([
+      this.notificationsRepository.findTodayReminderTaskIds(),
+      hasOverdue ? this.usersRepository.findAdminIds() : Promise.resolve([]),
+    ]);
 
     let notificationCount = 0;
     let emailCount = 0;
@@ -179,15 +120,11 @@ export class TaskSchedulerService {
         .catch((err) => this.logger.error(`Error enviando email de recordatorio: ${err.message}`));
       emailCount++;
 
-      // Overdue tasks: also notify admins
+      // Overdue tasks: also notify admins (adminIds already fetched above)
       if (isOverdue) {
-        const admins = await this.prisma.user.findMany({
-          where: { role: 'ADMIN', deletedAt: null },
-          select: { id: true },
-        });
-        for (const admin of admins) {
+        for (const adminId of adminIds) {
           await this.notificationsService.createNotification({
-            userId: admin.id,
+            userId: adminId,
             type: 'TASK_REMINDER',
             title: 'Tarea vencida',
             message: `La tarea "${task.name}" (${owner.name} - ${property.address}) está vencida`,
@@ -212,13 +149,7 @@ export class TaskSchedulerService {
   async safetySweepCompletedTasks(): Promise<void> {
     this.logger.log('Starting safety sweep for completed tasks...');
 
-    const staleTasks = await this.prisma.task.findMany({
-      where: {
-        status: 'COMPLETED',
-        nextDueDate: { lt: new Date() },
-        deletedAt: null,
-      },
-    });
+    const staleTasks = await this.tasksRepository.findStaleCompleted();
 
     if (staleTasks.length === 0) {
       this.logger.log('Safety sweep: no stale tasks found');
@@ -229,10 +160,7 @@ export class TaskSchedulerService {
       const months = task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType);
       const newDueDate = getNextDueDate(task.nextDueDate, months);
 
-      await this.prisma.task.update({
-        where: { id: task.id },
-        data: { nextDueDate: newDueDate, status: 'PENDING' },
-      });
+      await this.tasksRepository.updateDueDateAndStatus(task.id, newDueDate, 'PENDING');
     }
 
     this.logger.log(`Safety sweep: fixed ${staleTasks.length} stale task(s)`);

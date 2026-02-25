@@ -1,20 +1,7 @@
 import { apiClient } from '../api-client';
-import type { PaginatedResponse, ApiResponse } from '@epde/shared';
+import type { PaginatedResponse, ApiResponse, PropertyPublic } from '@epde/shared';
 
-export interface PropertyPublic {
-  id: string;
-  userId: string;
-  address: string;
-  city: string;
-  type: string;
-  yearBuilt: number | null;
-  squareMeters: number | null;
-  photoUrl: string | null;
-  createdAt: string;
-  updatedAt: string;
-  user?: { id: string; name: string; email: string };
-  maintenancePlan?: { id: string; name: string; status: string } | null;
-}
+export type { PropertyPublic };
 
 export interface PropertyFilters {
   search?: string;

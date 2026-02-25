@@ -2,19 +2,26 @@ import { Controller, Get, Post, Patch, Delete, Param, Body, Query } from '@nestj
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { ClientsService } from './clients.service';
-import { CreateClientDto } from './dto/create-client.dto';
-import { UpdateClientDto } from './dto/update-client.dto';
-import { ClientFiltersDto } from './dto/client-filters.dto';
+import {
+  createClientSchema,
+  updateClientSchema,
+  clientFiltersSchema,
+  UserRole,
+} from '@epde/shared';
+import type { CreateClientInput, UpdateClientInput, ClientFiltersInput } from '@epde/shared';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 
 @ApiTags('Clientes')
 @ApiBearerAuth()
 @Controller('clients')
-@Roles('ADMIN')
+@Roles(UserRole.ADMIN)
 export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}
 
   @Get()
-  async listClients(@Query() filters: ClientFiltersDto) {
+  async listClients(
+    @Query(new ZodValidationPipe(clientFiltersSchema)) filters: ClientFiltersInput,
+  ) {
     return this.clientsService.listClients(filters);
   }
 
@@ -25,13 +32,16 @@ export class ClientsController {
   }
 
   @Post()
-  async createClient(@Body() dto: CreateClientDto) {
+  async createClient(@Body(new ZodValidationPipe(createClientSchema)) dto: CreateClientInput) {
     const data = await this.clientsService.createClient(dto);
     return { data, message: 'Cliente creado e invitación enviada' };
   }
 
   @Patch(':id')
-  async updateClient(@Param('id') id: string, @Body() dto: UpdateClientDto) {
+  async updateClient(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(updateClientSchema)) dto: UpdateClientInput,
+  ) {
     const data = await this.clientsService.updateClient(id, dto);
     return { data };
   }

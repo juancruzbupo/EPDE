@@ -1,13 +1,7 @@
 import { apiClient } from '../api-client';
-import type { ApiResponse } from '@epde/shared';
+import type { ApiResponse, CategoryPublic } from '@epde/shared';
 
-export interface CategoryPublic {
-  id: string;
-  name: string;
-  description: string | null;
-  icon: string | null;
-  order: number;
-}
+export type { CategoryPublic };
 
 export async function getCategories(): Promise<ApiResponse<CategoryPublic[]>> {
   const { data } = await apiClient.get('/categories');

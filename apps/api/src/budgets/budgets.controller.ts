@@ -3,10 +3,20 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { BudgetsService } from './budgets.service';
-import { CreateBudgetRequestDto } from './dto/create-budget-request.dto';
-import { RespondBudgetDto } from './dto/respond-budget.dto';
-import { UpdateBudgetStatusDto } from './dto/update-budget-status.dto';
-import { BudgetFiltersDto } from './dto/budget-filters.dto';
+import {
+  createBudgetRequestSchema,
+  respondBudgetSchema,
+  updateBudgetStatusSchema,
+  budgetFiltersSchema,
+  UserRole,
+} from '@epde/shared';
+import type {
+  CreateBudgetRequestInput,
+  RespondBudgetInput,
+  UpdateBudgetStatusInput,
+  BudgetFiltersInput,
+} from '@epde/shared';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 
 @ApiTags('Presupuestos')
 @ApiBearerAuth()
@@ -16,7 +26,7 @@ export class BudgetsController {
 
   @Get()
   async listBudgets(
-    @Query() filters: BudgetFiltersDto,
+    @Query(new ZodValidationPipe(budgetFiltersSchema)) filters: BudgetFiltersInput,
     @CurrentUser() user: { id: string; role: string },
   ) {
     return this.budgetsService.listBudgets(filters, user);
@@ -29,9 +39,9 @@ export class BudgetsController {
   }
 
   @Post()
-  @Roles('CLIENT')
+  @Roles(UserRole.CLIENT)
   async createBudgetRequest(
-    @Body() dto: CreateBudgetRequestDto,
+    @Body(new ZodValidationPipe(createBudgetRequestSchema)) dto: CreateBudgetRequestInput,
     @CurrentUser() user: { id: string },
   ) {
     const data = await this.budgetsService.createBudgetRequest(dto, user.id);
@@ -39,8 +49,11 @@ export class BudgetsController {
   }
 
   @Post(':id/respond')
-  @Roles('ADMIN')
-  async respondToBudget(@Param('id') id: string, @Body() dto: RespondBudgetDto) {
+  @Roles(UserRole.ADMIN)
+  async respondToBudget(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(respondBudgetSchema)) dto: RespondBudgetInput,
+  ) {
     const data = await this.budgetsService.respondToBudget(id, dto);
     return { data, message: 'Presupuesto cotizado' };
   }
@@ -48,7 +61,7 @@ export class BudgetsController {
   @Patch(':id/status')
   async updateStatus(
     @Param('id') id: string,
-    @Body() dto: UpdateBudgetStatusDto,
+    @Body(new ZodValidationPipe(updateBudgetStatusSchema)) dto: UpdateBudgetStatusInput,
     @CurrentUser() user: { id: string; role: string },
   ) {
     const data = await this.budgetsService.updateStatus(id, dto, user);

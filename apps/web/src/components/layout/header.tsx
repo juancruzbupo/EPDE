@@ -28,12 +28,7 @@ export function Header() {
         </Sheet>
       </div>
 
-      <h1
-        className="text-primary text-lg font-bold lg:hidden"
-        style={{ fontFamily: "'Playfair Display', serif" }}
-      >
-        EPDE
-      </h1>
+      <h1 className="font-heading text-primary text-lg font-bold lg:hidden">EPDE</h1>
 
       <div className="ml-auto flex items-center gap-3">
         <NotificationBell />

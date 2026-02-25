@@ -40,4 +40,24 @@ export class NotificationsRepository extends BaseRepository<Notification> {
     });
     return result.count;
   }
+
+  async findTodayReminderTaskIds(): Promise<Set<string>> {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const existing = await this.prisma.notification.findMany({
+      where: {
+        type: 'TASK_REMINDER',
+        createdAt: { gte: todayStart },
+      },
+      select: { data: true },
+    });
+
+    return new Set(
+      existing
+        .filter((n) => n.data && typeof n.data === 'object')
+        .map((n) => (n.data as Record<string, unknown>).taskId as string)
+        .filter(Boolean),
+    );
+  }
 }

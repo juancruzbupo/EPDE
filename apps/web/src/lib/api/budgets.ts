@@ -1,42 +1,7 @@
 import { apiClient } from '../api-client';
-import type { PaginatedResponse, ApiResponse } from '@epde/shared';
+import type { PaginatedResponse, ApiResponse, BudgetRequestPublic } from '@epde/shared';
 
-export interface BudgetLineItemPublic {
-  id: string;
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  subtotal: number;
-}
-
-export interface BudgetResponsePublic {
-  id: string;
-  totalAmount: number;
-  estimatedDays: number | null;
-  notes: string | null;
-  validUntil: string | null;
-  respondedAt: string;
-}
-
-export interface BudgetRequestPublic {
-  id: string;
-  propertyId: string;
-  requestedBy: string;
-  title: string;
-  description: string | null;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-  property: {
-    id: string;
-    address: string;
-    city: string;
-    user: { id: string; name: string };
-  };
-  requester: { id: string; name: string; email: string };
-  lineItems: BudgetLineItemPublic[];
-  response: BudgetResponsePublic | null;
-}
+export type { BudgetRequestPublic };
 
 export interface BudgetFilters {
   status?: string;

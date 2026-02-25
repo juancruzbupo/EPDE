@@ -67,6 +67,7 @@ export interface Task extends BaseEntity, SoftDeletable {
   recurrenceType: RecurrenceType;
   recurrenceMonths: number | null;
   nextDueDate: Date;
+  order: number;
   status: TaskStatus;
 }
 
@@ -91,13 +92,13 @@ export interface TaskNote {
   createdAt: Date;
 }
 
-export interface TaskLogPublic extends TaskLog {
+export type TaskLogPublic = Serialized<Omit<TaskLog, 'completedBy'>> & {
   user: { id: string; name: string };
-}
+};
 
-export interface TaskNotePublic extends TaskNote {
+export type TaskNotePublic = Serialized<Omit<TaskNote, 'authorId'>> & {
   author: { id: string; name: string };
-}
+};
 
 // ─── Budget Request ─────────────────────────────────────
 
@@ -164,3 +165,87 @@ export interface Notification {
   data: Record<string, unknown> | null;
   createdAt: Date;
 }
+
+// ─── Utility Type: Serialized<T> ────────────────────────
+// Converts Date → string for JSON-serialized API responses
+
+type SerializedValue<T> = T extends Date
+  ? string
+  : T extends Array<infer U>
+    ? Array<SerializedValue<U>>
+    : T extends object
+      ? Serialized<T>
+      : T;
+
+export type Serialized<T> = {
+  [K in keyof T]: SerializedValue<T[K]>;
+};
+
+// ─── Common Nested Relation Shapes ──────────────────────
+
+interface UserBrief {
+  id: string;
+  name: string;
+}
+
+interface UserBriefWithEmail extends UserBrief {
+  email: string;
+}
+
+interface PropertyBrief {
+  id: string;
+  address: string;
+  city: string;
+}
+
+interface PropertyBriefWithOwner extends PropertyBrief {
+  user: UserBrief;
+}
+
+// ─── API Response Types (Serialized + Relations) ────────
+
+export type ClientPublic = Serialized<Omit<User, 'passwordHash' | 'deletedAt'>>;
+
+export type PropertyPublic = Serialized<Omit<Property, 'deletedAt'>> & {
+  user?: UserBriefWithEmail;
+  maintenancePlan?: { id: string; name: string; status: string } | null;
+};
+
+export type CategoryPublic = Category;
+
+export type NotificationPublic = Serialized<Notification>;
+
+export type BudgetLineItemPublic = Omit<BudgetLineItem, 'budgetRequestId'>;
+
+export type BudgetResponsePublic = Serialized<Omit<BudgetResponse, 'budgetRequestId'>>;
+
+export type BudgetRequestPublic = Serialized<BudgetRequest> & {
+  property: PropertyBriefWithOwner;
+  requester: UserBriefWithEmail;
+  lineItems: BudgetLineItemPublic[];
+  response: BudgetResponsePublic | null;
+};
+
+export type ServiceRequestPhotoPublic = Serialized<Omit<ServiceRequestPhoto, 'serviceRequestId'>>;
+
+export type ServiceRequestPublic = Serialized<ServiceRequest> & {
+  property: PropertyBriefWithOwner;
+  requester: UserBriefWithEmail;
+  photos: ServiceRequestPhotoPublic[];
+};
+
+export type TaskPublic = Serialized<Omit<Task, 'categoryId' | 'deletedAt'>> & {
+  category: { id: string; name: string; icon: string | null };
+};
+
+export type TaskDetailPublic = TaskPublic & {
+  taskLogs: TaskLogPublic[];
+  taskNotes: TaskNotePublic[];
+};
+
+export type PlanPublic = Serialized<MaintenancePlan> & {
+  tasks: TaskPublic[];
+  property?: PropertyBrief & {
+    user?: UserBriefWithEmail;
+  };
+};

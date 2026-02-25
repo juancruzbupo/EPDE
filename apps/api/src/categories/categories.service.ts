@@ -5,8 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { CategoriesRepository } from './categories.repository';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import type { CreateCategoryInput, UpdateCategoryInput } from '@epde/shared';
 
 @Injectable()
 export class CategoriesService {
@@ -24,7 +23,7 @@ export class CategoriesService {
     return category;
   }
 
-  async createCategory(dto: CreateCategoryDto) {
+  async createCategory(dto: CreateCategoryInput) {
     const existing = await this.categoriesRepository.findByName(dto.name);
     if (existing) {
       throw new ConflictException('Ya existe una categoría con ese nombre');
@@ -32,7 +31,7 @@ export class CategoriesService {
     return this.categoriesRepository.create(dto);
   }
 
-  async updateCategory(id: string, dto: UpdateCategoryDto) {
+  async updateCategory(id: string, dto: UpdateCategoryInput) {
     const category = await this.categoriesRepository.findById(id);
     if (!category) {
       throw new NotFoundException('Categoría no encontrada');

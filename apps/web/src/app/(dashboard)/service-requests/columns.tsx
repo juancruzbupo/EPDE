@@ -5,15 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { SERVICE_URGENCY_LABELS, SERVICE_STATUS_LABELS } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { urgencyVariant } from '@/lib/style-maps';
 import type { ServiceRequestPublic } from '@/lib/api/service-requests';
 import Link from 'next/link';
-
-const urgencyVariant: Record<string, 'outline' | 'secondary' | 'default' | 'destructive'> = {
-  LOW: 'outline',
-  MEDIUM: 'secondary',
-  HIGH: 'default',
-  URGENT: 'destructive',
-};
 
 export const serviceRequestColumns: ColumnDef<ServiceRequestPublic>[] = [
   {

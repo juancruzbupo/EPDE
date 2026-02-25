@@ -5,21 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { BUDGET_STATUS_LABELS } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { budgetStatusVariant, budgetStatusClassName } from '@/lib/style-maps';
 import type { BudgetRequestPublic } from '@/lib/api/budgets';
-
-const statusVariant: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
-  PENDING: 'secondary',
-  QUOTED: 'default',
-  APPROVED: 'outline',
-  REJECTED: 'destructive',
-  IN_PROGRESS: 'default',
-  COMPLETED: 'outline',
-};
-
-const statusClassName: Record<string, string> = {
-  APPROVED: 'text-green-600 border-green-600',
-  COMPLETED: 'text-green-600 border-green-600',
-};
 
 export const budgetColumns: ColumnDef<BudgetRequestPublic>[] = [
   {
@@ -45,8 +32,8 @@ export const budgetColumns: ColumnDef<BudgetRequestPublic>[] = [
       const status = row.original.status;
       return (
         <Badge
-          variant={statusVariant[status] ?? 'outline'}
-          className={statusClassName[status] ?? ''}
+          variant={budgetStatusVariant[status] ?? 'outline'}
+          className={budgetStatusClassName[status] ?? ''}
         >
           {BUDGET_STATUS_LABELS[status] ?? status}
         </Badge>

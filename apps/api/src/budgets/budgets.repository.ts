@@ -7,7 +7,7 @@ import {
   PaginatedResult,
 } from '../common/repositories/base.repository';
 
-const BUDGET_INCLUDE = {
+const BUDGET_LIST_INCLUDE = {
   property: {
     select: {
       id: true,
@@ -18,6 +18,10 @@ const BUDGET_INCLUDE = {
     },
   },
   requester: { select: { id: true, name: true, email: true } },
+};
+
+const BUDGET_DETAIL_INCLUDE = {
+  ...BUDGET_LIST_INCLUDE,
   lineItems: true,
   response: true,
 };
@@ -54,13 +58,64 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest> {
       cursor: params.cursor,
       take: params.take,
       where,
-      include: BUDGET_INCLUDE,
+      include: BUDGET_LIST_INCLUDE,
     };
 
     return this.findMany(findParams);
   }
 
   async findByIdWithDetails(id: string): Promise<BudgetRequest | null> {
-    return this.findById(id, BUDGET_INCLUDE);
+    return this.findById(id, BUDGET_DETAIL_INCLUDE);
+  }
+
+  async respondToBudget(
+    id: string,
+    lineItems: { description: string; quantity: number; unitPrice: number }[],
+    response: {
+      totalAmount: number;
+      estimatedDays?: number;
+      notes?: string;
+      validUntil?: Date | null;
+    },
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.budgetLineItem.createMany({
+        data: lineItems.map((item) => ({
+          budgetRequestId: id,
+          description: item.description,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          subtotal: item.quantity * item.unitPrice,
+        })),
+      });
+
+      await tx.budgetResponse.create({
+        data: {
+          budgetRequestId: id,
+          totalAmount: response.totalAmount,
+          estimatedDays: response.estimatedDays,
+          notes: response.notes,
+          validUntil: response.validUntil,
+        },
+      });
+
+      return tx.budgetRequest.update({
+        where: { id },
+        data: { status: 'QUOTED' },
+        include: {
+          property: {
+            select: {
+              id: true,
+              address: true,
+              city: true,
+              user: { select: { id: true, name: true } },
+            },
+          },
+          requester: { select: { id: true, name: true } },
+          lineItems: true,
+          response: true,
+        },
+      });
+    });
   }
 }

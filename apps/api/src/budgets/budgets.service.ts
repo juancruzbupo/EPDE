@@ -5,12 +5,15 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { PrismaService } from '../prisma/prisma.service';
 import { BudgetsRepository } from './budgets.repository';
-import { CreateBudgetRequestDto } from './dto/create-budget-request.dto';
-import { RespondBudgetDto } from './dto/respond-budget.dto';
-import { UpdateBudgetStatusDto } from './dto/update-budget-status.dto';
-import { BudgetFiltersDto } from './dto/budget-filters.dto';
+import { PropertiesRepository } from '../properties/properties.repository';
+import { UserRole } from '@epde/shared';
+import type {
+  CreateBudgetRequestInput,
+  RespondBudgetInput,
+  UpdateBudgetStatusInput,
+  BudgetFiltersInput,
+} from '@epde/shared';
 
 interface CurrentUser {
   id: string;
@@ -21,17 +24,17 @@ interface CurrentUser {
 export class BudgetsService {
   constructor(
     private readonly budgetsRepository: BudgetsRepository,
-    private readonly prisma: PrismaService,
+    private readonly propertiesRepository: PropertiesRepository,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  async listBudgets(filters: BudgetFiltersDto, currentUser: CurrentUser) {
+  async listBudgets(filters: BudgetFiltersInput, currentUser: CurrentUser) {
     return this.budgetsRepository.findBudgets({
       cursor: filters.cursor,
       take: filters.take,
       status: filters.status,
       propertyId: filters.propertyId,
-      userId: currentUser.role === 'CLIENT' ? currentUser.id : undefined,
+      userId: currentUser.role === UserRole.CLIENT ? currentUser.id : undefined,
     });
   }
 
@@ -41,18 +44,18 @@ export class BudgetsService {
       throw new NotFoundException('Presupuesto no encontrado');
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (currentUser.role === 'CLIENT' && (budget as any).property?.userId !== currentUser.id) {
+    if (
+      currentUser.role === UserRole.CLIENT &&
+      (budget as any).property?.userId !== currentUser.id
+    ) {
       throw new ForbiddenException('No tenés acceso a este presupuesto');
     }
 
     return budget;
   }
 
-  async createBudgetRequest(dto: CreateBudgetRequestDto, userId: string) {
-    const property = await this.prisma.property.findUnique({
-      where: { id: dto.propertyId },
-    });
+  async createBudgetRequest(dto: CreateBudgetRequestInput, userId: string) {
+    const property = await this.propertiesRepository.findOwnership(dto.propertyId);
 
     if (!property) {
       throw new NotFoundException('Propiedad no encontrada');
@@ -88,7 +91,7 @@ export class BudgetsService {
     return budget;
   }
 
-  async respondToBudget(id: string, dto: RespondBudgetDto) {
+  async respondToBudget(id: string, dto: RespondBudgetInput) {
     const budget = await this.budgetsRepository.findById(id);
     if (!budget) {
       throw new NotFoundException('Presupuesto no encontrado');
@@ -103,46 +106,11 @@ export class BudgetsService {
       0,
     );
 
-    const result = await this.prisma.$transaction(async (tx) => {
-      for (const item of dto.lineItems) {
-        await tx.budgetLineItem.create({
-          data: {
-            budgetRequestId: id,
-            description: item.description,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-            subtotal: item.quantity * item.unitPrice,
-          },
-        });
-      }
-
-      await tx.budgetResponse.create({
-        data: {
-          budgetRequestId: id,
-          totalAmount,
-          estimatedDays: dto.estimatedDays,
-          notes: dto.notes,
-          validUntil: dto.validUntil ? new Date(dto.validUntil) : null,
-        },
-      });
-
-      return tx.budgetRequest.update({
-        where: { id },
-        data: { status: 'QUOTED' },
-        include: {
-          property: {
-            select: {
-              id: true,
-              address: true,
-              city: true,
-              user: { select: { id: true, name: true } },
-            },
-          },
-          requester: { select: { id: true, name: true } },
-          lineItems: true,
-          response: true,
-        },
-      });
+    const result = await this.budgetsRepository.respondToBudget(id, dto.lineItems, {
+      totalAmount,
+      estimatedDays: dto.estimatedDays,
+      notes: dto.notes,
+      validUntil: dto.validUntil ? new Date(dto.validUntil) : null,
     });
 
     this.eventEmitter.emit('budget.quoted', {
@@ -155,7 +123,7 @@ export class BudgetsService {
     return result;
   }
 
-  async updateStatus(id: string, dto: UpdateBudgetStatusDto, currentUser: CurrentUser) {
+  async updateStatus(id: string, dto: UpdateBudgetStatusInput, currentUser: CurrentUser) {
     const budget = await this.budgetsRepository.findByIdWithDetails(id);
     if (!budget) {
       throw new NotFoundException('Presupuesto no encontrado');
@@ -195,9 +163,9 @@ export class BudgetsService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private validateStatusTransition(current: string, next: string, user: CurrentUser, budget: any) {
     const allowedTransitions: Record<string, { status: string[]; role: string }[]> = {
-      QUOTED: [{ status: ['APPROVED', 'REJECTED'], role: 'CLIENT' }],
-      APPROVED: [{ status: ['IN_PROGRESS'], role: 'ADMIN' }],
-      IN_PROGRESS: [{ status: ['COMPLETED'], role: 'ADMIN' }],
+      QUOTED: [{ status: ['APPROVED', 'REJECTED'], role: UserRole.CLIENT }],
+      APPROVED: [{ status: ['IN_PROGRESS'], role: UserRole.ADMIN }],
+      IN_PROGRESS: [{ status: ['COMPLETED'], role: UserRole.ADMIN }],
     };
 
     const allowed = allowedTransitions[current];
@@ -210,7 +178,7 @@ export class BudgetsService {
       throw new ForbiddenException('No tenés permisos para esta transición de estado');
     }
 
-    if (user.role === 'CLIENT' && budget.property?.userId !== user.id) {
+    if (user.role === UserRole.CLIENT && budget.property?.userId !== user.id) {
       throw new ForbiddenException('No tenés acceso a este presupuesto');
     }
   }

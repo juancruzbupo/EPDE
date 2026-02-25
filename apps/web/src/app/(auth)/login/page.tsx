@@ -41,12 +41,7 @@ export default function LoginPage() {
   return (
     <Card>
       <CardHeader className="text-center">
-        <CardTitle
-          className="text-2xl font-bold"
-          style={{ fontFamily: "'Playfair Display', serif" }}
-        >
-          EPDE
-        </CardTitle>
+        <CardTitle className="font-heading text-2xl font-bold">EPDE</CardTitle>
         <CardDescription>Ingresá a tu cuenta</CardDescription>
       </CardHeader>
       <CardContent>

@@ -10,7 +10,7 @@ pnpm dev              # Levantar API + Web + Shared (watch)
 pnpm build            # Build de produccion (3 workspaces)
 pnpm lint             # ESLint en todos los workspaces
 pnpm typecheck        # TypeScript check en todos los workspaces
-pnpm test             # Tests (jest en API)
+pnpm test             # Tests (jest en API, vitest en shared)
 
 # Workspace especifico
 pnpm --filter @epde/api <comando>
@@ -72,10 +72,7 @@ apps/api/src/my-feature/
   my-feature.controller.ts
   my-feature.service.ts
   my-feature.repository.ts
-  dto/
-    create-my-feature.dto.ts
-    update-my-feature.dto.ts
-    my-feature-filters.dto.ts
+  my-feature.service.spec.ts
 ```
 
 ### 2. Modelo Prisma
@@ -98,10 +95,8 @@ export class MyFeatureRepository extends BaseRepository<MyModel> {
 ```typescript
 @Injectable()
 export class MyFeatureService {
-  constructor(
-    private readonly repository: MyFeatureRepository,
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly repository: MyFeatureRepository) {}
+  // Logica de negocio aqui. NO inyectar PrismaService — solo el repository accede a datos.
 }
 ```
 
@@ -127,25 +122,33 @@ export class MyFeatureController {
 }
 ```
 
-### 6. DTOs
+### 6. Validacion (Zod — SSoT compartido)
+
+Los schemas Zod en `@epde/shared` son el unico SSoT. El backend valida via `ZodValidationPipe`:
 
 ```typescript
-export class CreateMyFeatureDto {
-  @IsString()
-  @MinLength(3)
-  title: string;
-
-  @IsOptional()
-  @IsString()
-  description?: string;
+// En el controller
+@Post()
+@UsePipes(new ZodValidationPipe(createMyFeatureSchema))
+create(@Body() data: CreateMyFeatureInput, @CurrentUser() user) {
+  return this.service.create(data, user.id);
 }
+```
+
+No se usan DTOs con class-validator. Los tipos se infieren del schema Zod:
+
+```typescript
+// packages/shared/src/schemas/my-feature.ts
+export const createMyFeatureSchema = z.object({ ... });
+export type CreateMyFeatureInput = z.infer<typeof createMyFeatureSchema>;
 ```
 
 ### 7. Module
 
 ```typescript
 @Module({
-  providers: [MyFeatureService, MyFeatureRepository, PrismaService],
+  imports: [PrismaModule],
+  providers: [MyFeatureService, MyFeatureRepository],
   controllers: [MyFeatureController],
 })
 export class MyFeatureModule {}
@@ -173,17 +176,15 @@ apps/web/src/app/(dashboard)/my-feature/
 ```typescript
 // lib/api/my-feature.ts
 import { apiClient } from './client';
-import type { PaginatedResponse } from '@epde/shared';
-
-export interface MyFeaturePublic { ... }
+import type { PaginatedResponse, MyFeature } from '@epde/shared';
 
 export async function getMyFeatures(params?) {
-  const { data } = await apiClient.get<PaginatedResponse<MyFeaturePublic>>(
-    '/my-feature', { params }
-  );
+  const { data } = await apiClient.get<PaginatedResponse<MyFeature>>('/my-feature', { params });
   return data;
 }
 ```
+
+**Nota:** Los tipos publicos de la API se definen en `@epde/shared/types`, no como interfaces locales en cada archivo.
 
 ### 3. React Query hooks
 

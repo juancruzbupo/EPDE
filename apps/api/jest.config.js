@@ -8,6 +8,6 @@ module.exports = {
   coverageDirectory: '../coverage',
   testEnvironment: 'node',
   moduleNameMapper: {
-    '^@epde/shared$': '<rootDir>/../../packages/shared/src/index.ts',
+    '^@epde/shared$': '<rootDir>/../../../packages/shared/src/index.ts',
   },
 };

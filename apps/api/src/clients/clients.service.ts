@@ -2,9 +2,8 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { JwtService } from '@nestjs/jwt';
 import { ClientsRepository } from './clients.repository';
 import { EmailService } from '../email/email.service';
-import { CreateClientDto } from './dto/create-client.dto';
-import { UpdateClientDto } from './dto/update-client.dto';
-import { ClientFiltersDto } from './dto/client-filters.dto';
+import { UserRole } from '@epde/shared';
+import type { CreateClientInput, UpdateClientInput, ClientFiltersInput } from '@epde/shared';
 
 @Injectable()
 export class ClientsService {
@@ -14,7 +13,7 @@ export class ClientsService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async listClients(filters: ClientFiltersDto) {
+  async listClients(filters: ClientFiltersInput) {
     return this.clientsRepository.findClients({
       cursor: filters.cursor,
       take: filters.take,
@@ -25,7 +24,7 @@ export class ClientsService {
 
   async getClient(id: string) {
     const client = await this.clientsRepository.findById(id);
-    if (!client || client.role !== 'CLIENT') {
+    if (!client || client.role !== UserRole.CLIENT) {
       throw new NotFoundException('Cliente no encontrado');
     }
     const { passwordHash: _, ...clientWithoutPassword } = client;
@@ -33,12 +32,11 @@ export class ClientsService {
     return clientWithoutPassword;
   }
 
-  async createClient(dto: CreateClientDto) {
+  async createClient(dto: CreateClientInput) {
     const existing = await this.clientsRepository.findByEmail(dto.email);
 
     let client;
     if (existing && existing.deletedAt) {
-      // Restore soft-deleted user and re-invite
       client = await this.clientsRepository.update(existing.id, {
         name: dto.name,
         phone: dto.phone,
@@ -53,7 +51,7 @@ export class ClientsService {
         email: dto.email,
         name: dto.name,
         phone: dto.phone,
-        role: 'CLIENT',
+        role: UserRole.CLIENT,
         status: 'INVITED',
       });
     }
@@ -70,9 +68,9 @@ export class ClientsService {
     return clientWithoutPassword;
   }
 
-  async updateClient(id: string, dto: UpdateClientDto) {
+  async updateClient(id: string, dto: UpdateClientInput) {
     const client = await this.clientsRepository.findById(id);
-    if (!client || client.role !== 'CLIENT') {
+    if (!client || client.role !== UserRole.CLIENT) {
       throw new NotFoundException('Cliente no encontrado');
     }
 
@@ -84,7 +82,7 @@ export class ClientsService {
 
   async deleteClient(id: string) {
     const client = await this.clientsRepository.findById(id);
-    if (!client || client.role !== 'CLIENT') {
+    if (!client || client.role !== UserRole.CLIENT) {
       throw new NotFoundException('Cliente no encontrado');
     }
 

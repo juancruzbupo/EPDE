@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
 import { LayoutDashboard, Users, Home, Tags, FileText, Wrench, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { UserRole } from '@epde/shared';
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -19,17 +20,12 @@ export function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
 
-  const filteredItems = navItems.filter((item) => !item.adminOnly || user?.role === 'ADMIN');
+  const filteredItems = navItems.filter((item) => !item.adminOnly || user?.role === UserRole.ADMIN);
 
   return (
     <aside className={cn('bg-sidebar flex w-64 flex-col border-r', className)}>
       <div className="p-6">
-        <h2
-          className="text-sidebar-primary text-xl font-bold"
-          style={{ fontFamily: "'Playfair Display', serif" }}
-        >
-          EPDE
-        </h2>
+        <h2 className="font-heading text-sidebar-primary text-xl font-bold">EPDE</h2>
       </div>
 
       <nav className="flex-1 space-y-1 px-3">

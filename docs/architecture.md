@@ -111,9 +111,9 @@ Cada feature sigue la estructura:
 feature/
   feature.module.ts       # Imports, providers, exports
   feature.controller.ts   # Endpoints REST
-  feature.service.ts      # Logica de negocio
-  feature.repository.ts   # Acceso a datos
-  dto/                    # DTOs con class-validator
+  feature.service.ts      # Logica de negocio (NO inyecta PrismaService)
+  feature.repository.ts   # Acceso a datos (unico que inyecta PrismaService)
+  feature.service.spec.ts # Unit tests con mocks de repositorios
 ```
 
 ### 4. Guard Composition
@@ -145,12 +145,13 @@ Tres guards globales aplicados en orden via `APP_GUARD`:
 | `@Roles('ADMIN')` | `common/decorators/roles.decorator.ts`        | Restringe por rol       |
 | `@CurrentUser()`  | `common/decorators/current-user.decorator.ts` | Extrae user del request |
 
-### 6. DTO Validation
+### 6. Zod Validation (Single Source of Truth)
 
-- DTOs en API usan `class-validator` + `class-transformer`
-- Schemas compartidos en `@epde/shared` usan Zod
-- `ValidationPipe` global con `whitelist: true` y `transform: true`
-- El frontend usa los Zod schemas directamente con `@hookform/resolvers/zod`
+- Schemas Zod definidos en `@epde/shared/schemas` — unico SSoT para frontend y backend
+- El backend valida via `ZodValidationPipe` en `common/pipes/zod-validation.pipe.ts`
+- Controllers aplican `@UsePipes(new ZodValidationPipe(schema))` por endpoint
+- El frontend usa los mismos schemas con `@hookform/resolvers/zod`
+- **No se usa class-validator ni class-transformer** — eliminados en la remediacion
 
 ### 7. Event-Driven Communication
 
@@ -208,10 +209,13 @@ Frontend → POST /upload/presigned-url { filename, contentType }
 
 ### 11. Cron Jobs (Scheduler)
 
-`SchedulerModule` con `@Cron()`:
+`SchedulerModule` con `@Cron()` — tres jobs diarios a las 06:00-06:10 Argentina:
 
-- Actualiza `status` de tasks: `PENDING` → `UPCOMING` (30 dias antes) → `OVERDUE` (pasada fecha)
-- Ejecuta diariamente
+1. **task-status-recalculation** (09:00 UTC): PENDING → UPCOMING (30 dias) → OVERDUE (pasada fecha), y reset UPCOMING → PENDING si se alejo
+2. **task-upcoming-reminders** (09:05 UTC): Notificaciones in-app + email para tareas en 7 dias y vencidas. Deduplicacion por dia. Overdue tambien notifica admins
+3. **task-safety-sweep** (09:10 UTC): Fix para tareas COMPLETED con nextDueDate vencida que no se avanzaron (edge case crash)
+
+Dependencias: `TasksRepository`, `NotificationsRepository`, `UsersRepository` (admin IDs se fetchean una sola vez fuera del loop)
 
 ### 12. Frontend State Management
 

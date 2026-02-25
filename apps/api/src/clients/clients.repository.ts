@@ -6,6 +6,7 @@ import {
   FindManyParams,
   PaginatedResult,
 } from '../common/repositories/base.repository';
+import { UserRole } from '@epde/shared';
 
 @Injectable()
 export class ClientsRepository extends BaseRepository<User> {
@@ -24,7 +25,7 @@ export class ClientsRepository extends BaseRepository<User> {
     status?: string;
   }): Promise<PaginatedResult<User>> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = { role: 'CLIENT' };
+    const where: any = { role: UserRole.CLIENT };
 
     if (params.status) {
       where.status = params.status;

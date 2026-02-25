@@ -1,16 +1,7 @@
 import { apiClient } from '../api-client';
-import type { PaginatedResponse } from '@epde/shared';
+import type { PaginatedResponse, NotificationPublic } from '@epde/shared';
 
-export interface NotificationPublic {
-  id: string;
-  userId: string;
-  type: string;
-  title: string;
-  message: string;
-  read: boolean;
-  data: Record<string, unknown> | null;
-  createdAt: string;
-}
+export type { NotificationPublic };
 
 export async function getNotifications(params?: {
   cursor?: string;

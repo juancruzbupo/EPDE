@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ServiceRequest } from '@prisma/client';
+import { ServiceRequest, ServiceUrgency } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   BaseRepository,
@@ -7,7 +7,7 @@ import {
   PaginatedResult,
 } from '../common/repositories/base.repository';
 
-const SERVICE_REQUEST_INCLUDE = {
+const SERVICE_REQUEST_LIST_INCLUDE = {
   property: {
     select: {
       id: true,
@@ -18,6 +18,10 @@ const SERVICE_REQUEST_INCLUDE = {
     },
   },
   requester: { select: { id: true, name: true, email: true } },
+};
+
+const SERVICE_REQUEST_DETAIL_INCLUDE = {
+  ...SERVICE_REQUEST_LIST_INCLUDE,
   photos: true,
 };
 
@@ -47,13 +51,53 @@ export class ServiceRequestsRepository extends BaseRepository<ServiceRequest> {
       cursor: params.cursor,
       take: params.take,
       where,
-      include: SERVICE_REQUEST_INCLUDE,
+      include: SERVICE_REQUEST_LIST_INCLUDE,
     };
 
     return this.findMany(findParams);
   }
 
   async findByIdWithDetails(id: string): Promise<ServiceRequest | null> {
-    return this.findById(id, SERVICE_REQUEST_INCLUDE);
+    return this.findById(id, SERVICE_REQUEST_DETAIL_INCLUDE);
+  }
+
+  async createWithPhotos(data: {
+    propertyId: string;
+    requestedBy: string;
+    title: string;
+    description: string;
+    urgency: ServiceUrgency;
+    photoUrls?: string[];
+  }) {
+    return this.prisma.$transaction(async (tx) => {
+      const serviceRequest = await tx.serviceRequest.create({
+        data: {
+          propertyId: data.propertyId,
+          requestedBy: data.requestedBy,
+          title: data.title,
+          description: data.description,
+          urgency: data.urgency,
+          status: 'OPEN',
+        },
+      });
+
+      if (data.photoUrls?.length) {
+        await tx.serviceRequestPhoto.createMany({
+          data: data.photoUrls.map((url) => ({
+            serviceRequestId: serviceRequest.id,
+            url,
+          })),
+        });
+      }
+
+      return tx.serviceRequest.findUnique({
+        where: { id: serviceRequest.id },
+        include: {
+          property: { select: { id: true, address: true, city: true } },
+          requester: { select: { id: true, name: true } },
+          photos: true,
+        },
+      });
+    });
   }
 }

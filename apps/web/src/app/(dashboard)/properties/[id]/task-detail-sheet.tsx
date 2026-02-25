@@ -10,21 +10,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { TaskLogTimeline } from './task-log-timeline';
 import { TaskNotes } from './task-notes';
+import { priorityColors, taskStatusVariant } from '@/lib/style-maps';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
-
-const priorityColors: Record<string, string> = {
-  LOW: 'bg-green-100 text-green-700',
-  MEDIUM: 'bg-yellow-100 text-yellow-700',
-  HIGH: 'bg-orange-100 text-orange-700',
-  URGENT: 'bg-red-100 text-red-700',
-};
-
-const statusColors: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
-  PENDING: 'secondary',
-  UPCOMING: 'default',
-  OVERDUE: 'destructive',
-  COMPLETED: 'outline',
-};
 
 interface TaskDetailSheetProps {
   open: boolean;
@@ -56,7 +43,7 @@ export function TaskDetailSheet({
 
         <div className="mt-4 space-y-4">
           <div className="flex flex-wrap gap-2">
-            <Badge variant={statusColors[task.status] ?? 'outline'}>
+            <Badge variant={taskStatusVariant[task.status] ?? 'outline'}>
               {TASK_STATUS_LABELS[task.status] ?? task.status}
             </Badge>
             <Badge variant="outline">{task.category.name}</Badge>

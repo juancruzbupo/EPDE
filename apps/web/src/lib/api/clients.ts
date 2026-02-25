@@ -1,16 +1,7 @@
 import { apiClient } from '../api-client';
-import type { PaginatedResponse, ApiResponse } from '@epde/shared';
+import type { PaginatedResponse, ApiResponse, ClientPublic } from '@epde/shared';
 
-export interface ClientPublic {
-  id: string;
-  email: string;
-  name: string;
-  phone: string | null;
-  role: string;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-}
+export type { ClientPublic };
 
 export interface ClientFilters {
   search?: string;

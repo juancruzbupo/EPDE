@@ -3,17 +3,11 @@ import type { AuthResponse, UserPublic } from '@epde/shared/types';
 
 export async function login(email: string, password: string): Promise<AuthResponse> {
   const { data } = await apiClient.post('/auth/login', { email, password });
-  const result = data.data as AuthResponse;
-  localStorage.setItem('access_token', result.accessToken);
-  return result;
+  return data.data as AuthResponse;
 }
 
 export async function logout(): Promise<void> {
-  try {
-    await apiClient.post('/auth/logout');
-  } finally {
-    localStorage.removeItem('access_token');
-  }
+  await apiClient.post('/auth/logout');
 }
 
 export async function getMe(): Promise<UserPublic> {

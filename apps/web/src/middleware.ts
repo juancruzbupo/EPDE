@@ -6,14 +6,16 @@ const publicPaths = ['/', '/login', '/set-password'];
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Allow public paths
   if (publicPaths.some((path) => pathname.startsWith(path))) {
     return NextResponse.next();
   }
 
-  // For protected routes, we rely on client-side auth check
-  // since JWT is stored in localStorage (not accessible in middleware).
-  // The dashboard layout handles redirect if not authenticated.
+  const accessToken = request.cookies.get('access_token')?.value;
+  if (!accessToken) {
+    const loginUrl = new URL('/login', request.url);
+    return NextResponse.redirect(loginUrl);
+  }
+
   return NextResponse.next();
 }
 

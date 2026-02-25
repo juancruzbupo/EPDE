@@ -13,15 +13,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { SERVICE_URGENCY_LABELS, SERVICE_STATUS_LABELS } from '@epde/shared';
+import { SERVICE_URGENCY_LABELS, SERVICE_STATUS_LABELS, UserRole } from '@epde/shared';
 import Link from 'next/link';
-
-const urgencyVariant: Record<string, 'outline' | 'secondary' | 'default' | 'destructive'> = {
-  LOW: 'outline',
-  MEDIUM: 'secondary',
-  HIGH: 'default',
-  URGENT: 'destructive',
-};
+import { urgencyVariant } from '@/lib/style-maps';
 
 const STATUS_TRANSITIONS: Record<string, string> = {
   OPEN: 'IN_REVIEW',
@@ -40,7 +34,7 @@ const TRANSITION_LABELS: Record<string, string> = {
 export default function ServiceRequestDetailPage() {
   const { id } = useParams<{ id: string }>();
   const user = useAuthStore((s) => s.user);
-  const isAdmin = user?.role === 'ADMIN';
+  const isAdmin = user?.role === UserRole.ADMIN;
 
   const { data, isLoading } = useServiceRequest(id);
   const updateStatus = useUpdateServiceStatus();

@@ -14,23 +14,23 @@
 
 ## Stack Tecnologico
 
-| Capa           | Tecnologia                                | Version |
-| -------------- | ----------------------------------------- | ------- |
-| Monorepo       | Turborepo + pnpm                          | 10.6.1  |
-| Frontend       | Next.js (App Router)                      | 15.5    |
-| Backend        | NestJS                                    | 11      |
-| Base de datos  | PostgreSQL                                | 16      |
-| ORM            | Prisma                                    | 6       |
-| Shared         | tsup (ESM + CJS)                          | -       |
-| UI             | shadcn/ui + Tailwind CSS 4                | -       |
-| State (global) | Zustand                                   | -       |
-| State (server) | TanStack React Query                      | 5       |
-| Validacion     | Zod (shared) + class-validator (API DTOs) | -       |
-| Auth           | Passport JWT + Local                      | -       |
-| Email          | Resend                                    | -       |
-| Storage        | Cloudflare R2                             | -       |
-| CI/CD          | GitHub Actions                            | -       |
-| Monitoreo      | Sentry                                    | -       |
+| Capa           | Tecnologia                                           | Version |
+| -------------- | ---------------------------------------------------- | ------- |
+| Monorepo       | Turborepo + pnpm                                     | 10.6.1  |
+| Frontend       | Next.js (App Router)                                 | 15.5    |
+| Backend        | NestJS                                               | 11      |
+| Base de datos  | PostgreSQL                                           | 16      |
+| ORM            | Prisma                                               | 6       |
+| Shared         | tsup (ESM + CJS)                                     | -       |
+| UI             | shadcn/ui + Tailwind CSS 4                           | -       |
+| State (global) | Zustand                                              | -       |
+| State (server) | TanStack React Query                                 | 5       |
+| Validacion     | Zod (unico SSoT, shared + API via ZodValidationPipe) | -       |
+| Auth           | Passport JWT + Local                                 | -       |
+| Email          | Resend                                               | -       |
+| Storage        | Cloudflare R2                                        | -       |
+| CI/CD          | GitHub Actions                                       | -       |
+| Monitoreo      | Sentry                                               | -       |
 
 ## Workspaces
 

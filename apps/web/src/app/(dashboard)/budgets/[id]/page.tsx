@@ -19,25 +19,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ArrowLeft } from 'lucide-react';
-import { BUDGET_STATUS_LABELS } from '@epde/shared';
+import { BUDGET_STATUS_LABELS, UserRole } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import Link from 'next/link';
 import { RespondBudgetDialog } from './respond-budget-dialog';
-
-const statusVariant: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
-  PENDING: 'secondary',
-  QUOTED: 'default',
-  APPROVED: 'outline',
-  REJECTED: 'destructive',
-  IN_PROGRESS: 'default',
-  COMPLETED: 'outline',
-};
-
-const statusClassName: Record<string, string> = {
-  APPROVED: 'text-green-600 border-green-600',
-  COMPLETED: 'text-green-600 border-green-600',
-};
+import { budgetStatusVariant, budgetStatusClassName } from '@/lib/style-maps';
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('es-AR', {
@@ -96,8 +83,8 @@ export default function BudgetDetailPage() {
     return <p className="text-muted-foreground">Presupuesto no encontrado</p>;
   }
 
-  const isAdmin = user?.role === 'ADMIN';
-  const isClient = user?.role === 'CLIENT';
+  const isAdmin = user?.role === UserRole.ADMIN;
+  const isClient = user?.role === UserRole.CLIENT;
   const hasResponse = budget.status !== 'PENDING' && budget.lineItems.length > 0;
 
   return (
@@ -120,8 +107,8 @@ export default function BudgetDetailPage() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg">Informacion del presupuesto</CardTitle>
           <Badge
-            variant={statusVariant[budget.status] ?? 'outline'}
-            className={statusClassName[budget.status] ?? ''}
+            variant={budgetStatusVariant[budget.status] ?? 'outline'}
+            className={budgetStatusClassName[budget.status] ?? ''}
           >
             {BUDGET_STATUS_LABELS[budget.status] ?? budget.status}
           </Badge>

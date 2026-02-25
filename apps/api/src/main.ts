@@ -1,6 +1,5 @@
 import './instrument';
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
@@ -15,15 +14,6 @@ async function bootstrap() {
   app.use(compression());
 
   app.setGlobalPrefix('api/v1');
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-      transformOptions: { enableImplicitConversion: true },
-    }),
-  );
 
   app.useGlobalFilters(new GlobalExceptionFilter());
 

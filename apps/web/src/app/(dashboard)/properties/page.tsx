@@ -10,7 +10,7 @@ import { SearchInput } from '@/components/search-input';
 import { FilterSelect } from '@/components/filter-select';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { PROPERTY_TYPE_LABELS } from '@epde/shared';
+import { PROPERTY_TYPE_LABELS, UserRole } from '@epde/shared';
 import { propertyColumns } from './columns';
 import { CreatePropertyDialog } from './create-property-dialog';
 
@@ -21,7 +21,7 @@ const typeOptions = Object.entries(PROPERTY_TYPE_LABELS).map(([value, label]) =>
 
 export default function PropertiesPage() {
   const user = useAuthStore((s) => s.user);
-  const isAdmin = user?.role === 'ADMIN';
+  const isAdmin = user?.role === UserRole.ADMIN;
 
   const [search, setSearch] = useState('');
   const [type, setType] = useState('all');

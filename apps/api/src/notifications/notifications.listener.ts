@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { PrismaService } from '../prisma/prisma.service';
+import { UsersRepository } from '../common/repositories/users.repository';
 import { NotificationsService } from './notifications.service';
 import { EmailService } from '../email/email.service';
 
@@ -10,7 +10,7 @@ export class NotificationsListener {
 
   constructor(
     private readonly notificationsService: NotificationsService,
-    private readonly prisma: PrismaService,
+    private readonly usersRepository: UsersRepository,
     private readonly emailService: EmailService,
   ) {}
 
@@ -21,14 +21,11 @@ export class NotificationsListener {
     requesterId: string;
     propertyId: string;
   }) {
-    const admins = await this.prisma.user.findMany({
-      where: { role: 'ADMIN', deletedAt: null },
-      select: { id: true },
-    });
+    const adminIds = await this.usersRepository.findAdminIds();
 
-    for (const admin of admins) {
+    for (const adminId of adminIds) {
       await this.notificationsService.createNotification({
-        userId: admin.id,
+        userId: adminId,
         type: 'BUDGET_UPDATE',
         title: 'Nuevo presupuesto solicitado',
         message: `Se solicitó un presupuesto: "${payload.title}"`,
@@ -52,11 +49,7 @@ export class NotificationsListener {
       data: { budgetId: payload.budgetId },
     });
 
-    // Send email to requester
-    const requester = await this.prisma.user.findUnique({
-      where: { id: payload.requesterId },
-      select: { email: true, name: true },
-    });
+    const requester = await this.usersRepository.findEmailInfo(payload.requesterId);
     if (requester) {
       await this.emailService
         .sendBudgetQuotedEmail(
@@ -88,13 +81,10 @@ export class NotificationsListener {
     const message = statusMessages[payload.newStatus] ?? 'cambió de estado';
 
     if (['APPROVED', 'REJECTED'].includes(payload.newStatus)) {
-      const admins = await this.prisma.user.findMany({
-        where: { role: 'ADMIN', deletedAt: null },
-        select: { id: true },
-      });
-      for (const admin of admins) {
+      const adminIds = await this.usersRepository.findAdminIds();
+      for (const adminId of adminIds) {
         await this.notificationsService.createNotification({
-          userId: admin.id,
+          userId: adminId,
           type: 'BUDGET_UPDATE',
           title: 'Actualización de presupuesto',
           message: `El presupuesto "${payload.title}" ${message}`,
@@ -110,11 +100,7 @@ export class NotificationsListener {
         data: { budgetId: payload.budgetId },
       });
 
-      // Send email to requester for IN_PROGRESS/COMPLETED
-      const requester = await this.prisma.user.findUnique({
-        where: { id: payload.requesterId },
-        select: { email: true, name: true },
-      });
+      const requester = await this.usersRepository.findEmailInfo(payload.requesterId);
       if (requester) {
         await this.emailService
           .sendBudgetStatusEmail(
@@ -136,14 +122,11 @@ export class NotificationsListener {
     requesterId: string;
     urgency: string;
   }) {
-    const admins = await this.prisma.user.findMany({
-      where: { role: 'ADMIN', deletedAt: null },
-      select: { id: true },
-    });
+    const adminIds = await this.usersRepository.findAdminIds();
 
-    for (const admin of admins) {
+    for (const adminId of adminIds) {
       await this.notificationsService.createNotification({
-        userId: admin.id,
+        userId: adminId,
         type: 'SERVICE_UPDATE',
         title: 'Nueva solicitud de servicio',
         message: `Se creó una solicitud: "${payload.title}" (${payload.urgency})`,

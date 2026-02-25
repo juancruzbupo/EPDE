@@ -59,12 +59,7 @@ function SetPasswordForm() {
   return (
     <Card>
       <CardHeader className="text-center">
-        <CardTitle
-          className="text-2xl font-bold"
-          style={{ fontFamily: "'Playfair Display', serif" }}
-        >
-          Configurar Contraseña
-        </CardTitle>
+        <CardTitle className="font-heading text-2xl font-bold">Configurar Contraseña</CardTitle>
         <CardDescription>Creá tu contraseña para acceder a EPDE</CardDescription>
       </CardHeader>
       <CardContent>

@@ -3,12 +3,27 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { MaintenancePlansService } from './maintenance-plans.service';
-import { UpdatePlanDto } from './dto/update-plan.dto';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
-import { ReorderTasksDto } from './dto/reorder-tasks.dto';
-import { CompleteTaskDto } from './dto/complete-task.dto';
-import { CreateTaskNoteDto } from './dto/create-task-note.dto';
+import {
+  updatePlanSchema,
+  createTaskSchema,
+  updateTaskSchema,
+  reorderTasksSchema,
+  completeTaskSchema,
+  createTaskNoteSchema,
+  UserRole,
+} from '@epde/shared';
+import type {
+  UpdatePlanInput,
+  UpdateTaskInput,
+  ReorderTasksInput,
+  CompleteTaskInput,
+  CreateTaskNoteInput,
+} from '@epde/shared';
+import type { z } from 'zod';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+
+const createTaskBodySchema = createTaskSchema.omit({ maintenancePlanId: true });
+type CreateTaskBody = z.infer<typeof createTaskBodySchema>;
 
 @ApiTags('Planes de Mantenimiento')
 @ApiBearerAuth()
@@ -23,35 +38,47 @@ export class MaintenancePlansController {
   }
 
   @Patch(':id')
-  @Roles('ADMIN')
-  async updatePlan(@Param('id') id: string, @Body() dto: UpdatePlanDto) {
+  @Roles(UserRole.ADMIN)
+  async updatePlan(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(updatePlanSchema)) dto: UpdatePlanInput,
+  ) {
     const data = await this.plansService.updatePlan(id, dto);
     return { data };
   }
 
   @Post(':id/tasks')
-  @Roles('ADMIN')
-  async addTask(@Param('id') planId: string, @Body() dto: CreateTaskDto) {
+  @Roles(UserRole.ADMIN)
+  async addTask(
+    @Param('id') planId: string,
+    @Body(new ZodValidationPipe(createTaskBodySchema)) dto: CreateTaskBody,
+  ) {
     const data = await this.plansService.addTask(planId, dto);
     return { data, message: 'Tarea agregada' };
   }
 
   @Patch(':id/tasks/:taskId')
-  @Roles('ADMIN')
-  async updateTask(@Param('taskId') taskId: string, @Body() dto: UpdateTaskDto) {
+  @Roles(UserRole.ADMIN)
+  async updateTask(
+    @Param('taskId') taskId: string,
+    @Body(new ZodValidationPipe(updateTaskSchema)) dto: UpdateTaskInput,
+  ) {
     const data = await this.plansService.updateTask(taskId, dto);
     return { data };
   }
 
   @Delete(':id/tasks/:taskId')
-  @Roles('ADMIN')
+  @Roles(UserRole.ADMIN)
   async removeTask(@Param('taskId') taskId: string) {
     return this.plansService.removeTask(taskId);
   }
 
   @Put(':id/tasks/reorder')
-  @Roles('ADMIN')
-  async reorderTasks(@Param('id') planId: string, @Body() dto: ReorderTasksDto) {
+  @Roles(UserRole.ADMIN)
+  async reorderTasks(
+    @Param('id') planId: string,
+    @Body(new ZodValidationPipe(reorderTasksSchema)) dto: ReorderTasksInput,
+  ) {
     const data = await this.plansService.reorderTasks(planId, dto);
     return { data };
   }
@@ -65,7 +92,7 @@ export class MaintenancePlansController {
   @Post(':id/tasks/:taskId/complete')
   async completeTask(
     @Param('taskId') taskId: string,
-    @Body() dto: CompleteTaskDto,
+    @Body(new ZodValidationPipe(completeTaskSchema)) dto: CompleteTaskInput,
     @CurrentUser() user: { id: string; role: string },
   ) {
     const data = await this.plansService.completeTask(taskId, user.id, dto);
@@ -81,7 +108,7 @@ export class MaintenancePlansController {
   @Post(':id/tasks/:taskId/notes')
   async addTaskNote(
     @Param('taskId') taskId: string,
-    @Body() dto: CreateTaskNoteDto,
+    @Body(new ZodValidationPipe(createTaskNoteSchema)) dto: CreateTaskNoteInput,
     @CurrentUser() user: { id: string; role: string },
   ) {
     const data = await this.plansService.addTaskNote(taskId, user.id, dto);

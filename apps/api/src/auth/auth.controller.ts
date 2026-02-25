@@ -14,15 +14,27 @@ import { Throttle } from '@nestjs/throttler';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
-import { SetPasswordDto } from './dto/set-password.dto';
+import { loginSchema, setPasswordSchema } from '@epde/shared';
+import type { LoginInput, SetPasswordInput } from '@epde/shared';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
+
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+
+const ACCESS_COOKIE_NAME = 'access_token';
+const ACCESS_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: IS_PRODUCTION,
+  sameSite: 'lax' as const,
+  path: '/',
+  maxAge: 15 * 60 * 1000, // 15 minutes — must match JWT_EXPIRATION
+};
 
 const REFRESH_COOKIE_NAME = 'refresh_token';
 const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: false, // true in production
+  secure: IS_PRODUCTION,
   sameSite: 'lax' as const,
   path: '/api/v1/auth',
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
@@ -40,19 +52,19 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(
-    @Body() _loginDto: LoginDto,
+    @Body(new ZodValidationPipe(loginSchema)) _dto: LoginInput,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
     const user = req.user as { id: string; email: string; role: string };
     const result = await this.authService.login(user);
 
+    res.cookie(ACCESS_COOKIE_NAME, result.accessToken, ACCESS_COOKIE_OPTIONS);
     res.cookie(REFRESH_COOKIE_NAME, result.refreshToken, REFRESH_COOKIE_OPTIONS);
 
     return {
       data: {
         user: result.user,
-        accessToken: result.accessToken,
       },
     };
   }
@@ -71,14 +83,16 @@ export class AuthController {
     }
 
     const result = await this.authService.refresh(refreshToken);
+    res.cookie(ACCESS_COOKIE_NAME, result.accessToken, ACCESS_COOKIE_OPTIONS);
     res.cookie(REFRESH_COOKIE_NAME, result.refreshToken, REFRESH_COOKIE_OPTIONS);
 
-    return { data: { accessToken: result.accessToken } };
+    return { data: { message: 'Token refrescado' } };
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie(ACCESS_COOKIE_NAME, { path: '/' });
     res.clearCookie(REFRESH_COOKIE_NAME, { path: '/api/v1/auth' });
     return { data: { message: 'Sesión cerrada' } };
   }
@@ -87,7 +101,7 @@ export class AuthController {
   @Throttle({ medium: { limit: 5, ttl: 60000 } })
   @Post('set-password')
   @HttpCode(HttpStatus.OK)
-  async setPassword(@Body() dto: SetPasswordDto) {
+  async setPassword(@Body(new ZodValidationPipe(setPasswordSchema)) dto: SetPasswordInput) {
     const result = await this.authService.setPassword(dto.token, dto.newPassword);
     return { data: result };
   }

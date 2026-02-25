@@ -3,14 +3,15 @@ import { MaintenancePlansRepository } from './maintenance-plans.repository';
 import { TasksRepository } from './tasks.repository';
 import { TaskLogsRepository } from './task-logs.repository';
 import { TaskNotesRepository } from './task-notes.repository';
-import { UpdatePlanDto } from './dto/update-plan.dto';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
-import { ReorderTasksDto } from './dto/reorder-tasks.dto';
-import { CompleteTaskDto } from './dto/complete-task.dto';
-import { CreateTaskNoteDto } from './dto/create-task-note.dto';
-import { PrismaService } from '../prisma/prisma.service';
-import { recurrenceTypeToMonths, getNextDueDate } from '@epde/shared';
+import type {
+  UpdatePlanInput,
+  CreateTaskInput,
+  UpdateTaskInput,
+  ReorderTasksInput,
+  CompleteTaskInput,
+  CreateTaskNoteInput,
+} from '@epde/shared';
+import { recurrenceTypeToMonths, getNextDueDate, UserRole } from '@epde/shared';
 
 @Injectable()
 export class MaintenancePlansService {
@@ -19,7 +20,6 @@ export class MaintenancePlansService {
     private readonly tasksRepository: TasksRepository,
     private readonly taskLogsRepository: TaskLogsRepository,
     private readonly taskNotesRepository: TaskNotesRepository,
-    private readonly prisma: PrismaService,
   ) {}
 
   async getPlan(id: string, currentUser?: { id: string; role: string }) {
@@ -28,7 +28,7 @@ export class MaintenancePlansService {
       throw new NotFoundException('Plan de mantenimiento no encontrado');
     }
 
-    if (currentUser?.role === 'CLIENT') {
+    if (currentUser?.role === UserRole.CLIENT) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const property = (plan as any).property;
       if (property?.userId !== currentUser.id) {
@@ -39,7 +39,7 @@ export class MaintenancePlansService {
     return plan;
   }
 
-  async updatePlan(id: string, dto: UpdatePlanDto) {
+  async updatePlan(id: string, dto: UpdatePlanInput) {
     const plan = await this.plansRepository.findById(id);
     if (!plan) {
       throw new NotFoundException('Plan de mantenimiento no encontrado');
@@ -47,7 +47,7 @@ export class MaintenancePlansService {
     return this.plansRepository.update(id, dto);
   }
 
-  async addTask(planId: string, dto: CreateTaskDto) {
+  async addTask(planId: string, dto: Omit<CreateTaskInput, 'maintenancePlanId'>) {
     const plan = await this.plansRepository.findById(planId);
     if (!plan) {
       throw new NotFoundException('Plan de mantenimiento no encontrado');
@@ -67,7 +67,7 @@ export class MaintenancePlansService {
           dto.recurrenceType === 'CUSTOM'
             ? dto.recurrenceMonths
             : recurrenceTypeToMonths(dto.recurrenceType ?? 'ANNUAL'),
-        nextDueDate: new Date(dto.nextDueDate),
+        nextDueDate: dto.nextDueDate,
         order: maxOrder + 1,
         status: 'PENDING',
       },
@@ -75,7 +75,7 @@ export class MaintenancePlansService {
     );
   }
 
-  async updateTask(taskId: string, dto: UpdateTaskDto) {
+  async updateTask(taskId: string, dto: UpdateTaskInput) {
     const task = await this.tasksRepository.findById(taskId);
     if (!task) {
       throw new NotFoundException('Tarea no encontrada');
@@ -83,9 +83,6 @@ export class MaintenancePlansService {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = { ...dto };
-    if (dto.nextDueDate) {
-      data.nextDueDate = new Date(dto.nextDueDate);
-    }
     if (dto.categoryId) {
       data.category = { connect: { id: dto.categoryId } };
       delete data.categoryId;
@@ -104,41 +101,19 @@ export class MaintenancePlansService {
     return { message: 'Tarea eliminada' };
   }
 
-  async reorderTasks(planId: string, dto: ReorderTasksDto) {
+  async reorderTasks(planId: string, dto: ReorderTasksInput) {
     const plan = await this.plansRepository.findById(planId);
     if (!plan) {
       throw new NotFoundException('Plan de mantenimiento no encontrado');
     }
 
-    await this.prisma.$transaction(
-      dto.tasks.map((item) =>
-        this.prisma.task.update({
-          where: { id: item.id },
-          data: { order: item.order },
-        }),
-      ),
-    );
+    await this.tasksRepository.reorderBatch(dto.tasks);
 
     return this.tasksRepository.findByPlanId(planId);
   }
 
   async getTaskDetail(taskId: string) {
-    const task = await this.prisma.task.findFirst({
-      where: { id: taskId, deletedAt: null },
-      include: {
-        category: true,
-        taskLogs: {
-          include: { user: { select: { id: true, name: true } } },
-          orderBy: { completedAt: 'desc' },
-          take: 20,
-        },
-        taskNotes: {
-          include: { author: { select: { id: true, name: true } } },
-          orderBy: { createdAt: 'desc' },
-          take: 50,
-        },
-      },
-    });
+    const task = await this.tasksRepository.findWithDetails(taskId);
 
     if (!task) {
       throw new NotFoundException('Tarea no encontrada');
@@ -147,7 +122,7 @@ export class MaintenancePlansService {
     return task;
   }
 
-  async completeTask(taskId: string, userId: string, dto: CompleteTaskDto) {
+  async completeTask(taskId: string, userId: string, dto: CompleteTaskInput) {
     const task = await this.tasksRepository.findById(taskId);
     if (!task) {
       throw new NotFoundException('Tarea no encontrada');
@@ -156,25 +131,13 @@ export class MaintenancePlansService {
     const recurrenceMonths = task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType);
     const newDueDate = getNextDueDate(task.nextDueDate, recurrenceMonths);
 
-    return this.prisma.$transaction(async (tx) => {
-      const log = await tx.taskLog.create({
-        data: {
-          taskId,
-          completedBy: userId,
-          notes: dto.notes,
-          photoUrl: dto.photoUrl,
-        },
-        include: { user: { select: { id: true, name: true } } },
-      });
-
-      const updatedTask = await tx.task.update({
-        where: { id: taskId },
-        data: { status: 'PENDING', nextDueDate: newDueDate },
-        include: { category: true },
-      });
-
-      return { task: updatedTask, log };
-    });
+    return this.tasksRepository.completeAndReschedule(
+      taskId,
+      userId,
+      dto.notes,
+      dto.photoUrl,
+      newDueDate,
+    );
   }
 
   async getTaskLogs(taskId: string) {
@@ -185,20 +148,13 @@ export class MaintenancePlansService {
     return this.taskLogsRepository.findByTaskId(taskId);
   }
 
-  async addTaskNote(taskId: string, userId: string, dto: CreateTaskNoteDto) {
+  async addTaskNote(taskId: string, userId: string, dto: CreateTaskNoteInput) {
     const task = await this.tasksRepository.findById(taskId);
     if (!task) {
       throw new NotFoundException('Tarea no encontrada');
     }
 
-    return this.prisma.taskNote.create({
-      data: {
-        taskId,
-        authorId: userId,
-        content: dto.content,
-      },
-      include: { author: { select: { id: true, name: true } } },
-    });
+    return this.taskNotesRepository.createForTask(taskId, userId, dto.content);
   }
 
   async getTaskNotes(taskId: string) {

@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { PROPERTY_TYPE_LABELS } from '@epde/shared';
+import { PROPERTY_TYPE_LABELS, UserRole } from '@epde/shared';
 import Link from 'next/link';
 import { useAuthStore } from '@/stores/auth-store';
 import { PlanEditor } from './plan-editor';
@@ -18,7 +18,7 @@ import { PlanViewer } from './plan-viewer';
 export default function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading } = useProperty(id);
-  const isAdmin = useAuthStore((s) => s.user?.role === 'ADMIN');
+  const isAdmin = useAuthStore((s) => s.user?.role === UserRole.ADMIN);
   const property = data?.data;
 
   if (isLoading) {

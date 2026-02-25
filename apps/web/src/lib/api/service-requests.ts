@@ -1,31 +1,7 @@
 import { apiClient } from '../api-client';
-import type { PaginatedResponse, ApiResponse } from '@epde/shared';
+import type { PaginatedResponse, ApiResponse, ServiceRequestPublic } from '@epde/shared';
 
-export interface ServiceRequestPhotoPublic {
-  id: string;
-  url: string;
-  createdAt: string;
-}
-
-export interface ServiceRequestPublic {
-  id: string;
-  propertyId: string;
-  requestedBy: string;
-  title: string;
-  description: string;
-  urgency: string;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-  property: {
-    id: string;
-    address: string;
-    city: string;
-    user: { id: string; name: string };
-  };
-  requester: { id: string; name: string; email: string };
-  photos: ServiceRequestPhotoPublic[];
-}
+export type { ServiceRequestPublic };
 
 export interface ServiceRequestFilters {
   status?: string;

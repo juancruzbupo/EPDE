@@ -2,8 +2,9 @@ import { Controller, Get, Post, Patch, Delete, Param, Body } from '@nestjs/commo
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CategoriesService } from './categories.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import { createCategorySchema, updateCategorySchema, UserRole } from '@epde/shared';
+import type { CreateCategoryInput, UpdateCategoryInput } from '@epde/shared';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 
 @ApiTags('Categorias')
 @ApiBearerAuth()
@@ -18,21 +19,26 @@ export class CategoriesController {
   }
 
   @Post()
-  @Roles('ADMIN')
-  async createCategory(@Body() dto: CreateCategoryDto) {
+  @Roles(UserRole.ADMIN)
+  async createCategory(
+    @Body(new ZodValidationPipe(createCategorySchema)) dto: CreateCategoryInput,
+  ) {
     const data = await this.categoriesService.createCategory(dto);
     return { data, message: 'Categoría creada' };
   }
 
   @Patch(':id')
-  @Roles('ADMIN')
-  async updateCategory(@Param('id') id: string, @Body() dto: UpdateCategoryDto) {
+  @Roles(UserRole.ADMIN)
+  async updateCategory(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(updateCategorySchema)) dto: UpdateCategoryInput,
+  ) {
     const data = await this.categoriesService.updateCategory(id, dto);
     return { data };
   }
 
   @Delete(':id')
-  @Roles('ADMIN')
+  @Roles(UserRole.ADMIN)
   async deleteCategory(@Param('id') id: string) {
     return this.categoriesService.deleteCategory(id);
   }

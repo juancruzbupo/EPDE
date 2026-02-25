@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Property } from '@prisma/client';
+import { Property, PropertyType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   BaseRepository,
@@ -62,6 +62,42 @@ export class PropertiesRepository extends BaseRepository<Property> {
           include: { tasks: { include: { category: true }, orderBy: { order: 'asc' } } },
         },
       },
+    });
+  }
+
+  async findOwnership(id: string): Promise<{ id: string; userId: string } | null> {
+    return this.prisma.property.findUnique({
+      where: { id },
+      select: { id: true, userId: true },
+    });
+  }
+
+  async createWithPlan(data: {
+    userId: string;
+    address: string;
+    city: string;
+    type: PropertyType;
+    yearBuilt?: number;
+    squareMeters?: number;
+  }) {
+    return this.prisma.$transaction(async (tx) => {
+      const property = await tx.property.create({ data });
+
+      await tx.maintenancePlan.create({
+        data: {
+          propertyId: property.id,
+          name: `Plan de Mantenimiento — ${property.address}`,
+          status: 'DRAFT',
+        },
+      });
+
+      return tx.property.findUnique({
+        where: { id: property.id },
+        include: {
+          user: { select: { id: true, name: true, email: true } },
+          maintenancePlan: true,
+        },
+      });
     });
   }
 

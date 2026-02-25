@@ -25,47 +25,58 @@
 
 ### Configuracion CSS (Tailwind CSS 4)
 
-El proyecto usa Tailwind CSS 4 con `@theme inline` en `globals.css`:
+El proyecto usa Tailwind CSS 4 con `@theme inline` en `globals.css`. Los tokens se definen en dos capas:
+
+1. `@theme inline` — registra custom properties como tokens de Tailwind (genera clases utilitarias)
+2. `:root` — define los valores hex reales de la marca
 
 ```css
 @import 'tailwindcss';
 
 @theme inline {
-  --color-background: #ffffff;
-  --color-foreground: #0a0a0a;
-  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
-
-  --color-primary: #c4704b;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #e8ddd3;
-  --color-secondary-foreground: #1a1a1a;
-  --color-muted: #f5f5f5;
-  --color-muted-foreground: #737373;
-  --color-accent: #e8ddd3;
-  --color-accent-foreground: #1a1a1a;
-  --color-destructive: #dc2626;
-  --color-destructive-foreground: #ffffff;
-  --color-border: #e5e5e5;
-  --color-input: #e5e5e5;
-  --color-ring: #c4704b;
-  --color-card: #ffffff;
-  --color-card-foreground: #0a0a0a;
-  --color-popover: #ffffff;
-  --color-popover-foreground: #0a0a0a;
-
-  --color-sidebar-background: #ffffff;
-  --color-sidebar-foreground: #0a0a0a;
-  --color-sidebar-primary: #c4704b;
-  --color-sidebar-primary-foreground: #ffffff;
-  --color-sidebar-accent: #f5f5f5;
-  --color-sidebar-accent-foreground: #0a0a0a;
-  --color-sidebar-border: #e5e5e5;
-
-  --radius-sm: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.75rem;
+  --font-heading: 'Playfair Display', serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  /* ... radius tokens ... */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  /* ... sidebar, chart, popover, card tokens ... */
 }
+
+:root {
+  --radius: 0.625rem;
+  --background: #fafaf8;
+  --foreground: #2e2a27;
+  --primary: #c4704b; /* Terracotta */
+  --primary-foreground: #fafaf8;
+  --secondary: #e8ddd3; /* Arena */
+  --secondary-foreground: #2e2a27;
+  --muted: #f5f0eb;
+  --muted-foreground: #4a4542;
+  --accent: #e8ddd3;
+  --destructive: #c45b4b;
+  --border: #e8ddd3;
+  --ring: #c4704b;
+  /* ... sidebar, chart tokens ... */
+}
+```
+
+### Tipografia
+
+- **Body**: `DM Sans` — aplicado via `body { font-family }` en globals.css
+- **Headings (landing/auth)**: `Playfair Display` — clase utilitaria `font-heading` generada por `--font-heading` en `@theme inline`
+
+```tsx
+// Uso de font-heading
+<h1 className="font-heading text-3xl font-bold">EPDE</h1>
 ```
 
 ### Uso en componentes
@@ -81,6 +92,35 @@ El proyecto usa Tailwind CSS 4 con `@theme inline` en `globals.css`:
 <div className="bg-[#C4704B]" />
 <div style={{ color: '#C4704B' }} />
 ```
+
+## Style Maps Centralizados
+
+Los mapas de variantes y colores para Badges estan centralizados en `lib/style-maps.ts`. **No duplicar** en cada componente:
+
+```typescript
+import { priorityColors, taskStatusVariant, budgetStatusVariant } from '@/lib/style-maps';
+
+// Uso en Badge
+<Badge variant={taskStatusVariant[task.status] ?? 'outline'}>
+  {TASK_STATUS_LABELS[task.status]}
+</Badge>
+
+// Uso en span con clases de color
+<span className={priorityColors[task.priority] ?? ''}>
+  {TASK_PRIORITY_LABELS[task.priority]}
+</span>
+```
+
+**Maps disponibles:**
+
+| Export                  | Entidad      | Descripcion                               |
+| ----------------------- | ------------ | ----------------------------------------- |
+| `priorityColors`        | Tareas       | Clases bg+text por prioridad (LOW→URGENT) |
+| `taskStatusVariant`     | Tareas       | Badge variant por estado                  |
+| `budgetStatusVariant`   | Presupuestos | Badge variant por estado                  |
+| `budgetStatusClassName` | Presupuestos | Clases extra para APPROVED/COMPLETED      |
+| `urgencyVariant`        | Solicitudes  | Badge variant por urgencia                |
+| `clientStatusVariant`   | Clientes     | Badge variant por estado                  |
 
 ## Componentes UI (shadcn/ui)
 

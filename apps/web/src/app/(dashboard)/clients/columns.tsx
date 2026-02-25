@@ -11,14 +11,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Eye, Trash2 } from 'lucide-react';
 import { USER_STATUS_LABELS } from '@epde/shared';
+import { clientStatusVariant } from '@/lib/style-maps';
 import type { ClientPublic } from '@/lib/api/clients';
 import Link from 'next/link';
-
-const statusVariant: Record<string, 'default' | 'secondary' | 'outline'> = {
-  ACTIVE: 'default',
-  INVITED: 'secondary',
-  INACTIVE: 'outline',
-};
 
 export function clientColumns({
   onDelete,
@@ -37,7 +32,7 @@ export function clientColumns({
       accessorKey: 'status',
       header: 'Estado',
       cell: ({ row }) => (
-        <Badge variant={statusVariant[row.original.status] ?? 'outline'}>
+        <Badge variant={clientStatusVariant[row.original.status] ?? 'outline'}>
           {USER_STATUS_LABELS[row.original.status] ?? row.original.status}
         </Badge>
       ),

@@ -9,7 +9,7 @@ import { DataTable } from '@/components/data-table/data-table';
 import { FilterSelect } from '@/components/filter-select';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { SERVICE_STATUS_LABELS, SERVICE_URGENCY_LABELS } from '@epde/shared';
+import { SERVICE_STATUS_LABELS, SERVICE_URGENCY_LABELS, UserRole } from '@epde/shared';
 import { serviceRequestColumns } from './columns';
 import { CreateServiceDialog } from './create-service-dialog';
 
@@ -50,7 +50,7 @@ export default function ServiceRequestsPage() {
         title="Solicitudes de Servicio"
         description="Gestion de solicitudes de servicio"
         action={
-          user?.role === 'CLIENT' ? (
+          user?.role === UserRole.CLIENT ? (
             <Button onClick={() => setCreateOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Nueva Solicitud
@@ -85,7 +85,7 @@ export default function ServiceRequestsPage() {
         onRowClick={(row) => router.push(`/service-requests/${row.id}`)}
       />
 
-      {user?.role === 'CLIENT' && (
+      {user?.role === UserRole.CLIENT && (
         <CreateServiceDialog open={createOpen} onOpenChange={setCreateOpen} />
       )}
     </div>

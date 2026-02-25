@@ -6,17 +6,6 @@ const apiClient = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Request interceptor: attach access token
-apiClient.interceptors.request.use((config) => {
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
-
 // Response interceptor: handle 401 with token refresh
 apiClient.interceptors.response.use(
   (response) => response,
@@ -32,13 +21,9 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const { data } = await apiClient.post('/auth/refresh');
-        const newToken = data.data.accessToken;
-        localStorage.setItem('access_token', newToken);
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        await apiClient.post('/auth/refresh');
         return apiClient(originalRequest);
       } catch {
-        localStorage.removeItem('access_token');
         if (typeof window !== 'undefined') {
           window.location.href = '/login';
         }

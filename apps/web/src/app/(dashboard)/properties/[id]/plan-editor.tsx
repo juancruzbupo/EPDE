@@ -15,25 +15,12 @@ import {
   PLAN_STATUS_LABELS,
 } from '@epde/shared';
 import { TaskDialog } from './task-dialog';
+import { priorityColors, taskStatusVariant } from '@/lib/style-maps';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
 
 interface PlanEditorProps {
   planId: string;
 }
-
-const priorityColors: Record<string, string> = {
-  LOW: 'bg-green-100 text-green-700',
-  MEDIUM: 'bg-yellow-100 text-yellow-700',
-  HIGH: 'bg-orange-100 text-orange-700',
-  URGENT: 'bg-red-100 text-red-700',
-};
-
-const statusColors: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
-  PENDING: 'secondary',
-  UPCOMING: 'default',
-  OVERDUE: 'destructive',
-  COMPLETED: 'outline',
-};
 
 export function PlanEditor({ planId }: PlanEditorProps) {
   const { data: plan, isLoading } = usePlan(planId);
@@ -131,7 +118,10 @@ export function PlanEditor({ planId }: PlanEditorProps) {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{task.name}</span>
-                    <Badge variant={statusColors[task.status] ?? 'outline'} className="text-xs">
+                    <Badge
+                      variant={taskStatusVariant[task.status] ?? 'outline'}
+                      className="text-xs"
+                    >
                       {TASK_STATUS_LABELS[task.status] ?? task.status}
                     </Badge>
                   </div>

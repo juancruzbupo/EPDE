@@ -16,4 +16,11 @@ export class TaskNotesRepository extends BaseRepository<TaskNote> {
       orderBy: { createdAt: 'desc' },
     });
   }
+
+  async createForTask(taskId: string, authorId: string, content: string) {
+    return this.writeModel.create({
+      data: { taskId, authorId, content },
+      include: { author: { select: { id: true, name: true } } },
+    });
+  }
 }

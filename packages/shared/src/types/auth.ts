@@ -13,7 +13,6 @@ export interface SetPasswordRequest {
 
 export interface AuthResponse {
   user: UserPublic;
-  accessToken: string;
 }
 
 export interface JwtPayload {
@@ -22,8 +21,4 @@ export interface JwtPayload {
   role: UserRole;
   iat?: number;
   exp?: number;
-}
-
-export interface RefreshResponse {
-  accessToken: string;
 }
