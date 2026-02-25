@@ -10,6 +10,8 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { Throttle } from '@nestjs/throttler';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -26,12 +28,15 @@ const REFRESH_COOKIE_OPTIONS = {
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 };
 
+@ApiTags('Auth')
+@ApiBearerAuth()
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
   @UseGuards(AuthGuard('local'))
+  @Throttle({ medium: { limit: 5, ttl: 60000 } })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(
@@ -79,6 +84,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ medium: { limit: 5, ttl: 60000 } })
   @Post('set-password')
   @HttpCode(HttpStatus.OK)
   async setPassword(@Body() dto: SetPasswordDto) {

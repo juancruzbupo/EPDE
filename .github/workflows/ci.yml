@@ -12,8 +12,28 @@ concurrency:
 
 jobs:
   ci:
-    name: Lint, Type Check & Build
+    name: Lint, Type Check, Build & Test
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: epde_test
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5433/epde_test
+      JWT_SECRET: test-secret-for-ci
+      NODE_ENV: test
 
     steps:
       - name: Checkout
@@ -42,3 +62,9 @@ jobs:
 
       - name: Type check
         run: pnpm typecheck
+
+      - name: Push schema to test database
+        run: pnpm --filter @epde/api exec prisma db push --skip-generate
+
+      - name: Test
+        run: pnpm test

@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Patch, Param, Body, Query } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { BudgetsService } from './budgets.service';
@@ -7,6 +8,8 @@ import { RespondBudgetDto } from './dto/respond-budget.dto';
 import { UpdateBudgetStatusDto } from './dto/update-budget-status.dto';
 import { BudgetFiltersDto } from './dto/budget-filters.dto';
 
+@ApiTags('Presupuestos')
+@ApiBearerAuth()
 @Controller('budgets')
 export class BudgetsController {
   constructor(private readonly budgetsService: BudgetsService) {}

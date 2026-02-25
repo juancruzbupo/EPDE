@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Patch, Param, Body, Query } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { ServiceRequestsService } from './service-requests.service';
@@ -6,6 +7,8 @@ import { CreateServiceRequestDto } from './dto/create-service-request.dto';
 import { UpdateServiceStatusDto } from './dto/update-service-status.dto';
 import { ServiceRequestFiltersDto } from './dto/service-request-filters.dto';
 
+@ApiTags('Solicitudes de Servicio')
+@ApiBearerAuth()
 @Controller('service-requests')
 export class ServiceRequestsController {
   constructor(private readonly serviceRequestsService: ServiceRequestsService) {}

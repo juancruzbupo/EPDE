@@ -7,8 +7,11 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { UploadService } from './upload.service';
 
+@ApiTags('Upload')
+@ApiBearerAuth()
 @Controller('upload')
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}

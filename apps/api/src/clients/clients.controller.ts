@@ -1,10 +1,13 @@
 import { Controller, Get, Post, Patch, Delete, Param, Body, Query } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { ClientFiltersDto } from './dto/client-filters.dto';
 
+@ApiTags('Clientes')
+@ApiBearerAuth()
 @Controller('clients')
 @Roles('ADMIN')
 export class ClientsController {

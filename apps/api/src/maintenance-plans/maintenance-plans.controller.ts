@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Patch, Delete, Put, Param, Body } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { MaintenancePlansService } from './maintenance-plans.service';
@@ -9,6 +10,8 @@ import { ReorderTasksDto } from './dto/reorder-tasks.dto';
 import { CompleteTaskDto } from './dto/complete-task.dto';
 import { CreateTaskNoteDto } from './dto/create-task-note.dto';
 
+@ApiTags('Planes de Mantenimiento')
+@ApiBearerAuth()
 @Controller('maintenance-plans')
 export class MaintenancePlansController {
   constructor(private readonly plansService: MaintenancePlansService) {}
