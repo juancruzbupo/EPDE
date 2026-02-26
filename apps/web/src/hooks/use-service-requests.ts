@@ -1,5 +1,13 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error && typeof error === 'object' && 'response' in error) {
+    const data = (error as { response?: { data?: { message?: string } } }).response?.data;
+    if (data?.message) return data.message;
+  }
+  return fallback;
+}
 import {
   getServiceRequests,
   getServiceRequest,
@@ -36,8 +44,8 @@ export function useCreateServiceRequest() {
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity'] });
     },
-    onError: () => {
-      toast.error('Error al crear solicitud');
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al crear solicitud'));
     },
   });
 }
@@ -52,8 +60,8 @@ export function useUpdateServiceStatus() {
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity'] });
     },
-    onError: () => {
-      toast.error('Error al actualizar estado');
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al actualizar estado'));
     },
   });
 }

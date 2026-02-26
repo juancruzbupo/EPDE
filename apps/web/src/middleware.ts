@@ -14,7 +14,7 @@ function isTokenExpired(token: string): boolean {
     const payload = JSON.parse(Buffer.from(parts[1]!, 'base64url').toString('utf-8'));
     if (!payload.exp) return true;
     // Add 30-second buffer to avoid edge-case redirects right before expiry
-    return payload.exp * 1000 < Date.now() - 30_000;
+    return payload.exp * 1000 < Date.now() + 30_000;
   } catch {
     return true;
   }

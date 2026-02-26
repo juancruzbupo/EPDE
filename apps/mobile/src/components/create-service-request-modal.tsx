@@ -13,6 +13,10 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { createServiceRequestSchema } from '@epde/shared';
+import type { CreateServiceRequestInput } from '@epde/shared';
 import { useCreateServiceRequest } from '@/hooks/use-service-requests';
 import { useProperties } from '@/hooks/use-properties';
 import { useUploadFile } from '@/hooks/use-upload';
@@ -31,10 +35,6 @@ interface CreateServiceRequestModalProps {
 }
 
 export function CreateServiceRequestModal({ visible, onClose }: CreateServiceRequestModalProps) {
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [urgency, setUrgency] = useState('MEDIUM');
   const [photos, setPhotos] = useState<{ uri: string; uploadedUrl?: string }[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -43,12 +43,23 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
   const { data: propertiesData } = useProperties();
   const properties = propertiesData?.pages.flatMap((p) => p.data) ?? [];
 
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors, isValid },
+  } = useForm<CreateServiceRequestInput>({
+    resolver: zodResolver(createServiceRequestSchema),
+    defaultValues: { urgency: 'MEDIUM' },
+    mode: 'onChange',
+  });
+
+  const selectedPropertyId = watch('propertyId');
+  const urgency = watch('urgency') ?? 'MEDIUM';
   const isSubmitting = createRequest.isPending;
-  const isValid =
-    selectedPropertyId &&
-    title.trim().length >= 3 &&
-    description.trim().length >= 10 &&
-    !isUploading;
+  const canSubmit = isValid && !isUploading;
 
   const pickImage = () => {
     if (photos.length >= 5) {
@@ -122,22 +133,21 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
     setPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = () => {
-    if (!isValid) return;
-
+  const onSubmit = (data: CreateServiceRequestInput) => {
     const photoUrls = photos.map((p) => p.uploadedUrl).filter((url): url is string => !!url);
 
     createRequest.mutate(
       {
-        propertyId: selectedPropertyId!,
-        title: title.trim(),
-        description: description.trim(),
-        urgency,
+        propertyId: data.propertyId,
+        title: data.title.trim(),
+        description: data.description.trim(),
+        urgency: data.urgency,
         photoUrls: photoUrls.length > 0 ? photoUrls : undefined,
       },
       {
         onSuccess: () => {
-          resetForm();
+          reset();
+          setPhotos([]);
           onClose();
         },
         onError: () => {
@@ -147,16 +157,9 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
     );
   };
 
-  const resetForm = () => {
-    setSelectedPropertyId(null);
-    setTitle('');
-    setDescription('');
-    setUrgency('MEDIUM');
-    setPhotos([]);
-  };
-
   const handleClose = () => {
-    resetForm();
+    reset();
+    setPhotos([]);
     onClose();
   };
 
@@ -178,10 +181,10 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
           <Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-foreground text-base">
             Nueva Solicitud
           </Text>
-          <Pressable onPress={handleSubmit} disabled={!isValid || isSubmitting}>
+          <Pressable onPress={handleSubmit(onSubmit)} disabled={!canSubmit || isSubmitting}>
             <Text
               style={{ fontFamily: 'DMSans_700Bold' }}
-              className={`text-base ${!isValid || isSubmitting ? 'text-muted-foreground' : 'text-primary'}`}
+              className={`text-base ${!canSubmit || isSubmitting ? 'text-muted-foreground' : 'text-primary'}`}
             >
               {isSubmitting ? 'Creando...' : 'Crear'}
             </Text>
@@ -196,12 +199,12 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 8, marginBottom: 16 }}
+            contentContainerStyle={{ gap: 8, marginBottom: 4 }}
           >
             {properties.map((property: PropertyPublic) => (
               <Pressable
                 key={property.id}
-                onPress={() => setSelectedPropertyId(property.id)}
+                onPress={() => setValue('propertyId', property.id, { shouldValidate: true })}
                 className={`rounded-xl border px-4 py-3 ${
                   selectedPropertyId === property.id
                     ? 'bg-primary border-primary'
@@ -237,35 +240,80 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
               </View>
             )}
           </ScrollView>
+          {errors.propertyId && (
+            <Text
+              style={{ fontFamily: 'DMSans_400Regular' }}
+              className="text-destructive mb-2 text-xs"
+            >
+              {errors.propertyId.message}
+            </Text>
+          )}
+          {!errors.propertyId && <View className="mb-4" />}
 
           {/* Title */}
           <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground mb-2 text-sm">
             Titulo
           </Text>
-          <TextInput
-            value={title}
-            onChangeText={setTitle}
-            placeholder="Describir brevemente el problema..."
-            placeholderTextColor="#4a4542"
-            maxLength={200}
-            style={{ fontFamily: 'DMSans_400Regular' }}
-            className="border-border bg-card text-foreground mb-4 rounded-xl border p-3 text-sm"
+          <Controller
+            control={control}
+            name="title"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                placeholder="Describir brevemente el problema..."
+                placeholderTextColor="#4a4542"
+                maxLength={200}
+                style={{ fontFamily: 'DMSans_400Regular' }}
+                className="border-border bg-card text-foreground mb-1 rounded-xl border p-3 text-sm"
+              />
+            )}
           />
+          {errors.title && (
+            <Text
+              style={{ fontFamily: 'DMSans_400Regular' }}
+              className="text-destructive mb-3 text-xs"
+            >
+              {errors.title.message}
+            </Text>
+          )}
+          {!errors.title && <View className="mb-4" />}
 
           {/* Description */}
           <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground mb-2 text-sm">
             Descripcion
           </Text>
-          <TextInput
-            value={description}
-            onChangeText={setDescription}
-            placeholder="Describir en detalle el problema o servicio necesario (minimo 10 caracteres)..."
-            placeholderTextColor="#4a4542"
-            multiline
-            maxLength={2000}
-            style={{ fontFamily: 'DMSans_400Regular', minHeight: 100, textAlignVertical: 'top' }}
-            className="border-border bg-card text-foreground mb-4 rounded-xl border p-3 text-sm"
+          <Controller
+            control={control}
+            name="description"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                placeholder="Describir en detalle el problema o servicio necesario (minimo 10 caracteres)..."
+                placeholderTextColor="#4a4542"
+                multiline
+                maxLength={2000}
+                style={{
+                  fontFamily: 'DMSans_400Regular',
+                  minHeight: 100,
+                  textAlignVertical: 'top',
+                }}
+                className="border-border bg-card text-foreground mb-1 rounded-xl border p-3 text-sm"
+              />
+            )}
           />
+          {errors.description && (
+            <Text
+              style={{ fontFamily: 'DMSans_400Regular' }}
+              className="text-destructive mb-3 text-xs"
+            >
+              {errors.description.message}
+            </Text>
+          )}
+          {!errors.description && <View className="mb-4" />}
 
           {/* Urgency */}
           <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground mb-2 text-sm">
@@ -275,7 +323,7 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
             {URGENCY_OPTIONS.map((opt) => (
               <Pressable
                 key={opt.key}
-                onPress={() => setUrgency(opt.key)}
+                onPress={() => setValue('urgency', opt.key, { shouldValidate: true })}
                 className={`flex-1 items-center rounded-xl border py-2 ${
                   urgency === opt.key ? 'bg-primary border-primary' : 'border-border bg-card'
                 }`}

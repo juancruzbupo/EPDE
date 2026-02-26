@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   View,
   Text,
@@ -11,6 +10,10 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { createBudgetRequestSchema } from '@epde/shared';
+import type { CreateBudgetRequestInput } from '@epde/shared';
 import { useCreateBudgetRequest } from '@/hooks/use-budgets';
 import { useProperties } from '@/hooks/use-properties';
 import type { PropertyPublic } from '@epde/shared/types';
@@ -21,29 +24,35 @@ interface CreateBudgetModalProps {
 }
 
 export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) {
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-
   const createBudget = useCreateBudgetRequest();
   const { data: propertiesData } = useProperties();
   const properties = propertiesData?.pages.flatMap((p) => p.data) ?? [];
 
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors, isValid },
+  } = useForm<CreateBudgetRequestInput>({
+    resolver: zodResolver(createBudgetRequestSchema),
+    mode: 'onChange',
+  });
+
+  const selectedPropertyId = watch('propertyId');
   const isSubmitting = createBudget.isPending;
-  const isValid = selectedPropertyId && title.trim().length >= 3;
 
-  const handleSubmit = () => {
-    if (!selectedPropertyId || title.trim().length < 3) return;
-
+  const onSubmit = (data: CreateBudgetRequestInput) => {
     createBudget.mutate(
       {
-        propertyId: selectedPropertyId,
-        title: title.trim(),
-        description: description.trim() || undefined,
+        propertyId: data.propertyId,
+        title: data.title.trim(),
+        description: data.description?.trim() || undefined,
       },
       {
         onSuccess: () => {
-          resetForm();
+          reset();
           onClose();
         },
         onError: () => {
@@ -53,14 +62,8 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
     );
   };
 
-  const resetForm = () => {
-    setSelectedPropertyId(null);
-    setTitle('');
-    setDescription('');
-  };
-
   const handleClose = () => {
-    resetForm();
+    reset();
     onClose();
   };
 
@@ -82,7 +85,7 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
           <Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-foreground text-base">
             Nuevo Presupuesto
           </Text>
-          <Pressable onPress={handleSubmit} disabled={!isValid || isSubmitting}>
+          <Pressable onPress={handleSubmit(onSubmit)} disabled={!isValid || isSubmitting}>
             <Text
               style={{ fontFamily: 'DMSans_700Bold' }}
               className={`text-base ${!isValid || isSubmitting ? 'text-muted-foreground' : 'text-primary'}`}
@@ -99,12 +102,12 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 8, marginBottom: 16 }}
+            contentContainerStyle={{ gap: 8, marginBottom: 4 }}
           >
             {properties.map((property: PropertyPublic) => (
               <Pressable
                 key={property.id}
-                onPress={() => setSelectedPropertyId(property.id)}
+                onPress={() => setValue('propertyId', property.id, { shouldValidate: true })}
                 className={`rounded-xl border px-4 py-3 ${
                   selectedPropertyId === property.id
                     ? 'bg-primary border-primary'
@@ -140,33 +143,74 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
               </View>
             )}
           </ScrollView>
+          {errors.propertyId && (
+            <Text
+              style={{ fontFamily: 'DMSans_400Regular' }}
+              className="text-destructive mb-2 text-xs"
+            >
+              {errors.propertyId.message}
+            </Text>
+          )}
+          {!errors.propertyId && <View className="mb-4" />}
 
           <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground mb-2 text-sm">
             Titulo
           </Text>
-          <TextInput
-            value={title}
-            onChangeText={setTitle}
-            placeholder="Describir brevemente el trabajo..."
-            placeholderTextColor="#4a4542"
-            maxLength={200}
-            style={{ fontFamily: 'DMSans_400Regular' }}
-            className="border-border bg-card text-foreground mb-4 rounded-xl border p-3 text-sm"
+          <Controller
+            control={control}
+            name="title"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                placeholder="Describir brevemente el trabajo..."
+                placeholderTextColor="#4a4542"
+                maxLength={200}
+                style={{ fontFamily: 'DMSans_400Regular' }}
+                className="border-border bg-card text-foreground mb-1 rounded-xl border p-3 text-sm"
+              />
+            )}
           />
+          {errors.title && (
+            <Text
+              style={{ fontFamily: 'DMSans_400Regular' }}
+              className="text-destructive mb-3 text-xs"
+            >
+              {errors.title.message}
+            </Text>
+          )}
+          {!errors.title && <View className="mb-4" />}
 
           <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground mb-2 text-sm">
             Descripcion (opcional)
           </Text>
-          <TextInput
-            value={description}
-            onChangeText={setDescription}
-            placeholder="Mas detalles sobre lo que necesitas..."
-            placeholderTextColor="#4a4542"
-            multiline
-            maxLength={2000}
-            style={{ fontFamily: 'DMSans_400Regular', minHeight: 100, textAlignVertical: 'top' }}
-            className="border-border bg-card text-foreground mb-4 rounded-xl border p-3 text-sm"
+          <Controller
+            control={control}
+            name="description"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                placeholder="Mas detalles sobre lo que necesitas..."
+                placeholderTextColor="#4a4542"
+                multiline
+                maxLength={2000}
+                style={{
+                  fontFamily: 'DMSans_400Regular',
+                  minHeight: 100,
+                  textAlignVertical: 'top',
+                }}
+                className="border-border bg-card text-foreground mb-4 rounded-xl border p-3 text-sm"
+              />
+            )}
           />
+          {errors.description && (
+            <Text style={{ fontFamily: 'DMSans_400Regular' }} className="text-destructive text-xs">
+              {errors.description.message}
+            </Text>
+          )}
         </ScrollView>
       </KeyboardAvoidingView>
     </Modal>

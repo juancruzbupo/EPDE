@@ -1,5 +1,13 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error && typeof error === 'object' && 'response' in error) {
+    const data = (error as { response?: { data?: { message?: string } } }).response?.data;
+    if (data?.message) return data.message;
+  }
+  return fallback;
+}
 import {
   getBudgets,
   getBudget,
@@ -36,8 +44,8 @@ export function useCreateBudgetRequest() {
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity'] });
     },
-    onError: () => {
-      toast.error('Error al crear presupuesto');
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al crear presupuesto'));
     },
   });
 }
@@ -59,8 +67,8 @@ export function useRespondToBudget() {
       toast.success('Cotización enviada');
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
     },
-    onError: () => {
-      toast.error('Error al enviar cotización');
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al enviar cotización'));
     },
   });
 }
@@ -75,8 +83,8 @@ export function useUpdateBudgetStatus() {
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity'] });
     },
-    onError: () => {
-      toast.error('Error al actualizar estado');
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al actualizar estado'));
     },
   });
 }

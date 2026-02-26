@@ -1,5 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error && typeof error === 'object' && 'response' in error) {
+    const data = (error as { response?: { data?: { message?: string } } }).response?.data;
+    if (data?.message) return data.message;
+  }
+  return fallback;
+}
 import {
   getPlan,
   updatePlan,
@@ -144,7 +152,7 @@ export function useCompleteTask() {
     },
 
     onError: (_err, variables, context) => {
-      toast.error('Error al completar tarea');
+      toast.error(getErrorMessage(_err, 'Error al completar tarea'));
       if (context?.previousPlan) {
         queryClient.setQueryData(['plans', variables.planId], context.previousPlan);
       }
