@@ -81,6 +81,22 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_STAGING }}
 
+      - name: Smoke test staging API
+        run: |
+          echo "Waiting 30s for stabilization..."
+          sleep 30
+          for i in 1 2 3 4 5; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.API_URL_STAGING }}/api/v1/health" || echo "000")
+            echo "Attempt $i: HTTP $STATUS"
+            if [ "$STATUS" = "200" ]; then
+              echo "Staging health check passed"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "Staging smoke test failed"
+          exit 1
+
   deploy-web-staging:
     name: Deploy Web (Staging)
     runs-on: ubuntu-latest

@@ -172,6 +172,32 @@ curl -X GET https://api.resend.com/domains \
 3. Revisar logs por errores de envio
 4. Verificar que `FRONTEND_URL` apunta al dominio correcto (usado en links de emails)
 
+## Procedimiento de Respuesta a Incidentes
+
+### Severidades
+
+| Nivel        | Definicion                             | Tiempo de Respuesta |
+| ------------ | -------------------------------------- | ------------------- |
+| P0 - Critico | Servicio caido, datos comprometidos    | < 15 min            |
+| P1 - Alto    | Funcionalidad core degradada           | < 1 hora            |
+| P2 - Medio   | Feature secundaria afectada            | < 4 horas           |
+| P3 - Bajo    | Issue cosmetico, workaround disponible | Proximo sprint      |
+
+### Checklist de Respuesta
+
+1. **Detectar**: Alerta de monitoreo o reporte de usuario
+2. **Evaluar**: Determinar severidad (P0-P3)
+3. **Comunicar**: Notificar al equipo en canal de incidentes
+4. **Contener**: Rollback si es necesario (ver seccion Rollback)
+5. **Resolver**: Fix + deploy
+6. **Post-mortem**: Documentar causa raiz y accion preventiva
+
+### Escalacion
+
+- P0/P1: Notificar inmediatamente al tech lead
+- P2: Notificar en standup
+- P3: Agregar a backlog
+
 ## Deploy
 
 ### Produccion

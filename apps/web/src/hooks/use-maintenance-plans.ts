@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   getPlan,
   updatePlan,
@@ -143,12 +144,14 @@ export function useCompleteTask() {
     },
 
     onError: (_err, variables, context) => {
+      toast.error('Error al completar tarea');
       if (context?.previousPlan) {
         queryClient.setQueryData(['plans', variables.planId], context.previousPlan);
       }
     },
 
-    onSettled: (_data, _error, variables) => {
+    onSettled: (_data, error, variables) => {
+      if (!error) toast.success('Tarea completada');
       queryClient.invalidateQueries({ queryKey: ['plans', variables.planId] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity'] });

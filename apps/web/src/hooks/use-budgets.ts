@@ -1,4 +1,5 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   getBudgets,
   getBudget,
@@ -30,9 +31,13 @@ export function useCreateBudgetRequest() {
   return useMutation({
     mutationFn: createBudgetRequest,
     onSuccess: () => {
+      toast.success('Presupuesto creado');
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity'] });
+    },
+    onError: () => {
+      toast.error('Error al crear presupuesto');
     },
   });
 }
@@ -51,7 +56,11 @@ export function useRespondToBudget() {
       validUntil?: string;
     }) => respondToBudget(id, dto),
     onSuccess: () => {
+      toast.success('Cotización enviada');
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
+    },
+    onError: () => {
+      toast.error('Error al enviar cotización');
     },
   });
 }
@@ -61,9 +70,13 @@ export function useUpdateBudgetStatus() {
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) => updateBudgetStatus(id, status),
     onSuccess: () => {
+      toast.success('Estado actualizado');
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity'] });
+    },
+    onError: () => {
+      toast.error('Error al actualizar estado');
     },
   });
 }

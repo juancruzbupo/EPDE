@@ -116,6 +116,7 @@ model Property {
   id           String       @id @default(uuid())
   userId       String
   createdBy    String?
+  updatedBy    String?
   address      String
   city         String
   type         PropertyType @default(HOUSE)
@@ -141,6 +142,7 @@ model MaintenancePlan {
   name       String
   status     PlanStatus @default(DRAFT)
   createdBy  String?
+  updatedBy  String?
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
 
@@ -171,6 +173,7 @@ model Task {
   order             Int            @default(0)
   status            TaskStatus     @default(PENDING)
   createdBy         String?
+  updatedBy         String?
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
   deletedAt         DateTime?
@@ -214,6 +217,7 @@ model TaskNote {
   author User @relation(fields: [authorId], references: [id])
 
   @@index([taskId])
+  @@index([authorId])
 }
 
 model BudgetRequest {
@@ -249,6 +253,8 @@ model BudgetLineItem {
   subtotal        Decimal @db.Decimal(14, 2)
 
   budgetRequest BudgetRequest @relation(fields: [budgetRequestId], references: [id], onDelete: Cascade)
+
+  @@index([budgetRequestId])
 }
 
 model BudgetResponse {
@@ -293,6 +299,8 @@ model ServiceRequestPhoto {
   createdAt        DateTime @default(now())
 
   serviceRequest ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+
+  @@index([serviceRequestId])
 }
 
 model Notification {

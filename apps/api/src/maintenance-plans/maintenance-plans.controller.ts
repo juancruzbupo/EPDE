@@ -42,8 +42,9 @@ export class MaintenancePlansController {
   async updatePlan(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updatePlanSchema)) dto: UpdatePlanInput,
+    @CurrentUser() user: { id: string },
   ) {
-    const data = await this.plansService.updatePlan(id, dto);
+    const data = await this.plansService.updatePlan(id, dto, user.id);
     return { data };
   }
 
@@ -63,8 +64,9 @@ export class MaintenancePlansController {
   async updateTask(
     @Param('taskId') taskId: string,
     @Body(new ZodValidationPipe(updateTaskSchema)) dto: UpdateTaskInput,
+    @CurrentUser() user: { id: string },
   ) {
-    const data = await this.plansService.updateTask(taskId, dto);
+    const data = await this.plansService.updateTask(taskId, dto, user.id);
     return { data };
   }
 

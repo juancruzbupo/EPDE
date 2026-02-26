@@ -30,8 +30,8 @@ function addSoftDeleteFilter(args: { where?: Record<string, unknown> }) {
  * Prisma extension that implements soft delete for User, Property, and Task models.
  *
  * - Read queries (findMany, findFirst, findUnique, count, aggregate, groupBy)
- *   auto-filter `deletedAt: null` unless `deletedAt` is explicitly set in the
- *   where clause (including inside AND/OR/NOT).
+ *   and updateMany auto-filter `deletedAt: null` unless `deletedAt` is
+ *   explicitly set in the where clause (including inside AND/OR/NOT).
  * - Use `writeModel` in BaseRepository to bypass soft delete filtering.
  */
 function softDeleteExtension() {
@@ -98,6 +98,16 @@ function softDeleteHandlers() {
       return query(args);
     },
     async groupBy({
+      args,
+      query,
+    }: {
+      args: { where?: Record<string, unknown> };
+      query: (args: unknown) => unknown;
+    }) {
+      addSoftDeleteFilter(args);
+      return query(args);
+    },
+    async updateMany({
       args,
       query,
     }: {

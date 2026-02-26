@@ -26,7 +26,7 @@ async function bootstrap() {
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
-          imgSrc: ["'self'", 'data:', process.env.R2_PUBLIC_URL || ''].filter(Boolean),
+          imgSrc: ["'self'", process.env.R2_PUBLIC_URL || ''].filter(Boolean),
           connectSrc: ["'self'"],
           frameSrc: ["'none'"],
           objectSrc: ["'none'"],

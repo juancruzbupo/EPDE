@@ -60,7 +60,7 @@ export class PropertiesService {
       throw new ForbiddenException('No tenés acceso a esta propiedad');
     }
 
-    return this.propertiesRepository.update(id, dto);
+    return this.propertiesRepository.update(id, { ...dto, updatedBy: currentUser.id });
   }
 
   async deleteProperty(id: string, currentUser: CurrentUser) {

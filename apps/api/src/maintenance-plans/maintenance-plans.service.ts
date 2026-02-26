@@ -39,12 +39,12 @@ export class MaintenancePlansService {
     return plan;
   }
 
-  async updatePlan(id: string, dto: UpdatePlanInput) {
+  async updatePlan(id: string, dto: UpdatePlanInput, updatedBy?: string) {
     const plan = await this.plansRepository.findById(id);
     if (!plan) {
       throw new NotFoundException('Plan de mantenimiento no encontrado');
     }
-    return this.plansRepository.update(id, dto);
+    return this.plansRepository.update(id, { ...dto, ...(updatedBy && { updatedBy }) });
   }
 
   async addTask(
@@ -80,14 +80,14 @@ export class MaintenancePlansService {
     );
   }
 
-  async updateTask(taskId: string, dto: UpdateTaskInput) {
+  async updateTask(taskId: string, dto: UpdateTaskInput, updatedBy?: string) {
     const task = await this.tasksRepository.findById(taskId);
     if (!task) {
       throw new NotFoundException('Tarea no encontrada');
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data: any = { ...dto };
+    const data: any = { ...dto, ...(updatedBy && { updatedBy }) };
     if (dto.categoryId) {
       data.category = { connect: { id: dto.categoryId } };
       delete data.categoryId;

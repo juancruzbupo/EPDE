@@ -100,11 +100,10 @@ export class TasksRepository extends BaseRepository<Task> {
   }
 
   async markOverdue(): Promise<number> {
-    const result = await this.prisma.task.updateMany({
+    const result = await this.model.updateMany({
       where: {
         nextDueDate: { lt: new Date() },
         status: { notIn: ['COMPLETED', 'OVERDUE'] },
-        deletedAt: null,
       },
       data: { status: 'OVERDUE' },
     });
@@ -113,11 +112,10 @@ export class TasksRepository extends BaseRepository<Task> {
 
   async markUpcoming(): Promise<number> {
     const now = new Date();
-    const result = await this.prisma.task.updateMany({
+    const result = await this.model.updateMany({
       where: {
         nextDueDate: { gte: now, lte: addDays(now, 30) },
         status: 'PENDING',
-        deletedAt: null,
       },
       data: { status: 'UPCOMING' },
     });
@@ -125,11 +123,10 @@ export class TasksRepository extends BaseRepository<Task> {
   }
 
   async resetUpcomingToPending(): Promise<number> {
-    const result = await this.prisma.task.updateMany({
+    const result = await this.model.updateMany({
       where: {
         nextDueDate: { gt: addDays(new Date(), 30) },
         status: 'UPCOMING',
-        deletedAt: null,
       },
       data: { status: 'PENDING' },
     });

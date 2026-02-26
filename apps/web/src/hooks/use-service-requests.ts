@@ -1,4 +1,5 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   getServiceRequests,
   getServiceRequest,
@@ -30,9 +31,13 @@ export function useCreateServiceRequest() {
   return useMutation({
     mutationFn: createServiceRequest,
     onSuccess: () => {
+      toast.success('Solicitud creada');
       queryClient.invalidateQueries({ queryKey: ['service-requests'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity'] });
+    },
+    onError: () => {
+      toast.error('Error al crear solicitud');
     },
   });
 }
@@ -42,9 +47,13 @@ export function useUpdateServiceStatus() {
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) => updateServiceStatus(id, status),
     onSuccess: () => {
+      toast.success('Estado actualizado');
       queryClient.invalidateQueries({ queryKey: ['service-requests'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity'] });
+    },
+    onError: () => {
+      toast.error('Error al actualizar estado');
     },
   });
 }

@@ -180,7 +180,10 @@ describe('PropertiesService', () => {
       const result = await service.updateProperty('prop-1', updateDto, adminUser);
 
       expect(repository.findById).toHaveBeenCalledWith('prop-1');
-      expect(repository.update).toHaveBeenCalledWith('prop-1', updateDto);
+      expect(repository.update).toHaveBeenCalledWith('prop-1', {
+        ...updateDto,
+        updatedBy: 'admin-1',
+      });
       expect(result.address).toBe('Calle Actualizada 789');
     });
 
@@ -190,7 +193,10 @@ describe('PropertiesService', () => {
 
       const result = await service.updateProperty('prop-1', updateDto, clientUser);
 
-      expect(repository.update).toHaveBeenCalledWith('prop-1', updateDto);
+      expect(repository.update).toHaveBeenCalledWith('prop-1', {
+        ...updateDto,
+        updatedBy: 'client-1',
+      });
       expect(result.address).toBe('Calle Actualizada 789');
     });
 
