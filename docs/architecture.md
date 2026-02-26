@@ -42,6 +42,22 @@ epde/
           api/          # Axios client + funciones API por entidad
         providers/      # QueryProvider, AuthProvider
         stores/         # Zustand stores
+    mobile/           # Expo React Native (rol CLIENT)
+      src/
+        app/
+          (auth)/       # Login, set-password
+          (tabs)/       # Tab navigation (5 tabs)
+          property/     # Detalle de propiedad [id]
+          budget/       # Detalle de presupuesto [id]
+          service-requests/ # Lista y detalle
+          task/         # Detalle de tarea [planId]/[taskId]
+        components/     # StatusBadge, EmptyState, StatCard, Modals
+        hooks/          # React Query hooks (infinite scroll)
+        lib/
+          api/          # Funciones API por entidad
+          api-client.ts # Axios con token refresh
+          token-service.ts # Expo SecureStore
+        stores/         # Zustand auth store
   packages/
     shared/           # Tipos, schemas Zod, constantes, utilidades
       src/

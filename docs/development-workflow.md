@@ -7,7 +7,8 @@ Guia de referencia para desarrollo con AI y humanos.
 ```bash
 pnpm install          # Instalar dependencias
 pnpm dev              # Levantar API + Web + Shared (watch)
-pnpm build            # Build de produccion (3 workspaces)
+pnpm dev:mobile       # Levantar Expo dev server
+pnpm build            # Build de produccion (todos los workspaces)
 pnpm lint             # ESLint en todos los workspaces
 pnpm typecheck        # TypeScript check en todos los workspaces
 pnpm test             # Tests (jest en API, vitest en shared)
@@ -15,6 +16,7 @@ pnpm test             # Tests (jest en API, vitest en shared)
 # Workspace especifico
 pnpm --filter @epde/api <comando>
 pnpm --filter @epde/web <comando>
+pnpm --filter @epde/mobile <comando>
 pnpm --filter @epde/shared <comando>
 
 # Prisma
@@ -345,6 +347,16 @@ Cuerpo opcional (lineas max 100 chars)
 | NEXT_PUBLIC_API_URL | URL de la API (default: `http://localhost:3001/api/v1`) |
 
 **Importante:** Variables `NEXT_PUBLIC_*` se resuelven en build time. Reiniciar dev server despues de cambiar.
+
+### Mobile (`apps/mobile`)
+
+La app mobile detecta automaticamente la URL del API:
+
+- **Web**: `http://localhost:3001/api/v1`
+- **Native (dev)**: `http://<IP_DISPOSITIVO>:3001/api/v1` (auto-detectada via Expo Constants)
+- **Produccion**: `https://api.epde.com.ar/api/v1`
+
+No requiere `.env` para desarrollo local — la logica esta en `src/lib/api-client.ts`.
 
 ## Troubleshooting
 

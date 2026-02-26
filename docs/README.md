@@ -7,30 +7,34 @@
 | Documento                                          | Descripcion                                                    |
 | -------------------------------------------------- | -------------------------------------------------------------- |
 | [architecture.md](architecture.md)                 | Estructura del monorepo, patrones de diseno, capas del sistema |
+| [mobile.md](mobile.md)                             | App mobile Expo/React Native, navegacion, patrones             |
 | [design-system.md](design-system.md)               | Tokens de diseno, colores, tipografia, componentes UI          |
 | [development-workflow.md](development-workflow.md) | Guia de desarrollo para AI y humanos, convenciones, flujos     |
 | [data-model.md](data-model.md)                     | Modelo de datos completo, entidades, relaciones, enums         |
 | [api-reference.md](api-reference.md)               | Endpoints, autenticacion, respuestas, errores                  |
+| [monorepo-completo.md](monorepo-completo.md)       | Arquitectura completa del monorepo, tecnologias y patrones     |
 
 ## Stack Tecnologico
 
-| Capa           | Tecnologia                                           | Version |
-| -------------- | ---------------------------------------------------- | ------- |
-| Monorepo       | Turborepo + pnpm                                     | 10.6.1  |
-| Frontend       | Next.js (App Router)                                 | 15.5    |
-| Backend        | NestJS                                               | 11      |
-| Base de datos  | PostgreSQL                                           | 16      |
-| ORM            | Prisma                                               | 6       |
-| Shared         | tsup (ESM + CJS)                                     | -       |
-| UI             | shadcn/ui + Tailwind CSS 4                           | -       |
-| State (global) | Zustand                                              | -       |
-| State (server) | TanStack React Query                                 | 5       |
-| Validacion     | Zod (unico SSoT, shared + API via ZodValidationPipe) | -       |
-| Auth           | Passport JWT + Local                                 | -       |
-| Email          | Resend                                               | -       |
-| Storage        | Cloudflare R2                                        | -       |
-| CI/CD          | GitHub Actions                                       | -       |
-| Monitoreo      | Sentry                                               | -       |
+| Capa           | Tecnologia                                           | Version   |
+| -------------- | ---------------------------------------------------- | --------- |
+| Monorepo       | Turborepo + pnpm                                     | 10.6.1    |
+| Frontend       | Next.js (App Router)                                 | 15.5      |
+| Mobile         | Expo + React Native + NativeWind                     | 54 / 0.81 |
+| Backend        | NestJS                                               | 11        |
+| Base de datos  | PostgreSQL                                           | 16        |
+| ORM            | Prisma                                               | 6         |
+| Shared         | tsup (ESM + CJS)                                     | -         |
+| UI Web         | shadcn/ui + Tailwind CSS 4                           | -         |
+| UI Mobile      | NativeWind 5 (Tailwind para RN)                      | -         |
+| State (global) | Zustand                                              | -         |
+| State (server) | TanStack React Query                                 | 5         |
+| Validacion     | Zod (unico SSoT, shared + API via ZodValidationPipe) | -         |
+| Auth           | Passport JWT + Local                                 | -         |
+| Email          | Resend                                               | -         |
+| Storage        | Cloudflare R2                                        | -         |
+| CI/CD          | GitHub Actions                                       | -         |
+| Monitoreo      | Sentry                                               | -         |
 
 ## Workspaces
 
@@ -39,6 +43,7 @@ epde/
   apps/
     api/          # NestJS REST API (puerto 3001)
     web/          # Next.js frontend (puerto 3000)
+    mobile/       # Expo React Native app (cliente)
   packages/
     shared/       # Tipos, schemas Zod, constantes, utilidades
 ```
@@ -56,8 +61,11 @@ docker compose up -d
 pnpm --filter @epde/api exec prisma migrate dev
 pnpm --filter @epde/api exec prisma db seed
 
-# Desarrollo
+# Desarrollo (web + api)
 pnpm dev
+
+# Desarrollo mobile
+pnpm dev:mobile
 
 # Build completo
 pnpm build
@@ -79,6 +87,7 @@ pnpm test
 | Servicio | URL                            |
 | -------- | ------------------------------ |
 | Frontend | http://localhost:3000          |
+| Mobile   | Expo Dev Server (puerto 8081)  |
 | API      | http://localhost:3001/api/v1   |
 | Swagger  | http://localhost:3001/api/docs |
 | pgAdmin  | http://localhost:5050          |

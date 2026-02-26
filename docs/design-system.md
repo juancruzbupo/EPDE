@@ -268,3 +268,62 @@ import { es } from 'date-fns/locale';
 formatDistanceToNow(date, { addSuffix: true, locale: es });
 // "hace 2 horas", "en 3 dias"
 ```
+
+## Mobile (NativeWind)
+
+La app mobile replica el design system web usando **NativeWind 5** (Tailwind CSS para React Native).
+
+### Configuracion (`src/global.css`)
+
+```css
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css';
+@import 'nativewind/theme';
+
+@theme inline {
+  --color-primary: #c4704b;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #e8ddd3;
+  --color-secondary-foreground: #2e2a27;
+  --color-background: #fafaf8;
+  --color-foreground: #2e2a27;
+  --color-card: #ffffff;
+  --color-card-foreground: #2e2a27;
+  --color-muted: #f5f0eb;
+  --color-muted-foreground: #4a4542;
+  --color-destructive: #c45b4b;
+  --color-border: #e8ddd3;
+  --color-success: #6b9b7a;
+  --radius: 0.625rem;
+}
+```
+
+### Tipografia Mobile
+
+- **Body**: DM Sans (`@expo-google-fonts/dm-sans`) — Regular, Medium, Bold
+- **Headings**: Playfair Display (`@expo-google-fonts/playfair-display`) — Bold
+- Cargadas via `expo-font` en el root layout
+
+### Componentes Mobile
+
+| Componente                  | Descripcion                                       |
+| --------------------------- | ------------------------------------------------- |
+| `StatusBadge`               | Badge con variantes por estado/prioridad/urgencia |
+| `EmptyState`                | Placeholder para listas vacias                    |
+| `StatCard`                  | Tarjeta de estadistica del dashboard              |
+| `CreateBudgetModal`         | Modal de creacion de presupuesto                  |
+| `CreateServiceRequestModal` | Modal con upload de fotos (camara/galeria)        |
+| `CompleteTaskModal`         | Modal para completar tarea con nota y foto        |
+
+### Uso de Colores en Mobile
+
+```tsx
+// Correcto — tokens NativeWind
+<View className="bg-primary rounded-lg p-4" />
+<Text className="text-foreground text-lg font-semibold" />
+<View className="border border-border bg-card" />
+
+// Incorrecto — colores hardcodeados
+<View style={{ backgroundColor: '#C4704B' }} />
+```
