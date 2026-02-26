@@ -11,6 +11,15 @@ const BUDGET_STATUS_LABELS: Record<string, string> = {
   PENDING: 'pendiente',
 };
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
@@ -41,15 +50,15 @@ export class EmailService {
   private ctaButton(href: string, text: string): string {
     return `
       <p style="text-align: center; margin: 30px 0;">
-        <a href="${href}" style="background-color: #C4704B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-          ${text}
+        <a href="${escapeHtml(href)}" style="background-color: #C4704B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+          ${escapeHtml(text)}
         </a>
       </p>
     `;
   }
 
   async sendInviteEmail(to: string, name: string, token: string): Promise<void> {
-    const link = `${this.frontendUrl}/set-password?token=${token}`;
+    const link = `${this.frontendUrl}/set-password?token=${encodeURIComponent(token)}`;
 
     if (!this.resend) {
       this.logger.warn(
@@ -58,12 +67,14 @@ export class EmailService {
       return;
     }
 
+    const safeName = escapeHtml(name);
+
     await this.resend.emails.send({
       from: this.emailFrom,
       to,
       subject: 'Bienvenido a EPDE - Configurá tu contraseña',
       html: this.wrapEmailHtml(`
-        <p>Hola ${name},</p>
+        <p>Hola ${safeName},</p>
         <p>Fuiste invitado a la plataforma de mantenimiento preventivo EPDE.</p>
         <p>Para comenzar, configurá tu contraseña haciendo clic en el siguiente enlace:</p>
         ${this.ctaButton(link, 'Configurar contraseña')}
@@ -94,6 +105,11 @@ export class EmailService {
       year: 'numeric',
     });
 
+    const safeName = escapeHtml(name);
+    const safeTaskName = escapeHtml(taskName);
+    const safeCategoryName = escapeHtml(categoryName);
+    const safePropertyAddress = escapeHtml(propertyAddress);
+
     const subject = isOverdue
       ? `Tarea vencida: ${taskName}`
       : `Recordatorio: ${taskName} vence pronto`;
@@ -107,20 +123,20 @@ export class EmailService {
       to,
       subject,
       html: this.wrapEmailHtml(`
-        <p>Hola ${name},</p>
+        <p>Hola ${safeName},</p>
         ${statusText}
         <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
           <tr>
             <td style="padding: 8px 0; color: #666;">Tarea</td>
-            <td style="padding: 8px 0; font-weight: bold;">${taskName}</td>
+            <td style="padding: 8px 0; font-weight: bold;">${safeTaskName}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #666;">Categoría</td>
-            <td style="padding: 8px 0;">${categoryName}</td>
+            <td style="padding: 8px 0;">${safeCategoryName}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #666;">Propiedad</td>
-            <td style="padding: 8px 0;">${propertyAddress}</td>
+            <td style="padding: 8px 0;">${safePropertyAddress}</td>
           </tr>
         </table>
         ${this.ctaButton(`${this.frontendUrl}/dashboard`, 'Ver en EPDE')}
@@ -147,16 +163,19 @@ export class EmailService {
       currency: 'ARS',
     }).format(totalAmount);
 
+    const safeName = escapeHtml(name);
+    const safeBudgetTitle = escapeHtml(budgetTitle);
+
     await this.resend.emails.send({
       from: this.emailFrom,
       to,
       subject: `Tu presupuesto "${budgetTitle}" fue cotizado`,
       html: this.wrapEmailHtml(`
-        <p>Hola ${name},</p>
-        <p>Tu presupuesto <strong>"${budgetTitle}"</strong> fue cotizado por un monto total de:</p>
+        <p>Hola ${safeName},</p>
+        <p>Tu presupuesto <strong>"${safeBudgetTitle}"</strong> fue cotizado por un monto total de:</p>
         <p style="font-size: 24px; font-weight: bold; text-align: center; color: #C4704B; margin: 20px 0;">${formattedAmount}</p>
         <p>Ingresá a la plataforma para revisar el detalle y aprobarlo o rechazarlo.</p>
-        ${this.ctaButton(`${this.frontendUrl}/budgets/${budgetId}`, 'Ver presupuesto')}
+        ${this.ctaButton(`${this.frontendUrl}/budgets/${encodeURIComponent(budgetId)}`, 'Ver presupuesto')}
       `),
     });
 
@@ -176,16 +195,18 @@ export class EmailService {
     }
 
     const statusLabel = BUDGET_STATUS_LABELS[newStatus] ?? newStatus;
+    const safeName = escapeHtml(name);
+    const safeBudgetTitle = escapeHtml(budgetTitle);
 
     await this.resend.emails.send({
       from: this.emailFrom,
       to,
       subject: `Actualización de presupuesto: ${budgetTitle}`,
       html: this.wrapEmailHtml(`
-        <p>Hola ${name},</p>
-        <p>Tu presupuesto <strong>"${budgetTitle}"</strong> fue actualizado al estado: <strong>${statusLabel}</strong>.</p>
+        <p>Hola ${safeName},</p>
+        <p>Tu presupuesto <strong>"${safeBudgetTitle}"</strong> fue actualizado al estado: <strong>${escapeHtml(statusLabel)}</strong>.</p>
         <p>Ingresá a la plataforma para ver los detalles.</p>
-        ${this.ctaButton(`${this.frontendUrl}/budgets/${budgetId}`, 'Ver presupuesto')}
+        ${this.ctaButton(`${this.frontendUrl}/budgets/${encodeURIComponent(budgetId)}`, 'Ver presupuesto')}
       `),
     });
 

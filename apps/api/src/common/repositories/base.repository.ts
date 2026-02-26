@@ -40,8 +40,10 @@ export abstract class BaseRepository<T> {
     return this.model.findFirst({ where: { id }, ...(include && { include }) });
   }
 
+  private static readonly MAX_PAGE_SIZE = 100;
+
   async findMany(params: FindManyParams = {}): Promise<PaginatedResult<T>> {
-    const take = params.take ?? 20;
+    const take = Math.min(Math.max(params.take ?? 20, 1), BaseRepository.MAX_PAGE_SIZE);
     const where = params.where ?? {};
     const orderBy = params.orderBy ?? { createdAt: 'desc' };
     const include = params.include;

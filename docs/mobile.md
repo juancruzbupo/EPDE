@@ -144,7 +144,7 @@ interface AuthState {
 2. **Login** → `POST /auth/login` → guarda access + refresh tokens en SecureStore (refresh contiene family + generation)
 3. **Request** → Axios interceptor adjunta `Authorization: Bearer <token>`
 4. **401** → Interceptor refresca token automaticamente (singleton pattern) → se rota el refresh token (nueva generation)
-5. **Logout** → Limpia tokens + invalida query cache + redirige a login. Backend revoca family + blacklist access JTI en Redis
+5. **Logout** → `try { authApi.logout() } catch { tokenService.clearTokens() } finally { clearState() }`. Defensivo: siempre limpia estado local y tokens aunque la API falle. Backend revoca family + blacklist access JTI en Redis
 
 ### Token Service
 

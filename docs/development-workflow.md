@@ -400,6 +400,7 @@ Deploy automatico via GitHub Actions:
 
 - **Produccion** (`cd.yml`): trigger en push a `main`
   - API → Railway (`railway up --service epde-api`) con migraciones Prisma previas
+  - **Smoke test post-deploy**: 5 reintentos de health check con 15s backoff. Falla el workflow si no responde 200
   - Web → Vercel (`vercel deploy --prebuilt --prod`)
 - **Staging** (`cd-staging.yml`): trigger en push a `develop`
   - Misma pipeline con secrets de staging

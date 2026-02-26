@@ -24,8 +24,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
-    await authApi.logout();
-    set({ user: null, isAuthenticated: false });
+    try {
+      await authApi.logout();
+    } catch {
+      // authApi.logout already handles errors, but be defensive
+      await tokenService.clearTokens();
+    } finally {
+      set({ user: null, isAuthenticated: false });
+    }
   },
 
   checkAuth: async () => {

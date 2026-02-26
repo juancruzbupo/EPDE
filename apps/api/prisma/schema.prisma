@@ -131,6 +131,7 @@ model Property {
   serviceRequests ServiceRequest[]
 
   @@index([userId])
+  @@index([userId, deletedAt])
 }
 
 model MaintenancePlan {
@@ -141,7 +142,7 @@ model MaintenancePlan {
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
 
-  property Property @relation(fields: [propertyId], references: [id])
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   tasks    Task[]
 }
 
@@ -171,12 +172,13 @@ model Task {
   updatedAt         DateTime       @updatedAt
   deletedAt         DateTime?
 
-  maintenancePlan MaintenancePlan @relation(fields: [maintenancePlanId], references: [id])
+  maintenancePlan MaintenancePlan @relation(fields: [maintenancePlanId], references: [id], onDelete: Cascade)
   category        Category        @relation(fields: [categoryId], references: [id])
   taskLogs        TaskLog[]
   taskNotes       TaskNote[]
 
   @@index([maintenancePlanId])
+  @@index([maintenancePlanId, status])
   @@index([nextDueDate])
   @@index([status])
   @@index([status, nextDueDate])
@@ -191,7 +193,7 @@ model TaskLog {
   notes       String?
   photoUrl    String?
 
-  task Task @relation(fields: [taskId], references: [id])
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
   user User @relation(fields: [completedBy], references: [id])
 
   @@index([taskId])
@@ -205,7 +207,7 @@ model TaskNote {
   content   String
   createdAt DateTime @default(now())
 
-  task   Task @relation(fields: [taskId], references: [id])
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
   author User @relation(fields: [authorId], references: [id])
 
   @@index([taskId])
@@ -229,7 +231,9 @@ model BudgetRequest {
   response  BudgetResponse?
 
   @@index([propertyId])
+  @@index([requestedBy, status])
   @@index([status])
+  @@index([status, createdAt])
 }
 
 model BudgetLineItem {
@@ -272,7 +276,9 @@ model ServiceRequest {
   photos    ServiceRequestPhoto[]
 
   @@index([propertyId])
+  @@index([requestedBy, status])
   @@index([status])
+  @@index([status, urgency])
 }
 
 model ServiceRequestPhoto {
@@ -294,7 +300,7 @@ model Notification {
   data      Json?
   createdAt DateTime         @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, read])
   @@index([userId, type, createdAt])

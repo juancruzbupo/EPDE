@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { z } from 'zod';
 
-const envSchema = z.object({
+const baseSchema = z.object({
   DATABASE_URL: z.string().url(),
   JWT_SECRET: z.string().min(16),
   JWT_EXPIRATION: z.string().default('15m'),
@@ -19,6 +19,16 @@ const envSchema = z.object({
   REDIS_URL: z.string().default('redis://localhost:6379'),
   CORS_ORIGIN: z.string().optional(),
   SENTRY_DSN: z.string().url().optional(),
+});
+
+const envSchema = baseSchema.superRefine((data, ctx) => {
+  if (data.NODE_ENV === 'production' && !data.CORS_ORIGIN) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['CORS_ORIGIN'],
+      message: 'CORS_ORIGIN is required in production',
+    });
+  }
 });
 
 @Module({

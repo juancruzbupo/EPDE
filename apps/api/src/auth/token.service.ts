@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+  Logger,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
@@ -88,11 +93,19 @@ export class TokenService {
     const refreshTtl = this.getRefreshTtlSeconds();
 
     // Atomic check-and-increment via Lua script
-    const result = await this.redisService.eval(
-      TokenService.ROTATE_LUA,
-      [`rt:${family}`],
-      [generation, newGeneration, refreshTtl],
-    );
+    let result: unknown;
+    try {
+      result = await this.redisService.eval(
+        TokenService.ROTATE_LUA,
+        [`rt:${family}`],
+        [generation, newGeneration, refreshTtl],
+      );
+    } catch (error) {
+      this.logger.error(
+        `Redis error during token rotation for user ${sub}: ${(error as Error).message}`,
+      );
+      throw new InternalServerErrorException('Error al rotar token');
+    }
 
     if (result === 0) {
       throw new UnauthorizedException('Sesión expirada');

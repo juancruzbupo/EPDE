@@ -441,14 +441,77 @@ grep -rn "priorityColors\|urgencyVariant\|statusVariant" apps/web/src/ --include
 
 ---
 
+## Fase 7 — Hardening Post-Auditoria (Score 7.8 → 9+)
+
+> **Prioridad:** Critica/Alta
+> **Estimacion:** 1-2 dias
+> **Dependencias:** Fase 6 completada
+> **Issues que resuelve:** 5 riesgos criticos + 7 problemas importantes de la segunda auditoria arquitectonica
+
+### Contexto
+
+Auditoria de arquitecto principal (score 7.8/10) identifico riesgos de seguridad, resiliencia de DB, produccion y escalabilidad.
+
+### Tareas
+
+#### 7.1 — Security Hardening
+
+- [x] **7.1.1 — Fix CORS wildcard en produccion** — Default cambiado a `localhost:3000`, fail-fast en prod
+- [x] **7.1.2 — Validacion de file upload** — MIME whitelist, 10MB max, folder whitelist
+- [x] **7.1.3 — Error boundaries en event handlers** — try-catch en cada handler de NotificationsListener
+- [x] **7.1.4 — HTML escaping en emails** — `escapeHtml()` + `encodeURIComponent()` en templates
+- [x] **7.1.5 — Mobile logout defensivo** — try/catch/finally garantiza limpieza de tokens
+
+#### 7.2 — Database Resilience
+
+- [x] **7.2.1 — CASCADE DELETE** — 5 relaciones nuevas con onDelete: Cascade
+- [x] **7.2.2 — Indexes compuestos** — 6 nuevos indexes para queries de produccion
+
+#### 7.3 — Production Readiness
+
+- [x] **7.3.1 — Redis try-catch en token rotation** — `eval()` protegido con InternalServerErrorException
+- [x] **7.3.2 — Scheduler batching** — Safety sweep usa `Promise.all()` en vez de serial await
+- [x] **7.3.3 — CD smoke test** — Health check post-deploy con 5 reintentos
+
+#### 7.4 — Observability & Scalability
+
+- [x] **7.4.1 — Lock watchdog** — TTL extension automatica con Lua script atomico
+- [x] **7.4.2 — Limite de paginacion** — MAX_PAGE_SIZE=100 en BaseRepository
+
+### Verificacion
+
+```bash
+pnpm build && pnpm typecheck && pnpm lint && pnpm test  # Todo green
+```
+
+---
+
+## Resumen de progreso (actualizado)
+
+| Fase | Descripcion          | Estado           | Tareas |
+| ---- | -------------------- | ---------------- | ------ |
+| 1    | Seguridad            | `[x] Completado` | 3      |
+| 2    | Validacion unica     | `[x] Completado` | 8      |
+| 3    | Backend clean arch   | `[x] Completado` | 8      |
+| 4    | Type safety E2E      | `[x] Completado` | 6      |
+| 5    | Performance          | `[x] Completado` | 6      |
+| 6    | Testing + polish     | `[x] Completado` | 10     |
+| 7    | Hardening post-audit | `[x] Completado` | 12     |
+
+**Tests totales: 306** (91 API unit + 187 Shared + 15 Web + 13 Mobile + E2E suites)
+
+**Progreso total: 52 / 52 tareas**
+
+---
+
 ## Diagrama de dependencias
 
 ```
 Fase 1 (Seguridad) ──────────────────────────────────────┐
                                                           │
 Fase 2 (Validación) ──┬── Fase 3 (Backend) ── Fase 5 ────┤
-                       │                       (Perf)     ├── DONE
-                       └── Fase 4 (Types) ────────────────┤
+                       │                       (Perf)     ├── Fase 7 ── DONE
+                       └── Fase 4 (Types) ────────────────┤  (Hardening)
                                                           │
                            Fase 6 (Tests + Polish) ───────┘
                            (depende de 3 y 4)

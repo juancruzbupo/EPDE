@@ -185,7 +185,8 @@ El deploy se ejecuta automaticamente via GitHub Actions (`cd.yml`) en push a `ma
    - Ejecuta migraciones Prisma (`prisma migrate deploy`)
    - Despliega via `railway up --service epde-api --detach`
    - Usa `apps/api/Dockerfile` (multi-stage build: base → deps → builder → runner)
-   - Healthcheck: `GET /api/v1/health` (timeout 30s)
+   - **Smoke test post-deploy:** 5 reintentos de health check (`GET /api/v1/health`) con 15s entre intentos. El workflow falla si la API no responde 200 despues de todos los reintentos
+   - Requiere secret `API_URL` con la URL base del API en produccion
 4. **deploy-web (Vercel)**:
    - Instala Vercel CLI
    - `vercel pull` → `vercel build --prod` → `vercel deploy --prebuilt --prod`
@@ -243,11 +244,30 @@ pnpm --filter @epde/api prisma migrate dev --name descripcion_del_cambio
 ### Indices importantes
 
 - `User(role, deletedAt)` — Filtrado de usuarios por rol
+- `Property(userId, deletedAt)` — Listado de propiedades por owner (con soft delete)
 - `Task(status, nextDueDate)` — Queries de cron jobs
 - `Task(status, deletedAt)` — Listado de tareas activas
+- `Task(maintenancePlanId, status)` — Tareas por plan con filtro de estado
 - `TaskLog(taskId)` — Historial de completado por tarea
-- `TaskLog(completedBy)` — Historial de completado por usuario
+- `TaskLog(completedBy, completedAt)` — Historial de completado por usuario
+- `BudgetRequest(requestedBy, status)` — Presupuestos del cliente
+- `BudgetRequest(status, createdAt)` — Listado filtrado con orden
+- `ServiceRequest(requestedBy, status)` — Solicitudes del cliente
+- `ServiceRequest(status, urgency)` — Listado filtrado por urgencia
 - `Notification(userId, type, createdAt)` — Notificaciones del usuario
+
+### CASCADE DELETE
+
+Las siguientes relaciones tienen `onDelete: Cascade` configurado en Prisma:
+
+- `MaintenancePlan` → `Property` (eliminar propiedad elimina su plan)
+- `Task` → `MaintenancePlan` (eliminar plan elimina sus tareas)
+- `TaskLog` → `Task` (eliminar tarea elimina sus logs)
+- `TaskNote` → `Task` (eliminar tarea elimina sus notas)
+- `Notification` → `User` (eliminar usuario elimina sus notificaciones)
+- `BudgetLineItem` → `BudgetRequest` (eliminar presupuesto elimina items)
+- `BudgetResponse` → `BudgetRequest` (eliminar presupuesto elimina respuesta)
+- `ServiceRequestPhoto` → `ServiceRequest` (eliminar solicitud elimina fotos)
 
 ### Backup
 

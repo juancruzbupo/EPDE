@@ -177,12 +177,13 @@ export class TaskSchedulerService {
         return;
       }
 
-      for (const task of staleTasks) {
+      const updates = staleTasks.map((task) => {
         const months = task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType);
         const newDueDate = getNextDueDate(task.nextDueDate, months);
+        return this.tasksRepository.updateDueDateAndStatus(task.id, newDueDate, 'PENDING');
+      });
 
-        await this.tasksRepository.updateDueDateAndStatus(task.id, newDueDate, 'PENDING');
-      }
+      await Promise.all(updates);
 
       this.logger.log(`Safety sweep: fixed ${staleTasks.length} stale task(s)`);
     });

@@ -303,6 +303,7 @@ export class BaseRepository<T> {
 
 - **Servicios NO inyectan PrismaService** — solo los repositorios acceden a datos
 - Paginacion cursor-based: `{ data, nextCursor, hasMore, total }`
+- `take` clampeado entre 1 y `MAX_PAGE_SIZE` (100) para prevenir queries sin limite
 
 ### P2: Soft Delete (Prisma Extension)
 
@@ -363,6 +364,8 @@ Tres guards globales en orden via `APP_GUARD`:
 | `budget.statusChanged`  | BudgetsService         | Notificacion al cliente       |
 | `client.invited`        | ClientsService         | Email de invitacion           |
 
+Cada handler en `NotificationsListener` esta envuelto en `try-catch` para evitar que errores de DB/email propaguen al event loop.
+
 ### P8: Error Handling Centralizado
 
 `GlobalExceptionFilter`:
@@ -388,22 +391,21 @@ Login → LocalStrategy (email+password) → JWT access + refresh (family + gene
 
 - **Token Rotation**: cada login crea una "family" UUID. Refresh tokens llevan `family` + `generation`
 - **Reuse Detection**: si generation no coincide al hacer refresh → revoca toda la family
-- Redis almacena `rt:{family}` con generation actual (TTL 7d) y `bl:{jti}` para blacklist. La rotacion usa Lua script atomico
+- Redis almacena `rt:{family}` con generation actual (TTL 7d) y `bl:{jti}` para blacklist. La rotacion usa Lua script atomico con try-catch (retorna `InternalServerErrorException` si Redis falla)
 - Implementado en `auth/token.service.ts`
 - Web: cookies HttpOnly (el browser las envia automaticamente)
 - Mobile: Bearer token en header (SecureStore para persistencia)
 - Passwords: bcrypt 12 rounds
 - Invitacion: JWT temporal + link `/set-password`
 
-### P10: File Upload (Presigned URL)
+### P10: File Upload
 
 ```
-Cliente → POST /upload/presigned-url → { url, key }
-       → PUT presigned-url (upload directo a R2)
-       → Usar key/URL en el form del recurso
+Cliente → POST /upload (multipart/form-data) → { url }
+       → Usar URL en el form del recurso
 ```
 
-Mobile usa un flujo alternativo con `POST /upload` (multipart/form-data).
+**Validacion:** MIME whitelist (jpeg, png, webp, gif, pdf), max 10 MB, folder whitelist (uploads, properties, tasks, service-requests, budgets).
 
 ### P11: Cron Jobs (Distributed Lock)
 
@@ -413,7 +415,7 @@ Tres jobs diarios (09:00-09:10 UTC), cada uno envuelto en `DistributedLockServic
 2. **task-upcoming-reminders**: Notificaciones + email para tareas proximas/vencidas
 3. **task-safety-sweep**: Correccion de edge cases en tareas completadas
 
-Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en deployments multi-instancia.
+Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en deployments multi-instancia. Incluye **watchdog** que extiende TTL automaticamente cada mitad del periodo para prevenir timeout en jobs largos.
 
 ### P12: State Management (Web + Mobile)
 

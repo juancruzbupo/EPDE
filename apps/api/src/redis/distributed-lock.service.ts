@@ -20,6 +20,21 @@ export class DistributedLockService {
     end
   `;
 
+  /**
+   * Lua script: extend lock TTL only if the caller still owns it.
+   * KEYS[1] = lock key
+   * ARGV[1] = expected owner value
+   * ARGV[2] = new TTL in seconds
+   * Returns 1 if extended, 0 if not owned or not found.
+   */
+  private static readonly EXTEND_LUA = `
+    if redis.call('GET', KEYS[1]) == ARGV[1] then
+      return redis.call('EXPIRE', KEYS[1], tonumber(ARGV[2]))
+    else
+      return 0
+    end
+  `;
+
   constructor(private readonly redis: RedisService) {}
 
   /**
@@ -40,7 +55,22 @@ export class DistributedLockService {
   }
 
   /**
-   * Execute a function with a distributed lock.
+   * Extend the lock TTL only if the caller still owns it.
+   * @returns true if extended, false if lock expired or not owned.
+   */
+  async extendLock(key: string, owner: string, ttlSeconds: number): Promise<boolean> {
+    const result = await this.redis.eval(
+      DistributedLockService.EXTEND_LUA,
+      [`lock:${key}`],
+      [owner, ttlSeconds],
+    );
+    return result === 1;
+  }
+
+  /**
+   * Execute a function with a distributed lock and automatic TTL watchdog.
+   * The watchdog extends the lock TTL periodically to prevent expiration
+   * during long-running operations.
    * If the lock cannot be acquired, returns null (skips execution).
    */
   async withLock<T>(key: string, ttlSeconds: number, fn: () => Promise<T>): Promise<T | null> {
@@ -49,9 +79,25 @@ export class DistributedLockService {
       this.logger.debug(`Lock "${key}" already held, skipping`);
       return null;
     }
+
+    // Watchdog: extend lock at half the TTL interval
+    const watchdogInterval = Math.max(Math.floor((ttlSeconds * 1000) / 2), 5000);
+    const watchdog = setInterval(async () => {
+      try {
+        const extended = await this.extendLock(key, owner, ttlSeconds);
+        if (!extended) {
+          this.logger.warn(`Lock "${key}" watchdog: failed to extend (lock lost)`);
+          clearInterval(watchdog);
+        }
+      } catch (error) {
+        this.logger.error(`Lock "${key}" watchdog error: ${(error as Error).message}`);
+      }
+    }, watchdogInterval);
+
     try {
       return await fn();
     } finally {
+      clearInterval(watchdog);
       await this.releaseLock(key, owner);
     }
   }

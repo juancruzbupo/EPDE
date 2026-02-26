@@ -21,16 +21,23 @@ export class NotificationsListener {
     requesterId: string;
     propertyId: string;
   }) {
-    const adminIds = await this.usersRepository.findAdminIds();
+    try {
+      const adminIds = await this.usersRepository.findAdminIds();
 
-    for (const adminId of adminIds) {
-      await this.notificationsService.createNotification({
-        userId: adminId,
-        type: 'BUDGET_UPDATE',
-        title: 'Nuevo presupuesto solicitado',
-        message: `Se solicitó un presupuesto: "${payload.title}"`,
-        data: { budgetId: payload.budgetId },
-      });
+      for (const adminId of adminIds) {
+        await this.notificationsService.createNotification({
+          userId: adminId,
+          type: 'BUDGET_UPDATE',
+          title: 'Nuevo presupuesto solicitado',
+          message: `Se solicitó un presupuesto: "${payload.title}"`,
+          data: { budgetId: payload.budgetId },
+        });
+      }
+    } catch (error) {
+      this.logger.error(
+        `Error handling budget.created for ${payload.budgetId}: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
     }
   }
 
@@ -41,25 +48,32 @@ export class NotificationsListener {
     requesterId: string;
     totalAmount: number;
   }) {
-    await this.notificationsService.createNotification({
-      userId: payload.requesterId,
-      type: 'BUDGET_UPDATE',
-      title: 'Presupuesto cotizado',
-      message: `Tu presupuesto "${payload.title}" fue cotizado por $${payload.totalAmount.toLocaleString('es-AR')}`,
-      data: { budgetId: payload.budgetId },
-    });
+    try {
+      await this.notificationsService.createNotification({
+        userId: payload.requesterId,
+        type: 'BUDGET_UPDATE',
+        title: 'Presupuesto cotizado',
+        message: `Tu presupuesto "${payload.title}" fue cotizado por $${payload.totalAmount.toLocaleString('es-AR')}`,
+        data: { budgetId: payload.budgetId },
+      });
 
-    const requester = await this.usersRepository.findEmailInfo(payload.requesterId);
-    if (requester) {
-      await this.emailService
-        .sendBudgetQuotedEmail(
-          requester.email,
-          requester.name,
-          payload.title,
-          payload.totalAmount,
-          payload.budgetId,
-        )
-        .catch((err) => this.logger.error(`Error enviando email de cotización: ${err.message}`));
+      const requester = await this.usersRepository.findEmailInfo(payload.requesterId);
+      if (requester) {
+        await this.emailService
+          .sendBudgetQuotedEmail(
+            requester.email,
+            requester.name,
+            payload.title,
+            payload.totalAmount,
+            payload.budgetId,
+          )
+          .catch((err) => this.logger.error(`Error enviando email de cotización: ${err.message}`));
+      }
+    } catch (error) {
+      this.logger.error(
+        `Error handling budget.quoted for ${payload.budgetId}: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
     }
   }
 
@@ -71,47 +85,54 @@ export class NotificationsListener {
     newStatus: string;
     requesterId: string;
   }) {
-    const statusMessages: Record<string, string> = {
-      APPROVED: 'fue aprobado',
-      REJECTED: 'fue rechazado',
-      IN_PROGRESS: 'está en progreso',
-      COMPLETED: 'fue completado',
-    };
+    try {
+      const statusMessages: Record<string, string> = {
+        APPROVED: 'fue aprobado',
+        REJECTED: 'fue rechazado',
+        IN_PROGRESS: 'está en progreso',
+        COMPLETED: 'fue completado',
+      };
 
-    const message = statusMessages[payload.newStatus] ?? 'cambió de estado';
+      const message = statusMessages[payload.newStatus] ?? 'cambió de estado';
 
-    if (['APPROVED', 'REJECTED'].includes(payload.newStatus)) {
-      const adminIds = await this.usersRepository.findAdminIds();
-      for (const adminId of adminIds) {
+      if (['APPROVED', 'REJECTED'].includes(payload.newStatus)) {
+        const adminIds = await this.usersRepository.findAdminIds();
+        for (const adminId of adminIds) {
+          await this.notificationsService.createNotification({
+            userId: adminId,
+            type: 'BUDGET_UPDATE',
+            title: 'Actualización de presupuesto',
+            message: `El presupuesto "${payload.title}" ${message}`,
+            data: { budgetId: payload.budgetId },
+          });
+        }
+      } else {
         await this.notificationsService.createNotification({
-          userId: adminId,
+          userId: payload.requesterId,
           type: 'BUDGET_UPDATE',
           title: 'Actualización de presupuesto',
-          message: `El presupuesto "${payload.title}" ${message}`,
+          message: `Tu presupuesto "${payload.title}" ${message}`,
           data: { budgetId: payload.budgetId },
         });
-      }
-    } else {
-      await this.notificationsService.createNotification({
-        userId: payload.requesterId,
-        type: 'BUDGET_UPDATE',
-        title: 'Actualización de presupuesto',
-        message: `Tu presupuesto "${payload.title}" ${message}`,
-        data: { budgetId: payload.budgetId },
-      });
 
-      const requester = await this.usersRepository.findEmailInfo(payload.requesterId);
-      if (requester) {
-        await this.emailService
-          .sendBudgetStatusEmail(
-            requester.email,
-            requester.name,
-            payload.title,
-            payload.newStatus,
-            payload.budgetId,
-          )
-          .catch((err) => this.logger.error(`Error enviando email de estado: ${err.message}`));
+        const requester = await this.usersRepository.findEmailInfo(payload.requesterId);
+        if (requester) {
+          await this.emailService
+            .sendBudgetStatusEmail(
+              requester.email,
+              requester.name,
+              payload.title,
+              payload.newStatus,
+              payload.budgetId,
+            )
+            .catch((err) => this.logger.error(`Error enviando email de estado: ${err.message}`));
+        }
       }
+    } catch (error) {
+      this.logger.error(
+        `Error handling budget.statusChanged for ${payload.budgetId}: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
     }
   }
 
@@ -122,16 +143,23 @@ export class NotificationsListener {
     requesterId: string;
     urgency: string;
   }) {
-    const adminIds = await this.usersRepository.findAdminIds();
+    try {
+      const adminIds = await this.usersRepository.findAdminIds();
 
-    for (const adminId of adminIds) {
-      await this.notificationsService.createNotification({
-        userId: adminId,
-        type: 'SERVICE_UPDATE',
-        title: 'Nueva solicitud de servicio',
-        message: `Se creó una solicitud: "${payload.title}" (${payload.urgency})`,
-        data: { serviceRequestId: payload.serviceRequestId },
-      });
+      for (const adminId of adminIds) {
+        await this.notificationsService.createNotification({
+          userId: adminId,
+          type: 'SERVICE_UPDATE',
+          title: 'Nueva solicitud de servicio',
+          message: `Se creó una solicitud: "${payload.title}" (${payload.urgency})`,
+          data: { serviceRequestId: payload.serviceRequestId },
+        });
+      }
+    } catch (error) {
+      this.logger.error(
+        `Error handling service.created for ${payload.serviceRequestId}: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
     }
   }
 
@@ -143,21 +171,28 @@ export class NotificationsListener {
     newStatus: string;
     requesterId: string;
   }) {
-    const statusMessages: Record<string, string> = {
-      IN_REVIEW: 'está en revisión',
-      IN_PROGRESS: 'está en progreso',
-      RESOLVED: 'fue resuelta',
-      CLOSED: 'fue cerrada',
-    };
+    try {
+      const statusMessages: Record<string, string> = {
+        IN_REVIEW: 'está en revisión',
+        IN_PROGRESS: 'está en progreso',
+        RESOLVED: 'fue resuelta',
+        CLOSED: 'fue cerrada',
+      };
 
-    const message = statusMessages[payload.newStatus] ?? 'cambió de estado';
+      const message = statusMessages[payload.newStatus] ?? 'cambió de estado';
 
-    await this.notificationsService.createNotification({
-      userId: payload.requesterId,
-      type: 'SERVICE_UPDATE',
-      title: 'Actualización de servicio',
-      message: `Tu solicitud "${payload.title}" ${message}`,
-      data: { serviceRequestId: payload.serviceRequestId },
-    });
+      await this.notificationsService.createNotification({
+        userId: payload.requesterId,
+        type: 'SERVICE_UPDATE',
+        title: 'Actualización de servicio',
+        message: `Tu solicitud "${payload.title}" ${message}`,
+        data: { serviceRequestId: payload.serviceRequestId },
+      });
+    } catch (error) {
+      this.logger.error(
+        `Error handling service.statusChanged for ${payload.serviceRequestId}: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+    }
   }
 }

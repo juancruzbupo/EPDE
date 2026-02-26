@@ -116,6 +116,8 @@ interface PaginatedResult<T> {
 }
 ```
 
+**Limites:** `take` se clampea entre 1 y `MAX_PAGE_SIZE` (100) para prevenir queries sin limite.
+
 ### 2. Soft Delete (Prisma Extension)
 
 Configurado en `PrismaService` via extension:
@@ -188,6 +190,8 @@ Tres guards globales aplicados en orden via `APP_GUARD`:
 | `budget.statusChanged`  | BudgetsService         | NotificationsListener | Notificacion al cliente       |
 | `client.invited`        | ClientsService         | (email directo)       | Email de invitacion           |
 
+**Error Boundaries:** Cada handler en `NotificationsListener` esta envuelto en `try-catch` para evitar que errores de DB/email propaguen y crash-een el event loop. Los errores se loguean con stack trace completo.
+
 ### 8. Error Handling
 
 `GlobalExceptionFilter` centralizado:
@@ -226,6 +230,7 @@ Login → LocalStrategy (email+password) → JWT access + refresh tokens
 - Redis almacena `rt:{family}` con generation actual (TTL 7d)
 - Al hacer refresh: si generation no coincide → **token reuse attack** → revocar toda la family
 - La rotacion usa un **Lua script atomico** en Redis para prevenir race conditions (GET + compare + SET en una sola operacion)
+- La rotacion tiene **try-catch** alrededor del `eval()` de Redis — si Redis falla, retorna `InternalServerErrorException` en vez de crash sin contexto
 - Logout: blacklist access token JTI (TTL = tiempo restante) + revocar family
 - `JwtStrategy.validate()` verifica que el JTI no este en blacklist antes de autenticar
 - Implementado en `auth/token.service.ts` (genera pares, rota, revoca, blacklist)
@@ -239,11 +244,16 @@ Login → LocalStrategy (email+password) → JWT access + refresh tokens
 ### 10. File Upload Pattern
 
 ```
-Frontend → POST /upload/presigned-url { filename, contentType }
-         ← { url, key }  (presigned URL de Cloudflare R2)
-         → PUT url (upload directo a R2 desde browser)
-         → Usar key/URL en el form data del recurso
+Frontend → POST /upload (multipart/form-data)
+         ← { url }  (URL publica del archivo en R2)
+         → Usar URL en el form data del recurso
 ```
+
+**Seguridad del upload:**
+
+- **MIME type whitelist:** Solo `image/jpeg`, `image/png`, `image/webp`, `image/gif`, `application/pdf`
+- **Tamano maximo:** 10 MB
+- **Folders permitidos:** `uploads`, `properties`, `tasks`, `service-requests`, `budgets` (whitelist, no input directo del cliente)
 
 ### 11. Cron Jobs (Scheduler + Distributed Lock)
 
@@ -254,6 +264,8 @@ Frontend → POST /upload/presigned-url { filename, contentType }
 3. **task-safety-sweep** (09:10 UTC): Fix para tareas COMPLETED con nextDueDate vencida que no se avanzaron (edge case crash)
 
 **Distributed Lock:** Cada cron job esta envuelto en `DistributedLockService.withLock()` (Redis SETNX, TTL 5min) para prevenir ejecucion concurrente en deployments multi-instancia. Key pattern: `lock:cron:<job-name>`.
+
+**Watchdog:** El lock se extiende automaticamente cada mitad del TTL mientras la operacion siga en curso. Si el lock se pierde (Redis failure), el watchdog detecta y loguea un warning. Esto previene que jobs largos pierdan su lock por timeout.
 
 Dependencias: `TasksRepository`, `NotificationsRepository`, `UsersRepository`, `DistributedLockService`
 
@@ -318,7 +330,7 @@ export function middleware(request: NextRequest) {
 Modulo global `RedisModule` (`redis/redis.module.ts`) con dos servicios:
 
 - **RedisService**: Wrapper sobre `ioredis` con metodos `get`, `set`, `del`, `setnx`, `expire`, `eval(script, keys, args)` (ejecuta Lua scripts atomicos), `isHealthy()` (PING/PONG check)
-- **DistributedLockService**: Distributed lock via Redis SETNX con TTL. Metodo `withLock<T>(key, ttlSeconds, fn)` que adquiere lock, ejecuta fn, y libera lock. Usa ownership pattern (genera UUID owner, Lua script para release solo si es owned)
+- **DistributedLockService**: Distributed lock via Redis SETNX con TTL. Metodo `withLock<T>(key, ttlSeconds, fn)` que adquiere lock, ejecuta fn, y libera lock. Usa ownership pattern (genera UUID owner, Lua script para release solo si es owned). Incluye **watchdog** que extiende TTL automaticamente y metodo `extendLock()` con Lua script atomico
 
 **Casos de uso:**
 
