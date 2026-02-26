@@ -83,6 +83,7 @@ apps/mobile/
   assets/                            # icon.png, splash-icon.png, favicon.png
   app.json                           # Expo config
   metro.config.js                    # Metro + NativeWind
+  jest.config.js                     # Jest + jest-expo config
   postcss.config.mjs                 # @tailwindcss/postcss
   tsconfig.json                      # Extiende expo/tsconfig.base
   package.json
@@ -320,3 +321,36 @@ pnpm --filter @epde/mobile android
 - Orientacion forzada a **portrait**
 - Bundle ID: `com.epde.mobile` (iOS y Android)
 - Deep linking scheme: `epde://`
+
+## Testing
+
+### Setup
+
+- Framework: **jest-expo** (preset de Jest para Expo/React Native)
+- Test runner: Jest 29
+- Testing Library: `@testing-library/react-native`
+- Config: `apps/mobile/jest.config.js`
+
+```javascript
+module.exports = {
+  preset: 'jest-expo',
+  transformIgnorePatterns: [
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|@tanstack/.*|@epde/.*)',
+  ],
+};
+```
+
+### Tests disponibles
+
+| Suite       | Tests  | Descripcion                                         |
+| ----------- | ------ | --------------------------------------------------- |
+| StatusBadge | 10     | Renderizado de badges por estado, variantes, labels |
+| EmptyState  | 3      | Renderizado de titulo, mensaje, placeholder         |
+| **Total**   | **13** |                                                     |
+
+### Comandos
+
+```bash
+pnpm --filter @epde/mobile test          # Ejecutar todos los tests
+pnpm --filter @epde/mobile test --watch  # Watch mode
+```

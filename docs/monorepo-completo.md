@@ -33,7 +33,8 @@ epde/
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml                    # GitHub Actions (lint, typecheck, build, e2e)
-│       └── cd.yml                    # Deploy template (API + Web)
+│       ├── cd.yml                    # Deploy produccion (Railway + Vercel)
+│       └── cd-staging.yml           # Deploy staging
 ├── .husky/
 │   ├── pre-commit                    # lint-staged
 │   └── commit-msg                    # commitlint
@@ -78,6 +79,7 @@ epde/
 │   │   ├── nest-cli.json
 │   │   ├── jest.config.js
 │   │   ├── jest-e2e.config.ts        # Config E2E tests
+│   │   ├── Dockerfile                # Multi-stage build (Railway deploy)
 │   │   ├── tsconfig.json             # module: CommonJS, moduleResolution: node
 │   │   └── package.json
 │   │
@@ -112,6 +114,7 @@ epde/
 │   │   │   ├── providers/            # QueryProvider, AuthProvider
 │   │   │   └── stores/               # Zustand auth store
 │   │   ├── middleware.ts             # Proteccion de rutas (cookie check)
+│   │   ├── vitest.config.ts         # Vitest + jsdom + @testing-library/react
 │   │   ├── components.json          # shadcn config (new-york style)
 │   │   ├── next.config.ts
 │   │   ├── postcss.config.mjs
@@ -142,6 +145,7 @@ epde/
 │       ├── assets/                   # Iconos, splash
 │       ├── app.json                  # Expo config (com.epde.mobile)
 │       ├── metro.config.js           # Metro + NativeWind
+│       ├── jest.config.js            # Jest + jest-expo config
 │       ├── postcss.config.mjs
 │       ├── tsconfig.json             # Extiende expo/tsconfig.base
 │       └── package.json
@@ -180,6 +184,8 @@ epde/
 ├── pnpm-lock.yaml
 ├── tsconfig.json                     # Base: ESNext, strict
 ├── eslint.config.mjs                 # ESLint 9 flat config
+├── railway.json                      # Railway deploy config (API healthcheck)
+├── .dockerignore                     # Docker build exclusions
 ├── .prettierrc                       # Prettier config
 ├── commitlint.config.js              # Conventional commits
 └── .lintstagedrc.json                # Pre-commit: lint + typecheck
@@ -224,7 +230,7 @@ epde/
 | AWS S3 SDK            | -       | Upload a Cloudflare R2               |
 | Sentry                | 10.40   | Monitoreo de errores                 |
 | bcrypt                | 6.0     | Hash de passwords (12 rounds)        |
-| Jest                  | 29      | Testing unitario                     |
+| Jest                  | 29      | Testing unitario + E2E               |
 
 ### Frontend Web (Next.js)
 
@@ -239,6 +245,8 @@ epde/
 | Zustand              | 5.0     | Client state (auth store)        |
 | React Hook Form      | 7.71    | Formularios                      |
 | Axios                | -       | HTTP client                      |
+| Vitest               | 4.0     | Testing unitario (jsdom)         |
+| @testing-library     | 16      | Testing de componentes           |
 | Framer Motion        | 12.34   | Animaciones                      |
 | Lucide React         | 0.470   | Iconos                           |
 | date-fns             | 4.1     | Utilidades de fecha              |
@@ -260,6 +268,8 @@ epde/
 | expo-image-picker       | 17      | Seleccion de imagenes (camara/galeria) |
 | expo-font               | 14      | Carga de fuentes custom                |
 | react-native-reanimated | 4.1     | Animaciones nativas                    |
+| jest-expo               | 55      | Testing preset para Expo               |
+| @testing-library/RN     | 13      | Testing de componentes nativos         |
 
 ### Shared Package
 
@@ -743,11 +753,15 @@ Triggers: push a main, PRs
 
 ### GitHub Actions CD
 
-Template de deploy (`cd.yml`):
+Pipeline de deploy real:
 
-- Trigger: push a `main`
-- Jobs: `deploy-api` (build + prisma migrate deploy), `deploy-web` (build)
-- Usa `environment: production` con secrets
+- **Produccion** (`cd.yml`): trigger en push a `main`
+  - `deploy-api`: Railway CLI → `prisma migrate deploy` → `railway up --service epde-api --detach`
+  - `deploy-web`: Vercel CLI → `vercel pull` → `vercel build --prod` → `vercel deploy --prebuilt --prod`
+- **Staging** (`cd-staging.yml`): trigger en push a `develop`
+  - Misma pipeline con secrets de staging (`RAILWAY_TOKEN_STAGING`, `VERCEL_PROJECT_ID_STAGING`)
+- Usa `environment: production/staging` con secrets
+- Archivos de deploy: `apps/api/Dockerfile` (multi-stage), `railway.json` (healthcheck), `.dockerignore`
 
 ### Turborepo Pipeline
 
@@ -831,7 +845,7 @@ pnpm dev:mobile       # Expo dev server
 pnpm build            # Build completo
 pnpm lint             # ESLint
 pnpm typecheck        # TypeScript check
-pnpm test             # Jest (API --runInBand) + Vitest (shared)
+pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo)
 
 # Tests E2E (requiere DB + Redis)
 pnpm --filter @epde/api test:e2e

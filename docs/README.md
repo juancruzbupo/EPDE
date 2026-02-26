@@ -37,7 +37,9 @@
 | Auth           | Passport JWT + Local + Token Rotation                | -         |
 | Email          | Resend                                               | -         |
 | Storage        | Cloudflare R2                                        | -         |
-| CI/CD          | GitHub Actions                                       | -         |
+| CI/CD          | GitHub Actions + Railway (API) + Vercel (Web)        | -         |
+| Testing Web    | Vitest + Testing Library                             | -         |
+| Testing Mobile | Jest + jest-expo + Testing Library RN                | -         |
 | Monitoreo      | Sentry + OpenTelemetry (Prometheus)                  | -         |
 | Logging        | nestjs-pino (JSON estructurado)                      | -         |
 
@@ -78,7 +80,7 @@ pnpm build
 # Verificaciones
 pnpm lint
 pnpm typecheck
-pnpm test
+pnpm test                            # Tests unitarios (API + Shared + Web + Mobile)
 pnpm --filter @epde/api test:e2e    # Tests E2E (requiere DB + Redis)
 ```
 

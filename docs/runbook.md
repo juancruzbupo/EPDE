@@ -176,30 +176,37 @@ curl -X GET https://api.resend.com/domains \
 
 ### Produccion
 
-El deploy se ejecuta automaticamente via GitHub Actions en push a `main`:
+El deploy se ejecuta automaticamente via GitHub Actions (`cd.yml`) en push a `main`:
 
-1. CI job corre: lint → typecheck → build → test
+1. CI job corre: lint → typecheck → build → test → frontend coverage check
 2. Si CI pasa, deploy-api y deploy-web se ejecutan en paralelo
-3. deploy-api: Build → Prisma generate → Migrate deploy → Deploy
-4. deploy-web: Deploy a Vercel
+3. **deploy-api (Railway)**:
+   - Instala Railway CLI
+   - Ejecuta migraciones Prisma (`prisma migrate deploy`)
+   - Despliega via `railway up --service epde-api --detach`
+   - Usa `apps/api/Dockerfile` (multi-stage build: base → deps → builder → runner)
+   - Healthcheck: `GET /api/v1/health` (timeout 30s)
+4. **deploy-web (Vercel)**:
+   - Instala Vercel CLI
+   - `vercel pull` → `vercel build --prod` → `vercel deploy --prebuilt --prod`
+
+Secrets requeridos: ver [env-vars.md](./env-vars.md) seccion "GitHub Secrets".
 
 ### Staging
 
-Se despliega automaticamente en push a `develop`. Misma pipeline pero con env de staging.
+Se despliega automaticamente en push a `develop` (`cd-staging.yml`). Misma pipeline pero con secrets de staging (`RAILWAY_TOKEN_STAGING`, `DATABASE_URL_STAGING`, `VERCEL_PROJECT_ID_STAGING`).
 
 ### Deploy manual (API)
 
 ```bash
-# 1. Build
+# Opcion 1: Docker (recomendado)
+docker build -f apps/api/Dockerfile -t epde-api .
+docker run -p 3001:3001 --env-file .env epde-api
+
+# Opcion 2: Node directo
 pnpm --filter @epde/api build
-
-# 2. Generar Prisma client
 pnpm --filter @epde/api prisma generate
-
-# 3. Ejecutar migraciones
 pnpm --filter @epde/api prisma migrate deploy
-
-# 4. Iniciar
 NODE_ENV=production node apps/api/dist/main.js
 ```
 
@@ -238,6 +245,7 @@ pnpm --filter @epde/api prisma migrate dev --name descripcion_del_cambio
 - `User(role, deletedAt)` — Filtrado de usuarios por rol
 - `Task(status, nextDueDate)` — Queries de cron jobs
 - `Task(status, deletedAt)` — Listado de tareas activas
+- `TaskLog(taskId)` — Historial de completado por tarea
 - `TaskLog(completedBy)` — Historial de completado por usuario
 - `Notification(userId, type, createdAt)` — Notificaciones del usuario
 

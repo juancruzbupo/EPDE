@@ -38,11 +38,14 @@ epde/
           landing/      # Landing page publica
           layout/       # Header + Sidebar
           ui/           # shadcn/ui components
+          __tests__/    # Tests (vitest + jsdom + @testing-library/react)
         hooks/          # React Query hooks por entidad
+          __tests__/    # Tests de hooks
         lib/
           api/          # Axios client + funciones API por entidad
         providers/      # QueryProvider, AuthProvider
         stores/         # Zustand stores
+      vitest.config.ts  # Vitest + jsdom config
     mobile/           # Expo React Native (rol CLIENT)
       src/
         app/
@@ -53,12 +56,14 @@ epde/
           service-requests/ # Lista y detalle
           task/         # Detalle de tarea [planId]/[taskId]
         components/     # StatusBadge, EmptyState, StatCard, Modals
+          __tests__/    # Tests (jest-expo + @testing-library/react-native)
         hooks/          # React Query hooks (infinite scroll)
         lib/
           api/          # Funciones API por entidad
           api-client.ts # Axios con token refresh
           token-service.ts # Expo SecureStore
         stores/         # Zustand auth store
+      jest.config.js    # Jest + jest-expo config
   packages/
     shared/           # Tipos, schemas Zod, constantes, utilidades
       src/

@@ -371,13 +371,16 @@ Coverage actual: API ~15% (3 suites e2e), Web 0%, Shared 0%. El dashboard mezcla
   - Setup vitest en shared package
   - Archivos: `packages/shared/src/__tests__/schemas.test.ts`, `packages/shared/src/__tests__/utils.test.ts`
 
-- [-] **6.6 — Setup vitest + testing-library en web**
-  - Diferido: requiere configurar jsdom + testing-library, más complejo
-  - Se puede hacer en una iteración futura
+- [x] **6.6 — Setup vitest + testing-library en web**
+  - Vitest + jsdom + @testing-library/react configurado en `apps/web`
+  - 15 tests: use-debounce (4), sidebar (5), confirm-dialog (6)
+  - Config: `apps/web/vitest.config.ts`, setup: `apps/web/src/__tests__/setup.ts`
 
-- [-] **6.7 — CI coverage reporting**
-  - Diferido: requiere configurar coverage thresholds y CI integration
-  - Se puede hacer en una iteración futura
+- [x] **6.7 — CI coverage reporting + tests mobile**
+  - Frontend coverage check agregado a CI (`ci.yml`)
+  - jest-expo + @testing-library/react-native configurado en `apps/mobile`
+  - 13 tests mobile: status-badge (10), empty-state (3)
+  - Config: `apps/mobile/jest.config.js`
 
 #### Frontend Polish
 
@@ -432,7 +435,9 @@ grep -rn "priorityColors\|urgencyVariant\|statusVariant" apps/web/src/ --include
 | 5    | Performance        | `[x] Completado` | 2         | 1-2       |
 | 6    | Testing + polish   | `[x] Completado` | 0         | 3-5       |
 
-**Progreso total: 38 / 40 tareas** (3.8, 4.4-4.6, 6.6, 6.7 diferidos)
+**Tests totales: 306** (91 API unit + 187 Shared + 15 Web + 13 Mobile + E2E suites)
+
+**Progreso total: 40 / 40 tareas** (3.8, 4.4-4.6 diferidos por decision de diseno)
 
 ---
 

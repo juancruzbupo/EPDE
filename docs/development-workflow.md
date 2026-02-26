@@ -11,7 +11,7 @@ pnpm dev:mobile       # Levantar Expo dev server
 pnpm build            # Build de produccion (todos los workspaces)
 pnpm lint             # ESLint en todos los workspaces
 pnpm typecheck        # TypeScript check en todos los workspaces
-pnpm test             # Tests unitarios (jest en API --runInBand, vitest en shared)
+pnpm test             # Tests unitarios (API jest, Shared vitest, Web vitest, Mobile jest-expo)
 
 # Tests e2e (requiere DB + Redis corriendo)
 pnpm --filter @epde/api test:e2e
@@ -361,13 +361,19 @@ Referencia completa en [env-vars.md](env-vars.md).
 ### Unit Tests
 
 ```bash
-pnpm test                                    # Todos (API + Shared)
+pnpm test                                    # Todos (API + Shared + Web + Mobile)
 pnpm --filter @epde/api test                 # Solo API (jest --runInBand)
 pnpm --filter @epde/shared test              # Solo Shared (vitest)
+pnpm --filter @epde/web test                 # Solo Web (vitest + jsdom)
+pnpm --filter @epde/mobile test              # Solo Mobile (jest-expo)
 ```
 
-- Los tests unitarios de la API usan mocks de repositorios (no acceden a DB)
-- `--runInBand` evita conflictos de DB con tests paralelos
+- **API**: Jest con mocks de repositorios (no accede a DB). `--runInBand` evita conflictos
+- **Shared**: Vitest — schemas Zod + utils
+- **Web**: Vitest + jsdom + @testing-library/react — hooks y componentes
+- **Mobile**: jest-expo + @testing-library/react-native — componentes
+
+Total: 306 tests (91 API + 187 Shared + 15 Web + 13 Mobile)
 
 ### Tests E2E
 
@@ -386,4 +392,14 @@ pnpm --filter @epde/api test:e2e
 
 ### CI
 
-GitHub Actions ejecuta en orden: lint → typecheck → build → test → test:e2e. Los services PostgreSQL 16 y Redis 7 se levantan como containers en CI.
+GitHub Actions ejecuta en orden: lint → typecheck → build → test → test:e2e → frontend coverage check. Los services PostgreSQL 16 y Redis 7 se levantan como containers en CI.
+
+### CD
+
+Deploy automatico via GitHub Actions:
+
+- **Produccion** (`cd.yml`): trigger en push a `main`
+  - API → Railway (`railway up --service epde-api`) con migraciones Prisma previas
+  - Web → Vercel (`vercel deploy --prebuilt --prod`)
+- **Staging** (`cd-staging.yml`): trigger en push a `develop`
+  - Misma pipeline con secrets de staging
