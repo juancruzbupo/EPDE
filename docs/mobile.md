@@ -135,13 +135,13 @@ interface AuthState {
 }
 ```
 
-### Flujo
+### Flujo (Token Rotation)
 
 1. **App start** → `checkAuth()` → busca tokens en SecureStore → valida con `/auth/me`
-2. **Login** → `POST /auth/login` → guarda access + refresh tokens en SecureStore
+2. **Login** → `POST /auth/login` → guarda access + refresh tokens en SecureStore (refresh contiene family + generation)
 3. **Request** → Axios interceptor adjunta `Authorization: Bearer <token>`
-4. **401** → Interceptor refresca token automaticamente (singleton pattern)
-5. **Logout** → Limpia tokens + invalida query cache + redirige a login
+4. **401** → Interceptor refresca token automaticamente (singleton pattern) → se rota el refresh token (nueva generation)
+5. **Logout** → Limpia tokens + invalida query cache + redirige a login. Backend revoca family + blacklist access JTI en Redis
 
 ### Token Service
 

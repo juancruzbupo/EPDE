@@ -227,56 +227,58 @@ Category ─1:N─ Task
 
 ### BudgetRequest
 
-| Campo       | Tipo         | Notas            |
-| ----------- | ------------ | ---------------- |
-| id          | UUID         | PK               |
-| propertyId  | String       | FK → Property    |
-| requestedBy | String       | FK → User        |
-| title       | String       |                  |
-| description | String?      |                  |
-| status      | BudgetStatus | Default: PENDING |
-| createdAt   | DateTime     |                  |
-| updatedAt   | DateTime     |                  |
+| Campo       | Tipo         | Notas                                       |
+| ----------- | ------------ | ------------------------------------------- |
+| id          | UUID         | PK                                          |
+| propertyId  | String       | FK → Property                               |
+| requestedBy | String       | FK → User                                   |
+| title       | String       |                                             |
+| description | String?      |                                             |
+| status      | BudgetStatus | Default: PENDING                            |
+| updatedBy   | String?      | ID del usuario que realizo el ultimo cambio |
+| createdAt   | DateTime     |                                             |
+| updatedAt   | DateTime     |                                             |
 
 **Indices:** `propertyId`, `status`
 **Relaciones:** `property`, `requester`, `lineItems`, `response` (1:1)
 
 ### BudgetLineItem
 
-| Campo           | Tipo   | Notas                                  |
-| --------------- | ------ | -------------------------------------- |
-| id              | UUID   | PK                                     |
-| budgetRequestId | String | FK → BudgetRequest (onDelete: Cascade) |
-| description     | String |                                        |
-| quantity        | Float  |                                        |
-| unitPrice       | Float  |                                        |
-| subtotal        | Float  | quantity \* unitPrice                  |
+| Campo           | Tipo          | Notas                                  |
+| --------------- | ------------- | -------------------------------------- |
+| id              | UUID          | PK                                     |
+| budgetRequestId | String        | FK → BudgetRequest (onDelete: Cascade) |
+| description     | String        |                                        |
+| quantity        | Decimal(12,4) | Precision decimal para cantidades      |
+| unitPrice       | Decimal(12,2) | Precision decimal para montos          |
+| subtotal        | Decimal(14,2) | quantity \* unitPrice                  |
 
 ### BudgetResponse
 
-| Campo           | Tipo      | Notas                                               |
-| --------------- | --------- | --------------------------------------------------- |
-| id              | UUID      | PK                                                  |
-| budgetRequestId | String    | FK → BudgetRequest, Unique (1:1, onDelete: Cascade) |
-| totalAmount     | Float     | Suma de subtotals                                   |
-| estimatedDays   | Int?      |                                                     |
-| notes           | String?   |                                                     |
-| validUntil      | DateTime? | Formato: YYYY-MM-DD                                 |
-| respondedAt     | DateTime  |                                                     |
+| Campo           | Tipo          | Notas                                               |
+| --------------- | ------------- | --------------------------------------------------- |
+| id              | UUID          | PK                                                  |
+| budgetRequestId | String        | FK → BudgetRequest, Unique (1:1, onDelete: Cascade) |
+| totalAmount     | Decimal(14,2) | Suma de subtotals (precision decimal)               |
+| estimatedDays   | Int?          |                                                     |
+| notes           | String?       |                                                     |
+| validUntil      | DateTime?     | Formato: YYYY-MM-DD                                 |
+| respondedAt     | DateTime      |                                                     |
 
 ### ServiceRequest
 
-| Campo       | Tipo           | Notas                    |
-| ----------- | -------------- | ------------------------ |
-| id          | UUID           | PK                       |
-| propertyId  | String         | FK → Property            |
-| requestedBy | String         | FK → User                |
-| title       | String         |                          |
-| description | String         | Requerido (min 10 chars) |
-| urgency     | ServiceUrgency | Default: MEDIUM          |
-| status      | ServiceStatus  | Default: OPEN            |
-| createdAt   | DateTime       |                          |
-| updatedAt   | DateTime       |                          |
+| Campo       | Tipo           | Notas                                       |
+| ----------- | -------------- | ------------------------------------------- |
+| id          | UUID           | PK                                          |
+| propertyId  | String         | FK → Property                               |
+| requestedBy | String         | FK → User                                   |
+| title       | String         |                                             |
+| description | String         | Requerido (min 10 chars)                    |
+| urgency     | ServiceUrgency | Default: MEDIUM                             |
+| status      | ServiceStatus  | Default: OPEN                               |
+| updatedBy   | String?        | ID del usuario que realizo el ultimo cambio |
+| createdAt   | DateTime       |                                             |
+| updatedAt   | DateTime       |                                             |
 
 **Indices:** `propertyId`, `status`
 **Relaciones:** `property`, `requester`, `photos`
@@ -330,6 +332,21 @@ const INCLUDE = {
 - `BudgetLineItem` → cascade on delete de `BudgetRequest`
 - `BudgetResponse` → cascade on delete de `BudgetRequest`
 - `ServiceRequestPhoto` → cascade on delete de `ServiceRequest`
+
+### Tipos Decimal (Montos)
+
+Los campos monetarios usan `Decimal` (no `Float`) para evitar errores de redondeo IEEE 754:
+
+- `BudgetLineItem.quantity`: `Decimal(12,4)`
+- `BudgetLineItem.unitPrice`: `Decimal(12,2)`
+- `BudgetLineItem.subtotal`: `Decimal(14,2)`
+- `BudgetResponse.totalAmount`: `Decimal(14,2)`
+
+En el backend se usa `Prisma.Decimal` para aritmetica. Los valores se serializan como strings JSON.
+
+### Campos de Auditoria
+
+`BudgetRequest.updatedBy` y `ServiceRequest.updatedBy` registran el ID del usuario que realizo el ultimo cambio de estado. Se setea automaticamente en cada `updateStatus()`.
 
 ### Seed Data
 

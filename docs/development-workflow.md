@@ -11,7 +11,10 @@ pnpm dev:mobile       # Levantar Expo dev server
 pnpm build            # Build de produccion (todos los workspaces)
 pnpm lint             # ESLint en todos los workspaces
 pnpm typecheck        # TypeScript check en todos los workspaces
-pnpm test             # Tests (jest en API, vitest en shared)
+pnpm test             # Tests unitarios (jest en API --runInBand, vitest en shared)
+
+# Tests e2e (requiere DB + Redis corriendo)
+pnpm --filter @epde/api test:e2e
 
 # Workspace especifico
 pnpm --filter @epde/api <comando>
@@ -325,20 +328,21 @@ Cuerpo opcional (lineas max 100 chars)
 
 ### API (`apps/api/.env`)
 
-| Variable             | Descripcion                                            | Requerida |
-| -------------------- | ------------------------------------------------------ | --------- |
-| DATABASE_URL         | PostgreSQL connection string                           | Si        |
-| JWT_SECRET           | Secret para tokens JWT                                 | Si        |
-| JWT_REFRESH_SECRET   | Secret para refresh tokens                             | Si        |
-| RESEND_API_KEY       | API key de Resend                                      | Si        |
-| EMAIL_FROM           | Sender email (default: `EPDE <onboarding@resend.dev>`) | No        |
-| APP_URL              | URL del frontend para links en emails                  | Si        |
-| R2_ACCOUNT_ID        | Cloudflare R2 account                                  | Si        |
-| R2_ACCESS_KEY_ID     | Cloudflare R2 key                                      | Si        |
-| R2_SECRET_ACCESS_KEY | Cloudflare R2 secret                                   | Si        |
-| R2_BUCKET_NAME       | Nombre del bucket R2                                   | Si        |
-| R2_PUBLIC_URL        | URL publica del bucket                                 | Si        |
-| SENTRY_DSN           | DSN de Sentry (opcional)                               | No        |
+| Variable             | Descripcion                                               | Requerida |
+| -------------------- | --------------------------------------------------------- | --------- |
+| DATABASE_URL         | PostgreSQL connection string                              | Si        |
+| JWT_SECRET           | Secret para tokens JWT                                    | Si        |
+| JWT_REFRESH_SECRET   | Secret para refresh tokens                                | Si        |
+| RESEND_API_KEY       | API key de Resend                                         | Si        |
+| EMAIL_FROM           | Sender email (default: `EPDE <onboarding@resend.dev>`)    | No        |
+| APP_URL              | URL del frontend para links en emails                     | Si        |
+| R2_ACCOUNT_ID        | Cloudflare R2 account                                     | Si        |
+| R2_ACCESS_KEY_ID     | Cloudflare R2 key                                         | Si        |
+| R2_SECRET_ACCESS_KEY | Cloudflare R2 secret                                      | Si        |
+| R2_BUCKET_NAME       | Nombre del bucket R2                                      | Si        |
+| R2_PUBLIC_URL        | URL publica del bucket                                    | Si        |
+| REDIS_URL            | Redis connection string (default: redis://localhost:6379) | Si        |
+| SENTRY_DSN           | DSN de Sentry (opcional)                                  | No        |
 
 ### Web (`apps/web/.env.local`)
 
@@ -372,3 +376,36 @@ No requiere `.env` para desarrollo local — la logica esta en `src/lib/api-clie
 | `z.coerce.number()` falla con ""             | Empty string → 0 → falla min()       | Usar `setValueAs` en form register    |
 | `z.string().datetime()` falla con date input | Input retorna YYYY-MM-DD             | Usar `z.string().date()`              |
 | Permission check falla (403)                 | Falta campo en Prisma `select`       | Agregar campo (ej: `userId: true`)    |
+| Redis connection refused                     | Redis no esta corriendo              | `docker compose up -d`                |
+
+## Testing
+
+### Unit Tests
+
+```bash
+pnpm test                                    # Todos (API + Shared)
+pnpm --filter @epde/api test                 # Solo API (jest --runInBand)
+pnpm --filter @epde/shared test              # Solo Shared (vitest)
+```
+
+- Los tests unitarios de la API usan mocks de repositorios (no acceden a DB)
+- `--runInBand` evita conflictos de DB con tests paralelos
+
+### Tests E2E
+
+```bash
+# Requiere: Docker (PostgreSQL + Redis) corriendo
+docker compose up -d
+pnpm --filter @epde/api test:e2e
+```
+
+- Config: `apps/api/jest-e2e.config.ts`
+- Setup: `apps/api/src/test/setup.ts` — helpers `createTestApp()`, `cleanDatabase()` (TRUNCATE CASCADE)
+- Pattern: `*.e2e-spec.ts` en `apps/api/test/`
+- Suites: auth, budgets, properties, service-requests
+- Timeout: 30 segundos por test
+- La limpieza usa `TRUNCATE CASCADE` (no `deleteMany`) para evitar race conditions con event handlers asincronos
+
+### CI
+
+GitHub Actions ejecuta en orden: lint → typecheck → build → test → test:e2e. Los services PostgreSQL 16 y Redis 7 se levantan como containers en CI.

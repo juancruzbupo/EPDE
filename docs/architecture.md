@@ -7,18 +7,19 @@ epde/
   apps/
     api/              # NestJS REST API
       src/
-        auth/         # Autenticacion (JWT + Local strategy)
-        budgets/      # Presupuestos (CRUD + ciclo de vida)
+        auth/         # Autenticacion (JWT + Local strategy + Token Rotation)
+        budgets/      # Presupuestos (CRUD + ciclo de vida, Decimal)
         categories/   # Categorias de mantenimiento
         clients/      # Gestion de clientes (ADMIN only)
         common/       # Guards, decorators, filters, repositories
         config/       # Validacion de env con Zod
-        cron/         # Scheduler (task status cron)
+        cron/         # Scheduler (task status cron + distributed lock)
         dashboard/    # Estadisticas agregadas
         email/        # Servicio de emails (Resend)
         maintenance-plans/  # Planes de mantenimiento
         notifications/      # Notificaciones in-app
         prisma/       # PrismaService con soft-delete extension
+        redis/        # RedisModule (global) + DistributedLockService
         properties/   # Propiedades
         service-requests/   # Solicitudes de servicio
         upload/       # Upload a Cloudflare R2
@@ -114,8 +115,9 @@ interface PaginatedResult<T> {
 
 Configurado en `PrismaService` via extension:
 
-- `findMany`, `findFirst`, `findUnique` agregan automaticamente `where: { deletedAt: null }`
+- `findMany`, `findFirst`, `findUnique`, `count` agregan automaticamente `where: { deletedAt: null }`
 - `delete` se convierte en `update({ deletedAt: new Date() })`
+- La condicion usa `!('deletedAt' in (args.where || {}))` para chequear **presencia de clave**, no valor
 - Modelos con soft delete: `User`, `Property`, `Task`
 - Para acceder a registros eliminados, usar `writeModel`
 
@@ -197,18 +199,31 @@ Tres guards globales aplicados en orden via `APP_GUARD`:
 }
 ```
 
-### 9. Auth Flow
+### 9. Auth Flow (Token Rotation)
 
 ```
 Login → LocalStrategy (email+password) → JWT access + refresh tokens
                                         ↓
-                              access: cookie HttpOnly (15m)
-                              refresh: cookie HttpOnly (7d)
+                              access: cookie HttpOnly (15m) — contiene jti
+                              refresh: cookie HttpOnly (7d) — contiene family + generation
                                         ↓
-                              Request → JwtStrategy (cookie) → user en request
+                              Request → JwtStrategy (cookie) → verifica blacklist → user en request
                                         ↓
-                              Token expirado → /auth/refresh → nuevo access token
+                              Token expirado → /auth/refresh → rota refresh token (nueva generation)
+                                        ↓
+                              Logout → blacklist access jti + revocar family en Redis
 ```
+
+**Token Rotation (Redis-backed):**
+
+- Cada login crea una "family" UUID. Refresh tokens llevan `{ sub, email, role, family, generation, jti }`
+- Redis almacena `rt:{family}` con generation actual (TTL 7d)
+- Al hacer refresh: si generation no coincide → **token reuse attack** → revocar toda la family
+- Logout: blacklist access token JTI (TTL = tiempo restante) + revocar family
+- `JwtStrategy.validate()` verifica que el JTI no este en blacklist antes de autenticar
+- Implementado en `auth/token.service.ts` (genera pares, rota, revoca, blacklist)
+
+**Otros:**
 
 - Passwords hasheados con bcrypt (12 rounds)
 - Nuevos clientes reciben link `/set-password?token=<jwt>` por email
@@ -223,7 +238,7 @@ Frontend → POST /upload/presigned-url { filename, contentType }
          → Usar key/URL en el form data del recurso
 ```
 
-### 11. Cron Jobs (Scheduler)
+### 11. Cron Jobs (Scheduler + Distributed Lock)
 
 `SchedulerModule` con `@Cron()` — tres jobs diarios a las 06:00-06:10 Argentina:
 
@@ -231,7 +246,9 @@ Frontend → POST /upload/presigned-url { filename, contentType }
 2. **task-upcoming-reminders** (09:05 UTC): Notificaciones in-app + email para tareas en 7 dias y vencidas. Deduplicacion por dia. Overdue tambien notifica admins
 3. **task-safety-sweep** (09:10 UTC): Fix para tareas COMPLETED con nextDueDate vencida que no se avanzaron (edge case crash)
 
-Dependencias: `TasksRepository`, `NotificationsRepository`, `UsersRepository` (admin IDs se fetchean una sola vez fuera del loop)
+**Distributed Lock:** Cada cron job esta envuelto en `DistributedLockService.withLock()` (Redis SETNX, TTL 5min) para prevenir ejecucion concurrente en deployments multi-instancia. Key pattern: `lock:cron:<job-name>`.
+
+Dependencias: `TasksRepository`, `NotificationsRepository`, `UsersRepository`, `DistributedLockService`
 
 ### 12. Frontend State Management
 
@@ -282,3 +299,18 @@ export function middleware(request: NextRequest) {
   if (token && isAuthPage) redirect('/dashboard');
 }
 ```
+
+### 15. Redis Infrastructure
+
+Modulo global `RedisModule` (`redis/redis.module.ts`) con dos servicios:
+
+- **RedisService**: Wrapper sobre `ioredis` con metodos `get`, `set`, `del`, `setnx`, `expire`
+- **DistributedLockService**: Distributed lock via Redis SETNX con TTL. Metodo `withLock<T>(key, ttlSeconds, fn)` que adquiere lock, ejecuta fn, y libera lock
+
+**Casos de uso:**
+
+- Token rotation: almacena familias de refresh tokens (`rt:{family}`) con TTL 7d
+- Token blacklist: almacena JTIs de access tokens revocados (`bl:{jti}`) con TTL restante
+- Distributed lock: previene ejecucion concurrente de cron jobs (`lock:cron:{name}`)
+
+**Configuracion:** `REDIS_URL` en `.env` (default: `redis://localhost:6379`). Redis 7 Alpine en Docker Compose.

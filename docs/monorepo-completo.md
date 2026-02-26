@@ -32,7 +32,8 @@ Documento exhaustivo que describe la estructura, tecnologias, patrones de diseno
 epde/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml                    # GitHub Actions (lint, typecheck, build)
+│       ├── ci.yml                    # GitHub Actions (lint, typecheck, build, e2e)
+│       └── cd.yml                    # Deploy template (API + Web)
 ├── .husky/
 │   ├── pre-commit                    # lint-staged
 │   └── commit-msg                    # commitlint
@@ -46,7 +47,8 @@ epde/
 │   │   │   ├── main.ts               # Bootstrap (Helmet, CORS, Swagger, Cookies)
 │   │   │   ├── instrument.ts         # Sentry instrumentation
 │   │   │   ├── app.module.ts         # Root module (imports todos los features)
-│   │   │   ├── auth/                 # JWT + Local strategy, refresh tokens
+│   │   │   ├── auth/                 # JWT + Local strategy + Token Rotation (Redis)
+│   │   │   │   ├── token.service.ts # Token pairs, rotation, blacklist, reuse detection
 │   │   │   │   └── strategies/
 │   │   │   ├── users/                # User CRUD base
 │   │   │   ├── clients/              # Gestion de clientes (ADMIN)
@@ -60,7 +62,8 @@ epde/
 │   │   │   ├── dashboard/            # Estadisticas agregadas
 │   │   │   ├── email/                # Servicio de emails (Resend)
 │   │   │   ├── upload/               # Upload a Cloudflare R2
-│   │   │   ├── scheduler/            # Cron jobs (3 diarios)
+│   │   │   ├── scheduler/            # Cron jobs (3 diarios, distributed lock)
+│   │   │   ├── redis/                # RedisModule (global) + DistributedLockService
 │   │   │   ├── prisma/               # PrismaService + soft-delete extension
 │   │   │   ├── common/
 │   │   │   │   ├── decorators/       # @Public, @Roles, @CurrentUser
@@ -69,9 +72,10 @@ epde/
 │   │   │   │   ├── filters/          # GlobalExceptionFilter
 │   │   │   │   └── repositories/     # BaseRepository<T>
 │   │   │   └── config/               # Env validation (Zod)
-│   │   ├── test/                     # Unit tests (*.spec.ts)
+│   │   ├── test/                     # E2E tests (*.e2e-spec.ts)
 │   │   ├── nest-cli.json
 │   │   ├── jest.config.js
+│   │   ├── jest-e2e.config.ts        # Config E2E tests
 │   │   ├── tsconfig.json             # module: CommonJS, moduleResolution: node
 │   │   └── package.json
 │   │
@@ -163,7 +167,7 @@ epde/
 │       └── package.json              # type: "module", exports map
 │
 ├── docs/                             # Documentacion del proyecto
-├── docker-compose.yml                # PostgreSQL 16 + pgAdmin
+├── docker-compose.yml                # PostgreSQL 16 + Redis 7 + pgAdmin
 ├── turbo.json                        # Pipeline de tareas Turborepo
 ├── package.json                      # Root: scripts, devDeps, pnpm config
 ├── pnpm-workspace.yaml               # apps/*, packages/*
@@ -200,6 +204,8 @@ epde/
 | NestJS                | 11      | Framework REST API                   |
 | Prisma                | 6       | ORM + migraciones                    |
 | PostgreSQL            | 16      | Base de datos                        |
+| Redis                 | 7       | Cache, token state, distributed lock |
+| ioredis               | 5.9     | Redis client para Node.js            |
 | Passport              | -       | Autenticacion (JWT + Local strategy) |
 | @nestjs/jwt           | -       | JWT tokens (access 15m, refresh 7d)  |
 | CASL                  | 6.8     | Autorizacion role-based              |
@@ -286,7 +292,8 @@ export class BaseRepository<T> {
 
 Extension global en `PrismaService`:
 
-- `findMany/findFirst/findUnique` → auto-agregan `where: { deletedAt: null }`
+- `findMany/findFirst/findUnique/count` → auto-agregan `where: { deletedAt: null }`
+- Condicion: `!('deletedAt' in (args.where || {}))` — chequea **presencia de clave**, no valor
 - `delete` → se convierte en `update({ deletedAt: new Date() })`
 - Modelos afectados: `User`, `Property`, `Task`
 - Acceso a eliminados: via `writeModel` (sin filtro)
@@ -348,19 +355,25 @@ Tres guards globales en orden via `APP_GUARD`:
 - Otros errores → `500` + `Sentry.captureException()`
 - Formato: `{ statusCode, message, error }`
 
-### P9: Auth Flow (JWT + Cookies)
+### P9: Auth Flow (JWT + Token Rotation)
 
 ```
-Login → LocalStrategy (email+password) → JWT access + refresh
+Login → LocalStrategy (email+password) → JWT access + refresh (family + generation)
                                         ↓
                               Web: cookies HttpOnly (access 15m, refresh 7d)
                               Mobile: SecureStore (access + refresh tokens)
                                         ↓
-                              Request → JwtStrategy → user en request
+                              Request → JwtStrategy → verifica blacklist (Redis) → user en request
                                         ↓
-                              Token expirado → refresh automatico
+                              Token expirado → refresh → rota token (nueva generation en Redis)
+                                        ↓
+                              Logout → blacklist access JTI + revocar family en Redis
 ```
 
+- **Token Rotation**: cada login crea una "family" UUID. Refresh tokens llevan `family` + `generation`
+- **Reuse Detection**: si generation no coincide al hacer refresh → revoca toda la family
+- Redis almacena `rt:{family}` con generation actual (TTL 7d) y `bl:{jti}` para blacklist
+- Implementado en `auth/token.service.ts`
 - Web: cookies HttpOnly (el browser las envia automaticamente)
 - Mobile: Bearer token en header (SecureStore para persistencia)
 - Passwords: bcrypt 12 rounds
@@ -376,13 +389,15 @@ Cliente → POST /upload/presigned-url → { url, key }
 
 Mobile usa un flujo alternativo con `POST /upload` (multipart/form-data).
 
-### P11: Cron Jobs
+### P11: Cron Jobs (Distributed Lock)
 
-Tres jobs diarios (06:00-06:10 Argentina):
+Tres jobs diarios (06:00-06:10 Argentina), cada uno envuelto en `DistributedLockService.withLock()` (Redis SETNX, TTL 5min):
 
 1. **task-status-recalculation**: PENDING → UPCOMING (30 dias) → OVERDUE
 2. **task-upcoming-reminders**: Notificaciones + email para tareas proximas/vencidas
 3. **task-safety-sweep**: Correccion de edge cases en tareas completadas
+
+Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en deployments multi-instancia.
 
 ### P12: State Management (Web + Mobile)
 
@@ -446,6 +461,15 @@ Mobile agrega:
 // No auth → /(auth)/login
 // Auth → /(tabs)
 ```
+
+### P15: Redis Infrastructure
+
+Modulo global `RedisModule` (`redis/redis.module.ts`) con dos servicios:
+
+- **RedisService**: Wrapper sobre `ioredis` con metodos `get`, `set`, `del`, `setnx`, `expire`
+- **DistributedLockService**: Redis SETNX con TTL. Metodo `withLock<T>(key, ttlSeconds, fn)`
+
+Casos de uso: token rotation (families), token blacklist (JTIs), distributed lock (cron jobs).
 
 ---
 
@@ -640,7 +664,15 @@ Category ─1:N─ Task
 
 ### Soft Delete
 
-Modelos con `deletedAt: DateTime?`: User, Property, Task
+Modelos con `deletedAt: DateTime?`: User, Property, Task. Condicion: `!('deletedAt' in ...)` para chequear presencia de clave.
+
+### Tipos Decimal
+
+Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `.unitPrice` (12,2), `.subtotal` (14,2), `BudgetResponse.totalAmount` (14,2).
+
+### Campos de Auditoria
+
+`BudgetRequest.updatedBy` y `ServiceRequest.updatedBy`: ID del usuario que realizo el ultimo cambio de estado.
 
 ### Cascade Deletes
 
@@ -688,14 +720,24 @@ Modelos con `deletedAt: DateTime?`: User, Property, Task
 ### Docker Compose (desarrollo)
 
 - **PostgreSQL 16**: puerto 5433, user `epde`, db `epde_dev`
+- **Redis 7 Alpine**: puerto 6379, maxmemory 256mb, LRU eviction
 - **pgAdmin 4**: puerto 5050, admin@epde.local
 
 ### GitHub Actions CI
 
 ```yaml
-Jobs: lint → typecheck → build (en paralelo sobre shared build)
+Jobs: lint → typecheck → build → test → test:e2e
+Services: PostgreSQL 16 Alpine, Redis 7 Alpine
 Triggers: push a main, PRs
 ```
+
+### GitHub Actions CD
+
+Template de deploy (`cd.yml`):
+
+- Trigger: push a `main`
+- Jobs: `deploy-api` (build + prisma migrate deploy), `deploy-web` (build)
+- Usa `environment: production` con secrets
 
 ### Turborepo Pipeline
 
@@ -711,11 +753,12 @@ Triggers: push a main, PRs
 
 ### Servicios Externos
 
-| Servicio      | Uso                            |
-| ------------- | ------------------------------ |
-| Cloudflare R2 | Almacenamiento de archivos     |
-| Resend        | Emails transaccionales         |
-| Sentry        | Monitoreo de errores (backend) |
+| Servicio      | Uso                                         |
+| ------------- | ------------------------------------------- |
+| Redis 7       | Token state, blacklist, distributed locking |
+| Cloudflare R2 | Almacenamiento de archivos                  |
+| Resend        | Emails transaccionales                      |
+| Sentry        | Monitoreo de errores (backend)              |
 
 ---
 
@@ -777,7 +820,10 @@ pnpm dev:mobile       # Expo dev server
 pnpm build            # Build completo
 pnpm lint             # ESLint
 pnpm typecheck        # TypeScript check
-pnpm test             # Jest (API) + Vitest (shared)
+pnpm test             # Jest (API --runInBand) + Vitest (shared)
+
+# Tests E2E (requiere DB + Redis)
+pnpm --filter @epde/api test:e2e
 
 # Prisma
 pnpm --filter @epde/api exec prisma studio    # UI de BD

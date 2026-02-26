@@ -9,17 +9,20 @@ Todas las rutas requieren autenticacion JWT excepto las marcadas con `@Public()`
 
 ### Tokens
 
-- **Access token**: cookie HttpOnly `access_token`, expira en 15 minutos
-- **Refresh token**: cookie HttpOnly `refresh_token`, expira en 7 dias
+- **Access token**: cookie HttpOnly `access_token`, expira en 15 minutos. Contiene `jti` (JWT ID) para blacklisting
+- **Refresh token**: cookie HttpOnly `refresh_token`, expira en 7 dias. Contiene `family` UUID + `generation` counter
 - Ambos se envian automaticamente con `withCredentials: true`
 - El frontend intercepta 401 y refresca automaticamente
+- Token state almacenado en Redis (families, blacklist)
 
-### Flow
+### Flow (Token Rotation)
 
-1. `POST /auth/login` → setea cookies
+1. `POST /auth/login` → crea familia de tokens, genera par access+refresh, setea cookies
 2. Requests posteriores envian cookies automaticamente
-3. Al expirar access token → `POST /auth/refresh` con refresh cookie
-4. `POST /auth/logout` → limpia cookies
+3. `JwtStrategy` verifica que el JTI del access token no este en blacklist (Redis)
+4. Al expirar access token → `POST /auth/refresh` → **rota** refresh token (nueva generation)
+5. Si la generation no coincide con Redis → **token reuse attack** → revoca toda la family
+6. `POST /auth/logout` → blacklist access JTI + revocar family + limpia cookies
 
 ---
 
@@ -221,6 +224,17 @@ Rate limit: 5 requests/minuto en login y set-password.
   "estimatedDays": 5,
   "notes": "Incluye garantia",
   "validUntil": "2026-03-15"
+}
+```
+
+**Nota:** Los campos `quantity`, `unitPrice`, `subtotal` y `totalAmount` usan tipo `Decimal` (serializados como strings en JSON) para precision monetaria.
+
+```json
+// Ejemplo de respuesta con Decimal
+{
+  "quantity": "3",
+  "unitPrice": "15000.00",
+  "subtotal": "45000.00"
 }
 ```
 

@@ -30,7 +30,8 @@
 | State (global) | Zustand                                              | -         |
 | State (server) | TanStack React Query                                 | 5         |
 | Validacion     | Zod (unico SSoT, shared + API via ZodValidationPipe) | -         |
-| Auth           | Passport JWT + Local                                 | -         |
+| Cache/State    | Redis (token rotation, distributed lock)             | 7         |
+| Auth           | Passport JWT + Local + Token Rotation                | -         |
 | Email          | Resend                                               | -         |
 | Storage        | Cloudflare R2                                        | -         |
 | CI/CD          | GitHub Actions                                       | -         |
@@ -54,7 +55,7 @@ epde/
 # Instalar dependencias
 pnpm install
 
-# Levantar PostgreSQL
+# Levantar PostgreSQL + Redis
 docker compose up -d
 
 # Aplicar migraciones y seed
@@ -74,6 +75,7 @@ pnpm build
 pnpm lint
 pnpm typecheck
 pnpm test
+pnpm --filter @epde/api test:e2e    # Tests E2E (requiere DB + Redis)
 ```
 
 ## Credenciales de Desarrollo
