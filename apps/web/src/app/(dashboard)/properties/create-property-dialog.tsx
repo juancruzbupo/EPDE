@@ -172,9 +172,12 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
               <Input
                 type="number"
                 {...register('yearBuilt', {
-                  setValueAs: (v: string) => (v === '' ? undefined : v),
+                  setValueAs: (v: string) => (v === '' ? undefined : Number(v)),
                 })}
               />
+              {errors.yearBuilt && (
+                <p className="text-destructive text-sm">{errors.yearBuilt.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Metros cuadrados</Label>
@@ -182,9 +185,12 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
                 type="number"
                 step="0.1"
                 {...register('squareMeters', {
-                  setValueAs: (v: string) => (v === '' ? undefined : v),
+                  setValueAs: (v: string) => (v === '' ? undefined : Number(v)),
                 })}
               />
+              {errors.squareMeters && (
+                <p className="text-destructive text-sm">{errors.squareMeters.message}</p>
+              )}
             </div>
           </div>
           <div className="flex justify-end gap-2">
