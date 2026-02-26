@@ -7,7 +7,8 @@
     "dev": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "test": "jest"
   },
   "dependencies": {
     "@epde/shared": "workspace:*",
@@ -42,7 +43,12 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.0",
+    "@testing-library/react-native": "^13.3.3",
+    "@types/jest": "^29",
+    "jest": "^29",
+    "jest-expo": "^55.0.9",
     "postcss": "^8.5.0",
+    "react-test-renderer": "19.1.0",
     "tailwindcss": "^4.1.0",
     "typescript": "~5.9.2"
   }

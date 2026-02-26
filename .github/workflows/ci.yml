@@ -82,3 +82,6 @@ jobs:
 
       - name: E2E tests
         run: pnpm --filter @epde/api test:e2e
+
+      - name: Frontend coverage check
+        run: pnpm --filter @epde/web test -- --coverage

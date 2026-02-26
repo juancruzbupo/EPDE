@@ -1,0 +1,12 @@
+node_modules
+.git
+*.md
+load-tests
+docs
+apps/web
+apps/mobile
+.env*
+.claude
+.github
+coverage
+.turbo

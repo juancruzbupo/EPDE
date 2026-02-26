@@ -68,21 +68,18 @@ jobs:
       - name: Generate Prisma client
         run: pnpm db:generate
 
-      - name: Build API
-        run: pnpm --filter @epde/api build
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli
 
       - name: Run database migrations
         run: pnpm --filter @epde/api exec prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-      # TODO: Replace with actual deploy commands for your hosting provider
-      # Examples:
-      #   Railway:  railway up --service api
-      #   Fly.io:   fly deploy --config apps/api/fly.toml
-      #   Docker:   docker build -t epde-api . && docker push ...
-      - name: Deploy API
-        run: echo "TODO - Configure deploy command for your hosting provider"
+      - name: Deploy API to Railway
+        run: railway up --service epde-api --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
   deploy-web:
     name: Deploy Web
@@ -103,17 +100,23 @@ jobs:
           node-version: 22
           cache: 'pnpm'
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install Vercel CLI
+        run: npm i -g vercel
 
-      - name: Build Web
-        run: pnpm --filter @epde/web build
+      - name: Pull Vercel environment
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
         env:
-          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      # TODO: Replace with actual deploy commands
-      # Examples:
-      #   Vercel:    vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
-      #   Netlify:   netlify deploy --prod
-      - name: Deploy Web
-        run: echo "TODO - Configure deploy command for your hosting provider"
+      - name: Build for Vercel
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Deploy Web to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

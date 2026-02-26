@@ -68,17 +68,18 @@ jobs:
       - name: Generate Prisma client
         run: pnpm db:generate
 
-      - name: Build API
-        run: pnpm --filter @epde/api build
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli
 
       - name: Run database migrations
         run: pnpm --filter @epde/api exec prisma migrate deploy
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
 
-      # TODO: Replace with staging deploy commands
-      - name: Deploy API to Staging
-        run: echo "TODO - Configure staging deploy command"
+      - name: Deploy API to Railway (Staging)
+        run: railway up --service epde-api-staging --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_STAGING }}
 
   deploy-web-staging:
     name: Deploy Web (Staging)
@@ -99,14 +100,23 @@ jobs:
           node-version: 22
           cache: 'pnpm'
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install Vercel CLI
+        run: npm i -g vercel
 
-      - name: Build Web
-        run: pnpm --filter @epde/web build
+      - name: Pull Vercel environment
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
         env:
-          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_STAGING }}
 
-      # TODO: Replace with staging deploy commands
-      - name: Deploy Web to Staging
-        run: echo "TODO - Configure staging deploy command"
+      - name: Build for Vercel
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_STAGING }}
+
+      - name: Deploy Web to Vercel (Staging)
+        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_STAGING }}

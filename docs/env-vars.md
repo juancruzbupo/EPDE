@@ -34,6 +34,38 @@
 | --------------------- | --------- | ------- | ----------------------------------- |
 | `EXPO_PUBLIC_API_URL` | Si        | —       | URL base del API para la app mobile |
 
+## GitHub Secrets (CI/CD)
+
+Estos secrets se configuran en GitHub → Settings → Secrets and variables → Actions.
+
+### Produccion (`environment: production`)
+
+| Secret              | Descripcion                          | Donde obtenerlo                              |
+| ------------------- | ------------------------------------ | -------------------------------------------- |
+| `RAILWAY_TOKEN`     | API token de Railway                 | railway.com → Account → Tokens               |
+| `DATABASE_URL`      | Connection string PostgreSQL de prod | Railway dashboard → PostgreSQL service → URL |
+| `VERCEL_TOKEN`      | API token de Vercel                  | vercel.com → Settings → Tokens               |
+| `VERCEL_ORG_ID`     | ID de la org/team en Vercel          | vercel.com → Settings → General              |
+| `VERCEL_PROJECT_ID` | ID del proyecto web en Vercel        | vercel.com → Project → Settings → General    |
+
+### Staging (`environment: staging`)
+
+| Secret                      | Descripcion                             | Donde obtenerlo                         |
+| --------------------------- | --------------------------------------- | --------------------------------------- |
+| `RAILWAY_TOKEN_STAGING`     | API token de Railway (proyecto staging) | railway.com → Account → Tokens          |
+| `DATABASE_URL_STAGING`      | Connection string PostgreSQL de staging | Railway dashboard → staging PostgreSQL  |
+| `VERCEL_TOKEN`              | Mismo token de Vercel (compartido)      | vercel.com → Settings → Tokens          |
+| `VERCEL_ORG_ID`             | Mismo org ID (compartido)               | vercel.com → Settings → General         |
+| `VERCEL_PROJECT_ID_STAGING` | ID del proyecto web staging en Vercel   | vercel.com → Staging Project → Settings |
+
+### Variables (no secretas)
+
+Configurar en GitHub → Settings → Variables → Actions:
+
+| Variable              | Descripcion                           | Ejemplo                   |
+| --------------------- | ------------------------------------- | ------------------------- |
+| `NEXT_PUBLIC_API_URL` | URL publica del API (por environment) | `https://api.epde.com.ar` |
+
 ## Puertos utilizados
 
 | Servicio           | Puerto | Notas                                      |
