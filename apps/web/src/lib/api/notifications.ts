@@ -1,27 +1,8 @@
+import { createNotificationQueries } from '@epde/shared/api';
 import { apiClient } from '../api-client';
-import type { PaginatedResponse, NotificationPublic } from '@epde/shared';
 
-export type { NotificationPublic };
+export type { NotificationPublic } from '@epde/shared';
+export type { NotificationFilters } from '@epde/shared/api';
 
-export async function getNotifications(params?: {
-  cursor?: string;
-  take?: number;
-}): Promise<PaginatedResponse<NotificationPublic>> {
-  const { data } = await apiClient.get('/notifications', { params });
-  return data;
-}
-
-export async function getUnreadCount(): Promise<{ data: { count: number } }> {
-  const { data } = await apiClient.get('/notifications/unread-count');
-  return data;
-}
-
-export async function markAsRead(id: string) {
-  const { data } = await apiClient.patch(`/notifications/${id}/read`);
-  return data;
-}
-
-export async function markAllAsRead() {
-  const { data } = await apiClient.patch('/notifications/read-all');
-  return data;
-}
+const queries = createNotificationQueries(apiClient);
+export const { getNotifications, getUnreadCount, markAsRead, markAllAsRead } = queries;

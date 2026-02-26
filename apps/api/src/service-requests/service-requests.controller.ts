@@ -51,8 +51,9 @@ export class ServiceRequestsController {
   async updateStatus(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateServiceStatusSchema)) dto: UpdateServiceStatusInput,
+    @CurrentUser() user: { id: string },
   ) {
-    const data = await this.serviceRequestsService.updateStatus(id, dto);
+    const data = await this.serviceRequestsService.updateStatus(id, dto, user.id);
     return { data };
   }
 }

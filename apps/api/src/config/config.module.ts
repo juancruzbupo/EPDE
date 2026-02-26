@@ -16,6 +16,7 @@ const envSchema = z.object({
   R2_SECRET_ACCESS_KEY: z.string().optional(),
   R2_BUCKET_NAME: z.string().optional(),
   R2_PUBLIC_URL: z.string().optional(),
+  REDIS_URL: z.string().default('redis://localhost:6379'),
   SENTRY_DSN: z.string().url().optional(),
 });
 

@@ -117,7 +117,13 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Res({ passthrough: true }) res: Response) {
+  async logout(
+    @CurrentUser() user: { id: string; jti?: string; family?: string; exp?: number },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const ttlSeconds = user.exp ? Math.max(0, user.exp - Math.floor(Date.now() / 1000)) : 0;
+    await this.authService.logout(user.jti, user.family, ttlSeconds);
+
     res.clearCookie(ACCESS_COOKIE_NAME, { path: '/' });
     res.clearCookie(REFRESH_COOKIE_NAME, { path: '/api/v1/auth' });
     return { data: { message: 'Sesión cerrada' } };

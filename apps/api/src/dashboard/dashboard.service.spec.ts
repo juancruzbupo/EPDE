@@ -82,15 +82,15 @@ describe('DashboardService', () => {
 
       // Verify sorted descending by timestamp
       for (let i = 0; i < result.length - 1; i++) {
-        expect(result[i].timestamp.getTime()).toBeGreaterThanOrEqual(
-          result[i + 1].timestamp.getTime(),
+        expect(result[i]!.timestamp.getTime()).toBeGreaterThanOrEqual(
+          result[i + 1]!.timestamp.getTime(),
         );
       }
 
       // The first item should be the most recent (offset=1)
-      expect(result[0].id).toBe('c1');
-      expect(result[0].type).toBe('client_created');
-      expect(result[0].description).toBe('Nuevo cliente: Cliente A');
+      expect(result[0]!.id).toBe('c1');
+      expect(result[0]!.type).toBe('client_created');
+      expect(result[0]!.description).toBe('Nuevo cliente: Cliente A');
 
       // Check specific description formats
       const propertyActivity = result.find((a) => a.id === 'p1');
@@ -244,7 +244,7 @@ describe('DashboardService', () => {
       expect(repository.getClientUpcomingTasks).toHaveBeenCalledWith(userId);
       expect(result).toHaveLength(2);
 
-      expect(result[0]).toEqual({
+      expect(result[0]!).toEqual({
         id: 'task-1',
         name: 'Revisar techos',
         nextDueDate: '2025-06-15T10:00:00.000Z',
@@ -255,7 +255,7 @@ describe('DashboardService', () => {
         maintenancePlanId: 'plan-1',
       });
 
-      expect(result[1]).toEqual({
+      expect(result[1]!).toEqual({
         id: 'task-2',
         name: 'Limpiar canaletas',
         nextDueDate: '2025-07-01T10:00:00.000Z',

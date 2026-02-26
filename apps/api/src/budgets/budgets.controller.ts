@@ -53,8 +53,9 @@ export class BudgetsController {
   async respondToBudget(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(respondBudgetSchema)) dto: RespondBudgetInput,
+    @CurrentUser() user: { id: string },
   ) {
-    const data = await this.budgetsService.respondToBudget(id, dto);
+    const data = await this.budgetsService.respondToBudget(id, dto, user.id);
     return { data, message: 'Presupuesto cotizado' };
   }
 

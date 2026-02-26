@@ -1,29 +1,13 @@
+import { createPropertyQueries } from '@epde/shared/api';
 import { apiClient } from '../api-client';
-import type { PaginatedResponse, ApiResponse, PropertyPublic } from '@epde/shared';
 
-export type { PropertyPublic };
+export type { PropertyFilters } from '@epde/shared/api';
+export type { PropertyPublic } from '@epde/shared';
 
-export interface PropertyFilters {
-  search?: string;
-  userId?: string;
-  city?: string;
-  type?: string;
-  cursor?: string;
-  take?: number;
-}
+const queries = createPropertyQueries(apiClient);
+export const { getProperties, getProperty } = queries;
 
-export async function getProperties(
-  params: PropertyFilters,
-): Promise<PaginatedResponse<PropertyPublic>> {
-  const { data } = await apiClient.get('/properties', { params });
-  return data;
-}
-
-export async function getProperty(id: string): Promise<ApiResponse<PropertyPublic>> {
-  const { data } = await apiClient.get(`/properties/${id}`);
-  return data;
-}
-
+// Admin-only
 export async function createProperty(dto: {
   userId: string;
   address: string;

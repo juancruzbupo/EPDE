@@ -1,5 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import cookieParser from 'cookie-parser';
 import { AppModule } from '../app.module';
 import { PrismaService } from '../prisma/prisma.service';
@@ -7,7 +8,10 @@ import { PrismaService } from '../prisma/prisma.service';
 export async function createTestApp(): Promise<INestApplication> {
   const moduleRef = await Test.createTestingModule({
     imports: [AppModule],
-  }).compile();
+  })
+    .overrideGuard(ThrottlerGuard)
+    .useValue({ canActivate: () => true })
+    .compile();
 
   const app = moduleRef.createNestApplication();
 
@@ -29,22 +33,24 @@ export async function createTestApp(): Promise<INestApplication> {
 }
 
 /**
- * Cleans all tables in FK-safe order.
+ * Cleans all tables using TRUNCATE CASCADE to avoid FK race conditions
+ * with async event handlers (e.g. notification listeners).
  */
 export async function cleanDatabase(prisma: PrismaService): Promise<void> {
-  await prisma.$transaction([
-    prisma.notification.deleteMany(),
-    prisma.taskNote.deleteMany(),
-    prisma.taskLog.deleteMany(),
-    prisma.task.deleteMany(),
-    prisma.maintenancePlan.deleteMany(),
-    prisma.serviceRequestPhoto.deleteMany(),
-    prisma.serviceRequest.deleteMany(),
-    prisma.budgetLineItem.deleteMany(),
-    prisma.budgetResponse.deleteMany(),
-    prisma.budgetRequest.deleteMany(),
-    prisma.property.deleteMany(),
-    prisma.category.deleteMany(),
-    prisma.user.deleteMany(),
-  ]);
+  const tableNames = [
+    'Notification',
+    'TaskNote',
+    'TaskLog',
+    'Task',
+    'MaintenancePlan',
+    'ServiceRequestPhoto',
+    'ServiceRequest',
+    'BudgetLineItem',
+    'BudgetResponse',
+    'BudgetRequest',
+    'Property',
+    'Category',
+    'User',
+  ];
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE "${tableNames.join('", "')}" CASCADE`);
 }

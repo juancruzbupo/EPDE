@@ -12,6 +12,16 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7-alpine
+    container_name: epde-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: epde-pgadmin
@@ -26,3 +36,4 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:

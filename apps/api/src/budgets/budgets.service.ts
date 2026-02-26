@@ -5,6 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Prisma } from '@prisma/client';
 import { BudgetsRepository } from './budgets.repository';
 import { PropertiesRepository } from '../properties/properties.repository';
 import { UserRole } from '@epde/shared';
@@ -91,7 +92,7 @@ export class BudgetsService {
     return budget;
   }
 
-  async respondToBudget(id: string, dto: RespondBudgetInput) {
+  async respondToBudget(id: string, dto: RespondBudgetInput, userId?: string) {
     const budget = await this.budgetsRepository.findById(id);
     if (!budget) {
       throw new NotFoundException('Presupuesto no encontrado');
@@ -102,15 +103,17 @@ export class BudgetsService {
     }
 
     const totalAmount = dto.lineItems.reduce(
-      (sum, item) => sum + item.quantity * item.unitPrice,
-      0,
+      (sum, item) =>
+        sum.add(new Prisma.Decimal(item.quantity).mul(new Prisma.Decimal(item.unitPrice))),
+      new Prisma.Decimal(0),
     );
 
     const result = await this.budgetsRepository.respondToBudget(id, dto.lineItems, {
-      totalAmount,
+      totalAmount: totalAmount.toNumber(),
       estimatedDays: dto.estimatedDays,
       notes: dto.notes,
       validUntil: dto.validUntil ? new Date(dto.validUntil) : null,
+      updatedBy: userId,
     });
 
     this.eventEmitter.emit('budget.quoted', {
@@ -133,7 +136,7 @@ export class BudgetsService {
 
     const updated = await this.budgetsRepository.update(
       id,
-      { status: dto.status },
+      { status: dto.status, updatedBy: currentUser.id },
       {
         property: {
           select: {

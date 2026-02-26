@@ -3,6 +3,7 @@ import request from 'supertest';
 import { PrismaService } from '../prisma/prisma.service';
 import { createTestApp, cleanDatabase } from '../test/setup';
 import { seedTestData, TestData } from '../test/seed-test-data';
+import { TokenService } from '../auth/token.service';
 
 describe('ServiceRequestsController (e2e)', () => {
   let app: INestApplication;
@@ -20,15 +21,20 @@ describe('ServiceRequestsController (e2e)', () => {
     await cleanDatabase(prisma);
     testData = await seedTestData(prisma);
 
-    const clientLogin = await request(app.getHttpServer())
-      .post('/api/v1/auth/login')
-      .send({ email: testData.client.email, password: testData.client.password });
-    clientToken = clientLogin.body.data.accessToken;
+    const tokenService = app.get(TokenService);
+    const clientPair = await tokenService.generateTokenPair({
+      id: testData.client.id,
+      email: testData.client.email,
+      role: 'CLIENT',
+    });
+    clientToken = clientPair.accessToken;
 
-    const adminLogin = await request(app.getHttpServer())
-      .post('/api/v1/auth/login')
-      .send({ email: testData.admin.email, password: testData.admin.password });
-    adminToken = adminLogin.body.data.accessToken;
+    const adminPair = await tokenService.generateTokenPair({
+      id: testData.admin.id,
+      email: testData.admin.email,
+      role: 'ADMIN',
+    });
+    adminToken = adminPair.accessToken;
   });
 
   afterAll(async () => {

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BudgetRequest } from '@prisma/client';
+import { BudgetRequest, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   BaseRepository,
@@ -76,6 +76,7 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest> {
       estimatedDays?: number;
       notes?: string;
       validUntil?: Date | null;
+      updatedBy?: string;
     },
   ) {
     return this.prisma.$transaction(async (tx) => {
@@ -83,9 +84,9 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest> {
         data: lineItems.map((item) => ({
           budgetRequestId: id,
           description: item.description,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          subtotal: item.quantity * item.unitPrice,
+          quantity: new Prisma.Decimal(item.quantity),
+          unitPrice: new Prisma.Decimal(item.unitPrice),
+          subtotal: new Prisma.Decimal(item.quantity).mul(new Prisma.Decimal(item.unitPrice)),
         })),
       });
 
@@ -101,7 +102,7 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest> {
 
       return tx.budgetRequest.update({
         where: { id },
-        data: { status: 'QUOTED' },
+        data: { status: 'QUOTED', updatedBy: response.updatedBy },
         include: {
           property: {
             select: {

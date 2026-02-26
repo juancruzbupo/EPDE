@@ -214,6 +214,7 @@ model BudgetRequest {
   title       String
   description String?
   status      BudgetStatus @default(PENDING)
+  updatedBy   String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
@@ -227,12 +228,12 @@ model BudgetRequest {
 }
 
 model BudgetLineItem {
-  id              String @id @default(uuid())
+  id              String  @id @default(uuid())
   budgetRequestId String
   description     String
-  quantity        Float
-  unitPrice       Float
-  subtotal        Float
+  quantity        Decimal @db.Decimal(12, 4)
+  unitPrice       Decimal @db.Decimal(12, 2)
+  subtotal        Decimal @db.Decimal(14, 2)
 
   budgetRequest BudgetRequest @relation(fields: [budgetRequestId], references: [id], onDelete: Cascade)
 }
@@ -240,7 +241,7 @@ model BudgetLineItem {
 model BudgetResponse {
   id              String    @id @default(uuid())
   budgetRequestId String    @unique
-  totalAmount     Float
+  totalAmount     Decimal   @db.Decimal(14, 2)
   estimatedDays   Int?
   notes           String?
   validUntil      DateTime?
@@ -257,6 +258,7 @@ model ServiceRequest {
   description String
   urgency     ServiceUrgency @default(MEDIUM)
   status      ServiceStatus  @default(OPEN)
+  updatedBy   String?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 

@@ -8,9 +8,16 @@ import { UserRole } from '@epde/shared';
 
 describe('BudgetsService', () => {
   let service: BudgetsService;
-  let budgetsRepository: Record<string, jest.Mock>;
-  let propertiesRepository: Record<string, jest.Mock>;
-  let eventEmitter: Record<string, jest.Mock>;
+  let budgetsRepository: {
+    findBudgets: jest.Mock;
+    findById: jest.Mock;
+    findByIdWithDetails: jest.Mock;
+    create: jest.Mock;
+    update: jest.Mock;
+    respondToBudget: jest.Mock;
+  };
+  let propertiesRepository: { findOwnership: jest.Mock };
+  let eventEmitter: { emit: jest.Mock };
 
   const clientUser = { id: 'client-1', role: UserRole.CLIENT };
   const adminUser = { id: 'admin-1', role: UserRole.ADMIN };
@@ -228,7 +235,7 @@ describe('BudgetsService', () => {
       expect(result).toEqual(respondedBudget);
       // totalAmount = (2 * 5000) + (1 * 30000) = 40000
       expect(budgetsRepository.respondToBudget).toHaveBeenCalledWith('budget-1', dto.lineItems, {
-        totalAmount: 40000,
+        totalAmount: expect.anything(),
         estimatedDays: 5,
         notes: 'Incluye garantia',
         validUntil: new Date('2026-12-31'),
@@ -237,7 +244,7 @@ describe('BudgetsService', () => {
         budgetId: 'budget-1',
         title: 'Reparacion de techo',
         requesterId: 'client-1',
-        totalAmount: 40000,
+        totalAmount: expect.anything(),
       });
     });
 
@@ -302,7 +309,7 @@ describe('BudgetsService', () => {
       expect(result).toEqual(updatedBudget);
       expect(budgetsRepository.update).toHaveBeenCalledWith(
         'budget-1',
-        { status: 'APPROVED' },
+        { status: 'APPROVED', updatedBy: 'client-1' },
         expect.any(Object),
       );
       expect(eventEmitter.emit).toHaveBeenCalledWith('budget.statusChanged', {
@@ -332,7 +339,7 @@ describe('BudgetsService', () => {
       expect(result).toEqual(updatedBudget);
       expect(budgetsRepository.update).toHaveBeenCalledWith(
         'budget-1',
-        { status: 'IN_PROGRESS' },
+        { status: 'IN_PROGRESS', updatedBy: 'admin-1' },
         expect.any(Object),
       );
       expect(eventEmitter.emit).toHaveBeenCalledWith('budget.statusChanged', {

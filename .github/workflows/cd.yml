@@ -1,0 +1,87 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy-api:
+    name: Deploy API
+    runs-on: ubuntu-latest
+    needs: []
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Build API
+        run: pnpm --filter @epde/api build
+
+      - name: Run database migrations
+        run: pnpm --filter @epde/api exec prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      # TODO: Replace with actual deploy commands for your hosting provider
+      # Examples:
+      #   Railway:  railway up --service api
+      #   Fly.io:   fly deploy --config apps/api/fly.toml
+      #   AWS ECS:  aws ecs update-service ...
+      #   Docker:   docker build -t epde-api . && docker push ...
+      - name: Deploy API
+        run: echo "TODO - Configure deploy command for your hosting provider"
+
+  deploy-web:
+    name: Deploy Web
+    runs-on: ubuntu-latest
+    needs: []
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Web
+        run: pnpm --filter @epde/web build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+
+      # TODO: Replace with actual deploy commands
+      # Examples:
+      #   Vercel:    vercel --prod
+      #   Netlify:   netlify deploy --prod
+      #   AWS S3:    aws s3 sync .next/static s3://...
+      - name: Deploy Web
+        run: echo "TODO - Configure deploy command for your hosting provider"

@@ -1,8 +1,8 @@
 import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
+import { TokenService } from './token.service';
 import { BCRYPT_SALT_ROUNDS } from '@epde/shared';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    private readonly tokenService: TokenService,
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -26,15 +26,7 @@ export class AuthService {
   }
 
   async login(user: { id: string; email: string; role: string }) {
-    const payload = { sub: user.id, email: user.email, role: user.role };
-
-    const accessToken = this.jwtService.sign(payload, {
-      expiresIn: this.configService.get('JWT_EXPIRATION', '15m'),
-    });
-
-    const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: this.configService.get('JWT_REFRESH_EXPIRATION', '7d'),
-    });
+    const { accessToken, refreshToken } = await this.tokenService.generateTokenPair(user);
 
     const fullUser = await this.usersService.findById(user.id);
     const { passwordHash: _, ...userWithoutPassword } = fullUser;
@@ -48,23 +40,15 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string) {
-    try {
-      const payload = this.jwtService.verify(refreshToken);
-      const user = await this.usersService.findById(payload.sub);
+    return this.tokenService.rotateRefreshToken(refreshToken);
+  }
 
-      const newPayload = { sub: user.id, email: user.email, role: user.role };
-
-      const accessToken = this.jwtService.sign(newPayload, {
-        expiresIn: this.configService.get('JWT_EXPIRATION', '15m'),
-      });
-
-      const newRefreshToken = this.jwtService.sign(newPayload, {
-        expiresIn: this.configService.get('JWT_REFRESH_EXPIRATION', '7d'),
-      });
-
-      return { accessToken, refreshToken: newRefreshToken };
-    } catch {
-      throw new UnauthorizedException('Token de refresco inválido');
+  async logout(jti?: string, family?: string, ttlSeconds?: number) {
+    if (jti && ttlSeconds) {
+      await this.tokenService.blacklistAccessToken(jti, ttlSeconds);
+    }
+    if (family) {
+      await this.tokenService.revokeFamily(family);
     }
   }
 

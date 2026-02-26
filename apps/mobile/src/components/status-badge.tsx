@@ -1,4 +1,12 @@
 import { View, Text } from 'react-native';
+import {
+  TASK_STATUS_LABELS,
+  TASK_PRIORITY_LABELS,
+  PROPERTY_TYPE_LABELS,
+  BUDGET_STATUS_LABELS,
+  SERVICE_STATUS_LABELS,
+  SERVICE_URGENCY_LABELS,
+} from '@epde/shared';
 
 type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'success';
 
@@ -27,78 +35,76 @@ export function StatusBadge({ label, variant = 'default' }: StatusBadgeProps) {
   );
 }
 
-const taskStatusMap: Record<string, { label: string; variant: BadgeVariant }> = {
-  PENDING: { label: 'Pendiente', variant: 'secondary' },
-  UPCOMING: { label: 'Proxima', variant: 'default' },
-  OVERDUE: { label: 'Vencida', variant: 'destructive' },
-  COMPLETED: { label: 'Completada', variant: 'success' },
+// Variant mappings (UI-specific, not shared)
+const taskStatusVariant: Record<string, BadgeVariant> = {
+  PENDING: 'secondary',
+  UPCOMING: 'default',
+  OVERDUE: 'destructive',
+  COMPLETED: 'success',
 };
 
-const priorityMap: Record<string, { label: string; variant: BadgeVariant }> = {
-  LOW: { label: 'Baja', variant: 'outline' },
-  MEDIUM: { label: 'Media', variant: 'secondary' },
-  HIGH: { label: 'Alta', variant: 'default' },
-  URGENT: { label: 'Urgente', variant: 'destructive' },
+const priorityVariant: Record<string, BadgeVariant> = {
+  LOW: 'outline',
+  MEDIUM: 'secondary',
+  HIGH: 'default',
+  URGENT: 'destructive',
 };
 
-const propertyTypeMap: Record<string, string> = {
-  HOUSE: 'Casa',
-  APARTMENT: 'Departamento',
-  DUPLEX: 'Duplex',
-  COUNTRY_HOUSE: 'Casa de campo',
-  OTHER: 'Otro',
+const budgetStatusVariant: Record<string, BadgeVariant> = {
+  PENDING: 'secondary',
+  QUOTED: 'default',
+  APPROVED: 'success',
+  REJECTED: 'destructive',
+  IN_PROGRESS: 'default',
+  COMPLETED: 'success',
+};
+
+const serviceStatusVariant: Record<string, BadgeVariant> = {
+  OPEN: 'default',
+  IN_REVIEW: 'secondary',
+  IN_PROGRESS: 'default',
+  RESOLVED: 'success',
+  CLOSED: 'outline',
+};
+
+const urgencyVariant: Record<string, BadgeVariant> = {
+  LOW: 'outline',
+  MEDIUM: 'secondary',
+  HIGH: 'default',
+  URGENT: 'destructive',
 };
 
 export function TaskStatusBadge({ status }: { status: string }) {
-  const config = taskStatusMap[status] ?? { label: status, variant: 'outline' as BadgeVariant };
-  return <StatusBadge label={config.label} variant={config.variant} />;
+  const label = TASK_STATUS_LABELS[status] ?? status;
+  const variant = taskStatusVariant[status] ?? 'outline';
+  return <StatusBadge label={label} variant={variant} />;
 }
 
 export function PriorityBadge({ priority }: { priority: string }) {
-  const config = priorityMap[priority] ?? { label: priority, variant: 'outline' as BadgeVariant };
-  return <StatusBadge label={config.label} variant={config.variant} />;
+  const label = TASK_PRIORITY_LABELS[priority] ?? priority;
+  const variant = priorityVariant[priority] ?? 'outline';
+  return <StatusBadge label={label} variant={variant} />;
 }
 
 export function PropertyTypeBadge({ type }: { type: string }) {
-  const label = propertyTypeMap[type] ?? type;
+  const label = PROPERTY_TYPE_LABELS[type] ?? type;
   return <StatusBadge label={label} variant="secondary" />;
 }
 
-const budgetStatusMap: Record<string, { label: string; variant: BadgeVariant }> = {
-  PENDING: { label: 'Pendiente', variant: 'secondary' },
-  QUOTED: { label: 'Cotizado', variant: 'default' },
-  APPROVED: { label: 'Aprobado', variant: 'success' },
-  REJECTED: { label: 'Rechazado', variant: 'destructive' },
-  IN_PROGRESS: { label: 'En Progreso', variant: 'default' },
-  COMPLETED: { label: 'Completado', variant: 'success' },
-};
-
 export function BudgetStatusBadge({ status }: { status: string }) {
-  const config = budgetStatusMap[status] ?? { label: status, variant: 'outline' as BadgeVariant };
-  return <StatusBadge label={config.label} variant={config.variant} />;
+  const label = BUDGET_STATUS_LABELS[status] ?? status;
+  const variant = budgetStatusVariant[status] ?? 'outline';
+  return <StatusBadge label={label} variant={variant} />;
 }
-
-const serviceStatusMap: Record<string, { label: string; variant: BadgeVariant }> = {
-  OPEN: { label: 'Abierto', variant: 'default' },
-  IN_REVIEW: { label: 'En Revisión', variant: 'secondary' },
-  IN_PROGRESS: { label: 'En Progreso', variant: 'default' },
-  RESOLVED: { label: 'Resuelto', variant: 'success' },
-  CLOSED: { label: 'Cerrado', variant: 'outline' },
-};
 
 export function ServiceStatusBadge({ status }: { status: string }) {
-  const config = serviceStatusMap[status] ?? { label: status, variant: 'outline' as BadgeVariant };
-  return <StatusBadge label={config.label} variant={config.variant} />;
+  const label = SERVICE_STATUS_LABELS[status] ?? status;
+  const variant = serviceStatusVariant[status] ?? 'outline';
+  return <StatusBadge label={label} variant={variant} />;
 }
 
-const urgencyMap: Record<string, { label: string; variant: BadgeVariant }> = {
-  LOW: { label: 'Baja', variant: 'outline' },
-  MEDIUM: { label: 'Media', variant: 'secondary' },
-  HIGH: { label: 'Alta', variant: 'default' },
-  URGENT: { label: 'Urgente', variant: 'destructive' },
-};
-
 export function UrgencyBadge({ urgency }: { urgency: string }) {
-  const config = urgencyMap[urgency] ?? { label: urgency, variant: 'outline' as BadgeVariant };
-  return <StatusBadge label={config.label} variant={config.variant} />;
+  const label = SERVICE_URGENCY_LABELS[urgency] ?? urgency;
+  const variant = urgencyVariant[urgency] ?? 'outline';
+  return <StatusBadge label={label} variant={variant} />;
 }

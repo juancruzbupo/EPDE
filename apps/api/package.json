@@ -10,7 +10,8 @@
     "prebuild": "prisma generate",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "jest"
+    "test": "jest --runInBand",
+    "test:e2e": "jest --config jest-e2e.config.ts --runInBand"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.997.0",
@@ -32,10 +33,13 @@
     "@sentry/nestjs": "^10.40.0",
     "@sentry/node": "^10.40.0",
     "bcrypt": "^6.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
     "date-fns": "^4.1.0",
     "helmet": "^8.1.0",
+    "ioredis": "^5.9.3",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
@@ -52,6 +56,7 @@
     "@types/compression": "^1.8.1",
     "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5",
+    "@types/ioredis": "^5.0.0",
     "@types/jest": "^29",
     "@types/multer": "^2.0.0",
     "@types/node": "^22",

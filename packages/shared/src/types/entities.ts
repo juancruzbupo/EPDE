@@ -108,6 +108,7 @@ export interface BudgetRequest extends BaseEntity {
   title: string;
   description: string | null;
   status: BudgetStatus;
+  updatedBy: string | null;
 }
 
 // ─── Budget Line Item ───────────────────────────────────
@@ -116,9 +117,9 @@ export interface BudgetLineItem {
   id: string;
   budgetRequestId: string;
   description: string;
-  quantity: number;
-  unitPrice: number;
-  subtotal: number;
+  quantity: string | number;
+  unitPrice: string | number;
+  subtotal: string | number;
 }
 
 // ─── Budget Response ────────────────────────────────────
@@ -126,7 +127,7 @@ export interface BudgetLineItem {
 export interface BudgetResponse {
   id: string;
   budgetRequestId: string;
-  totalAmount: number;
+  totalAmount: string | number;
   estimatedDays: number | null;
   notes: string | null;
   validUntil: Date | null;
@@ -142,6 +143,7 @@ export interface ServiceRequest extends BaseEntity {
   description: string;
   urgency: ServiceUrgency;
   status: ServiceStatus;
+  updatedBy: string | null;
 }
 
 // ─── Service Request Photo ──────────────────────────────

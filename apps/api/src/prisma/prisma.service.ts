@@ -28,7 +28,7 @@ function softDeleteHandlers() {
       args: { where?: { deletedAt?: unknown } };
       query: (args: unknown) => unknown;
     }) {
-      if (args.where?.deletedAt === undefined) {
+      if (!('deletedAt' in (args.where || {}))) {
         args.where = { ...args.where, deletedAt: null };
       }
       return query(args);
@@ -40,7 +40,7 @@ function softDeleteHandlers() {
       args: { where?: { deletedAt?: unknown } };
       query: (args: unknown) => unknown;
     }) {
-      if (args.where?.deletedAt === undefined) {
+      if (!('deletedAt' in (args.where || {}))) {
         args.where = { ...args.where, deletedAt: null };
       }
       return query(args);
@@ -52,7 +52,7 @@ function softDeleteHandlers() {
       args: { where: Record<string, unknown> };
       query: (args: unknown) => unknown;
     }) {
-      if (args.where?.deletedAt === undefined) {
+      if (!('deletedAt' in (args.where || {}))) {
         args.where = { ...args.where, deletedAt: null };
       }
       return query(args);
@@ -64,7 +64,7 @@ function softDeleteHandlers() {
       args: { where?: { deletedAt?: unknown } };
       query: (args: unknown) => unknown;
     }) {
-      if (args.where?.deletedAt === undefined) {
+      if (!('deletedAt' in (args.where || {}))) {
         args.where = { ...args.where, deletedAt: null };
       }
       return query(args);

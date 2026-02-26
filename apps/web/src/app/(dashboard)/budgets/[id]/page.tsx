@@ -26,11 +26,11 @@ import Link from 'next/link';
 import { RespondBudgetDialog } from './respond-budget-dialog';
 import { budgetStatusVariant, budgetStatusClassName } from '@/lib/style-maps';
 
-const formatCurrency = (value: number) =>
+const formatCurrency = (value: string | number) =>
   new Intl.NumberFormat('es-AR', {
     style: 'currency',
     currency: 'ARS',
-  }).format(value);
+  }).format(Number(value));
 
 type ConfirmAction = 'APPROVED' | 'REJECTED' | 'IN_PROGRESS' | 'COMPLETED' | null;
 

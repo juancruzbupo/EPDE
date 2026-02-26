@@ -49,7 +49,7 @@ export const budgetColumns: ColumnDef<BudgetRequestPublic>[] = [
       return new Intl.NumberFormat('es-AR', {
         style: 'currency',
         currency: 'ARS',
-      }).format(response.totalAmount);
+      }).format(Number(response.totalAmount));
     },
   },
   {

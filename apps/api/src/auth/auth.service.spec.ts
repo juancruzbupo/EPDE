@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from './auth.service';
+import { TokenService } from './token.service';
 import { UsersService } from '../users/users.service';
 import { BCRYPT_SALT_ROUNDS } from '@epde/shared';
 
@@ -18,8 +18,7 @@ const mockUser = {
   role: 'CLIENT',
   status: 'ACTIVE',
   passwordHash: '$2b$12$hashedpassword',
-  firstName: 'Juan',
-  lastName: 'Perez',
+  name: 'Juan Perez',
   phone: '+5491112345678',
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -38,7 +37,7 @@ describe('AuthService', () => {
   let authService: AuthService;
   let usersService: jest.Mocked<UsersService>;
   let jwtService: jest.Mocked<JwtService>;
-  let configService: jest.Mocked<ConfigService>;
+  let tokenService: jest.Mocked<TokenService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -60,9 +59,13 @@ describe('AuthService', () => {
           },
         },
         {
-          provide: ConfigService,
+          provide: TokenService,
           useValue: {
-            get: jest.fn(),
+            generateTokenPair: jest.fn(),
+            rotateRefreshToken: jest.fn(),
+            revokeFamily: jest.fn(),
+            blacklistAccessToken: jest.fn(),
+            isBlacklisted: jest.fn(),
           },
         },
       ],
@@ -71,7 +74,7 @@ describe('AuthService', () => {
     authService = module.get<AuthService>(AuthService);
     usersService = module.get(UsersService);
     jwtService = module.get(JwtService);
-    configService = module.get(ConfigService);
+    tokenService = module.get(TokenService);
 
     jest.clearAllMocks();
   });
@@ -121,23 +124,15 @@ describe('AuthService', () => {
     it('should return user, accessToken, refreshToken and strip passwordHash', async () => {
       const loginInput = { id: 'user-1', email: 'test@example.com', role: 'CLIENT' };
 
-      configService.get.mockImplementation((key: string, defaultValue: string) => defaultValue);
-      jwtService.sign
-        .mockReturnValueOnce('mock-access-token')
-        .mockReturnValueOnce('mock-refresh-token');
+      tokenService.generateTokenPair.mockResolvedValue({
+        accessToken: 'mock-access-token',
+        refreshToken: 'mock-refresh-token',
+      });
       usersService.findById.mockResolvedValue(mockUser as any);
 
       const result = await authService.login(loginInput);
 
-      expect(jwtService.sign).toHaveBeenCalledTimes(2);
-      expect(jwtService.sign).toHaveBeenCalledWith(
-        { sub: 'user-1', email: 'test@example.com', role: 'CLIENT' },
-        { expiresIn: '15m' },
-      );
-      expect(jwtService.sign).toHaveBeenCalledWith(
-        { sub: 'user-1', email: 'test@example.com', role: 'CLIENT' },
-        { expiresIn: '7d' },
-      );
+      expect(tokenService.generateTokenPair).toHaveBeenCalledWith(loginInput);
       expect(usersService.findById).toHaveBeenCalledWith('user-1');
       expect(result.accessToken).toBe('mock-access-token');
       expect(result.refreshToken).toBe('mock-refresh-token');
@@ -149,35 +144,46 @@ describe('AuthService', () => {
 
   describe('refresh', () => {
     it('should return new tokens with valid refresh token', async () => {
-      jwtService.verify.mockReturnValue({
-        sub: 'user-1',
-        email: 'test@example.com',
-        role: 'CLIENT',
+      tokenService.rotateRefreshToken.mockResolvedValue({
+        accessToken: 'new-access-token',
+        refreshToken: 'new-refresh-token',
       });
-      usersService.findById.mockResolvedValue(mockUser as any);
-      configService.get.mockImplementation((key: string, defaultValue: string) => defaultValue);
-      jwtService.sign
-        .mockReturnValueOnce('new-access-token')
-        .mockReturnValueOnce('new-refresh-token');
 
       const result = await authService.refresh('valid-refresh-token');
 
-      expect(jwtService.verify).toHaveBeenCalledWith('valid-refresh-token');
-      expect(usersService.findById).toHaveBeenCalledWith('user-1');
-      expect(jwtService.sign).toHaveBeenCalledTimes(2);
+      expect(tokenService.rotateRefreshToken).toHaveBeenCalledWith('valid-refresh-token');
       expect(result.accessToken).toBe('new-access-token');
       expect(result.refreshToken).toBe('new-refresh-token');
     });
 
     it('should throw UnauthorizedException with invalid token', async () => {
-      jwtService.verify.mockImplementation(() => {
-        throw new Error('invalid token');
-      });
+      tokenService.rotateRefreshToken.mockRejectedValue(
+        new UnauthorizedException('Token de refresco inválido'),
+      );
 
       await expect(authService.refresh('invalid-token')).rejects.toThrow(UnauthorizedException);
       await expect(authService.refresh('invalid-token')).rejects.toThrow(
         'Token de refresco inválido',
       );
+    });
+  });
+
+  describe('logout', () => {
+    it('should blacklist access token and revoke family', async () => {
+      tokenService.blacklistAccessToken.mockResolvedValue(undefined);
+      tokenService.revokeFamily.mockResolvedValue(undefined);
+
+      await authService.logout('jti-123', 'family-456', 300);
+
+      expect(tokenService.blacklistAccessToken).toHaveBeenCalledWith('jti-123', 300);
+      expect(tokenService.revokeFamily).toHaveBeenCalledWith('family-456');
+    });
+
+    it('should handle logout without jti or family', async () => {
+      await authService.logout(undefined, undefined, 0);
+
+      expect(tokenService.blacklistAccessToken).not.toHaveBeenCalled();
+      expect(tokenService.revokeFamily).not.toHaveBeenCalled();
     });
   });
 
@@ -239,7 +245,7 @@ describe('AuthService', () => {
       expect(usersService.findById).toHaveBeenCalledWith('user-1');
       expect(result).not.toHaveProperty('passwordHash');
       expect(result.email).toBe('test@example.com');
-      expect(result.firstName).toBe('Juan');
+      expect(result.name).toBe('Juan Perez');
       expect(result.role).toBe('CLIENT');
     });
   });

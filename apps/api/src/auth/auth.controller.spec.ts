@@ -4,6 +4,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { createTestApp, cleanDatabase } from '../test/setup';
 import { seedTestData, TestData } from '../test/seed-test-data';
 
+const MOBILE = { 'x-client-type': 'mobile' };
+
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
@@ -28,6 +30,7 @@ describe('AuthController (e2e)', () => {
     it('should login with valid credentials', async () => {
       const res = await request(app.getHttpServer())
         .post('/api/v1/auth/login')
+        .set(MOBILE)
         .send({ email: testData.admin.email, password: testData.admin.password });
 
       expect(res.status).toBe(200);
@@ -54,23 +57,25 @@ describe('AuthController (e2e)', () => {
   });
 
   describe('POST /api/v1/auth/refresh', () => {
-    it('should refresh token with valid cookie', async () => {
+    it('should refresh token with valid refresh token', async () => {
       const loginRes = await request(app.getHttpServer())
         .post('/api/v1/auth/login')
+        .set(MOBILE)
         .send({ email: testData.admin.email, password: testData.admin.password });
 
-      const cookies = loginRes.headers['set-cookie'] as unknown as string[];
+      const refreshToken = loginRes.body.data.refreshToken;
 
       const res = await request(app.getHttpServer())
         .post('/api/v1/auth/refresh')
-        .set('Cookie', cookies);
+        .set(MOBILE)
+        .send({ refreshToken });
 
       expect(res.status).toBe(200);
       expect(res.body.data.accessToken).toBeDefined();
     });
 
-    it('should reject refresh without cookie', async () => {
-      const res = await request(app.getHttpServer()).post('/api/v1/auth/refresh');
+    it('should reject refresh without token', async () => {
+      const res = await request(app.getHttpServer()).post('/api/v1/auth/refresh').set(MOBILE);
 
       expect(res.status).toBe(401);
     });
@@ -80,6 +85,7 @@ describe('AuthController (e2e)', () => {
     it('should return current user when authenticated', async () => {
       const loginRes = await request(app.getHttpServer())
         .post('/api/v1/auth/login')
+        .set(MOBILE)
         .send({ email: testData.client.email, password: testData.client.password });
 
       const token = loginRes.body.data.accessToken;

@@ -10,6 +10,6 @@ export default [
     },
   },
   {
-    ignores: ['tsup.config.ts', 'dist/'],
+    ignores: ['tsup.config.ts', 'vitest.config.ts', 'dist/', 'src/__tests__/'],
   },
 ];

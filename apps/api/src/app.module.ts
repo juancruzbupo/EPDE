@@ -18,6 +18,7 @@ import { BudgetsModule } from './budgets/budgets.module';
 import { ServiceRequestsModule } from './service-requests/service-requests.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
+import { RedisModule } from './redis/redis.module';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -31,6 +32,7 @@ import { RolesGuard } from './common/guards/roles.guard';
       { name: 'short', ttl: 1000, limit: 10 },
       { name: 'medium', ttl: 10000, limit: 60 },
     ]),
+    RedisModule,
     AuthModule,
     UsersModule,
     ClientsModule,

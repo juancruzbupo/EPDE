@@ -115,8 +115,8 @@ describe('ServiceRequestsService', () => {
     it('should forward filter params (status, urgency, propertyId)', async () => {
       const filtersWithParams = {
         ...filters,
-        status: 'OPEN',
-        urgency: 'HIGH',
+        status: 'OPEN' as const,
+        urgency: 'HIGH' as const,
         propertyId: 'prop-1',
       };
       serviceRequestsRepo.findRequests.mockResolvedValue({

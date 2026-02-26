@@ -82,7 +82,7 @@ export class ServiceRequestsService {
     return result;
   }
 
-  async updateStatus(id: string, dto: UpdateServiceStatusInput) {
+  async updateStatus(id: string, dto: UpdateServiceStatusInput, userId?: string) {
     const request = await this.serviceRequestsRepository.findByIdWithDetails(id);
     if (!request) {
       throw new NotFoundException('Solicitud de servicio no encontrada');
@@ -90,7 +90,7 @@ export class ServiceRequestsService {
 
     const updated = await this.serviceRequestsRepository.update(
       id,
-      { status: dto.status },
+      { status: dto.status, updatedBy: userId },
       {
         property: {
           select: {
