@@ -518,3 +518,79 @@ Fase 2 (Validación) ──┬── Fase 3 (Backend) ── Fase 5 ────
 ```
 
 Fases 1 y 2 pueden ejecutarse en paralelo. El resto es secuencial según dependencias.
+
+---
+
+## Fase 8 — Roadmap Arquitectonico 90 Dias (Score 7.9 → 9+)
+
+> **Prioridad:** Critica/Alta
+> **Estimacion:** 12 semanas (5 sub-fases)
+> **Dependencias:** Fase 7 completada
+> **Issues que resuelve:** 5 riesgos criticos, 9 problemas importantes, 10 deudas tecnicas de la tercera auditoria
+
+### Contexto
+
+Auditoria arquitectonica (score 7.9/10) identifico 23 items pendientes organizados en 5 fases tematicas.
+
+### Sub-fase 8.1 — Security Hardening
+
+- [x] **8.1.1 — CSRF protection via SameSite strict** — Cookies cambiadas a `SameSite=strict`
+- [x] **8.1.2 — File upload: magic bytes + Content-Disposition** — Validacion con `file-type`, forzar descarga
+- [x] **8.1.3 — Soft-delete extension: filtros anidados** — `hasDeletedAtKey()` recursivo, cobertura de `aggregate`/`groupBy`
+- [x] **8.1.4 — Rate limiting en /refresh** — `@Throttle({ medium: { limit: 30, ttl: 60000 } })`
+- [x] **8.1.5 — Logout: limpiar cache de queries** — `queryClient.clear()` en web y mobile, singleton exportable
+- [x] **8.1.6 — No loguear tokens en plaintext** — Eliminado token de logs de email
+
+### Sub-fase 8.2 — Data Integrity
+
+- [x] **8.2.1 — Cascade deletes** — `BudgetRequest` y `ServiceRequest` → `Property` con `onDelete: Cascade`
+- [x] **8.2.2 — findById con findUnique** — `BaseRepository.findById()` usa PK index directamente
+- [x] **8.2.3 — Unificar soft-delete en repositorios** — Eliminadas instancias manuales de `deletedAt: null`
+- [x] **8.2.4 — Check constraints para decimals** — DB-level bounds en `BudgetLineItem.subtotal` y `BudgetResponse.totalAmount`
+- [x] **8.2.5 — Campos createdBy** — Agregados a `Property`, `MaintenancePlan`, `Task`, `BudgetRequest`, `ServiceRequest`
+
+### Sub-fase 8.3 — Observabilidad
+
+- [x] **8.3.1 — Auth audit logging** — `AuthAuditService` con logging estructurado (login, logout, failed, reuse)
+- [x] **8.3.2 — Helmet CSP explicito** — Content Security Policy con directivas especificas
+- [x] **8.3.3 — Request-ID propagation** — Middleware genera/propaga `x-request-id` en request y response
+- [x] **8.3.4 — Watchdog lockLost signal** — `withLock()` pasa `signal: { lockLost: boolean }` al callback
+
+### Sub-fase 8.4 — Escalabilidad
+
+- [x] **8.4.1 — Redis volatile-lru** — Eviction policy cambiada de `allkeys-lru` a `volatile-lru`
+- [x] **8.4.2 — Unificar staleTime** — 2 minutos en web y mobile, 24h gcTime en mobile
+- [x] **8.4.3 — Dashboard invalidation especifica** — Sub-keys `['dashboard', 'stats']`, `['dashboard', 'activity']`, etc.
+- [x] **8.4.4 — Documentar EventEmitter2 vs BullMQ** — Decision record en architecture.md seccion 18
+
+### Sub-fase 8.5 — Fundamentos
+
+- [x] **8.5.1 — Tests E2E para flujos de auth** — Session isolation, set-password full flow, web cookie flow, rate limiting
+- [x] **8.5.2 — OpenTelemetry traces** — SDK con auto-instrumentations, OTLP HTTP exporter (opcional)
+- [x] **8.5.3 — Dark mode toggle** — `useTheme` hook, Sun/Moon toggle en header, anti-flash script
+- [x] **8.5.4 — Estrategia de rollback** — Documentada en runbook.md (app, DB, destructivas, procedimiento)
+
+### Verificacion
+
+```bash
+pnpm build && pnpm typecheck && pnpm lint && pnpm test  # Todo green
+```
+
+---
+
+## Resumen de progreso (actualizado)
+
+| Fase | Descripcion            | Estado           | Tareas |
+| ---- | ---------------------- | ---------------- | ------ |
+| 1    | Seguridad              | `[x] Completado` | 3      |
+| 2    | Validacion unica       | `[x] Completado` | 8      |
+| 3    | Backend clean arch     | `[x] Completado` | 8      |
+| 4    | Type safety E2E        | `[x] Completado` | 6      |
+| 5    | Performance            | `[x] Completado` | 6      |
+| 6    | Testing + polish       | `[x] Completado` | 10     |
+| 7    | Hardening post-audit   | `[x] Completado` | 12     |
+| 8    | Roadmap arquitectonico | `[x] Completado` | 23     |
+
+**Tests totales: 306+** (91 API unit + 187 Shared + 15 Web + 13 Mobile + E2E suites)
+
+**Progreso total: 75 / 75 tareas**

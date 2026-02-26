@@ -30,8 +30,10 @@ export class TaskSchedulerService {
    */
   @Cron('0 9 * * *', { name: 'task-status-recalculation' })
   async recalculateTaskStatuses(): Promise<void> {
-    await this.lockService.withLock('cron:task-status-recalculation', 300, async () => {
+    await this.lockService.withLock('cron:task-status-recalculation', 300, async (signal) => {
       this.logger.log('Starting daily task status recalculation...');
+
+      if (signal.lockLost) return;
 
       const [overdueCount, upcomingCount, resetCount] = await Promise.all([
         this.tasksRepository.markOverdue(),
@@ -58,7 +60,7 @@ export class TaskSchedulerService {
    */
   @Cron('5 9 * * *', { name: 'task-upcoming-reminders' })
   async sendUpcomingTaskReminders(): Promise<void> {
-    await this.lockService.withLock('cron:task-upcoming-reminders', 300, async () => {
+    await this.lockService.withLock('cron:task-upcoming-reminders', 300, async (signal) => {
       this.logger.log('Starting upcoming task reminders...');
 
       const now = new Date();
@@ -74,6 +76,8 @@ export class TaskSchedulerService {
         this.logger.log('No tasks to remind about');
         return;
       }
+
+      if (signal.lockLost) return;
 
       const hasOverdue = overdueTasks.length > 0;
 
@@ -147,6 +151,8 @@ export class TaskSchedulerService {
         }
       }
 
+      if (signal.lockLost) return;
+
       // Batch insert all notifications + send emails in parallel
       const [notificationCount] = await Promise.all([
         this.notificationsService.createNotifications(notifications),
@@ -167,7 +173,7 @@ export class TaskSchedulerService {
    */
   @Cron('10 9 * * *', { name: 'task-safety-sweep' })
   async safetySweepCompletedTasks(): Promise<void> {
-    await this.lockService.withLock('cron:task-safety-sweep', 300, async () => {
+    await this.lockService.withLock('cron:task-safety-sweep', 300, async (signal) => {
       this.logger.log('Starting safety sweep for completed tasks...');
 
       const staleTasks = await this.tasksRepository.findStaleCompleted();
@@ -176,6 +182,8 @@ export class TaskSchedulerService {
         this.logger.log('Safety sweep: no stale tasks found');
         return;
       }
+
+      if (signal.lockLost) return;
 
       const updates = staleTasks.map((task) => {
         const months = task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType);

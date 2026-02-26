@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { RedisService } from '../redis/redis.service';
+import { AuthAuditService } from './auth-audit.service';
 
 interface TokenPair {
   accessToken: string;
@@ -53,6 +54,7 @@ export class TokenService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly redisService: RedisService,
+    private readonly authAudit: AuthAuditService,
   ) {}
 
   /**
@@ -113,6 +115,7 @@ export class TokenService {
 
     if (result === -1) {
       this.logger.warn(`Token reuse attack detected for user ${sub}, family ${family}`);
+      this.authAudit.logTokenReuse(family, sub);
       await this.revokeFamily(family);
       throw new UnauthorizedException('Token reutilizado — sesión revocada');
     }

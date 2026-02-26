@@ -47,7 +47,11 @@ export class MaintenancePlansService {
     return this.plansRepository.update(id, dto);
   }
 
-  async addTask(planId: string, dto: Omit<CreateTaskInput, 'maintenancePlanId'>) {
+  async addTask(
+    planId: string,
+    dto: Omit<CreateTaskInput, 'maintenancePlanId'>,
+    createdBy?: string,
+  ) {
     const plan = await this.plansRepository.findById(planId);
     if (!plan) {
       throw new NotFoundException('Plan de mantenimiento no encontrado');
@@ -70,6 +74,7 @@ export class MaintenancePlansService {
         nextDueDate: dto.nextDueDate,
         order: maxOrder + 1,
         status: 'PENDING',
+        createdBy,
       },
       { category: true },
     );

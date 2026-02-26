@@ -31,7 +31,7 @@ export function useCreateServiceRequest() {
     mutationFn: createServiceRequest,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['service-requests'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'client-stats'] });
     },
   });
 }

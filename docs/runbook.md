@@ -213,18 +213,62 @@ NODE_ENV=production node apps/api/dist/main.js
 
 ### Rollback
 
+#### Rollback de aplicacion (sin cambios de DB)
+
 ```bash
-# 1. Revertir a commit anterior
-git revert HEAD
+# Opcion 1: Revert y re-deploy automatico
+git revert HEAD && git push origin main
 
-# 2. O desplegar un commit especifico
-git checkout <commit-sha>
-# Seguir pasos de deploy manual
+# Opcion 2: Desplegar commit especifico via Railway
+railway up --service epde-api --detach --ref <commit-sha>
+```
 
-# 3. Rollback de migracion (si es necesario)
-# CUIDADO: Esto puede perder datos
+#### Rollback de migracion Prisma
+
+**Pre-requisito:** Siempre crear backup antes de migrar.
+
+```bash
+# 1. Backup pre-migracion
+pg_dump -Fc $DATABASE_URL > backup_pre_migration_$(date +%Y%m%d_%H%M%S).dump
+
+# 2. Aplicar migracion
+pnpm --filter @epde/api prisma migrate deploy
+
+# 3. Smoke test
+curl https://api.epde.com.ar/api/v1/health
+
+# 4. Si falla — restaurar desde backup
+pg_restore --clean --if-exists -d $DATABASE_URL backup_pre_migration_*.dump
 pnpm --filter @epde/api prisma migrate resolve --rolled-back <migration_name>
 ```
+
+#### Migraciones destructivas (DROP COLUMN, ALTER TYPE, etc.)
+
+Hacer en **2 fases** para permitir rollback sin perdida de datos:
+
+1. **Fase 1 (deprecate):** Deploy nuevo codigo que NO usa la columna/tipo viejo, pero la columna sigue existiendo en DB. Verificar que todo funciona durante 24-48h.
+2. **Fase 2 (remove):** Crear migracion que elimina la columna. Si hay que revertir, solo se pierde la columna ya sin uso.
+
+#### Rollback rapido via Railway
+
+Railway mantiene el deployment anterior disponible:
+
+```bash
+# Ver deployments recientes
+railway deployments list --service epde-api
+
+# Revertir al deployment anterior
+railway rollback --service epde-api
+```
+
+#### Procedimiento completo de rollback en produccion
+
+1. Detectar problema (alertas, health check, Sentry)
+2. Evaluar: si es solo codigo → rollback de aplicacion. Si involucra DB → rollback de migracion
+3. Comunicar al equipo que se esta haciendo rollback
+4. Ejecutar rollback segun tipo
+5. Verificar via health check + smoke tests
+6. Investigar root cause y crear fix antes de re-intentar deploy
 
 ## Base de Datos
 

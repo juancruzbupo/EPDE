@@ -26,7 +26,7 @@ const ACCESS_COOKIE_NAME = 'access_token';
 const ACCESS_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: IS_PRODUCTION,
-  sameSite: 'lax' as const,
+  sameSite: 'strict' as const,
   path: '/',
   maxAge: 15 * 60 * 1000, // 15 minutes — must match JWT_EXPIRATION
 };
@@ -35,7 +35,7 @@ const REFRESH_COOKIE_NAME = 'refresh_token';
 const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: IS_PRODUCTION,
-  sameSite: 'lax' as const,
+  sameSite: 'strict' as const,
   path: '/api/v1/auth',
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 };
@@ -57,8 +57,11 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const user = req.user as { id: string; email: string; role: string };
-    const result = await this.authService.login(user);
     const isMobile = req.headers['x-client-type'] === 'mobile';
+    const result = await this.authService.login(user, {
+      clientType: isMobile ? 'mobile' : 'web',
+      ip: req.ip,
+    });
 
     res.cookie(ACCESS_COOKIE_NAME, result.accessToken, ACCESS_COOKIE_OPTIONS);
     res.cookie(REFRESH_COOKIE_NAME, result.refreshToken, REFRESH_COOKIE_OPTIONS);
@@ -81,6 +84,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ medium: { limit: 30, ttl: 60000 } })
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(
@@ -122,7 +126,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const ttlSeconds = user.exp ? Math.max(0, user.exp - Math.floor(Date.now() / 1000)) : 0;
-    await this.authService.logout(user.jti, user.family, ttlSeconds);
+    await this.authService.logout(user.id, user.jti, user.family, ttlSeconds);
 
     res.clearCookie(ACCESS_COOKIE_NAME, { path: '/' });
     res.clearCookie(REFRESH_COOKIE_NAME, { path: '/api/v1/auth' });

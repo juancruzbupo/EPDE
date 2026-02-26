@@ -1,4 +1,5 @@
 import './instrument';
+import { randomUUID } from 'crypto';
 import { NestFactory } from '@nestjs/core';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -12,7 +13,28 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   app.useLogger(app.get(Logger));
 
-  app.use(helmet());
+  // Request-ID propagation: set on request + response for cross-service tracing
+  app.use((req: any, res: any, next: any) => {
+    const requestId = (req.headers['x-request-id'] as string) || randomUUID();
+    req.headers['x-request-id'] = requestId;
+    res.setHeader('x-request-id', requestId);
+    next();
+  });
+
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:', process.env.R2_PUBLIC_URL || ''].filter(Boolean),
+          connectSrc: ["'self'"],
+          frameSrc: ["'none'"],
+          objectSrc: ["'none'"],
+        },
+      },
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
   app.use(compression());
 
   app.setGlobalPrefix('api/v1');

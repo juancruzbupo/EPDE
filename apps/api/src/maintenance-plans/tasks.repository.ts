@@ -42,8 +42,8 @@ export class TasksRepository extends BaseRepository<Task> {
   }
 
   async findWithDetails(taskId: string) {
-    return this.prisma.task.findFirst({
-      where: { id: taskId, deletedAt: null },
+    return this.model.findUnique({
+      where: { id: taskId },
       include: {
         category: true,
         taskLogs: {
@@ -151,22 +151,20 @@ export class TasksRepository extends BaseRepository<Task> {
       },
     } as const;
 
-    return this.prisma.task.findMany({
+    return this.model.findMany({
       where: {
         nextDueDate: { gte: now, lte: addDays(now, daysAhead) },
         status: { not: 'COMPLETED' },
-        deletedAt: null,
       },
       include: taskInclude,
     });
   }
 
   async findOverdueWithOwners() {
-    return this.prisma.task.findMany({
+    return this.model.findMany({
       where: {
         nextDueDate: { lt: new Date() },
         status: 'OVERDUE',
-        deletedAt: null,
       },
       include: {
         category: true,
@@ -183,12 +181,11 @@ export class TasksRepository extends BaseRepository<Task> {
     });
   }
 
-  async findStaleCompleted() {
-    return this.prisma.task.findMany({
+  async findStaleCompleted(): Promise<Task[]> {
+    return this.model.findMany({
       where: {
         status: 'COMPLETED',
         nextDueDate: { lt: new Date() },
-        deletedAt: null,
       },
     });
   }

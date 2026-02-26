@@ -66,7 +66,7 @@ export class PropertiesRepository extends BaseRepository<Property> {
   }
 
   async findOwnership(id: string): Promise<{ id: string; userId: string } | null> {
-    return this.prisma.property.findUnique({
+    return this.model.findUnique({
       where: { id },
       select: { id: true, userId: true },
     });
@@ -79,6 +79,7 @@ export class PropertiesRepository extends BaseRepository<Property> {
     type: PropertyType;
     yearBuilt?: number;
     squareMeters?: number;
+    createdBy?: string;
   }) {
     return this.prisma.$transaction(async (tx) => {
       const property = await tx.property.create({ data });
@@ -88,6 +89,7 @@ export class PropertiesRepository extends BaseRepository<Property> {
           propertyId: property.id,
           name: `Plan de Mantenimiento — ${property.address}`,
           status: 'DRAFT',
+          createdBy: data.createdBy,
         },
       });
 

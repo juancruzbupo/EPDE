@@ -37,7 +37,7 @@ export abstract class BaseRepository<T> {
   }
 
   async findById(id: string, include?: Record<string, unknown>): Promise<T | null> {
-    return this.model.findFirst({ where: { id }, ...(include && { include }) });
+    return this.model.findUnique({ where: { id }, ...(include && { include }) });
   }
 
   private static readonly MAX_PAGE_SIZE = 100;

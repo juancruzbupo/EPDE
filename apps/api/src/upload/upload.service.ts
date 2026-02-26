@@ -28,7 +28,11 @@ export class UploadService {
     }
   }
 
-  async uploadFile(file: Express.Multer.File, folder: string): Promise<string> {
+  async uploadFile(
+    file: Express.Multer.File,
+    folder: string,
+    verifiedMime?: string,
+  ): Promise<string> {
     if (!this.s3 || !this.bucketName) {
       throw new Error('Upload no configurado. Configure las variables R2_* en .env');
     }
@@ -40,7 +44,8 @@ export class UploadService {
         Bucket: this.bucketName,
         Key: key,
         Body: file.buffer,
-        ContentType: file.mimetype,
+        ContentType: verifiedMime ?? file.mimetype,
+        ContentDisposition: 'attachment',
       }),
     );
 

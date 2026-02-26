@@ -197,6 +197,7 @@ describe('ServiceRequestsService', () => {
       expect(serviceRequestsRepo.createWithPhotos).toHaveBeenCalledWith({
         propertyId: 'prop-1',
         requestedBy: 'client-1',
+        createdBy: 'client-1',
         title: 'Humedad en pared',
         description: 'Se detectó humedad en la pared del living',
         urgency: 'MEDIUM',

@@ -68,12 +68,14 @@ export class ServiceRequestsRepository extends BaseRepository<ServiceRequest> {
     description: string;
     urgency: ServiceUrgency;
     photoUrls?: string[];
+    createdBy?: string;
   }) {
     return this.prisma.$transaction(async (tx) => {
       const serviceRequest = await tx.serviceRequest.create({
         data: {
           propertyId: data.propertyId,
           requestedBy: data.requestedBy,
+          createdBy: data.createdBy,
           title: data.title,
           description: data.description,
           urgency: data.urgency,

@@ -72,13 +72,23 @@ export class DistributedLockService {
    * The watchdog extends the lock TTL periodically to prevent expiration
    * during long-running operations.
    * If the lock cannot be acquired, returns null (skips execution).
+   *
+   * The callback receives a signal object with a `lockLost` flag. Long-running
+   * operations should check `signal.lockLost` before expensive steps and abort
+   * early if the lock was lost.
    */
-  async withLock<T>(key: string, ttlSeconds: number, fn: () => Promise<T>): Promise<T | null> {
+  async withLock<T>(
+    key: string,
+    ttlSeconds: number,
+    fn: (signal: { lockLost: boolean }) => Promise<T>,
+  ): Promise<T | null> {
     const owner = await this.acquireLock(key, ttlSeconds);
     if (!owner) {
       this.logger.debug(`Lock "${key}" already held, skipping`);
       return null;
     }
+
+    const signal = { lockLost: false };
 
     // Watchdog: extend lock at half the TTL interval
     const watchdogInterval = Math.max(Math.floor((ttlSeconds * 1000) / 2), 5000);
@@ -86,19 +96,24 @@ export class DistributedLockService {
       try {
         const extended = await this.extendLock(key, owner, ttlSeconds);
         if (!extended) {
-          this.logger.warn(`Lock "${key}" watchdog: failed to extend (lock lost)`);
+          signal.lockLost = true;
           clearInterval(watchdog);
+          this.logger.error(`Lock "${key}" lost during execution`);
         }
       } catch (error) {
+        signal.lockLost = true;
+        clearInterval(watchdog);
         this.logger.error(`Lock "${key}" watchdog error: ${(error as Error).message}`);
       }
     }, watchdogInterval);
 
     try {
-      return await fn();
+      return await fn(signal);
     } finally {
       clearInterval(watchdog);
-      await this.releaseLock(key, owner);
+      if (!signal.lockLost) {
+        await this.releaseLock(key, owner);
+      }
     }
   }
 }

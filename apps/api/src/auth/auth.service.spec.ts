@@ -4,6 +4,7 @@ import { UnauthorizedException, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from './auth.service';
 import { TokenService } from './token.service';
+import { AuthAuditService } from './auth-audit.service';
 import { UsersService } from '../users/users.service';
 import { BCRYPT_SALT_ROUNDS } from '@epde/shared';
 
@@ -66,6 +67,16 @@ describe('AuthService', () => {
             revokeFamily: jest.fn(),
             blacklistAccessToken: jest.fn(),
             isBlacklisted: jest.fn(),
+          },
+        },
+        {
+          provide: AuthAuditService,
+          useValue: {
+            logLogin: jest.fn(),
+            logLogout: jest.fn(),
+            logFailedLogin: jest.fn(),
+            logPasswordSet: jest.fn(),
+            logTokenReuse: jest.fn(),
           },
         },
       ],
@@ -173,14 +184,14 @@ describe('AuthService', () => {
       tokenService.blacklistAccessToken.mockResolvedValue(undefined);
       tokenService.revokeFamily.mockResolvedValue(undefined);
 
-      await authService.logout('jti-123', 'family-456', 300);
+      await authService.logout('user-1', 'jti-123', 'family-456', 300);
 
       expect(tokenService.blacklistAccessToken).toHaveBeenCalledWith('jti-123', 300);
       expect(tokenService.revokeFamily).toHaveBeenCalledWith('family-456');
     });
 
     it('should handle logout without jti or family', async () => {
-      await authService.logout(undefined, undefined, 0);
+      await authService.logout('user-1', undefined, undefined, 0);
 
       expect(tokenService.blacklistAccessToken).not.toHaveBeenCalled();
       expect(tokenService.revokeFamily).not.toHaveBeenCalled();

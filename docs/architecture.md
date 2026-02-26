@@ -91,7 +91,7 @@ export class BaseRepository<T> {
   }
 
   async findMany(params: FindManyParams): Promise<PaginatedResult<T>>;
-  async findById(id: string, include?): Promise<T | null>;
+  async findById(id: string, include?): Promise<T | null>; // usa findUnique (PK index)
   async create(data, include?): Promise<T>;
   async update(id: string, data, include?): Promise<T>;
   async delete(id: string): Promise<T>; // soft delete si habilitado
@@ -122,9 +122,11 @@ interface PaginatedResult<T> {
 
 Configurado en `PrismaService` via extension:
 
-- `findMany`, `findFirst`, `findUnique`, `count` agregan automaticamente `where: { deletedAt: null }`
+- `findMany`, `findFirst`, `findUnique`, `count`, `aggregate`, `groupBy` agregan automaticamente `where: { deletedAt: null }`
 - `delete` se convierte en `update({ deletedAt: new Date() })`
-- La condicion usa `!('deletedAt' in (args.where || {}))` para chequear **presencia de clave**, no valor
+- La condicion usa `hasDeletedAtKey(where)` que inspecciona recursivamente el nivel raiz y operadores logicos (`AND`, `OR`, `NOT`) para detectar si `deletedAt` ya esta presente
+- `updateMany` no esta cubierto por la extension — requiere `deletedAt: null` explicito
+- Dentro de `$transaction` callbacks, la extension no aplica — usar filtro manual
 - Modelos con soft delete: `User`, `Property`, `Task`
 - Para acceder a registros eliminados, usar `writeModel`
 
@@ -161,6 +163,7 @@ Tres guards globales aplicados en orden via `APP_GUARD`:
 - `short`: 10 requests/segundo
 - `medium`: 60 requests/10 segundos
 - Login y set-password: override a 5 requests/minuto via `@Throttle()`
+- Refresh: override a 30 requests/minuto via `@Throttle()`
 
 ### 5. Decorators Personalizados
 
@@ -231,9 +234,16 @@ Login → LocalStrategy (email+password) → JWT access + refresh tokens
 - Al hacer refresh: si generation no coincide → **token reuse attack** → revocar toda la family
 - La rotacion usa un **Lua script atomico** en Redis para prevenir race conditions (GET + compare + SET en una sola operacion)
 - La rotacion tiene **try-catch** alrededor del `eval()` de Redis — si Redis falla, retorna `InternalServerErrorException` en vez de crash sin contexto
-- Logout: blacklist access token JTI (TTL = tiempo restante) + revocar family
+- Logout: blacklist access token JTI (TTL = tiempo restante) + revocar family + `queryClient.clear()` en frontend
 - `JwtStrategy.validate()` verifica que el JTI no este en blacklist antes de autenticar
 - Implementado en `auth/token.service.ts` (genera pares, rota, revoca, blacklist)
+- Cookies: `SameSite=strict`, `HttpOnly`, `Secure` (en produccion) — elimina necesidad de tokens CSRF
+
+**Auth Audit Logging:**
+
+- `AuthAuditService` registra eventos de auth en formato JSON estructurado (pino)
+- Eventos: `login` (userId, email, clientType, ip), `logout` (userId, jti), `login_failed` (email, reason, ip), `password_set` (userId), `token_reuse_attack` (family, userId)
+- Inyectado en `AuthService` y `TokenService`
 
 **Otros:**
 
@@ -252,6 +262,8 @@ Frontend → POST /upload (multipart/form-data)
 **Seguridad del upload:**
 
 - **MIME type whitelist:** Solo `image/jpeg`, `image/png`, `image/webp`, `image/gif`, `application/pdf`
+- **Magic bytes validation:** `file-type` verifica contenido real del archivo (no solo header Content-Type)
+- **Content-Disposition:** `attachment` en R2 para forzar descarga en vez de render inline
 - **Tamano maximo:** 10 MB
 - **Folders permitidos:** `uploads`, `properties`, `tasks`, `service-requests`, `budgets` (whitelist, no input directo del cliente)
 
@@ -265,7 +277,7 @@ Frontend → POST /upload (multipart/form-data)
 
 **Distributed Lock:** Cada cron job esta envuelto en `DistributedLockService.withLock()` (Redis SETNX, TTL 5min) para prevenir ejecucion concurrente en deployments multi-instancia. Key pattern: `lock:cron:<job-name>`.
 
-**Watchdog:** El lock se extiende automaticamente cada mitad del TTL mientras la operacion siga en curso. Si el lock se pierde (Redis failure), el watchdog detecta y loguea un warning. Esto previene que jobs largos pierdan su lock por timeout.
+**Watchdog + lockLost signal:** El lock se extiende automaticamente cada mitad del TTL mientras la operacion siga en curso. El callback recibe un objeto `signal: { lockLost: boolean }`. Si el lock se pierde (extension falla o error de Redis), `signal.lockLost` se setea a `true` y el lock no se libera en el `finally`. Los cron jobs verifican `signal.lockLost` antes de operaciones costosas y abortan si el lock se perdio.
 
 Dependencias: `TasksRepository`, `NotificationsRepository`, `UsersRepository`, `DistributedLockService`
 
@@ -282,7 +294,8 @@ Dependencias: `TasksRepository`, `NotificationsRepository`, `UsersRepository`, `
 - Cada entidad tiene hooks en `/hooks/use-<entity>.ts`
 - Pattern: `useQuery` para lectura, `useMutation` para escritura
 - `queryKey` convention: `['entity', ...params]`
-- Invalidacion automatica en `onSuccess` de mutations
+- Invalidacion especifica en `onSuccess` de mutations (sub-keys de dashboard: `['dashboard', 'stats']`, `['dashboard', 'activity']`, etc. en vez de invalidar todo `['dashboard']`)
+- `queryClient` singleton exportable (`lib/query-client.ts`) — usado tanto por el QueryProvider como por el auth store (para `queryClient.clear()` en logout)
 - Paginacion cursor-based con `hasMore` + "Cargar mas"
 
 ### 13. API Client (Axios)
@@ -338,7 +351,7 @@ Modulo global `RedisModule` (`redis/redis.module.ts`) con dos servicios:
 - Token blacklist: almacena JTIs de access tokens revocados (`bl:{jti}`) con TTL restante
 - Distributed lock: previene ejecucion concurrente de cron jobs (`lock:cron:{name}`)
 
-**Configuracion:** `REDIS_URL` en `.env` (default: `redis://localhost:6379`). Redis 7 Alpine en Docker Compose.
+**Configuracion:** `REDIS_URL` en `.env` (default: `redis://localhost:6379`). Redis 7 Alpine en Docker Compose con `volatile-lru` eviction policy (solo evicta keys con TTL — protege keys de auth sin TTL explícito).
 
 ### 16. Observabilidad (OpenTelemetry + Pino)
 
@@ -348,15 +361,59 @@ Modulo global `RedisModule` (`redis/redis.module.ts`) con dos servicios:
 - Exporta metricas en formato Prometheus en puerto 9464
 - Metricas: `http_requests_total`, `http_request_duration_seconds`, `token_rotation_total`, `cron_execution_duration_seconds`
 
+**Tracing (OpenTelemetry):**
+
+- `@opentelemetry/sdk-node` con auto-instrumentations (HTTP, NestJS)
+- Exporta traces via OTLP HTTP a endpoint configurable (`OTEL_EXPORTER_OTLP_ENDPOINT`)
+- Solo se activa si la env var esta seteada — en desarrollo no corre
+- Configurado en `instrument.ts` (carga antes de Sentry)
+
 **Logging (Pino):**
 
 - `nestjs-pino` con `pino-http` para logging estructurado JSON
-- Request ID automatico (header `x-request-id` o `randomUUID()`)
+- Request ID propagado: middleware inyecta/propaga `x-request-id` en request y response headers
 - `pino-pretty` en desarrollo
 - Endpoint `/api/v1/health` excluido del auto-logging
+- Auth audit logging via `AuthAuditService` (eventos de login, logout, failed login, token reuse)
+
+**Security Headers (Helmet):**
+
+- Content Security Policy explicito: `defaultSrc: 'self'`, `imgSrc: 'self' + R2`, `frameSrc: 'none'`, `objectSrc: 'none'`
+- `crossOriginResourcePolicy: 'cross-origin'` para permitir carga de archivos R2
 
 ### 17. Health Check
 
 - `GET /api/v1/health` con `@Public()` (no requiere auth)
 - Usa `@nestjs/terminus` con indicadores de DB (Prisma) y Redis (custom)
 - Respuesta: `{ status: "ok", info: { database: { status: "up" }, redis: { status: "up" } } }`
+
+### 18. Decision Record: EventEmitter2 vs BullMQ
+
+**Estado actual:** EventEmitter2 in-memory para eventos asincrónicos (notificaciones, emails).
+
+**Por qué se usa EventEmitter2:**
+
+- Simplicidad operacional: no requiere infraestructura adicional ni workers separados
+- Volumen actual bajo: < 100 eventos/día (notificaciones + emails)
+- Handlers con try-catch: errores no propagan al event loop
+- Latencia mínima: procesamiento in-memory sin overhead de serialización/deserialización
+
+**Riesgos aceptados:**
+
+- Si el proceso crashea, eventos in-flight se pierden. Los eventos actuales son notificaciones y emails — no transacciones financieras. La pérdida es tolerable (el usuario puede ver el estado actual en la UI)
+- Sin retry automático: si un email falla, no se reintenta. Los cron jobs diarios de recordatorio actúan como mecanismo de compensación
+
+**Cuándo migrar a BullMQ:**
+
+- > 5K usuarios concurrentes o > 1K eventos/hora
+- Eventos que requieren garantía de entrega (ej: facturación, pagos)
+- Necesidad de dead-letter queues para auditoría
+- Procesamiento que exceda 30s (ej: generación de reportes PDF)
+
+**Patrón de migración sugerido:**
+
+1. Agregar BullMQ como dependencia, configurar conexión Redis (puede reusar la instancia existente)
+2. Crear processors (workers) por tipo de evento
+3. Reemplazar `eventEmitter.emit()` → `queue.add()` en los servicios emisores
+4. Mantener `NotificationsListener` como consumer de la queue en vez de `@OnEvent()`
+5. Configurar retry policy (3 intentos, backoff exponencial) y dead-letter queue

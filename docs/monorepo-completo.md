@@ -46,10 +46,11 @@ epde/
 │   │   │   └── migrations/
 │   │   ├── src/
 │   │   │   ├── main.ts               # Bootstrap (Helmet, CORS, Swagger, Cookies)
-│   │   │   ├── instrument.ts         # Sentry instrumentation
+│   │   │   ├── instrument.ts         # OpenTelemetry + Sentry instrumentation
 │   │   │   ├── app.module.ts         # Root module (imports todos los features + logging pino)
 │   │   │   ├── auth/                 # JWT + Local strategy + Token Rotation (Redis)
 │   │   │   │   ├── token.service.ts # Token pairs, rotation, blacklist, reuse detection
+│   │   │   │   ├── auth-audit.service.ts # Structured auth event logging
 │   │   │   │   └── strategies/
 │   │   │   ├── users/                # User CRUD base
 │   │   │   ├── clients/              # Gestion de clientes (ADMIN)
@@ -109,6 +110,7 @@ epde/
 │   │   │   ├── hooks/                # React Query hooks por entidad
 │   │   │   ├── lib/
 │   │   │   │   ├── api-client.ts     # Axios + 401 refresh interceptor
+│   │   │   │   ├── query-client.ts   # QueryClient singleton (shared by provider + auth store)
 │   │   │   │   ├── style-maps.ts     # Mapas de variantes (Badge colors)
 │   │   │   │   └── api/              # Funciones API por entidad
 │   │   │   ├── providers/            # QueryProvider, AuthProvider
@@ -309,8 +311,8 @@ export class BaseRepository<T> {
 
 Extension global en `PrismaService`:
 
-- `findMany/findFirst/findUnique/count` → auto-agregan `where: { deletedAt: null }`
-- Condicion: `!('deletedAt' in (args.where || {}))` — chequea **presencia de clave**, no valor
+- `findMany/findFirst/findUnique/count/aggregate/groupBy` → auto-agregan `where: { deletedAt: null }`
+- Condicion: `hasDeletedAtKey(where)` inspecciona recursivamente nivel raiz + operadores logicos (`AND`, `OR`, `NOT`)
 - `delete` → se convierte en `update({ deletedAt: new Date() })`
 - Modelos afectados: `User`, `Property`, `Task`
 - Acceso a eliminados: via `writeModel` (sin filtro)
@@ -392,6 +394,8 @@ Login → LocalStrategy (email+password) → JWT access + refresh (family + gene
 - **Token Rotation**: cada login crea una "family" UUID. Refresh tokens llevan `family` + `generation`
 - **Reuse Detection**: si generation no coincide al hacer refresh → revoca toda la family
 - Redis almacena `rt:{family}` con generation actual (TTL 7d) y `bl:{jti}` para blacklist. La rotacion usa Lua script atomico con try-catch (retorna `InternalServerErrorException` si Redis falla)
+- Cookies: `SameSite=strict`, `HttpOnly`, `Secure` (prod) — elimina necesidad de CSRF tokens
+- `AuthAuditService`: logging estructurado de eventos de auth (login, logout, failed, reuse attack)
 - Implementado en `auth/token.service.ts`
 - Web: cookies HttpOnly (el browser las envia automaticamente)
 - Mobile: Bearer token en header (SecureStore para persistencia)
@@ -405,7 +409,7 @@ Cliente → POST /upload (multipart/form-data) → { url }
        → Usar URL en el form del recurso
 ```
 
-**Validacion:** MIME whitelist (jpeg, png, webp, gif, pdf), max 10 MB, folder whitelist (uploads, properties, tasks, service-requests, budgets).
+**Validacion:** MIME whitelist (jpeg, png, webp, gif, pdf), magic bytes verification (`file-type`), `Content-Disposition: attachment`, max 10 MB, folder whitelist (uploads, properties, tasks, service-requests, budgets).
 
 ### P11: Cron Jobs (Distributed Lock)
 
@@ -415,7 +419,7 @@ Tres jobs diarios (09:00-09:10 UTC), cada uno envuelto en `DistributedLockServic
 2. **task-upcoming-reminders**: Notificaciones + email para tareas proximas/vencidas
 3. **task-safety-sweep**: Correccion de edge cases en tareas completadas
 
-Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en deployments multi-instancia. Incluye **watchdog** que extiende TTL automaticamente cada mitad del periodo para prevenir timeout en jobs largos.
+Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en deployments multi-instancia. Incluye **watchdog** que extiende TTL automaticamente cada mitad del periodo. El callback recibe `signal: { lockLost: boolean }` — los jobs verifican el flag antes de operaciones costosas y abortan si el lock se perdio.
 
 ### P12: State Management (Web + Mobile)
 
@@ -491,7 +495,7 @@ Modulo global `RedisModule` (`redis/redis.module.ts`) con dos servicios:
 - **RedisService**: Wrapper sobre `ioredis` con metodos `get`, `set`, `del`, `setnx`, `expire`, `eval()` (Lua scripts), `isHealthy()`, `getClient()`
 - **DistributedLockService**: Redis SETNX con ownership (UUID). Metodo `withLock<T>(key, ttlSeconds, fn)`. Usa Lua script para release seguro (verifica owner)
 
-Casos de uso: token rotation (families), token blacklist (JTIs), distributed lock (cron jobs).
+Casos de uso: token rotation (families), token blacklist (JTIs), distributed lock (cron jobs). Eviction policy: `volatile-lru` (solo evicta keys con TTL).
 
 ---
 
@@ -694,12 +698,20 @@ Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `
 
 ### Campos de Auditoria
 
-`BudgetRequest.updatedBy` y `ServiceRequest.updatedBy`: ID del usuario que realizo el ultimo cambio de estado.
+- `createdBy String?` en: `Property`, `MaintenancePlan`, `Task`, `BudgetRequest`, `ServiceRequest` — ID del usuario que creo el registro
+- `updatedBy String?` en: `BudgetRequest`, `ServiceRequest` — ID del usuario que realizo el ultimo cambio de estado
+
+### Check Constraints (DB-level)
+
+- `BudgetLineItem.subtotal`: `>= 0 AND <= 999999999999.99`
+- `BudgetResponse.totalAmount`: `>= 0 AND <= 999999999999.99`
 
 ### Cascade Deletes
 
 - `BudgetLineItem` → on delete `BudgetRequest`
 - `BudgetResponse` → on delete `BudgetRequest`
+- `BudgetRequest` → on delete `Property`
+- `ServiceRequest` → on delete `Property`
 - `ServiceRequestPhoto` → on delete `ServiceRequest`
 
 ---
@@ -742,7 +754,7 @@ Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `
 ### Docker Compose (desarrollo)
 
 - **PostgreSQL 16**: puerto 5433, user `epde`, db `epde_dev`
-- **Redis 7 Alpine**: puerto 6379, maxmemory 256mb, LRU eviction
+- **Redis 7 Alpine**: puerto 6379, maxmemory 256mb, `volatile-lru` eviction (solo evicta keys con TTL)
 - **pgAdmin 4**: puerto 5050, admin@epde.local
 
 ### GitHub Actions CI
@@ -785,6 +797,7 @@ Pipeline de deploy real:
 | Cloudflare R2 | Almacenamiento de archivos                  |
 | Resend        | Emails transaccionales                      |
 | Sentry        | Monitoreo de errores (backend)              |
+| OpenTelemetry | Distributed tracing (OTLP HTTP, opcional)   |
 | Prometheus    | Metricas (via OpenTelemetry, puerto 9464)   |
 
 ---

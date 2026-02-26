@@ -66,6 +66,7 @@ export class ServiceRequestsService {
     const result = await this.serviceRequestsRepository.createWithPhotos({
       propertyId: dto.propertyId,
       requestedBy: userId,
+      createdBy: userId,
       title: dto.title,
       description: dto.description,
       urgency,

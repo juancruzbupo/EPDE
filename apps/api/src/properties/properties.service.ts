@@ -38,7 +38,7 @@ export class PropertiesService {
     return property;
   }
 
-  async createProperty(dto: CreatePropertyInput) {
+  async createProperty(dto: CreatePropertyInput, createdBy?: string) {
     return this.propertiesRepository.createWithPlan({
       userId: dto.userId,
       address: dto.address,
@@ -46,6 +46,7 @@ export class PropertiesService {
       type: dto.type,
       yearBuilt: dto.yearBuilt,
       squareMeters: dto.squareMeters,
+      createdBy,
     });
   }
 

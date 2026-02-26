@@ -62,7 +62,7 @@ export class EmailService {
 
     if (!this.resend) {
       this.logger.warn(
-        `Email no enviado (RESEND_API_KEY no configurada). Link de invitación: ${link}`,
+        `Email de invitación no enviado (RESEND_API_KEY no configurada). Destinatario: ${to}`,
       );
       return;
     }

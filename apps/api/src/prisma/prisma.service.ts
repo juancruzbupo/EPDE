@@ -2,11 +2,37 @@ import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/commo
 import { PrismaClient, Prisma } from '@prisma/client';
 
 /**
+ * Checks if `deletedAt` is present in the where clause at the root level
+ * or inside logical operators (AND, OR, NOT). This prevents the extension
+ * from overriding explicit soft-delete filters.
+ */
+function hasDeletedAtKey(where: Record<string, unknown>): boolean {
+  if ('deletedAt' in where) return true;
+
+  for (const key of ['AND', 'OR', 'NOT']) {
+    const val = where[key];
+    if (Array.isArray(val)) {
+      if (val.some((v) => typeof v === 'object' && v !== null && hasDeletedAtKey(v))) return true;
+    } else if (val && typeof val === 'object') {
+      if (hasDeletedAtKey(val as Record<string, unknown>)) return true;
+    }
+  }
+  return false;
+}
+
+function addSoftDeleteFilter(args: { where?: Record<string, unknown> }) {
+  if (!hasDeletedAtKey(args.where || {})) {
+    args.where = { ...args.where, deletedAt: null };
+  }
+}
+
+/**
  * Prisma extension that implements soft delete for User, Property, and Task models.
  *
- * - Read queries (findMany, findFirst, findUnique, count) auto-filter `deletedAt: null`
- *   unless `deletedAt` is explicitly set in the where clause.
- * - delete/deleteMany are converted to update/updateMany setting `deletedAt = now()`.
+ * - Read queries (findMany, findFirst, findUnique, count, aggregate, groupBy)
+ *   auto-filter `deletedAt: null` unless `deletedAt` is explicitly set in the
+ *   where clause (including inside AND/OR/NOT).
+ * - Use `writeModel` in BaseRepository to bypass soft delete filtering.
  */
 function softDeleteExtension() {
   return Prisma.defineExtension({
@@ -25,24 +51,20 @@ function softDeleteHandlers() {
       args,
       query,
     }: {
-      args: { where?: { deletedAt?: unknown } };
+      args: { where?: Record<string, unknown> };
       query: (args: unknown) => unknown;
     }) {
-      if (!('deletedAt' in (args.where || {}))) {
-        args.where = { ...args.where, deletedAt: null };
-      }
+      addSoftDeleteFilter(args);
       return query(args);
     },
     async findFirst({
       args,
       query,
     }: {
-      args: { where?: { deletedAt?: unknown } };
+      args: { where?: Record<string, unknown> };
       query: (args: unknown) => unknown;
     }) {
-      if (!('deletedAt' in (args.where || {}))) {
-        args.where = { ...args.where, deletedAt: null };
-      }
+      addSoftDeleteFilter(args);
       return query(args);
     },
     async findUnique({
@@ -52,21 +74,37 @@ function softDeleteHandlers() {
       args: { where: Record<string, unknown> };
       query: (args: unknown) => unknown;
     }) {
-      if (!('deletedAt' in (args.where || {}))) {
-        args.where = { ...args.where, deletedAt: null };
-      }
+      addSoftDeleteFilter(args);
       return query(args);
     },
     async count({
       args,
       query,
     }: {
-      args: { where?: { deletedAt?: unknown } };
+      args: { where?: Record<string, unknown> };
       query: (args: unknown) => unknown;
     }) {
-      if (!('deletedAt' in (args.where || {}))) {
-        args.where = { ...args.where, deletedAt: null };
-      }
+      addSoftDeleteFilter(args);
+      return query(args);
+    },
+    async aggregate({
+      args,
+      query,
+    }: {
+      args: { where?: Record<string, unknown> };
+      query: (args: unknown) => unknown;
+    }) {
+      addSoftDeleteFilter(args);
+      return query(args);
+    },
+    async groupBy({
+      args,
+      query,
+    }: {
+      args: { where?: Record<string, unknown> };
+      query: (args: unknown) => unknown;
+    }) {
+      addSoftDeleteFilter(args);
       return query(args);
     },
   };

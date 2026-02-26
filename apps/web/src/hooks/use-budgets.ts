@@ -31,7 +31,8 @@ export function useCreateBudgetRequest() {
     mutationFn: createBudgetRequest,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity'] });
     },
   });
 }
@@ -61,7 +62,8 @@ export function useUpdateBudgetStatus() {
     mutationFn: ({ id, status }: { id: string; status: string }) => updateBudgetStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity'] });
     },
   });
 }

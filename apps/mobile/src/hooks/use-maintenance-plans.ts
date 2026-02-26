@@ -83,7 +83,8 @@ export function useCompleteTask() {
 
     onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: ['plans', variables.planId] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'client-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'client-upcoming'] });
       queryClient.invalidateQueries({
         queryKey: ['task-logs', variables.planId, variables.taskId],
       });

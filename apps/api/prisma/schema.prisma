@@ -115,6 +115,7 @@ model User {
 model Property {
   id           String       @id @default(uuid())
   userId       String
+  createdBy    String?
   address      String
   city         String
   type         PropertyType @default(HOUSE)
@@ -139,6 +140,7 @@ model MaintenancePlan {
   propertyId String     @unique
   name       String
   status     PlanStatus @default(DRAFT)
+  createdBy  String?
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
 
@@ -168,6 +170,7 @@ model Task {
   nextDueDate       DateTime
   order             Int            @default(0)
   status            TaskStatus     @default(PENDING)
+  createdBy         String?
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
   deletedAt         DateTime?
@@ -220,12 +223,13 @@ model BudgetRequest {
   title       String
   description String?
   status      BudgetStatus @default(PENDING)
+  createdBy   String?
   updatedBy   String?
   version     Int          @default(0)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
-  property  Property          @relation(fields: [propertyId], references: [id])
+  property  Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   requester User              @relation(fields: [requestedBy], references: [id])
   lineItems BudgetLineItem[]
   response  BudgetResponse?
@@ -267,11 +271,12 @@ model ServiceRequest {
   description String
   urgency     ServiceUrgency @default(MEDIUM)
   status      ServiceStatus  @default(OPEN)
+  createdBy   String?
   updatedBy   String?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 
-  property  Property              @relation(fields: [propertyId], references: [id])
+  property  Property              @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   requester User                  @relation(fields: [requestedBy], references: [id])
   photos    ServiceRequestPhoto[]
 

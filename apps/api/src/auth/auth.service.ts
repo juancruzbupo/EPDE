@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { TokenService } from './token.service';
+import { AuthAuditService } from './auth-audit.service';
 import { BCRYPT_SALT_ROUNDS } from '@epde/shared';
 
 @Injectable()
@@ -11,6 +12,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly tokenService: TokenService,
+    private readonly authAudit: AuthAuditService,
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -28,12 +30,17 @@ export class AuthService {
     return user;
   }
 
-  async login(user: { id: string; email: string; role: string }) {
+  async login(
+    user: { id: string; email: string; role: string },
+    meta?: { clientType?: string; ip?: string },
+  ) {
     const { accessToken, refreshToken } = await this.tokenService.generateTokenPair(user);
 
     const fullUser = await this.usersService.findById(user.id);
     const { passwordHash: _, ...userWithoutPassword } = fullUser;
     void _;
+
+    this.authAudit.logLogin(user.id, user.email, meta?.clientType ?? 'web', meta?.ip ?? 'unknown');
 
     return {
       user: userWithoutPassword,
@@ -46,13 +53,14 @@ export class AuthService {
     return this.tokenService.rotateRefreshToken(refreshToken);
   }
 
-  async logout(jti?: string, family?: string, ttlSeconds?: number) {
+  async logout(userId: string, jti?: string, family?: string, ttlSeconds?: number) {
     if (jti && ttlSeconds) {
       await this.tokenService.blacklistAccessToken(jti, ttlSeconds);
     }
     if (family) {
       await this.tokenService.revokeFamily(family);
     }
+    this.authAudit.logLogout(userId, jti ?? 'unknown');
   }
 
   async setPassword(token: string, newPassword: string) {
@@ -70,6 +78,8 @@ export class AuthService {
         passwordHash: hash,
         status: 'ACTIVE',
       });
+
+      this.authAudit.logPasswordSet(user.id);
 
       return { message: 'Contraseña configurada correctamente' };
     } catch (error) {

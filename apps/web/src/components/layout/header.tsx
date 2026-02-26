@@ -1,14 +1,16 @@
 'use client';
 
 import { useAuthStore } from '@/stores/auth-store';
-import { Menu } from 'lucide-react';
+import { Menu, Sun, Moon } from 'lucide-react';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { VisuallyHidden } from 'radix-ui';
 import { Sidebar } from './sidebar';
 import { NotificationBell } from '@/components/notification-bell';
+import { useTheme } from '@/hooks/use-theme';
 
 export function Header() {
   const { user } = useAuthStore();
+  const { theme, toggle } = useTheme();
 
   return (
     <header className="flex h-14 items-center gap-4 border-b px-6">
@@ -31,6 +33,13 @@ export function Header() {
       <h1 className="font-heading text-primary text-lg font-bold lg:hidden">EPDE</h1>
 
       <div className="ml-auto flex items-center gap-3">
+        <button
+          onClick={toggle}
+          className="text-muted-foreground hover:text-foreground rounded-md p-1.5"
+          aria-label={theme === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'}
+        >
+          {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+        </button>
         <NotificationBell />
         <span className="text-muted-foreground text-sm">{user?.name}</span>
       </div>

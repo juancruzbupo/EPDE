@@ -36,8 +36,9 @@ export class PropertiesController {
   @Roles(UserRole.ADMIN)
   async createProperty(
     @Body(new ZodValidationPipe(createPropertySchema)) dto: CreatePropertyInput,
+    @CurrentUser() user: { id: string },
   ) {
-    const data = await this.propertiesService.createProperty(dto);
+    const data = await this.propertiesService.createProperty(dto, user.id);
     return { data, message: 'Propiedad creada' };
   }
 

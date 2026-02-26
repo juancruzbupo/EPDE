@@ -210,10 +210,15 @@ export function useCreateMyFeature() {
     mutationFn: createMyFeature,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-features'] });
+      // Invalidar solo sub-keys especificas del dashboard (no todo ['dashboard'])
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity'] });
     },
   });
 }
 ```
+
+**Nota:** El `queryClient` es un singleton exportado desde `lib/query-client.ts` (tanto en web como en mobile). Esto permite que el auth store haga `queryClient.clear()` en logout sin depender del React context. El `QueryProvider` importa ese mismo singleton.
 
 ### 4. Pagina con DataTable
 
@@ -386,7 +391,7 @@ pnpm --filter @epde/api test:e2e
 - Config: `apps/api/jest-e2e.config.ts`
 - Setup: `apps/api/src/test/setup.ts` — helpers `createTestApp()`, `cleanDatabase()` (TRUNCATE CASCADE)
 - Pattern: `*.e2e-spec.ts` en `apps/api/test/`
-- Suites: auth, budgets, properties, service-requests, token-rotation, budget-concurrency
+- Suites: auth, auth-flows (session isolation, rate limiting), budgets, properties, service-requests, token-rotation, budget-concurrency
 - Timeout: 30 segundos por test
 - La limpieza usa `TRUNCATE CASCADE` (no `deleteMany`) para evitar race conditions con event handlers asincronos
 

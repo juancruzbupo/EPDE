@@ -164,6 +164,7 @@ describe('BudgetsService', () => {
         {
           propertyId: 'prop-1',
           requestedBy: clientUser.id,
+          createdBy: clientUser.id,
           title: dto.title,
           description: dto.description,
           status: 'PENDING',

@@ -73,6 +73,7 @@ export class BudgetsService {
       {
         propertyId: dto.propertyId,
         requestedBy: userId,
+        createdBy: userId,
         title: dto.title,
         description: dto.description,
         status: 'PENDING',

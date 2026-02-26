@@ -52,8 +52,9 @@ export class MaintenancePlansController {
   async addTask(
     @Param('id') planId: string,
     @Body(new ZodValidationPipe(createTaskBodySchema)) dto: CreateTaskBody,
+    @CurrentUser() user: { id: string },
   ) {
-    const data = await this.plansService.addTask(planId, dto);
+    const data = await this.plansService.addTask(planId, dto, user.id);
     return { data, message: 'Tarea agregada' };
   }
 

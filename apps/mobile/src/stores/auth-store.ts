@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { UserPublic } from '@epde/shared/types';
 import * as authApi from '@/lib/auth';
 import { tokenService } from '@/lib/token-service';
+import { queryClient } from '@/lib/query-client';
 
 interface AuthState {
   user: UserPublic | null;
@@ -27,9 +28,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       await authApi.logout();
     } catch {
-      // authApi.logout already handles errors, but be defensive
       await tokenService.clearTokens();
     } finally {
+      queryClient.cancelQueries();
+      queryClient.clear();
       set({ user: null, isAuthenticated: false });
     }
   },

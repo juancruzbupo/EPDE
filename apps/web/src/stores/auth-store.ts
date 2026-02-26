@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { UserPublic } from '@epde/shared/types';
 import * as authApi from '@/lib/auth';
+import { queryClient } from '@/lib/query-client';
 
 interface AuthState {
   user: UserPublic | null;
@@ -22,8 +23,15 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
-    await authApi.logout();
-    set({ user: null, isAuthenticated: false });
+    try {
+      await authApi.logout();
+    } catch {
+      // API may fail — continue with local cleanup
+    } finally {
+      queryClient.cancelQueries();
+      queryClient.clear();
+      set({ user: null, isAuthenticated: false });
+    }
   },
 
   checkAuth: async () => {

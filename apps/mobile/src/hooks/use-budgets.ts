@@ -32,7 +32,7 @@ export function useCreateBudgetRequest() {
     mutationFn: createBudgetRequest,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'client-stats'] });
     },
   });
 }
@@ -61,7 +61,7 @@ export function useUpdateBudgetStatus() {
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'client-stats'] });
     },
   });
 }

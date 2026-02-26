@@ -45,9 +45,17 @@ export class UploadController {
       throw new BadRequestException('El archivo excede el tamaño máximo de 10 MB');
     }
 
+    // Validate actual file content via magic bytes — don't trust client Content-Type
+    // Dynamic import: file-type is ESM-only
+    const { fileTypeFromBuffer } = await import('file-type');
+    const detected = await fileTypeFromBuffer(file.buffer);
+    if (!detected || !ALLOWED_MIME_TYPES.has(detected.mime)) {
+      throw new BadRequestException('El contenido del archivo no coincide con un tipo permitido');
+    }
+
     const sanitizedFolder = ALLOWED_FOLDERS.has(folder) ? folder : 'uploads';
 
-    const url = await this.uploadService.uploadFile(file, sanitizedFolder);
+    const url = await this.uploadService.uploadFile(file, sanitizedFolder, detected.mime);
     return { data: { url } };
   }
 }
