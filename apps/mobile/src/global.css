@@ -1,0 +1,22 @@
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css';
+
+@import 'nativewind/theme';
+
+@theme inline {
+  --color-primary: #c4704b;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #e8ddd3;
+  --color-secondary-foreground: #2e2a27;
+  --color-background: #fafaf8;
+  --color-foreground: #2e2a27;
+  --color-card: #ffffff;
+  --color-card-foreground: #2e2a27;
+  --color-muted: #f5f0eb;
+  --color-muted-foreground: #4a4542;
+  --color-destructive: #c45b4b;
+  --color-border: #e8ddd3;
+  --color-success: #6b9b7a;
+  --radius: 0.625rem;
+}

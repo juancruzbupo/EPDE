@@ -58,9 +58,20 @@ export class AuthController {
   ) {
     const user = req.user as { id: string; email: string; role: string };
     const result = await this.authService.login(user);
+    const isMobile = req.headers['x-client-type'] === 'mobile';
 
     res.cookie(ACCESS_COOKIE_NAME, result.accessToken, ACCESS_COOKIE_OPTIONS);
     res.cookie(REFRESH_COOKIE_NAME, result.refreshToken, REFRESH_COOKIE_OPTIONS);
+
+    if (isMobile) {
+      return {
+        data: {
+          user: result.user,
+          accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
+        },
+      };
+    }
 
     return {
       data: {
@@ -72,8 +83,14 @@ export class AuthController {
   @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const refreshToken = req.cookies?.[REFRESH_COOKIE_NAME];
+  async refresh(
+    @Body() body: { refreshToken?: string },
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const isMobile = req.headers['x-client-type'] === 'mobile';
+    const refreshToken = isMobile ? body?.refreshToken : req.cookies?.[REFRESH_COOKIE_NAME];
+
     if (!refreshToken) {
       res.status(HttpStatus.UNAUTHORIZED).json({
         statusCode: HttpStatus.UNAUTHORIZED,
@@ -85,6 +102,15 @@ export class AuthController {
     const result = await this.authService.refresh(refreshToken);
     res.cookie(ACCESS_COOKIE_NAME, result.accessToken, ACCESS_COOKIE_OPTIONS);
     res.cookie(REFRESH_COOKIE_NAME, result.refreshToken, REFRESH_COOKIE_OPTIONS);
+
+    if (isMobile) {
+      return {
+        data: {
+          accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
+        },
+      };
+    }
 
     return { data: { message: 'Token refrescado' } };
   }

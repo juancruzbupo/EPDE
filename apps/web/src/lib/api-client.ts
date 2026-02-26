@@ -24,7 +24,12 @@ apiClient.interceptors.response.use(
         await apiClient.post('/auth/refresh');
         return apiClient(originalRequest);
       } catch {
-        if (typeof window !== 'undefined') {
+        if (
+          typeof window !== 'undefined' &&
+          !window.location.pathname.startsWith('/login') &&
+          !window.location.pathname.startsWith('/set-password') &&
+          window.location.pathname !== '/'
+        ) {
           window.location.href = '/login';
         }
         return Promise.reject(error);

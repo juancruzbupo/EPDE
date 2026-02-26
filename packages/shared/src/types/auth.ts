@@ -15,6 +15,17 @@ export interface AuthResponse {
   user: UserPublic;
 }
 
+export interface MobileAuthResponse {
+  user: UserPublic;
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface MobileRefreshResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
 export interface JwtPayload {
   sub: string;
   email: string;

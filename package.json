@@ -2,7 +2,8 @@
   "name": "epde",
   "private": true,
   "scripts": {
-    "dev": "turbo dev",
+    "dev": "turbo dev --filter=!@epde/mobile",
+    "dev:mobile": "turbo build --filter=@epde/shared && pnpm --filter @epde/mobile dev",
     "build": "turbo build",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
@@ -35,6 +36,10 @@
   },
   "packageManager": "pnpm@10.6.1",
   "pnpm": {
+    "overrides": {
+      "react": "19.1.0",
+      "react-dom": "19.1.0"
+    },
     "onlyBuiltDependencies": [
       "@nestjs/core",
       "@prisma/client",
