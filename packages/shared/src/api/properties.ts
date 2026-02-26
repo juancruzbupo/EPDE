@@ -12,13 +12,16 @@ export interface PropertyFilters {
 
 export function createPropertyQueries(apiClient: AxiosInstance) {
   return {
-    async getProperties(params: PropertyFilters): Promise<PaginatedResponse<PropertyPublic>> {
-      const { data } = await apiClient.get('/properties', { params });
+    async getProperties(
+      params: PropertyFilters,
+      signal?: AbortSignal,
+    ): Promise<PaginatedResponse<PropertyPublic>> {
+      const { data } = await apiClient.get('/properties', { params, signal });
       return data;
     },
 
-    async getProperty(id: string): Promise<ApiResponse<PropertyPublic>> {
-      const { data } = await apiClient.get(`/properties/${id}`);
+    async getProperty(id: string, signal?: AbortSignal): Promise<ApiResponse<PropertyPublic>> {
+      const { data } = await apiClient.get(`/properties/${id}`, { signal });
       return data;
     },
   };

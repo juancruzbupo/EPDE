@@ -220,6 +220,7 @@ describe('BudgetsService', () => {
       budgetsRepository.findById.mockResolvedValue({
         id: 'budget-1',
         status: 'PENDING',
+        version: 0,
       });
 
       const respondedBudget = {
@@ -234,11 +235,12 @@ describe('BudgetsService', () => {
 
       expect(result).toEqual(respondedBudget);
       // totalAmount = (2 * 5000) + (1 * 30000) = 40000
-      expect(budgetsRepository.respondToBudget).toHaveBeenCalledWith('budget-1', dto.lineItems, {
+      expect(budgetsRepository.respondToBudget).toHaveBeenCalledWith('budget-1', 0, dto.lineItems, {
         totalAmount: expect.anything(),
         estimatedDays: 5,
         notes: 'Incluye garantia',
         validUntil: new Date('2026-12-31'),
+        updatedBy: undefined,
       });
       expect(eventEmitter.emit).toHaveBeenCalledWith('budget.quoted', {
         budgetId: 'budget-1',
@@ -252,10 +254,14 @@ describe('BudgetsService', () => {
       budgetsRepository.findById.mockResolvedValue({
         id: 'budget-1',
         status: 'QUOTED',
+        version: 1,
       });
 
+      budgetsRepository.respondToBudget.mockRejectedValue(
+        new BadRequestException('El presupuesto ya no está en estado PENDING'),
+      );
+
       await expect(service.respondToBudget('budget-1', dto)).rejects.toThrow(BadRequestException);
-      expect(budgetsRepository.respondToBudget).not.toHaveBeenCalled();
     });
 
     it('should throw NotFoundException if budget not found', async () => {
@@ -268,6 +274,7 @@ describe('BudgetsService', () => {
       budgetsRepository.findById.mockResolvedValue({
         id: 'budget-1',
         status: 'PENDING',
+        version: 0,
       });
       budgetsRepository.respondToBudget.mockResolvedValue({
         id: 'budget-1',
@@ -284,6 +291,7 @@ describe('BudgetsService', () => {
 
       expect(budgetsRepository.respondToBudget).toHaveBeenCalledWith(
         'budget-1',
+        0,
         dtoWithoutDate.lineItems,
         expect.objectContaining({ validUntil: null }),
       );

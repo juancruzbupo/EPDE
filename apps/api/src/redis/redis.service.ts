@@ -12,6 +12,10 @@ export class RedisService implements OnModuleDestroy {
     this.client = new Redis(url, { maxRetriesPerRequest: 3 });
     this.client.on('connect', () => this.logger.log('Redis connected'));
     this.client.on('error', (err) => this.logger.error('Redis error', err.message));
+    this.client.on('reconnecting', (ms: number) =>
+      this.logger.warn(`Redis reconnecting in ${ms}ms`),
+    );
+    this.client.on('close', () => this.logger.warn('Redis connection closed'));
   }
 
   async onModuleDestroy() {
@@ -46,5 +50,24 @@ export class RedisService implements OnModuleDestroy {
   async setnx(key: string, value: string, ttlSeconds: number): Promise<boolean> {
     const result = await this.client.set(key, value, 'EX', ttlSeconds, 'NX');
     return result === 'OK';
+  }
+
+  /**
+   * Health check: returns true if Redis responds to PING.
+   */
+  async isHealthy(): Promise<boolean> {
+    try {
+      const result = await this.client.ping();
+      return result === 'PONG';
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Execute a Lua script atomically.
+   */
+  async eval(script: string, keys: string[], args: (string | number)[]): Promise<unknown> {
+    return this.client.eval(script, keys.length, ...keys, ...args);
   }
 }

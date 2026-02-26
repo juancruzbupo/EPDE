@@ -10,13 +10,14 @@ export function createNotificationQueries(apiClient: AxiosInstance) {
   return {
     async getNotifications(
       params: NotificationFilters = {},
+      signal?: AbortSignal,
     ): Promise<PaginatedResponse<NotificationPublic>> {
-      const { data } = await apiClient.get('/notifications', { params });
+      const { data } = await apiClient.get('/notifications', { params, signal });
       return data;
     },
 
-    async getUnreadCount(): Promise<ApiResponse<{ count: number }>> {
-      const { data } = await apiClient.get('/notifications/unread-count');
+    async getUnreadCount(signal?: AbortSignal): Promise<ApiResponse<{ count: number }>> {
+      const { data } = await apiClient.get('/notifications/unread-count', { signal });
       return data;
     },
 

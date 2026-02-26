@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Notification } from '@prisma/client';
+import { Notification, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { BaseRepository, PaginatedResult } from '../common/repositories/base.repository';
 
@@ -37,6 +37,28 @@ export class NotificationsRepository extends BaseRepository<Notification> {
     const result = await this.prisma.notification.updateMany({
       where: { userId, read: false },
       data: { read: true },
+    });
+    return result.count;
+  }
+
+  async createMany(
+    notifications: {
+      userId: string;
+      type: 'TASK_REMINDER' | 'BUDGET_UPDATE' | 'SERVICE_UPDATE' | 'SYSTEM';
+      title: string;
+      message: string;
+      data?: Record<string, unknown> | null;
+    }[],
+  ): Promise<number> {
+    if (notifications.length === 0) return 0;
+    const result = await this.prisma.notification.createMany({
+      data: notifications.map((n) => ({
+        userId: n.userId,
+        type: n.type,
+        title: n.title,
+        message: n.message,
+        data: (n.data as Prisma.InputJsonValue) ?? Prisma.JsonNull,
+      })),
     });
     return result.count;
   }

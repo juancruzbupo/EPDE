@@ -9,7 +9,7 @@ interface JwtPayload {
   sub: string;
   email: string;
   role: string;
-  jti?: string;
+  jti: string;
   family?: string;
   exp?: number;
 }
@@ -31,11 +31,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    if (payload.jti) {
-      const blacklisted = await this.tokenService.isBlacklisted(payload.jti);
-      if (blacklisted) {
-        throw new UnauthorizedException('Token revocado');
-      }
+    if (!payload.jti) {
+      throw new UnauthorizedException('Token inválido: falta JTI');
+    }
+
+    const blacklisted = await this.tokenService.isBlacklisted(payload.jti);
+    if (blacklisted) {
+      throw new UnauthorizedException('Token revocado');
     }
 
     return {

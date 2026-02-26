@@ -6,12 +6,16 @@ const queries = createDashboardQueries(apiClient);
 export const { getClientDashboardStats, getClientUpcomingTasks } = queries;
 
 // Admin-only
-export async function getDashboardStats(): Promise<ApiResponse<DashboardStats>> {
-  const { data } = await apiClient.get('/dashboard/stats');
+export async function getDashboardStats(
+  signal?: AbortSignal,
+): Promise<ApiResponse<DashboardStats>> {
+  const { data } = await apiClient.get('/dashboard/stats', { signal });
   return data;
 }
 
-export async function getDashboardActivity(): Promise<ApiResponse<ActivityItem[]>> {
-  const { data } = await apiClient.get('/dashboard/activity');
+export async function getDashboardActivity(
+  signal?: AbortSignal,
+): Promise<ApiResponse<ActivityItem[]>> {
+  const { data } = await apiClient.get('/dashboard/activity', { signal });
   return data;
 }

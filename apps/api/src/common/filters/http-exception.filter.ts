@@ -37,6 +37,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           message = 'Error de validación';
         }
       }
+
+      // Report server errors (5xx) to Sentry even if they're HttpExceptions
+      if (status >= 500) {
+        Sentry.captureException(exception);
+      }
     } else {
       this.logger.error(
         'Unhandled exception',

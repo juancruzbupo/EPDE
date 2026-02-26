@@ -4,13 +4,13 @@ import { getClientDashboardStats, getClientUpcomingTasks } from '@/lib/api/dashb
 export function useClientDashboardStats() {
   return useQuery({
     queryKey: ['dashboard', 'client-stats'],
-    queryFn: () => getClientDashboardStats().then((r) => r.data),
+    queryFn: ({ signal }) => getClientDashboardStats(signal).then((r) => r.data),
   });
 }
 
 export function useClientUpcomingTasks() {
   return useQuery({
     queryKey: ['dashboard', 'client-upcoming'],
-    queryFn: () => getClientUpcomingTasks().then((r) => r.data),
+    queryFn: ({ signal }) => getClientUpcomingTasks(signal).then((r) => r.data),
   });
 }

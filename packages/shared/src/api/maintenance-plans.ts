@@ -9,23 +9,41 @@ import type {
 
 export function createMaintenancePlanQueries(apiClient: AxiosInstance) {
   return {
-    async getPlan(id: string): Promise<ApiResponse<PlanPublic>> {
-      const { data } = await apiClient.get(`/maintenance-plans/${id}`);
+    async getPlan(id: string, signal?: AbortSignal): Promise<ApiResponse<PlanPublic>> {
+      const { data } = await apiClient.get(`/maintenance-plans/${id}`, { signal });
       return data;
     },
 
-    async getTaskDetail(planId: string, taskId: string): Promise<ApiResponse<TaskDetailPublic>> {
-      const { data } = await apiClient.get(`/maintenance-plans/${planId}/tasks/${taskId}`);
+    async getTaskDetail(
+      planId: string,
+      taskId: string,
+      signal?: AbortSignal,
+    ): Promise<ApiResponse<TaskDetailPublic>> {
+      const { data } = await apiClient.get(`/maintenance-plans/${planId}/tasks/${taskId}`, {
+        signal,
+      });
       return data;
     },
 
-    async getTaskLogs(planId: string, taskId: string): Promise<ApiResponse<TaskLogPublic[]>> {
-      const { data } = await apiClient.get(`/maintenance-plans/${planId}/tasks/${taskId}/logs`);
+    async getTaskLogs(
+      planId: string,
+      taskId: string,
+      signal?: AbortSignal,
+    ): Promise<ApiResponse<TaskLogPublic[]>> {
+      const { data } = await apiClient.get(`/maintenance-plans/${planId}/tasks/${taskId}/logs`, {
+        signal,
+      });
       return data;
     },
 
-    async getTaskNotes(planId: string, taskId: string): Promise<ApiResponse<TaskNotePublic[]>> {
-      const { data } = await apiClient.get(`/maintenance-plans/${planId}/tasks/${taskId}/notes`);
+    async getTaskNotes(
+      planId: string,
+      taskId: string,
+      signal?: AbortSignal,
+    ): Promise<ApiResponse<TaskNotePublic[]>> {
+      const { data } = await apiClient.get(`/maintenance-plans/${planId}/tasks/${taskId}/notes`, {
+        signal,
+      });
       return data;
     },
 

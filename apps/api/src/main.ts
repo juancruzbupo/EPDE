@@ -4,11 +4,13 @@ import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  app.useLogger(app.get(Logger));
 
   app.use(helmet());
   app.use(compression());
@@ -19,19 +21,22 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
+  const corsOrigin = process.env.CORS_ORIGIN;
   app.enableCors({
-    origin: process.env.NODE_ENV === 'production' ? false : true,
+    origin: corsOrigin ? corsOrigin.split(',').map((o) => o.trim()) : true,
     credentials: true,
   });
 
-  const config = new DocumentBuilder()
-    .setTitle('EPDE API')
-    .setDescription('API de la plataforma de mantenimiento preventivo para viviendas')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle('EPDE API')
+      .setDescription('API de la plataforma de mantenimiento preventivo para viviendas')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, document);
+  }
 
   const port = process.env.PORT ?? 3001;
   await app.listen(port);

@@ -22,6 +22,9 @@ export class AuthService {
     if (!isMatch) {
       return null;
     }
+    if (user.status !== 'ACTIVE') {
+      return null;
+    }
     return user;
   }
 

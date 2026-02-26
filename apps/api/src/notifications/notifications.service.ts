@@ -21,6 +21,19 @@ export class NotificationsService {
     return this.notificationsRepository.markAllAsRead(userId);
   }
 
+  async createNotifications(
+    data: {
+      userId: string;
+      type: 'TASK_REMINDER' | 'BUDGET_UPDATE' | 'SERVICE_UPDATE' | 'SYSTEM';
+      title: string;
+      message: string;
+      data?: Record<string, unknown>;
+    }[],
+  ): Promise<number> {
+    if (data.length === 0) return 0;
+    return this.notificationsRepository.createMany(data);
+  }
+
   async createNotification(data: {
     userId: string;
     type: 'TASK_REMINDER' | 'BUDGET_UPDATE' | 'SERVICE_UPDATE' | 'SYSTEM';

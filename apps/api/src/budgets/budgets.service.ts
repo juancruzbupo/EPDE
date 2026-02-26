@@ -5,7 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Prisma } from '@prisma/client';
+import { BudgetRequest, Prisma } from '@prisma/client';
 import { BudgetsRepository } from './budgets.repository';
 import { PropertiesRepository } from '../properties/properties.repository';
 import { UserRole } from '@epde/shared';
@@ -45,9 +45,12 @@ export class BudgetsService {
       throw new NotFoundException('Presupuesto no encontrado');
     }
 
+    const budgetWithRelations = budget as BudgetRequest & {
+      property?: { userId?: string };
+    };
     if (
       currentUser.role === UserRole.CLIENT &&
-      (budget as any).property?.userId !== currentUser.id
+      budgetWithRelations.property?.userId !== currentUser.id
     ) {
       throw new ForbiddenException('No tenés acceso a este presupuesto');
     }
@@ -98,23 +101,24 @@ export class BudgetsService {
       throw new NotFoundException('Presupuesto no encontrado');
     }
 
-    if (budget.status !== 'PENDING') {
-      throw new BadRequestException('Solo se puede cotizar un presupuesto pendiente');
-    }
-
     const totalAmount = dto.lineItems.reduce(
       (sum, item) =>
         sum.add(new Prisma.Decimal(item.quantity).mul(new Prisma.Decimal(item.unitPrice))),
       new Prisma.Decimal(0),
     );
 
-    const result = await this.budgetsRepository.respondToBudget(id, dto.lineItems, {
-      totalAmount: totalAmount.toNumber(),
-      estimatedDays: dto.estimatedDays,
-      notes: dto.notes,
-      validUntil: dto.validUntil ? new Date(dto.validUntil) : null,
-      updatedBy: userId,
-    });
+    const result = await this.budgetsRepository.respondToBudget(
+      id,
+      budget.version ?? 0,
+      dto.lineItems,
+      {
+        totalAmount: totalAmount.toNumber(),
+        estimatedDays: dto.estimatedDays,
+        notes: dto.notes,
+        validUntil: dto.validUntil ? new Date(dto.validUntil) : null,
+        updatedBy: userId,
+      },
+    );
 
     this.eventEmitter.emit('budget.quoted', {
       budgetId: id,

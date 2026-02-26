@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException, ConflictException } from '@nestjs/common';
 import { BudgetRequest, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -70,6 +70,7 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest> {
 
   async respondToBudget(
     id: string,
+    expectedVersion: number,
     lineItems: { description: string; quantity: number; unitPrice: number }[],
     response: {
       totalAmount: number;
@@ -80,6 +81,15 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest> {
     },
   ) {
     return this.prisma.$transaction(async (tx) => {
+      // Re-check status + version inside transaction for TOCTOU safety
+      const budget = await tx.budgetRequest.findUnique({ where: { id } });
+      if (!budget || budget.status !== 'PENDING') {
+        throw new BadRequestException('Solo se puede cotizar un presupuesto pendiente');
+      }
+      if (budget.version !== expectedVersion) {
+        throw new ConflictException('El presupuesto fue modificado por otro usuario');
+      }
+
       await tx.budgetLineItem.createMany({
         data: lineItems.map((item) => ({
           budgetRequestId: id,
@@ -102,7 +112,7 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest> {
 
       return tx.budgetRequest.update({
         where: { id },
-        data: { status: 'QUOTED', updatedBy: response.updatedBy },
+        data: { status: 'QUOTED', updatedBy: response.updatedBy, version: { increment: 1 } },
         include: {
           property: {
             select: {

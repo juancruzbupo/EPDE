@@ -83,8 +83,14 @@ export class TaskSchedulerService {
         hasOverdue ? this.usersRepository.findAdminIds() : Promise.resolve([]),
       ]);
 
-      let notificationCount = 0;
-      let emailCount = 0;
+      const notifications: Array<{
+        userId: string;
+        type: 'TASK_REMINDER';
+        title: string;
+        message: string;
+        data: Record<string, unknown>;
+      }> = [];
+      const emailPromises: Promise<void>[] = [];
 
       for (const task of allTasks) {
         if (alreadyRemindedTaskIds.has(task.id)) continue;
@@ -101,36 +107,36 @@ export class TaskSchedulerService {
           ? `La tarea "${task.name}" en ${property.address} está vencida hace ${Math.abs(daysUntilDue)} día(s)`
           : `La tarea "${task.name}" en ${property.address} vence en ${daysUntilDue} día(s)`;
 
-        // In-app notification for property owner
-        await this.notificationsService.createNotification({
+        // Collect owner notification
+        notifications.push({
           userId: owner.id,
           type: 'TASK_REMINDER',
           title,
           message,
           data: { taskId: task.id, propertyAddress: property.address },
         });
-        notificationCount++;
 
-        // Email to property owner
-        await this.emailService
-          .sendTaskReminderEmail(
-            owner.email,
-            owner.name,
-            task.name,
-            property.address,
-            task.nextDueDate,
-            task.category.name,
-            isOverdue,
-          )
-          .catch((err) =>
-            this.logger.error(`Error enviando email de recordatorio: ${err.message}`),
-          );
-        emailCount++;
+        // Collect email promise
+        emailPromises.push(
+          this.emailService
+            .sendTaskReminderEmail(
+              owner.email,
+              owner.name,
+              task.name,
+              property.address,
+              task.nextDueDate,
+              task.category.name,
+              isOverdue,
+            )
+            .catch((err) =>
+              this.logger.error(`Error enviando email de recordatorio: ${err.message}`),
+            ),
+        );
 
-        // Overdue tasks: also notify admins (adminIds already fetched above)
+        // Overdue tasks: also notify admins
         if (isOverdue) {
           for (const adminId of adminIds) {
-            await this.notificationsService.createNotification({
+            notifications.push({
               userId: adminId,
               type: 'TASK_REMINDER',
               title: 'Tarea vencida',
@@ -141,8 +147,14 @@ export class TaskSchedulerService {
         }
       }
 
+      // Batch insert all notifications + send emails in parallel
+      const [notificationCount] = await Promise.all([
+        this.notificationsService.createNotifications(notifications),
+        Promise.allSettled(emailPromises),
+      ]);
+
       this.logger.log(
-        `Reminders complete: ${notificationCount} notifications, ${emailCount} emails sent`,
+        `Reminders complete: ${notificationCount} notifications, ${emailPromises.length} emails sent`,
       );
     });
   }

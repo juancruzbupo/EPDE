@@ -9,7 +9,7 @@ import {
 export function useNotifications() {
   return useInfiniteQuery({
     queryKey: ['notifications'],
-    queryFn: ({ pageParam }) => getNotifications({ cursor: pageParam }),
+    queryFn: ({ pageParam, signal }) => getNotifications({ cursor: pageParam }, signal),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
   });
@@ -18,7 +18,7 @@ export function useNotifications() {
 export function useUnreadCount() {
   return useQuery({
     queryKey: ['notifications', 'unread-count'],
-    queryFn: () => getUnreadCount().then((r) => r.data.count),
+    queryFn: ({ signal }) => getUnreadCount(signal).then((r) => r.data.count),
     refetchInterval: 30_000,
   });
 }

@@ -25,6 +25,25 @@ interface RefreshPayload extends AccessPayload {
 export class TokenService {
   private readonly logger = new Logger(TokenService.name);
 
+  /**
+   * Lua script for atomic token rotation.
+   * KEYS[1] = rt:{family}
+   * ARGV[1] = expected generation
+   * ARGV[2] = new generation
+   * ARGV[3] = TTL in seconds
+   *
+   * Returns: 1 = success, 0 = family not found, -1 = generation mismatch (reuse attack)
+   */
+  private static readonly ROTATE_LUA = `
+    local data = redis.call('GET', KEYS[1])
+    if not data then return 0 end
+    local stored = cjson.decode(data)
+    if stored.generation ~= tonumber(ARGV[1]) then return -1 end
+    stored.generation = tonumber(ARGV[2])
+    redis.call('SETEX', KEYS[1], tonumber(ARGV[3]), cjson.encode(stored))
+    return 1
+  `;
+
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -53,7 +72,7 @@ export class TokenService {
   }
 
   /**
-   * Rotate refresh token. Validates generation and increments it.
+   * Rotate refresh token atomically via Lua script.
    * Detects token reuse attacks by checking generation mismatch.
    */
   async rotateRefreshToken(refreshToken: string): Promise<TokenPair> {
@@ -65,36 +84,29 @@ export class TokenService {
     }
 
     const { sub, email, role, family, generation } = payload;
+    const newGeneration = generation + 1;
+    const refreshTtl = this.getRefreshTtlSeconds();
 
-    // Check family state in Redis
-    const familyData = await this.redisService.get(`rt:${family}`);
-    if (!familyData) {
+    // Atomic check-and-increment via Lua script
+    const result = await this.redisService.eval(
+      TokenService.ROTATE_LUA,
+      [`rt:${family}`],
+      [generation, newGeneration, refreshTtl],
+    );
+
+    if (result === 0) {
       throw new UnauthorizedException('Sesión expirada');
     }
 
-    const stored = JSON.parse(familyData) as { userId: string; generation: number };
-
-    // Token reuse attack detection
-    if (stored.generation !== generation) {
+    if (result === -1) {
       this.logger.warn(`Token reuse attack detected for user ${sub}, family ${family}`);
       await this.revokeFamily(family);
       throw new UnauthorizedException('Token reutilizado — sesión revocada');
     }
 
-    // Rotate: increment generation
-    const newGeneration = generation + 1;
     const user = { id: sub, email, role };
-
     const accessToken = this.createAccessToken(user, family);
     const newRefreshToken = this.createRefreshToken(user, family, newGeneration);
-
-    // Update family state
-    const refreshTtl = this.getRefreshTtlSeconds();
-    await this.redisService.setex(
-      `rt:${family}`,
-      refreshTtl,
-      JSON.stringify({ userId: sub, generation: newGeneration }),
-    );
 
     return { accessToken, refreshToken: newRefreshToken };
   }

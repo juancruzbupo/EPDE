@@ -11,7 +11,7 @@ import {
 export function useProperties(filters: PropertyFilters) {
   return useInfiniteQuery({
     queryKey: ['properties', filters],
-    queryFn: ({ pageParam }) => getProperties({ ...filters, cursor: pageParam }),
+    queryFn: ({ pageParam, signal }) => getProperties({ ...filters, cursor: pageParam }, signal),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
   });
@@ -20,7 +20,7 @@ export function useProperties(filters: PropertyFilters) {
 export function useProperty(id: string) {
   return useQuery({
     queryKey: ['properties', id],
-    queryFn: () => getProperty(id),
+    queryFn: ({ signal }) => getProperty(id, signal),
     enabled: !!id,
   });
 }

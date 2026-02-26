@@ -10,13 +10,16 @@ export interface BudgetFilters {
 
 export function createBudgetQueries(apiClient: AxiosInstance) {
   return {
-    async getBudgets(params: BudgetFilters): Promise<PaginatedResponse<BudgetRequestPublic>> {
-      const { data } = await apiClient.get('/budgets', { params });
+    async getBudgets(
+      params: BudgetFilters,
+      signal?: AbortSignal,
+    ): Promise<PaginatedResponse<BudgetRequestPublic>> {
+      const { data } = await apiClient.get('/budgets', { params, signal });
       return data;
     },
 
-    async getBudget(id: string): Promise<ApiResponse<BudgetRequestPublic>> {
-      const { data } = await apiClient.get(`/budgets/${id}`);
+    async getBudget(id: string, signal?: AbortSignal): Promise<ApiResponse<BudgetRequestPublic>> {
+      const { data } = await apiClient.get(`/budgets/${id}`, { signal });
       return data;
     },
 
@@ -27,6 +30,19 @@ export function createBudgetQueries(apiClient: AxiosInstance) {
 
     async updateBudgetStatus(id: string, status: string) {
       const { data } = await apiClient.patch(`/budgets/${id}/status`, { status });
+      return data;
+    },
+
+    async respondToBudget(
+      id: string,
+      dto: {
+        lineItems: { description: string; quantity: number; unitPrice: number }[];
+        estimatedDays?: number;
+        notes?: string;
+        validUntil?: string;
+      },
+    ) {
+      const { data } = await apiClient.post(`/budgets/${id}/respond`, dto);
       return data;
     },
   };

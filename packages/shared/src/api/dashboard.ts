@@ -3,13 +3,15 @@ import type { ApiResponse, ClientDashboardStats, UpcomingTask } from '../types';
 
 export function createDashboardQueries(apiClient: AxiosInstance) {
   return {
-    async getClientDashboardStats(): Promise<ApiResponse<ClientDashboardStats>> {
-      const { data } = await apiClient.get('/dashboard/client-stats');
+    async getClientDashboardStats(
+      signal?: AbortSignal,
+    ): Promise<ApiResponse<ClientDashboardStats>> {
+      const { data } = await apiClient.get('/dashboard/client-stats', { signal });
       return data;
     },
 
-    async getClientUpcomingTasks(): Promise<ApiResponse<UpcomingTask[]>> {
-      const { data } = await apiClient.get('/dashboard/client-upcoming');
+    async getClientUpcomingTasks(signal?: AbortSignal): Promise<ApiResponse<UpcomingTask[]>> {
+      const { data } = await apiClient.get('/dashboard/client-upcoming', { signal });
       return data;
     },
   };

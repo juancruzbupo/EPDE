@@ -18,7 +18,7 @@ import { useAuthStore } from '@/stores/auth-store';
 export function usePlan(id: string) {
   return useQuery({
     queryKey: ['plans', id],
-    queryFn: () => getPlan(id).then((r) => r.data),
+    queryFn: ({ signal }) => getPlan(id, signal).then((r) => r.data),
     enabled: !!id,
   });
 }
@@ -88,7 +88,7 @@ export function useReorderTasks() {
 export function useTaskDetail(planId: string, taskId: string) {
   return useQuery({
     queryKey: ['task-detail', planId, taskId],
-    queryFn: () => getTaskDetail(planId, taskId).then((r) => r.data),
+    queryFn: ({ signal }) => getTaskDetail(planId, taskId, signal).then((r) => r.data),
     enabled: !!planId && !!taskId,
   });
 }
@@ -96,7 +96,7 @@ export function useTaskDetail(planId: string, taskId: string) {
 export function useTaskLogs(planId: string, taskId: string) {
   return useQuery({
     queryKey: ['task-logs', planId, taskId],
-    queryFn: () => getTaskLogs(planId, taskId).then((r) => r.data),
+    queryFn: ({ signal }) => getTaskLogs(planId, taskId, signal).then((r) => r.data),
     enabled: !!planId && !!taskId,
   });
 }
@@ -104,7 +104,7 @@ export function useTaskLogs(planId: string, taskId: string) {
 export function useTaskNotes(planId: string, taskId: string) {
   return useQuery({
     queryKey: ['task-notes', planId, taskId],
-    queryFn: () => getTaskNotes(planId, taskId).then((r) => r.data),
+    queryFn: ({ signal }) => getTaskNotes(planId, taskId, signal).then((r) => r.data),
     enabled: !!planId && !!taskId,
   });
 }

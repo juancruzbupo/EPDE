@@ -11,7 +11,7 @@ import {
 export function useBudgets(filters: BudgetFilters) {
   return useInfiniteQuery({
     queryKey: ['budgets', filters],
-    queryFn: ({ pageParam }) => getBudgets({ ...filters, cursor: pageParam }),
+    queryFn: ({ pageParam, signal }) => getBudgets({ ...filters, cursor: pageParam }, signal),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
   });
@@ -20,7 +20,7 @@ export function useBudgets(filters: BudgetFilters) {
 export function useBudget(id: string) {
   return useQuery({
     queryKey: ['budgets', id],
-    queryFn: () => getBudget(id),
+    queryFn: ({ signal }) => getBudget(id, signal),
     enabled: !!id,
   });
 }

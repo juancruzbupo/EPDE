@@ -21,6 +21,7 @@ interface DataTableProps<TData, TValue> {
   total?: number;
   emptyMessage?: string;
   onRowClick?: (row: TData) => void;
+  caption?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -32,6 +33,7 @@ export function DataTable<TData, TValue>({
   total,
   emptyMessage = 'Sin resultados',
   onRowClick,
+  caption,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -43,6 +45,7 @@ export function DataTable<TData, TValue>({
     <div>
       <div className="rounded-md border">
         <Table>
+          {caption && <caption className="sr-only">{caption}</caption>}
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -71,8 +74,20 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className={onRowClick ? 'cursor-pointer' : undefined}
+                  className={onRowClick ? 'hover:bg-muted/50 cursor-pointer' : undefined}
                   onClick={() => onRowClick?.(row.original)}
+                  {...(onRowClick
+                    ? {
+                        tabIndex: 0,
+                        role: 'button',
+                        onKeyDown: (e: React.KeyboardEvent) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            onRowClick(row.original);
+                          }
+                        },
+                      }
+                    : {})}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -99,7 +114,12 @@ export function DataTable<TData, TValue>({
           </p>
         )}
         {hasMore && onLoadMore && (
-          <Button variant="outline" size="sm" onClick={onLoadMore}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onLoadMore}
+            aria-label="Cargar mas resultados"
+          >
             Cargar más
           </Button>
         )}

@@ -9,7 +9,8 @@ import {
 export function useServiceRequests(filters: Omit<ServiceRequestFilters, 'cursor'> = {}) {
   return useInfiniteQuery({
     queryKey: ['service-requests', filters],
-    queryFn: ({ pageParam }) => getServiceRequests({ ...filters, cursor: pageParam }),
+    queryFn: ({ pageParam, signal }) =>
+      getServiceRequests({ ...filters, cursor: pageParam }, signal),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
   });
@@ -18,7 +19,7 @@ export function useServiceRequests(filters: Omit<ServiceRequestFilters, 'cursor'
 export function useServiceRequest(id: string) {
   return useQuery({
     queryKey: ['service-requests', id],
-    queryFn: () => getServiceRequest(id).then((r) => r.data),
+    queryFn: ({ signal }) => getServiceRequest(id, signal).then((r) => r.data),
     enabled: !!id,
   });
 }
