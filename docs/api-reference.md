@@ -12,16 +12,18 @@ Todas las rutas requieren autenticacion JWT excepto las marcadas con `@Public()`
 - **Access token**: cookie HttpOnly `access_token`, expira en 15 minutos. Contiene `jti` (JWT ID) para blacklisting
 - **Refresh token**: cookie HttpOnly `refresh_token`, expira en 7 dias. Contiene `family` UUID + `generation` counter
 - Ambos se envian automaticamente con `withCredentials: true`
+- Web usa singleton pattern para deduplicar refreshes concurrentes (multiples 401 = 1 solo refresh)
 - El frontend intercepta 401 y refresca automaticamente
 - Token state almacenado en Redis (families, blacklist)
+- El JTI es obligatorio en todos los access tokens — tokens sin JTI son rechazados
 
 ### Flow (Token Rotation)
 
 1. `POST /auth/login` → crea familia de tokens, genera par access+refresh, setea cookies
 2. Requests posteriores envian cookies automaticamente
 3. `JwtStrategy` verifica que el JTI del access token no este en blacklist (Redis)
-4. Al expirar access token → `POST /auth/refresh` → **rota** refresh token (nueva generation)
-5. Si la generation no coincide con Redis → **token reuse attack** → revoca toda la family
+4. Al expirar access token → POST /auth/refresh → rota refresh token atomicamente (Lua script en Redis, nueva generation)
+5. Si la generation no coincide → **token reuse attack** → revoca toda la family (Lua retorna -1)
 6. `POST /auth/logout` → blacklist access JTI + revocar family + limpia cookies
 
 ---
@@ -69,9 +71,25 @@ El objeto directamente (sin wrapper).
 
 ### Health
 
-| Metodo | Ruta | Auth | Descripcion  |
-| ------ | ---- | ---- | ------------ |
-| GET    | `/`  | No   | Health check |
+| Metodo | Ruta      | Auth | Descripcion                            |
+| ------ | --------- | ---- | -------------------------------------- |
+| GET    | `/health` | No   | Health check (DB + Redis via Terminus) |
+
+**Respuesta:**
+
+```json
+{
+  "status": "ok",
+  "info": {
+    "database": { "status": "up" },
+    "redis": { "status": "up" }
+  }
+}
+```
+
+Si algun componente falla, `status` sera `"error"` y el campo `error` contendra el detalle.
+
+**Nota:** Swagger UI (`/api/docs`) solo esta disponible en entornos no-produccion.
 
 ---
 
@@ -98,6 +116,8 @@ El objeto directamente (sin wrapper).
 ```
 
 Rate limit: 5 requests/minuto en login y set-password.
+
+Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
 
 ---
 
@@ -310,11 +330,13 @@ Flujo: obtener URL → PUT al presigned URL desde el browser → usar la key/URL
 
 ### Dashboard
 
-| Metodo | Ruta                         | Auth | Rol   | Descripcion            |
-| ------ | ---------------------------- | ---- | ----- | ---------------------- |
-| GET    | `/dashboard/stats`           | Si   | Ambos | Estadisticas segun rol |
-| GET    | `/dashboard/upcoming-tasks`  | Si   | Ambos | Tareas proximas        |
-| GET    | `/dashboard/recent-activity` | Si   | ADMIN | Actividad reciente     |
+| Metodo | Ruta                         | Auth | Rol    | Descripcion                 |
+| ------ | ---------------------------- | ---- | ------ | --------------------------- |
+| GET    | `/dashboard/stats`           | Si   | Ambos  | Estadisticas segun rol      |
+| GET    | `/dashboard/upcoming-tasks`  | Si   | Ambos  | Tareas proximas             |
+| GET    | `/dashboard/recent-activity` | Si   | ADMIN  | Actividad reciente          |
+| GET    | `/dashboard/client-stats`    | Si   | CLIENT | Estadisticas del cliente    |
+| GET    | `/dashboard/client-upcoming` | Si   | CLIENT | Tareas proximas del cliente |
 
 **Respuesta stats (ADMIN):**
 
@@ -346,12 +368,12 @@ Flujo: obtener URL → PUT al presigned URL desde el browser → usar la key/URL
 
 ## Codigos de Error
 
-| Codigo | Significado           | Ejemplo                                |
-| ------ | --------------------- | -------------------------------------- |
-| 400    | Bad Request           | Validacion fallida                     |
-| 401    | Unauthorized          | Token invalido o expirado              |
-| 403    | Forbidden             | Sin permiso (rol o propiedad ajena)    |
-| 404    | Not Found             | Recurso no encontrado                  |
-| 409    | Conflict              | Email ya registrado                    |
-| 429    | Too Many Requests     | Rate limit excedido                    |
-| 500    | Internal Server Error | Error no manejado (reportado a Sentry) |
+| Codigo | Significado           | Ejemplo                                                    |
+| ------ | --------------------- | ---------------------------------------------------------- |
+| 400    | Bad Request           | Validacion fallida                                         |
+| 401    | Unauthorized          | Token invalido o expirado                                  |
+| 403    | Forbidden             | Sin permiso (rol o propiedad ajena)                        |
+| 404    | Not Found             | Recurso no encontrado                                      |
+| 409    | Conflict              | Email ya registrado, version conflict (optimistic locking) |
+| 429    | Too Many Requests     | Rate limit excedido                                        |
+| 500    | Internal Server Error | Error no manejado (reportado a Sentry)                     |

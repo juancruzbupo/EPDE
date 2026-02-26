@@ -131,7 +131,7 @@ Category ─1:N─ Task
 | updatedAt    | DateTime   |                                          |
 | deletedAt    | DateTime?  | Soft delete                              |
 
-**Indices:** `email`
+**Indices:** `email`, `[role, deletedAt]`
 **Soft delete:** Si — `findByEmail` debe usar `writeModel` para encontrar eliminados
 
 ### Property
@@ -197,7 +197,7 @@ Category ─1:N─ Task
 | updatedAt         | DateTime       |                              |
 | deletedAt         | DateTime?      | Soft delete                  |
 
-**Indices:** `maintenancePlanId`, `nextDueDate`, `status`
+**Indices:** `maintenancePlanId`, `nextDueDate`, `status`, `[status, nextDueDate]`, `[status, deletedAt]`
 **Status se actualiza via cron:** PENDING → UPCOMING (30 dias) → OVERDUE
 
 ### TaskLog
@@ -211,7 +211,7 @@ Category ─1:N─ Task
 | notes       | String?  |                |
 | photoUrl    | String?  |                |
 
-**Indice:** `taskId`
+**Indices:** `taskId`, `[completedBy]`
 
 ### TaskNote
 
@@ -236,6 +236,7 @@ Category ─1:N─ Task
 | description | String?      |                                             |
 | status      | BudgetStatus | Default: PENDING                            |
 | updatedBy   | String?      | ID del usuario que realizo el ultimo cambio |
+| version     | Int          | Optimistic locking counter (default: 0)     |
 | createdAt   | DateTime     |                                             |
 | updatedAt   | DateTime     |                                             |
 
@@ -307,7 +308,7 @@ Category ─1:N─ Task
 | data      | Json?            | Metadata adicional |
 | createdAt | DateTime         |                    |
 
-**Indices:** `[userId, read]`, `createdAt`
+**Indices:** `[userId, read]`, `createdAt`, `[userId, type, createdAt]`
 
 ## Notas de Implementacion
 

@@ -326,41 +326,18 @@ Cuerpo opcional (lineas max 100 chars)
 
 ## Variables de Entorno
 
-### API (`apps/api/.env`)
+Referencia completa en [env-vars.md](env-vars.md).
 
-| Variable             | Descripcion                                               | Requerida |
-| -------------------- | --------------------------------------------------------- | --------- |
-| DATABASE_URL         | PostgreSQL connection string                              | Si        |
-| JWT_SECRET           | Secret para tokens JWT                                    | Si        |
-| JWT_REFRESH_SECRET   | Secret para refresh tokens                                | Si        |
-| RESEND_API_KEY       | API key de Resend                                         | Si        |
-| EMAIL_FROM           | Sender email (default: `EPDE <onboarding@resend.dev>`)    | No        |
-| APP_URL              | URL del frontend para links en emails                     | Si        |
-| R2_ACCOUNT_ID        | Cloudflare R2 account                                     | Si        |
-| R2_ACCESS_KEY_ID     | Cloudflare R2 key                                         | Si        |
-| R2_SECRET_ACCESS_KEY | Cloudflare R2 secret                                      | Si        |
-| R2_BUCKET_NAME       | Nombre del bucket R2                                      | Si        |
-| R2_PUBLIC_URL        | URL publica del bucket                                    | Si        |
-| REDIS_URL            | Redis connection string (default: redis://localhost:6379) | Si        |
-| SENTRY_DSN           | DSN de Sentry (opcional)                                  | No        |
+### Archivos de ejemplo
 
-### Web (`apps/web/.env.local`)
+- `apps/api/.env.example` — Variables del API
+- `apps/web/.env.local` — Variables del frontend
 
-| Variable            | Descripcion                                             |
-| ------------------- | ------------------------------------------------------- |
-| NEXT_PUBLIC_API_URL | URL de la API (default: `http://localhost:3001/api/v1`) |
+### Notas importantes
 
-**Importante:** Variables `NEXT_PUBLIC_*` se resuelven en build time. Reiniciar dev server despues de cambiar.
-
-### Mobile (`apps/mobile`)
-
-La app mobile detecta automaticamente la URL del API:
-
-- **Web**: `http://localhost:3001/api/v1`
-- **Native (dev)**: `http://<IP_DISPOSITIVO>:3001/api/v1` (auto-detectada via Expo Constants)
-- **Produccion**: `https://api.epde.com.ar/api/v1`
-
-No requiere `.env` para desarrollo local — la logica esta en `src/lib/api-client.ts`.
+- Variables `NEXT_PUBLIC_*` se resuelven en **build time** — reiniciar dev server despues de cambiar
+- La app mobile auto-detecta la URL del API en desarrollo (no requiere `.env`)
+- En produccion, configurar `CORS_ORIGIN` para restringir origenes permitidos
 
 ## Troubleshooting
 
@@ -377,6 +354,7 @@ No requiere `.env` para desarrollo local — la logica esta en `src/lib/api-clie
 | `z.string().datetime()` falla con date input | Input retorna YYYY-MM-DD             | Usar `z.string().date()`              |
 | Permission check falla (403)                 | Falta campo en Prisma `select`       | Agregar campo (ej: `userId: true`)    |
 | Redis connection refused                     | Redis no esta corriendo              | `docker compose up -d`                |
+| Port 8081 in use                             | Expo ya corriendo                    | `lsof -ti:8081 \| xargs kill -9`      |
 
 ## Testing
 
@@ -402,7 +380,7 @@ pnpm --filter @epde/api test:e2e
 - Config: `apps/api/jest-e2e.config.ts`
 - Setup: `apps/api/src/test/setup.ts` — helpers `createTestApp()`, `cleanDatabase()` (TRUNCATE CASCADE)
 - Pattern: `*.e2e-spec.ts` en `apps/api/test/`
-- Suites: auth, budgets, properties, service-requests
+- Suites: auth, budgets, properties, service-requests, token-rotation, budget-concurrency
 - Timeout: 30 segundos por test
 - La limpieza usa `TRUNCATE CASCADE` (no `deleteMany`) para evitar race conditions con event handlers asincronos
 

@@ -189,6 +189,7 @@ Tres guards globales aplicados en orden via `APP_GUARD`:
 
 - `HttpException` → responde con status y mensaje del error
 - Otros errores → `500 Internal Server Error` + `Sentry.captureException()`
+- `HttpException` con status >= 500 → tambien se reporta a Sentry
 - Formato de respuesta de error:
 
 ```json
@@ -219,6 +220,7 @@ Login → LocalStrategy (email+password) → JWT access + refresh tokens
 - Cada login crea una "family" UUID. Refresh tokens llevan `{ sub, email, role, family, generation, jti }`
 - Redis almacena `rt:{family}` con generation actual (TTL 7d)
 - Al hacer refresh: si generation no coincide → **token reuse attack** → revocar toda la family
+- La rotacion usa un **Lua script atomico** en Redis para prevenir race conditions (GET + compare + SET en una sola operacion)
 - Logout: blacklist access token JTI (TTL = tiempo restante) + revocar family
 - `JwtStrategy.validate()` verifica que el JTI no este en blacklist antes de autenticar
 - Implementado en `auth/token.service.ts` (genera pares, rota, revoca, blacklist)
@@ -240,7 +242,7 @@ Frontend → POST /upload/presigned-url { filename, contentType }
 
 ### 11. Cron Jobs (Scheduler + Distributed Lock)
 
-`SchedulerModule` con `@Cron()` — tres jobs diarios a las 06:00-06:10 Argentina:
+`SchedulerModule` con `@Cron()` — tres jobs diarios a las 09:00-09:10 UTC:
 
 1. **task-status-recalculation** (09:00 UTC): PENDING → UPCOMING (30 dias) → OVERDUE (pasada fecha), y reset UPCOMING → PENDING si se alejo
 2. **task-upcoming-reminders** (09:05 UTC): Notificaciones in-app + email para tareas en 7 dias y vencidas. Deduplicacion por dia. Overdue tambien notifica admins
@@ -287,6 +289,8 @@ apiClient.interceptors.response.use(
 );
 ```
 
+**Web (singleton refresh):** El interceptor usa un patron singleton para deduplicar refreshes concurrentes (mismo patron que mobile).
+
 ### 14. Middleware (Next.js)
 
 ```typescript
@@ -295,7 +299,11 @@ const publicPaths = ['/login', '/set-password', '/'];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('access_token');
+  // Si no hay token y no es ruta publica → redirect login
   if (!token && !isPublicPath) redirect('/login');
+  // Si hay token, decodifica JWT y verifica exp (con 30s buffer)
+  // Si JWT esta expirado (exp - 30s < now) → redirect login
+  if (token && isExpired(token, 30)) redirect('/login');
   if (token && isAuthPage) redirect('/dashboard');
 }
 ```
@@ -304,8 +312,8 @@ export function middleware(request: NextRequest) {
 
 Modulo global `RedisModule` (`redis/redis.module.ts`) con dos servicios:
 
-- **RedisService**: Wrapper sobre `ioredis` con metodos `get`, `set`, `del`, `setnx`, `expire`
-- **DistributedLockService**: Distributed lock via Redis SETNX con TTL. Metodo `withLock<T>(key, ttlSeconds, fn)` que adquiere lock, ejecuta fn, y libera lock
+- **RedisService**: Wrapper sobre `ioredis` con metodos `get`, `set`, `del`, `setnx`, `expire`, `eval(script, keys, args)` (ejecuta Lua scripts atomicos), `isHealthy()` (PING/PONG check)
+- **DistributedLockService**: Distributed lock via Redis SETNX con TTL. Metodo `withLock<T>(key, ttlSeconds, fn)` que adquiere lock, ejecuta fn, y libera lock. Usa ownership pattern (genera UUID owner, Lua script para release solo si es owned)
 
 **Casos de uso:**
 
@@ -314,3 +322,24 @@ Modulo global `RedisModule` (`redis/redis.module.ts`) con dos servicios:
 - Distributed lock: previene ejecucion concurrente de cron jobs (`lock:cron:{name}`)
 
 **Configuracion:** `REDIS_URL` en `.env` (default: `redis://localhost:6379`). Redis 7 Alpine en Docker Compose.
+
+### 16. Observabilidad (OpenTelemetry + Pino)
+
+**Metricas (Prometheus):**
+
+- `MetricsModule` (global) con `MetricsService` + `MetricsInterceptor`
+- Exporta metricas en formato Prometheus en puerto 9464
+- Metricas: `http_requests_total`, `http_request_duration_seconds`, `token_rotation_total`, `cron_execution_duration_seconds`
+
+**Logging (Pino):**
+
+- `nestjs-pino` con `pino-http` para logging estructurado JSON
+- Request ID automatico (header `x-request-id` o `randomUUID()`)
+- `pino-pretty` en desarrollo
+- Endpoint `/api/v1/health` excluido del auto-logging
+
+### 17. Health Check
+
+- `GET /api/v1/health` con `@Public()` (no requiere auth)
+- Usa `@nestjs/terminus` con indicadores de DB (Prisma) y Redis (custom)
+- Respuesta: `{ status: "ok", info: { database: { status: "up" }, redis: { status: "up" } } }`

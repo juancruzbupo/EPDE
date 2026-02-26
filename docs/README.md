@@ -13,6 +13,9 @@
 | [data-model.md](data-model.md)                     | Modelo de datos completo, entidades, relaciones, enums         |
 | [api-reference.md](api-reference.md)               | Endpoints, autenticacion, respuestas, errores                  |
 | [monorepo-completo.md](monorepo-completo.md)       | Arquitectura completa del monorepo, tecnologias y patrones     |
+| [env-vars.md](env-vars.md)                         | Referencia completa de variables de entorno                    |
+| [runbook.md](runbook.md)                           | Runbook operativo: health checks, incidentes, deploy, rollback |
+| [audit-remediation.md](audit-remediation.md)       | Historial de remediacion de auditoria tecnica                  |
 
 ## Stack Tecnologico
 
@@ -35,7 +38,8 @@
 | Email          | Resend                                               | -         |
 | Storage        | Cloudflare R2                                        | -         |
 | CI/CD          | GitHub Actions                                       | -         |
-| Monitoreo      | Sentry                                               | -         |
+| Monitoreo      | Sentry + OpenTelemetry (Prometheus)                  | -         |
+| Logging        | nestjs-pino (JSON estructurado)                      | -         |
 
 ## Workspaces
 
@@ -86,10 +90,12 @@ pnpm --filter @epde/api test:e2e    # Tests E2E (requiere DB + Redis)
 
 ## URLs de Desarrollo
 
-| Servicio | URL                            |
-| -------- | ------------------------------ |
-| Frontend | http://localhost:3000          |
-| Mobile   | Expo Dev Server (puerto 8081)  |
-| API      | http://localhost:3001/api/v1   |
-| Swagger  | http://localhost:3001/api/docs |
-| pgAdmin  | http://localhost:5050          |
+| Servicio | URL                                 |
+| -------- | ----------------------------------- |
+| Frontend | http://localhost:3000               |
+| Mobile   | Expo Dev Server (puerto 8081)       |
+| API      | http://localhost:3001/api/v1        |
+| Swagger  | http://localhost:3001/api/docs      |
+| Health   | http://localhost:3001/api/v1/health |
+| Metrics  | http://localhost:9464/metrics       |
+| pgAdmin  | http://localhost:5050               |

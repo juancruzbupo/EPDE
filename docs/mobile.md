@@ -14,8 +14,8 @@ App nativa para clientes (rol `CLIENT`) construida con Expo + React Native. Repl
 | State (server) | TanStack React Query                           | 5       |
 | Forms          | React Hook Form + Zod                          | 7.71    |
 | HTTP           | Axios                                          | 1.13    |
-| Token Storage  | expo-secure-store                              | 55      |
-| Image Picker   | expo-image-picker                              | 55      |
+| Token Storage  | expo-secure-store                              | 15      |
+| Image Picker   | expo-image-picker                              | 17      |
 | Tipografia     | @expo-google-fonts (DM Sans, Playfair Display) | -       |
 | Shared         | @epde/shared (workspace)                       | -       |
 
@@ -55,6 +55,7 @@ apps/mobile/
       create-budget-modal.tsx         # Modal crear presupuesto
       create-service-request-modal.tsx # Modal crear solicitud (con fotos)
       complete-task-modal.tsx         # Modal completar tarea (con foto)
+      error-boundary.tsx             # Error boundary (class component)
     hooks/
       use-dashboard.ts               # Stats y tareas proximas
       use-properties.ts              # CRUD propiedades (infinite scroll)
@@ -66,6 +67,7 @@ apps/mobile/
     lib/
       api-client.ts                  # Axios instance + interceptors
       token-service.ts               # SecureStore abstraction
+      query-persister.ts             # AsyncStorage persister para offline cache
       auth.ts                        # Funciones de auth API
       api/
         dashboard.ts                 # GET /dashboard/client-stats, client-upcoming
@@ -96,7 +98,7 @@ Componente `AuthGate` que decide la ruta segun el estado de autenticacion:
 - No autenticado → `/(auth)/login`
 - Autenticado → `/(tabs)`
 
-Wraps: `QueryClientProvider` → `AuthGate` → rutas
+Wraps: `ErrorBoundary` → `PersistQueryClientProvider` (offline cache, gcTime 24h) → `AuthGate` → rutas
 
 ### Tabs (5 pantallas)
 
@@ -145,10 +147,9 @@ interface AuthState {
 
 ### Token Service
 
-Abstraccion cross-platform para almacenamiento seguro:
+Usa `expo-secure-store` exclusivamente para almacenamiento seguro de tokens (iOS keychain / Android keystore). No hay fallback a localStorage.
 
 - **iOS/Android**: `expo-secure-store` (keychain/keystore nativo)
-- **Web**: `localStorage` (fallback)
 
 ## API Client
 
@@ -278,6 +279,23 @@ Mutations con actualizacion optimista para UX instantanea:
 - Labels de enums desde `@epde/shared` (BUDGET_STATUS_LABELS, etc.)
 - Fechas con `date-fns` locale `es`
 - Moneda: Peso Argentino (ARS) formateado con `$`
+
+### Offline Cache (Query Persistence)
+
+Las queries de React Query se persisten automaticamente en `AsyncStorage` via `PersistQueryClientProvider`:
+
+- **gcTime**: 24 horas (datos cacheados disponibles offline)
+- **Persister**: `@tanstack/query-async-storage-persister` con `@react-native-async-storage/async-storage`
+- Al abrir la app sin conexion, los datos del ultimo uso se muestran inmediatamente
+- Las queries se revalidan automaticamente cuando hay conexion
+
+### Error Boundary
+
+Class component `ErrorBoundary` que captura errores de render:
+
+- Muestra pantalla de fallback "Algo salio mal" con boton "Reintentar"
+- Wrappea toda la app en el root layout
+- Loguea errores a consola (y potencialmente a Sentry en produccion)
 
 ## Desarrollo
 

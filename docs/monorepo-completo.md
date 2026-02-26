@@ -46,7 +46,7 @@ epde/
 │   │   ├── src/
 │   │   │   ├── main.ts               # Bootstrap (Helmet, CORS, Swagger, Cookies)
 │   │   │   ├── instrument.ts         # Sentry instrumentation
-│   │   │   ├── app.module.ts         # Root module (imports todos los features)
+│   │   │   ├── app.module.ts         # Root module (imports todos los features + logging pino)
 │   │   │   ├── auth/                 # JWT + Local strategy + Token Rotation (Redis)
 │   │   │   │   ├── token.service.ts # Token pairs, rotation, blacklist, reuse detection
 │   │   │   │   └── strategies/
@@ -64,6 +64,8 @@ epde/
 │   │   │   ├── upload/               # Upload a Cloudflare R2
 │   │   │   ├── scheduler/            # Cron jobs (3 diarios, distributed lock)
 │   │   │   ├── redis/                # RedisModule (global) + DistributedLockService
+│   │   │   ├── health/              # HealthModule (@nestjs/terminus, DB + Redis)
+│   │   │   ├── metrics/             # MetricsModule (OpenTelemetry, Prometheus :9464)
 │   │   │   ├── prisma/               # PrismaService + soft-delete extension
 │   │   │   ├── common/
 │   │   │   │   ├── decorators/       # @Public, @Roles, @CurrentUser
@@ -85,9 +87,11 @@ epde/
 │   │   │   │   ├── globals.css       # Design tokens (Tailwind v4 + CSS vars)
 │   │   │   │   ├── layout.tsx        # Root layout (fonts, providers)
 │   │   │   │   ├── page.tsx          # Landing page publica
+│   │   │   │   ├── error.tsx        # Root error boundary
 │   │   │   │   ├── (auth)/           # Login, set-password
 │   │   │   │   └── (dashboard)/      # Layout autenticado con sidebar
 │   │   │   │       ├── layout.tsx    # Sidebar + Header + Content
+│   │   │   │       ├── error.tsx    # Dashboard error boundary
 │   │   │   │       ├── dashboard/    # Dashboard admin/client
 │   │   │   │       ├── clients/      # CRUD clientes (ADMIN)
 │   │   │   │       ├── properties/   # CRUD propiedades
@@ -117,7 +121,7 @@ epde/
 │   └── mobile/                       # ── @epde/mobile ───────────────────
 │       ├── src/
 │       │   ├── app/
-│       │   │   ├── _layout.tsx       # Root layout + AuthGate + QueryProvider
+│       │   │   ├── _layout.tsx       # Root layout + ErrorBoundary + PersistQueryClient + AuthGate
 │       │   │   ├── index.tsx         # Redirect segun auth state
 │       │   │   ├── (auth)/           # Login, set-password
 │       │   │   ├── (tabs)/           # 5 tabs (dashboard, properties, budgets, notifs, profile)
@@ -125,11 +129,12 @@ epde/
 │       │   │   ├── budget/[id].tsx   # Detalle presupuesto + items
 │       │   │   ├── service-requests/ # Lista y detalle
 │       │   │   └── task/[planId]/[taskId].tsx  # Tarea + logs + notas
-│       │   ├── components/           # StatusBadge, EmptyState, StatCard, Modals
+│       │   ├── components/           # StatusBadge, EmptyState, StatCard, ErrorBoundary
 │       │   ├── hooks/                # React Query hooks (infinite scroll)
 │       │   ├── lib/
 │       │   │   ├── api-client.ts     # Axios + token refresh + auto-detect URL
 │       │   │   ├── token-service.ts  # Expo SecureStore abstraction
+│       │   │   ├── query-persister.ts # AsyncStorage persister (offline cache)
 │       │   │   ├── auth.ts           # Auth API functions
 │       │   │   └── api/              # Endpoints por entidad
 │       │   ├── stores/               # Zustand auth store
@@ -146,7 +151,8 @@ epde/
 │       ├── src/
 │       │   ├── index.ts              # Re-exports
 │       │   ├── types/
-│       │   │   ├── entities.ts       # 14 interfaces (User, Property, Task, etc.)
+│       │   │   ├── entities/         # Interfaces por dominio (user, property, task, etc.)
+│       │   │   │   └── index.ts      # Re-exports (backwards compatible)
 │       │   │   ├── enums.ts          # Enums como const + type unions
 │       │   │   ├── auth.ts           # Auth response types
 │       │   │   ├── api.ts            # PaginatedResponse<T>, ApiError
@@ -189,7 +195,7 @@ epde/
 | -------------- | ------- | --------------------------------------- |
 | Turborepo      | 2.x     | Orquestador de tareas del monorepo      |
 | pnpm           | 10.6.1  | Package manager con workspaces          |
-| TypeScript     | 5.7     | Lenguaje base (strict mode)             |
+| TypeScript     | 5.9     | Lenguaje base (strict mode)             |
 | ESLint         | 9.x     | Linting (flat config + TypeScript)      |
 | Prettier       | 3.5     | Formateo (singleQuote, tailwind plugin) |
 | Husky          | -       | Git hooks (pre-commit, commit-msg)      |
@@ -224,7 +230,7 @@ epde/
 
 | Tecnologia           | Version | Uso                              |
 | -------------------- | ------- | -------------------------------- |
-| Next.js              | 15.3    | Framework React (App Router)     |
+| Next.js              | 15.5    | Framework React (App Router)     |
 | React                | 19      | UI runtime                       |
 | Tailwind CSS         | 4       | Utility-first CSS                |
 | shadcn/ui            | -       | Componentes UI (estilo new-york) |
@@ -250,8 +256,8 @@ epde/
 | Zustand                 | 5       | Auth state                             |
 | React Hook Form         | 7.71    | Formularios + Zod resolver             |
 | Axios                   | 1.13    | HTTP client + token refresh            |
-| expo-secure-store       | 55      | Almacenamiento seguro de tokens        |
-| expo-image-picker       | 55      | Seleccion de imagenes (camara/galeria) |
+| expo-secure-store       | 15      | Almacenamiento seguro de tokens        |
+| expo-image-picker       | 17      | Seleccion de imagenes (camara/galeria) |
 | expo-font               | 14      | Carga de fuentes custom                |
 | react-native-reanimated | 4.1     | Animaciones nativas                    |
 
@@ -351,7 +357,7 @@ Tres guards globales en orden via `APP_GUARD`:
 
 `GlobalExceptionFilter`:
 
-- `HttpException` → responde con status y mensaje
+- `HttpException` → responde con status y mensaje. Si `status >= 500`, tambien reporta a Sentry
 - Otros errores → `500` + `Sentry.captureException()`
 - Formato: `{ statusCode, message, error }`
 
@@ -372,7 +378,7 @@ Login → LocalStrategy (email+password) → JWT access + refresh (family + gene
 
 - **Token Rotation**: cada login crea una "family" UUID. Refresh tokens llevan `family` + `generation`
 - **Reuse Detection**: si generation no coincide al hacer refresh → revoca toda la family
-- Redis almacena `rt:{family}` con generation actual (TTL 7d) y `bl:{jti}` para blacklist
+- Redis almacena `rt:{family}` con generation actual (TTL 7d) y `bl:{jti}` para blacklist. La rotacion usa Lua script atomico
 - Implementado en `auth/token.service.ts`
 - Web: cookies HttpOnly (el browser las envia automaticamente)
 - Mobile: Bearer token en header (SecureStore para persistencia)
@@ -391,7 +397,7 @@ Mobile usa un flujo alternativo con `POST /upload` (multipart/form-data).
 
 ### P11: Cron Jobs (Distributed Lock)
 
-Tres jobs diarios (06:00-06:10 Argentina), cada uno envuelto en `DistributedLockService.withLock()` (Redis SETNX, TTL 5min):
+Tres jobs diarios (09:00-09:10 UTC), cada uno envuelto en `DistributedLockService.withLock()` (Redis SETNX, TTL 5min):
 
 1. **task-status-recalculation**: PENDING → UPCOMING (30 dias) → OVERDUE
 2. **task-upcoming-reminders**: Notificaciones + email para tareas proximas/vencidas
@@ -443,13 +449,17 @@ Mobile agrega:
 - Singleton pattern para evitar refresh concurrentes
 - Auto-deteccion de IP para desarrollo nativo
 
+Web agrega:
+
+- Singleton pattern para deduplicar refreshes concurrentes (como mobile)
+
 ### P14: Route Protection
 
 **Web (Next.js middleware)**:
 
 ```typescript
-// Verifica cookie access_token
-// No auth + ruta privada → redirect /login
+// Verifica cookie access_token + decodifica JWT exp (buffer 30s)
+// No auth o token expirado + ruta privada → redirect /login
 // Auth + ruta de auth → redirect /dashboard
 ```
 
@@ -466,8 +476,8 @@ Mobile agrega:
 
 Modulo global `RedisModule` (`redis/redis.module.ts`) con dos servicios:
 
-- **RedisService**: Wrapper sobre `ioredis` con metodos `get`, `set`, `del`, `setnx`, `expire`
-- **DistributedLockService**: Redis SETNX con TTL. Metodo `withLock<T>(key, ttlSeconds, fn)`
+- **RedisService**: Wrapper sobre `ioredis` con metodos `get`, `set`, `del`, `setnx`, `expire`, `eval()` (Lua scripts), `isHealthy()`, `getClient()`
+- **DistributedLockService**: Redis SETNX con ownership (UUID). Metodo `withLock<T>(key, ttlSeconds, fn)`. Usa Lua script para release seguro (verifica owner)
 
 Casos de uso: token rotation (families), token blacklist (JTIs), distributed lock (cron jobs).
 
@@ -695,7 +705,7 @@ Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `
 
 ### Endpoints (17 grupos)
 
-1. **Health** — `GET /`
+1. **Health** — `GET /health` (DB + Redis via @nestjs/terminus)
 2. **Auth** — login, refresh, logout, me, set-password
 3. **Clients** — CRUD (ADMIN only)
 4. **Properties** — CRUD + filtro por rol
@@ -759,6 +769,7 @@ Template de deploy (`cd.yml`):
 | Cloudflare R2 | Almacenamiento de archivos                  |
 | Resend        | Emails transaccionales                      |
 | Sentry        | Monitoreo de errores (backend)              |
+| Prometheus    | Metricas (via OpenTelemetry, puerto 9464)   |
 
 ---
 
@@ -841,11 +852,13 @@ pnpm --filter @epde/shared build              # Rebuild manual
 
 ### URLs
 
-| Servicio   | URL                            |
-| ---------- | ------------------------------ |
-| Web        | http://localhost:3000          |
-| Mobile     | Expo Dev Server (puerto 8081)  |
-| API        | http://localhost:3001/api/v1   |
-| Swagger    | http://localhost:3001/api/docs |
-| pgAdmin    | http://localhost:5050          |
-| PostgreSQL | localhost:5433                 |
+| Servicio   | URL                                 |
+| ---------- | ----------------------------------- |
+| Web        | http://localhost:3000               |
+| Mobile     | Expo Dev Server (puerto 8081)       |
+| API        | http://localhost:3001/api/v1        |
+| Swagger    | http://localhost:3001/api/docs      |
+| pgAdmin    | http://localhost:5050               |
+| Health     | http://localhost:3001/api/v1/health |
+| Metrics    | http://localhost:9464/metrics       |
+| PostgreSQL | localhost:5433                      |
