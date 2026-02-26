@@ -63,3 +63,42 @@ export function PropertyTypeBadge({ type }: { type: string }) {
   const label = propertyTypeMap[type] ?? type;
   return <StatusBadge label={label} variant="secondary" />;
 }
+
+const budgetStatusMap: Record<string, { label: string; variant: BadgeVariant }> = {
+  PENDING: { label: 'Pendiente', variant: 'secondary' },
+  QUOTED: { label: 'Cotizado', variant: 'default' },
+  APPROVED: { label: 'Aprobado', variant: 'success' },
+  REJECTED: { label: 'Rechazado', variant: 'destructive' },
+  IN_PROGRESS: { label: 'En Progreso', variant: 'default' },
+  COMPLETED: { label: 'Completado', variant: 'success' },
+};
+
+export function BudgetStatusBadge({ status }: { status: string }) {
+  const config = budgetStatusMap[status] ?? { label: status, variant: 'outline' as BadgeVariant };
+  return <StatusBadge label={config.label} variant={config.variant} />;
+}
+
+const serviceStatusMap: Record<string, { label: string; variant: BadgeVariant }> = {
+  OPEN: { label: 'Abierto', variant: 'default' },
+  IN_REVIEW: { label: 'En Revisión', variant: 'secondary' },
+  IN_PROGRESS: { label: 'En Progreso', variant: 'default' },
+  RESOLVED: { label: 'Resuelto', variant: 'success' },
+  CLOSED: { label: 'Cerrado', variant: 'outline' },
+};
+
+export function ServiceStatusBadge({ status }: { status: string }) {
+  const config = serviceStatusMap[status] ?? { label: status, variant: 'outline' as BadgeVariant };
+  return <StatusBadge label={config.label} variant={config.variant} />;
+}
+
+const urgencyMap: Record<string, { label: string; variant: BadgeVariant }> = {
+  LOW: { label: 'Baja', variant: 'outline' },
+  MEDIUM: { label: 'Media', variant: 'secondary' },
+  HIGH: { label: 'Alta', variant: 'default' },
+  URGENT: { label: 'Urgente', variant: 'destructive' },
+};
+
+export function UrgencyBadge({ urgency }: { urgency: string }) {
+  const config = urgencyMap[urgency] ?? { label: urgency, variant: 'outline' as BadgeVariant };
+  return <StatusBadge label={config.label} variant={config.variant} />;
+}

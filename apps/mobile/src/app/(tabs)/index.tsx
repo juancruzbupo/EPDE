@@ -46,6 +46,7 @@ function TaskCard({ task }: { task: UpcomingTask }) {
 }
 
 export default function DashboardScreen() {
+  const router = useRouter();
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useClientDashboardStats();
   const { data: tasks, isLoading: tasksLoading, refetch: refetchTasks } = useClientUpcomingTasks();
 
@@ -85,6 +86,25 @@ export default function DashboardScreen() {
           </View>
         </View>
       )}
+
+      {/* Quick actions */}
+      <Pressable
+        onPress={() => router.push('/service-requests' as never)}
+        className="border-border bg-card mb-6 flex-row items-center justify-between rounded-xl border p-4"
+      >
+        <View>
+          <Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-foreground text-sm">
+            Solicitudes de Servicio
+          </Text>
+          <Text
+            style={{ fontFamily: 'DMSans_400Regular' }}
+            className="text-muted-foreground text-xs"
+          >
+            Reportar problemas o pedir asistencia
+          </Text>
+        </View>
+        <Text className="text-muted-foreground text-lg">&gt;</Text>
+      </Pressable>
 
       <Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-foreground mb-3 text-lg">
         Proximas Tareas
