@@ -1,7 +1,10 @@
 import { Tabs } from 'expo-router';
 import { Text } from 'react-native';
+import { useUnreadCount } from '@/hooks/use-notifications';
 
 export default function TabLayout() {
+  const { data: unreadCount } = useUnreadCount();
+
   return (
     <Tabs
       screenOptions={{
@@ -40,6 +43,8 @@ export default function TabLayout() {
         options={{
           title: 'Avisos',
           tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>&#128276;</Text>,
+          tabBarBadge: unreadCount && unreadCount > 0 ? unreadCount : undefined,
+          tabBarBadgeStyle: { backgroundColor: '#c4704b', fontSize: 10 },
         }}
       />
       <Tabs.Screen
