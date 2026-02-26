@@ -195,7 +195,7 @@ model TaskLog {
   user User @relation(fields: [completedBy], references: [id])
 
   @@index([taskId])
-  @@index([completedBy])
+  @@index([completedBy, completedAt])
 }
 
 model TaskNote {

@@ -17,6 +17,7 @@ const envSchema = z.object({
   R2_BUCKET_NAME: z.string().optional(),
   R2_PUBLIC_URL: z.string().optional(),
   REDIS_URL: z.string().default('redis://localhost:6379'),
+  CORS_ORIGIN: z.string().optional(),
   SENTRY_DSN: z.string().url().optional(),
 });
 

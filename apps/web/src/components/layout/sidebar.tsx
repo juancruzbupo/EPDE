@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import { LayoutDashboard, Users, Home, Tags, FileText, Wrench, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -18,7 +19,14 @@ const navItems = [
 
 export function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname();
+  const queryClient = useQueryClient();
   const { user, logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    queryClient.cancelQueries();
+    queryClient.clear();
+    await logout();
+  };
 
   const filteredItems = navItems.filter((item) => !item.adminOnly || user?.role === UserRole.ADMIN);
 
@@ -53,7 +61,7 @@ export function Sidebar({ className }: { className?: string }) {
         <p className="text-sidebar-foreground truncate text-sm font-medium">{user?.name}</p>
         <p className="text-sidebar-foreground/60 truncate text-xs">{user?.email}</p>
         <button
-          onClick={logout}
+          onClick={handleLogout}
           className="text-sidebar-foreground/60 hover:text-sidebar-foreground mt-2 flex items-center gap-2 text-sm"
         >
           <LogOut className="h-3.5 w-3.5" />
