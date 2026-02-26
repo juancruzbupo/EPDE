@@ -1,6 +1,6 @@
 import '../global.css';
 import { useEffect } from 'react';
-import { Slot, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import {
@@ -10,9 +10,19 @@ import {
   DMSans_700Bold,
 } from '@expo-google-fonts/dm-sans';
 import { PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 
 SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      retry: 1,
+    },
+  },
+});
 
 function AuthGate() {
   const router = useRouter();
@@ -32,7 +42,7 @@ function AuthGate() {
     }
   }, [isAuthenticated, isLoading, segments]);
 
-  return <Slot />;
+  return <Stack screenOptions={{ headerShown: false }} />;
 }
 
 export default function RootLayout() {
@@ -60,9 +70,9 @@ export default function RootLayout() {
   }
 
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <AuthGate />
       <StatusBar style="dark" />
-    </>
+    </QueryClientProvider>
   );
 }

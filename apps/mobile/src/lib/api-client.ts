@@ -1,8 +1,23 @@
 import axios from 'axios';
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 import { tokenService } from './token-service';
 
-const API_BASE_URL = __DEV__ ? 'http://localhost:3001/api/v1' : 'https://api.epde.com.ar/api/v1';
+function getDevApiUrl(): string {
+  // On web, localhost works fine
+  if (Platform.OS === 'web') return 'http://localhost:3001/api/v1';
+
+  // On native device, extract the dev server host IP from Expo
+  const hostUri = Constants.expoConfig?.hostUri;
+  const host = hostUri?.split(':')[0];
+  if (host) return `http://${host}:3001/api/v1`;
+
+  // Fallback
+  return 'http://localhost:3001/api/v1';
+}
+
+const API_BASE_URL = __DEV__ ? getDevApiUrl() : 'https://api.epde.com.ar/api/v1';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,

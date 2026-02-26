@@ -1,42 +1,103 @@
-import { View, Text } from 'react-native';
-import { UserRole, TaskStatus } from '@epde/shared';
+import { useCallback } from 'react';
+import { View, Text, ScrollView, RefreshControl, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { useClientDashboardStats, useClientUpcomingTasks } from '@/hooks/use-dashboard';
+import { StatCard } from '@/components/stat-card';
+import { PriorityBadge } from '@/components/status-badge';
+import { EmptyState } from '@/components/empty-state';
+import type { UpcomingTask } from '@epde/shared/types';
 
-export default function HomeScreen() {
+function TaskCard({ task }: { task: UpcomingTask }) {
+  const router = useRouter();
+
   return (
-    <View className="bg-background flex-1 items-center justify-center px-6">
-      <Text
-        style={{ fontFamily: 'PlayfairDisplay_700Bold' }}
-        className="text-primary mb-2 text-4xl"
-      >
-        EPDE
-      </Text>
+    <Pressable
+      className="border-border bg-card mb-3 rounded-xl border p-4"
+      onPress={() => router.push(`/property/${task.maintenancePlanId}` as never)}
+    >
+      <View className="mb-1 flex-row items-center justify-between">
+        <Text
+          style={{ fontFamily: 'DMSans_700Bold' }}
+          className="text-foreground flex-1 text-sm"
+          numberOfLines={1}
+        >
+          {task.name}
+        </Text>
+        <PriorityBadge priority={task.priority} />
+      </View>
       <Text
         style={{ fontFamily: 'DMSans_400Regular' }}
-        className="text-muted-foreground mb-8 text-lg"
+        className="text-muted-foreground mb-1 text-xs"
       >
-        Mantenimiento Preventivo
+        {task.propertyAddress}
       </Text>
-
-      <View className="bg-card border-border w-full rounded-xl border p-6">
-        <Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-foreground mb-3 text-base">
-          Verificación @epde/shared
+      <View className="flex-row items-center justify-between">
+        <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-muted-foreground text-xs">
+          {task.categoryName}
         </Text>
-        <Text
-          style={{ fontFamily: 'DMSans_400Regular' }}
-          className="text-muted-foreground mb-1 text-sm"
-        >
-          UserRole.CLIENT = {UserRole.CLIENT}
-        </Text>
-        <Text
-          style={{ fontFamily: 'DMSans_400Regular' }}
-          className="text-muted-foreground mb-1 text-sm"
-        >
-          TaskStatus.PENDING = {TaskStatus.PENDING}
-        </Text>
-        <Text style={{ fontFamily: 'DMSans_400Regular' }} className="text-success mt-2 text-sm">
-          Imports funcionando correctamente
+        <Text style={{ fontFamily: 'DMSans_400Regular' }} className="text-muted-foreground text-xs">
+          {formatDistanceToNow(new Date(task.nextDueDate), { addSuffix: true, locale: es })}
         </Text>
       </View>
-    </View>
+    </Pressable>
+  );
+}
+
+export default function DashboardScreen() {
+  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useClientDashboardStats();
+  const { data: tasks, isLoading: tasksLoading, refetch: refetchTasks } = useClientUpcomingTasks();
+
+  const isLoading = statsLoading || tasksLoading;
+
+  const onRefresh = useCallback(() => {
+    refetchStats();
+    refetchTasks();
+  }, [refetchStats, refetchTasks]);
+
+  return (
+    <ScrollView
+      className="bg-background flex-1"
+      contentContainerStyle={{ padding: 16 }}
+      refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
+    >
+      <Text
+        style={{ fontFamily: 'PlayfairDisplay_700Bold' }}
+        className="text-foreground mb-4 text-2xl"
+      >
+        Mi Panel
+      </Text>
+
+      {stats && (
+        <View className="mb-6">
+          <View className="mb-3 flex-row gap-3">
+            <StatCard title="Propiedades" value={stats.totalProperties} />
+            <StatCard title="Tareas Pendientes" value={stats.pendingTasks} />
+          </View>
+          <View className="mb-3 flex-row gap-3">
+            <StatCard title="Tareas Vencidas" value={stats.overdueTasks} variant="destructive" />
+            <StatCard title="Completadas (mes)" value={stats.completedThisMonth} />
+          </View>
+          <View className="flex-row gap-3">
+            <StatCard title="Presupuestos" value={stats.pendingBudgets} />
+            <StatCard title="Servicios" value={stats.openServices} />
+          </View>
+        </View>
+      )}
+
+      <Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-foreground mb-3 text-lg">
+        Proximas Tareas
+      </Text>
+
+      {tasks && tasks.length > 0
+        ? tasks.map((task) => <TaskCard key={task.id} task={task} />)
+        : !isLoading && (
+            <EmptyState
+              title="Sin tareas proximas"
+              message="No hay tareas de mantenimiento programadas por ahora."
+            />
+          )}
+    </ScrollView>
   );
 }

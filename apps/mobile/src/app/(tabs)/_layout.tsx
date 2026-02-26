@@ -22,6 +22,27 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="properties"
+        options={{
+          title: 'Propiedades',
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>&#127960;</Text>,
+        }}
+      />
+      <Tabs.Screen
+        name="budgets"
+        options={{
+          title: 'Presupuestos',
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>&#128203;</Text>,
+        }}
+      />
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          title: 'Avisos',
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>&#128276;</Text>,
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: 'Perfil',
