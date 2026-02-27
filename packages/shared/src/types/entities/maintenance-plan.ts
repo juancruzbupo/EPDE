@@ -7,6 +7,8 @@ export interface MaintenancePlan extends BaseEntity {
   propertyId: string;
   name: string;
   status: PlanStatus;
+  createdBy: string | null;
+  updatedBy: string | null;
 }
 
 export type PlanPublic = Serialized<MaintenancePlan> & {

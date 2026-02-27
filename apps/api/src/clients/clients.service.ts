@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ClientsRepository } from './clients.repository';
-import { EmailService } from '../email/email.service';
+import { EmailQueueService } from '../email/email-queue.service';
 import { UserRole } from '@epde/shared';
 import type { CreateClientInput, UpdateClientInput, ClientFiltersInput } from '@epde/shared';
 
@@ -9,7 +9,7 @@ import type { CreateClientInput, UpdateClientInput, ClientFiltersInput } from '@
 export class ClientsService {
   constructor(
     private readonly clientsRepository: ClientsRepository,
-    private readonly emailService: EmailService,
+    private readonly emailQueueService: EmailQueueService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -60,7 +60,7 @@ export class ClientsService {
       { expiresIn: '24h' },
     );
 
-    await this.emailService.sendInviteEmail(client.email, client.name, token);
+    await this.emailQueueService.enqueueInvite(client.email, client.name, token);
 
     const { passwordHash: _passwordHash, ...clientWithoutPassword } = client;
     return clientWithoutPassword;

@@ -88,10 +88,19 @@ apiClient.interceptors.response.use(
 
       if (!isRefreshing) {
         isRefreshing = true;
-        refreshPromise = doRefresh().finally(() => {
+        try {
+          refreshPromise = doRefresh().finally(() => {
+            isRefreshing = false;
+            refreshPromise = null;
+          });
+        } catch {
           isRefreshing = false;
           refreshPromise = null;
-        });
+        }
+      }
+
+      if (!refreshPromise) {
+        return Promise.reject(error);
       }
 
       const success = await refreshPromise;

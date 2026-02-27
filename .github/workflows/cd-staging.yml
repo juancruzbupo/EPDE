@@ -86,15 +86,16 @@ jobs:
           echo "Waiting 30s for stabilization..."
           sleep 30
           for i in 1 2 3 4 5; do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.API_URL_STAGING }}/api/v1/health" || echo "000")
-            echo "Attempt $i: HTTP $STATUS"
-            if [ "$STATUS" = "200" ]; then
-              echo "Staging health check passed"
+            RESPONSE=$(curl -sf "${{ secrets.API_URL_STAGING }}/api/v1/health" 2>/dev/null || echo '{}')
+            STATUS=$(echo "$RESPONSE" | jq -r '.status // empty' 2>/dev/null || echo '')
+            if [ "$STATUS" = "ok" ]; then
+              echo "Staging health check passed (attempt $i): status=$STATUS"
               exit 0
             fi
+            echo "Attempt $i/5 failed: response=$RESPONSE, retrying in 15s..."
             sleep 15
           done
-          echo "Staging smoke test failed"
+          echo "Staging smoke test failed — consider rollback"
           exit 1
 
   deploy-web-staging:

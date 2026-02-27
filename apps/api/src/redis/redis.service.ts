@@ -9,7 +9,20 @@ export class RedisService implements OnModuleDestroy {
 
   constructor(private readonly configService: ConfigService) {
     const url = this.configService.get<string>('REDIS_URL', 'redis://localhost:6379');
-    this.client = new Redis(url, { maxRetriesPerRequest: 3 });
+    const nodeEnv = this.configService.get<string>('NODE_ENV', 'development');
+
+    if (nodeEnv === 'production' && !url.startsWith('rediss://')) {
+      throw new Error(
+        'REDIS_URL must use TLS (rediss://) in production. ' +
+          'Received URL starting with: ' +
+          url.substring(0, url.indexOf('://') + 3),
+      );
+    }
+
+    this.client = new Redis(url, {
+      maxRetriesPerRequest: 3,
+      ...(url.startsWith('rediss://') && { tls: { rejectUnauthorized: true } }),
+    });
     this.client.on('connect', () => this.logger.log('Redis connected'));
     this.client.on('error', (err) => this.logger.error('Redis error', err.message));
     this.client.on('reconnecting', (ms: number) =>

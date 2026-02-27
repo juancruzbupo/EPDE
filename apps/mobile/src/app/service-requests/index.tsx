@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { memo, useState, useCallback } from 'react';
 import { View, Text, FlatList, RefreshControl, Pressable, ScrollView } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { formatDistanceToNow } from 'date-fns';
@@ -19,7 +19,11 @@ const STATUS_FILTERS = [
   { key: 'CLOSED', label: 'Cerrados' },
 ] as const;
 
-function ServiceRequestCard({ request }: { request: ServiceRequestPublic }) {
+const ServiceRequestCard = memo(function ServiceRequestCard({
+  request,
+}: {
+  request: ServiceRequestPublic;
+}) {
   const router = useRouter();
 
   return (
@@ -51,7 +55,7 @@ function ServiceRequestCard({ request }: { request: ServiceRequestPublic }) {
       </View>
     </Pressable>
   );
-}
+});
 
 export default function ServiceRequestsScreen() {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);

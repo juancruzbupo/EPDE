@@ -17,6 +17,6 @@ export default [
     },
   },
   {
-    ignores: ['dist/', 'prisma/', 'test/', 'jest-e2e.config.ts', 'jest.config.js'],
+    ignores: ['dist/', 'prisma/', 'test/', 'jest-e2e.config.ts', 'jest.config.js', 'prisma.config.ts'],
   },
 ];

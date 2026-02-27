@@ -4,7 +4,7 @@ import { TasksRepository } from '../maintenance-plans/tasks.repository';
 import { NotificationsRepository } from '../notifications/notifications.repository';
 import { UsersRepository } from '../common/repositories/users.repository';
 import { NotificationsService } from '../notifications/notifications.service';
-import { EmailService } from '../email/email.service';
+import { EmailQueueService } from '../email/email-queue.service';
 import { DistributedLockService } from '../redis/distributed-lock.service';
 import { getNextDueDate, recurrenceTypeToMonths } from '@epde/shared';
 
@@ -17,7 +17,7 @@ export class TaskSchedulerService {
     private readonly notificationsRepository: NotificationsRepository,
     private readonly usersRepository: UsersRepository,
     private readonly notificationsService: NotificationsService,
-    private readonly emailService: EmailService,
+    private readonly emailQueueService: EmailQueueService,
     private readonly lockService: DistributedLockService,
   ) {}
 
@@ -120,10 +120,10 @@ export class TaskSchedulerService {
           data: { taskId: task.id, propertyAddress: property.address },
         });
 
-        // Collect email promise
+        // Enqueue email via BullMQ (retries handled by queue)
         emailPromises.push(
-          this.emailService
-            .sendTaskReminderEmail(
+          this.emailQueueService
+            .enqueueTaskReminder(
               owner.email,
               owner.name,
               task.name,
@@ -133,7 +133,7 @@ export class TaskSchedulerService {
               isOverdue,
             )
             .catch((err) =>
-              this.logger.error(`Error enviando email de recordatorio: ${err.message}`),
+              this.logger.error(`Error enqueuing email de recordatorio: ${err.message}`),
             ),
         );
 

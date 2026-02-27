@@ -6,6 +6,9 @@ module.exports = {
   transform: { '^.+\\.ts$': 'ts-jest' },
   collectCoverageFrom: ['**/*.(t|j)s'],
   coverageDirectory: '../coverage',
+  coverageThreshold: {
+    global: { statements: 70, branches: 55, functions: 65, lines: 70 },
+  },
   testEnvironment: 'node',
   moduleNameMapper: {
     '^@epde/shared$': '<rootDir>/../../../packages/shared/src/index.ts',

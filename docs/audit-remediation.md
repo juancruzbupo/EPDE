@@ -655,3 +655,92 @@ pnpm build && pnpm typecheck && pnpm lint && pnpm test  # Todo green (278 tests 
 **Tests totales: 306+** (91 API unit + 187 Shared + 15 Web + 13 Mobile + E2E suites)
 
 **Progreso total: 91 / 91 tareas** (+ 6 diferidas con justificacion)
+
+---
+
+## Fase 10 — Roadmap 90 Dias: Remediacion Arquitectonica (Ronda 5)
+
+> **Prioridad:** Critica/Alta
+> **Estimacion:** 2-3 dias
+> **Dependencias:** Fase 9 completada
+> **Issues que resuelve:** 33 items de la quinta auditoria CTO-level (seguridad, datos, testing, observabilidad, mobile, DevOps)
+
+### Contexto
+
+Auditoria Round 9 (CTO due diligence) identifico gaps en seguridad, integridad de datos, testing, observabilidad y DevOps. 33 items organizados en 6 sub-fases tematicas.
+
+### 10.1 — Security Hardening (Items 1-7)
+
+- [x] **10.1.1 — JWT_SECRET min 32 chars** — Validacion Zod subida a `.min(32)`, CI secret actualizado
+- [x] **10.1.2 — Rate limiting: tighten defaults** — `short: 5/1s`, `medium: 30/10s`, ThrottlerGuard primero en cadena
+- [x] **10.1.3 — Redis TLS en produccion** — `rediss://` requerido en prod, `tls: { rejectUnauthorized: true }` automatico
+- [x] **10.1.4 — Audit CI sin continue-on-error** — `pnpm audit --audit-level=critical` falla el build
+- [x] **10.1.5 — GitHub Environment protection** — Documentacion de required reviewers y deploy branches
+- [x] **10.1.6 — CORS validation mejorada** — URL format validation, HTTPS en prod, staging incluido
+- [x] **10.1.7 — Fix typecheck en service-requests spec** — Parametro `adminUser` faltante
+
+### 10.2 — Data Integrity & Types (Items 8-13)
+
+- [x] **10.2.1 — createdBy/updatedBy/version en shared types** — Agregados a Property, MaintenancePlan, Task, Budget, ServiceRequest
+- [x] **10.2.2 — Decimal type fix** — `string | number` → `string` en BudgetLineItem y BudgetResponse
+- [x] **10.2.3 — Connection pooling validation** — Warning si `DATABASE_URL` no incluye `connection_limit=` en prod
+- [x] **10.2.4 — prisma.config.ts** — Migrado de `package.json#prisma` (deprecado) a `prisma.config.ts`
+- [x] **10.2.5 — Cascade delete documentado** — Comentarios explicando politica en schema.prisma
+- [x] **10.2.6 — Composite indexes en Task** — `(nextDueDate, status)` y `(maintenancePlanId, deletedAt, status)`
+
+### 10.3 — Testing & Quality (Items 14-19)
+
+- [x] **10.3.1 — Integration tests API** — Ya existian extensivamente (auth, properties, budgets, concurrency, etc.)
+- [x] **10.3.2 — Auth flow tests web** — LoginPage (5 tests) + auth-store (6 tests)
+- [x] **10.3.3 — Mobile critical path tests** — auth-flow (8 tests) + dashboard (3 tests)
+- [x] **10.3.4 — Coverage thresholds** — API 70%, Web 60%, Mobile 40%
+- [x] **10.3.5 — CodeQL scanning** — `.github/workflows/codeql.yml` para JavaScript/TypeScript
+- [x] **10.3.6 — Token refresh deadlock fix** — try/catch + null guard en mobile api-client
+
+### 10.4 — Observability & Reliability (Items 20-24)
+
+- [x] **10.4.1 — BullMQ email retry queue** — `@nestjs/bullmq`, 5 reintentos backoff exponencial, 4 tipos de jobs
+- [x] **10.4.2 — Sentry web + mobile** — `@sentry/nextjs` + `@sentry/react-native`, source maps, tunnel route
+- [x] **10.4.3 — Logging centralizado** — Railway log drain documentado, JSON pino compatible
+- [x] **10.4.4 — Redis AOF persistence** — `--appendonly yes` en docker-compose
+- [x] **10.4.5 — OTEL endpoint** — `OTEL_EXPORTER_OTLP_ENDPOINT` en config schema
+
+### 10.5 — Mobile & Design System (Items 25-28)
+
+- [x] **10.5.1 — Design tokens unificados** — 5 tokens faltantes (destructive-foreground, accent, input, ring)
+- [x] **10.5.2 — React.memo en cards** — StatCard, EmptyState, TaskCard, PropertyCard, BudgetCard, ServiceRequestCard
+- [x] **10.5.3 — Stale-while-revalidate** — NetInfo + `offlineFirst` + `refetchOnReconnect` en query client
+- [x] **10.5.4 — Font centralization** — `apps/mobile/src/lib/fonts.ts` con constantes tipadas
+
+### 10.6 — DevOps Maturity (Items 29-33)
+
+- [x] **10.6.1 — Turbo remote cache** — `TURBO_TOKEN`/`TURBO_TEAM` en CI
+- [x] **10.6.2 — Smoke test mejorado** — JSON validation con `jq` en cd.yml y cd-staging.yml
+- [x] **10.6.3 — Container scanning** — Trivy + SBOM (Anchore) en `.github/workflows/container-scan.yml`
+- [x] **10.6.4 — Secrets por environment** — Documentacion de separacion GitHub Environments vs repo-level
+- [x] **10.6.5 — Canary smoke test** — Validacion `'.status == "ok"'` post-deploy
+
+### Verificacion
+
+```bash
+pnpm build && pnpm typecheck && pnpm lint && pnpm test  # Todo green
+```
+
+---
+
+## Resumen de progreso (final)
+
+| Fase | Descripcion               | Estado           | Tareas |
+| ---- | ------------------------- | ---------------- | ------ |
+| 1    | Seguridad                 | `[x] Completado` | 3      |
+| 2    | Validacion unica          | `[x] Completado` | 8      |
+| 3    | Backend clean arch        | `[x] Completado` | 8      |
+| 4    | Type safety E2E           | `[x] Completado` | 6      |
+| 5    | Performance               | `[x] Completado` | 6      |
+| 6    | Testing + polish          | `[x] Completado` | 10     |
+| 7    | Hardening post-audit      | `[x] Completado` | 12     |
+| 8    | Roadmap arquitectonico    | `[x] Completado` | 23     |
+| 9    | Remediacion ronda 4       | `[x] Completado` | 16     |
+| 10   | Roadmap 90 dias (ronda 5) | `[x] Completado` | 33     |
+
+**Progreso total: 124 / 124 tareas** (+ 6 diferidas con justificacion)

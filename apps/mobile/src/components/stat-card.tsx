@@ -1,4 +1,6 @@
+import { memo } from 'react';
 import { View, Text } from 'react-native';
+import { fonts } from '@/lib/fonts';
 
 interface StatCardProps {
   title: string;
@@ -6,18 +8,22 @@ interface StatCardProps {
   variant?: 'default' | 'destructive';
 }
 
-export function StatCard({ title, value, variant = 'default' }: StatCardProps) {
+export const StatCard = memo(function StatCard({
+  title,
+  value,
+  variant = 'default',
+}: StatCardProps) {
   return (
     <View className="border-border bg-card flex-1 rounded-xl border p-3">
-      <Text style={{ fontFamily: 'DMSans_400Regular' }} className="text-muted-foreground text-xs">
+      <Text style={fonts.regular} className="text-muted-foreground text-xs">
         {title}
       </Text>
       <Text
-        style={{ fontFamily: 'DMSans_700Bold' }}
+        style={fonts.bold}
         className={`mt-1 text-2xl ${variant === 'destructive' ? 'text-destructive' : 'text-foreground'}`}
       >
         {value}
       </Text>
     </View>
   );
-}
+});

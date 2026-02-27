@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { BullModule } from '@nestjs/bullmq';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaService } from './prisma/prisma.service';
@@ -35,8 +36,8 @@ import { MetricsInterceptor } from './metrics/metrics.interceptor';
     ConfigModule,
     EventEmitterModule.forRoot(),
     ThrottlerModule.forRoot([
-      { name: 'short', ttl: 1000, limit: 10 },
-      { name: 'medium', ttl: 10000, limit: 60 },
+      { name: 'short', ttl: 1000, limit: 5 },
+      { name: 'medium', ttl: 10000, limit: 30 },
     ]),
     LoggerModule.forRoot({
       pinoHttp: {
@@ -48,6 +49,14 @@ import { MetricsInterceptor } from './metrics/metrics.interceptor';
           process.env.NODE_ENV !== 'production'
             ? { target: 'pino-pretty', options: { colorize: true, singleLine: true } }
             : undefined,
+      },
+    }),
+    BullModule.forRoot({
+      connection: {
+        url: process.env.REDIS_URL || 'redis://localhost:6379',
+        ...(process.env.REDIS_URL?.startsWith('rediss://') && {
+          tls: { rejectUnauthorized: true },
+        }),
       },
     }),
     RedisModule,
@@ -70,9 +79,9 @@ import { MetricsInterceptor } from './metrics/metrics.interceptor';
   providers: [
     AppService,
     PrismaService,
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_INTERCEPTOR, useClass: MetricsInterceptor },
   ],
 })

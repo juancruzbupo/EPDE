@@ -39,11 +39,17 @@ async function main() {
 
   // Create default categories
   for (const cat of CATEGORY_DEFAULTS) {
-    await prisma.category.upsert({
-      where: { name: cat.name },
-      update: { icon: cat.icon, order: cat.order },
-      create: cat,
+    const existing = await prisma.category.findFirst({
+      where: { name: cat.name, deletedAt: null },
     });
+    if (existing) {
+      await prisma.category.update({
+        where: { id: existing.id },
+        data: { icon: cat.icon, order: cat.order },
+      });
+    } else {
+      await prisma.category.create({ data: cat });
+    }
   }
   console.log(`${CATEGORY_DEFAULTS.length} categories created`);
 

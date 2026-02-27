@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import { View, Text, ScrollView, RefreshControl, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { formatDistanceToNow } from 'date-fns';
@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import type { UpcomingTask } from '@epde/shared/types';
 
-function TaskCard({ task }: { task: UpcomingTask }) {
+const TaskCard = memo(function TaskCard({ task }: { task: UpcomingTask }) {
   const router = useRouter();
 
   return (
@@ -44,7 +44,7 @@ function TaskCard({ task }: { task: UpcomingTask }) {
       </View>
     </Pressable>
   );
-}
+});
 
 export default function DashboardScreen() {
   const router = useRouter();

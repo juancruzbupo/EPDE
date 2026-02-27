@@ -4,6 +4,8 @@ import type { Serialized, UserBriefWithEmail } from './common';
 
 export interface Property extends BaseEntity, SoftDeletable {
   userId: string;
+  createdBy: string | null;
+  updatedBy: string | null;
   address: string;
   city: string;
   type: PropertyType;

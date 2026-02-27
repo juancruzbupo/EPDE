@@ -8,22 +8,24 @@ export interface BudgetRequest extends BaseEntity {
   title: string;
   description: string | null;
   status: BudgetStatus;
+  createdBy: string | null;
   updatedBy: string | null;
+  version: number;
 }
 
 export interface BudgetLineItem {
   id: string;
   budgetRequestId: string;
   description: string;
-  quantity: string | number;
-  unitPrice: string | number;
-  subtotal: string | number;
+  quantity: string;
+  unitPrice: string;
+  subtotal: string;
 }
 
 export interface BudgetResponse {
   id: string;
   budgetRequestId: string;
-  totalAmount: string | number;
+  totalAmount: string;
   estimatedDays: number | null;
   notes: string | null;
   validUntil: Date | null;

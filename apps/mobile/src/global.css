@@ -16,7 +16,12 @@
   --color-muted: #f5f0eb;
   --color-muted-foreground: #4a4542;
   --color-destructive: #c45b4b;
+  --color-destructive-foreground: #ffffff;
+  --color-accent: #e8ddd3;
+  --color-accent-foreground: #2e2a27;
   --color-border: #e8ddd3;
+  --color-input: #e8ddd3;
+  --color-ring: #c4704b;
   --color-success: #6b9b7a;
   --radius: 0.625rem;
 }

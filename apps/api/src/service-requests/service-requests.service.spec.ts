@@ -308,7 +308,7 @@ describe('ServiceRequestsService', () => {
     it('should not call update or emit event when request not found', async () => {
       serviceRequestsRepo.findByIdWithDetails.mockResolvedValue(null);
 
-      await expect(service.updateStatus('non-existent', updateDto)).rejects.toThrow(
+      await expect(service.updateStatus('non-existent', updateDto, adminUser)).rejects.toThrow(
         NotFoundException,
       );
 

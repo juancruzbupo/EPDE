@@ -43,8 +43,10 @@ jobs:
     env:
       DATABASE_URL: postgresql://test:test@localhost:5433/epde_test
       REDIS_URL: redis://localhost:6379
-      JWT_SECRET: test-secret-for-ci
+      JWT_SECRET: test-secret-for-ci-must-be-at-least-32-chars-long
       NODE_ENV: test
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
     steps:
       - name: Checkout
@@ -63,8 +65,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Audit dependencies
-        run: pnpm audit --audit-level=high
-        continue-on-error: true
+        run: pnpm audit --audit-level=critical
 
       - name: Generate Prisma client
         run: pnpm db:generate

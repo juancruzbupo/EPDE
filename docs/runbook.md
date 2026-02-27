@@ -157,20 +157,27 @@ SELECT count(*) FROM pg_stat_activity WHERE datname = 'epde';
 
 **Sintomas**: Usuarios no reciben invitaciones o notificaciones por email.
 
+Los emails se procesan via BullMQ queue (`emails`) con 5 reintentos y backoff exponencial. Si todos los reintentos fallan, el job queda como `failed` en Redis.
+
 **Diagnostico**:
 
 ```bash
 # Verificar API key de Resend
 curl -X GET https://api.resend.com/domains \
   -H "Authorization: Bearer $RESEND_API_KEY"
+
+# Verificar que Redis esta disponible (BullMQ depende de Redis)
+redis-cli -u $REDIS_URL ping
 ```
 
 **Accion**:
 
 1. Verificar que `RESEND_API_KEY` es valida
-2. Verificar dominio configurado en Resend dashboard
-3. Revisar logs por errores de envio
-4. Verificar que `FRONTEND_URL` apunta al dominio correcto (usado en links de emails)
+2. Verificar que Redis esta disponible (la cola de emails se almacena en Redis)
+3. Verificar dominio configurado en Resend dashboard
+4. Revisar logs por errores de envio (buscar `EmailQueueProcessor` o `email-queue`)
+5. Verificar que `FRONTEND_URL` apunta al dominio correcto (usado en links de emails)
+6. Si Redis estuvo caido, los jobs encolados durante la caida se perdieron — los cron jobs diarios de recordatorio actuan como mecanismo de compensacion
 
 ## Procedimiento de Respuesta a Incidentes
 
@@ -218,6 +225,15 @@ El deploy se ejecuta automaticamente via GitHub Actions (`cd.yml`) en push a `ma
    - `vercel pull` → `vercel build --prod` → `vercel deploy --prebuilt --prod`
 
 Secrets requeridos: ver [env-vars.md](./env-vars.md) seccion "GitHub Secrets".
+
+### GitHub Environment Protection Rules
+
+Configurar en GitHub Settings > Environments:
+
+- **`production`**: Required reviewers (minimo 1), deployment branches = `main` only
+- **`staging`**: Deployment branches = `develop` only
+
+Esto previene deploys accidentales desde branches no autorizados y requiere aprobacion humana para produccion.
 
 ### Staging
 
@@ -372,6 +388,29 @@ Los logs son JSON estructurado (pino) con los siguientes campos:
 - `responseTime` — Tiempo de respuesta en ms
 
 El endpoint `/api/v1/health` esta excluido del auto-logging para evitar ruido.
+
+### Log Forwarding (Centralizacion)
+
+En produccion, los logs deben redirigirse a un servicio de agregacion para busqueda, alertas y retencion:
+
+1. **Railway**: Settings > Observability > Log Drain. Soporta Betterstack (Logtail), Datadog, Axiom, y custom HTTP endpoints.
+2. **Formato de salida**: JSON estructurado (pino) — compatible con cualquier agregador sin parsing adicional.
+3. **Retencion recomendada**: 30 dias minimo en produccion, 7 dias en staging.
+
+Configurar el drain apuntando a la URL del servicio elegido y verificar con:
+
+```bash
+# Verificar que logs llegan al agregador
+curl -s https://api.epde.com.ar/api/v1/health && echo "Check aggregator for new log entry"
+```
+
+### OpenTelemetry (OTEL)
+
+El API soporta export de metricas via OpenTelemetry. Para habilitar tracing distribuido:
+
+1. Configurar `OTEL_EXPORTER_OTLP_ENDPOINT` en las variables de entorno (e.g., `https://otel-collector.example.com:4318`)
+2. El API exporta automaticamente traces de HTTP requests, queries Prisma, y operaciones Redis
+3. Verificar en el backend de observabilidad que los traces incluyan `service.name=epde-api`
 
 ## Variables de Entorno
 

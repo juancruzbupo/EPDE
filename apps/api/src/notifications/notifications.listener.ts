@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { UsersRepository } from '../common/repositories/users.repository';
 import { NotificationsService } from './notifications.service';
-import { EmailService } from '../email/email.service';
+import { EmailQueueService } from '../email/email-queue.service';
 
 @Injectable()
 export class NotificationsListener {
@@ -11,21 +11,8 @@ export class NotificationsListener {
   constructor(
     private readonly notificationsService: NotificationsService,
     private readonly usersRepository: UsersRepository,
-    private readonly emailService: EmailService,
+    private readonly emailQueueService: EmailQueueService,
   ) {}
-
-  private async sendEmailWithRetry(fn: () => Promise<void>, label: string) {
-    try {
-      await fn();
-    } catch {
-      this.logger.warn(`Primer intento de ${label} falló, reintentando...`);
-      try {
-        await fn();
-      } catch (retryErr) {
-        this.logger.error(`Error enviando ${label} (tras retry): ${(retryErr as Error).message}`);
-      }
-    }
-  }
 
   @OnEvent('budget.created')
   async handleBudgetCreated(payload: {
@@ -72,16 +59,12 @@ export class NotificationsListener {
 
       const requester = await this.usersRepository.findEmailInfo(payload.requesterId);
       if (requester) {
-        await this.sendEmailWithRetry(
-          () =>
-            this.emailService.sendBudgetQuotedEmail(
-              requester.email,
-              requester.name,
-              payload.title,
-              payload.totalAmount,
-              payload.budgetId,
-            ),
-          'email de cotización',
+        await this.emailQueueService.enqueueBudgetQuoted(
+          requester.email,
+          requester.name,
+          payload.title,
+          payload.totalAmount,
+          payload.budgetId,
         );
       }
     } catch (error) {
@@ -132,16 +115,12 @@ export class NotificationsListener {
 
         const requester = await this.usersRepository.findEmailInfo(payload.requesterId);
         if (requester) {
-          await this.sendEmailWithRetry(
-            () =>
-              this.emailService.sendBudgetStatusEmail(
-                requester.email,
-                requester.name,
-                payload.title,
-                payload.newStatus,
-                payload.budgetId,
-              ),
-            'email de estado',
+          await this.emailQueueService.enqueueBudgetStatus(
+            requester.email,
+            requester.name,
+            payload.title,
+            payload.newStatus,
+            payload.budgetId,
           );
         }
       }

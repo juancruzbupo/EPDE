@@ -13,6 +13,8 @@ export interface Task extends BaseEntity, SoftDeletable {
   nextDueDate: Date;
   order: number;
   status: TaskStatus;
+  createdBy: string | null;
+  updatedBy: string | null;
 }
 
 export interface TaskLog {

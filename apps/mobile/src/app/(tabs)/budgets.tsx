@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { memo, useState, useCallback } from 'react';
 import { View, Text, FlatList, RefreshControl, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { formatDistanceToNow } from 'date-fns';
@@ -24,7 +24,7 @@ function formatAmount(amount: number): string {
   return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
 }
 
-function BudgetCard({ budget }: { budget: BudgetRequestPublic }) {
+const BudgetCard = memo(function BudgetCard({ budget }: { budget: BudgetRequestPublic }) {
   const router = useRouter();
 
   return (
@@ -67,7 +67,7 @@ function BudgetCard({ budget }: { budget: BudgetRequestPublic }) {
       </View>
     </Pressable>
   );
-}
+});
 
 export default function BudgetsScreen() {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);

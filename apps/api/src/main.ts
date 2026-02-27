@@ -45,8 +45,8 @@ async function bootstrap() {
   app.use(cookieParser());
 
   const corsOrigin = process.env.CORS_ORIGIN;
-  if (!corsOrigin && process.env.NODE_ENV === 'production') {
-    throw new Error('CORS_ORIGIN must be set in production');
+  if (!corsOrigin && ['production', 'staging'].includes(process.env.NODE_ENV || '')) {
+    throw new Error('CORS_ORIGIN must be set in production and staging');
   }
   app.enableCors({
     origin: corsOrigin ? corsOrigin.split(',').map((o) => o.trim()) : 'http://localhost:3000',

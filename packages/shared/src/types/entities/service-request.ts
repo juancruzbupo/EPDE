@@ -9,6 +9,7 @@ export interface ServiceRequest extends BaseEntity {
   description: string;
   urgency: ServiceUrgency;
   status: ServiceStatus;
+  createdBy: string | null;
   updatedBy: string | null;
 }
 

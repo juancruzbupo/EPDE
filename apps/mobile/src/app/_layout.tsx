@@ -1,3 +1,4 @@
+import '@/lib/sentry';
 import '../global.css';
 import { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';

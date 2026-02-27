@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { View, Text } from 'react-native';
 
 interface EmptyStateProps {
@@ -5,7 +6,7 @@ interface EmptyStateProps {
   message: string;
 }
 
-export function EmptyState({ title, message }: EmptyStateProps) {
+export const EmptyState = memo(function EmptyState({ title, message }: EmptyStateProps) {
   return (
     <View className="flex-1 items-center justify-center p-8">
       <Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-foreground mb-2 text-lg">
@@ -19,4 +20,4 @@ export function EmptyState({ title, message }: EmptyStateProps) {
       </Text>
     </View>
   );
-}
+});

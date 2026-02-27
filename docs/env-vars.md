@@ -24,45 +24,75 @@
 
 ## Web (`apps/web`)
 
-| Variable              | Requerida | Default       | Descripcion                                                               |
-| --------------------- | --------- | ------------- | ------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_API_URL` | Si        | —             | URL base del API (sin trailing slash). Ejemplo: `https://api.epde.com.ar` |
-| `NODE_ENV`            | No        | `development` | Entorno de ejecucion                                                      |
+| Variable                 | Requerida | Default       | Descripcion                                                               |
+| ------------------------ | --------- | ------------- | ------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_API_URL`    | Si        | —             | URL base del API (sin trailing slash). Ejemplo: `https://api.epde.com.ar` |
+| `NEXT_PUBLIC_SENTRY_DSN` | No        | `""`          | DSN de Sentry para el frontend web. Si esta vacio, Sentry se desactiva    |
+| `NODE_ENV`               | No        | `development` | Entorno de ejecucion                                                      |
 
 ## Mobile (`apps/mobile`)
 
-| Variable              | Requerida | Default | Descripcion                         |
-| --------------------- | --------- | ------- | ----------------------------------- |
-| `EXPO_PUBLIC_API_URL` | Si        | —       | URL base del API para la app mobile |
+| Variable              | Requerida | Default | Descripcion                                                                    |
+| --------------------- | --------- | ------- | ------------------------------------------------------------------------------ |
+| `EXPO_PUBLIC_API_URL` | Si        | —       | URL base del API para la app mobile                                            |
+| `sentryDsn`           | No        | `""`    | DSN de Sentry para mobile. Se configura en `app.json` > `expo.extra.sentryDsn` |
 
 ## GitHub Secrets (CI/CD)
 
 Estos secrets se configuran en GitHub → Settings → Secrets and variables → Actions.
 
+### Estrategia de separacion por environment
+
+**IMPORTANTE**: Los secrets de deploy deben configurarse a nivel de **GitHub Environment**, NO a nivel de repositorio. Esto garantiza que:
+
+1. Los secrets de produccion solo se inyectan en jobs con `environment: production`
+2. Los secrets de staging solo se inyectan en jobs con `environment: staging`
+3. No hay riesgo de usar credenciales de produccion en staging o viceversa
+
+Para configurarlo:
+
+1. Ir a GitHub → Settings → Environments
+2. Crear environments `production` y `staging` (ver proteccion en [runbook.md](./runbook.md#github-environment-protection-rules))
+3. En cada environment, agregar sus secrets dedicados
+
+### Repo-level secrets (compartidos)
+
+Estos secrets se usan en CI y no estan atados a un environment:
+
+| Secret        | Descripcion                         | Donde obtenerlo                 |
+| ------------- | ----------------------------------- | ------------------------------- |
+| `TURBO_TOKEN` | Token para Turbo remote cache       | vercel.com → Settings → Tokens  |
+| `TURBO_TEAM`  | ID del team para Turbo remote cache | vercel.com → Settings → General |
+
 ### Produccion (`environment: production`)
+
+Configurar en GitHub → Settings → Environments → production → Environment secrets:
 
 | Secret              | Descripcion                                    | Donde obtenerlo                              |
 | ------------------- | ---------------------------------------------- | -------------------------------------------- |
-| `RAILWAY_TOKEN`     | API token de Railway                           | railway.com → Account → Tokens               |
-| `DATABASE_URL`      | Connection string PostgreSQL de prod           | Railway dashboard → PostgreSQL service → URL |
+| `RAILWAY_TOKEN`     | API token de Railway (proyecto produccion)     | railway.com → Account → Tokens               |
+| `DATABASE_URL`      | Connection string PostgreSQL de produccion     | Railway dashboard → PostgreSQL service → URL |
 | `VERCEL_TOKEN`      | API token de Vercel                            | vercel.com → Settings → Tokens               |
 | `VERCEL_ORG_ID`     | ID de la org/team en Vercel                    | vercel.com → Settings → General              |
-| `VERCEL_PROJECT_ID` | ID del proyecto web en Vercel                  | vercel.com → Project → Settings → General    |
+| `VERCEL_PROJECT_ID` | ID del proyecto web produccion en Vercel       | vercel.com → Project → Settings → General    |
 | `API_URL`           | URL base del API (para smoke test post-deploy) | `https://api.epde.com.ar`                    |
 
 ### Staging (`environment: staging`)
 
-| Secret                      | Descripcion                             | Donde obtenerlo                         |
-| --------------------------- | --------------------------------------- | --------------------------------------- |
-| `RAILWAY_TOKEN_STAGING`     | API token de Railway (proyecto staging) | railway.com → Account → Tokens          |
-| `DATABASE_URL_STAGING`      | Connection string PostgreSQL de staging | Railway dashboard → staging PostgreSQL  |
-| `VERCEL_TOKEN`              | Mismo token de Vercel (compartido)      | vercel.com → Settings → Tokens          |
-| `VERCEL_ORG_ID`             | Mismo org ID (compartido)               | vercel.com → Settings → General         |
-| `VERCEL_PROJECT_ID_STAGING` | ID del proyecto web staging en Vercel   | vercel.com → Staging Project → Settings |
+Configurar en GitHub → Settings → Environments → staging → Environment secrets:
+
+| Secret                      | Descripcion                                | Donde obtenerlo                         |
+| --------------------------- | ------------------------------------------ | --------------------------------------- |
+| `RAILWAY_TOKEN_STAGING`     | API token de Railway (proyecto staging)    | railway.com → Account → Tokens          |
+| `DATABASE_URL_STAGING`      | Connection string PostgreSQL de staging    | Railway dashboard → staging PostgreSQL  |
+| `API_URL_STAGING`           | URL base del API staging (para smoke test) | `https://api-staging.epde.com.ar`       |
+| `VERCEL_TOKEN`              | API token de Vercel (puede ser compartido) | vercel.com → Settings → Tokens          |
+| `VERCEL_ORG_ID`             | Mismo org ID (compartido)                  | vercel.com → Settings → General         |
+| `VERCEL_PROJECT_ID_STAGING` | ID del proyecto web staging en Vercel      | vercel.com → Staging Project → Settings |
 
 ### Variables (no secretas)
 
-Configurar en GitHub → Settings → Variables → Actions:
+Configurar en GitHub → Settings → Variables → Actions (pueden ser por environment o repo-level):
 
 | Variable              | Descripcion                           | Ejemplo                   |
 | --------------------- | ------------------------------------- | ------------------------- |

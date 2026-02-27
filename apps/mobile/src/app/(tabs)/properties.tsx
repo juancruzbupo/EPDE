@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import { View, Text, FlatList, RefreshControl, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useProperties } from '@/hooks/use-properties';
@@ -7,7 +7,7 @@ import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import type { PropertyPublic } from '@epde/shared/types';
 
-function PropertyCard({ property }: { property: PropertyPublic }) {
+const PropertyCard = memo(function PropertyCard({ property }: { property: PropertyPublic }) {
   const router = useRouter();
 
   return (
@@ -56,7 +56,7 @@ function PropertyCard({ property }: { property: PropertyPublic }) {
       </View>
     </Pressable>
   );
-}
+});
 
 export default function PropertiesScreen() {
   const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =

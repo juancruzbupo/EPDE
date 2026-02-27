@@ -184,17 +184,19 @@ Tres guards globales aplicados en orden via `APP_GUARD`:
 
 ### 7. Event-Driven Communication
 
-`EventEmitter2` para operaciones asincronas:
+`EventEmitter2` para operaciones asincronas (notificaciones in-app). Los emails se procesan via **BullMQ** con retry automatico:
 
-| Evento                  | Emisor                 | Listener              | Accion                        |
-| ----------------------- | ---------------------- | --------------------- | ----------------------------- |
-| `service.created`       | ServiceRequestsService | NotificationsListener | Notificacion + email al admin |
-| `service.statusChanged` | ServiceRequestsService | NotificationsListener | Notificacion al cliente       |
-| `budget.created`        | BudgetsService         | NotificationsListener | Notificacion + email al admin |
-| `budget.statusChanged`  | BudgetsService         | NotificationsListener | Notificacion al cliente       |
-| `client.invited`        | ClientsService         | (email directo)       | Email de invitacion           |
+| Evento                  | Emisor                 | Listener              | Accion                                       |
+| ----------------------- | ---------------------- | --------------------- | -------------------------------------------- |
+| `service.created`       | ServiceRequestsService | NotificationsListener | Notificacion in-app + email via BullMQ queue |
+| `service.statusChanged` | ServiceRequestsService | NotificationsListener | Notificacion al cliente                      |
+| `budget.created`        | BudgetsService         | NotificationsListener | Notificacion in-app + email via BullMQ queue |
+| `budget.statusChanged`  | BudgetsService         | NotificationsListener | Notificacion al cliente + email via BullMQ   |
+| `client.invited`        | ClientsService         | EmailQueueService     | Email de invitacion via BullMQ queue         |
 
-**Error Boundaries:** Cada handler en `NotificationsListener` esta envuelto en `try-catch` para evitar que errores de DB/email propaguen y crash-een el event loop. Los errores se loguean con stack trace completo.
+**Email Queue (BullMQ):** Los emails se encolan en Redis via `EmailQueueService` y se procesan asincrónicamente por `EmailQueueProcessor`. Configuración: 5 reintentos con backoff exponencial (base 5s). Tipos de jobs: `invite`, `taskReminder`, `budgetQuoted`, `budgetStatus`.
+
+**Error Boundaries:** Cada handler en `NotificationsListener` esta envuelto en `try-catch` para evitar que errores de DB propaguen al event loop. Los errores de email se manejan automaticamente por BullMQ con reintentos.
 
 ### 8. Error Handling
 
@@ -389,33 +391,24 @@ Modulo global `RedisModule` (`redis/redis.module.ts`) con dos servicios:
 - Usa `@nestjs/terminus` con indicadores de DB (Prisma) y Redis (custom)
 - Respuesta: `{ status: "ok", info: { database: { status: "up" }, redis: { status: "up" } } }`
 
-### 18. Decision Record: EventEmitter2 vs BullMQ
+### 18. Decision Record: EventEmitter2 + BullMQ (arquitectura híbrida)
 
-**Estado actual:** EventEmitter2 in-memory para eventos asincrónicos (notificaciones, emails).
+**Estado actual:** Arquitectura híbrida — EventEmitter2 para notificaciones in-app (sincrónicas, baja latencia) + BullMQ para emails (asíncrono, con retry).
 
-**Por qué se usa EventEmitter2:**
+**Por qué esta combinación:**
 
-- Simplicidad operacional: no requiere infraestructura adicional ni workers separados
-- Volumen actual bajo: < 100 eventos/día (notificaciones + emails)
-- Handlers con try-catch: errores no propagan al event loop
-- Latencia mínima: procesamiento in-memory sin overhead de serialización/deserialización
+- **EventEmitter2** para notificaciones in-app: baja latencia, procesamiento inmediato, sin overhead de serialización
+- **BullMQ** para emails: retry automático (5 intentos, backoff exponencial desde 5s), tolerancia a fallos de Resend API, jobs persistidos en Redis
+- Ambos comparten la misma instancia de Redis (BullMQ usa la URL de `REDIS_URL`)
 
-**Riesgos aceptados:**
+**Componentes de email queue:**
 
-- Si el proceso crashea, eventos in-flight se pierden. Los eventos actuales son notificaciones y emails — no transacciones financieras. La pérdida es tolerable (el usuario puede ver el estado actual en la UI)
-- Sin retry automático: si un email falla, no se reintenta. Los cron jobs diarios de recordatorio actúan como mecanismo de compensación
+- `EmailQueueService`: encola jobs de email (`enqueueInvite`, `enqueueTaskReminder`, `enqueueBudgetQuoted`, `enqueueBudgetStatus`)
+- `EmailQueueProcessor` (`@Processor`): worker que consume y procesa los jobs via `EmailService` (Resend)
+- Configuración en `EmailModule`: `BullModule.registerQueue('emails')` con retry policy
 
-**Cuándo migrar a BullMQ:**
+**Cuándo escalar:**
 
-- > 5K usuarios concurrentes o > 1K eventos/hora
-- Eventos que requieren garantía de entrega (ej: facturación, pagos)
-- Necesidad de dead-letter queues para auditoría
-- Procesamiento que exceda 30s (ej: generación de reportes PDF)
-
-**Patrón de migración sugerido:**
-
-1. Agregar BullMQ como dependencia, configurar conexión Redis (puede reusar la instancia existente)
-2. Crear processors (workers) por tipo de evento
-3. Reemplazar `eventEmitter.emit()` → `queue.add()` en los servicios emisores
-4. Mantener `NotificationsListener` como consumer de la queue en vez de `@OnEvent()`
-5. Configurar retry policy (3 intentos, backoff exponencial) y dead-letter queue
+- Si el volumen de emails excede la capacidad de un solo worker → agregar workers adicionales
+- Para procesamiento pesado (reportes PDF, facturación) → crear queues separadas con prioridades
+- Para dead-letter queues → configurar `removeOnFail: false` y monitorear jobs fallidos
