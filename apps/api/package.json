@@ -14,8 +14,8 @@
     "test:e2e": "jest --config jest-e2e.config.ts --runInBand"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.997.0",
-    "@aws-sdk/s3-request-presigner": "^3.997.0",
+    "@aws-sdk/client-s3": "^3.999.0",
+    "@aws-sdk/s3-request-presigner": "^3.999.0",
     "@casl/ability": "^6.8.0",
     "@casl/prisma": "^1.6.1",
     "@epde/shared": "workspace:*",
