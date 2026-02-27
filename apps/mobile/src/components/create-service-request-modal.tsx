@@ -13,6 +13,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createServiceRequestSchema } from '@epde/shared';
@@ -35,8 +36,9 @@ interface CreateServiceRequestModalProps {
 }
 
 export function CreateServiceRequestModal({ visible, onClose }: CreateServiceRequestModalProps) {
+  const insets = useSafeAreaInsets();
   const [photos, setPhotos] = useState<{ uri: string; uploadedUrl?: string }[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
+  const [uploadingCount, setUploadingCount] = useState(0);
 
   const createRequest = useCreateServiceRequest();
   const uploadFile = useUploadFile();
@@ -49,7 +51,7 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
     setValue,
     watch,
     reset,
-    formState: { errors, isValid },
+    formState: { errors, isValid, isDirty },
   } = useForm<CreateServiceRequestInput>({
     resolver: zodResolver(createServiceRequestSchema),
     defaultValues: { urgency: 'MEDIUM' },
@@ -59,7 +61,7 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
   const selectedPropertyId = watch('propertyId');
   const urgency = watch('urgency') ?? 'MEDIUM';
   const isSubmitting = createRequest.isPending;
-  const canSubmit = isValid && !isUploading && photos.every((p) => p.uploadedUrl);
+  const canSubmit = isValid && uploadingCount === 0 && photos.every((p) => p.uploadedUrl);
 
   const pickImage = () => {
     if (photos.length >= 5) {
@@ -109,7 +111,7 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
   const handleImageSelected = (uri: string) => {
     const photoIndex = photos.length;
     setPhotos((prev) => [...prev, { uri }]);
-    setIsUploading(true);
+    setUploadingCount((c) => c + 1);
 
     uploadFile.mutate(
       { uri, folder: 'service-requests' },
@@ -118,11 +120,11 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
           setPhotos((prev) =>
             prev.map((p, i) => (i === photoIndex ? { ...p, uploadedUrl: url } : p)),
           );
-          setIsUploading(false);
+          setUploadingCount((c) => c - 1);
         },
         onError: () => {
           setPhotos((prev) => prev.filter((_, i) => i !== photoIndex));
-          setIsUploading(false);
+          setUploadingCount((c) => c - 1);
           Alert.alert('Error', 'No se pudo subir la foto.');
         },
       },
@@ -158,18 +160,43 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
   };
 
   const handleClose = () => {
+    if (isDirty || photos.length > 0) {
+      Alert.alert('Descartar cambios?', 'Tenés cambios sin guardar.', [
+        { text: 'Seguir editando', style: 'cancel' },
+        {
+          text: 'Descartar',
+          style: 'destructive',
+          onPress: () => {
+            reset();
+            setPhotos([]);
+            setUploadingCount(0);
+            onClose();
+          },
+        },
+      ]);
+      return;
+    }
     reset();
     setPhotos([]);
+    setUploadingCount(0);
     onClose();
   };
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={handleClose}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         className="bg-background flex-1"
       >
-        <View className="border-border flex-row items-center justify-between border-b px-4 py-3">
+        <View
+          style={{ paddingTop: insets.top }}
+          className="border-border flex-row items-center justify-between border-b px-4 py-3"
+        >
           <Pressable onPress={handleClose}>
             <Text
               style={{ fontFamily: 'DMSans_500Medium' }}

@@ -22,6 +22,13 @@ export class MaintenancePlansRepository extends BaseRepository<MaintenancePlan> 
     });
   }
 
+  async findWithProperty(id: string) {
+    return this.model.findFirst({
+      where: { id },
+      include: { property: { select: { userId: true } } },
+    });
+  }
+
   async findWithFullDetails(id: string) {
     return this.model.findFirst({
       where: { id },

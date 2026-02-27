@@ -2,6 +2,9 @@ import { Controller, Get, Patch, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { NotificationsService } from './notifications.service';
+import { cursorPaginationSchema } from '@epde/shared';
+import type { CursorPaginationInput } from '@epde/shared';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 
 @ApiTags('Notificaciones')
 @ApiBearerAuth()
@@ -12,14 +15,9 @@ export class NotificationsController {
   @Get()
   async getNotifications(
     @CurrentUser() user: { id: string },
-    @Query('cursor') cursor?: string,
-    @Query('take') take?: string,
+    @Query(new ZodValidationPipe(cursorPaginationSchema)) query: CursorPaginationInput,
   ) {
-    return this.notificationsService.getNotifications(
-      user.id,
-      cursor,
-      take ? parseInt(take, 10) : undefined,
-    );
+    return this.notificationsService.getNotifications(user.id, query.cursor, query.take);
   }
 
   @Get('unread-count')

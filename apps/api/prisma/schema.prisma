@@ -91,10 +91,10 @@ enum NotificationType {
 
 model User {
   id           String     @id @default(uuid())
-  email        String     @unique
+  email        String     @unique @db.VarChar(254)
   passwordHash String?
-  name         String
-  phone        String?
+  name         String     @db.VarChar(200)
+  phone        String?    @db.VarChar(30)
   role         UserRole   @default(CLIENT)
   status       UserStatus @default(INVITED)
   createdAt    DateTime   @default(now())
@@ -117,8 +117,8 @@ model Property {
   userId       String
   createdBy    String?
   updatedBy    String?
-  address      String
-  city         String
+  address      String       @db.VarChar(500)
+  city         String       @db.VarChar(200)
   type         PropertyType @default(HOUSE)
   yearBuilt    Int?
   squareMeters Float?
@@ -139,21 +139,21 @@ model Property {
 model MaintenancePlan {
   id         String     @id @default(uuid())
   propertyId String     @unique
-  name       String
+  name       String     @db.VarChar(200)
   status     PlanStatus @default(DRAFT)
   createdBy  String?
   updatedBy  String?
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
 
-  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Restrict)
   tasks    Task[]
 }
 
 model Category {
   id          String    @id @default(uuid())
-  name        String    @unique
-  description String?
+  name        String    @unique @db.VarChar(100)
+  description String?   @db.VarChar(500)
   icon        String?
   order       Int       @default(0)
   deletedAt   DateTime?
@@ -165,8 +165,8 @@ model Task {
   id                String         @id @default(uuid())
   maintenancePlanId String
   categoryId        String
-  name              String
-  description       String?
+  name              String         @db.VarChar(200)
+  description       String?        @db.VarChar(2000)
   priority          TaskPriority   @default(MEDIUM)
   recurrenceType    RecurrenceType @default(ANNUAL)
   recurrenceMonths  Int?
@@ -198,7 +198,7 @@ model TaskLog {
   taskId      String
   completedAt DateTime @default(now())
   completedBy String
-  notes       String?
+  notes       String?  @db.VarChar(2000)
   photoUrl    String?
 
   task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
@@ -212,7 +212,7 @@ model TaskNote {
   id        String   @id @default(uuid())
   taskId    String
   authorId  String
-  content   String
+  content   String   @db.VarChar(2000)
   createdAt DateTime @default(now())
 
   task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
@@ -226,14 +226,15 @@ model BudgetRequest {
   id          String       @id @default(uuid())
   propertyId  String
   requestedBy String
-  title       String
-  description String?
+  title       String       @db.VarChar(200)
+  description String?      @db.VarChar(2000)
   status      BudgetStatus @default(PENDING)
   createdBy   String?
   updatedBy   String?
   version     Int          @default(0)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
 
   property  Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   requester User              @relation(fields: [requestedBy], references: [id])
@@ -249,7 +250,7 @@ model BudgetRequest {
 model BudgetLineItem {
   id              String  @id @default(uuid())
   budgetRequestId String
-  description     String
+  description     String  @db.VarChar(500)
   quantity        Decimal @db.Decimal(12, 4)
   unitPrice       Decimal @db.Decimal(12, 2)
   subtotal        Decimal @db.Decimal(14, 2)
@@ -264,7 +265,7 @@ model BudgetResponse {
   budgetRequestId String    @unique
   totalAmount     Decimal   @db.Decimal(14, 2)
   estimatedDays   Int?
-  notes           String?
+  notes           String?   @db.VarChar(2000)
   validUntil      DateTime?
   respondedAt     DateTime  @default(now())
 
@@ -275,14 +276,15 @@ model ServiceRequest {
   id          String         @id @default(uuid())
   propertyId  String
   requestedBy String
-  title       String
-  description String
+  title       String         @db.VarChar(200)
+  description String         @db.VarChar(2000)
   urgency     ServiceUrgency @default(MEDIUM)
   status      ServiceStatus  @default(OPEN)
   createdBy   String?
   updatedBy   String?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?
 
   property  Property              @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   requester User                  @relation(fields: [requestedBy], references: [id])
@@ -309,8 +311,8 @@ model Notification {
   id        String           @id @default(uuid())
   userId    String
   type      NotificationType
-  title     String
-  message   String
+  title     String           @db.VarChar(200)
+  message   String           @db.VarChar(2000)
   read      Boolean          @default(false)
   data      Json?
   createdAt DateTime         @default(now())

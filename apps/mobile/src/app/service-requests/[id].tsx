@@ -16,12 +16,13 @@ import { es } from 'date-fns/locale';
 import { useServiceRequest } from '@/hooks/use-service-requests';
 import { ServiceStatusBadge, UrgencyBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
+import { ErrorState } from '@/components/error-state';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export default function ServiceRequestDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data: request, isLoading, refetch } = useServiceRequest(id);
+  const { data: request, isLoading, error, refetch } = useServiceRequest(id);
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
 
   if (isLoading) {
@@ -31,6 +32,17 @@ export default function ServiceRequestDetailScreen() {
           options={{ headerShown: true, title: 'Solicitud', headerBackTitle: 'Volver' }}
         />
         <ActivityIndicator size="large" color="#c4704b" />
+      </View>
+    );
+  }
+
+  if (error && !request) {
+    return (
+      <View className="bg-background flex-1">
+        <Stack.Screen
+          options={{ headerShown: true, title: 'Solicitud', headerBackTitle: 'Volver' }}
+        />
+        <ErrorState onRetry={refetch} />
       </View>
     );
   }
@@ -130,7 +142,7 @@ export default function ServiceRequestDetailScreen() {
               {request.photos.map((photo) => (
                 <Pressable key={photo.id} onPress={() => setPreviewPhoto(photo.url)}>
                   <Image
-                    source={{ uri: photo.url }}
+                    source={{ uri: photo.url, cache: 'force-cache' }}
                     className="h-32 w-32 rounded-xl"
                     resizeMode="cover"
                   />

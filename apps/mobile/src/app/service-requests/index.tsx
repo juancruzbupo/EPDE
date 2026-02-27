@@ -6,6 +6,7 @@ import { es } from 'date-fns/locale';
 import { useServiceRequests } from '@/hooks/use-service-requests';
 import { ServiceStatusBadge, UrgencyBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
+import { ErrorState } from '@/components/error-state';
 import { CreateServiceRequestModal } from '@/components/create-service-request-modal';
 import type { ServiceRequestPublic } from '@epde/shared/types';
 
@@ -56,10 +57,14 @@ export default function ServiceRequestsScreen() {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [createModalVisible, setCreateModalVisible] = useState(false);
 
-  const { data, isLoading, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useServiceRequests(statusFilter ? { status: statusFilter } : {});
 
   const requests = data?.pages.flatMap((page) => page.data) ?? [];
+
+  if (error && !data) {
+    return <ErrorState onRetry={refetch} />;
+  }
 
   const onRefresh = useCallback(() => {
     refetch();
@@ -92,6 +97,9 @@ export default function ServiceRequestsScreen() {
         renderItem={({ item }) => <ServiceRequestCard request={item} />}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.5}
+        maxToRenderPerBatch={10}
+        windowSize={10}
+        removeClippedSubviews
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
         ListHeaderComponent={
           <View className="mb-4">

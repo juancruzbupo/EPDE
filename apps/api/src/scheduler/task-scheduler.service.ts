@@ -186,7 +186,7 @@ export class TaskSchedulerService {
       if (signal.lockLost) return;
 
       const updates = staleTasks.map((task) => {
-        const months = task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType);
+        const months = task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType) ?? 12;
         const newDueDate = getNextDueDate(task.nextDueDate, months);
         return this.tasksRepository.updateDueDateAndStatus(task.id, newDueDate, 'PENDING');
       });

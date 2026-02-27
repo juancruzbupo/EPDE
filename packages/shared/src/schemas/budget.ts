@@ -16,7 +16,10 @@ export type CreateBudgetRequestInput = z.infer<typeof createBudgetRequestSchema>
 // ─── Respond to Budget (Admin quotes) ───────────────────
 
 const budgetLineItemSchema = z.object({
-  description: z.string().min(1, 'La descripción es requerida'),
+  description: z
+    .string()
+    .min(1, 'La descripción es requerida')
+    .max(500, 'La descripción no puede superar 500 caracteres'),
   quantity: z.coerce.number().positive('La cantidad debe ser mayor a 0'),
   unitPrice: z.coerce.number().nonnegative('El precio unitario no puede ser negativo'),
 });

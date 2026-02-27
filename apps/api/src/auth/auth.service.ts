@@ -37,8 +37,7 @@ export class AuthService {
     const { accessToken, refreshToken } = await this.tokenService.generateTokenPair(user);
 
     const fullUser = await this.usersService.findById(user.id);
-    const { passwordHash: _, ...userWithoutPassword } = fullUser;
-    void _;
+    const { passwordHash: _passwordHash, ...userWithoutPassword } = fullUser;
 
     this.authAudit.logLogin(user.id, user.email, meta?.clientType ?? 'web', meta?.ip ?? 'unknown');
 
@@ -95,8 +94,7 @@ export class AuthService {
 
   async getMe(userId: string) {
     const user = await this.usersService.findById(userId);
-    const { passwordHash: _, ...userWithoutPassword } = user;
-    void _;
+    const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
 }

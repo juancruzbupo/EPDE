@@ -137,7 +137,12 @@ export class BudgetsService {
       throw new NotFoundException('Presupuesto no encontrado');
     }
 
-    this.validateStatusTransition(budget.status, dto.status, currentUser, budget);
+    this.validateStatusTransition(
+      budget.status,
+      dto.status,
+      currentUser,
+      budget as BudgetRequest & { property?: { userId: string } | null },
+    );
 
     const updated = await this.budgetsRepository.update(
       id,
@@ -168,8 +173,12 @@ export class BudgetsService {
     return updated;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private validateStatusTransition(current: string, next: string, user: CurrentUser, budget: any) {
+  private validateStatusTransition(
+    current: string,
+    next: string,
+    user: CurrentUser,
+    budget: { property?: { userId: string } | null },
+  ) {
     const allowedTransitions: Record<string, { status: string[]; role: string }[]> = {
       QUOTED: [{ status: ['APPROVED', 'REJECTED'], role: UserRole.CLIENT }],
       APPROVED: [{ status: ['IN_PROGRESS'], role: UserRole.ADMIN }],

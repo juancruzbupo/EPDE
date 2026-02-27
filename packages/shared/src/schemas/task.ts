@@ -3,8 +3,11 @@ import { z } from 'zod';
 export const createTaskSchema = z.object({
   maintenancePlanId: z.string().uuid('ID de plan inválido'),
   categoryId: z.string().uuid('ID de categoría inválido'),
-  name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
-  description: z.string().optional(),
+  name: z
+    .string()
+    .min(2, 'El nombre debe tener al menos 2 caracteres')
+    .max(200, 'El nombre no puede superar 200 caracteres'),
+  description: z.string().max(2000, 'La descripción no puede superar 2000 caracteres').optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).default('MEDIUM'),
   recurrenceType: z
     .enum(['MONTHLY', 'QUARTERLY', 'BIANNUAL', 'ANNUAL', 'CUSTOM'])
@@ -17,8 +20,12 @@ export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 
 export const updateTaskSchema = z.object({
   categoryId: z.string().uuid('ID de categoría inválido').optional(),
-  name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').optional(),
-  description: z.string().optional(),
+  name: z
+    .string()
+    .min(2, 'El nombre debe tener al menos 2 caracteres')
+    .max(200, 'El nombre no puede superar 200 caracteres')
+    .optional(),
+  description: z.string().max(2000, 'La descripción no puede superar 2000 caracteres').optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
   recurrenceType: z.enum(['MONTHLY', 'QUARTERLY', 'BIANNUAL', 'ANNUAL', 'CUSTOM']).optional(),
   recurrenceMonths: z.coerce.number().int().min(1).max(120).optional(),

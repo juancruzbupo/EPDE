@@ -13,6 +13,7 @@ import { es } from 'date-fns/locale';
 import { useBudget, useUpdateBudgetStatus } from '@/hooks/use-budgets';
 import { BudgetStatusBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
+import { ErrorState } from '@/components/error-state';
 import type { BudgetLineItemPublic } from '@epde/shared/types';
 
 function formatAmount(amount: number): string {
@@ -46,7 +47,7 @@ function LineItem({ item }: { item: BudgetLineItemPublic }) {
 
 export default function BudgetDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data: budget, isLoading, refetch } = useBudget(id);
+  const { data: budget, isLoading, error, refetch } = useBudget(id);
   const updateStatus = useUpdateBudgetStatus();
 
   const handleApprove = () => {
@@ -77,6 +78,17 @@ export default function BudgetDetailScreen() {
           options={{ headerShown: true, title: 'Presupuesto', headerBackTitle: 'Volver' }}
         />
         <ActivityIndicator size="large" color="#c4704b" />
+      </View>
+    );
+  }
+
+  if (error && !budget) {
+    return (
+      <View className="bg-background flex-1">
+        <Stack.Screen
+          options={{ headerShown: true, title: 'Presupuesto', headerBackTitle: 'Volver' }}
+        />
+        <ErrorState onRetry={refetch} />
       </View>
     );
   }

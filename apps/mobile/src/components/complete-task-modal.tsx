@@ -13,6 +13,7 @@ import {
   ScrollView,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCompleteTask } from '@/hooks/use-maintenance-plans';
 import { useUploadFile } from '@/hooks/use-upload';
 import type { TaskPublic } from '@epde/shared/types';
@@ -25,6 +26,7 @@ interface CompleteTaskModalProps {
 }
 
 export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTaskModalProps) {
+  const insets = useSafeAreaInsets();
   const [notes, setNotes] = useState('');
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
@@ -117,7 +119,25 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
     );
   };
 
+  const isDirty = notes.trim().length > 0 || photoUri !== null;
+
   const handleClose = () => {
+    if (isDirty) {
+      Alert.alert('Descartar cambios?', 'Tenés cambios sin guardar.', [
+        { text: 'Seguir editando', style: 'cancel' },
+        {
+          text: 'Descartar',
+          style: 'destructive',
+          onPress: () => {
+            setNotes('');
+            setPhotoUri(null);
+            setUploadedUrl(null);
+            onClose();
+          },
+        },
+      ]);
+      return;
+    }
     setNotes('');
     setPhotoUri(null);
     setUploadedUrl(null);
@@ -125,12 +145,20 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
   };
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={handleClose}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         className="bg-background flex-1"
       >
-        <View className="border-border flex-row items-center justify-between border-b px-4 py-3">
+        <View
+          style={{ paddingTop: insets.top }}
+          className="border-border flex-row items-center justify-between border-b px-4 py-3"
+        >
           <Pressable onPress={handleClose}>
             <Text
               style={{ fontFamily: 'DMSans_500Medium' }}

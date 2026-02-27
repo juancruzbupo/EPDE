@@ -2,8 +2,14 @@ import { z } from 'zod';
 
 export const createPropertySchema = z.object({
   userId: z.string().uuid('ID de usuario inválido'),
-  address: z.string().min(3, 'La dirección debe tener al menos 3 caracteres'),
-  city: z.string().min(2, 'La ciudad debe tener al menos 2 caracteres'),
+  address: z
+    .string()
+    .min(3, 'La dirección debe tener al menos 3 caracteres')
+    .max(500, 'La dirección no puede superar 500 caracteres'),
+  city: z
+    .string()
+    .min(2, 'La ciudad debe tener al menos 2 caracteres')
+    .max(200, 'La ciudad no puede superar 200 caracteres'),
   type: z.enum(['HOUSE', 'APARTMENT', 'DUPLEX', 'COUNTRY_HOUSE', 'OTHER']).default('HOUSE'),
   yearBuilt: z.coerce.number().int().min(1800).max(2100).optional(),
   squareMeters: z.coerce.number().positive().optional(),
@@ -12,8 +18,16 @@ export const createPropertySchema = z.object({
 export type CreatePropertyInput = z.infer<typeof createPropertySchema>;
 
 export const updatePropertySchema = z.object({
-  address: z.string().min(3, 'La dirección debe tener al menos 3 caracteres').optional(),
-  city: z.string().min(2, 'La ciudad debe tener al menos 2 caracteres').optional(),
+  address: z
+    .string()
+    .min(3, 'La dirección debe tener al menos 3 caracteres')
+    .max(500, 'La dirección no puede superar 500 caracteres')
+    .optional(),
+  city: z
+    .string()
+    .min(2, 'La ciudad debe tener al menos 2 caracteres')
+    .max(200, 'La ciudad no puede superar 200 caracteres')
+    .optional(),
   type: z.enum(['HOUSE', 'APARTMENT', 'DUPLEX', 'COUNTRY_HOUSE', 'OTHER']).optional(),
   yearBuilt: z.coerce.number().int().min(1800).max(2100).optional(),
   squareMeters: z.coerce.number().positive().optional(),

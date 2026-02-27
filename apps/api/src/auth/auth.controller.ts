@@ -8,6 +8,7 @@ import {
   Req,
   HttpCode,
   HttpStatus,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
@@ -96,11 +97,7 @@ export class AuthController {
     const refreshToken = isMobile ? body?.refreshToken : req.cookies?.[REFRESH_COOKIE_NAME];
 
     if (!refreshToken) {
-      res.status(HttpStatus.UNAUTHORIZED).json({
-        statusCode: HttpStatus.UNAUTHORIZED,
-        message: 'No se encontró token de refresco',
-      });
-      return;
+      throw new UnauthorizedException('No se encontró token de refresco');
     }
 
     const result = await this.authService.refresh(refreshToken);

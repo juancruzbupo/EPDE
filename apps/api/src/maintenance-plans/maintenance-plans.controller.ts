@@ -87,8 +87,11 @@ export class MaintenancePlansController {
   }
 
   @Get(':id/tasks/:taskId')
-  async getTaskDetail(@Param('taskId') taskId: string) {
-    const data = await this.plansService.getTaskDetail(taskId);
+  async getTaskDetail(
+    @Param('taskId') taskId: string,
+    @CurrentUser() user: { id: string; role: string },
+  ) {
+    const data = await this.plansService.getTaskDetail(taskId, user);
     return { data };
   }
 
@@ -98,13 +101,16 @@ export class MaintenancePlansController {
     @Body(new ZodValidationPipe(completeTaskSchema)) dto: CompleteTaskInput,
     @CurrentUser() user: { id: string; role: string },
   ) {
-    const data = await this.plansService.completeTask(taskId, user.id, dto);
+    const data = await this.plansService.completeTask(taskId, user.id, dto, user);
     return { data, message: 'Tarea completada' };
   }
 
   @Get(':id/tasks/:taskId/logs')
-  async getTaskLogs(@Param('taskId') taskId: string) {
-    const data = await this.plansService.getTaskLogs(taskId);
+  async getTaskLogs(
+    @Param('taskId') taskId: string,
+    @CurrentUser() user: { id: string; role: string },
+  ) {
+    const data = await this.plansService.getTaskLogs(taskId, user);
     return { data };
   }
 
@@ -114,13 +120,16 @@ export class MaintenancePlansController {
     @Body(new ZodValidationPipe(createTaskNoteSchema)) dto: CreateTaskNoteInput,
     @CurrentUser() user: { id: string; role: string },
   ) {
-    const data = await this.plansService.addTaskNote(taskId, user.id, dto);
+    const data = await this.plansService.addTaskNote(taskId, user.id, dto, user);
     return { data, message: 'Nota agregada' };
   }
 
   @Get(':id/tasks/:taskId/notes')
-  async getTaskNotes(@Param('taskId') taskId: string) {
-    const data = await this.plansService.getTaskNotes(taskId);
+  async getTaskNotes(
+    @Param('taskId') taskId: string,
+    @CurrentUser() user: { id: string; role: string },
+  ) {
+    const data = await this.plansService.getTaskNotes(taskId, user);
     return { data };
   }
 }

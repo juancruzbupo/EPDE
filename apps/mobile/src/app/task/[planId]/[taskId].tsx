@@ -19,6 +19,7 @@ import {
 } from '@/hooks/use-maintenance-plans';
 import { TaskStatusBadge, PriorityBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
+import { ErrorState } from '@/components/error-state';
 import { CompleteTaskModal } from '@/components/complete-task-modal';
 import type { TaskLogPublic, TaskNotePublic } from '@epde/shared/types';
 
@@ -79,6 +80,7 @@ export default function TaskDetailScreen() {
   const {
     data: task,
     isLoading: taskLoading,
+    error: taskError,
     refetch: refetchTask,
   } = useTaskDetail(planId, taskId);
   const { data: logs, refetch: refetchLogs } = useTaskLogs(planId, taskId);
@@ -104,6 +106,15 @@ export default function TaskDetailScreen() {
       <View className="bg-background flex-1 items-center justify-center">
         <Stack.Screen options={{ headerShown: true, title: 'Tarea', headerBackTitle: 'Volver' }} />
         <ActivityIndicator size="large" color="#c4704b" />
+      </View>
+    );
+  }
+
+  if (taskError && !task) {
+    return (
+      <View className="bg-background flex-1">
+        <Stack.Screen options={{ headerShown: true, title: 'Tarea', headerBackTitle: 'Volver' }} />
+        <ErrorState onRetry={refetchTask} />
       </View>
     );
   }

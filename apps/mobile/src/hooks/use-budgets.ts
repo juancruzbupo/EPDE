@@ -14,6 +14,7 @@ export function useBudgets(filters: Omit<BudgetFilters, 'cursor'> = {}) {
     queryFn: ({ pageParam, signal }) => getBudgets({ ...filters, cursor: pageParam }, signal),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
+    maxPages: 10,
   });
 }
 

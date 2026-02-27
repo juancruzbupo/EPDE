@@ -1,13 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error && typeof error === 'object' && 'response' in error) {
-    const data = (error as { response?: { data?: { message?: string } } }).response?.data;
-    if (data?.message) return data.message;
-  }
-  return fallback;
-}
+import { getErrorMessage } from '@/lib/errors';
 import {
   getPlan,
   updatePlan,
@@ -38,6 +31,7 @@ export function useUpdatePlan() {
     mutationFn: ({ id, ...dto }: { id: string; name?: string; status?: string }) =>
       updatePlan(id, dto),
     onSuccess: (_data, vars) => queryClient.invalidateQueries({ queryKey: ['plans', vars.id] }),
+    onError: (err) => toast.error(getErrorMessage(err, 'Error al actualizar plan')),
   });
 }
 
@@ -58,6 +52,7 @@ export function useAddTask() {
       nextDueDate: string;
     }) => addTask(planId, dto),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['plans'] }),
+    onError: (err) => toast.error(getErrorMessage(err, 'Error al agregar tarea')),
   });
 }
 
@@ -73,6 +68,7 @@ export function useUpdateTask() {
       taskId: string;
     } & Record<string, unknown>) => updateTask(planId, taskId, dto),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['plans'] }),
+    onError: (err) => toast.error(getErrorMessage(err, 'Error al actualizar tarea')),
   });
 }
 
@@ -82,6 +78,7 @@ export function useRemoveTask() {
     mutationFn: ({ planId, taskId }: { planId: string; taskId: string }) =>
       removeTask(planId, taskId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['plans'] }),
+    onError: (err) => toast.error(getErrorMessage(err, 'Error al eliminar tarea')),
   });
 }
 
@@ -91,6 +88,7 @@ export function useReorderTasks() {
     mutationFn: ({ planId, tasks }: { planId: string; tasks: { id: string; order: number }[] }) =>
       reorderTasks(planId, tasks),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['plans'] }),
+    onError: (err) => toast.error(getErrorMessage(err, 'Error al reordenar tareas')),
   });
 }
 
@@ -218,6 +216,7 @@ export function useAddTaskNote() {
     },
 
     onError: (_err, variables, context) => {
+      toast.error(getErrorMessage(_err, 'Error al agregar nota'));
       if (context?.previousNotes) {
         queryClient.setQueryData(
           ['task-notes', variables.planId, variables.taskId],

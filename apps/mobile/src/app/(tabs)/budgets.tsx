@@ -6,6 +6,7 @@ import { es } from 'date-fns/locale';
 import { useBudgets } from '@/hooks/use-budgets';
 import { BudgetStatusBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
+import { ErrorState } from '@/components/error-state';
 import { CreateBudgetModal } from '@/components/create-budget-modal';
 import type { BudgetRequestPublic } from '@epde/shared/types';
 
@@ -72,11 +73,14 @@ export default function BudgetsScreen() {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [createModalVisible, setCreateModalVisible] = useState(false);
 
-  const { data, isLoading, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useBudgets(
-    statusFilter ? { status: statusFilter } : {},
-  );
+  const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useBudgets(statusFilter ? { status: statusFilter } : {});
 
   const budgets = data?.pages.flatMap((page) => page.data) ?? [];
+
+  if (error && !data) {
+    return <ErrorState onRetry={refetch} />;
+  }
 
   const onRefresh = useCallback(() => {
     refetch();
@@ -98,6 +102,9 @@ export default function BudgetsScreen() {
         renderItem={({ item }) => <BudgetCard budget={item} />}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.5}
+        maxToRenderPerBatch={10}
+        windowSize={10}
+        removeClippedSubviews
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
         ListHeaderComponent={
           <View className="mb-4">

@@ -10,8 +10,11 @@ export interface ClientFilters {
   take?: number;
 }
 
-export async function getClients(params: ClientFilters): Promise<PaginatedResponse<ClientPublic>> {
-  const { data } = await apiClient.get('/clients', { params });
+export async function getClients(
+  params: ClientFilters,
+  signal?: AbortSignal,
+): Promise<PaginatedResponse<ClientPublic>> {
+  const { data } = await apiClient.get('/clients', { params, signal });
   return data;
 }
 

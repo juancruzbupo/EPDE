@@ -7,6 +7,7 @@ export function useProperties(filters: Omit<PropertyFilters, 'cursor'> = {}) {
     queryFn: ({ pageParam, signal }) => getProperties({ ...filters, cursor: pageParam }, signal),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
+    maxPages: 10,
   });
 }
 

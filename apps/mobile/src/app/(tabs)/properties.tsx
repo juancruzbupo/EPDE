@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useProperties } from '@/hooks/use-properties';
 import { PropertyTypeBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
+import { ErrorState } from '@/components/error-state';
 import type { PropertyPublic } from '@epde/shared/types';
 
 function PropertyCard({ property }: { property: PropertyPublic }) {
@@ -58,10 +59,14 @@ function PropertyCard({ property }: { property: PropertyPublic }) {
 }
 
 export default function PropertiesScreen() {
-  const { data, isLoading, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useProperties();
 
   const properties = data?.pages.flatMap((page) => page.data) ?? [];
+
+  if (error && !data) {
+    return <ErrorState onRetry={refetch} />;
+  }
 
   const onRefresh = useCallback(() => {
     refetch();
@@ -82,6 +87,9 @@ export default function PropertiesScreen() {
       renderItem={({ item }) => <PropertyCard property={item} />}
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
+      maxToRenderPerBatch={10}
+      windowSize={10}
+      removeClippedSubviews
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
       ListHeaderComponent={
         <Text

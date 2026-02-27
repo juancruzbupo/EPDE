@@ -12,6 +12,7 @@ import type {
   CreateTaskNoteInput,
 } from '@epde/shared';
 import { recurrenceTypeToMonths, getNextDueDate, UserRole } from '@epde/shared';
+import type { Task } from '@prisma/client';
 
 @Injectable()
 export class MaintenancePlansService {
@@ -21,6 +22,23 @@ export class MaintenancePlansService {
     private readonly taskLogsRepository: TaskLogsRepository,
     private readonly taskNotesRepository: TaskNotesRepository,
   ) {}
+
+  private async assertTaskAccess(
+    taskId: string,
+    user?: { id: string; role: string },
+  ): Promise<Task> {
+    const task = await this.tasksRepository.findById(taskId);
+    if (!task) throw new NotFoundException('Tarea no encontrada');
+
+    if (user?.role === UserRole.CLIENT) {
+      const plan = await this.plansRepository.findWithProperty(task.maintenancePlanId);
+      if (plan?.property?.userId !== user.id) {
+        throw new ForbiddenException('No tenés acceso a esta tarea');
+      }
+    }
+
+    return task;
+  }
 
   async getPlan(id: string, currentUser?: { id: string; role: string }) {
     const plan = await this.plansRepository.findWithFullDetails(id);
@@ -70,7 +88,7 @@ export class MaintenancePlansService {
         recurrenceMonths:
           dto.recurrenceType === 'CUSTOM'
             ? dto.recurrenceMonths
-            : recurrenceTypeToMonths(dto.recurrenceType ?? 'ANNUAL'),
+            : (recurrenceTypeToMonths(dto.recurrenceType ?? 'ANNUAL') ?? 12),
         nextDueDate: dto.nextDueDate,
         order: maxOrder + 1,
         status: 'PENDING',
@@ -117,7 +135,8 @@ export class MaintenancePlansService {
     return this.tasksRepository.findByPlanId(planId);
   }
 
-  async getTaskDetail(taskId: string) {
+  async getTaskDetail(taskId: string, user?: { id: string; role: string }) {
+    await this.assertTaskAccess(taskId, user);
     const task = await this.tasksRepository.findWithDetails(taskId);
 
     if (!task) {
@@ -127,13 +146,16 @@ export class MaintenancePlansService {
     return task;
   }
 
-  async completeTask(taskId: string, userId: string, dto: CompleteTaskInput) {
-    const task = await this.tasksRepository.findById(taskId);
-    if (!task) {
-      throw new NotFoundException('Tarea no encontrada');
-    }
+  async completeTask(
+    taskId: string,
+    userId: string,
+    dto: CompleteTaskInput,
+    user?: { id: string; role: string },
+  ) {
+    const task = await this.assertTaskAccess(taskId, user);
 
-    const recurrenceMonths = task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType);
+    const recurrenceMonths =
+      task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType) ?? 12;
     const newDueDate = getNextDueDate(task.nextDueDate, recurrenceMonths);
 
     return this.tasksRepository.completeAndReschedule(
@@ -145,28 +167,23 @@ export class MaintenancePlansService {
     );
   }
 
-  async getTaskLogs(taskId: string) {
-    const task = await this.tasksRepository.findById(taskId);
-    if (!task) {
-      throw new NotFoundException('Tarea no encontrada');
-    }
+  async getTaskLogs(taskId: string, user?: { id: string; role: string }) {
+    await this.assertTaskAccess(taskId, user);
     return this.taskLogsRepository.findByTaskId(taskId);
   }
 
-  async addTaskNote(taskId: string, userId: string, dto: CreateTaskNoteInput) {
-    const task = await this.tasksRepository.findById(taskId);
-    if (!task) {
-      throw new NotFoundException('Tarea no encontrada');
-    }
-
+  async addTaskNote(
+    taskId: string,
+    userId: string,
+    dto: CreateTaskNoteInput,
+    user?: { id: string; role: string },
+  ) {
+    await this.assertTaskAccess(taskId, user);
     return this.taskNotesRepository.createForTask(taskId, userId, dto.content);
   }
 
-  async getTaskNotes(taskId: string) {
-    const task = await this.tasksRepository.findById(taskId);
-    if (!task) {
-      throw new NotFoundException('Tarea no encontrada');
-    }
+  async getTaskNotes(taskId: string, user?: { id: string; role: string }) {
+    await this.assertTaskAccess(taskId, user);
     return this.taskNotesRepository.findByTaskId(taskId);
   }
 }

@@ -85,3 +85,6 @@ jobs:
 
       - name: Frontend coverage check
         run: pnpm --filter @epde/web test -- --coverage
+
+      - name: API coverage check
+        run: pnpm --filter @epde/api test -- --coverage

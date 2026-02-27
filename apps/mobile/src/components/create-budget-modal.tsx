@@ -10,6 +10,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createBudgetRequestSchema } from '@epde/shared';
@@ -24,6 +25,7 @@ interface CreateBudgetModalProps {
 }
 
 export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) {
+  const insets = useSafeAreaInsets();
   const createBudget = useCreateBudgetRequest();
   const { data: propertiesData } = useProperties();
   const properties = propertiesData?.pages.flatMap((p) => p.data) ?? [];
@@ -34,7 +36,7 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
     setValue,
     watch,
     reset,
-    formState: { errors, isValid },
+    formState: { errors, isValid, isDirty },
   } = useForm<CreateBudgetRequestInput>({
     resolver: zodResolver(createBudgetRequestSchema),
     mode: 'onChange',
@@ -63,17 +65,39 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
   };
 
   const handleClose = () => {
+    if (isDirty) {
+      Alert.alert('Descartar cambios?', 'Tenés cambios sin guardar.', [
+        { text: 'Seguir editando', style: 'cancel' },
+        {
+          text: 'Descartar',
+          style: 'destructive',
+          onPress: () => {
+            reset();
+            onClose();
+          },
+        },
+      ]);
+      return;
+    }
     reset();
     onClose();
   };
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={handleClose}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         className="bg-background flex-1"
       >
-        <View className="border-border flex-row items-center justify-between border-b px-4 py-3">
+        <View
+          style={{ paddingTop: insets.top }}
+          className="border-border flex-row items-center justify-between border-b px-4 py-3"
+        >
           <Pressable onPress={handleClose}>
             <Text
               style={{ fontFamily: 'DMSans_500Medium' }}

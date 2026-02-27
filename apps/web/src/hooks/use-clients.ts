@@ -1,14 +1,7 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error && typeof error === 'object' && 'response' in error) {
-    const data = (error as { response?: { data?: { message?: string } } }).response?.data;
-    if (data?.message) return data.message;
-  }
-  return fallback;
-}
+import { getErrorMessage } from '@/lib/errors';
 import {
   getClients,
   getClient,
@@ -21,7 +14,7 @@ import {
 export function useClients(filters: ClientFilters) {
   return useInfiniteQuery({
     queryKey: ['clients', filters],
-    queryFn: ({ pageParam }) => getClients({ ...filters, cursor: pageParam }),
+    queryFn: ({ pageParam, signal }) => getClients({ ...filters, cursor: pageParam }, signal),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
   });
@@ -72,7 +65,7 @@ export function useClientSearch(search: string) {
       const result = await getClients({ search: debouncedSearch || undefined, take: 20 });
       return result.data;
     },
-    enabled: true,
+    enabled: debouncedSearch.length > 0,
   });
 }
 

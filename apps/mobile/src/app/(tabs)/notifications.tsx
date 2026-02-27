@@ -9,6 +9,7 @@ import {
   useMarkAllAsRead,
 } from '@/hooks/use-notifications';
 import { EmptyState } from '@/components/empty-state';
+import { ErrorState } from '@/components/error-state';
 import type { NotificationPublic } from '@epde/shared/types';
 
 const TYPE_ICONS: Record<string, string> = {
@@ -84,13 +85,17 @@ function NotificationCard({
 }
 
 export default function NotificationsScreen() {
-  const { data, isLoading, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useNotifications();
   const { data: unreadCount } = useUnreadCount();
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
 
   const notifications = data?.pages.flatMap((page) => page.data) ?? [];
+
+  if (error && !data) {
+    return <ErrorState onRetry={refetch} />;
+  }
 
   const onRefresh = useCallback(() => {
     refetch();
@@ -119,6 +124,9 @@ export default function NotificationsScreen() {
       )}
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
+      maxToRenderPerBatch={10}
+      windowSize={10}
+      removeClippedSubviews
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
       ListHeaderComponent={
         <View className="mb-4">

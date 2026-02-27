@@ -1,12 +1,20 @@
-import { formatDistanceToNow, isPast, addMonths, isWithinInterval, addDays } from 'date-fns';
+import {
+  formatDistanceToNow,
+  isPast,
+  addMonths,
+  isWithinInterval,
+  addDays,
+  startOfDay,
+} from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export function formatRelativeDate(date: Date): string {
   return formatDistanceToNow(date, { addSuffix: true, locale: es });
 }
 
-export function isOverdue(date: Date): boolean {
-  return isPast(date);
+export function isOverdue(date: Date | string): boolean {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return isPast(startOfDay(d));
 }
 
 export function isUpcoming(date: Date, daysAhead: number = 30): boolean {
@@ -21,12 +29,12 @@ export function getNextDueDate(currentDate: Date, recurrenceMonths: number): Dat
   return addMonths(currentDate, recurrenceMonths);
 }
 
-export function recurrenceTypeToMonths(type: string): number {
+export function recurrenceTypeToMonths(type: string): number | null {
   const map: Record<string, number> = {
     MONTHLY: 1,
     QUARTERLY: 3,
     BIANNUAL: 6,
     ANNUAL: 12,
   };
-  return map[type] ?? 12;
+  return map[type] ?? null;
 }

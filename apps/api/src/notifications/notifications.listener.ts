@@ -14,6 +14,19 @@ export class NotificationsListener {
     private readonly emailService: EmailService,
   ) {}
 
+  private async sendEmailWithRetry(fn: () => Promise<void>, label: string) {
+    try {
+      await fn();
+    } catch {
+      this.logger.warn(`Primer intento de ${label} falló, reintentando...`);
+      try {
+        await fn();
+      } catch (retryErr) {
+        this.logger.error(`Error enviando ${label} (tras retry): ${(retryErr as Error).message}`);
+      }
+    }
+  }
+
   @OnEvent('budget.created')
   async handleBudgetCreated(payload: {
     budgetId: string;
@@ -59,15 +72,17 @@ export class NotificationsListener {
 
       const requester = await this.usersRepository.findEmailInfo(payload.requesterId);
       if (requester) {
-        await this.emailService
-          .sendBudgetQuotedEmail(
-            requester.email,
-            requester.name,
-            payload.title,
-            payload.totalAmount,
-            payload.budgetId,
-          )
-          .catch((err) => this.logger.error(`Error enviando email de cotización: ${err.message}`));
+        await this.sendEmailWithRetry(
+          () =>
+            this.emailService.sendBudgetQuotedEmail(
+              requester.email,
+              requester.name,
+              payload.title,
+              payload.totalAmount,
+              payload.budgetId,
+            ),
+          'email de cotización',
+        );
       }
     } catch (error) {
       this.logger.error(
@@ -117,15 +132,17 @@ export class NotificationsListener {
 
         const requester = await this.usersRepository.findEmailInfo(payload.requesterId);
         if (requester) {
-          await this.emailService
-            .sendBudgetStatusEmail(
-              requester.email,
-              requester.name,
-              payload.title,
-              payload.newStatus,
-              payload.budgetId,
-            )
-            .catch((err) => this.logger.error(`Error enviando email de estado: ${err.message}`));
+          await this.sendEmailWithRetry(
+            () =>
+              this.emailService.sendBudgetStatusEmail(
+                requester.email,
+                requester.name,
+                payload.title,
+                payload.newStatus,
+                payload.budgetId,
+              ),
+            'email de estado',
+          );
         }
       }
     } catch (error) {

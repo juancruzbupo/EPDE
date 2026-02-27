@@ -1,4 +1,6 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { getErrorMessage } from '@/lib/errors';
 import {
   getNotifications,
   getUnreadCount,
@@ -39,6 +41,7 @@ export function useMarkAsRead() {
       return { prev };
     },
     onError: (_err, _id, context) => {
+      toast.error(getErrorMessage(_err, 'Error al marcar notificación'));
       if (context?.prev !== undefined) {
         queryClient.setQueryData(['notifications', 'unread-count'], context.prev);
       }
@@ -60,6 +63,7 @@ export function useMarkAllAsRead() {
       return { prev };
     },
     onError: (_err, _vars, context) => {
+      toast.error(getErrorMessage(_err, 'Error al marcar notificaciones'));
       if (context?.prev !== undefined) {
         queryClient.setQueryData(['notifications', 'unread-count'], context.prev);
       }

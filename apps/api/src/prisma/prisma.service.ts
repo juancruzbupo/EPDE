@@ -27,7 +27,8 @@ function addSoftDeleteFilter(args: { where?: Record<string, unknown> }) {
 }
 
 /**
- * Prisma extension that implements soft delete for User, Property, Task, and Category models.
+ * Prisma extension that implements soft delete for User, Property, Task, Category,
+ * BudgetRequest, and ServiceRequest models.
  *
  * - Read queries (findMany, findFirst, findUnique, count, aggregate, groupBy)
  *   and updateMany auto-filter `deletedAt: null` unless `deletedAt` is
@@ -42,6 +43,8 @@ function softDeleteExtension() {
       property: softDeleteHandlers(),
       task: softDeleteHandlers(),
       category: softDeleteHandlers(),
+      budgetRequest: softDeleteHandlers(),
+      serviceRequest: softDeleteHandlers(),
     },
   });
 }
@@ -150,10 +153,9 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
    * Soft-delete a record by setting deletedAt to now.
    * Use this instead of prisma.model.delete() for soft-deletable models.
    */
-  async softDeleteRecord<T extends 'user' | 'property' | 'task' | 'category'>(
-    model: T,
-    where: { id: string },
-  ) {
+  async softDeleteRecord<
+    T extends 'user' | 'property' | 'task' | 'category' | 'budgetRequest' | 'serviceRequest',
+  >(model: T, where: { id: string }) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (this[model] as any).update({
       where,

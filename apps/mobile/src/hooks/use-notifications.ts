@@ -12,6 +12,7 @@ export function useNotifications() {
     queryFn: ({ pageParam, signal }) => getNotifications({ cursor: pageParam }, signal),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
+    maxPages: 10,
   });
 }
 

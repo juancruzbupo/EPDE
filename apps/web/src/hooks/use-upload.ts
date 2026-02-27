@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { apiClient } from '@/lib/api-client';
+import { getErrorMessage } from '@/lib/errors';
 
 export function useUploadFile() {
   return useMutation({
@@ -13,8 +14,8 @@ export function useUploadFile() {
       });
       return data.data.url as string;
     },
-    onError: () => {
-      toast.error('Error al subir archivo');
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al subir archivo'));
     },
   });
 }
