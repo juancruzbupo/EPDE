@@ -1,11 +1,9 @@
 import { View, Text, Pressable, Alert, ScrollView } from 'react-native';
-import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 
 export default function ProfileScreen() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
-  const queryClient = useQueryClient();
 
   const handleLogout = () => {
     Alert.alert('Cerrar Sesion', 'Estas seguro de que quieres cerrar sesion?', [
@@ -13,11 +11,7 @@ export default function ProfileScreen() {
       {
         text: 'Cerrar Sesion',
         style: 'destructive',
-        onPress: async () => {
-          queryClient.cancelQueries();
-          queryClient.clear();
-          await logout();
-        },
+        onPress: () => logout(),
       },
     ]);
   };

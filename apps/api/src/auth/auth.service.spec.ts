@@ -200,7 +200,7 @@ describe('AuthService', () => {
 
   describe('setPassword', () => {
     it('should set password for INVITED user', async () => {
-      jwtService.verify.mockReturnValue({ sub: 'user-2' });
+      jwtService.verify.mockReturnValue({ sub: 'user-2', purpose: 'invite' });
       usersService.findById.mockResolvedValue(mockInvitedUser as any);
       (bcrypt.hash as jest.Mock).mockResolvedValue('new-hashed-password');
       usersService.update.mockResolvedValue({
@@ -222,7 +222,7 @@ describe('AuthService', () => {
     });
 
     it('should throw BadRequestException if user is not INVITED', async () => {
-      jwtService.verify.mockReturnValue({ sub: 'user-1' });
+      jwtService.verify.mockReturnValue({ sub: 'user-1', purpose: 'invite' });
       usersService.findById.mockResolvedValue(mockUser as any);
 
       await expect(authService.setPassword('valid-token', 'NewPassword123!')).rejects.toThrow(

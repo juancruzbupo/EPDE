@@ -151,11 +151,12 @@ model MaintenancePlan {
 }
 
 model Category {
-  id          String  @id @default(uuid())
-  name        String  @unique
+  id          String    @id @default(uuid())
+  name        String    @unique
   description String?
   icon        String?
-  order       Int     @default(0)
+  order       Int       @default(0)
+  deletedAt   DateTime?
 
   tasks Task[]
 }
@@ -189,6 +190,7 @@ model Task {
   @@index([status])
   @@index([status, nextDueDate])
   @@index([status, deletedAt])
+  @@index([categoryId])
 }
 
 model TaskLog {

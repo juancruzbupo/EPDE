@@ -1,4 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error && typeof error === 'object' && 'response' in error) {
+    const data = (error as { response?: { data?: { message?: string } } }).response?.data;
+    if (data?.message) return data.message;
+  }
+  return fallback;
+}
 import {
   getCategories,
   createCategory,
@@ -18,6 +27,9 @@ export function useCreateCategory() {
   return useMutation({
     mutationFn: createCategory,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['categories'] }),
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al crear categoría'));
+    },
   });
 }
 
@@ -35,6 +47,9 @@ export function useUpdateCategory() {
       order?: number;
     }) => updateCategory(id, dto),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['categories'] }),
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al actualizar categoría'));
+    },
   });
 }
 
@@ -43,5 +58,8 @@ export function useDeleteCategory() {
   return useMutation({
     mutationFn: deleteCategory,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['categories'] }),
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al eliminar categoría'));
+    },
   });
 }

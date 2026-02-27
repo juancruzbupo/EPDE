@@ -1,5 +1,14 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error && typeof error === 'object' && 'response' in error) {
+    const data = (error as { response?: { data?: { message?: string } } }).response?.data;
+    if (data?.message) return data.message;
+  }
+  return fallback;
+}
 import {
   getClients,
   getClient,
@@ -31,6 +40,9 @@ export function useCreateClient() {
   return useMutation({
     mutationFn: createClient,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['clients'] }),
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al crear cliente'));
+    },
   });
 }
 
@@ -40,6 +52,9 @@ export function useUpdateClient() {
     mutationFn: ({ id, ...dto }: { id: string; name?: string; phone?: string; status?: string }) =>
       updateClient(id, dto),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['clients'] }),
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al actualizar cliente'));
+    },
   });
 }
 
@@ -66,5 +81,8 @@ export function useDeleteClient() {
   return useMutation({
     mutationFn: deleteClient,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['clients'] }),
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al eliminar cliente'));
+    },
   });
 }

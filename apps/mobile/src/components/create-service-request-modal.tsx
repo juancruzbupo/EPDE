@@ -59,7 +59,7 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
   const selectedPropertyId = watch('propertyId');
   const urgency = watch('urgency') ?? 'MEDIUM';
   const isSubmitting = createRequest.isPending;
-  const canSubmit = isValid && !isUploading;
+  const canSubmit = isValid && !isUploading && photos.every((p) => p.uploadedUrl);
 
   const pickImage = () => {
     if (photos.length >= 5) {

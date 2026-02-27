@@ -6,7 +6,7 @@ import { BaseRepository } from '../common/repositories/base.repository';
 @Injectable()
 export class CategoriesRepository extends BaseRepository<Category> {
   constructor(prisma: PrismaService) {
-    super(prisma, 'category', false);
+    super(prisma, 'category', true);
   }
 
   async findAll(): Promise<Category[]> {

@@ -66,6 +66,11 @@ export class AuthService {
   async setPassword(token: string, newPassword: string) {
     try {
       const payload = this.jwtService.verify(token);
+
+      if (payload.purpose !== 'invite') {
+        throw new UnauthorizedException('Token inválido');
+      }
+
       const user = await this.usersService.findById(payload.sub);
 
       if (user.status !== 'INVITED') {

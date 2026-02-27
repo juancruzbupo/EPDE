@@ -9,6 +9,8 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Throttle } from '@nestjs/throttler';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { UserRole } from '@epde/shared';
+import { Roles } from '../common/decorators/roles.decorator';
 import { UploadService } from './upload.service';
 
 const ALLOWED_MIME_TYPES = new Set([
@@ -25,6 +27,7 @@ const ALLOWED_FOLDERS = new Set(['uploads', 'properties', 'tasks', 'service-requ
 
 @ApiTags('Upload')
 @ApiBearerAuth()
+@Roles(UserRole.ADMIN)
 @Controller('upload')
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
@@ -55,9 +58,13 @@ export class UploadController {
       throw new BadRequestException('El contenido del archivo no coincide con un tipo permitido');
     }
 
-    const sanitizedFolder = ALLOWED_FOLDERS.has(folder) ? folder : 'uploads';
+    if (!ALLOWED_FOLDERS.has(folder)) {
+      throw new BadRequestException(
+        `Carpeta no permitida: ${folder}. Permitidas: ${[...ALLOWED_FOLDERS].join(', ')}`,
+      );
+    }
 
-    const url = await this.uploadService.uploadFile(file, sanitizedFolder, detected.mime);
+    const url = await this.uploadService.uploadFile(file, folder, detected.mime);
     return { data: { url } };
   }
 }

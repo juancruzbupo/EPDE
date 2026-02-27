@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { apiClient } from '@/lib/api-client';
 
 export function useUploadFile() {
@@ -11,6 +12,9 @@ export function useUploadFile() {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return data.data.url as string;
+    },
+    onError: () => {
+      toast.error('Error al subir archivo');
     },
   });
 }

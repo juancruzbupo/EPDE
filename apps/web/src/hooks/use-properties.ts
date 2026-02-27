@@ -1,4 +1,13 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error && typeof error === 'object' && 'response' in error) {
+    const data = (error as { response?: { data?: { message?: string } } }).response?.data;
+    if (data?.message) return data.message;
+  }
+  return fallback;
+}
 import {
   getProperties,
   getProperty,
@@ -30,6 +39,9 @@ export function useCreateProperty() {
   return useMutation({
     mutationFn: createProperty,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['properties'] }),
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al crear propiedad'));
+    },
   });
 }
 
@@ -39,6 +51,9 @@ export function useUpdateProperty() {
     mutationFn: ({ id, ...dto }: { id: string } & Record<string, unknown>) =>
       updateProperty(id, dto),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['properties'] }),
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al actualizar propiedad'));
+    },
   });
 }
 
@@ -47,5 +62,8 @@ export function useDeleteProperty() {
   return useMutation({
     mutationFn: deleteProperty,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['properties'] }),
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al eliminar propiedad'));
+    },
   });
 }

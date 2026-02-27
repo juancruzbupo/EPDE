@@ -134,7 +134,7 @@ export class AuthController {
   }
 
   @Public()
-  @Throttle({ medium: { limit: 5, ttl: 60000 } })
+  @Throttle({ medium: { limit: 3, ttl: 3600000 } })
   @Post('set-password')
   @HttpCode(HttpStatus.OK)
   async setPassword(@Body(new ZodValidationPipe(setPasswordSchema)) dto: SetPasswordInput) {
