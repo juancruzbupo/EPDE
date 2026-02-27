@@ -19,7 +19,7 @@ export class PropertiesRepository extends BaseRepository<Property> {
     search?: string;
     userId?: string;
     city?: string;
-    type?: string;
+    type?: PropertyType;
   }): Promise<PaginatedResult<Property>> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {};

@@ -1,7 +1,11 @@
 import { z } from 'zod';
 
 export const loginSchema = z.object({
-  email: z.string().email('Email inválido').max(254, 'El email no puede superar 254 caracteres'),
+  email: z
+    .string()
+    .trim()
+    .email('Email inválido')
+    .max(254, 'El email no puede superar 254 caracteres'),
   password: z
     .string()
     .min(6, 'La contraseña debe tener al menos 6 caracteres')

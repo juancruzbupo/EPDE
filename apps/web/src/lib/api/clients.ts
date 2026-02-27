@@ -18,8 +18,11 @@ export async function getClients(
   return data;
 }
 
-export async function getClient(id: string): Promise<ApiResponse<ClientPublic>> {
-  const { data } = await apiClient.get(`/clients/${id}`);
+export async function getClient(
+  id: string,
+  signal?: AbortSignal,
+): Promise<ApiResponse<ClientPublic>> {
+  const { data } = await apiClient.get(`/clients/${id}`, { signal });
   return data;
 }
 

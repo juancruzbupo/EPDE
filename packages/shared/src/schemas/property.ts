@@ -4,10 +4,12 @@ export const createPropertySchema = z.object({
   userId: z.string().uuid('ID de usuario inválido'),
   address: z
     .string()
+    .trim()
     .min(3, 'La dirección debe tener al menos 3 caracteres')
     .max(500, 'La dirección no puede superar 500 caracteres'),
   city: z
     .string()
+    .trim()
     .min(2, 'La ciudad debe tener al menos 2 caracteres')
     .max(200, 'La ciudad no puede superar 200 caracteres'),
   type: z.enum(['HOUSE', 'APARTMENT', 'DUPLEX', 'COUNTRY_HOUSE', 'OTHER']).default('HOUSE'),
@@ -20,11 +22,13 @@ export type CreatePropertyInput = z.infer<typeof createPropertySchema>;
 export const updatePropertySchema = z.object({
   address: z
     .string()
+    .trim()
     .min(3, 'La dirección debe tener al menos 3 caracteres')
     .max(500, 'La dirección no puede superar 500 caracteres')
     .optional(),
   city: z
     .string()
+    .trim()
     .min(2, 'La ciudad debe tener al menos 2 caracteres')
     .max(200, 'La ciudad no puede superar 200 caracteres')
     .optional(),

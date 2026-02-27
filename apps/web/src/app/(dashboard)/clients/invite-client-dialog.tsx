@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createClientSchema, type CreateClientInput } from '@epde/shared/schemas';
 import { useCreateClient } from '@/hooks/use-clients';
+import { getErrorMessage } from '@/lib/errors';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,11 +37,7 @@ export function InviteClientDialog({ open, onOpenChange }: InviteClientDialogPro
     });
   };
 
-  const errorMessage =
-    createClient.error &&
-    'response' in createClient.error &&
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ((createClient.error as any).response?.data?.message as string);
+  const errorMessage = createClient.error ? getErrorMessage(createClient.error, '') : '';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

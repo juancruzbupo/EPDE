@@ -68,12 +68,10 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
     }
   }, [task, planId, setValue, reset]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: TaskFormValues) => {
     const nextDueDate = new Date(data.nextDueDate).toISOString();
     if (isEdit) {
-      const { maintenancePlanId: _planId, ...dto } = data;
-      void _planId;
+      const { maintenancePlanId: _maintenancePlanId, ...dto } = data;
       updateTask.mutate(
         { planId, taskId: task!.id, ...dto, nextDueDate },
         { onSuccess: () => onOpenChange(false) },

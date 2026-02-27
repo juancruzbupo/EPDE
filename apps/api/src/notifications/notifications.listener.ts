@@ -37,15 +37,15 @@ export class NotificationsListener {
     try {
       const adminIds = await this.usersRepository.findAdminIds();
 
-      for (const adminId of adminIds) {
-        await this.notificationsService.createNotification({
+      await this.notificationsService.createNotifications(
+        adminIds.map((adminId) => ({
           userId: adminId,
-          type: 'BUDGET_UPDATE',
+          type: 'BUDGET_UPDATE' as const,
           title: 'Nuevo presupuesto solicitado',
           message: `Se solicitó un presupuesto: "${payload.title}"`,
           data: { budgetId: payload.budgetId },
-        });
-      }
+        })),
+      );
     } catch (error) {
       this.logger.error(
         `Error handling budget.created for ${payload.budgetId}: ${(error as Error).message}`,
@@ -112,15 +112,15 @@ export class NotificationsListener {
 
       if (['APPROVED', 'REJECTED'].includes(payload.newStatus)) {
         const adminIds = await this.usersRepository.findAdminIds();
-        for (const adminId of adminIds) {
-          await this.notificationsService.createNotification({
+        await this.notificationsService.createNotifications(
+          adminIds.map((adminId) => ({
             userId: adminId,
-            type: 'BUDGET_UPDATE',
+            type: 'BUDGET_UPDATE' as const,
             title: 'Actualización de presupuesto',
             message: `El presupuesto "${payload.title}" ${message}`,
             data: { budgetId: payload.budgetId },
-          });
-        }
+          })),
+        );
       } else {
         await this.notificationsService.createNotification({
           userId: payload.requesterId,
@@ -163,15 +163,15 @@ export class NotificationsListener {
     try {
       const adminIds = await this.usersRepository.findAdminIds();
 
-      for (const adminId of adminIds) {
-        await this.notificationsService.createNotification({
+      await this.notificationsService.createNotifications(
+        adminIds.map((adminId) => ({
           userId: adminId,
-          type: 'SERVICE_UPDATE',
+          type: 'SERVICE_UPDATE' as const,
           title: 'Nueva solicitud de servicio',
           message: `Se creó una solicitud: "${payload.title}" (${payload.urgency})`,
           data: { serviceRequestId: payload.serviceRequestId },
-        });
-      }
+        })),
+      );
     } catch (error) {
       this.logger.error(
         `Error handling service.created for ${payload.serviceRequestId}: ${(error as Error).message}`,

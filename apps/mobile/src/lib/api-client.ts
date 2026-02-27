@@ -96,6 +96,10 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       }
 
+      // Refresh failed — signal logout to UI via dynamic import to avoid circular deps
+      const { useAuthStore } = await import('../stores/auth-store');
+      await useAuthStore.getState().logout();
+
       return Promise.reject(error);
     }
 

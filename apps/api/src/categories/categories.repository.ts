@@ -10,7 +10,7 @@ export class CategoriesRepository extends BaseRepository<Category> {
   }
 
   async findAll(): Promise<Category[]> {
-    return this.model.findMany({ orderBy: { order: 'asc' } });
+    return this.model.findMany({ orderBy: { order: 'asc' }, take: 100 });
   }
 
   async findByName(name: string): Promise<Category | null> {

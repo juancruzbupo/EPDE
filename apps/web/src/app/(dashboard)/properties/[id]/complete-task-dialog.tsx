@@ -25,17 +25,17 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
-  const { register, handleSubmit, setValue, reset, watch } = useForm<CompleteTaskInput>({
+  const { register, handleSubmit, setValue, reset } = useForm<CompleteTaskInput>({
     resolver: zodResolver(completeTaskSchema),
   });
-
-  const photoUrl = watch('photoUrl');
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setPreview(URL.createObjectURL(file));
+    if (preview) URL.revokeObjectURL(preview);
+    const objectUrl = URL.createObjectURL(file);
+    setPreview(objectUrl);
 
     uploadFile.mutate(
       { file, folder: 'task-photos' },
@@ -44,6 +44,7 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
           setValue('photoUrl', url);
         },
         onError: () => {
+          URL.revokeObjectURL(objectUrl);
           setPreview(null);
           setValue('photoUrl', undefined);
         },
@@ -52,6 +53,7 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
   };
 
   const removePhoto = () => {
+    if (preview) URL.revokeObjectURL(preview);
     setPreview(null);
     setValue('photoUrl', undefined);
     if (fileInputRef.current) {
@@ -66,6 +68,7 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
       {
         onSuccess: () => {
           reset();
+          if (preview) URL.revokeObjectURL(preview);
           setPreview(null);
           onOpenChange(false);
         },
@@ -87,7 +90,7 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
             <textarea
               {...register('notes')}
               placeholder="Describí el trabajo realizado..."
-              className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring w-full resize-none rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+              className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring w-full resize-none rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
               rows={3}
             />
           </div>
@@ -104,7 +107,7 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
                 <button
                   type="button"
                   onClick={removePhoto}
-                  className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white"
+                  className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -137,10 +140,7 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button
-              type="submit"
-              disabled={completeTask.isPending || (uploadFile.isPending && !photoUrl)}
-            >
+            <Button type="submit" disabled={completeTask.isPending || uploadFile.isPending}>
               {completeTask.isPending ? 'Completando...' : 'Completar'}
             </Button>
           </div>

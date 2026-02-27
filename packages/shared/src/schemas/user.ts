@@ -1,12 +1,17 @@
 import { z } from 'zod';
 
 export const createClientSchema = z.object({
-  email: z.string().email('Email inválido').max(254, 'El email no puede superar 254 caracteres'),
+  email: z
+    .string()
+    .trim()
+    .email('Email inválido')
+    .max(254, 'El email no puede superar 254 caracteres'),
   name: z
     .string()
+    .trim()
     .min(2, 'El nombre debe tener al menos 2 caracteres')
     .max(200, 'El nombre no puede superar 200 caracteres'),
-  phone: z.string().max(30, 'El teléfono no puede superar 30 caracteres').optional(),
+  phone: z.string().trim().max(30, 'El teléfono no puede superar 30 caracteres').optional(),
 });
 
 export type CreateClientInput = z.infer<typeof createClientSchema>;
@@ -14,10 +19,11 @@ export type CreateClientInput = z.infer<typeof createClientSchema>;
 export const updateClientSchema = z.object({
   name: z
     .string()
+    .trim()
     .min(2, 'El nombre debe tener al menos 2 caracteres')
     .max(200, 'El nombre no puede superar 200 caracteres')
     .optional(),
-  phone: z.string().max(30, 'El teléfono no puede superar 30 caracteres').optional(),
+  phone: z.string().trim().max(30, 'El teléfono no puede superar 30 caracteres').optional(),
   status: z.enum(['INVITED', 'ACTIVE', 'INACTIVE']).optional(),
 });
 

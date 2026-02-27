@@ -73,8 +73,7 @@ export class ClientsService {
     }
 
     const updated = await this.clientsRepository.update(id, dto);
-    const { passwordHash: _, ...clientWithoutPassword } = updated;
-    void _;
+    const { passwordHash: _passwordHash, ...clientWithoutPassword } = updated;
     return clientWithoutPassword;
   }
 

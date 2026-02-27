@@ -23,7 +23,7 @@ export function useClients(filters: ClientFilters) {
 export function useClient(id: string) {
   return useQuery({
     queryKey: ['clients', id],
-    queryFn: () => getClient(id),
+    queryFn: ({ signal }) => getClient(id, signal),
     enabled: !!id,
   });
 }
