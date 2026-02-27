@@ -1,11 +1,4 @@
-import {
-  formatDistanceToNow,
-  isPast,
-  addMonths,
-  isWithinInterval,
-  addDays,
-  startOfDay,
-} from 'date-fns';
+import { formatDistanceToNow, addMonths, isWithinInterval, addDays, startOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export function formatRelativeDate(date: Date): string {
@@ -14,7 +7,7 @@ export function formatRelativeDate(date: Date): string {
 
 export function isOverdue(date: Date | string): boolean {
   const d = typeof date === 'string' ? new Date(date) : date;
-  return isPast(startOfDay(d));
+  return startOfDay(d) < startOfDay(new Date());
 }
 
 export function isUpcoming(date: Date, daysAhead: number = 30): boolean {

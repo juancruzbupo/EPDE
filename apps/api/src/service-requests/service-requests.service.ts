@@ -1,6 +1,9 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ServiceRequestsRepository } from './service-requests.repository';
+import {
+  ServiceRequestsRepository,
+  type ServiceRequestWithDetails,
+} from './service-requests.repository';
 import { PropertiesRepository } from '../properties/properties.repository';
 import { UserRole } from '@epde/shared';
 import type {
@@ -39,12 +42,7 @@ export class ServiceRequestsService {
       throw new NotFoundException('Solicitud de servicio no encontrada');
     }
 
-    if (
-      currentUser.role === UserRole.CLIENT &&
-      (request as any).property?.userId !== currentUser.id
-    ) {
-      throw new ForbiddenException('No tenés acceso a esta solicitud');
-    }
+    this.assertAccess(request, currentUser);
 
     return request;
   }
@@ -83,15 +81,17 @@ export class ServiceRequestsService {
     return result;
   }
 
-  async updateStatus(id: string, dto: UpdateServiceStatusInput, userId?: string) {
+  async updateStatus(id: string, dto: UpdateServiceStatusInput, currentUser: CurrentUser) {
     const request = await this.serviceRequestsRepository.findByIdWithDetails(id);
     if (!request) {
       throw new NotFoundException('Solicitud de servicio no encontrada');
     }
 
+    this.assertAccess(request, currentUser);
+
     const updated = await this.serviceRequestsRepository.update(
       id,
-      { status: dto.status, updatedBy: userId },
+      { status: dto.status, updatedBy: currentUser.id },
       {
         property: {
           select: {
@@ -115,5 +115,11 @@ export class ServiceRequestsService {
     });
 
     return updated;
+  }
+
+  private assertAccess(request: ServiceRequestWithDetails, currentUser: CurrentUser): void {
+    if (currentUser.role === UserRole.CLIENT && request.property?.userId !== currentUser.id) {
+      throw new ForbiddenException('No tenés acceso a esta solicitud');
+    }
   }
 }

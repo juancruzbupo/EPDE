@@ -258,18 +258,19 @@ describe('ServiceRequestsService', () => {
 
   describe('updateStatus', () => {
     const updateDto = { status: 'IN_PROGRESS' as const };
+    const adminUser = { id: 'admin-1', role: 'ADMIN' };
 
     it('should update status and emit statusChanged event', async () => {
       serviceRequestsRepo.findByIdWithDetails.mockResolvedValue(mockServiceRequest);
       const updatedRequest = { ...mockServiceRequest, status: 'IN_PROGRESS' };
       serviceRequestsRepo.update.mockResolvedValue(updatedRequest);
 
-      const result = await service.updateStatus('sr-1', updateDto);
+      const result = await service.updateStatus('sr-1', updateDto, adminUser);
 
       expect(serviceRequestsRepo.findByIdWithDetails).toHaveBeenCalledWith('sr-1');
       expect(serviceRequestsRepo.update).toHaveBeenCalledWith(
         'sr-1',
-        { status: 'IN_PROGRESS' },
+        { status: 'IN_PROGRESS', updatedBy: 'admin-1' },
         {
           property: {
             select: {
@@ -296,10 +297,10 @@ describe('ServiceRequestsService', () => {
     it('should throw NotFoundException when service request not found', async () => {
       serviceRequestsRepo.findByIdWithDetails.mockResolvedValue(null);
 
-      await expect(service.updateStatus('non-existent', updateDto)).rejects.toThrow(
+      await expect(service.updateStatus('non-existent', updateDto, adminUser)).rejects.toThrow(
         NotFoundException,
       );
-      await expect(service.updateStatus('non-existent', updateDto)).rejects.toThrow(
+      await expect(service.updateStatus('non-existent', updateDto, adminUser)).rejects.toThrow(
         'Solicitud de servicio no encontrada',
       );
     });

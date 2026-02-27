@@ -18,11 +18,23 @@ const SERVICE_REQUEST_LIST_INCLUDE = {
     },
   },
   requester: { select: { id: true, name: true, email: true } },
-};
+} as const;
 
 const SERVICE_REQUEST_DETAIL_INCLUDE = {
   ...SERVICE_REQUEST_LIST_INCLUDE,
   photos: true,
+} as const;
+
+export type ServiceRequestWithDetails = ServiceRequest & {
+  property: {
+    id: string;
+    address: string;
+    city: string;
+    userId: string;
+    user: { id: string; name: string };
+  } | null;
+  requester: { id: string; name: string; email: string } | null;
+  photos: { id: string; url: string; serviceRequestId: string }[];
 };
 
 @Injectable()
@@ -57,8 +69,11 @@ export class ServiceRequestsRepository extends BaseRepository<ServiceRequest> {
     return this.findMany(findParams);
   }
 
-  async findByIdWithDetails(id: string): Promise<ServiceRequest | null> {
-    return this.findById(id, SERVICE_REQUEST_DETAIL_INCLUDE);
+  async findByIdWithDetails(id: string): Promise<ServiceRequestWithDetails | null> {
+    return this.findById(
+      id,
+      SERVICE_REQUEST_DETAIL_INCLUDE,
+    ) as Promise<ServiceRequestWithDetails | null>;
   }
 
   async createWithPhotos(data: {

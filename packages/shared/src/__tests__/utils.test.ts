@@ -61,12 +61,12 @@ describe('isOverdue', () => {
     expect(isOverdue(futureDate)).toBe(false);
   });
 
-  it('should return true for a date that just passed (same day, earlier time)', () => {
-    const justPassed = new Date('2026-06-15T11:59:00Z');
-    expect(isOverdue(justPassed)).toBe(true);
+  it('should return false for a date on the same day (startOfDay comparison)', () => {
+    const sameDay = new Date('2026-06-15T11:59:00Z');
+    expect(isOverdue(sameDay)).toBe(false);
   });
 
-  it('should return false for a date just ahead (same day, later time)', () => {
+  it('should return false for a date later the same day', () => {
     const justAhead = new Date('2026-06-15T12:01:00Z');
     expect(isOverdue(justAhead)).toBe(false);
   });
@@ -181,15 +181,15 @@ describe('recurrenceTypeToMonths', () => {
     expect(recurrenceTypeToMonths('ANNUAL')).toBe(12);
   });
 
-  it('should return 12 as default for unknown type', () => {
-    expect(recurrenceTypeToMonths('CUSTOM')).toBe(12);
+  it('should return null for unknown type', () => {
+    expect(recurrenceTypeToMonths('CUSTOM')).toBeNull();
   });
 
-  it('should return 12 as default for empty string', () => {
-    expect(recurrenceTypeToMonths('')).toBe(12);
+  it('should return null for empty string', () => {
+    expect(recurrenceTypeToMonths('')).toBeNull();
   });
 
-  it('should return 12 as default for arbitrary string', () => {
-    expect(recurrenceTypeToMonths('SOMETHING_ELSE')).toBe(12);
+  it('should return null for arbitrary string', () => {
+    expect(recurrenceTypeToMonths('SOMETHING_ELSE')).toBeNull();
   });
 });

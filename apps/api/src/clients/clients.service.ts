@@ -27,13 +27,12 @@ export class ClientsService {
     if (!client || client.role !== UserRole.CLIENT) {
       throw new NotFoundException('Cliente no encontrado');
     }
-    const { passwordHash: _, ...clientWithoutPassword } = client;
-    void _;
+    const { passwordHash: _passwordHash, ...clientWithoutPassword } = client;
     return clientWithoutPassword;
   }
 
   async createClient(dto: CreateClientInput) {
-    const existing = await this.clientsRepository.findByEmail(dto.email);
+    const existing = await this.clientsRepository.findByEmailIncludingDeleted(dto.email);
 
     let client;
     if (existing && existing.deletedAt) {
@@ -63,8 +62,7 @@ export class ClientsService {
 
     await this.emailService.sendInviteEmail(client.email, client.name, token);
 
-    const { passwordHash: _, ...clientWithoutPassword } = client;
-    void _;
+    const { passwordHash: _passwordHash, ...clientWithoutPassword } = client;
     return clientWithoutPassword;
   }
 

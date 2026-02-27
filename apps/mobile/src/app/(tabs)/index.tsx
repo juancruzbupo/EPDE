@@ -7,6 +7,7 @@ import { useClientDashboardStats, useClientUpcomingTasks } from '@/hooks/use-das
 import { StatCard } from '@/components/stat-card';
 import { PriorityBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
+import { ErrorState } from '@/components/error-state';
 import type { UpcomingTask } from '@epde/shared/types';
 
 function TaskCard({ task }: { task: UpcomingTask }) {
@@ -47,8 +48,18 @@ function TaskCard({ task }: { task: UpcomingTask }) {
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useClientDashboardStats();
-  const { data: tasks, isLoading: tasksLoading, refetch: refetchTasks } = useClientUpcomingTasks();
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    error: statsError,
+    refetch: refetchStats,
+  } = useClientDashboardStats();
+  const {
+    data: tasks,
+    isLoading: tasksLoading,
+    error: tasksError,
+    refetch: refetchTasks,
+  } = useClientUpcomingTasks();
 
   const isLoading = statsLoading || tasksLoading;
 
@@ -56,6 +67,10 @@ export default function DashboardScreen() {
     refetchStats();
     refetchTasks();
   }, [refetchStats, refetchTasks]);
+
+  if ((statsError || tasksError) && !stats && !tasks) {
+    return <ErrorState onRetry={onRefresh} message="No se pudieron cargar los datos del panel." />;
+  }
 
   return (
     <ScrollView
