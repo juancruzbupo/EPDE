@@ -168,14 +168,16 @@ Category ─1:N─ Task
 
 ### Category
 
-| Campo       | Tipo    | Notas                          |
-| ----------- | ------- | ------------------------------ |
-| id          | UUID    | PK                             |
-| name        | String  | Unique                         |
-| description | String? |                                |
-| icon        | String? | Nombre de icono Lucide         |
-| order       | Int     | Para ordenamiento (default: 0) |
+| Campo       | Tipo      | Notas                          |
+| ----------- | --------- | ------------------------------ |
+| id          | UUID      | PK                             |
+| name        | String    | Unique                         |
+| description | String?   |                                |
+| icon        | String?   | Nombre de icono Lucide         |
+| order       | Int       | Para ordenamiento (default: 0) |
+| deletedAt   | DateTime? | Soft delete                    |
 
+**Soft delete:** Si — via Prisma extension (misma mecanica que User, Property, Task)
 **Categorias por defecto (seed):** Electricidad, Plomeria, Pintura, Techos y Cubiertas, Jardin y Exteriores, Climatizacion, Seguridad, Limpieza General, Estructural, Aberturas
 
 ### Task
@@ -197,7 +199,7 @@ Category ─1:N─ Task
 | updatedAt         | DateTime       |                              |
 | deletedAt         | DateTime?      | Soft delete                  |
 
-**Indices:** `maintenancePlanId`, `nextDueDate`, `status`, `[status, nextDueDate]`, `[status, deletedAt]`
+**Indices:** `maintenancePlanId`, `nextDueDate`, `status`, `categoryId`, `[status, nextDueDate]`, `[status, deletedAt]`
 **Status se actualiza via cron:** PENDING → UPCOMING (30 dias) → OVERDUE
 
 ### TaskLog

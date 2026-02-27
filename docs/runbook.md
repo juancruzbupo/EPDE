@@ -316,6 +316,7 @@ pnpm --filter @epde/api prisma migrate dev --name descripcion_del_cambio
 - `User(role, deletedAt)` — Filtrado de usuarios por rol
 - `Property(userId, deletedAt)` — Listado de propiedades por owner (con soft delete)
 - `Task(status, nextDueDate)` — Queries de cron jobs
+- `Task(categoryId)` — Tareas por categoria (FK index)
 - `Task(status, deletedAt)` — Listado de tareas activas
 - `Task(maintenancePlanId, status)` — Tareas por plan con filtro de estado
 - `TaskLog(taskId)` — Historial de completado por tarea

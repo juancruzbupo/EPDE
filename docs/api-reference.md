@@ -115,7 +115,7 @@ Si algun componente falla, `status` sera `"error"` y el campo `error` contendra 
 { "token": "jwt-token-from-email", "newPassword": "MyPassword1" }
 ```
 
-Rate limit: 5 requests/minuto en login y set-password.
+Rate limit: 5 requests/minuto en login. 3 requests/hora en set-password.
 
 Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
 
@@ -187,7 +187,7 @@ Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
 | GET    | `/categories`     | Si   | Ambos | Listar categorias |
 | POST   | `/categories`     | Si   | ADMIN | Crear categoria   |
 | PATCH  | `/categories/:id` | Si   | ADMIN | Actualizar        |
-| DELETE | `/categories/:id` | Si   | ADMIN | Eliminar          |
+| DELETE | `/categories/:id` | Si   | ADMIN | Eliminar (soft)   |
 
 ---
 
@@ -310,7 +310,7 @@ Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
 
 | Metodo | Ruta                    | Auth | Rol   | Descripcion                            |
 | ------ | ----------------------- | ---- | ----- | -------------------------------------- |
-| POST   | `/upload/presigned-url` | Si   | Ambos | Obtener URL presignada para subir a R2 |
+| POST   | `/upload/presigned-url` | Si   | ADMIN | Obtener URL presignada para subir a R2 |
 
 **POST /upload/presigned-url**
 

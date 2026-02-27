@@ -314,7 +314,7 @@ Extension global en `PrismaService`:
 - `findMany/findFirst/findUnique/count/aggregate/groupBy` → auto-agregan `where: { deletedAt: null }`
 - Condicion: `hasDeletedAtKey(where)` inspecciona recursivamente nivel raiz + operadores logicos (`AND`, `OR`, `NOT`)
 - `delete` → se convierte en `update({ deletedAt: new Date() })`
-- Modelos afectados: `User`, `Property`, `Task`
+- Modelos afectados: `User`, `Property`, `Task`, `Category`
 - Acceso a eliminados: via `writeModel` (sin filtro)
 
 ### P3: Module Pattern (NestJS)
@@ -336,7 +336,7 @@ Tres guards globales en orden via `APP_GUARD`:
 
 1. **JwtAuthGuard** — Valida JWT. Salta `@Public()` endpoints
 2. **RolesGuard** — Verifica `user.role` contra `@Roles()`. Sin decorator = permite todo
-3. **ThrottlerGuard** — Rate limiting (10/s corto, 60/10s medio, 5/min login)
+3. **ThrottlerGuard** — Rate limiting (10/s corto, 60/10s medio, 5/min login, 3/hora set-password)
 
 ### P5: Decorators Personalizados
 
@@ -409,7 +409,8 @@ Cliente → POST /upload (multipart/form-data) → { url }
        → Usar URL en el form del recurso
 ```
 
-**Validacion:** MIME whitelist (jpeg, png, webp, gif, pdf), magic bytes verification (`file-type`), `Content-Disposition: attachment`, max 10 MB, folder whitelist (uploads, properties, tasks, service-requests, budgets).
+**Acceso:** Restringido a `ADMIN` via `@Roles(UserRole.ADMIN)`.
+**Validacion:** MIME whitelist (jpeg, png, webp, gif, pdf), magic bytes verification (`file-type`), `Content-Disposition: attachment`, max 10 MB, folder whitelist con validacion estricta (`BadRequestException` si folder invalido).
 
 ### P11: Cron Jobs (Distributed Lock)
 
@@ -690,7 +691,7 @@ Category ─1:N─ Task
 
 ### Soft Delete
 
-Modelos con `deletedAt: DateTime?`: User, Property, Task. Condicion: `!('deletedAt' in ...)` para chequear presencia de clave.
+Modelos con `deletedAt: DateTime?`: User, Property, Task, Category. Condicion: `!('deletedAt' in ...)` para chequear presencia de clave.
 
 ### Tipos Decimal
 
@@ -720,12 +721,12 @@ Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `
 
 ### Configuracion
 
-| Atributo   | Valor                               |
-| ---------- | ----------------------------------- |
-| Base URL   | `http://localhost:3001/api/v1`      |
-| Swagger    | `http://localhost:3001/api/docs`    |
-| Auth       | JWT cookies (web) / Bearer (mobile) |
-| Rate limit | 10/s, 60/10s, 5/min (login)         |
+| Atributo   | Valor                                              |
+| ---------- | -------------------------------------------------- |
+| Base URL   | `http://localhost:3001/api/v1`                     |
+| Swagger    | `http://localhost:3001/api/docs`                   |
+| Auth       | JWT cookies (web) / Bearer (mobile)                |
+| Rate limit | 10/s, 60/10s, 5/min (login), 3/hora (set-password) |
 
 ### Endpoints (17 grupos)
 

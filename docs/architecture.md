@@ -127,7 +127,7 @@ Configurado en `PrismaService` via extension:
 - La condicion usa `hasDeletedAtKey(where)` que inspecciona recursivamente el nivel raiz y operadores logicos (`AND`, `OR`, `NOT`) para detectar si `deletedAt` ya esta presente
 - `updateMany` no esta cubierto por la extension — requiere `deletedAt: null` explicito
 - Dentro de `$transaction` callbacks, la extension no aplica — usar filtro manual
-- Modelos con soft delete: `User`, `Property`, `Task`
+- Modelos con soft delete: `User`, `Property`, `Task`, `Category`
 - Para acceder a registros eliminados, usar `writeModel`
 
 ### 3. Module Pattern (NestJS)
@@ -162,7 +162,8 @@ Tres guards globales aplicados en orden via `APP_GUARD`:
 
 - `short`: 10 requests/segundo
 - `medium`: 60 requests/10 segundos
-- Login y set-password: override a 5 requests/minuto via `@Throttle()`
+- Login: override a 5 requests/minuto via `@Throttle()`
+- Set-password: override a 3 requests/hora via `@Throttle()`
 - Refresh: override a 30 requests/minuto via `@Throttle()`
 
 ### 5. Decorators Personalizados
@@ -249,23 +250,24 @@ Login → LocalStrategy (email+password) → JWT access + refresh tokens
 
 - Passwords hasheados con bcrypt (12 rounds)
 - Nuevos clientes reciben link `/set-password?token=<jwt>` por email
-- `set-password` valida token JWT y setea password
+- `set-password` valida token JWT (verifica claim `purpose === 'invite'`) y setea password
 
 ### 10. File Upload Pattern
 
 ```
-Frontend → POST /upload (multipart/form-data)
-         ← { url }  (URL publica del archivo en R2)
-         → Usar URL en el form data del recurso
+Frontend (ADMIN) → POST /upload (multipart/form-data)
+                 ← { url }  (URL publica del archivo en R2)
+                 → Usar URL en el form data del recurso
 ```
 
 **Seguridad del upload:**
 
+- **Acceso:** Restringido a `ADMIN` via `@Roles(UserRole.ADMIN)` a nivel de controller
 - **MIME type whitelist:** Solo `image/jpeg`, `image/png`, `image/webp`, `image/gif`, `application/pdf`
 - **Magic bytes validation:** `file-type` verifica contenido real del archivo (no solo header Content-Type)
 - **Content-Disposition:** `attachment` en R2 para forzar descarga en vez de render inline
 - **Tamano maximo:** 10 MB
-- **Folders permitidos:** `uploads`, `properties`, `tasks`, `service-requests`, `budgets` (whitelist, no input directo del cliente)
+- **Folders permitidos:** `uploads`, `properties`, `tasks`, `service-requests`, `budgets` — validacion estricta con `BadRequestException` si el folder no esta en la whitelist
 
 ### 11. Cron Jobs (Scheduler + Distributed Lock)
 

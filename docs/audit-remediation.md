@@ -578,6 +578,66 @@ pnpm build && pnpm typecheck && pnpm lint && pnpm test  # Todo green
 
 ---
 
+## Fase 9 — Remediacion Ronda 4 (Score 9.1 → 9.5+)
+
+> **Prioridad:** Alta
+> **Estimacion:** 1 dia
+> **Dependencias:** Fase 8 completada
+> **Issues que resuelve:** 1 HIGH, 12 MEDIUM, 3 LOW de la cuarta auditoria (16 implementados, 6 diferidos)
+
+### Contexto
+
+Cuarta ronda de auditoria (score 9.1/10). Se amplio el scope a uploads, Docker e infra. 23 hallazgos totales: 1 HIGH, 12 MEDIUM, 10 LOW. Se implementaron 16, se difirieron 6 LOW con justificacion.
+
+### 9.1 — Security Critical
+
+- [x] **9.1.1 — Upload: restringir a ADMIN + folder estricto (H-1 + M-6)** — `@Roles(UserRole.ADMIN)` a nivel de controller, `BadRequestException` si folder no esta en whitelist
+- [x] **9.1.2 — Validar purpose en invite token (M-1)** — `payload.purpose !== 'invite'` check en `setPassword`
+- [x] **9.1.3 — Rate limit set-password (M-3)** — De 5 req/min a 3 req/hora
+
+### 9.2 — Auth & DB
+
+- [x] **9.2.1 — Consolidar JwtModule en AuthModule (M-2)** — `JwtModule` exportado desde `AuthModule`, eliminado duplicado en `ClientsModule`
+- [x] **9.2.2 — Index Task.categoryId (M-4)** — `@@index([categoryId])` en schema
+- [x] **9.2.3 — Soft-delete en Category (M-5)** — `deletedAt DateTime?`, extension en `PrismaService`, `softDeletable: true` en repository
+
+### 9.3 — Web UX
+
+- [x] **9.3.1 — onError toasts en hooks faltantes (M-8)** — `getErrorMessage` + `toast.error()` en `use-properties`, `use-clients`, `use-categories` (9 mutations)
+- [x] **9.3.2 — onError en use-upload (L-5)** — `toast.error('Error al subir archivo')`
+
+### 9.4 — Mobile
+
+- [x] **9.4.1 — Fix canSubmit race condition (M-9)** — `photos.every((p) => p.uploadedUrl)` guard
+- [x] **9.4.2 — Fix logout order (M-10)** — Clear local state/cache ANTES de la llamada API
+- [x] **9.4.3 — Remover react-native-css (M-12)** — Dependencia no utilizada eliminada
+- [x] **9.4.4 — Cleanup profile.tsx (L-7)** — Eliminado `useQueryClient` duplicado
+
+### 9.5 — Docker & Infra
+
+- [x] **9.5.1 — Health checks en docker-compose (M-11)** — `pg_isready` para postgres, `redis-cli ping` para redis, `service_healthy` condition en pgadmin
+- [x] **9.5.2 — Node 22 en Dockerfile (L-8)** — `node:20-alpine` → `node:22-alpine`
+- [x] **9.5.3 — HEALTHCHECK en Dockerfile (L-9)** — Health check via HTTP al endpoint `/api/v1/health`
+
+### Diferidos (6 LOW)
+
+| ID   | Razon                                                            |
+| ---- | ---------------------------------------------------------------- |
+| L-1  | Login min(6) intencional — no rechazar passwords legacy al login |
+| L-2  | Indexes createdBy/updatedBy — no hay queries de audit aun        |
+| L-3  | 4xx no van a Sentry — comportamiento correcto                    |
+| L-4  | Token rotation integration tests — requiere Redis en CI          |
+| L-6  | complete-task-modal con rhf — solo 2 campos opcionales           |
+| L-10 | Pinear NativeWind — se hara cuando salga stable                  |
+
+### Verificacion
+
+```bash
+pnpm build && pnpm typecheck && pnpm lint && pnpm test  # Todo green (278 tests passing)
+```
+
+---
+
 ## Resumen de progreso (actualizado)
 
 | Fase | Descripcion            | Estado           | Tareas |
@@ -590,7 +650,8 @@ pnpm build && pnpm typecheck && pnpm lint && pnpm test  # Todo green
 | 6    | Testing + polish       | `[x] Completado` | 10     |
 | 7    | Hardening post-audit   | `[x] Completado` | 12     |
 | 8    | Roadmap arquitectonico | `[x] Completado` | 23     |
+| 9    | Remediacion ronda 4    | `[x] Completado` | 16     |
 
 **Tests totales: 306+** (91 API unit + 187 Shared + 15 Web + 13 Mobile + E2E suites)
 
-**Progreso total: 75 / 75 tareas**
+**Progreso total: 91 / 91 tareas** (+ 6 diferidas con justificacion)
