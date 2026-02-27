@@ -138,7 +138,7 @@ epde/
 │       │   ├── hooks/                # React Query hooks (infinite scroll)
 │       │   ├── lib/
 │       │   │   ├── api-client.ts     # Axios + token refresh + auto-detect URL
-│       │   │   ├── token-service.ts  # Expo SecureStore abstraction
+│       │   │   ├── token-service.ts  # SecureStore (nativo) + sessionStorage (web)
 │       │   │   ├── query-persister.ts # AsyncStorage persister (offline cache)
 │       │   │   ├── auth.ts           # Auth API functions
 │       │   │   └── api/              # Endpoints por entidad

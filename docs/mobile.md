@@ -148,9 +148,10 @@ interface AuthState {
 
 ### Token Service
 
-Usa `expo-secure-store` exclusivamente para almacenamiento seguro de tokens (iOS keychain / Android keystore). No hay fallback a localStorage.
+Usa `expo-secure-store` para almacenamiento seguro de tokens en plataformas nativas (iOS keychain / Android keystore). En web, usa `sessionStorage` como fallback (datos no persisten entre tabs ni al cerrar el navegador).
 
 - **iOS/Android**: `expo-secure-store` (keychain/keystore nativo)
+- **Web**: `sessionStorage` (no `localStorage` — mitiga XSS)
 
 ## API Client
 

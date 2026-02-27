@@ -26,7 +26,7 @@
 ### NUNCA
 
 1. **NUNCA inyectar `PrismaService` en un service** — Solo repositorios acceden a datos
-2. **NUNCA usar `localStorage` para tokens** — Web usa cookies HttpOnly, mobile usa SecureStore
+2. **NUNCA usar `localStorage` para tokens** — Web usa cookies HttpOnly, mobile nativo usa SecureStore, mobile web usa sessionStorage
 3. **NUNCA usar class-validator o class-transformer** — Eliminados del proyecto
 4. **NUNCA usar magic strings para roles/status** — Importar de `@epde/shared`
 5. **NUNCA crear interfaces duplicadas en frontend** — Importar de `@epde/shared/types`
@@ -727,21 +727,28 @@ logout: async () => {
 ### 5.6 Token Service
 
 ```typescript
-// apps/mobile/src/lib/token-service.ts — SOLO SecureStore
+// apps/mobile/src/lib/token-service.ts — SecureStore (nativo) + sessionStorage (web)
+import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
+const isWeb = Platform.OS === 'web';
+
+// Nativo: expo-secure-store (iOS keychain / Android keystore)
+// Web: sessionStorage (no persiste entre tabs ni al cerrar — mitiga XSS)
+
 export const tokenService = {
-  getAccessToken: () => SecureStore.getItemAsync('access_token'),
-  getRefreshToken: () => SecureStore.getItemAsync('refresh_token'),
+  getAccessToken: () => getItem('epde_access_token'),
+  getRefreshToken: () => getItem('epde_refresh_token'),
   setTokens: async (access: string, refresh: string) => {
-    await SecureStore.setItemAsync('access_token', access);
-    await SecureStore.setItemAsync('refresh_token', refresh);
+    await Promise.all([
+      setItem('epde_access_token', access),
+      setItem('epde_refresh_token', refresh),
+    ]);
   },
   clearTokens: async () => {
-    await SecureStore.deleteItemAsync('access_token');
-    await SecureStore.deleteItemAsync('refresh_token');
+    await Promise.all([deleteItem('epde_access_token'), deleteItem('epde_refresh_token')]);
   },
-  hasTokens: async () => !!(await SecureStore.getItemAsync('access_token')),
+  hasTokens: async () => (await getItem('epde_access_token')) !== null,
 };
 ```
 
@@ -804,20 +811,20 @@ pnpm test       # Todos los tests pasan
 
 ## 7. Anti-Patrones
 
-| Anti-patron                                                          | Correcto                                                              |
-| -------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `this.prisma.user.findMany()` en un service                          | `this.usersRepository.findMany()`                                     |
-| `interface MyType { ... }` en `lib/api/*.ts`                         | `import type { MyType } from '@epde/shared/types'`                    |
-| `if (user.role === 'ADMIN')`                                         | `if (user.role === UserRole.ADMIN)`                                   |
-| `@Body() dto: CreateUserDto` (class-validator)                       | `@UsePipes(new ZodValidationPipe(schema)) @Body() data: Input`        |
-| `localStorage.setItem('token', ...)`                                 | Cookies HttpOnly (web) / SecureStore (mobile)                         |
-| `queryClient.invalidateQueries({ queryKey: ['dashboard'] })`         | `queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] })` |
-| `const sanitized = valid ? folder : 'default'` (fallback silencioso) | `throw new BadRequestException('Folder invalido')`                    |
-| `console.log(token)`                                                 | No loguear tokens                                                     |
-| `Float` en Prisma para montos                                        | `Decimal(14,2)`                                                       |
-| `onError` ausente en `useMutation`                                   | `onError: (err) => toast.error(getErrorMessage(err, 'fallback'))`     |
-| `set-password` sin verificar `purpose` claim                         | `if (payload.purpose !== 'invite') throw Unauthorized`                |
-| Logout: API call primero, luego limpiar estado                       | Limpiar estado local PRIMERO, luego API call                          |
-| `useQueryClient()` duplicado (store + componente)                    | `queryClient` singleton desde `lib/query-client.ts`                   |
-| `TypeScript enum`                                                    | `const obj as const` + `type Union`                                   |
-| `import { something } from '../../../shared'`                        | `import { something } from '@epde/shared'`                            |
+| Anti-patron                                                          | Correcto                                                                           |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `this.prisma.user.findMany()` en un service                          | `this.usersRepository.findMany()`                                                  |
+| `interface MyType { ... }` en `lib/api/*.ts`                         | `import type { MyType } from '@epde/shared/types'`                                 |
+| `if (user.role === 'ADMIN')`                                         | `if (user.role === UserRole.ADMIN)`                                                |
+| `@Body() dto: CreateUserDto` (class-validator)                       | `@UsePipes(new ZodValidationPipe(schema)) @Body() data: Input`                     |
+| `localStorage.setItem('token', ...)`                                 | Cookies HttpOnly (web) / SecureStore (mobile nativo) / sessionStorage (mobile web) |
+| `queryClient.invalidateQueries({ queryKey: ['dashboard'] })`         | `queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] })`              |
+| `const sanitized = valid ? folder : 'default'` (fallback silencioso) | `throw new BadRequestException('Folder invalido')`                                 |
+| `console.log(token)`                                                 | No loguear tokens                                                                  |
+| `Float` en Prisma para montos                                        | `Decimal(14,2)`                                                                    |
+| `onError` ausente en `useMutation`                                   | `onError: (err) => toast.error(getErrorMessage(err, 'fallback'))`                  |
+| `set-password` sin verificar `purpose` claim                         | `if (payload.purpose !== 'invite') throw Unauthorized`                             |
+| Logout: API call primero, luego limpiar estado                       | Limpiar estado local PRIMERO, luego API call                                       |
+| `useQueryClient()` duplicado (store + componente)                    | `queryClient` singleton desde `lib/query-client.ts`                                |
+| `TypeScript enum`                                                    | `const obj as const` + `type Union`                                                |
+| `import { something } from '../../../shared'`                        | `import { something } from '@epde/shared'`                                         |

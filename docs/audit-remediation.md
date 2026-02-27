@@ -621,14 +621,14 @@ Cuarta ronda de auditoria (score 9.1/10). Se amplio el scope a uploads, Docker e
 
 ### Diferidos (6 LOW)
 
-| ID   | Razon                                                            |
-| ---- | ---------------------------------------------------------------- |
-| L-1  | Login min(6) intencional — no rechazar passwords legacy al login |
-| L-2  | Indexes createdBy/updatedBy — no hay queries de audit aun        |
-| L-3  | 4xx no van a Sentry — comportamiento correcto                    |
-| L-4  | Token rotation integration tests — requiere Redis en CI          |
-| L-6  | complete-task-modal con rhf — solo 2 campos opcionales           |
-| L-10 | Pinear NativeWind — se hara cuando salga stable                  |
+| ID   | Razon                                                                            |
+| ---- | -------------------------------------------------------------------------------- |
+| L-1  | ~~Diferido~~ — Implementado en ronda 8: loginSchema password min subido de 6 a 8 |
+| L-2  | Indexes createdBy/updatedBy — no hay queries de audit aun                        |
+| L-3  | 4xx no van a Sentry — comportamiento correcto                                    |
+| L-4  | Token rotation integration tests — requiere Redis en CI                          |
+| L-6  | complete-task-modal con rhf — solo 2 campos opcionales                           |
+| L-10 | Pinear NativeWind — se hara cuando salga stable                                  |
 
 ### Verificacion
 

@@ -242,7 +242,7 @@ Category ─1:N─ Task
 | createdAt   | DateTime     |                                             |
 | updatedAt   | DateTime     |                                             |
 
-**Indices:** `propertyId`, `status`
+**Indices:** `propertyId`, `status`, `[propertyId, deletedAt]`
 **Relaciones:** `property`, `requester`, `lineItems`, `response` (1:1)
 
 ### BudgetLineItem
@@ -283,7 +283,7 @@ Category ─1:N─ Task
 | createdAt   | DateTime       |                                             |
 | updatedAt   | DateTime       |                                             |
 
-**Indices:** `propertyId`, `status`
+**Indices:** `propertyId`, `status`, `[propertyId, deletedAt]`
 **Relaciones:** `property`, `requester`, `photos`
 
 ### ServiceRequestPhoto

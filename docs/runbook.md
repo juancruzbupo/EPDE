@@ -323,8 +323,10 @@ pnpm --filter @epde/api prisma migrate dev --name descripcion_del_cambio
 - `TaskLog(completedBy, completedAt)` — Historial de completado por usuario
 - `BudgetRequest(requestedBy, status)` — Presupuestos del cliente
 - `BudgetRequest(status, createdAt)` — Listado filtrado con orden
+- `BudgetRequest(propertyId, deletedAt)` — Queries por propiedad con soft delete
 - `ServiceRequest(requestedBy, status)` — Solicitudes del cliente
 - `ServiceRequest(status, urgency)` — Listado filtrado por urgencia
+- `ServiceRequest(propertyId, deletedAt)` — Queries por propiedad con soft delete
 - `Notification(userId, type, createdAt)` — Notificaciones del usuario
 
 ### CASCADE DELETE
