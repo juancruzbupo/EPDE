@@ -3,8 +3,8 @@ import type { ApiResponse, CategoryPublic } from '@epde/shared';
 
 export type { CategoryPublic };
 
-export async function getCategories(): Promise<ApiResponse<CategoryPublic[]>> {
-  const { data } = await apiClient.get('/categories');
+export async function getCategories(signal?: AbortSignal): Promise<ApiResponse<CategoryPublic[]>> {
+  const { data } = await apiClient.get('/categories', { signal });
   return data;
 }
 

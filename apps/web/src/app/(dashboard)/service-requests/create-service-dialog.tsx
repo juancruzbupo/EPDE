@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -56,6 +56,15 @@ export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogP
       urgency: 'MEDIUM',
     },
   });
+
+  // Cleanup Object URLs on unmount to prevent memory leaks
+  const photosRef = useRef(photos);
+  photosRef.current = photos;
+  useEffect(() => {
+    return () => {
+      photosRef.current.forEach((p) => URL.revokeObjectURL(p.preview));
+    };
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -146,7 +155,7 @@ export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogP
             <Label htmlFor="description">Descripcion</Label>
             <textarea
               id="description"
-              className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               {...register('description')}
             />
             {errors.description && (
@@ -209,7 +218,7 @@ export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogP
                     <button
                       type="button"
                       onClick={() => removePhoto(index)}
-                      className="bg-destructive absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full text-white"
+                      className="bg-destructive absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full text-white"
                     >
                       <X className="h-3 w-3" />
                     </button>

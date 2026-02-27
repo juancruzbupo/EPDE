@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import type { UpdatePropertyInput } from '@epde/shared';
 import { getErrorMessage } from '@/lib/errors';
 import {
   getProperties,
@@ -41,8 +42,7 @@ export function useCreateProperty() {
 export function useUpdateProperty() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...dto }: { id: string } & Record<string, unknown>) =>
-      updateProperty(id, dto),
+    mutationFn: ({ id, ...dto }: { id: string } & UpdatePropertyInput) => updateProperty(id, dto),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['properties'] }),
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al actualizar propiedad'));

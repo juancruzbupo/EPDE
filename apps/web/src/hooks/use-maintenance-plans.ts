@@ -14,7 +14,7 @@ import {
   getTaskNotes,
   addTaskNote,
 } from '@/lib/api/maintenance-plans';
-import type { PlanPublic, TaskNotePublic } from '@/lib/api/maintenance-plans';
+import type { PlanPublic, TaskNotePublic, UpdateTaskDto } from '@/lib/api/maintenance-plans';
 import { useAuthStore } from '@/stores/auth-store';
 
 export function usePlan(id: string) {
@@ -66,7 +66,7 @@ export function useUpdateTask() {
     }: {
       planId: string;
       taskId: string;
-    } & Record<string, unknown>) => updateTask(planId, taskId, dto),
+    } & UpdateTaskDto) => updateTask(planId, taskId, dto),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['plans'] }),
     onError: (err) => toast.error(getErrorMessage(err, 'Error al actualizar tarea')),
   });

@@ -11,7 +11,7 @@ import {
 export function useCategories() {
   return useQuery({
     queryKey: ['categories'],
-    queryFn: () => getCategories().then((r) => r.data),
+    queryFn: ({ signal }) => getCategories(signal).then((r) => r.data),
   });
 }
 

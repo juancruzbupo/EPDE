@@ -85,36 +85,39 @@ export class ServiceRequestsRepository extends BaseRepository<ServiceRequest> {
     photoUrls?: string[];
     createdBy?: string;
   }) {
-    return this.prisma.$transaction(async (tx) => {
-      const serviceRequest = await tx.serviceRequest.create({
-        data: {
-          propertyId: data.propertyId,
-          requestedBy: data.requestedBy,
-          createdBy: data.createdBy,
-          title: data.title,
-          description: data.description,
-          urgency: data.urgency,
-          status: 'OPEN',
-        },
-      });
-
-      if (data.photoUrls?.length) {
-        await tx.serviceRequestPhoto.createMany({
-          data: data.photoUrls.map((url) => ({
-            serviceRequestId: serviceRequest.id,
-            url,
-          })),
+    return this.prisma.$transaction(
+      async (tx) => {
+        const serviceRequest = await tx.serviceRequest.create({
+          data: {
+            propertyId: data.propertyId,
+            requestedBy: data.requestedBy,
+            createdBy: data.createdBy,
+            title: data.title,
+            description: data.description,
+            urgency: data.urgency,
+            status: 'OPEN',
+          },
         });
-      }
 
-      return tx.serviceRequest.findUnique({
-        where: { id: serviceRequest.id },
-        include: {
-          property: { select: { id: true, address: true, city: true } },
-          requester: { select: { id: true, name: true } },
-          photos: true,
-        },
-      });
-    });
+        if (data.photoUrls?.length) {
+          await tx.serviceRequestPhoto.createMany({
+            data: data.photoUrls.map((url) => ({
+              serviceRequestId: serviceRequest.id,
+              url,
+            })),
+          });
+        }
+
+        return tx.serviceRequest.findUnique({
+          where: { id: serviceRequest.id },
+          include: {
+            property: { select: { id: true, address: true, city: true } },
+            requester: { select: { id: true, name: true } },
+            photos: true,
+          },
+        });
+      },
+      { timeout: 30000 },
+    );
   }
 }

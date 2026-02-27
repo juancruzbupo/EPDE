@@ -8,14 +8,14 @@ const isWeb = Platform.OS === 'web';
 
 async function getItem(key: string): Promise<string | null> {
   if (isWeb) {
-    return localStorage.getItem(key);
+    return sessionStorage.getItem(key);
   }
   return SecureStore.getItemAsync(key);
 }
 
 async function setItem(key: string, value: string): Promise<void> {
   if (isWeb) {
-    localStorage.setItem(key, value);
+    sessionStorage.setItem(key, value);
     return;
   }
   await SecureStore.setItemAsync(key, value);
@@ -23,7 +23,7 @@ async function setItem(key: string, value: string): Promise<void> {
 
 async function deleteItem(key: string): Promise<void> {
   if (isWeb) {
-    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
     return;
   }
   await SecureStore.deleteItemAsync(key);

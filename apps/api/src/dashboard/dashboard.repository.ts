@@ -59,21 +59,19 @@ export class DashboardRepository {
     return { recentClients, recentProperties, recentTasks, recentBudgets, recentServices };
   }
 
-  async getClientPropertyIds(userId: string): Promise<string[]> {
+  async getClientPropertyAndPlanIds(
+    userId: string,
+  ): Promise<{ propertyIds: string[]; planIds: string[] }> {
     const properties = await this.prisma.softDelete.property.findMany({
       where: { userId },
-      select: { id: true },
+      select: { id: true, maintenancePlan: { select: { id: true } } },
     });
-    return properties.map((p: { id: string }) => p.id);
-  }
-
-  async getPlanIdsByPropertyIds(propertyIds: string[]): Promise<string[]> {
-    if (!propertyIds.length) return [];
-    const plans = await this.prisma.maintenancePlan.findMany({
-      where: { propertyId: { in: propertyIds } },
-      select: { id: true },
-    });
-    return plans.map((p: { id: string }) => p.id);
+    return {
+      propertyIds: properties.map((p: { id: string }) => p.id),
+      planIds: properties
+        .filter((p: { maintenancePlan: { id: string } | null }) => p.maintenancePlan)
+        .map((p: { maintenancePlan: { id: string } | null }) => p.maintenancePlan!.id),
+    };
   }
 
   async getClientTaskStats(planIds: string[], userId: string) {

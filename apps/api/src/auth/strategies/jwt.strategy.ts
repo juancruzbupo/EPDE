@@ -1,6 +1,6 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { TokenService } from '../token.service';
@@ -16,6 +16,8 @@ interface JwtPayload {
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
+  private readonly logger = new Logger(JwtStrategy.name);
+
   constructor(
     configService: ConfigService,
     private readonly tokenService: TokenService,
@@ -35,9 +37,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Token inválido: falta JTI');
     }
 
-    const blacklisted = await this.tokenService.isBlacklisted(payload.jti);
-    if (blacklisted) {
-      throw new UnauthorizedException('Token revocado');
+    try {
+      const blacklisted = await this.tokenService.isBlacklisted(payload.jti);
+      if (blacklisted) {
+        throw new UnauthorizedException('Token revocado');
+      }
+    } catch (error) {
+      if (error instanceof UnauthorizedException) throw error;
+      this.logger.error(`Blacklist lookup failed: ${(error as Error).message}`);
+      throw new UnauthorizedException('Error al validar token');
     }
 
     return {

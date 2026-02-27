@@ -15,9 +15,8 @@ export async function logout(): Promise<void> {
     await apiClient.post('/auth/logout');
   } catch {
     // Ignore errors on logout (token might be expired)
-  } finally {
-    await tokenService.clearTokens();
   }
+  // Token clearing is handled by auth-store.logout()
 }
 
 export async function getMe(): Promise<UserPublic> {

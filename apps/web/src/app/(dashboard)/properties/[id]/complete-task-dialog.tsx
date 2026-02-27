@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { completeTaskSchema, type CompleteTaskInput } from '@epde/shared';
@@ -28,6 +28,13 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
   const { register, handleSubmit, setValue, reset } = useForm<CompleteTaskInput>({
     resolver: zodResolver(completeTaskSchema),
   });
+
+  // Cleanup Object URL on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

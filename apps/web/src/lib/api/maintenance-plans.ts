@@ -1,6 +1,17 @@
 import { createMaintenancePlanQueries } from '@epde/shared/api';
 import { apiClient } from '../api-client';
 
+export interface UpdateTaskDto {
+  categoryId?: string;
+  name?: string;
+  description?: string;
+  priority?: string;
+  recurrenceType?: string;
+  recurrenceMonths?: number;
+  nextDueDate?: string | Date;
+  status?: string;
+}
+
 export type {
   TaskPublic,
   TaskDetailPublic,
@@ -35,7 +46,7 @@ export async function addTask(
   return data;
 }
 
-export async function updateTask(planId: string, taskId: string, dto: Record<string, unknown>) {
+export async function updateTask(planId: string, taskId: string, dto: UpdateTaskDto) {
   const { data } = await apiClient.patch(`/maintenance-plans/${planId}/tasks/${taskId}`, dto);
   return data;
 }

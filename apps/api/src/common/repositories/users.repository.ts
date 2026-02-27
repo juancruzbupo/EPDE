@@ -10,6 +10,7 @@ export class UsersRepository {
     const admins = await this.prisma.user.findMany({
       where: { role: UserRole.ADMIN, deletedAt: null },
       select: { id: true },
+      take: 100,
     });
     return admins.map((a) => a.id);
   }

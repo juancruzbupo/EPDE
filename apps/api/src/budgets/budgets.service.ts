@@ -125,7 +125,7 @@ export class BudgetsService {
       budgetId: id,
       title: result.title,
       requesterId: result.requestedBy,
-      totalAmount,
+      totalAmount: totalAmount.toNumber(),
     });
 
     return result;

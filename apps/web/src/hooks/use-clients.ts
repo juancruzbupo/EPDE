@@ -61,8 +61,8 @@ export function useClientSearch(search: string) {
 
   return useQuery({
     queryKey: ['clients', 'search', debouncedSearch],
-    queryFn: async () => {
-      const result = await getClients({ search: debouncedSearch || undefined, take: 20 });
+    queryFn: async ({ signal }) => {
+      const result = await getClients({ search: debouncedSearch || undefined, take: 20 }, signal);
       return result.data;
     },
     enabled: debouncedSearch.length > 0,

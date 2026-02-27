@@ -57,6 +57,11 @@ async function doRefresh(): Promise<boolean> {
       },
     );
 
+    if (!data?.data?.accessToken || !data?.data?.refreshToken) {
+      await tokenService.clearTokens();
+      return false;
+    }
+
     await tokenService.setTokens(data.data.accessToken, data.data.refreshToken);
     return true;
   } catch {

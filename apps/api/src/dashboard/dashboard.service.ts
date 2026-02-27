@@ -50,8 +50,8 @@ export class DashboardService {
   }
 
   async getClientStats(userId: string) {
-    const propertyIds = await this.dashboardRepository.getClientPropertyIds(userId);
-    const planIds = await this.dashboardRepository.getPlanIdsByPropertyIds(propertyIds);
+    const { propertyIds, planIds } =
+      await this.dashboardRepository.getClientPropertyAndPlanIds(userId);
 
     const [taskStats, budgetServiceStats] = await Promise.all([
       this.dashboardRepository.getClientTaskStats(planIds, userId),

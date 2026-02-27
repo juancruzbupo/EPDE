@@ -5,8 +5,7 @@ import { DashboardRepository } from './dashboard.repository';
 const mockDashboardRepository = {
   getAdminStats: jest.fn(),
   getRecentActivity: jest.fn(),
-  getClientPropertyIds: jest.fn(),
-  getPlanIdsByPropertyIds: jest.fn(),
+  getClientPropertyAndPlanIds: jest.fn(),
   getClientTaskStats: jest.fn(),
   getClientBudgetAndServiceCounts: jest.fn(),
   getClientUpcomingTasks: jest.fn(),
@@ -164,15 +163,13 @@ describe('DashboardService', () => {
       };
       const budgetServiceStats = { pendingBudgets: 2, openServices: 1 };
 
-      repository.getClientPropertyIds.mockResolvedValue(propertyIds);
-      repository.getPlanIdsByPropertyIds.mockResolvedValue(planIds);
+      repository.getClientPropertyAndPlanIds.mockResolvedValue({ propertyIds, planIds });
       repository.getClientTaskStats.mockResolvedValue(taskStats);
       repository.getClientBudgetAndServiceCounts.mockResolvedValue(budgetServiceStats);
 
       const result = await service.getClientStats(userId);
 
-      expect(repository.getClientPropertyIds).toHaveBeenCalledWith(userId);
-      expect(repository.getPlanIdsByPropertyIds).toHaveBeenCalledWith(propertyIds);
+      expect(repository.getClientPropertyAndPlanIds).toHaveBeenCalledWith(userId);
       expect(repository.getClientTaskStats).toHaveBeenCalledWith(planIds, userId);
       expect(repository.getClientBudgetAndServiceCounts).toHaveBeenCalledWith(propertyIds);
 
@@ -188,8 +185,7 @@ describe('DashboardService', () => {
     });
 
     it('should return totalProperties 0 when client has no properties', async () => {
-      repository.getClientPropertyIds.mockResolvedValue([]);
-      repository.getPlanIdsByPropertyIds.mockResolvedValue([]);
+      repository.getClientPropertyAndPlanIds.mockResolvedValue({ propertyIds: [], planIds: [] });
       repository.getClientTaskStats.mockResolvedValue({
         pendingTasks: 0,
         overdueTasks: 0,

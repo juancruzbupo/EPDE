@@ -244,6 +244,7 @@ model BudgetRequest {
   response  BudgetResponse?
 
   @@index([propertyId])
+  @@index([propertyId, deletedAt])
   @@index([requestedBy, status])
   @@index([status])
   @@index([status, createdAt])
@@ -293,6 +294,7 @@ model ServiceRequest {
   photos    ServiceRequestPhoto[]
 
   @@index([propertyId])
+  @@index([propertyId, deletedAt])
   @@index([requestedBy, status])
   @@index([status])
   @@index([status, urgency])
