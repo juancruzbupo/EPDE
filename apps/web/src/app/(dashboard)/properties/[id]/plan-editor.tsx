@@ -102,14 +102,16 @@ export function PlanEditor({ planId }: PlanEditorProps) {
                   <button
                     onClick={() => handleMoveUp(index)}
                     disabled={index === 0}
-                    className="text-muted-foreground hover:text-foreground disabled:opacity-30"
+                    className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded focus-visible:ring-[3px] focus-visible:outline-none disabled:opacity-30"
+                    aria-label="Mover arriba"
                   >
                     <ChevronUp className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => handleMoveDown(index)}
                     disabled={index === tasks.length - 1}
-                    className="text-muted-foreground hover:text-foreground disabled:opacity-30"
+                    className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded focus-visible:ring-[3px] focus-visible:outline-none disabled:opacity-30"
+                    aria-label="Mover abajo"
                   >
                     <ChevronDown className="h-4 w-4" />
                   </button>
@@ -149,13 +151,15 @@ export function PlanEditor({ planId }: PlanEditorProps) {
                       setEditingTask(task);
                       setTaskDialogOpen(true);
                     }}
-                    className="text-muted-foreground hover:text-foreground p-1"
+                    className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded p-1 focus-visible:ring-[3px] focus-visible:outline-none"
+                    aria-label="Editar tarea"
                   >
                     <Pencil className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => setDeleteTaskId(task.id)}
-                    className="text-muted-foreground hover:text-destructive p-1"
+                    className="text-muted-foreground hover:text-destructive focus-visible:ring-ring/50 rounded p-1 focus-visible:ring-[3px] focus-visible:outline-none"
+                    aria-label="Eliminar tarea"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>

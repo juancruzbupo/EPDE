@@ -85,7 +85,7 @@ export function PlanViewer({ planId }: PlanViewerProps) {
         </CardHeader>
         <CardContent>
           {tasks.length > 0 && (
-            <div className="mb-4 flex flex-wrap gap-2">
+            <div className="mb-4 flex flex-wrap gap-3">
               <FilterSelect
                 placeholder="Categoría"
                 value={categoryFilter}
@@ -128,8 +128,16 @@ export function PlanViewer({ planId }: PlanViewerProps) {
                 return (
                   <div
                     key={task.id}
-                    className="hover:bg-accent flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors"
+                    className="hover:bg-accent focus-visible:ring-ring/50 flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors focus-visible:ring-[3px] focus-visible:outline-none"
+                    role="button"
+                    tabIndex={0}
                     onClick={() => setSelectedTask(task)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setSelectedTask(task);
+                      }
+                    }}
                   >
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-2">
@@ -153,7 +161,7 @@ export function PlanViewer({ planId }: PlanViewerProps) {
                         </span>
                         <span
                           className={
-                            isOverdue ? 'font-medium text-red-600' : 'text-muted-foreground'
+                            isOverdue ? 'text-destructive font-medium' : 'text-muted-foreground'
                           }
                         >
                           {task.nextDueDate

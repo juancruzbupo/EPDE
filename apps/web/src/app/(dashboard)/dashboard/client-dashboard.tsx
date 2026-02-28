@@ -49,7 +49,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
               title="Tareas Vencidas"
               value={stats.overdueTasks}
               icon={AlertTriangle}
-              className={stats.overdueTasks > 0 ? 'border-red-200 bg-red-50' : ''}
+              className={stats.overdueTasks > 0 ? 'border-destructive/30 bg-destructive/10' : ''}
             />
             <StatCard
               title="Completadas este mes"
@@ -74,47 +74,48 @@ export function ClientDashboard({ userName }: { userName: string }) {
               ))}
             </div>
           ) : upcoming && upcoming.length > 0 ? (
-            <div className="space-y-2">
+            <ul className="space-y-2">
               {upcoming.map((task) => {
                 const isOverdue = task.nextDueDate
                   ? new Date(task.nextDueDate) < new Date()
                   : false;
                 return (
-                  <Link
-                    key={task.id}
-                    href={`/properties/${task.propertyId}?tab=plan`}
-                    className="hover:bg-accent flex items-center gap-3 rounded-lg border p-3 transition-colors"
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{task.name}</span>
-                        <Badge variant="outline" className="text-xs">
-                          {task.categoryName}
-                        </Badge>
-                        <span
-                          className={`rounded px-1.5 py-0.5 text-xs ${priorityColors[task.priority] ?? ''}`}
-                        >
-                          {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
-                        </span>
+                  <li key={task.id}>
+                    <Link
+                      href={`/properties/${task.propertyId}?tab=plan`}
+                      className="hover:bg-accent flex items-center gap-3 rounded-lg border p-3 transition-colors"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{task.name}</span>
+                          <Badge variant="outline" className="text-xs">
+                            {task.categoryName}
+                          </Badge>
+                          <span
+                            className={`rounded px-1.5 py-0.5 text-xs ${priorityColors[task.priority] ?? ''}`}
+                          >
+                            {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
+                          </span>
+                        </div>
+                        <div className="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
+                          <span>{task.propertyAddress}</span>
+                          <span>·</span>
+                          <span className={isOverdue ? 'text-destructive font-medium' : ''}>
+                            {task.nextDueDate
+                              ? formatDistanceToNow(new Date(task.nextDueDate), {
+                                  addSuffix: true,
+                                  locale: es,
+                                })
+                              : 'Según detección'}
+                          </span>
+                        </div>
                       </div>
-                      <div className="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
-                        <span>{task.propertyAddress}</span>
-                        <span>·</span>
-                        <span className={isOverdue ? 'font-medium text-red-600' : ''}>
-                          {task.nextDueDate
-                            ? formatDistanceToNow(new Date(task.nextDueDate), {
-                                addSuffix: true,
-                                locale: es,
-                              })
-                            : 'Según detección'}
-                        </span>
-                      </div>
-                    </div>
-                    <ChevronRight className="text-muted-foreground h-4 w-4" />
-                  </Link>
+                      <ChevronRight className="text-muted-foreground h-4 w-4" />
+                    </Link>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           ) : (
             <p className="text-muted-foreground py-4 text-center text-sm">
               No tenés tareas próximas

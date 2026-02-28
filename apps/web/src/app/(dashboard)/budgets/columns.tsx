@@ -11,7 +11,7 @@ import type { BudgetRequestPublic } from '@/lib/api/budgets';
 export const budgetColumns: ColumnDef<BudgetRequestPublic>[] = [
   {
     accessorKey: 'title',
-    header: 'Titulo',
+    header: 'Título',
   },
   {
     id: 'property',

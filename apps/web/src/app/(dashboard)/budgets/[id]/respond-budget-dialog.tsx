@@ -153,7 +153,7 @@ export function RespondBudgetDialog({ open, onOpenChange, budgetId }: RespondBud
           {/* Extra fields */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="estimatedDays">Dias estimados</Label>
+              <Label htmlFor="estimatedDays">Días estimados</Label>
               <Input
                 id="estimatedDays"
                 type="number"
@@ -168,7 +168,7 @@ export function RespondBudgetDialog({ open, onOpenChange, budgetId }: RespondBud
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="validUntil">Valido hasta</Label>
+              <Label htmlFor="validUntil">Válido hasta</Label>
               <Input
                 id="validUntil"
                 type="date"
@@ -197,7 +197,7 @@ export function RespondBudgetDialog({ open, onOpenChange, budgetId }: RespondBud
               Cancelar
             </Button>
             <Button type="submit" disabled={respondToBudget.isPending}>
-              {respondToBudget.isPending ? 'Enviando...' : 'Enviar Cotizacion'}
+              {respondToBudget.isPending ? 'Enviando...' : 'Enviar Cotización'}
             </Button>
           </div>
         </form>

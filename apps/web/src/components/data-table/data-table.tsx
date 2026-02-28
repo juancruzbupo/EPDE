@@ -118,7 +118,7 @@ export function DataTable<TData, TValue>({
             variant="outline"
             size="sm"
             onClick={onLoadMore}
-            aria-label="Cargar mas resultados"
+            aria-label="Cargar más resultados"
           >
             Cargar más
           </Button>

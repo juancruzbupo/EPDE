@@ -37,20 +37,20 @@ type ConfirmAction = 'APPROVED' | 'REJECTED' | 'IN_PROGRESS' | 'COMPLETED' | nul
 const confirmMessages: Record<string, { title: string; description: string }> = {
   APPROVED: {
     title: 'Aprobar presupuesto',
-    description: 'Estas seguro de que queres aprobar este presupuesto?',
+    description: '¿Estás seguro de que queres aprobar este presupuesto?',
   },
   REJECTED: {
     title: 'Rechazar presupuesto',
     description:
-      'Estas seguro de que queres rechazar este presupuesto? Esta accion no se puede deshacer.',
+      '¿Estás seguro de que queres rechazar este presupuesto? Esta acción no se puede deshacer.',
   },
   IN_PROGRESS: {
     title: 'Iniciar trabajo',
-    description: 'Estas seguro de que queres iniciar el trabajo de este presupuesto?',
+    description: '¿Estás seguro de que queres iniciar el trabajo de este presupuesto?',
   },
   COMPLETED: {
     title: 'Marcar completado',
-    description: 'Estas seguro de que queres marcar este presupuesto como completado?',
+    description: '¿Estás seguro de que queres marcar este presupuesto como completado?',
   },
 };
 
@@ -105,7 +105,7 @@ export default function BudgetDetailPage() {
       {/* Budget Info Card */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Informacion del presupuesto</CardTitle>
+          <CardTitle className="text-lg">Información del presupuesto</CardTitle>
           <Badge
             variant={budgetStatusVariant[budget.status] ?? 'outline'}
             className={budgetStatusClassName[budget.status] ?? ''}
@@ -116,7 +116,7 @@ export default function BudgetDetailPage() {
         <CardContent>
           <dl className="grid gap-4 sm:grid-cols-2">
             <div>
-              <dt className="text-muted-foreground text-sm">Titulo</dt>
+              <dt className="text-muted-foreground text-sm">Título</dt>
               <dd className="font-medium">{budget.title}</dd>
             </div>
             <div>
@@ -140,7 +140,7 @@ export default function BudgetDetailPage() {
             </div>
             {budget.description && (
               <div className="sm:col-span-2">
-                <dt className="text-muted-foreground text-sm">Descripcion</dt>
+                <dt className="text-muted-foreground text-sm">Descripción</dt>
                 <dd className="font-medium">{budget.description}</dd>
               </div>
             )}
@@ -159,7 +159,7 @@ export default function BudgetDetailPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Descripcion</TableHead>
+                    <TableHead>Descripción</TableHead>
                     <TableHead className="text-right">Cantidad</TableHead>
                     <TableHead className="text-right">Precio Unitario</TableHead>
                     <TableHead className="text-right">Subtotal</TableHead>
@@ -188,13 +188,13 @@ export default function BudgetDetailPage() {
               <dl className="grid gap-4 sm:grid-cols-3">
                 {budget.response.estimatedDays && (
                   <div>
-                    <dt className="text-muted-foreground text-sm">Dias estimados</dt>
-                    <dd className="font-medium">{budget.response.estimatedDays} dias</dd>
+                    <dt className="text-muted-foreground text-sm">Días estimados</dt>
+                    <dd className="font-medium">{budget.response.estimatedDays} días</dd>
                   </div>
                 )}
                 {budget.response.validUntil && (
                   <div>
-                    <dt className="text-muted-foreground text-sm">Valido hasta</dt>
+                    <dt className="text-muted-foreground text-sm">Válido hasta</dt>
                     <dd className="font-medium">
                       {new Date(budget.response.validUntil).toLocaleDateString('es-AR')}
                     </dd>

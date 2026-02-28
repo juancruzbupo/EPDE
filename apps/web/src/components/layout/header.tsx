@@ -17,7 +17,10 @@ export function Header() {
       <div className="lg:hidden">
         <Sheet>
           <SheetTrigger asChild>
-            <button className="text-muted-foreground hover:text-foreground">
+            <button
+              className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded-md p-1 focus-visible:ring-[3px] focus-visible:outline-none"
+              aria-label="Abrir menú"
+            >
               <Menu className="h-5 w-5" />
             </button>
           </SheetTrigger>
@@ -30,12 +33,12 @@ export function Header() {
         </Sheet>
       </div>
 
-      <h1 className="font-heading text-primary text-lg font-bold lg:hidden">EPDE</h1>
+      <span className="font-heading text-primary text-lg font-bold lg:hidden">EPDE</span>
 
       <div className="ml-auto flex items-center gap-3">
         <button
           onClick={toggle}
-          className="text-muted-foreground hover:text-foreground rounded-md p-1.5"
+          className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded-md p-1.5 focus-visible:ring-[3px] focus-visible:outline-none"
           aria-label={theme === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'}
         >
           {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}

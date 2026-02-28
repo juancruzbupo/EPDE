@@ -101,24 +101,24 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
           <input type="hidden" {...register('maintenancePlanId')} />
 
           <div className="space-y-2">
-            <Label>Nombre</Label>
-            <Input {...register('name')} />
+            <Label htmlFor="task-name">Nombre</Label>
+            <Input id="task-name" {...register('name')} />
             {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label>Descripción (opcional)</Label>
-            <Input {...register('description')} />
+            <Label htmlFor="task-description">Descripción (opcional)</Label>
+            <Input id="task-description" {...register('description')} />
           </div>
 
           <div className="space-y-2">
-            <Label>Categoría</Label>
+            <Label htmlFor="task-category">Categoría</Label>
             <Select
               value={watch('categoryId') ?? ''}
               onValueChange={(v) => setValue('categoryId', v)}
               disabled={categoriesLoading}
             >
-              <SelectTrigger>
+              <SelectTrigger id="task-category">
                 <SelectValue
                   placeholder={
                     categoriesLoading ? 'Cargando categorías...' : 'Seleccionar categoría'
@@ -140,12 +140,12 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Prioridad</Label>
+              <Label htmlFor="task-priority">Prioridad</Label>
               <Select
                 value={watch('priority') ?? 'MEDIUM'}
                 onValueChange={(v) => setValue('priority', v as TaskFormValues['priority'])}
               >
-                <SelectTrigger>
+                <SelectTrigger id="task-priority">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -159,14 +159,14 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
             </div>
 
             <div className="space-y-2">
-              <Label>Recurrencia</Label>
+              <Label htmlFor="task-recurrence">Recurrencia</Label>
               <Select
                 value={watch('recurrenceType') ?? 'ANNUAL'}
                 onValueChange={(v) =>
                   setValue('recurrenceType', v as TaskFormValues['recurrenceType'])
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger id="task-recurrence">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -182,14 +182,20 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
 
           {recurrenceType === 'CUSTOM' && (
             <div className="space-y-2">
-              <Label>Meses personalizados</Label>
-              <Input type="number" min={1} max={120} {...register('recurrenceMonths')} />
+              <Label htmlFor="task-recurrence-months">Meses personalizados</Label>
+              <Input
+                id="task-recurrence-months"
+                type="number"
+                min={1}
+                max={120}
+                {...register('recurrenceMonths')}
+              />
             </div>
           )}
 
           <div className="space-y-2">
-            <Label>Próxima fecha de vencimiento</Label>
-            <Input type="date" {...register('nextDueDate')} />
+            <Label htmlFor="task-due-date">Próxima fecha de vencimiento</Label>
+            <Input id="task-due-date" type="date" {...register('nextDueDate')} />
             {errors.nextDueDate && (
               <p className="text-destructive text-sm">{errors.nextDueDate.message}</p>
             )}

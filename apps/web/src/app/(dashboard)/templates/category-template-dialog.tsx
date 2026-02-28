@@ -82,22 +82,22 @@ export function CategoryTemplateDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label>Nombre</Label>
-            <Input {...register('name')} />
+            <Label htmlFor="tpl-cat-name">Nombre</Label>
+            <Input id="tpl-cat-name" {...register('name')} />
             {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
           </div>
           <div className="space-y-2">
-            <Label>Descripción (opcional)</Label>
-            <Input {...register('description')} />
+            <Label htmlFor="tpl-cat-description">Descripción (opcional)</Label>
+            <Input id="tpl-cat-description" {...register('description')} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Ícono (opcional)</Label>
-              <Input {...register('icon')} placeholder="ej: zap, home..." />
+              <Label htmlFor="tpl-cat-icon">Ícono (opcional)</Label>
+              <Input id="tpl-cat-icon" {...register('icon')} placeholder="ej: zap, home..." />
             </div>
             <div className="space-y-2">
-              <Label>Orden</Label>
-              <Input type="number" min={0} {...register('displayOrder')} />
+              <Label htmlFor="tpl-cat-order">Orden</Label>
+              <Input id="tpl-cat-order" type="number" min={0} {...register('displayOrder')} />
             </div>
           </div>
           <div className="flex justify-end gap-2">

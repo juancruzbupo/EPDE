@@ -53,9 +53,9 @@ export function AdminDashboard() {
               ))}
             </div>
           ) : activity && activity.length > 0 ? (
-            <div className="space-y-3">
+            <ul className="space-y-3">
               {activity.map((item) => (
-                <div key={item.id} className="flex items-center justify-between text-sm">
+                <li key={item.id} className="flex items-center justify-between text-sm">
                   <span>{item.description}</span>
                   <span className="text-muted-foreground text-xs">
                     {formatDistanceToNow(new Date(item.timestamp), {
@@ -63,9 +63,9 @@ export function AdminDashboard() {
                       locale: es,
                     })}
                   </span>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           ) : (
             <p className="text-muted-foreground text-sm">Sin actividad reciente</p>
           )}

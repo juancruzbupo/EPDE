@@ -7,6 +7,7 @@ import { useServiceRequest, useUpdateServiceStatus } from '@/hooks/use-service-r
 import { PageHeader } from '@/components/page-header';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -77,12 +78,12 @@ export default function ServiceRequestDetailPage() {
       <div className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Informacion de la solicitud</CardTitle>
+            <CardTitle className="text-lg">Información de la solicitud</CardTitle>
           </CardHeader>
           <CardContent>
             <dl className="grid gap-4 sm:grid-cols-2">
               <div>
-                <dt className="text-muted-foreground text-sm">Titulo</dt>
+                <dt className="text-muted-foreground text-sm">Título</dt>
                 <dd className="font-medium">{request.title}</dd>
               </div>
               <div>
@@ -100,7 +101,7 @@ export default function ServiceRequestDetailPage() {
                 <dd>
                   <Badge
                     variant={urgencyVariant[request.urgency] ?? 'outline'}
-                    className={request.urgency === 'HIGH' ? 'text-orange-600' : undefined}
+                    className={undefined}
                   >
                     {SERVICE_URGENCY_LABELS[request.urgency] ?? request.urgency}
                   </Badge>
@@ -115,7 +116,7 @@ export default function ServiceRequestDetailPage() {
                 </dd>
               </div>
               <div>
-                <dt className="text-muted-foreground text-sm">Fecha de creacion</dt>
+                <dt className="text-muted-foreground text-sm">Fecha de creación</dt>
                 <dd className="font-medium">
                   {formatDistanceToNow(new Date(request.createdAt), {
                     addSuffix: true,
@@ -124,8 +125,8 @@ export default function ServiceRequestDetailPage() {
                 </dd>
               </div>
               <div className="sm:col-span-2">
-                <dt className="text-muted-foreground text-sm">Descripcion</dt>
-                <dd className="mt-1 whitespace-pre-wrap font-medium">{request.description}</dd>
+                <dt className="text-muted-foreground text-sm">Descripción</dt>
+                <dd className="mt-1 font-medium whitespace-pre-wrap">{request.description}</dd>
               </div>
             </dl>
           </CardContent>
@@ -171,25 +172,21 @@ export default function ServiceRequestDetailPage() {
         )}
       </div>
 
-      {/* Photo preview overlay */}
-      {previewPhoto && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
-          onClick={() => setPreviewPhoto(null)}
-        >
+      <Dialog open={!!previewPhoto} onOpenChange={() => setPreviewPhoto(null)}>
+        <DialogContent className="max-w-[90vw] border-none bg-transparent p-0 shadow-none">
           <img
-            src={previewPhoto}
-            alt="Vista previa"
-            className="max-h-[85vh] max-w-[90vw] rounded-md object-contain"
+            src={previewPhoto ?? ''}
+            alt="Vista previa de foto"
+            className="max-h-[85vh] w-full rounded-md object-contain"
           />
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
       <ConfirmDialog
         open={!!statusConfirm}
         onOpenChange={() => setStatusConfirm(null)}
         title="Cambiar estado"
-        description={`¿Estas seguro de que queres cambiar el estado a "${statusConfirm ? (SERVICE_STATUS_LABELS[statusConfirm] ?? statusConfirm) : ''}"?`}
+        description={`¿Estás seguro de que queres cambiar el estado a "${statusConfirm ? (SERVICE_STATUS_LABELS[statusConfirm] ?? statusConfirm) : ''}"?`}
         variant="default"
         onConfirm={() => {
           if (statusConfirm) {

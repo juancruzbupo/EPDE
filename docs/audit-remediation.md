@@ -835,3 +835,98 @@ pnpm build && pnpm typecheck && pnpm lint  # Todo green (3/3 builds, 4/4 typeche
 | 11   | Remediacion ronda 10      | `[x] Completado` | 54     |
 
 **Progreso total: 178 / 178 tareas** (+ 6 diferidas con justificacion + 4 roadmap items)
+
+---
+
+## Fase 12 — Auditoria UI/UX: Accesibilidad, Contraste y Design System
+
+> **Prioridad:** Alta
+> **Estimacion:** 1 dia
+> **Dependencias:** Fase 11 completada
+> **Issues que resuelve:** 20 categorias de problemas en accesibilidad (WCAG 2.1), contraste dark mode, tokens del design system, formularios y HTML semantico
+
+### Contexto
+
+Auditoria completa del frontend web (`apps/web`) identifico colores hardcodeados que no responden a dark mode, botones icon-only sin aria-label, elementos clickeables sin soporte de teclado, formularios con labels desvinculados, y HTML no semantico.
+
+### 12.1 — Colores hardcodeados → Tokens del design system (Batch 1)
+
+- [x] **12.1.1 — style-maps.ts: variantes dark mode** — Agregadas variantes `dark:` a `priorityColors`, `taskTypeColors`, `professionalReqColors`, `budgetStatusClassName`
+- [x] **12.1.2 — landing-page.tsx** — `bg-white` → `bg-background`, `text-white` → `text-primary-foreground`
+- [x] **12.1.3 — notification-bell.tsx** — `bg-red-500` → `bg-destructive`
+- [x] **12.1.4 — client-dashboard.tsx** — `border-red-200 bg-red-50` → `border-destructive/30 bg-destructive/10`, `text-red-600` → `text-destructive`
+- [x] **12.1.5 — plan-viewer.tsx, task-detail-sheet.tsx** — `text-red-600` → `text-destructive`
+- [x] **12.1.6 — complete-task-dialog.tsx** — `bg-red-500` → `bg-destructive`
+- [x] **12.1.7 — service-requests/columns.tsx, [id]/page.tsx** — Eliminado `text-orange-600` hardcodeado
+
+### 12.2 — Accesibilidad: Botones icon-only + aria-label (Batch 2)
+
+- [x] **12.2.1 — plan-editor.tsx** — aria-labels en ChevronUp, ChevronDown, Pencil, Trash2 + focus rings
+- [x] **12.2.2 — categories/page.tsx** — aria-labels en Pencil, Trash2 + focus rings
+- [x] **12.2.3 — templates/page.tsx** — aria-labels en Pencil, Trash2 (categorias y tareas) + focus rings
+- [x] **12.2.4 — task-notes.tsx** — aria-label "Enviar nota" en boton Send
+- [x] **12.2.5 — complete-task-dialog.tsx** — aria-label "Eliminar foto" + focus ring en boton X
+
+### 12.3 — Accesibilidad: Soporte de teclado (Batch 3)
+
+- [x] **12.3.1 — plan-viewer.tsx** — `role="button"`, `tabIndex={0}`, `onKeyDown` (Enter/Space) + focus ring en tareas clickeables
+- [x] **12.3.2 — notifications/page.tsx** — Mismo patron en notificaciones clickeables
+
+### 12.4 — Formularios: Labels vinculados (Batch 4)
+
+- [x] **12.4.1 — clients/[id]/page.tsx** — `htmlFor`/`id` en name, phone
+- [x] **12.4.2 — task-dialog.tsx** — `htmlFor`/`id` en name, description, category, priority, recurrence, months, date
+- [x] **12.4.3 — category-dialog.tsx** — `htmlFor`/`id` en name, description, icon, order
+- [x] **12.4.4 — category-template-dialog.tsx** — `htmlFor`/`id` en name, description, icon, order
+- [x] **12.4.5 — task-template-dialog.tsx** — `htmlFor`/`id` en name, months, duration, tech-desc, order
+- [x] **12.4.6 — create-property-dialog.tsx** — `htmlFor`/`id` en address, city, type (SelectTrigger), year, sqm
+- [x] **12.4.7 — create-budget-dialog.tsx** — `id="propertyId"` en SelectTrigger
+- [x] **12.4.8 — create-service-dialog.tsx** — `id="propertyId"`, `id="urgency"` en SelectTriggers
+
+### 12.5 — HTML Semantico (Batch 5)
+
+- [x] **12.5.1 — sidebar.tsx** — `<nav aria-label="Navegación principal">` + `aria-current="page"` en link activo + focus ring en logout
+- [x] **12.5.2 — header.tsx** — `<h1>` → `<span>` (evitar h1 duplicado) + focus ring en toggle de tema
+- [x] **12.5.3 — layout.tsx** — `role="status"` en loading
+- [x] **12.5.4 — admin-dashboard.tsx** — Actividad: `<div>` → `<ul>/<li>`
+- [x] **12.5.5 — client-dashboard.tsx** — Tareas proximas: `<div>` → `<ul>/<li>`
+- [x] **12.5.6 — notifications/page.tsx** — `<div>` → `<ul>/<li>`
+- [x] **12.5.7 — service-requests/[id]/page.tsx** — Overlay de foto → `<Dialog>` accesible de shadcn
+
+### 12.6 — Mejoras menores (Batch 6)
+
+- [x] **12.6.1 — templates/page.tsx** — `aria-expanded` en boton colapsable + focus ring
+- [x] **12.6.2 — plan-viewer.tsx** — `gap-2` → `gap-3` (consistencia)
+- [x] **12.6.3 — data-table.tsx** — Tilde: "Cargar más resultados"
+- [x] **12.6.4 — Tildes faltantes** — Corregidas en 7 archivos: Título, Descripción, Información, Días, Válido, Cotización, creación, ¿Estás
+
+### Verificacion
+
+```bash
+pnpm build && pnpm lint  # Todo green (0 errores)
+```
+
+### Archivos modificados (30)
+
+`style-maps.ts`, `landing-page.tsx`, `notification-bell.tsx`, `header.tsx`, `sidebar.tsx`, `data-table.tsx`, `layout.tsx`, `client-dashboard.tsx`, `admin-dashboard.tsx`, `plan-viewer.tsx`, `plan-editor.tsx`, `task-detail-sheet.tsx`, `task-dialog.tsx`, `task-notes.tsx`, `complete-task-dialog.tsx`, `categories/page.tsx`, `category-dialog.tsx`, `templates/page.tsx`, `category-template-dialog.tsx`, `task-template-dialog.tsx`, `notifications/page.tsx`, `clients/[id]/page.tsx`, `create-property-dialog.tsx`, `budgets/columns.tsx`, `budgets/[id]/page.tsx`, `create-budget-dialog.tsx`, `respond-budget-dialog.tsx`, `service-requests/columns.tsx`, `service-requests/[id]/page.tsx`, `create-service-dialog.tsx`
+
+---
+
+## Resumen de progreso (final)
+
+| Fase | Descripcion               | Estado           | Tareas |
+| ---- | ------------------------- | ---------------- | ------ |
+| 1    | Seguridad                 | `[x] Completado` | 3      |
+| 2    | Validacion unica          | `[x] Completado` | 8      |
+| 3    | Backend clean arch        | `[x] Completado` | 8      |
+| 4    | Type safety E2E           | `[x] Completado` | 6      |
+| 5    | Performance               | `[x] Completado` | 6      |
+| 6    | Testing + polish          | `[x] Completado` | 10     |
+| 7    | Hardening post-audit      | `[x] Completado` | 12     |
+| 8    | Roadmap arquitectonico    | `[x] Completado` | 23     |
+| 9    | Remediacion ronda 4       | `[x] Completado` | 16     |
+| 10   | Roadmap 90 dias (ronda 5) | `[x] Completado` | 33     |
+| 11   | Remediacion ronda 10      | `[x] Completado` | 54     |
+| 12   | Auditoria UI/UX a11y      | `[x] Completado` | 30     |
+
+**Progreso total: 208 / 208 tareas** (+ 6 diferidas con justificacion + 4 roadmap items)

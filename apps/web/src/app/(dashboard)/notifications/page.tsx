@@ -58,14 +58,22 @@ export default function NotificationsPage() {
       ) : allNotifications.length === 0 ? (
         <p className="text-muted-foreground py-12 text-center text-sm">No tenés notificaciones</p>
       ) : (
-        <div className="space-y-2">
+        <ul className="space-y-2">
           {allNotifications.map((n) => {
             const Icon = typeIcons[n.type] ?? Bell;
             return (
-              <div
+              <li
                 key={n.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => handleClick(n)}
-                className={`hover:bg-accent flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors ${
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleClick(n);
+                  }
+                }}
+                className={`hover:bg-accent focus-visible:ring-ring/50 flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors focus-visible:ring-[3px] focus-visible:outline-none ${
                   !n.read ? 'border-primary/20 bg-primary/5' : ''
                 }`}
               >
@@ -90,18 +98,18 @@ export default function NotificationsPage() {
                     })}
                   </span>
                 </div>
-              </div>
+              </li>
             );
           })}
 
           {hasNextPage && (
-            <div className="pt-4 text-center">
+            <li className="list-none pt-4 text-center">
               <Button variant="outline" onClick={() => fetchNextPage()}>
                 Cargar más
               </Button>
-            </div>
+            </li>
           )}
-        </div>
+        </ul>
       )}
     </div>
   );

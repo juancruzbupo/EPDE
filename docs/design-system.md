@@ -91,11 +91,29 @@ El proyecto usa Tailwind CSS 4 con `@theme inline` en `globals.css`. Los tokens 
 // Incorrecto — no usar colores hardcodeados
 <div className="bg-[#C4704B]" />
 <div style={{ color: '#C4704B' }} />
+
+// Incorrecto — no usar colores raw de Tailwind para estados
+<span className="text-red-600">Vencida</span>
+<div className="border-red-200 bg-red-50">...</div>
+
+// Correcto — usar tokens semanticos
+<span className="text-destructive">Vencida</span>
+<div className="border-destructive/30 bg-destructive/10">...</div>
 ```
 
 ## Style Maps Centralizados
 
-Los mapas de variantes y colores para Badges estan centralizados en `lib/style-maps.ts`. **No duplicar** en cada componente:
+Los mapas de variantes y colores para Badges estan centralizados en `lib/style-maps.ts`. **No duplicar** en cada componente.
+
+Los mapas de color (`priorityColors`, `taskTypeColors`, `professionalReqColors`, `budgetStatusClassName`) incluyen variantes `dark:` para soporte de dark mode:
+
+```typescript
+// Ejemplo: priorityColors con dark mode
+LOW: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+MEDIUM: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+HIGH: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+URGENT: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+```
 
 ```typescript
 import { priorityColors, taskStatusVariant, budgetStatusVariant } from '@/lib/style-maps';
@@ -273,6 +291,81 @@ import { es } from 'date-fns/locale';
 formatDistanceToNow(date, { addSuffix: true, locale: es });
 // "hace 2 horas", "en 3 dias"
 ```
+
+## Accesibilidad (Web)
+
+### Botones icon-only
+
+Todo boton que contiene solo un icono DEBE tener `aria-label` descriptivo:
+
+```tsx
+// Correcto
+<button aria-label="Eliminar tarea" className="... focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none">
+  <Trash2 className="h-4 w-4" />
+</button>
+
+// Incorrecto — sin aria-label, screen readers anuncian "button"
+<button><Trash2 className="h-4 w-4" /></button>
+```
+
+### Focus ring
+
+Todos los elementos interactivos custom (botones raw `<button>`, divs clickeables) deben tener focus ring visible:
+
+```tsx
+className = 'focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none';
+```
+
+Los componentes shadcn/ui (`<Button>`, `<Select>`, `<Input>`) ya incluyen focus ring por defecto.
+
+### Elementos clickeables no-button
+
+Divs o elementos no semanticos que son clickeables deben tener soporte completo de teclado:
+
+```tsx
+<div
+  role="button"
+  tabIndex={0}
+  onClick={handleClick}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  }}
+  className="cursor-pointer focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
+>
+```
+
+### Formularios: Labels vinculados
+
+Todo `<Label>` debe estar vinculado a su input via `htmlFor`/`id`:
+
+```tsx
+<Label htmlFor="prop-address">Dirección</Label>
+<Input id="prop-address" {...register('address')} />
+
+// Para Select de shadcn, agregar id al SelectTrigger
+<Label htmlFor="prop-type">Tipo</Label>
+<Select ...>
+  <SelectTrigger id="prop-type">
+    <SelectValue placeholder="Seleccionar" />
+  </SelectTrigger>
+</Select>
+```
+
+### HTML Semantico
+
+| Patron                                    | Uso                                                 |
+| ----------------------------------------- | --------------------------------------------------- |
+| `<nav aria-label="Navegación principal">` | Sidebar de navegacion                               |
+| `aria-current="page"`                     | Link activo en sidebar                              |
+| `<ul>/<li>`                               | Listas de items (actividad, notificaciones, tareas) |
+| `role="status"`                           | Indicadores de carga                                |
+| `aria-expanded={isOpen}`                  | Secciones colapsables                               |
+| `<Dialog>` (shadcn)                       | Modales con focus trap, Escape, aria-modal          |
+
+---
 
 ## Mobile (NativeWind)
 

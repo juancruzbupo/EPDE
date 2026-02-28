@@ -113,8 +113,8 @@ export function TaskTemplateDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label>Nombre</Label>
-            <Input {...register('name')} />
+            <Label htmlFor="tpl-task-name">Nombre</Label>
+            <Input id="tpl-task-name" {...register('name')} />
             {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
           </div>
 
@@ -210,12 +210,19 @@ export function TaskTemplateDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Meses de recurrencia</Label>
-              <Input type="number" min={1} max={120} {...register('recurrenceMonths')} />
+              <Label htmlFor="tpl-task-months">Meses de recurrencia</Label>
+              <Input
+                id="tpl-task-months"
+                type="number"
+                min={1}
+                max={120}
+                {...register('recurrenceMonths')}
+              />
             </div>
             <div className="space-y-2">
-              <Label>Duración estimada (min)</Label>
+              <Label htmlFor="tpl-task-duration">Duración estimada (min)</Label>
               <Input
+                id="tpl-task-duration"
                 type="number"
                 min={1}
                 {...register('estimatedDurationMinutes')}
@@ -225,13 +232,19 @@ export function TaskTemplateDialog({
           </div>
 
           <div className="space-y-2">
-            <Label>Descripción técnica (opcional)</Label>
-            <Input {...register('technicalDescription')} />
+            <Label htmlFor="tpl-task-tech-desc">Descripción técnica (opcional)</Label>
+            <Input id="tpl-task-tech-desc" {...register('technicalDescription')} />
           </div>
 
           <div className="space-y-2">
-            <Label>Orden</Label>
-            <Input type="number" min={0} {...register('displayOrder')} className="w-24" />
+            <Label htmlFor="tpl-task-order">Orden</Label>
+            <Input
+              id="tpl-task-order"
+              type="number"
+              min={0}
+              {...register('displayOrder')}
+              className="w-24"
+            />
           </div>
 
           <div className="flex justify-end gap-2">

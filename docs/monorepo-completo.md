@@ -635,6 +635,25 @@ Centralizados en `lib/style-maps.ts` (web) y `components/status-badge.tsx` (mobi
 | `urgencyVariant`      | Solicitudes  | LOW, MEDIUM, HIGH, URGENT                                     |
 | `clientStatusVariant` | Clientes     | INVITED, ACTIVE, INACTIVE                                     |
 
+Los mapas de color (`priorityColors`, `taskTypeColors`, `professionalReqColors`, `budgetStatusClassName`) incluyen variantes `dark:` para dark mode. Ejemplo: `'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'`.
+
+### Accesibilidad (Web)
+
+El frontend web sigue patrones de accesibilidad WCAG 2.1:
+
+| Patron                | Implementacion                                                                                       |
+| --------------------- | ---------------------------------------------------------------------------------------------------- |
+| Botones icon-only     | `aria-label` descriptivo en todos los botones sin texto                                              |
+| Focus ring            | `focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none` en elementos custom |
+| Keyboard navigation   | `role="button"` + `tabIndex={0}` + `onKeyDown` (Enter/Space) en divs clickeables                     |
+| Labels de formulario  | `htmlFor`/`id` vinculados en todos los pares Label/Input y Label/SelectTrigger                       |
+| Navegacion semantica  | `<nav aria-label>`, `aria-current="page"` en link activo                                             |
+| Listas semanticas     | `<ul>/<li>` para actividad, notificaciones, tareas                                                   |
+| Loading states        | `role="status"` en indicadores de carga                                                              |
+| Secciones colapsables | `aria-expanded` en botones toggle                                                                    |
+| Modales accesibles    | `<Dialog>` de shadcn con focus trap, Escape, aria-modal                                              |
+| Tokens semanticos     | `text-destructive` (no `text-red-600`), `bg-background` (no `bg-white`)                              |
+
 ### DataTable (Web)
 
 Componente wrapper de TanStack Table:

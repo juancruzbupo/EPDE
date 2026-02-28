@@ -22,6 +22,9 @@
 10. **Tests para cada service** — Todo `*.service.ts` nuevo DEBE tener un `*.service.spec.ts` con mocks de repositorios
 11. **Invalidar queries especificamente** — En `onSuccess` de mutations, invalidar solo las query keys afectadas. Dashboard: sub-keys especificas (`['dashboard', 'stats']`), no todo `['dashboard']`
 12. **Commit style** — Conventional commits en minuscula: `fix: add user validation`, `feat(web): add dark mode`
+13. **Accesibilidad** — Botones icon-only con `aria-label`, `htmlFor`/`id` en labels de formulario, `role="button"` + `tabIndex={0}` + `onKeyDown` en divs clickeables, focus ring (`focus-visible:ring-ring/50 focus-visible:ring-[3px]`) en elementos interactivos custom
+14. **HTML semantico** — `<nav aria-label>` en navegacion, `aria-current="page"` en link activo, `<ul>/<li>` para listas, `role="status"` en loading, `aria-expanded` en colapsables
+15. **Tokens del design system** — Usar `text-destructive` (no `text-red-600`), `bg-destructive/10` (no `bg-red-50`), `bg-background` (no `bg-white`). Los style-maps incluyen variantes `dark:` para dark mode
 
 ### NUNCA
 
@@ -35,6 +38,9 @@
 8. **NUNCA loguear tokens o passwords en plaintext**
 9. **NUNCA usar `any` sin justificacion documentada** — Preferir tipos especificos
 10. **NUNCA usar `Float` para montos** — Usar `Decimal` en Prisma para precision monetaria
+11. **NUNCA usar colores raw de Tailwind para estados** — `text-red-600` → `text-destructive`, `bg-red-50` → `bg-destructive/10`, `bg-white` → `bg-background`
+12. **NUNCA crear botones icon-only sin `aria-label`** — Screen readers necesitan texto descriptivo
+13. **NUNCA crear `<Label>` sin `htmlFor` vinculado a un `id`** — Accesibilidad de formularios
 
 ---
 
@@ -596,6 +602,8 @@ export const budgetStatusVariant: Record<
   COMPLETED: 'default',
 };
 // + taskStatusVariant, priorityColors, urgencyVariant, clientStatusVariant
+// Los mapas de color incluyen variantes dark: para dark mode
+// Ej: LOW: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
 ```
 
 **Regla:** NUNCA definir colores por estado inline en componentes. Importar de `style-maps.ts`.
@@ -828,3 +836,8 @@ pnpm test       # Todos los tests pasan
 | `useQueryClient()` duplicado (store + componente)                    | `queryClient` singleton desde `lib/query-client.ts`                                |
 | `TypeScript enum`                                                    | `const obj as const` + `type Union`                                                |
 | `import { something } from '../../../shared'`                        | `import { something } from '@epde/shared'`                                         |
+| `<button><Trash2 /></button>` (icon-only sin label)                  | `<button aria-label="Eliminar"><Trash2 /></button>`                                |
+| `<Label>Nombre</Label><Input />` (sin vincular)                      | `<Label htmlFor="name">Nombre</Label><Input id="name" />`                          |
+| `<div onClick={fn}>` (clickeable sin teclado)                        | `<div role="button" tabIndex={0} onClick={fn} onKeyDown={handleEnterSpace}>`       |
+| `<span className="text-red-600">Error</span>`                        | `<span className="text-destructive">Error</span>`                                  |
+| `<div className="bg-white">`                                         | `<div className="bg-background">`                                                  |

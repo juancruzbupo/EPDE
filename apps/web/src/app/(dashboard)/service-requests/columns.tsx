@@ -12,7 +12,7 @@ import Link from 'next/link';
 export const serviceRequestColumns: ColumnDef<ServiceRequestPublic>[] = [
   {
     accessorKey: 'title',
-    header: 'Titulo',
+    header: 'Título',
     cell: ({ row }) => (
       <Link href={`/service-requests/${row.original.id}`} className="font-medium hover:underline">
         {row.original.title}
@@ -34,10 +34,7 @@ export const serviceRequestColumns: ColumnDef<ServiceRequestPublic>[] = [
     cell: ({ row }) => {
       const urgency = row.original.urgency;
       return (
-        <Badge
-          variant={urgencyVariant[urgency] ?? 'outline'}
-          className={urgency === 'HIGH' ? 'text-orange-600' : undefined}
-        >
+        <Badge variant={urgencyVariant[urgency] ?? 'outline'} className={undefined}>
           {SERVICE_URGENCY_LABELS[urgency] ?? urgency}
         </Badge>
       );

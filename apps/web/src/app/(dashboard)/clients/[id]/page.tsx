@@ -92,13 +92,13 @@ export default function ClientDetailPage() {
           {editing ? (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
-                <Label>Nombre</Label>
-                <Input {...register('name')} />
+                <Label htmlFor="client-name">Nombre</Label>
+                <Input id="client-name" {...register('name')} />
                 {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
               </div>
               <div className="space-y-2">
-                <Label>Teléfono</Label>
-                <Input {...register('phone')} />
+                <Label htmlFor="client-phone">Teléfono</Label>
+                <Input id="client-phone" {...register('phone')} />
               </div>
               <div className="flex gap-2">
                 <Button type="submit" disabled={updateClient.isPending}>

@@ -84,13 +84,15 @@ export default function CategoriesPage() {
                             setEditingCategory(cat);
                             setDialogOpen(true);
                           }}
-                          className="text-muted-foreground hover:text-foreground p-1"
+                          className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded p-1 focus-visible:ring-[3px] focus-visible:outline-none"
+                          aria-label="Editar categoría"
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => setDeleteId(cat.id)}
-                          className="text-muted-foreground hover:text-destructive p-1"
+                          className="text-muted-foreground hover:text-destructive focus-visible:ring-ring/50 rounded p-1 focus-visible:ring-[3px] focus-visible:outline-none"
+                          aria-label="Eliminar categoría"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>

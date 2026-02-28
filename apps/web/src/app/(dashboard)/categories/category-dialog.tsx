@@ -70,22 +70,22 @@ export function CategoryDialog({ open, onOpenChange, category }: CategoryDialogP
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label>Nombre</Label>
-            <Input {...register('name')} />
+            <Label htmlFor="cat-name">Nombre</Label>
+            <Input id="cat-name" {...register('name')} />
             {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
           </div>
           <div className="space-y-2">
-            <Label>Descripción (opcional)</Label>
-            <Input {...register('description')} />
+            <Label htmlFor="cat-description">Descripción (opcional)</Label>
+            <Input id="cat-description" {...register('description')} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Ícono (opcional)</Label>
-              <Input {...register('icon')} placeholder="ej: zap, home..." />
+              <Label htmlFor="cat-icon">Ícono (opcional)</Label>
+              <Input id="cat-icon" {...register('icon')} placeholder="ej: zap, home..." />
             </div>
             <div className="space-y-2">
-              <Label>Orden</Label>
-              <Input type="number" min={0} {...register('order')} />
+              <Label htmlFor="cat-order">Orden</Label>
+              <Input id="cat-order" type="number" min={0} {...register('order')} />
             </div>
           </div>
           <div className="flex justify-end gap-2">

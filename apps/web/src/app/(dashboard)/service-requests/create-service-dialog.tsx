@@ -127,7 +127,7 @@ export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogP
               name="propertyId"
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger id="propertyId" className="w-full">
                     <SelectValue placeholder="Seleccionar propiedad" />
                   </SelectTrigger>
                   <SelectContent>
@@ -146,13 +146,13 @@ export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogP
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="title">Titulo</Label>
+            <Label htmlFor="title">Título</Label>
             <Input id="title" {...register('title')} />
             {errors.title && <p className="text-destructive text-sm">{errors.title.message}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Descripcion</Label>
+            <Label htmlFor="description">Descripción</Label>
             <textarea
               id="description"
               className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
@@ -170,7 +170,7 @@ export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogP
               name="urgency"
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger id="urgency" className="w-full">
                     <SelectValue placeholder="Seleccionar urgencia" />
                   </SelectTrigger>
                   <SelectContent>
@@ -218,7 +218,8 @@ export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogP
                     <button
                       type="button"
                       onClick={() => removePhoto(index)}
-                      className="bg-destructive absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full text-white"
+                      className="bg-destructive focus-visible:ring-ring/50 absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full text-white focus-visible:ring-[3px] focus-visible:outline-none"
+                      aria-label={`Eliminar foto ${index + 1}`}
                     >
                       <X className="h-3 w-3" />
                     </button>

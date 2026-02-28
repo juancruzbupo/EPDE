@@ -66,7 +66,7 @@ export function LandingPage() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Header */}
-      <header className="border-b bg-white">
+      <header className="bg-background border-b">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <span className="text-primary font-serif text-2xl font-bold tracking-tight">EPDE</span>
           <Link href={ctaHref}>
@@ -132,7 +132,7 @@ export function LandingPage() {
           <div className="mt-12 grid gap-8 md:grid-cols-3">
             {steps.map((step) => (
               <div key={step.number} className="text-center">
-                <div className="bg-primary mx-auto flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold text-white">
+                <div className="bg-primary text-primary-foreground mx-auto flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold">
                   {step.number}
                 </div>
                 <h3 className="text-foreground mt-4 font-semibold">{step.title}</h3>
@@ -174,7 +174,7 @@ export function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-white py-8">
+      <footer className="bg-background border-t py-8">
         <div className="mx-auto max-w-6xl px-4 text-center">
           <span className="text-primary font-serif text-lg font-bold">EPDE</span>
           <p className="text-muted-foreground mt-2 text-sm">

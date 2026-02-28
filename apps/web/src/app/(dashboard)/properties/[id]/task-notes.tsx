@@ -34,10 +34,15 @@ export function TaskNotes({ planId, taskId }: TaskNotesProps) {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Agregar una nota..."
-          className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex-1 resize-none rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex-1 resize-none rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
           rows={2}
         />
-        <Button type="submit" size="sm" disabled={!content.trim() || addNote.isPending}>
+        <Button
+          type="submit"
+          size="sm"
+          disabled={!content.trim() || addNote.isPending}
+          aria-label="Enviar nota"
+        >
           <Send className="h-4 w-4" />
         </Button>
       </form>

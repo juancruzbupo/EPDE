@@ -95,7 +95,8 @@ export default function TemplatesPage() {
                   <div className="flex items-center justify-between">
                     <button
                       onClick={() => toggleExpanded(cat.id)}
-                      className="flex flex-1 items-center gap-2 text-left"
+                      className="focus-visible:ring-ring/50 flex flex-1 items-center gap-2 rounded text-left focus-visible:ring-[3px] focus-visible:outline-none"
+                      aria-expanded={isExpanded}
                     >
                       {isExpanded ? (
                         <ChevronDown className="h-4 w-4" />
@@ -128,13 +129,15 @@ export default function TemplatesPage() {
                           setEditingCategory(cat);
                           setCategoryDialogOpen(true);
                         }}
-                        className="text-muted-foreground hover:text-foreground p-1"
+                        className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded p-1 focus-visible:ring-[3px] focus-visible:outline-none"
+                        aria-label="Editar categoría"
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => setDeleteCategoryId(cat.id)}
-                        className="text-muted-foreground hover:text-destructive p-1"
+                        className="text-muted-foreground hover:text-destructive focus-visible:ring-ring/50 rounded p-1 focus-visible:ring-[3px] focus-visible:outline-none"
+                        aria-label="Eliminar categoría"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -199,13 +202,15 @@ export default function TemplatesPage() {
                                     setEditingTask(task);
                                     setTaskDialogOpen(true);
                                   }}
-                                  className="text-muted-foreground hover:text-foreground p-1"
+                                  className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded p-1 focus-visible:ring-[3px] focus-visible:outline-none"
+                                  aria-label="Editar tarea"
                                 >
                                   <Pencil className="h-3.5 w-3.5" />
                                 </button>
                                 <button
                                   onClick={() => setDeleteTaskId(task.id)}
-                                  className="text-muted-foreground hover:text-destructive p-1"
+                                  className="text-muted-foreground hover:text-destructive focus-visible:ring-ring/50 rounded p-1 focus-visible:ring-[3px] focus-visible:outline-none"
+                                  aria-label="Eliminar tarea"
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
                                 </button>

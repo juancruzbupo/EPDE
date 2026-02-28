@@ -139,22 +139,22 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
             {errors.userId && <p className="text-destructive text-sm">{errors.userId.message}</p>}
           </div>
           <div className="space-y-2">
-            <Label>Dirección</Label>
-            <Input {...register('address')} />
+            <Label htmlFor="prop-address">Dirección</Label>
+            <Input id="prop-address" {...register('address')} />
             {errors.address && <p className="text-destructive text-sm">{errors.address.message}</p>}
           </div>
           <div className="space-y-2">
-            <Label>Ciudad</Label>
-            <Input {...register('city')} />
+            <Label htmlFor="prop-city">Ciudad</Label>
+            <Input id="prop-city" {...register('city')} />
             {errors.city && <p className="text-destructive text-sm">{errors.city.message}</p>}
           </div>
           <div className="space-y-2">
-            <Label>Tipo</Label>
+            <Label htmlFor="prop-type">Tipo</Label>
             <Select
               defaultValue="HOUSE"
               onValueChange={(v) => setValue('type', v as PropertyFormValues['type'])}
             >
-              <SelectTrigger>
+              <SelectTrigger id="prop-type">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -168,8 +168,9 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Año de construcción</Label>
+              <Label htmlFor="prop-year">Año de construcción</Label>
               <Input
+                id="prop-year"
                 type="number"
                 {...register('yearBuilt', {
                   setValueAs: (v: string) => (v === '' ? undefined : Number(v)),
@@ -180,8 +181,9 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
               )}
             </div>
             <div className="space-y-2">
-              <Label>Metros cuadrados</Label>
+              <Label htmlFor="prop-sqm">Metros cuadrados</Label>
               <Input
+                id="prop-sqm"
                 type="number"
                 step="0.1"
                 {...register('squareMeters', {

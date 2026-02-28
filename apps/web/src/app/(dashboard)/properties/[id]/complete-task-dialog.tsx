@@ -221,7 +221,8 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
                 <button
                   type="button"
                   onClick={removePhoto}
-                  className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white"
+                  className="bg-destructive focus-visible:ring-ring/50 absolute -top-2 -right-2 rounded-full p-1 text-white focus-visible:ring-[3px] focus-visible:outline-none"
+                  aria-label="Eliminar foto"
                 >
                   <X className="h-3 w-3" />
                 </button>

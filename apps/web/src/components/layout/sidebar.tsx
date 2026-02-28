@@ -50,13 +50,14 @@ export function Sidebar({ className }: { className?: string }) {
         <h2 className="font-heading text-sidebar-primary text-xl font-bold">EPDE</h2>
       </div>
 
-      <nav className="flex-1 space-y-1 px-3">
+      <nav aria-label="Navegación principal" className="flex-1 space-y-1 px-3">
         {filteredItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
+              aria-current={isActive ? 'page' : undefined}
               className={cn(
                 'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
                 isActive
@@ -76,7 +77,7 @@ export function Sidebar({ className }: { className?: string }) {
         <p className="text-sidebar-foreground/60 truncate text-xs">{user?.email}</p>
         <button
           onClick={handleLogout}
-          className="text-sidebar-foreground/60 hover:text-sidebar-foreground mt-2 flex items-center gap-2 text-sm"
+          className="text-sidebar-foreground/60 hover:text-sidebar-foreground focus-visible:ring-ring/50 mt-2 flex items-center gap-2 rounded text-sm focus-visible:ring-[3px] focus-visible:outline-none"
         >
           <LogOut className="h-3.5 w-3.5" />
           Cerrar sesión

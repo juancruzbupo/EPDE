@@ -61,7 +61,7 @@ export function TaskDetailSheet({
             </div>
             <div>
               <dt className="text-muted-foreground">Próximo vencimiento</dt>
-              <dd className={`font-medium ${isOverdue ? 'text-red-600' : ''}`}>
+              <dd className={`font-medium ${isOverdue ? 'text-destructive' : ''}`}>
                 {task.nextDueDate ? (
                   <>
                     {new Date(task.nextDueDate).toLocaleDateString('es-AR')}
