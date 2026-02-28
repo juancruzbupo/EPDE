@@ -16,7 +16,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { SERVICE_URGENCY_LABELS, SERVICE_STATUS_LABELS, UserRole } from '@epde/shared';
 import Link from 'next/link';
-import { urgencyVariant } from '@/lib/style-maps';
+import { urgencyVariant, serviceStatusVariant } from '@/lib/style-maps';
 
 const STATUS_TRANSITIONS: Record<string, string> = {
   OPEN: 'IN_REVIEW',
@@ -77,8 +77,11 @@ export default function ServiceRequestDetailPage() {
 
       <div className="space-y-6">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Información de la solicitud</CardTitle>
+            <Badge variant={serviceStatusVariant[request.status] ?? 'secondary'}>
+              {SERVICE_STATUS_LABELS[request.status] ?? request.status}
+            </Badge>
           </CardHeader>
           <CardContent>
             <dl className="grid gap-4 sm:grid-cols-2">
@@ -99,19 +102,8 @@ export default function ServiceRequestDetailPage() {
               <div>
                 <dt className="text-muted-foreground text-sm">Urgencia</dt>
                 <dd>
-                  <Badge
-                    variant={urgencyVariant[request.urgency] ?? 'outline'}
-                    className={undefined}
-                  >
+                  <Badge variant={urgencyVariant[request.urgency] ?? 'outline'}>
                     {SERVICE_URGENCY_LABELS[request.urgency] ?? request.urgency}
-                  </Badge>
-                </dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground text-sm">Estado</dt>
-                <dd>
-                  <Badge variant="secondary">
-                    {SERVICE_STATUS_LABELS[request.status] ?? request.status}
                   </Badge>
                 </dd>
               </div>
@@ -159,16 +151,11 @@ export default function ServiceRequestDetailPage() {
         )}
 
         {isAdmin && nextStatus && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Acciones</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={() => setStatusConfirm(nextStatus)}>
-                {TRANSITION_LABELS[nextStatus]}
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="flex gap-2">
+            <Button onClick={() => setStatusConfirm(nextStatus)}>
+              {TRANSITION_LABELS[nextStatus]}
+            </Button>
+          </div>
         )}
       </div>
 

@@ -35,7 +35,7 @@ export default function PropertyDetailPage() {
   }
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
         title={property.address}
         description={`${property.city} — ${PROPERTY_TYPE_LABELS[property.type] ?? property.type}`}
@@ -57,8 +57,11 @@ export default function PropertyDetailPage() {
 
         <TabsContent value="details" className="mt-4">
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-lg">Información de la propiedad</CardTitle>
+              <Badge variant="outline">
+                {PROPERTY_TYPE_LABELS[property.type] ?? property.type}
+              </Badge>
             </CardHeader>
             <CardContent>
               <dl className="grid gap-4 sm:grid-cols-2">
@@ -69,14 +72,6 @@ export default function PropertyDetailPage() {
                 <div>
                   <dt className="text-muted-foreground text-sm">Ciudad</dt>
                   <dd className="font-medium">{property.city}</dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground text-sm">Tipo</dt>
-                  <dd>
-                    <Badge variant="outline">
-                      {PROPERTY_TYPE_LABELS[property.type] ?? property.type}
-                    </Badge>
-                  </dd>
                 </div>
                 <div>
                   <dt className="text-muted-foreground text-sm">Año de construcción</dt>

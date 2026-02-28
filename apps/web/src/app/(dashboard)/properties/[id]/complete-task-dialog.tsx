@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -201,10 +202,10 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
 
           <div className="space-y-2">
             <Label>Notas (opcional)</Label>
-            <textarea
+            <Textarea
               {...register('note')}
               placeholder="Describí el trabajo realizado..."
-              className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring w-full resize-none rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+              className="resize-none"
               rows={3}
             />
           </div>

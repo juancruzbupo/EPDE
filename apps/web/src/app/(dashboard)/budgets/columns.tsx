@@ -7,11 +7,17 @@ import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { budgetStatusVariant, budgetStatusClassName } from '@/lib/style-maps';
 import type { BudgetRequestPublic } from '@/lib/api/budgets';
+import Link from 'next/link';
 
 export const budgetColumns: ColumnDef<BudgetRequestPublic>[] = [
   {
     accessorKey: 'title',
     header: 'Título',
+    cell: ({ row }) => (
+      <Link href={`/budgets/${row.original.id}`} className="font-medium hover:underline">
+        {row.original.title}
+      </Link>
+    ),
   },
   {
     id: 'property',
@@ -45,7 +51,7 @@ export const budgetColumns: ColumnDef<BudgetRequestPublic>[] = [
     header: 'Monto',
     cell: ({ row }) => {
       const response = row.original.response;
-      if (!response) return '-';
+      if (!response) return '—';
       return new Intl.NumberFormat('es-AR', {
         style: 'currency',
         currency: 'ARS',

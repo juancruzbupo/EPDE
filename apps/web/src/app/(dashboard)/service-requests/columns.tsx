@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { SERVICE_URGENCY_LABELS, SERVICE_STATUS_LABELS } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { urgencyVariant } from '@/lib/style-maps';
+import { urgencyVariant, serviceStatusVariant } from '@/lib/style-maps';
 import type { ServiceRequestPublic } from '@/lib/api/service-requests';
 import Link from 'next/link';
 
@@ -34,7 +34,7 @@ export const serviceRequestColumns: ColumnDef<ServiceRequestPublic>[] = [
     cell: ({ row }) => {
       const urgency = row.original.urgency;
       return (
-        <Badge variant={urgencyVariant[urgency] ?? 'outline'} className={undefined}>
+        <Badge variant={urgencyVariant[urgency] ?? 'outline'}>
           {SERVICE_URGENCY_LABELS[urgency] ?? urgency}
         </Badge>
       );
@@ -44,7 +44,7 @@ export const serviceRequestColumns: ColumnDef<ServiceRequestPublic>[] = [
     accessorKey: 'status',
     header: 'Estado',
     cell: ({ row }) => (
-      <Badge variant="secondary">
+      <Badge variant={serviceStatusVariant[row.original.status] ?? 'secondary'}>
         {SERVICE_STATUS_LABELS[row.original.status] ?? row.original.status}
       </Badge>
     ),

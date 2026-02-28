@@ -11,6 +11,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Eye, Trash2 } from 'lucide-react';
 import { USER_STATUS_LABELS } from '@epde/shared';
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { clientStatusVariant } from '@/lib/style-maps';
 import type { ClientPublic } from '@/lib/api/clients';
 import Link from 'next/link';
@@ -39,15 +41,16 @@ export function clientColumns({
     },
     {
       accessorKey: 'createdAt',
-      header: 'Creado',
-      cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString('es-AR'),
+      header: 'Fecha',
+      cell: ({ row }) =>
+        formatDistanceToNow(new Date(row.original.createdAt), { addSuffix: true, locale: es }),
     },
     {
       id: 'actions',
       cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" aria-label="Más opciones">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

@@ -74,7 +74,7 @@ export function CategoryTemplateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? 'Editar Categoría Template' : 'Nueva Categoría Template'}

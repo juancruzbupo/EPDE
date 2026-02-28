@@ -44,6 +44,17 @@ export const urgencyVariant: Record<string, 'outline' | 'secondary' | 'default' 
   URGENT: 'destructive',
 };
 
+export const serviceStatusVariant: Record<
+  string,
+  'default' | 'secondary' | 'outline' | 'destructive'
+> = {
+  OPEN: 'secondary',
+  IN_REVIEW: 'default',
+  IN_PROGRESS: 'default',
+  RESOLVED: 'outline',
+  CLOSED: 'outline',
+};
+
 export const clientStatusVariant: Record<string, 'default' | 'secondary' | 'outline'> = {
   ACTIVE: 'default',
   INVITED: 'secondary',

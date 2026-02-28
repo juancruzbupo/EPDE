@@ -48,7 +48,7 @@ export function propertyColumns({ isAdmin }: { isAdmin: boolean }): ColumnDef<Pr
       cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" aria-label="Más opciones">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

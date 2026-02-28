@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateClientSchema, type UpdateClientInput, USER_STATUS_LABELS } from '@epde/shared';
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { useClient, useUpdateClient, useDeleteClient } from '@/hooks/use-clients';
 import { PageHeader } from '@/components/page-header';
 import { ConfirmDialog } from '@/components/confirm-dialog';
@@ -56,7 +58,7 @@ export default function ClientDetailPage() {
   }
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
         title={client.name}
         description={client.email}
@@ -126,7 +128,10 @@ export default function ClientDetailPage() {
               <div>
                 <dt className="text-muted-foreground text-sm">Fecha de creación</dt>
                 <dd className="font-medium">
-                  {new Date(client.createdAt).toLocaleDateString('es-AR')}
+                  {formatDistanceToNow(new Date(client.createdAt), {
+                    addSuffix: true,
+                    locale: es,
+                  })}
                 </dd>
               </div>
             </dl>

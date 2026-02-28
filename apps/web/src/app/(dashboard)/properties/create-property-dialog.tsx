@@ -71,7 +71,7 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Nueva Propiedad</DialogTitle>
         </DialogHeader>

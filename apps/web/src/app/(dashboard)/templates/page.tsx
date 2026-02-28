@@ -76,7 +76,7 @@ export default function TemplatesPage() {
       />
 
       {isLoading ? (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
             <Card key={i}>
               <CardContent className="p-6">
@@ -226,7 +226,7 @@ export default function TemplatesPage() {
                 {isExpanded && cat.tasks.length === 0 && (
                   <CardContent className="pt-0">
                     <p className="text-muted-foreground py-4 text-center text-sm">
-                      Sin tareas template en esta categoría
+                      No se encontraron tareas en esta categoría
                     </p>
                   </CardContent>
                 )}
@@ -237,7 +237,7 @@ export default function TemplatesPage() {
       ) : (
         <Card>
           <CardContent className="py-8 text-center">
-            <p className="text-muted-foreground text-sm">No hay categorías template</p>
+            <p className="text-muted-foreground text-sm">No se encontraron plantillas</p>
           </CardContent>
         </Card>
       )}

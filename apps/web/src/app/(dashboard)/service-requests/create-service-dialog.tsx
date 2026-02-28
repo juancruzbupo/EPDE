@@ -14,6 +14,7 @@ import { useUploadFile } from '@/hooks/use-upload';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -153,11 +154,7 @@ export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogP
 
           <div className="space-y-2">
             <Label htmlFor="description">Descripción</Label>
-            <textarea
-              id="description"
-              className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-              {...register('description')}
-            />
+            <Textarea id="description" {...register('description')} />
             {errors.description && (
               <p className="text-destructive text-sm">{errors.description.message}</p>
             )}
