@@ -627,13 +627,14 @@ Casos de uso: token rotation (families), token blacklist (JTIs), distributed loc
 
 Centralizados en `lib/style-maps.ts` (web) y `components/status-badge.tsx` (mobile):
 
-| Map                   | Entidad      | Valores                                                       |
-| --------------------- | ------------ | ------------------------------------------------------------- |
-| `taskStatusVariant`   | Tareas       | PENDING, UPCOMING, OVERDUE, COMPLETED                         |
-| `priorityColors`      | Tareas       | LOW (verde), MEDIUM (amarillo), HIGH (naranja), URGENT (rojo) |
-| `budgetStatusVariant` | Presupuestos | 6 estados con colores                                         |
-| `urgencyVariant`      | Solicitudes  | LOW, MEDIUM, HIGH, URGENT                                     |
-| `clientStatusVariant` | Clientes     | INVITED, ACTIVE, INACTIVE                                     |
+| Map                    | Entidad      | Valores                                                       |
+| ---------------------- | ------------ | ------------------------------------------------------------- |
+| `taskStatusVariant`    | Tareas       | PENDING, UPCOMING, OVERDUE, COMPLETED                         |
+| `priorityColors`       | Tareas       | LOW (verde), MEDIUM (amarillo), HIGH (naranja), URGENT (rojo) |
+| `budgetStatusVariant`  | Presupuestos | 6 estados con colores                                         |
+| `urgencyVariant`       | Solicitudes  | LOW, MEDIUM, HIGH, URGENT                                     |
+| `serviceStatusVariant` | Solicitudes  | OPEN, IN_REVIEW, IN_PROGRESS, RESOLVED, CLOSED                |
+| `clientStatusVariant`  | Clientes     | INVITED, ACTIVE, INACTIVE                                     |
 
 Los mapas de color (`priorityColors`, `taskTypeColors`, `professionalReqColors`, `budgetStatusClassName`) incluyen variantes `dark:` para dark mode. Ejemplo: `'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'`.
 

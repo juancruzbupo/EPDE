@@ -3,8 +3,9 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Calendar, RotateCcw } from 'lucide-react';
 import { TASK_PRIORITY_LABELS, RECURRENCE_TYPE_LABELS, TASK_STATUS_LABELS } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -36,13 +37,10 @@ export function TaskDetailSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full overflow-y-auto sm:max-w-md">
-        <SheetHeader>
-          <SheetTitle>{task.name}</SheetTitle>
-        </SheetHeader>
-
-        <div className="mt-4 space-y-4">
-          <div className="flex flex-wrap gap-2">
+      <SheetContent className="flex w-full flex-col overflow-y-auto sm:max-w-lg">
+        <SheetHeader className="px-6 pb-4">
+          <SheetTitle className="text-lg leading-tight">{task.name}</SheetTitle>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
             <Badge variant={taskStatusVariant[task.status] ?? 'outline'}>
               {TASK_STATUS_LABELS[task.status] ?? task.status}
             </Badge>
@@ -51,51 +49,67 @@ export function TaskDetailSheet({
               {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
             </span>
           </div>
+        </SheetHeader>
 
-          <dl className="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <dt className="text-muted-foreground">Recurrencia</dt>
-              <dd className="font-medium">
-                {RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground">Próximo vencimiento</dt>
-              <dd className={`font-medium ${isOverdue ? 'text-destructive' : ''}`}>
-                {task.nextDueDate ? (
-                  <>
-                    {new Date(task.nextDueDate).toLocaleDateString('es-AR')}
-                    <span className="text-muted-foreground ml-1 text-xs font-normal">
-                      (
-                      {formatDistanceToNow(new Date(task.nextDueDate), {
-                        addSuffix: true,
-                        locale: es,
-                      })}
-                      )
-                    </span>
-                  </>
-                ) : (
-                  'Según detección'
-                )}
-              </dd>
-            </div>
-          </dl>
+        <Separator />
 
+        <div className="flex-1 space-y-6 px-6 pb-6">
+          {/* Info card */}
+          <div className="bg-muted/40 rounded-lg p-4">
+            <dl className="grid grid-cols-2 gap-4 text-sm">
+              <div className="space-y-1">
+                <dt className="text-muted-foreground flex items-center gap-1.5">
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  Recurrencia
+                </dt>
+                <dd className="font-medium">
+                  {RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}
+                </dd>
+              </div>
+              <div className="space-y-1">
+                <dt className="text-muted-foreground flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5" />
+                  Próximo vencimiento
+                </dt>
+                <dd className={`font-medium ${isOverdue ? 'text-destructive' : ''}`}>
+                  {task.nextDueDate ? (
+                    <>
+                      {new Date(task.nextDueDate).toLocaleDateString('es-AR')}
+                      <span className="text-muted-foreground ml-1 text-xs font-normal">
+                        (
+                        {formatDistanceToNow(new Date(task.nextDueDate), {
+                          addSuffix: true,
+                          locale: es,
+                        })}
+                        )
+                      </span>
+                    </>
+                  ) : (
+                    'Según detección'
+                  )}
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          {/* Description */}
           {task.description && (
-            <div>
-              <p className="text-muted-foreground text-sm">Descripción</p>
-              <p className="mt-1 text-sm">{task.description}</p>
+            <div className="space-y-1.5">
+              <h4 className="text-muted-foreground text-sm font-medium">Descripción</h4>
+              <p className="text-sm leading-relaxed">{task.description}</p>
             </div>
           )}
 
+          {/* CTA */}
           {canComplete && onComplete && (
-            <Button className="w-full" onClick={() => onComplete(task)}>
+            <Button className="w-full" size="lg" onClick={() => onComplete(task)}>
               <CheckCircle className="mr-2 h-4 w-4" />
               Completar Tarea
             </Button>
           )}
 
-          <Tabs defaultValue="history" className="mt-4">
+          {/* Tabs */}
+          <Tabs defaultValue="history">
             <TabsList className="w-full">
               <TabsTrigger value="history" className="flex-1">
                 Historial
@@ -105,11 +119,11 @@ export function TaskDetailSheet({
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="history" className="mt-3">
+            <TabsContent value="history" className="mt-4">
               <TaskLogTimeline planId={planId} taskId={task.id} />
             </TabsContent>
 
-            <TabsContent value="notes" className="mt-3">
+            <TabsContent value="notes" className="mt-4">
               <TaskNotes planId={planId} taskId={task.id} />
             </TabsContent>
           </Tabs>

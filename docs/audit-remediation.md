@@ -912,6 +912,53 @@ pnpm build && pnpm lint  # Todo green (0 errores)
 
 ---
 
+---
+
+## Fase 13 — Consistencia Frontend (paginas, formularios, tablas, UX)
+
+Auditoria senior de frontend: 15 inconsistencias entre paginas, formularios, tablas y componentes del dashboard.
+
+### 13.1 — Fundamentos (prerequisitos)
+
+- [x] **13.1.1** — Instalar componente `<Textarea>` de shadcn/ui
+- [x] **13.1.2** — Agregar `serviceStatusVariant` a `style-maps.ts`
+
+### 13.2 — Fixes de alta prioridad
+
+- [x] **13.2.1** — Reemplazar 4 textareas inline por `<Textarea>` (budgets/create, budgets/respond, service-requests/create, complete-task)
+- [x] **13.2.2** — Service request status badges con `serviceStatusVariant` (columns + detail page)
+- [x] **13.2.3** — Eliminar `className={undefined}` sobrante en 2 urgency badges
+- [x] **13.2.4** — Placeholder vacio unificado: `-` → `—` en budgets/columns
+
+### 13.3 — Fixes de prioridad media
+
+- [x] **13.3.1** — Header de columna "Creado" → "Fecha" en clients/columns
+- [x] **13.3.2** — Formato de fecha unificado a `formatDistanceToNow` en clients/columns y clients/[id]
+- [x] **13.3.3** — `space-y-6` wrapper en properties/[id] y clients/[id] detail pages
+- [x] **13.3.4** — Dialog widths estandarizados `max-w-lg` (properties/create, category-dialog, category-template-dialog)
+- [x] **13.3.5** — Form spacing `space-y-6` → `space-y-4` en respond-budget-dialog
+- [x] **13.3.6** — Service-requests actions: Card wrapper → bare `<div className="flex gap-2">`
+- [x] **13.3.7** — `aria-label="Más opciones"` en DropdownMenu triggers (properties + clients columns)
+- [x] **13.3.8** — Link clickeable en titulo de budgets table
+
+### 13.4 — Fixes de baja prioridad
+
+- [x] **13.4.1** — Empty states unificados: "No se encontraron..." (categories, templates x2)
+- [x] **13.4.2** — Badge de estado movido al CardHeader en service-requests/[id] y properties/[id]
+- [x] **13.4.3** — Skeleton spacing `space-y-4` → `space-y-3` en templates
+
+### Verificacion
+
+```bash
+pnpm build && pnpm lint  # Todo green (0 errores)
+```
+
+### Archivos modificados (18)
+
+`textarea.tsx` (nuevo), `style-maps.ts`, `budgets/create-budget-dialog.tsx`, `budgets/[id]/respond-budget-dialog.tsx`, `budgets/columns.tsx`, `service-requests/create-service-dialog.tsx`, `service-requests/columns.tsx`, `service-requests/[id]/page.tsx`, `properties/[id]/complete-task-dialog.tsx`, `properties/[id]/page.tsx`, `properties/columns.tsx`, `properties/create-property-dialog.tsx`, `clients/[id]/page.tsx`, `clients/columns.tsx`, `categories/page.tsx`, `categories/category-dialog.tsx`, `templates/page.tsx`, `templates/category-template-dialog.tsx`
+
+---
+
 ## Resumen de progreso (final)
 
 | Fase | Descripcion               | Estado           | Tareas |
@@ -928,5 +975,6 @@ pnpm build && pnpm lint  # Todo green (0 errores)
 | 10   | Roadmap 90 dias (ronda 5) | `[x] Completado` | 33     |
 | 11   | Remediacion ronda 10      | `[x] Completado` | 54     |
 | 12   | Auditoria UI/UX a11y      | `[x] Completado` | 30     |
+| 13   | Consistencia frontend     | `[x] Completado` | 18     |
 
-**Progreso total: 208 / 208 tareas** (+ 6 diferidas con justificacion + 4 roadmap items)
+**Progreso total: 226 / 226 tareas** (+ 6 diferidas con justificacion + 4 roadmap items)

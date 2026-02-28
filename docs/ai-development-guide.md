@@ -601,7 +601,7 @@ export const budgetStatusVariant: Record<
   IN_PROGRESS: 'outline',
   COMPLETED: 'default',
 };
-// + taskStatusVariant, priorityColors, urgencyVariant, clientStatusVariant
+// + taskStatusVariant, priorityColors, urgencyVariant, serviceStatusVariant, clientStatusVariant
 // Los mapas de color incluyen variantes dark: para dark mode
 // Ej: LOW: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
 ```

@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { useTaskNotes, useAddTaskNote } from '@/hooks/use-maintenance-plans';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Send } from 'lucide-react';
+import { Send, MessageSquare } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -30,11 +31,11 @@ export function TaskNotes({ planId, taskId }: TaskNotesProps) {
   return (
     <div className="space-y-4">
       <form onSubmit={handleSubmit} className="flex gap-2">
-        <textarea
+        <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Agregar una nota..."
-          className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex-1 resize-none rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+          className="flex-1 resize-none"
           rows={2}
         />
         <Button
@@ -42,6 +43,7 @@ export function TaskNotes({ planId, taskId }: TaskNotesProps) {
           size="sm"
           disabled={!content.trim() || addNote.isPending}
           aria-label="Enviar nota"
+          className="self-end"
         >
           <Send className="h-4 w-4" />
         </Button>
@@ -50,13 +52,13 @@ export function TaskNotes({ planId, taskId }: TaskNotesProps) {
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-12 w-full" />
+            <Skeleton key={i} className="h-14 w-full rounded-lg" />
           ))}
         </div>
       ) : notes && notes.length > 0 ? (
         <div className="space-y-3">
           {notes.map((note) => (
-            <div key={note.id} className="rounded-lg border p-3">
+            <div key={note.id} className="bg-muted/30 rounded-lg border p-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="font-medium">{note.author.name}</span>
                 <span className="text-muted-foreground text-xs">
@@ -66,12 +68,15 @@ export function TaskNotes({ planId, taskId }: TaskNotesProps) {
                   })}
                 </span>
               </div>
-              <p className="mt-1 text-sm">{note.content}</p>
+              <p className="mt-1.5 text-sm leading-relaxed">{note.content}</p>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-muted-foreground py-2 text-center text-sm">Sin notas</p>
+        <div className="flex flex-col items-center gap-2 py-8">
+          <MessageSquare className="text-muted-foreground/50 h-8 w-8" />
+          <p className="text-muted-foreground text-sm">Sin notas</p>
+        </div>
       )}
     </div>
   );
