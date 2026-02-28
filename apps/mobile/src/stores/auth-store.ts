@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { UserPublic } from '@epde/shared/types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as authApi from '@/lib/auth';
 import { tokenService } from '@/lib/token-service';
 import { queryClient } from '@/lib/query-client';
@@ -36,6 +37,13 @@ export const useAuthStore = create<AuthState>((set) => ({
       // API may fail — local cleanup already done
     } finally {
       await tokenService.clearTokens();
+
+      // Clear persisted query cache to prevent data leaks between sessions
+      const keys = await AsyncStorage.getAllKeys();
+      const cacheKeys = keys.filter((k) => k.startsWith('epde-query-cache'));
+      if (cacheKeys.length > 0) {
+        await AsyncStorage.multiRemove(cacheKeys);
+      }
     }
   },
 

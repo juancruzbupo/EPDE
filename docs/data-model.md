@@ -241,8 +241,10 @@ Category ─1:N─ Task
 | version     | Int          | Optimistic locking counter (default: 0)     |
 | createdAt   | DateTime     |                                             |
 | updatedAt   | DateTime     |                                             |
+| deletedAt   | DateTime?    | Soft delete                                 |
 
 **Indices:** `propertyId`, `status`, `[propertyId, deletedAt]`
+**Soft delete:** Si — via Prisma extension
 **Relaciones:** `property`, `requester`, `lineItems`, `response` (1:1)
 
 ### BudgetLineItem
@@ -282,8 +284,10 @@ Category ─1:N─ Task
 | updatedBy   | String?        | ID del usuario que realizo el ultimo cambio |
 | createdAt   | DateTime       |                                             |
 | updatedAt   | DateTime       |                                             |
+| deletedAt   | DateTime?      | Soft delete                                 |
 
 **Indices:** `propertyId`, `status`, `[propertyId, deletedAt]`
+**Soft delete:** Si — via Prisma extension
 **Relaciones:** `property`, `requester`, `photos`
 
 ### ServiceRequestPhoto
@@ -336,6 +340,12 @@ const INCLUDE = {
 - `BudgetResponse` → cascade on delete de `BudgetRequest`
 - `ServiceRequestPhoto` → cascade on delete de `ServiceRequest`
 
+### Restrict Deletes
+
+- `Task` → restrict on delete de `Category` (previene eliminar categorias con tareas)
+- `TaskLog` → restrict on delete de `User` (previene eliminar usuarios con logs)
+- `TaskNote` → restrict on delete de `User` (previene eliminar usuarios con notas)
+
 ### Tipos Decimal (Montos)
 
 Los campos monetarios usan `Decimal` (no `Float`) para evitar errores de redondeo IEEE 754:
@@ -355,5 +365,5 @@ En el backend se usa `Prisma.Decimal` para aritmetica. Los valores se serializan
 
 El seed (`prisma/seed.ts`) crea:
 
-1. Usuario admin: `admin@epde.com` / `Admin123!`
+1. Usuario admin: `admin@epde.com` / password configurable via `SEED_ADMIN_PASSWORD` (default: `Admin123!`, warning si usa default)
 2. 10 categorias de mantenimiento por defecto

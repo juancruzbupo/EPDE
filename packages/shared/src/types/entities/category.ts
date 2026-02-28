@@ -1,4 +1,6 @@
-export interface Category {
+import type { SoftDeletable } from '../index';
+
+export interface Category extends SoftDeletable {
   id: string;
   name: string;
   description: string | null;
@@ -6,4 +8,4 @@ export interface Category {
   order: number;
 }
 
-export type CategoryPublic = Category;
+export type CategoryPublic = Omit<Category, 'deletedAt'>;

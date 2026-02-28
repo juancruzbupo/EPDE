@@ -22,7 +22,11 @@ async function main() {
   console.log('Seeding database...');
 
   // Create admin user
-  const passwordHash = await bcrypt.hash('Admin123!', BCRYPT_SALT_ROUNDS);
+  const seedPassword = process.env.SEED_ADMIN_PASSWORD || 'Admin123!';
+  if (!process.env.SEED_ADMIN_PASSWORD) {
+    console.warn('WARNING: Using default admin password. Set SEED_ADMIN_PASSWORD in production.');
+  }
+  const passwordHash = await bcrypt.hash(seedPassword, BCRYPT_SALT_ROUNDS);
 
   const admin = await prisma.user.upsert({
     where: { email: 'admin@epde.com' },

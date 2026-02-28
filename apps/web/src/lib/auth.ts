@@ -3,6 +3,9 @@ import type { AuthResponse, UserPublic } from '@epde/shared/types';
 
 export async function login(email: string, password: string): Promise<AuthResponse> {
   const { data } = await apiClient.post('/auth/login', { email, password });
+  if (!data?.data?.user) {
+    throw new Error('Respuesta de login inválida');
+  }
   return data.data as AuthResponse;
 }
 
@@ -12,6 +15,9 @@ export async function logout(): Promise<void> {
 
 export async function getMe(): Promise<UserPublic> {
   const { data } = await apiClient.get('/auth/me');
+  if (!data?.data?.id) {
+    throw new Error('Respuesta de usuario inválida');
+  }
   return data.data as UserPublic;
 }
 

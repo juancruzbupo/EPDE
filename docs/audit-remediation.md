@@ -728,6 +728,96 @@ pnpm build && pnpm typecheck && pnpm lint && pnpm test  # Todo green
 
 ---
 
+## Fase 11 — Remediacion Ronda 10 (54 hallazgos)
+
+> **Prioridad:** Critica/Alta
+> **Estimacion:** 1-2 dias
+> **Dependencias:** Fase 10 completada
+> **Issues que resuelve:** 14 HIGH, 25 MEDIUM, 15 LOW de la sexta auditoria comprehensiva
+
+### Contexto
+
+Auditoria Round 10 identifico 54 hallazgos (14 HIGH, 25 MEDIUM, 15 LOW) en API, Web, Mobile, Shared y Config/Docs. De los 54 items, 38 requirieron cambios de codigo, 8 eran "no change needed" (comentarios/JSDoc), 4 fueron TODO/roadmap, y 4 solo documentacion.
+
+### 11.1 — API Security (7 items)
+
+- [x] **H1 — RolesGuard: validar existencia de user** — `if (!user) return false;` antes del check de rol
+- [x] **H2 — CORS: log warning en fallback localhost** — `Logger.warn()` en dev cuando usa fallback
+- [x] **H3 — Rate limiting: burst protection set-password** — Agregado `short: { limit: 1, ttl: 5000 }` ademas del medium
+- [x] **H4 — JwtStrategy: validar purpose del token** — Rechaza tokens con `purpose !== 'access'`
+- [x] **M1 — Email queue processor: try-catch** — Error handling con logging y re-throw para retry BullMQ
+- [x] **M3 — Upload: Zod validation para folder** — `uploadBodySchema` con `ZodValidationPipe` reemplaza check manual
+- [x] **M4 — CurrentUser decorator: JSDoc** — Documenta asuncion de JwtAuthGuard
+
+### 11.2 — Data Model & Types (8 items)
+
+- [x] **H5 — BudgetRequest/ServiceRequest: SoftDeletable** — Extender con `SoftDeletable` en shared types
+- [x] **H6 — Category type: SoftDeletable** — Extender con `SoftDeletable`, `CategoryPublic = Omit<Category, 'deletedAt'>`
+- [x] **M5 — Category: index en deletedAt** — `@@index([deletedAt])` en schema.prisma
+- [x] **M9 — Task CUSTOM recurrence validation** — `superRefine()` valida `recurrenceMonths` requerido con `CUSTOM`
+- [x] **M10 — Task→Category: onDelete Restrict** — Previene eliminar categorias con tareas
+- [x] **M11 — TaskLog/TaskNote→User: onDelete Restrict** — Previene eliminar usuarios con logs/notas
+- [x] **M8 — BudgetLineItem Decimal: JSDoc** — Documenta serializacion como string
+- [x] **M12 — Category unique constraint: comentario** — Documenta comportamiento de NULL
+
+### 11.3 — Config & DevOps (6 items)
+
+- [x] **H7 — .env: variables faltantes** — `REDIS_URL`, `FRONTEND_URL`, `SENTRY_DSN` agregadas
+- [x] **H8 — Seed: password configurable via env** — `SEED_ADMIN_PASSWORD` con warning si usa default
+- [x] **M18 — pgAdmin: parametrizar credentials** — `${PGADMIN_EMAIL:-admin@epde.local}`
+- [x] **M19 — PostgreSQL: parametrizar credentials** — `${POSTGRES_PASSWORD:-epde_dev_password}`
+- [x] **L12 — CI: audit level a high** — `--audit-level=critical` → `--audit-level=high`
+- [x] **M20 — CI migration check** — Ya correcto (no change needed)
+
+### 11.4 — Web App (8 items)
+
+- [x] **M14 — set-password: validar token antes de form** — Check `hasToken`, error si vacio
+- [x] **M15 — Upload: validacion client-side** — `ALLOWED_MIME_TYPES`, `MAX_FILE_SIZE` antes de enviar
+- [x] **M17 — Alt text mejorado** — `"Vista previa de foto para completar tarea"`
+- [x] **L7 — Logout: try-catch** — try-catch + finally con redirect a /login
+- [x] **L8 — Auth response: validar estructura** — `if (!data?.data?.user)` check antes del cast
+- [x] **L9 — Inputs numericos: agregar max** — `max={99999}` quantity, `max={999999999}` unitPrice
+- [x] **L10 — Category dropdown: loading state** — `isLoading` de `useCategories()`
+- [x] **M13+M16 — API retry + CSRF: comentarios** — Documenta singleton refresh y SameSite=strict
+
+### 11.5 — Mobile App (10 items)
+
+- [x] **H9 — Token storage web: comentario** — Documenta sessionStorage solo para dev/Expo web
+- [x] **H10 — Certificate pinning: TODO** — Roadmap pre-release
+- [x] **H11 — Deep links: validacion** — `Linking.addEventListener` con whitelist de paths
+- [x] **H12 — Push notifications: TODO** — Roadmap con scope
+- [x] **H13 — Cache invalidation: version-based** — `Constants.expoConfig?.version` en cache key
+- [x] **H14 — Offline conflicts: TODO** — Roadmap con scope
+- [x] **M23 — Logout: limpiar AsyncStorage cache** — `AsyncStorage.multiRemove` de keys `epde-query-cache*`
+- [x] **M24 — Dashboard: FlatList** — Reemplaza ScrollView con FlatList + ListHeaderComponent
+- [x] **M25 — ErrorBoundary: Sentry** — `Sentry.captureException(error)` en componentDidCatch
+- [x] **L15 — Image optimization: TODO** — Roadmap migracion a expo-image
+
+### 11.6 — Backend Polish + Docs (13 items)
+
+- [x] **M2 — Soft delete filter: JSDoc** — Documenta hasDeletedAtKey recursivo
+- [x] **M6 — TaskScheduler: batch processing** — `BATCH_SIZE=50`, chunks con check `signal.lockLost`
+- [x] **M7 — Notification type** — Ya correcto (no change needed)
+- [x] **L1 — Upload MIME fallback** — Ya correcto (no change needed)
+- [x] **L2 — `any` en repositories** — Inherente al patron generico (no change needed)
+- [x] **L3 — HTML escaping** — Ya implementado (no change needed)
+- [x] **L4 — Redis eval: try-catch** — Error handling con logging
+- [x] **L5 — findAdminIds: MAX_ADMIN_FETCH** — Constante `MAX_ADMIN_FETCH=500`
+- [x] **L6 — Notification data: type guard** — `isTaskReminderData()` con validacion de estructura
+- [x] **L11 — Category filter schema** — `categoryFiltersSchema` con search, cursor, take
+- [x] **M21 — Docs: remover R2_ACCOUNT_ID** — Eliminado de env-vars.md y .env.example
+- [x] **M22 — Docs: Upload API** — Corregido presigned → multipart/form-data
+- [x] **L13 — Docs: RESEND_API_KEY opcional** — Marcado como opcional en env-vars.md
+- [x] **L14 — Docs: x-request-id** — Seccion Request Tracing en api-reference.md
+
+### Verificacion
+
+```bash
+pnpm build && pnpm typecheck && pnpm lint  # Todo green (3/3 builds, 4/4 typecheck, 0 errors)
+```
+
+---
+
 ## Resumen de progreso (final)
 
 | Fase | Descripcion               | Estado           | Tareas |
@@ -742,5 +832,6 @@ pnpm build && pnpm typecheck && pnpm lint && pnpm test  # Todo green
 | 8    | Roadmap arquitectonico    | `[x] Completado` | 23     |
 | 9    | Remediacion ronda 4       | `[x] Completado` | 16     |
 | 10   | Roadmap 90 dias (ronda 5) | `[x] Completado` | 33     |
+| 11   | Remediacion ronda 10      | `[x] Completado` | 54     |
 
-**Progreso total: 124 / 124 tareas** (+ 6 diferidas con justificacion)
+**Progreso total: 178 / 178 tareas** (+ 6 diferidas con justificacion + 4 roadmap items)

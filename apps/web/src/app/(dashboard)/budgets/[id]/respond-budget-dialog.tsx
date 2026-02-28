@@ -101,6 +101,7 @@ export function RespondBudgetDialog({ open, onOpenChange, budgetId }: RespondBud
                       type="number"
                       placeholder="Cant."
                       min={1}
+                      max={99999}
                       {...register(`lineItems.${index}.quantity`)}
                     />
                   </div>
@@ -109,6 +110,7 @@ export function RespondBudgetDialog({ open, onOpenChange, budgetId }: RespondBud
                       type="number"
                       placeholder="P. Unit."
                       min={0}
+                      max={999999999}
                       step="0.01"
                       {...register(`lineItems.${index}.unitPrice`)}
                     />
@@ -156,6 +158,7 @@ export function RespondBudgetDialog({ open, onOpenChange, budgetId }: RespondBud
                 id="estimatedDays"
                 type="number"
                 min={1}
+                max={365}
                 {...register('estimatedDays', {
                   setValueAs: (v: string) => (v === '' ? undefined : Number(v)),
                 })}

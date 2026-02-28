@@ -183,6 +183,7 @@ const apiClient = axios.create({
 - Boton rapido a solicitudes de servicio
 - Lista de tareas proximas (por prioridad y fecha)
 - Pull-to-refresh
+- Usa `FlatList` con `ListHeaderComponent` para renderizado virtualizado eficiente
 
 ### Propiedades
 
@@ -288,8 +289,10 @@ Las queries de React Query se persisten automaticamente en `AsyncStorage` via `P
 
 - **gcTime**: 24 horas (datos cacheados disponibles offline)
 - **Persister**: `@tanstack/query-async-storage-persister` con `@react-native-async-storage/async-storage`
+- **Cache key versionado**: incluye `Constants.expoConfig?.version` para invalidar cache automaticamente al actualizar la app. Al iniciar, limpia keys de versiones anteriores
 - Al abrir la app sin conexion, los datos del ultimo uso se muestran inmediatamente
 - Las queries se revalidan automaticamente cuando hay conexion
+- En logout, se limpian todas las keys de cache (`epde-query-cache*`) de AsyncStorage
 
 ### Error Boundary
 
@@ -297,7 +300,7 @@ Class component `ErrorBoundary` que captura errores de render:
 
 - Muestra pantalla de fallback "Algo salio mal" con boton "Reintentar"
 - Wrappea toda la app en el root layout
-- Loguea errores a consola (y potencialmente a Sentry en produccion)
+- Reporta errores a Sentry via `Sentry.captureException(error)` en `componentDidCatch`
 
 ## Desarrollo
 
@@ -322,6 +325,7 @@ pnpm --filter @epde/mobile android
 - Orientacion forzada a **portrait**
 - Bundle ID: `com.epde.mobile` (iOS y Android)
 - Deep linking scheme: `epde://`
+- **Deep link validation**: `Linking.addEventListener('url')` valida paths contra whitelist de rutas permitidas, rechazando URLs no reconocidas
 
 ## Testing
 

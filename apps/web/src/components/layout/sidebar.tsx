@@ -23,9 +23,13 @@ export function Sidebar({ className }: { className?: string }) {
   const { user, logout } = useAuthStore();
 
   const handleLogout = async () => {
-    queryClient.cancelQueries();
-    queryClient.clear();
-    await logout();
+    try {
+      queryClient.cancelQueries();
+      queryClient.clear();
+      await logout();
+    } catch {
+      // Logout API may fail — local cleanup already done
+    }
   };
 
   const filteredItems = navItems.filter((item) => !item.adminOnly || user?.role === UserRole.ADMIN);

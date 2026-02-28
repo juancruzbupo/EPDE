@@ -161,7 +161,10 @@ model Category {
 
   tasks Task[]
 
+  // PostgreSQL unique: (name, null) = (name, null) prevents duplicate active categories.
+  // Soft-deleted categories (deletedAt != null) are each treated as distinct.
   @@unique([name, deletedAt])
+  @@index([deletedAt])
 }
 
 model Task {
@@ -184,7 +187,7 @@ model Task {
 
   // Cascade: Plans are 1:1 with properties; deleting a plan removes all its tasks.
   maintenancePlan MaintenancePlan @relation(fields: [maintenancePlanId], references: [id], onDelete: Cascade)
-  category        Category        @relation(fields: [categoryId], references: [id])
+  category        Category        @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   taskLogs        TaskLog[]
   taskNotes       TaskNote[]
 
@@ -208,7 +211,7 @@ model TaskLog {
   photoUrl    String?
 
   task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [completedBy], references: [id])
+  user User @relation(fields: [completedBy], references: [id], onDelete: Restrict)
 
   @@index([taskId])
   @@index([completedBy, completedAt])
@@ -222,7 +225,7 @@ model TaskNote {
   createdAt DateTime @default(now())
 
   task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  author User @relation(fields: [authorId], references: [id])
+  author User @relation(fields: [authorId], references: [id], onDelete: Restrict)
 
   @@index([taskId])
   @@index([authorId])

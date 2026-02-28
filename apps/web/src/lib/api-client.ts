@@ -1,3 +1,7 @@
+// Singleton refresh: only one refresh attempt per 401 cycle.
+// If refresh fails, redirect to login — no retry loop, no backoff needed.
+// CSRF protection: auth cookies use SameSite=strict (set by API),
+// which prevents cross-site request forgery in modern browsers.
 import axios from 'axios';
 
 const apiClient = axios.create({

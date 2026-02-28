@@ -6,7 +6,7 @@ import { MaintenancePlansService } from './maintenance-plans.service';
 import {
   updatePlanSchema,
   createTaskSchema,
-  updateTaskSchema,
+  updateTaskWithRecurrenceSchema,
   reorderTasksSchema,
   completeTaskSchema,
   createTaskNoteSchema,
@@ -22,7 +22,17 @@ import type {
 import type { z } from 'zod';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 
-const createTaskBodySchema = createTaskSchema.omit({ maintenancePlanId: true });
+const createTaskBodySchema = createTaskSchema
+  .omit({ maintenancePlanId: true })
+  .superRefine((data, ctx) => {
+    if (data.recurrenceType === 'CUSTOM' && !data.recurrenceMonths) {
+      ctx.addIssue({
+        code: 'custom' as const,
+        message: 'recurrenceMonths es requerido cuando recurrenceType es CUSTOM',
+        path: ['recurrenceMonths'],
+      });
+    }
+  });
 type CreateTaskBody = z.infer<typeof createTaskBodySchema>;
 
 @ApiTags('Planes de Mantenimiento')
@@ -63,7 +73,7 @@ export class MaintenancePlansController {
   @Roles(UserRole.ADMIN)
   async updateTask(
     @Param('taskId') taskId: string,
-    @Body(new ZodValidationPipe(updateTaskSchema)) dto: UpdateTaskInput,
+    @Body(new ZodValidationPipe(updateTaskWithRecurrenceSchema)) dto: UpdateTaskInput,
     @CurrentUser() user: { id: string },
   ) {
     const data = await this.plansService.updateTask(taskId, dto, user.id);

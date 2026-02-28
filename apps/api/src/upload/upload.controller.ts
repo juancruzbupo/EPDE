@@ -9,8 +9,10 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Throttle } from '@nestjs/throttler';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { z } from 'zod';
 import { UserRole } from '@epde/shared';
 import { Roles } from '../common/decorators/roles.decorator';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { UploadService } from './upload.service';
 
 const ALLOWED_MIME_TYPES = new Set([
@@ -23,7 +25,15 @@ const ALLOWED_MIME_TYPES = new Set([
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
-const ALLOWED_FOLDERS = new Set(['uploads', 'properties', 'tasks', 'service-requests', 'budgets']);
+const ALLOWED_FOLDERS = ['uploads', 'properties', 'tasks', 'service-requests', 'budgets'] as const;
+
+const uploadBodySchema = z.object({
+  folder: z.enum(ALLOWED_FOLDERS, {
+    errorMap: () => ({
+      message: `Carpeta no permitida. Permitidas: ${ALLOWED_FOLDERS.join(', ')}`,
+    }),
+  }),
+});
 
 @ApiTags('Upload')
 @ApiBearerAuth()
@@ -35,7 +45,11 @@ export class UploadController {
   @Post()
   @Throttle({ short: { limit: 10, ttl: 1000 } })
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile() file: Express.Multer.File, @Body('folder') folder: string) {
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Body(new ZodValidationPipe(uploadBodySchema)) body: { folder: string },
+  ) {
+    const { folder } = body;
     if (!file) {
       throw new BadRequestException('Archivo requerido');
     }
@@ -56,12 +70,6 @@ export class UploadController {
     const detected = await fileTypeFromBuffer(file.buffer);
     if (!detected || !ALLOWED_MIME_TYPES.has(detected.mime)) {
       throw new BadRequestException('El contenido del archivo no coincide con un tipo permitido');
-    }
-
-    if (!ALLOWED_FOLDERS.has(folder)) {
-      throw new BadRequestException(
-        `Carpeta no permitida: ${folder}. Permitidas: ${[...ALLOWED_FOLDERS].join(', ')}`,
-      );
     }
 
     const url = await this.uploadService.uploadFile(file, folder, detected.mime);

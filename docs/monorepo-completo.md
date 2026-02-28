@@ -167,8 +167,9 @@ epde/
 │       │   │   ├── auth.ts           # Login, register, refresh
 │       │   │   ├── user.ts           # User CRUD schemas
 │       │   │   ├── property.ts       # Property schemas
-│       │   │   ├── task.ts           # Task schemas
+│       │   │   ├── task.ts           # Task schemas + recurrence validation
 │       │   │   ├── budget.ts         # Budget request/response schemas
+│       │   │   ├── category.ts       # Category filters schema
 │       │   │   └── service-request.ts
 │       │   ├── constants/
 │       │   │   └── index.ts          # Labels en espanol, defaults, mappings
@@ -314,7 +315,7 @@ Extension global en `PrismaService`:
 - `findMany/findFirst/findUnique/count/aggregate/groupBy` → auto-agregan `where: { deletedAt: null }`
 - Condicion: `hasDeletedAtKey(where)` inspecciona recursivamente nivel raiz + operadores logicos (`AND`, `OR`, `NOT`)
 - `delete` → se convierte en `update({ deletedAt: new Date() })`
-- Modelos afectados: `User`, `Property`, `Task`, `Category`
+- Modelos afectados: `User`, `Property`, `Task`, `Category`, `BudgetRequest`, `ServiceRequest`
 - Acceso a eliminados: via `writeModel` (sin filtro)
 
 ### P3: Module Pattern (NestJS)
@@ -335,8 +336,8 @@ feature/
 Tres guards globales en orden via `APP_GUARD`:
 
 1. **JwtAuthGuard** — Valida JWT. Salta `@Public()` endpoints
-2. **RolesGuard** — Verifica `user.role` contra `@Roles()`. Sin decorator = permite todo
-3. **ThrottlerGuard** — Rate limiting (10/s corto, 60/10s medio, 5/min login, 3/hora set-password)
+2. **RolesGuard** — Valida existencia del user en el request, luego verifica `user.role` contra `@Roles()`. Sin decorator = permite todo
+3. **ThrottlerGuard** — Rate limiting (10/s corto, 60/10s medio, 5/min login, 3/hora + 1/5s burst set-password)
 
 ### P5: Decorators Personalizados
 
@@ -394,6 +395,7 @@ Login → LocalStrategy (email+password) → JWT access + refresh (family + gene
 - **Token Rotation**: cada login crea una "family" UUID. Refresh tokens llevan `family` + `generation`
 - **Reuse Detection**: si generation no coincide al hacer refresh → revoca toda la family
 - Redis almacena `rt:{family}` con generation actual (TTL 7d) y `bl:{jti}` para blacklist. La rotacion usa Lua script atomico con try-catch (retorna `InternalServerErrorException` si Redis falla)
+- `JwtStrategy.validate()` verifica que `purpose` (si presente) sea `'access'` — previene uso de tokens de invitacion como access tokens
 - Cookies: `SameSite=strict`, `HttpOnly`, `Secure` (prod) — elimina necesidad de CSRF tokens
 - `AuthAuditService`: logging estructurado de eventos de auth (login, logout, failed, reuse attack)
 - Implementado en `auth/token.service.ts`
@@ -410,7 +412,7 @@ Cliente → POST /upload (multipart/form-data) → { url }
 ```
 
 **Acceso:** Restringido a `ADMIN` via `@Roles(UserRole.ADMIN)`.
-**Validacion:** MIME whitelist (jpeg, png, webp, gif, pdf), magic bytes verification (`file-type`), `Content-Disposition: attachment`, max 10 MB, folder whitelist con validacion estricta (`BadRequestException` si folder invalido).
+**Validacion:** MIME whitelist (jpeg, png, webp, gif, pdf), magic bytes verification (`file-type`), `Content-Disposition: attachment`, max 10 MB, folder validado via Zod schema (`uploadBodySchema`) con `ZodValidationPipe`.
 
 ### P11: Cron Jobs (Distributed Lock)
 
@@ -420,7 +422,7 @@ Tres jobs diarios (09:00-09:10 UTC), cada uno envuelto en `DistributedLockServic
 2. **task-upcoming-reminders**: Notificaciones + email para tareas proximas/vencidas
 3. **task-safety-sweep**: Correccion de edge cases en tareas completadas
 
-Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en deployments multi-instancia. Incluye **watchdog** que extiende TTL automaticamente cada mitad del periodo. El callback recibe `signal: { lockLost: boolean }` — los jobs verifican el flag antes de operaciones costosas y abortan si el lock se perdio.
+Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en deployments multi-instancia. Incluye **watchdog** que extiende TTL automaticamente cada mitad del periodo. El callback recibe `signal: { lockLost: boolean }` — los jobs verifican el flag antes de operaciones costosas y abortan si el lock se perdio. **Batch processing**: tareas procesadas en lotes de `BATCH_SIZE=50` para evitar timeouts en datasets grandes.
 
 ### P12: State Management (Web + Mobile)
 
@@ -691,7 +693,7 @@ Category ─1:N─ Task
 
 ### Soft Delete
 
-Modelos con `deletedAt: DateTime?`: User, Property, Task, Category. Condicion: `!('deletedAt' in ...)` para chequear presencia de clave.
+Modelos con `deletedAt: DateTime?`: User, Property, Task, Category, BudgetRequest, ServiceRequest. Condicion: `!('deletedAt' in ...)` para chequear presencia de clave.
 
 ### Tipos Decimal
 
@@ -714,6 +716,12 @@ Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `
 - `BudgetRequest` → on delete `Property`
 - `ServiceRequest` → on delete `Property`
 - `ServiceRequestPhoto` → on delete `ServiceRequest`
+
+### Restrict Deletes
+
+- `Task` → restrict on delete `Category` (previene eliminar categorias con tareas)
+- `TaskLog` → restrict on delete `User` (previene eliminar usuarios con logs)
+- `TaskNote` → restrict on delete `User` (previene eliminar usuarios con notas)
 
 ---
 
@@ -739,7 +747,7 @@ Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `
 7. **Budgets** — CRUD + respond + status changes
 8. **Service Requests** — CRUD + status changes
 9. **Notifications** — list, unread-count, mark-read, mark-all-read
-10. **Upload** — presigned URLs para R2
+10. **Upload** — multipart/form-data a R2
 11. **Dashboard** — stats, upcoming-tasks, recent-activity
 
 ### Formato de Respuesta
@@ -754,9 +762,9 @@ Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `
 
 ### Docker Compose (desarrollo)
 
-- **PostgreSQL 16**: puerto 5433, user `epde`, db `epde_dev`
+- **PostgreSQL 16**: puerto 5433, credenciales parametrizadas via `POSTGRES_USER`/`POSTGRES_PASSWORD`/`POSTGRES_DB` (defaults: `epde`/`epde_dev_password`/`epde`)
 - **Redis 7 Alpine**: puerto 6379, maxmemory 256mb, `volatile-lru` eviction (solo evicta keys con TTL)
-- **pgAdmin 4**: puerto 5050, admin@epde.local
+- **pgAdmin 4**: puerto 5050, credenciales parametrizadas via `PGADMIN_EMAIL`/`PGADMIN_PASSWORD` (defaults: `admin@epde.local`/`admin`)
 
 ### GitHub Actions CI
 
@@ -876,9 +884,9 @@ pnpm --filter @epde/shared build              # Rebuild manual
 
 ### Credenciales de Desarrollo
 
-| Rol   | Email          | Password  |
-| ----- | -------------- | --------- |
-| Admin | admin@epde.com | Admin123! |
+| Rol   | Email          | Password                                                      |
+| ----- | -------------- | ------------------------------------------------------------- |
+| Admin | admin@epde.com | Configurable via `SEED_ADMIN_PASSWORD` (default: `Admin123!`) |
 
 ### URLs
 

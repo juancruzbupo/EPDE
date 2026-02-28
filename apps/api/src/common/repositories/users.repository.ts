@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UserRole } from '@epde/shared';
 
+const MAX_ADMIN_FETCH = 500;
+
 @Injectable()
 export class UsersRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -10,7 +12,7 @@ export class UsersRepository {
     const admins = await this.prisma.user.findMany({
       where: { role: UserRole.ADMIN, deletedAt: null },
       select: { id: true },
-      take: 100,
+      take: MAX_ADMIN_FETCH,
     });
     return admins.map((a) => a.id);
   }

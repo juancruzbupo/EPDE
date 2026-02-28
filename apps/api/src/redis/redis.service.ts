@@ -81,6 +81,14 @@ export class RedisService implements OnModuleDestroy {
    * Execute a Lua script atomically.
    */
   async eval(script: string, keys: string[], args: (string | number)[]): Promise<unknown> {
-    return this.client.eval(script, keys.length, ...keys, ...args);
+    try {
+      return await this.client.eval(script, keys.length, ...keys, ...args);
+    } catch (error) {
+      this.logger.error(`Redis EVAL failed: ${(error as Error).message}`, {
+        scriptLength: script.length,
+        keys,
+      });
+      throw error;
+    }
   }
 }

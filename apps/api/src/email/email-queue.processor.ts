@@ -45,39 +45,47 @@ export class EmailQueueProcessor extends WorkerHost {
   async process(job: Job<EmailJobData>): Promise<void> {
     this.logger.log(`Processing email job ${job.id} (type: ${job.data.type})`);
 
-    switch (job.data.type) {
-      case 'invite':
-        await this.emailService.sendInviteEmail(job.data.to, job.data.name, job.data.token);
-        break;
-      case 'taskReminder':
-        await this.emailService.sendTaskReminderEmail(
-          job.data.to,
-          job.data.name,
-          job.data.taskName,
-          job.data.propertyAddress,
-          new Date(job.data.dueDate),
-          job.data.categoryName,
-          job.data.isOverdue,
-        );
-        break;
-      case 'budgetQuoted':
-        await this.emailService.sendBudgetQuotedEmail(
-          job.data.to,
-          job.data.name,
-          job.data.budgetTitle,
-          job.data.totalAmount,
-          job.data.budgetId,
-        );
-        break;
-      case 'budgetStatus':
-        await this.emailService.sendBudgetStatusEmail(
-          job.data.to,
-          job.data.name,
-          job.data.budgetTitle,
-          job.data.newStatus,
-          job.data.budgetId,
-        );
-        break;
+    try {
+      switch (job.data.type) {
+        case 'invite':
+          await this.emailService.sendInviteEmail(job.data.to, job.data.name, job.data.token);
+          break;
+        case 'taskReminder':
+          await this.emailService.sendTaskReminderEmail(
+            job.data.to,
+            job.data.name,
+            job.data.taskName,
+            job.data.propertyAddress,
+            new Date(job.data.dueDate),
+            job.data.categoryName,
+            job.data.isOverdue,
+          );
+          break;
+        case 'budgetQuoted':
+          await this.emailService.sendBudgetQuotedEmail(
+            job.data.to,
+            job.data.name,
+            job.data.budgetTitle,
+            job.data.totalAmount,
+            job.data.budgetId,
+          );
+          break;
+        case 'budgetStatus':
+          await this.emailService.sendBudgetStatusEmail(
+            job.data.to,
+            job.data.name,
+            job.data.budgetTitle,
+            job.data.newStatus,
+            job.data.budgetId,
+          );
+          break;
+      }
+    } catch (error) {
+      this.logger.error(
+        `Email job ${job.id} (type: ${job.data.type}) failed: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      throw error;
     }
   }
 }

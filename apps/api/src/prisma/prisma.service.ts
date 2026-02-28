@@ -2,9 +2,9 @@ import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/commo
 import { PrismaClient, Prisma } from '@prisma/client';
 
 /**
- * Checks if `deletedAt` is present in the where clause at the root level
- * or inside logical operators (AND, OR, NOT). This prevents the extension
- * from overriding explicit soft-delete filters.
+ * Recursively checks whether `deletedAt` appears in a where clause,
+ * including inside AND, OR, and NOT logical operators.
+ * Coverage: root-level, AND[], OR[], NOT (object or array).
  */
 function hasDeletedAtKey(where: Record<string, unknown>): boolean {
   if ('deletedAt' in where) return true;

@@ -24,3 +24,11 @@ export const updateCategorySchema = z.object({
 });
 
 export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
+
+export const categoryFiltersSchema = z.object({
+  search: z.string().optional(),
+  cursor: z.string().uuid().optional(),
+  take: z.coerce.number().int().min(1).max(100).optional(),
+});
+
+export type CategoryFilters = z.infer<typeof categoryFiltersSchema>;

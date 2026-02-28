@@ -12,6 +12,7 @@ interface JwtPayload {
   jti: string;
   family?: string;
   exp?: number;
+  purpose?: string;
 }
 
 @Injectable()
@@ -35,6 +36,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload) {
     if (!payload.jti) {
       throw new UnauthorizedException('Token inválido: falta JTI');
+    }
+
+    if (payload.purpose && payload.purpose !== 'access') {
+      throw new UnauthorizedException('Token type invalid');
     }
 
     try {

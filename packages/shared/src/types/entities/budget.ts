@@ -1,8 +1,8 @@
-import type { BaseEntity } from '../index';
+import type { BaseEntity, SoftDeletable } from '../index';
 import type { BudgetStatus } from '../enums';
 import type { Serialized, PropertyBriefWithOwner, UserBriefWithEmail } from './common';
 
-export interface BudgetRequest extends BaseEntity {
+export interface BudgetRequest extends BaseEntity, SoftDeletable {
   propertyId: string;
   requestedBy: string;
   title: string;
@@ -17,8 +17,11 @@ export interface BudgetLineItem {
   id: string;
   budgetRequestId: string;
   description: string;
+  /** Prisma Decimal — serialized as string in JSON for precision */
   quantity: string;
+  /** Prisma Decimal — serialized as string in JSON for precision */
   unitPrice: string;
+  /** Prisma Decimal — serialized as string in JSON for precision */
   subtotal: string;
 }
 

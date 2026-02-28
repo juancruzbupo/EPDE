@@ -3,6 +3,15 @@ import { Notification, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { BaseRepository, PaginatedResult } from '../common/repositories/base.repository';
 
+function isTaskReminderData(data: unknown): data is { taskId: string } {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'taskId' in data &&
+    typeof (data as Record<string, unknown>).taskId === 'string'
+  );
+}
+
 @Injectable()
 export class NotificationsRepository extends BaseRepository<Notification> {
   constructor(prisma: PrismaService) {
@@ -77,9 +86,8 @@ export class NotificationsRepository extends BaseRepository<Notification> {
 
     return new Set(
       existing
-        .filter((n) => n.data && typeof n.data === 'object')
-        .map((n) => (n.data as Record<string, unknown>).taskId as string)
-        .filter(Boolean),
+        .filter((n) => isTaskReminderData(n.data))
+        .map((n) => (n.data as { taskId: string }).taskId),
     );
   }
 }

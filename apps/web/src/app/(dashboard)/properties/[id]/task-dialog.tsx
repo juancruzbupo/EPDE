@@ -33,7 +33,7 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
   const isEdit = !!task;
   const addTask = useAddTask();
   const updateTask = useUpdateTask();
-  const { data: categories } = useCategories();
+  const { data: categories, isLoading: categoriesLoading } = useCategories();
 
   const {
     register,
@@ -116,9 +116,14 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
             <Select
               value={watch('categoryId') ?? ''}
               onValueChange={(v) => setValue('categoryId', v)}
+              disabled={categoriesLoading}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar categoría" />
+                <SelectValue
+                  placeholder={
+                    categoriesLoading ? 'Cargando categorías...' : 'Seleccionar categoría'
+                  }
+                />
               </SelectTrigger>
               <SelectContent>
                 {categories?.map((cat) => (

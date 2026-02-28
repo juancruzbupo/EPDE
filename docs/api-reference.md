@@ -21,7 +21,7 @@ Todas las rutas requieren autenticacion JWT excepto las marcadas con `@Public()`
 
 1. `POST /auth/login` → crea familia de tokens, genera par access+refresh, setea cookies
 2. Requests posteriores envian cookies automaticamente
-3. `JwtStrategy` verifica que el JTI del access token no este en blacklist (Redis)
+3. `JwtStrategy` verifica que el JTI del access token no este en blacklist (Redis) y que el campo `purpose` (si presente) sea `'access'`
 4. Al expirar access token → POST /auth/refresh → rota refresh token atomicamente (Lua script en Redis, nueva generation)
 5. Si la generation no coincide → **token reuse attack** → revoca toda la family (Lua retorna -1)
 6. `POST /auth/logout` → blacklist access JTI + revocar family + limpia cookies
@@ -115,7 +115,7 @@ Si algun componente falla, `status` sera `"error"` y el campo `error` contendra 
 { "token": "jwt-token-from-email", "newPassword": "MyPassword1" }
 ```
 
-Rate limit: 5 requests/minuto en login. 3 requests/hora en set-password.
+Rate limit: 5 requests/minuto en login. 3 requests/hora + burst protection 1 request/5 segundos en set-password.
 
 Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
 
@@ -308,23 +308,28 @@ Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
 
 ### Upload
 
-| Metodo | Ruta                    | Auth | Rol   | Descripcion                            |
-| ------ | ----------------------- | ---- | ----- | -------------------------------------- |
-| POST   | `/upload/presigned-url` | Si   | ADMIN | Obtener URL presignada para subir a R2 |
+| Metodo | Ruta      | Auth | Rol   | Descripcion                           |
+| ------ | --------- | ---- | ----- | ------------------------------------- |
+| POST   | `/upload` | Si   | Ambos | Subir archivo via multipart/form-data |
 
-**POST /upload/presigned-url**
+**POST /upload**
 
-```json
-{ "filename": "foto.jpg", "contentType": "image/jpeg" }
-```
+- Content-Type: `multipart/form-data`
+- Campos:
+  - `file` (binary) — archivo a subir
+  - `folder` (string, enum: `uploads` | `properties` | `tasks` | `service-requests` | `budgets`) — carpeta destino en R2
+
+**Validacion:**
+
+- `folder` validado via Zod schema (`uploadBodySchema`) con `ZodValidationPipe`
+- MIME whitelist + verificacion de magic bytes (`file-type`)
+- Tamanio maximo: 10 MB
 
 **Respuesta:**
 
 ```json
-{ "url": "https://r2-presigned-url...", "key": "uploads/uuid-foto.jpg" }
+{ "data": { "url": "https://r2-public-url/folder/uuid-filename.jpg" } }
 ```
-
-Flujo: obtener URL → PUT al presigned URL desde el browser → usar la key/URL en el recurso.
 
 ---
 
@@ -363,6 +368,15 @@ Flujo: obtener URL → PUT al presigned URL desde el browser → usar la key/URL
   "openServices": 0
 }
 ```
+
+---
+
+### Request Tracing
+
+Todas las respuestas incluyen el header `x-request-id` para trazabilidad.
+
+- Si el cliente envia `x-request-id` en el request, se propaga al response
+- Si no se envia, el API genera un UUID automaticamente
 
 ---
 

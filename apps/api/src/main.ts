@@ -48,6 +48,12 @@ async function bootstrap() {
   if (!corsOrigin && ['production', 'staging'].includes(process.env.NODE_ENV || '')) {
     throw new Error('CORS_ORIGIN must be set in production and staging');
   }
+  if (!corsOrigin) {
+    const logger = app.get(Logger);
+    logger.warn(
+      'CORS_ORIGIN not set — using localhost fallback. Set CORS_ORIGIN in .env for explicit control.',
+    );
+  }
   app.enableCors({
     origin: corsOrigin ? corsOrigin.split(',').map((o) => o.trim()) : 'http://localhost:3000',
     credentials: true,

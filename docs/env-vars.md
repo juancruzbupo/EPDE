@@ -13,14 +13,33 @@
 | `NODE_ENV`                    | No        | `development`    | Entorno: `development`, `staging`, `production`                                                                                                               |
 | `CORS_ORIGIN`                 | **Prod**  | `localhost:3000` | Origenes permitidos, separados por coma. **Requerido en produccion** (falla si no esta seteado). Ejemplo: `https://app.epde.com.ar,https://admin.epde.com.ar` |
 | `FRONTEND_URL`                | Si        | —                | URL base del frontend (usada en emails y links de invitacion)                                                                                                 |
-| `RESEND_API_KEY`              | Si        | —                | API key de Resend para envio de emails                                                                                                                        |
+| `RESEND_API_KEY`              | No        | —                | API key de Resend para envio de emails. Si no se configura, los emails se loguean como warnings                                                               |
 | `SENTRY_DSN`                  | No        | `""`             | DSN de Sentry. Si esta vacio, Sentry se desactiva                                                                                                             |
-| `R2_ACCOUNT_ID`               | Si        | —                | Account ID de Cloudflare R2                                                                                                                                   |
 | `R2_ACCESS_KEY_ID`            | Si        | —                | Access key de Cloudflare R2                                                                                                                                   |
 | `R2_SECRET_ACCESS_KEY`        | Si        | —                | Secret key de Cloudflare R2                                                                                                                                   |
 | `R2_BUCKET_NAME`              | No        | `epde`           | Nombre del bucket en R2                                                                                                                                       |
 | `R2_PUBLIC_URL`               | Si        | —                | URL publica del bucket R2 para servir archivos                                                                                                                |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | No        | —                | Endpoint OTLP para OpenTelemetry traces. Si no se setea, OTel se desactiva. Ejemplo: `https://otel-collector:4318/v1/traces`                                  |
+
+## Seed (`apps/api/prisma/seed.ts`)
+
+| Variable              | Requerida | Default     | Descripcion                                                                                         |
+| --------------------- | --------- | ----------- | --------------------------------------------------------------------------------------------------- |
+| `SEED_ADMIN_PASSWORD` | No        | `Admin123!` | Password del usuario admin creado por el seed. **Requerido** en produccion (warning si usa default) |
+
+## Docker Compose
+
+Las credenciales de Docker Compose se parametrizan via variables de entorno con defaults para desarrollo:
+
+| Variable            | Default             | Servicio   | Descripcion                  |
+| ------------------- | ------------------- | ---------- | ---------------------------- |
+| `POSTGRES_USER`     | `epde`              | PostgreSQL | Usuario de la base de datos  |
+| `POSTGRES_PASSWORD` | `epde_dev_password` | PostgreSQL | Password de la base de datos |
+| `POSTGRES_DB`       | `epde`              | PostgreSQL | Nombre de la base de datos   |
+| `PGADMIN_EMAIL`     | `admin@epde.local`  | pgAdmin    | Email de login de pgAdmin    |
+| `PGADMIN_PASSWORD`  | `admin`             | pgAdmin    | Password de login de pgAdmin |
+
+**Nota:** En produccion, setear estas variables con valores seguros. Los defaults solo son para desarrollo local.
 
 ## Web (`apps/web`)
 

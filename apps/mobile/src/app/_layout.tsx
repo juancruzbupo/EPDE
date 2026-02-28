@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Linking from 'expo-linking';
 import {
   useFonts,
   DMSans_400Regular,
@@ -16,6 +17,9 @@ import { useAuthStore } from '@/stores/auth-store';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { asyncStoragePersister } from '@/lib/query-persister';
 import { queryClient } from '@/lib/query-client';
+
+// TODO [ROADMAP]: Push notifications — requires expo-notifications,
+// backend FCM/APNs integration, and user preference management.
 
 SplashScreen.preventAutoHideAsync();
 
@@ -36,6 +40,26 @@ function AuthGate() {
       router.replace('/(tabs)');
     }
   }, [isAuthenticated, isLoading, segments]);
+
+  useEffect(() => {
+    const handleDeepLink = (event: { url: string }) => {
+      const { path } = Linking.parse(event.url);
+      const allowedPaths = [
+        'property',
+        'task',
+        'budget',
+        'service-requests',
+        'login',
+        'set-password',
+      ];
+      const firstSegment = path?.split('/')[0];
+      if (firstSegment && !allowedPaths.includes(firstSegment)) {
+        console.warn(`Blocked unrecognized deep link path: ${path}`);
+      }
+    };
+    const sub = Linking.addEventListener('url', handleDeepLink);
+    return () => sub.remove();
+  }, []);
 
   return <Stack screenOptions={{ headerShown: false }} />;
 }

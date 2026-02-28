@@ -127,7 +127,7 @@ Configurado en `PrismaService` via extension:
 - La condicion usa `hasDeletedAtKey(where)` que inspecciona recursivamente el nivel raiz y operadores logicos (`AND`, `OR`, `NOT`) para detectar si `deletedAt` ya esta presente
 - `updateMany` no esta cubierto por la extension — requiere `deletedAt: null` explicito
 - Dentro de `$transaction` callbacks, la extension no aplica — usar filtro manual
-- Modelos con soft delete: `User`, `Property`, `Task`, `Category`
+- Modelos con soft delete: `User`, `Property`, `Task`, `Category`, `BudgetRequest`, `ServiceRequest`
 - Para acceder a registros eliminados, usar `writeModel`
 
 ### 3. Module Pattern (NestJS)
@@ -148,7 +148,7 @@ feature/
 Tres guards globales aplicados en orden via `APP_GUARD`:
 
 1. **JwtAuthGuard** — Valida JWT en header `Authorization: Bearer <token>`. Salta endpoints marcados con `@Public()`
-2. **RolesGuard** — Verifica que `user.role` este en los roles permitidos via `@Roles('ADMIN')`. Si no hay `@Roles()`, permite todo
+2. **RolesGuard** — Valida existencia del user en el request, luego verifica que `user.role` este en los roles permitidos via `@Roles('ADMIN')`. Si no hay `@Roles()`, permite todo. Si el user no existe en el request, retorna `false`
 3. **ThrottlerGuard** — Rate limiting global. Salta endpoints marcados con `@SkipThrottle()`
 
 ```typescript
@@ -163,7 +163,7 @@ Tres guards globales aplicados en orden via `APP_GUARD`:
 - `short`: 10 requests/segundo
 - `medium`: 60 requests/10 segundos
 - Login: override a 5 requests/minuto via `@Throttle()`
-- Set-password: override a 3 requests/hora via `@Throttle()`
+- Set-password: override a 3 requests/hora + burst protection 1 request/5 segundos via `@Throttle()`
 - Refresh: override a 30 requests/minuto via `@Throttle()`
 
 ### 5. Decorators Personalizados
@@ -238,7 +238,7 @@ Login → LocalStrategy (email+password) → JWT access + refresh tokens
 - La rotacion usa un **Lua script atomico** en Redis para prevenir race conditions (GET + compare + SET en una sola operacion)
 - La rotacion tiene **try-catch** alrededor del `eval()` de Redis — si Redis falla, retorna `InternalServerErrorException` en vez de crash sin contexto
 - Logout: blacklist access token JTI (TTL = tiempo restante) + revocar family + `queryClient.clear()` en frontend
-- `JwtStrategy.validate()` verifica que el JTI no este en blacklist antes de autenticar
+- `JwtStrategy.validate()` verifica que el JTI no este en blacklist y que el campo `purpose` (si presente) sea `'access'` antes de autenticar. Esto previene uso de tokens de invitacion como access tokens
 - Implementado en `auth/token.service.ts` (genera pares, rota, revoca, blacklist)
 - Cookies: `SameSite=strict`, `HttpOnly`, `Secure` (en produccion) — elimina necesidad de tokens CSRF
 
@@ -269,7 +269,7 @@ Frontend (ADMIN) → POST /upload (multipart/form-data)
 - **Magic bytes validation:** `file-type` verifica contenido real del archivo (no solo header Content-Type)
 - **Content-Disposition:** `attachment` en R2 para forzar descarga en vez de render inline
 - **Tamano maximo:** 10 MB
-- **Folders permitidos:** `uploads`, `properties`, `tasks`, `service-requests`, `budgets` — validacion estricta con `BadRequestException` si el folder no esta en la whitelist
+- **Folders permitidos:** `uploads`, `properties`, `tasks`, `service-requests`, `budgets` — validacion via Zod schema (`uploadBodySchema`) con `ZodValidationPipe` en el `@Body()`. Reemplaza la validacion manual anterior
 
 ### 11. Cron Jobs (Scheduler + Distributed Lock)
 
@@ -278,6 +278,8 @@ Frontend (ADMIN) → POST /upload (multipart/form-data)
 1. **task-status-recalculation** (09:00 UTC): PENDING → UPCOMING (30 dias) → OVERDUE (pasada fecha), y reset UPCOMING → PENDING si se alejo
 2. **task-upcoming-reminders** (09:05 UTC): Notificaciones in-app + email para tareas en 7 dias y vencidas. Deduplicacion por dia. Overdue tambien notifica admins
 3. **task-safety-sweep** (09:10 UTC): Fix para tareas COMPLETED con nextDueDate vencida que no se avanzaron (edge case crash)
+
+**Batch Processing:** Las tareas se procesan en lotes de `BATCH_SIZE=50`, verificando `signal.lockLost` entre cada batch para abortar si el lock se perdio.
 
 **Distributed Lock:** Cada cron job esta envuelto en `DistributedLockService.withLock()` (Redis SETNX, TTL 5min) para prevenir ejecucion concurrente en deployments multi-instancia. Key pattern: `lock:cron:<job-name>`.
 

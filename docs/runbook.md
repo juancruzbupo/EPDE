@@ -78,7 +78,7 @@ Metricas disponibles:
 | `task-upcoming-reminders`   | `5 9 * * *` (09:05 diario)  | Envia notificaciones de tareas proximas a vencer       |
 | `task-safety-sweep`         | `10 9 * * *` (09:10 diario) | Barrido de seguridad para tareas inconsistentes        |
 
-Los cron jobs usan distributed locks (Redis) para evitar ejecucion duplicada en multiples instancias.
+Los cron jobs usan distributed locks (Redis) para evitar ejecucion duplicada en multiples instancias. Las tareas se procesan en lotes de `BATCH_SIZE=50` para evitar timeouts en datasets grandes, verificando `signal.lockLost` entre cada batch.
 
 ## Incidentes Comunes
 
@@ -333,6 +333,7 @@ pnpm --filter @epde/api prisma migrate dev --name descripcion_del_cambio
 - `Property(userId, deletedAt)` — Listado de propiedades por owner (con soft delete)
 - `Task(status, nextDueDate)` — Queries de cron jobs
 - `Task(categoryId)` — Tareas por categoria (FK index)
+- `Category(deletedAt)` — Filtrado de categorias activas (soft delete)
 - `Task(status, deletedAt)` — Listado de tareas activas
 - `Task(maintenancePlanId, status)` — Tareas por plan con filtro de estado
 - `TaskLog(taskId)` — Historial de completado por tarea
@@ -357,6 +358,14 @@ Las siguientes relaciones tienen `onDelete: Cascade` configurado en Prisma:
 - `BudgetLineItem` → `BudgetRequest` (eliminar presupuesto elimina items)
 - `BudgetResponse` → `BudgetRequest` (eliminar presupuesto elimina respuesta)
 - `ServiceRequestPhoto` → `ServiceRequest` (eliminar solicitud elimina fotos)
+
+### RESTRICT DELETE
+
+Las siguientes relaciones tienen `onDelete: Restrict` para prevenir eliminacion accidental de datos referenciados:
+
+- `Task` → `Category` (no se puede eliminar una categoria que tiene tareas asociadas)
+- `TaskLog` → `User` (no se puede eliminar un usuario que tiene logs de completado)
+- `TaskNote` → `User` (no se puede eliminar un usuario que tiene notas en tareas)
 
 ### Backup
 

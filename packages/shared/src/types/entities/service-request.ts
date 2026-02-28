@@ -1,8 +1,8 @@
-import type { BaseEntity } from '../index';
+import type { BaseEntity, SoftDeletable } from '../index';
 import type { ServiceUrgency, ServiceStatus } from '../enums';
 import type { Serialized, PropertyBriefWithOwner, UserBriefWithEmail } from './common';
 
-export interface ServiceRequest extends BaseEntity {
+export interface ServiceRequest extends BaseEntity, SoftDeletable {
   propertyId: string;
   requestedBy: string;
   title: string;

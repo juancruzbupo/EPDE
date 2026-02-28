@@ -32,6 +32,7 @@ function SetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token') || '';
+  const hasToken = !!token;
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -63,39 +64,45 @@ function SetPasswordForm() {
         <CardDescription>Creá tu contraseña para acceder a EPDE</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="newPassword">Nueva Contraseña</Label>
-            <Input
-              id="newPassword"
-              type="password"
-              placeholder="••••••••"
-              {...register('newPassword')}
-            />
-            {errors.newPassword && (
-              <p className="text-destructive text-sm">{errors.newPassword.message}</p>
-            )}
-          </div>
+        {!hasToken ? (
+          <p className="text-destructive text-center text-sm">
+            Token no proporcionado. Verificá el enlace de invitación.
+          </p>
+        ) : (
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">Nueva Contraseña</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                placeholder="••••••••"
+                {...register('newPassword')}
+              />
+              {errors.newPassword && (
+                <p className="text-destructive text-sm">{errors.newPassword.message}</p>
+              )}
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              placeholder="••••••••"
-              {...register('confirmPassword')}
-            />
-            {errors.confirmPassword && (
-              <p className="text-destructive text-sm">{errors.confirmPassword.message}</p>
-            )}
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                {...register('confirmPassword')}
+              />
+              {errors.confirmPassword && (
+                <p className="text-destructive text-sm">{errors.confirmPassword.message}</p>
+              )}
+            </div>
 
-          {error && <p className="text-destructive text-center text-sm">{error}</p>}
+            {error && <p className="text-destructive text-center text-sm">{error}</p>}
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Configurando...' : 'Configurar Contraseña'}
-          </Button>
-        </form>
+            <Button type="submit" className="w-full" disabled={isLoading || !hasToken}>
+              {isLoading ? 'Configurando...' : 'Configurar Contraseña'}
+            </Button>
+          </form>
+        )}
       </CardContent>
     </Card>
   );

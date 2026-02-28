@@ -108,7 +108,7 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
               <div className="relative inline-block">
                 <img
                   src={preview}
-                  alt="Vista previa"
+                  alt="Vista previa de foto para completar tarea"
                   className="h-32 w-32 rounded-md object-cover"
                 />
                 <button

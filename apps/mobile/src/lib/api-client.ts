@@ -28,6 +28,9 @@ export const apiClient = axios.create({
   timeout: 15000,
 });
 
+// TODO [PRE-RELEASE]: Implement certificate pinning for production.
+// Requires react-native-ssl-pinning or similar native module.
+
 // Request interceptor: attach Bearer token
 apiClient.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
   const token = await tokenService.getAccessToken();

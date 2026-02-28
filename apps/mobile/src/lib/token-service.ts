@@ -8,6 +8,9 @@ const isWeb = Platform.OS === 'web';
 
 async function getItem(key: string): Promise<string | null> {
   if (isWeb) {
+    // Web platform: sessionStorage is used for development/Expo web builds only.
+    // In production, mobile targets native platforms exclusively (iOS/Android)
+    // where expo-secure-store provides encrypted storage.
     return sessionStorage.getItem(key);
   }
   return SecureStore.getItemAsync(key);

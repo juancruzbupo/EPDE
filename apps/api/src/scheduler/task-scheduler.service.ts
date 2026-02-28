@@ -185,13 +185,19 @@ export class TaskSchedulerService {
 
       if (signal.lockLost) return;
 
-      const updates = staleTasks.map((task) => {
-        const months = task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType) ?? 12;
-        const newDueDate = getNextDueDate(task.nextDueDate, months);
-        return this.tasksRepository.updateDueDateAndStatus(task.id, newDueDate, 'PENDING');
-      });
-
-      await Promise.all(updates);
+      const BATCH_SIZE = 50;
+      for (let i = 0; i < staleTasks.length; i += BATCH_SIZE) {
+        if (signal.lockLost) return;
+        const batch = staleTasks.slice(i, i + BATCH_SIZE);
+        await Promise.all(
+          batch.map((task) => {
+            const months =
+              task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType) ?? 12;
+            const newDueDate = getNextDueDate(task.nextDueDate, months);
+            return this.tasksRepository.updateDueDateAndStatus(task.id, newDueDate, 'PENDING');
+          }),
+        );
+      }
 
       this.logger.log(`Safety sweep: fixed ${staleTasks.length} stale task(s)`);
     });

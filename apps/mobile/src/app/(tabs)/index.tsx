@@ -1,5 +1,5 @@
 import { memo, useCallback } from 'react';
-import { View, Text, ScrollView, RefreshControl, Pressable } from 'react-native';
+import { View, Text, FlatList, RefreshControl, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -72,67 +72,82 @@ export default function DashboardScreen() {
     return <ErrorState onRetry={onRefresh} message="No se pudieron cargar los datos del panel." />;
   }
 
+  const ListHeader = useCallback(
+    () => (
+      <View>
+        <Text
+          style={{ fontFamily: 'PlayfairDisplay_700Bold' }}
+          className="text-foreground mb-4 text-2xl"
+        >
+          Mi Panel
+        </Text>
+
+        {stats && (
+          <View className="mb-6">
+            <View className="mb-3 flex-row gap-3">
+              <StatCard title="Propiedades" value={stats.totalProperties} />
+              <StatCard title="Tareas Pendientes" value={stats.pendingTasks} />
+            </View>
+            <View className="mb-3 flex-row gap-3">
+              <StatCard title="Tareas Vencidas" value={stats.overdueTasks} variant="destructive" />
+              <StatCard title="Completadas (mes)" value={stats.completedThisMonth} />
+            </View>
+            <View className="flex-row gap-3">
+              <StatCard title="Presupuestos" value={stats.pendingBudgets} />
+              <StatCard title="Servicios" value={stats.openServices} />
+            </View>
+          </View>
+        )}
+
+        {/* Quick actions */}
+        <Pressable
+          onPress={() => router.push('/service-requests' as never)}
+          className="border-border bg-card mb-6 flex-row items-center justify-between rounded-xl border p-4"
+        >
+          <View>
+            <Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-foreground text-sm">
+              Solicitudes de Servicio
+            </Text>
+            <Text
+              style={{ fontFamily: 'DMSans_400Regular' }}
+              className="text-muted-foreground text-xs"
+            >
+              Reportar problemas o pedir asistencia
+            </Text>
+          </View>
+          <Text className="text-muted-foreground text-lg">&gt;</Text>
+        </Pressable>
+
+        <Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-foreground mb-3 text-lg">
+          Proximas Tareas
+        </Text>
+      </View>
+    ),
+    [stats, router],
+  );
+
+  const renderTask = useCallback(
+    ({ item }: { item: UpcomingTask }) => <TaskCard task={item} />,
+    [],
+  );
+
   return (
-    <ScrollView
+    <FlatList
       className="bg-background flex-1"
       contentContainerStyle={{ padding: 16 }}
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
-    >
-      <Text
-        style={{ fontFamily: 'PlayfairDisplay_700Bold' }}
-        className="text-foreground mb-4 text-2xl"
-      >
-        Mi Panel
-      </Text>
-
-      {stats && (
-        <View className="mb-6">
-          <View className="mb-3 flex-row gap-3">
-            <StatCard title="Propiedades" value={stats.totalProperties} />
-            <StatCard title="Tareas Pendientes" value={stats.pendingTasks} />
-          </View>
-          <View className="mb-3 flex-row gap-3">
-            <StatCard title="Tareas Vencidas" value={stats.overdueTasks} variant="destructive" />
-            <StatCard title="Completadas (mes)" value={stats.completedThisMonth} />
-          </View>
-          <View className="flex-row gap-3">
-            <StatCard title="Presupuestos" value={stats.pendingBudgets} />
-            <StatCard title="Servicios" value={stats.openServices} />
-          </View>
-        </View>
-      )}
-
-      {/* Quick actions */}
-      <Pressable
-        onPress={() => router.push('/service-requests' as never)}
-        className="border-border bg-card mb-6 flex-row items-center justify-between rounded-xl border p-4"
-      >
-        <View>
-          <Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-foreground text-sm">
-            Solicitudes de Servicio
-          </Text>
-          <Text
-            style={{ fontFamily: 'DMSans_400Regular' }}
-            className="text-muted-foreground text-xs"
-          >
-            Reportar problemas o pedir asistencia
-          </Text>
-        </View>
-        <Text className="text-muted-foreground text-lg">&gt;</Text>
-      </Pressable>
-
-      <Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-foreground mb-3 text-lg">
-        Proximas Tareas
-      </Text>
-
-      {tasks && tasks.length > 0
-        ? tasks.map((task) => <TaskCard key={task.id} task={task} />)
-        : !isLoading && (
-            <EmptyState
-              title="Sin tareas proximas"
-              message="No hay tareas de mantenimiento programadas por ahora."
-            />
-          )}
-    </ScrollView>
+      data={tasks ?? []}
+      renderItem={renderTask}
+      keyExtractor={(item) => item.id}
+      ListHeaderComponent={ListHeader}
+      ListEmptyComponent={
+        !isLoading ? (
+          <EmptyState
+            title="Sin tareas proximas"
+            message="No hay tareas de mantenimiento programadas por ahora."
+          />
+        ) : null
+      }
+    />
   );
 }

@@ -1,5 +1,18 @@
 import { z } from 'zod';
 
+function customRecurrenceRefine(
+  data: { recurrenceType?: string; recurrenceMonths?: number },
+  ctx: z.RefinementCtx,
+) {
+  if (data.recurrenceType === 'CUSTOM' && !data.recurrenceMonths) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'recurrenceMonths es requerido cuando recurrenceType es CUSTOM',
+      path: ['recurrenceMonths'],
+    });
+  }
+}
+
 export const createTaskSchema = z.object({
   maintenancePlanId: z.string().uuid('ID de plan inválido'),
   categoryId: z.string().uuid('ID de categoría inválido'),
@@ -15,6 +28,8 @@ export const createTaskSchema = z.object({
   recurrenceMonths: z.coerce.number().int().min(1).max(120).optional(),
   nextDueDate: z.coerce.date(),
 });
+
+export const createTaskWithRecurrenceSchema = createTaskSchema.superRefine(customRecurrenceRefine);
 
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 
@@ -32,6 +47,8 @@ export const updateTaskSchema = z.object({
   nextDueDate: z.coerce.date().optional(),
   status: z.enum(['PENDING', 'UPCOMING', 'OVERDUE', 'COMPLETED']).optional(),
 });
+
+export const updateTaskWithRecurrenceSchema = updateTaskSchema.superRefine(customRecurrenceRefine);
 
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
 
