@@ -82,7 +82,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
                 return (
                   <Link
                     key={task.id}
-                    href={`/properties/${task.maintenancePlanId}?tab=plan`}
+                    href={`/properties/${task.propertyId}?tab=plan`}
                     className="hover:bg-accent flex items-center gap-3 rounded-lg border p-3 transition-colors"
                   >
                     <div className="flex-1">

@@ -23,6 +23,7 @@ export interface UpcomingTask {
   priority: string;
   status: string;
   propertyAddress: string;
+  propertyId: string;
   categoryName: string;
   maintenancePlanId: string;
 }

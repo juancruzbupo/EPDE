@@ -75,6 +75,7 @@ export class DashboardService {
       priority: t.priority,
       status: t.status,
       propertyAddress: t.maintenancePlan.property.address,
+      propertyId: t.maintenancePlan.property.id,
       categoryName: t.category.name,
       maintenancePlanId: t.maintenancePlan.id,
     }));

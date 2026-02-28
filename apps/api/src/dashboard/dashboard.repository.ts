@@ -152,7 +152,7 @@ export class DashboardRepository {
         maintenancePlan: {
           select: {
             id: true,
-            property: { select: { address: true } },
+            property: { select: { id: true, address: true } },
           },
         },
       },
