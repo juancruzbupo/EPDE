@@ -154,17 +154,14 @@ export class MaintenancePlansService {
   ) {
     const task = await this.assertTaskAccess(taskId, user);
 
-    const recurrenceMonths =
-      task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType) ?? 12;
-    const newDueDate = getNextDueDate(task.nextDueDate, recurrenceMonths);
+    let newDueDate: Date | null = null;
+    if (task.recurrenceType !== 'ON_DETECTION' && task.nextDueDate) {
+      const recurrenceMonths =
+        task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType) ?? 12;
+      newDueDate = getNextDueDate(task.nextDueDate, recurrenceMonths);
+    }
 
-    return this.tasksRepository.completeAndReschedule(
-      taskId,
-      userId,
-      dto.notes,
-      dto.photoUrl,
-      newDueDate,
-    );
+    return this.tasksRepository.completeAndReschedule(taskId, userId, dto, newDueDate);
   }
 
   async getTaskLogs(taskId: string, user?: { id: string; role: string }) {

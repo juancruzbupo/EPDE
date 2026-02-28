@@ -122,7 +122,9 @@ export function PlanViewer({ planId }: PlanViewerProps) {
           ) : (
             <div className="space-y-2">
               {filteredTasks.map((task) => {
-                const isOverdue = new Date(task.nextDueDate) < new Date();
+                const isOverdue = task.nextDueDate
+                  ? new Date(task.nextDueDate) < new Date()
+                  : false;
                 return (
                   <div
                     key={task.id}
@@ -154,10 +156,12 @@ export function PlanViewer({ planId }: PlanViewerProps) {
                             isOverdue ? 'font-medium text-red-600' : 'text-muted-foreground'
                           }
                         >
-                          {formatDistanceToNow(new Date(task.nextDueDate), {
-                            addSuffix: true,
-                            locale: es,
-                          })}
+                          {task.nextDueDate
+                            ? formatDistanceToNow(new Date(task.nextDueDate), {
+                                addSuffix: true,
+                                locale: es,
+                              })
+                            : 'Según detección'}
                         </span>
                       </div>
                     </div>

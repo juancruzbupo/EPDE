@@ -1,14 +1,29 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { completeTaskSchema, type CompleteTaskInput } from '@epde/shared';
+import {
+  completeTaskSchema,
+  type CompleteTaskInput,
+  TASK_RESULT_LABELS,
+  CONDITION_FOUND_LABELS,
+  TASK_EXECUTOR_LABELS,
+  ACTION_TAKEN_LABELS,
+} from '@epde/shared';
 import { useCompleteTask } from '@/hooks/use-maintenance-plans';
 import { useUploadFile } from '@/hooks/use-upload';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Upload, X, Loader2 } from 'lucide-react';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
 
@@ -19,17 +34,48 @@ interface CompleteTaskDialogProps {
   planId: string;
 }
 
+function LabelSelect({
+  label,
+  labels,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  labels: Record<string, string>;
+  value: string | undefined;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger>
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent>
+          {Object.entries(labels).map(([val, lab]) => (
+            <SelectItem key={val} value={val}>
+              {lab}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
 export function CompleteTaskDialog({ open, onOpenChange, task, planId }: CompleteTaskDialogProps) {
   const completeTask = useCompleteTask();
   const uploadFile = useUploadFile();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
-  const { register, handleSubmit, setValue, reset } = useForm<CompleteTaskInput>({
+  const { register, handleSubmit, setValue, reset, control } = useForm<CompleteTaskInput>({
     resolver: zodResolver(completeTaskSchema),
   });
 
-  // Cleanup Object URL on unmount to prevent memory leaks
   useEffect(() => {
     return () => {
       if (preview) URL.revokeObjectURL(preview);
@@ -87,15 +133,76 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Completar: {task.name}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <Controller
+            control={control}
+            name="result"
+            render={({ field }) => (
+              <LabelSelect
+                label="Resultado"
+                labels={TASK_RESULT_LABELS}
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="¿Cómo resultó?"
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="conditionFound"
+            render={({ field }) => (
+              <LabelSelect
+                label="Condición encontrada"
+                labels={CONDITION_FOUND_LABELS}
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="Estado general"
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="executor"
+            render={({ field }) => (
+              <LabelSelect
+                label="¿Quién lo hizo?"
+                labels={TASK_EXECUTOR_LABELS}
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="Ejecutor"
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="actionTaken"
+            render={({ field }) => (
+              <LabelSelect
+                label="Acción realizada"
+                labels={ACTION_TAKEN_LABELS}
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="¿Qué se hizo?"
+              />
+            )}
+          />
+
+          <div className="space-y-2">
+            <Label>Costo (opcional)</Label>
+            <Input type="number" step="0.01" min="0" placeholder="0.00" {...register('cost')} />
+          </div>
+
           <div className="space-y-2">
             <Label>Notas (opcional)</Label>
             <textarea
-              {...register('notes')}
+              {...register('note')}
               placeholder="Describí el trabajo realizado..."
               className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring w-full resize-none rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
               rows={3}

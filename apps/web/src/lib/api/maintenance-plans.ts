@@ -39,7 +39,7 @@ export async function addTask(
     priority?: string;
     recurrenceType?: string;
     recurrenceMonths?: number;
-    nextDueDate: string;
+    nextDueDate?: string;
   },
 ) {
   const { data } = await apiClient.post(`/maintenance-plans/${planId}/tasks`, dto);

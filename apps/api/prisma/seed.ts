@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { TEMPLATE_SEED_DATA } from '@epde/shared';
 
 const prisma = new PrismaClient();
 
@@ -56,6 +57,39 @@ async function main() {
     }
   }
   console.log(`${CATEGORY_DEFAULTS.length} categories created`);
+
+  // Create category + task templates
+  const existingTemplates = await prisma.categoryTemplate.count();
+  if (existingTemplates === 0) {
+    for (const category of TEMPLATE_SEED_DATA) {
+      const created = await prisma.categoryTemplate.create({
+        data: {
+          name: category.name,
+          icon: category.icon,
+          description: category.description,
+          displayOrder: category.displayOrder,
+          tasks: {
+            create: category.tasks.map((task, index) => ({
+              name: task.name,
+              taskType: task.taskType as 'INSPECTION',
+              professionalRequirement: task.professionalRequirement as 'OWNER_CAN_DO',
+              technicalDescription: task.technicalDescription,
+              priority: task.priority as 'MEDIUM',
+              recurrenceType: task.recurrenceType as 'ANNUAL',
+              recurrenceMonths: task.recurrenceMonths,
+              estimatedDurationMinutes: task.estimatedDurationMinutes,
+              displayOrder: index,
+            })),
+          },
+        },
+        include: { tasks: true },
+      });
+      console.log(`  ${category.icon} ${created.name} (${created.tasks.length} tareas)`);
+    }
+    console.log(`${TEMPLATE_SEED_DATA.length} category templates created`);
+  } else {
+    console.log(`Category templates already exist (${existingTemplates}), skipping`);
+  }
 
   console.log('Seeding complete!');
 }

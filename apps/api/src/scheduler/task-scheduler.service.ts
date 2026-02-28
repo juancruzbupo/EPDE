@@ -193,7 +193,7 @@ export class TaskSchedulerService {
           batch.map((task) => {
             const months =
               task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType) ?? 12;
-            const newDueDate = getNextDueDate(task.nextDueDate, months);
+            const newDueDate = getNextDueDate(task.nextDueDate!, months);
             return this.tasksRepository.updateDueDateAndStatus(task.id, newDueDate, 'PENDING');
           }),
         );

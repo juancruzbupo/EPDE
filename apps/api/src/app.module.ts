@@ -19,6 +19,8 @@ import { BudgetsModule } from './budgets/budgets.module';
 import { ServiceRequestsModule } from './service-requests/service-requests.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
+import { CategoryTemplatesModule } from './category-templates/category-templates.module';
+import { TaskTemplatesModule } from './task-templates/task-templates.module';
 import { RedisModule } from './redis/redis.module';
 import { HealthModule } from './health/health.module';
 import { MetricsModule } from './metrics/metrics.module';
@@ -74,6 +76,8 @@ import { MetricsInterceptor } from './metrics/metrics.interceptor';
     ServiceRequestsModule,
     NotificationsModule,
     SchedulerModule,
+    CategoryTemplatesModule,
+    TaskTemplatesModule,
   ],
   controllers: [AppController],
   providers: [

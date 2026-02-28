@@ -207,6 +207,62 @@ Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
 
 ---
 
+### Plantillas de Categorias (ADMIN only)
+
+| Metodo | Ruta                                | Auth | Rol   | Descripcion          |
+| ------ | ----------------------------------- | ---- | ----- | -------------------- |
+| GET    | `/category-templates`               | Si   | ADMIN | Listar plantillas    |
+| GET    | `/category-templates/:id`           | Si   | ADMIN | Detalle de plantilla |
+| POST   | `/category-templates`               | Si   | ADMIN | Crear plantilla      |
+| PATCH  | `/category-templates/:id`           | Si   | ADMIN | Actualizar plantilla |
+| DELETE | `/category-templates/:id`           | Si   | ADMIN | Eliminar plantilla   |
+| PATCH  | `/category-templates/reorder/batch` | Si   | ADMIN | Reordenar categorias |
+
+**GET /category-templates** — Query params:
+
+- `search` (string) — Busca por nombre
+- `cursor`, `take`
+
+**POST /category-templates**
+
+```json
+{
+  "name": "Electricidad",
+  "icon": "⚡",
+  "description": "Instalaciones electricas",
+  "displayOrder": 0
+}
+```
+
+---
+
+### Plantillas de Tareas (ADMIN only)
+
+| Metodo | Ruta                                            | Auth | Rol   | Descripcion          |
+| ------ | ----------------------------------------------- | ---- | ----- | -------------------- |
+| POST   | `/category-templates/:categoryId/tasks`         | Si   | ADMIN | Crear tarea template |
+| PATCH  | `/task-templates/:id`                           | Si   | ADMIN | Actualizar template  |
+| DELETE | `/task-templates/:id`                           | Si   | ADMIN | Eliminar template    |
+| PATCH  | `/category-templates/:categoryId/tasks/reorder` | Si   | ADMIN | Reordenar tareas     |
+
+**POST /category-templates/:categoryId/tasks**
+
+```json
+{
+  "name": "Verificar termicas y disyuntores",
+  "taskType": "INSPECTION",
+  "professionalRequirement": "OWNER_CAN_DO",
+  "technicalDescription": "Revisar que todas las termicas operen correctamente",
+  "priority": "HIGH",
+  "recurrenceType": "BIANNUAL",
+  "recurrenceMonths": 6,
+  "estimatedDurationMinutes": 15,
+  "displayOrder": 0
+}
+```
+
+---
+
 ### Presupuestos
 
 | Metodo | Ruta                   | Auth | Rol    | Descripcion                         |

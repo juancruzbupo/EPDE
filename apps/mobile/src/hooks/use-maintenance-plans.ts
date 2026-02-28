@@ -8,6 +8,7 @@ import {
   addTaskNote,
 } from '@/lib/api/maintenance-plans';
 import type { PlanPublic, TaskNotePublic } from '@epde/shared/types';
+import type { CompleteTaskInput } from '@epde/shared/schemas';
 import { useAuthStore } from '@/stores/auth-store';
 
 export function usePlan(id: string) {
@@ -53,9 +54,7 @@ export function useCompleteTask() {
     }: {
       planId: string;
       taskId: string;
-      notes?: string;
-      photoUrl?: string;
-    }) => completeTask(planId, taskId, dto),
+    } & CompleteTaskInput) => completeTask(planId, taskId, dto),
 
     onMutate: async (variables) => {
       await queryClient.cancelQueries({ queryKey: ['plans', variables.planId] });

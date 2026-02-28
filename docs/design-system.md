@@ -121,6 +121,8 @@ import { priorityColors, taskStatusVariant, budgetStatusVariant } from '@/lib/st
 | `budgetStatusClassName` | Presupuestos | Clases extra para APPROVED/COMPLETED      |
 | `urgencyVariant`        | Solicitudes  | Badge variant por urgencia                |
 | `clientStatusVariant`   | Clientes     | Badge variant por estado                  |
+| `taskTypeColors`        | Templates    | Clases bg+text por tipo de tarea          |
+| `professionalReqColors` | Templates    | Clases bg+text por req. profesional       |
 
 ## Componentes UI (shadcn/ui)
 
@@ -200,7 +202,7 @@ export const myColumns: ColumnDef<MyType>[] = [
 
 **ADMIN:**
 
-- Dashboard, Clientes, Propiedades, Categorias, Presupuestos, Solicitudes
+- Dashboard, Clientes, Propiedades, Categorias, Plantillas, Presupuestos, Solicitudes
 
 **CLIENT:**
 
@@ -307,14 +309,14 @@ La app mobile replica el design system web usando **NativeWind 5** (Tailwind CSS
 
 ### Componentes Mobile
 
-| Componente                  | Descripcion                                       |
-| --------------------------- | ------------------------------------------------- |
-| `StatusBadge`               | Badge con variantes por estado/prioridad/urgencia |
-| `EmptyState`                | Placeholder para listas vacias                    |
-| `StatCard`                  | Tarjeta de estadistica del dashboard              |
-| `CreateBudgetModal`         | Modal de creacion de presupuesto                  |
-| `CreateServiceRequestModal` | Modal con upload de fotos (camara/galeria)        |
-| `CompleteTaskModal`         | Modal para completar tarea con nota y foto        |
+| Componente                  | Descripcion                                                                |
+| --------------------------- | -------------------------------------------------------------------------- |
+| `StatusBadge`               | Badge con variantes por estado/prioridad/urgencia                          |
+| `EmptyState`                | Placeholder para listas vacias                                             |
+| `StatCard`                  | Tarjeta de estadistica del dashboard                                       |
+| `CreateBudgetModal`         | Modal de creacion de presupuesto                                           |
+| `CreateServiceRequestModal` | Modal con upload de fotos (camara/galeria)                                 |
+| `CompleteTaskModal`         | Modal con 4 selectores (resultado, estado, ejecutor, accion), costo y nota |
 
 ### Uso de Colores en Mobile
 

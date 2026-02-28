@@ -49,3 +49,21 @@ export const clientStatusVariant: Record<string, 'default' | 'secondary' | 'outl
   INVITED: 'secondary',
   INACTIVE: 'outline',
 };
+
+export const taskTypeColors: Record<string, string> = {
+  INSPECTION: 'bg-blue-100 text-blue-700',
+  CLEANING: 'bg-cyan-100 text-cyan-700',
+  TEST: 'bg-indigo-100 text-indigo-700',
+  TREATMENT: 'bg-purple-100 text-purple-700',
+  SEALING: 'bg-amber-100 text-amber-700',
+  LUBRICATION: 'bg-lime-100 text-lime-700',
+  ADJUSTMENT: 'bg-slate-100 text-slate-700',
+  MEASUREMENT: 'bg-teal-100 text-teal-700',
+  EVALUATION: 'bg-violet-100 text-violet-700',
+};
+
+export const professionalReqColors: Record<string, string> = {
+  OWNER_CAN_DO: 'bg-green-100 text-green-700',
+  PROFESSIONAL_RECOMMENDED: 'bg-yellow-100 text-yellow-700',
+  PROFESSIONAL_REQUIRED: 'bg-red-100 text-red-700',
+};

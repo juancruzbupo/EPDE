@@ -6,6 +6,7 @@ import type {
   TaskLogPublic,
   TaskNotePublic,
 } from '../types';
+import type { CompleteTaskInput } from '../schemas/task-log';
 
 export function createMaintenancePlanQueries(apiClient: AxiosInstance) {
   return {
@@ -47,7 +48,7 @@ export function createMaintenancePlanQueries(apiClient: AxiosInstance) {
       return data;
     },
 
-    async completeTask(planId: string, taskId: string, dto: { notes?: string; photoUrl?: string }) {
+    async completeTask(planId: string, taskId: string, dto: CompleteTaskInput) {
       const { data } = await apiClient.post(
         `/maintenance-plans/${planId}/tasks/${taskId}/complete`,
         dto,

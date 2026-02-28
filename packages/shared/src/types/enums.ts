@@ -43,6 +43,7 @@ export const RecurrenceType = {
   BIANNUAL: 'BIANNUAL',
   ANNUAL: 'ANNUAL',
   CUSTOM: 'CUSTOM',
+  ON_DETECTION: 'ON_DETECTION',
 } as const;
 export type RecurrenceType = (typeof RecurrenceType)[keyof typeof RecurrenceType];
 
@@ -88,3 +89,68 @@ export const NotificationType = {
   SYSTEM: 'SYSTEM',
 } as const;
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType];
+
+// ─── Task Metadata (set at creation) ─────────────────────
+
+export const TaskType = {
+  INSPECTION: 'INSPECTION',
+  CLEANING: 'CLEANING',
+  TEST: 'TEST',
+  TREATMENT: 'TREATMENT',
+  SEALING: 'SEALING',
+  LUBRICATION: 'LUBRICATION',
+  ADJUSTMENT: 'ADJUSTMENT',
+  MEASUREMENT: 'MEASUREMENT',
+  EVALUATION: 'EVALUATION',
+} as const;
+export type TaskType = (typeof TaskType)[keyof typeof TaskType];
+
+export const ProfessionalRequirement = {
+  OWNER_CAN_DO: 'OWNER_CAN_DO',
+  PROFESSIONAL_RECOMMENDED: 'PROFESSIONAL_RECOMMENDED',
+  PROFESSIONAL_REQUIRED: 'PROFESSIONAL_REQUIRED',
+} as const;
+export type ProfessionalRequirement =
+  (typeof ProfessionalRequirement)[keyof typeof ProfessionalRequirement];
+
+// ─── Task Completion Selectors (TaskLog) ─────────────────
+
+export const TaskResult = {
+  OK: 'OK',
+  OK_WITH_OBSERVATIONS: 'OK_WITH_OBSERVATIONS',
+  NEEDS_ATTENTION: 'NEEDS_ATTENTION',
+  NEEDS_REPAIR: 'NEEDS_REPAIR',
+  NEEDS_URGENT_REPAIR: 'NEEDS_URGENT_REPAIR',
+  NOT_APPLICABLE: 'NOT_APPLICABLE',
+} as const;
+export type TaskResult = (typeof TaskResult)[keyof typeof TaskResult];
+
+export const ConditionFound = {
+  EXCELLENT: 'EXCELLENT',
+  GOOD: 'GOOD',
+  FAIR: 'FAIR',
+  POOR: 'POOR',
+  CRITICAL: 'CRITICAL',
+} as const;
+export type ConditionFound = (typeof ConditionFound)[keyof typeof ConditionFound];
+
+export const TaskExecutor = {
+  OWNER: 'OWNER',
+  HIRED_PROFESSIONAL: 'HIRED_PROFESSIONAL',
+  EPDE_PROFESSIONAL: 'EPDE_PROFESSIONAL',
+} as const;
+export type TaskExecutor = (typeof TaskExecutor)[keyof typeof TaskExecutor];
+
+export const ActionTaken = {
+  INSPECTION_ONLY: 'INSPECTION_ONLY',
+  CLEANING: 'CLEANING',
+  MINOR_REPAIR: 'MINOR_REPAIR',
+  MAJOR_REPAIR: 'MAJOR_REPAIR',
+  REPLACEMENT: 'REPLACEMENT',
+  TREATMENT: 'TREATMENT',
+  SEALING: 'SEALING',
+  ADJUSTMENT: 'ADJUSTMENT',
+  FULL_SERVICE: 'FULL_SERVICE',
+  NO_ACTION: 'NO_ACTION',
+} as const;
+export type ActionTaken = (typeof ActionTaken)[keyof typeof ActionTaken];

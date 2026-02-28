@@ -71,7 +71,7 @@ export class DashboardService {
     return tasks.map((t) => ({
       id: t.id,
       name: t.name,
-      nextDueDate: t.nextDueDate.toISOString(),
+      nextDueDate: t.nextDueDate?.toISOString() ?? null,
       priority: t.priority,
       status: t.status,
       propertyAddress: t.maintenancePlan.property.address,

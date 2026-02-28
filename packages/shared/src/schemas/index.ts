@@ -18,3 +18,4 @@ export * from './task-log';
 export * from './task-note';
 export * from './budget';
 export * from './service-request';
+export * from './task-template';

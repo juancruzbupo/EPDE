@@ -74,17 +74,31 @@ export class TasksRepository extends BaseRepository<Task> {
   async completeAndReschedule(
     taskId: string,
     userId: string,
-    notes?: string,
-    photoUrl?: string,
-    newDueDate?: Date,
+    dto: {
+      result: string;
+      conditionFound: string;
+      executor: string;
+      actionTaken: string;
+      completedAt?: Date;
+      cost?: number;
+      note?: string;
+      photoUrl?: string;
+    },
+    newDueDate: Date | null,
   ) {
     return this.prisma.$transaction(async (tx) => {
       const log = await tx.taskLog.create({
         data: {
           taskId,
           completedBy: userId,
-          notes,
-          photoUrl,
+          completedAt: dto.completedAt ?? new Date(),
+          result: dto.result as 'OK',
+          conditionFound: dto.conditionFound as 'GOOD',
+          executor: dto.executor as 'OWNER',
+          actionTaken: dto.actionTaken as 'INSPECTION_ONLY',
+          cost: dto.cost,
+          notes: dto.note,
+          photoUrl: dto.photoUrl,
         },
         include: { user: { select: { id: true, name: true } } },
       });
@@ -104,6 +118,7 @@ export class TasksRepository extends BaseRepository<Task> {
       where: {
         nextDueDate: { lt: new Date() },
         status: { notIn: ['COMPLETED', 'OVERDUE'] },
+        recurrenceType: { not: 'ON_DETECTION' },
       },
       data: { status: 'OVERDUE' },
     });
@@ -116,6 +131,7 @@ export class TasksRepository extends BaseRepository<Task> {
       where: {
         nextDueDate: { gte: now, lte: addDays(now, 30) },
         status: 'PENDING',
+        recurrenceType: { not: 'ON_DETECTION' },
       },
       data: { status: 'UPCOMING' },
     });
@@ -152,6 +168,7 @@ export class TasksRepository extends BaseRepository<Task> {
       where: {
         nextDueDate: { gte: now, lte: addDays(now, daysAhead) },
         status: { not: 'COMPLETED' },
+        recurrenceType: { not: 'ON_DETECTION' },
       },
       include: taskInclude,
     });
@@ -162,6 +179,7 @@ export class TasksRepository extends BaseRepository<Task> {
       where: {
         nextDueDate: { lt: new Date() },
         status: 'OVERDUE',
+        recurrenceType: { not: 'ON_DETECTION' },
       },
       include: {
         category: true,
@@ -182,7 +200,8 @@ export class TasksRepository extends BaseRepository<Task> {
     return this.model.findMany({
       where: {
         status: 'COMPLETED',
-        nextDueDate: { lt: new Date() },
+        nextDueDate: { not: null, lt: new Date() },
+        recurrenceType: { not: 'ON_DETECTION' },
       },
     });
   }

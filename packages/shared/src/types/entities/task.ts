@@ -1,5 +1,15 @@
 import type { BaseEntity, SoftDeletable } from '../index';
-import type { TaskPriority, RecurrenceType, TaskStatus } from '../enums';
+import type {
+  TaskPriority,
+  RecurrenceType,
+  TaskStatus,
+  TaskType,
+  ProfessionalRequirement,
+  TaskResult,
+  ConditionFound,
+  TaskExecutor,
+  ActionTaken,
+} from '../enums';
 import type { Serialized } from './common';
 
 export interface Task extends BaseEntity, SoftDeletable {
@@ -10,11 +20,15 @@ export interface Task extends BaseEntity, SoftDeletable {
   priority: TaskPriority;
   recurrenceType: RecurrenceType;
   recurrenceMonths: number | null;
-  nextDueDate: Date;
+  nextDueDate: Date | null;
   order: number;
   status: TaskStatus;
   createdBy: string | null;
   updatedBy: string | null;
+  taskType: TaskType;
+  professionalRequirement: ProfessionalRequirement;
+  technicalDescription: string | null;
+  estimatedDurationMinutes: number | null;
 }
 
 export interface TaskLog {
@@ -22,6 +36,11 @@ export interface TaskLog {
   taskId: string;
   completedAt: Date;
   completedBy: string;
+  result: TaskResult;
+  conditionFound: ConditionFound;
+  executor: TaskExecutor;
+  actionTaken: ActionTaken;
+  cost: number | null;
   notes: string | null;
   photoUrl: string | null;
 }

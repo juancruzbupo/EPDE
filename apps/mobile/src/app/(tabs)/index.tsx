@@ -39,7 +39,9 @@ const TaskCard = memo(function TaskCard({ task }: { task: UpcomingTask }) {
           {task.categoryName}
         </Text>
         <Text style={{ fontFamily: 'DMSans_400Regular' }} className="text-muted-foreground text-xs">
-          {formatDistanceToNow(new Date(task.nextDueDate), { addSuffix: true, locale: es })}
+          {task.nextDueDate
+            ? formatDistanceToNow(new Date(task.nextDueDate), { addSuffix: true, locale: es })
+            : 'Según detección'}
         </Text>
       </View>
     </Pressable>

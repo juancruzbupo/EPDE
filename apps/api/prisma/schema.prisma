@@ -47,6 +47,7 @@ enum RecurrenceType {
   BIANNUAL
   ANNUAL
   CUSTOM
+  ON_DETECTION
 }
 
 enum TaskStatus {
@@ -85,6 +86,60 @@ enum NotificationType {
   BUDGET_UPDATE
   SERVICE_UPDATE
   SYSTEM
+}
+
+enum TaskType {
+  INSPECTION
+  CLEANING
+  TEST
+  TREATMENT
+  SEALING
+  LUBRICATION
+  ADJUSTMENT
+  MEASUREMENT
+  EVALUATION
+}
+
+enum ProfessionalRequirement {
+  OWNER_CAN_DO
+  PROFESSIONAL_RECOMMENDED
+  PROFESSIONAL_REQUIRED
+}
+
+enum TaskResult {
+  OK
+  OK_WITH_OBSERVATIONS
+  NEEDS_ATTENTION
+  NEEDS_REPAIR
+  NEEDS_URGENT_REPAIR
+  NOT_APPLICABLE
+}
+
+enum ConditionFound {
+  EXCELLENT
+  GOOD
+  FAIR
+  POOR
+  CRITICAL
+}
+
+enum TaskExecutor {
+  OWNER
+  HIRED_PROFESSIONAL
+  EPDE_PROFESSIONAL
+}
+
+enum ActionTaken {
+  INSPECTION_ONLY
+  CLEANING
+  MINOR_REPAIR
+  MAJOR_REPAIR
+  REPLACEMENT
+  TREATMENT
+  SEALING
+  ADJUSTMENT
+  FULL_SERVICE
+  NO_ACTION
 }
 
 // ─── Models ──────────────────────────────────────────────
@@ -168,22 +223,26 @@ model Category {
 }
 
 model Task {
-  id                String         @id @default(uuid())
-  maintenancePlanId String
-  categoryId        String
-  name              String         @db.VarChar(200)
-  description       String?        @db.VarChar(2000)
-  priority          TaskPriority   @default(MEDIUM)
-  recurrenceType    RecurrenceType @default(ANNUAL)
-  recurrenceMonths  Int?
-  nextDueDate       DateTime
-  order             Int            @default(0)
-  status            TaskStatus     @default(PENDING)
-  createdBy         String?
-  updatedBy         String?
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
-  deletedAt         DateTime?
+  id                       String                  @id @default(uuid())
+  maintenancePlanId        String
+  categoryId               String
+  name                     String                  @db.VarChar(200)
+  description              String?                 @db.VarChar(2000)
+  priority                 TaskPriority            @default(MEDIUM)
+  recurrenceType           RecurrenceType          @default(ANNUAL)
+  recurrenceMonths         Int?
+  nextDueDate              DateTime?
+  order                    Int                     @default(0)
+  status                   TaskStatus              @default(PENDING)
+  createdBy                String?
+  updatedBy                String?
+  taskType                 TaskType                @default(INSPECTION)
+  professionalRequirement  ProfessionalRequirement @default(OWNER_CAN_DO)
+  technicalDescription     String?                 @db.VarChar(1000)
+  estimatedDurationMinutes Int?
+  createdAt                DateTime                @default(now())
+  updatedAt                DateTime                @updatedAt
+  deletedAt                DateTime?
 
   // Cascade: Plans are 1:1 with properties; deleting a plan removes all its tasks.
   maintenancePlan MaintenancePlan @relation(fields: [maintenancePlanId], references: [id], onDelete: Cascade)
@@ -203,12 +262,17 @@ model Task {
 }
 
 model TaskLog {
-  id          String   @id @default(uuid())
-  taskId      String
-  completedAt DateTime @default(now())
-  completedBy String
-  notes       String?  @db.VarChar(2000)
-  photoUrl    String?
+  id             String         @id @default(uuid())
+  taskId         String
+  completedAt    DateTime       @default(now())
+  completedBy    String
+  result         TaskResult
+  conditionFound ConditionFound
+  executor       TaskExecutor
+  actionTaken    ActionTaken
+  cost           Decimal?       @db.Decimal(12, 2)
+  notes          String?        @db.VarChar(2000)
+  photoUrl       String?
 
   task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
   user User @relation(fields: [completedBy], references: [id], onDelete: Restrict)
@@ -333,4 +397,36 @@ model Notification {
   @@index([userId, read])
   @@index([userId, type, createdAt])
   @@index([createdAt])
+}
+
+// ─── Template Models (Master catalog) ───────────────────
+
+model CategoryTemplate {
+  id           String         @id @default(cuid())
+  name         String         @db.VarChar(100)
+  icon         String?        @db.VarChar(10)
+  description  String?        @db.VarChar(500)
+  displayOrder Int            @default(0)
+  tasks        TaskTemplate[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model TaskTemplate {
+  id                       String                  @id @default(cuid())
+  name                     String                  @db.VarChar(200)
+  taskType                 TaskType
+  professionalRequirement  ProfessionalRequirement @default(OWNER_CAN_DO)
+  technicalDescription     String?                 @db.VarChar(1000)
+  priority                 TaskPriority            @default(MEDIUM)
+  recurrenceType           RecurrenceType
+  recurrenceMonths         Int                     @default(12)
+  estimatedDurationMinutes Int?
+  displayOrder             Int                     @default(0)
+  categoryId               String
+  category                 CategoryTemplate        @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt                DateTime                @default(now())
+  updatedAt                DateTime                @updatedAt
+
+  @@index([categoryId])
 }

@@ -56,6 +56,7 @@ export const RECURRENCE_TYPE_LABELS: Record<string, string> = {
   BIANNUAL: 'Semestral',
   ANNUAL: 'Anual',
   CUSTOM: 'Personalizado',
+  ON_DETECTION: 'Según detección',
 };
 
 export const USER_STATUS_LABELS: Record<string, string> = {
@@ -82,6 +83,62 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   BUDGET_UPDATE: 'Presupuesto',
   SERVICE_UPDATE: 'Servicio',
   SYSTEM: 'Sistema',
+};
+
+// ─── Nomenclated Task Labels ─────────────────────────────
+
+export const TASK_TYPE_LABELS: Record<string, string> = {
+  INSPECTION: 'Inspección',
+  CLEANING: 'Limpieza',
+  TEST: 'Prueba/Ensayo',
+  TREATMENT: 'Tratamiento',
+  SEALING: 'Sellado',
+  LUBRICATION: 'Lubricación',
+  ADJUSTMENT: 'Ajuste',
+  MEASUREMENT: 'Medición',
+  EVALUATION: 'Evaluación',
+};
+
+export const PROFESSIONAL_REQUIREMENT_LABELS: Record<string, string> = {
+  OWNER_CAN_DO: 'Propietario puede',
+  PROFESSIONAL_RECOMMENDED: 'Profesional recomendado',
+  PROFESSIONAL_REQUIRED: 'Profesional obligatorio',
+};
+
+export const TASK_RESULT_LABELS: Record<string, string> = {
+  OK: 'Todo en orden',
+  OK_WITH_OBSERVATIONS: 'En orden con observaciones',
+  NEEDS_ATTENTION: 'Requiere atención',
+  NEEDS_REPAIR: 'Requiere reparación',
+  NEEDS_URGENT_REPAIR: 'Reparación urgente',
+  NOT_APPLICABLE: 'No aplica',
+};
+
+export const CONDITION_FOUND_LABELS: Record<string, string> = {
+  EXCELLENT: 'Excelente',
+  GOOD: 'Bueno',
+  FAIR: 'Aceptable',
+  POOR: 'Deteriorado',
+  CRITICAL: 'Crítico',
+};
+
+export const TASK_EXECUTOR_LABELS: Record<string, string> = {
+  OWNER: 'Yo (propietario)',
+  HIRED_PROFESSIONAL: 'Profesional contratado',
+  EPDE_PROFESSIONAL: 'Profesional EPDE',
+};
+
+export const ACTION_TAKEN_LABELS: Record<string, string> = {
+  INSPECTION_ONLY: 'Solo inspección',
+  CLEANING: 'Limpieza',
+  MINOR_REPAIR: 'Reparación menor',
+  MAJOR_REPAIR: 'Reparación mayor',
+  REPLACEMENT: 'Reemplazo',
+  TREATMENT: 'Tratamiento',
+  SEALING: 'Sellado',
+  ADJUSTMENT: 'Ajuste',
+  FULL_SERVICE: 'Servicio completo',
+  NO_ACTION: 'Sin acción',
 };
 
 // ─── Default Categories ─────────────────────────────────

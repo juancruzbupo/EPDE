@@ -10,6 +10,7 @@ epde/
         auth/         # Autenticacion (JWT + Local strategy + Token Rotation)
         budgets/      # Presupuestos (CRUD + ciclo de vida, Decimal)
         categories/   # Categorias de mantenimiento
+        category-templates/   # Plantillas de categorias (CRUD)
         clients/      # Gestion de clientes (ADMIN only)
         common/       # Guards, decorators, filters, repositories
         config/       # Validacion de env con Zod
@@ -22,6 +23,7 @@ epde/
         redis/        # RedisModule (global) + DistributedLockService
         properties/   # Propiedades
         service-requests/   # Solicitudes de servicio
+        task-templates/     # Plantillas de tareas (CRUD)
         upload/       # Upload a Cloudflare R2
         users/        # Usuarios base
       prisma/
@@ -31,6 +33,7 @@ epde/
       src/
         app/
           (dashboard)/  # Layout autenticado con sidebar
+            templates/  # Pagina admin de plantillas (CategoryTemplate + TaskTemplate)
           login/        # Login page
           set-password/ # Set password page
         components/
@@ -68,8 +71,9 @@ epde/
     shared/           # Tipos, schemas Zod, constantes, utilidades
       src/
         constants/    # Labels en espanol, defaults
+        enums/        # Enums TypeScript (TaskType, TaskResult, etc.)
         schemas/      # Zod schemas (validacion compartida)
-        types/        # Interfaces TypeScript, enums
+        types/        # Interfaces TypeScript
         utils/        # Helpers de fechas, UUID
 ```
 

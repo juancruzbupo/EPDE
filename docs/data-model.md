@@ -19,6 +19,8 @@ User ─1:N─ Property ─1:1─ MaintenancePlan ─1:N─ Task
   └─1:N─ Notification
 
 Category ─1:N─ Task
+
+CategoryTemplate ─1:N─ TaskTemplate
 ```
 
 ## Enums
@@ -67,13 +69,82 @@ Category ─1:N─ Task
 
 ### RecurrenceType
 
-| Valor       | Meses        | Label         |
-| ----------- | ------------ | ------------- |
-| `MONTHLY`   | 1            | Mensual       |
-| `QUARTERLY` | 3            | Trimestral    |
-| `BIANNUAL`  | 6            | Semestral     |
-| `ANNUAL`    | 12           | Anual         |
-| `CUSTOM`    | configurable | Personalizado |
+| Valor          | Meses        | Label           |
+| -------------- | ------------ | --------------- |
+| `MONTHLY`      | 1            | Mensual         |
+| `QUARTERLY`    | 3            | Trimestral      |
+| `BIANNUAL`     | 6            | Semestral       |
+| `ANNUAL`       | 12           | Anual           |
+| `CUSTOM`       | configurable | Personalizado   |
+| `ON_DETECTION` | —            | Segun deteccion |
+
+> **ON_DETECTION**: Tareas que no tienen fecha de vencimiento programada (`nextDueDate = null`). Permanecen en estado PENDING tras completarse. El scheduler las ignora.
+
+### TaskType
+
+| Valor         | Label       |
+| ------------- | ----------- |
+| `INSPECTION`  | Inspeccion  |
+| `CLEANING`    | Limpieza    |
+| `TEST`        | Prueba      |
+| `TREATMENT`   | Tratamiento |
+| `SEALING`     | Sellado     |
+| `LUBRICATION` | Lubricacion |
+| `ADJUSTMENT`  | Ajuste      |
+| `MEASUREMENT` | Medicion    |
+| `EVALUATION`  | Evaluacion  |
+
+### ProfessionalRequirement
+
+| Valor                      | Label                     |
+| -------------------------- | ------------------------- |
+| `OWNER_CAN_DO`             | Propietario puede hacerlo |
+| `PROFESSIONAL_RECOMMENDED` | Profesional recomendado   |
+| `PROFESSIONAL_REQUIRED`    | Profesional obligatorio   |
+
+### TaskResult
+
+| Valor                  | Label                |
+| ---------------------- | -------------------- |
+| `OK`                   | OK                   |
+| `OK_WITH_OBSERVATIONS` | OK con observaciones |
+| `NEEDS_ATTENTION`      | Requiere atencion    |
+| `NEEDS_REPAIR`         | Requiere reparacion  |
+| `NEEDS_URGENT_REPAIR`  | Reparacion urgente   |
+| `NOT_APPLICABLE`       | No aplica            |
+
+### ConditionFound
+
+| Valor       | Label     |
+| ----------- | --------- |
+| `EXCELLENT` | Excelente |
+| `GOOD`      | Bueno     |
+| `FAIR`      | Regular   |
+| `POOR`      | Malo      |
+| `CRITICAL`  | Critico   |
+
+### TaskExecutor
+
+| Valor                | Label                  |
+| -------------------- | ---------------------- |
+| `OWNER`              | Propietario            |
+| `HIRED_PROFESSIONAL` | Profesional contratado |
+| `EPDE_PROFESSIONAL`  | Profesional EPDE       |
+
+### ActionTaken
+
+| Valor             | Label            |
+| ----------------- | ---------------- |
+| `INSPECTION_ONLY` | Solo inspeccion  |
+| `CLEANING`        | Limpieza         |
+| `MINOR_REPAIR`    | Reparacion menor |
+| `MAJOR_REPAIR`    | Reparacion mayor |
+| `REPLACEMENT`     | Reemplazo        |
+| `TREATMENT`       | Tratamiento      |
+| `SEALING`         | Sellado          |
+| `ADJUSTMENT`      | Ajuste           |
+| `FULL_SERVICE`    | Service completo |
+| `NO_ACTION`       | Sin accion       |
 
 ### TaskStatus
 
@@ -182,38 +253,47 @@ Category ─1:N─ Task
 
 ### Task
 
-| Campo             | Tipo           | Notas                        |
-| ----------------- | -------------- | ---------------------------- |
-| id                | UUID           | PK                           |
-| maintenancePlanId | String         | FK → MaintenancePlan         |
-| categoryId        | String         | FK → Category                |
-| name              | String         |                              |
-| description       | String?        |                              |
-| priority          | TaskPriority   | Default: MEDIUM              |
-| recurrenceType    | RecurrenceType | Default: ANNUAL              |
-| recurrenceMonths  | Int?           | Para CUSTOM                  |
-| nextDueDate       | DateTime       | Proxima fecha de vencimiento |
-| order             | Int            | Orden dentro del plan        |
-| status            | TaskStatus     | Default: PENDING             |
-| createdAt         | DateTime       |                              |
-| updatedAt         | DateTime       |                              |
-| deletedAt         | DateTime?      | Soft delete                  |
+| Campo                    | Tipo                     | Notas                            |
+| ------------------------ | ------------------------ | -------------------------------- |
+| id                       | UUID                     | PK                               |
+| maintenancePlanId        | String                   | FK → MaintenancePlan             |
+| categoryId               | String                   | FK → Category                    |
+| name                     | String                   |                                  |
+| description              | String?                  |                                  |
+| priority                 | TaskPriority             | Default: MEDIUM                  |
+| recurrenceType           | RecurrenceType           | Default: ANNUAL                  |
+| recurrenceMonths         | Int?                     | Para CUSTOM                      |
+| nextDueDate              | DateTime?                | Null para ON_DETECTION           |
+| order                    | Int                      | Orden dentro del plan            |
+| status                   | TaskStatus               | Default: PENDING                 |
+| taskType                 | TaskType?                | Tipo de tarea del nomenclador    |
+| professionalRequirement  | ProfessionalRequirement? | Nivel profesional requerido      |
+| technicalDescription     | String?                  | Descripcion tecnica del template |
+| estimatedDurationMinutes | Int?                     | Duracion estimada en minutos     |
+| createdAt                | DateTime                 |                                  |
+| updatedAt                | DateTime                 |                                  |
+| deletedAt                | DateTime?                | Soft delete                      |
 
 **Indices:** `maintenancePlanId`, `nextDueDate`, `status`, `categoryId`, `[status, nextDueDate]`, `[status, deletedAt]`
-**Status se actualiza via cron:** PENDING → UPCOMING (30 dias) → OVERDUE
+**Status se actualiza via cron:** PENDING → UPCOMING (30 dias) → OVERDUE (excluye ON_DETECTION)
 
 ### TaskLog
 
-| Campo       | Tipo     | Notas          |
-| ----------- | -------- | -------------- |
-| id          | UUID     | PK             |
-| taskId      | String   | FK → Task      |
-| completedAt | DateTime | Default: now() |
-| completedBy | String   | FK → User      |
-| notes       | String?  |                |
-| photoUrl    | String?  |                |
+| Campo          | Tipo           | Notas                  |
+| -------------- | -------------- | ---------------------- |
+| id             | UUID           | PK                     |
+| taskId         | String         | FK → Task              |
+| completedAt    | DateTime       | Default: now()         |
+| completedBy    | String         | FK → User              |
+| result         | TaskResult     | Resultado de la tarea  |
+| conditionFound | ConditionFound | Estado encontrado      |
+| executor       | TaskExecutor   | Quien ejecuto la tarea |
+| actionTaken    | ActionTaken    | Accion realizada       |
+| cost           | Decimal(12,2)? | Costo de la tarea      |
+| notes          | String?        | Max 2000 chars         |
+| photoUrl       | String?        |                        |
 
-**Indices:** `taskId`, `[completedBy]`
+**Indices:** `taskId`, `[completedBy, completedAt]`
 
 ### TaskNote
 
@@ -316,6 +396,41 @@ Category ─1:N─ Task
 
 **Indices:** `[userId, read]`, `createdAt`, `[userId, type, createdAt]`
 
+### CategoryTemplate
+
+| Campo        | Tipo         | Notas              |
+| ------------ | ------------ | ------------------ |
+| id           | CUID         | PK, auto-generated |
+| name         | String(100)  |                    |
+| icon         | String(10)?  | Emoji de categoria |
+| description  | String(500)? |                    |
+| displayOrder | Int          | Default: 0         |
+| createdAt    | DateTime     |                    |
+| updatedAt    | DateTime     |                    |
+
+**Relaciones:** `tasks` (TaskTemplate[])
+
+### TaskTemplate
+
+| Campo                    | Tipo                    | Notas                 |
+| ------------------------ | ----------------------- | --------------------- |
+| id                       | CUID                    | PK, auto-generated    |
+| categoryId               | String                  | FK → CategoryTemplate |
+| name                     | String(200)             |                       |
+| taskType                 | TaskType                |                       |
+| professionalRequirement  | ProfessionalRequirement | Default: OWNER_CAN_DO |
+| technicalDescription     | String(1000)?           |                       |
+| priority                 | TaskPriority            | Default: MEDIUM       |
+| recurrenceType           | RecurrenceType          |                       |
+| recurrenceMonths         | Int                     | Default: 12           |
+| estimatedDurationMinutes | Int?                    |                       |
+| displayOrder             | Int                     | Default: 0            |
+| createdAt                | DateTime                |                       |
+| updatedAt                | DateTime                |                       |
+
+**Indices:** `categoryId`
+**Cascade:** onDelete de CategoryTemplate elimina sus TaskTemplates
+
 ## Notas de Implementacion
 
 ### Prisma Select y Permisos
@@ -339,6 +454,7 @@ const INCLUDE = {
 - `BudgetLineItem` → cascade on delete de `BudgetRequest`
 - `BudgetResponse` → cascade on delete de `BudgetRequest`
 - `ServiceRequestPhoto` → cascade on delete de `ServiceRequest`
+- `TaskTemplate` → cascade on delete de `CategoryTemplate`
 
 ### Restrict Deletes
 
@@ -354,6 +470,7 @@ Los campos monetarios usan `Decimal` (no `Float`) para evitar errores de redonde
 - `BudgetLineItem.unitPrice`: `Decimal(12,2)`
 - `BudgetLineItem.subtotal`: `Decimal(14,2)`
 - `BudgetResponse.totalAmount`: `Decimal(14,2)`
+- `TaskLog.cost`: `Decimal(12,2)`
 
 En el backend se usa `Prisma.Decimal` para aritmetica. Los valores se serializan como strings JSON.
 
@@ -367,3 +484,4 @@ El seed (`prisma/seed.ts`) crea:
 
 1. Usuario admin: `admin@epde.com` / password configurable via `SEED_ADMIN_PASSWORD` (default: `Admin123!`, warning si usa default)
 2. 10 categorias de mantenimiento por defecto
+3. 9 CategoryTemplates con 45 TaskTemplates (nomenclador de tareas)

@@ -32,7 +32,7 @@ export function TaskDetailSheet({
 
   const canComplete =
     task.status === 'PENDING' || task.status === 'UPCOMING' || task.status === 'OVERDUE';
-  const isOverdue = new Date(task.nextDueDate) < new Date();
+  const isOverdue = task.nextDueDate ? new Date(task.nextDueDate) < new Date() : false;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -62,15 +62,21 @@ export function TaskDetailSheet({
             <div>
               <dt className="text-muted-foreground">Próximo vencimiento</dt>
               <dd className={`font-medium ${isOverdue ? 'text-red-600' : ''}`}>
-                {new Date(task.nextDueDate).toLocaleDateString('es-AR')}
-                <span className="text-muted-foreground ml-1 text-xs font-normal">
-                  (
-                  {formatDistanceToNow(new Date(task.nextDueDate), {
-                    addSuffix: true,
-                    locale: es,
-                  })}
-                  )
-                </span>
+                {task.nextDueDate ? (
+                  <>
+                    {new Date(task.nextDueDate).toLocaleDateString('es-AR')}
+                    <span className="text-muted-foreground ml-1 text-xs font-normal">
+                      (
+                      {formatDistanceToNow(new Date(task.nextDueDate), {
+                        addSuffix: true,
+                        locale: es,
+                      })}
+                      )
+                    </span>
+                  </>
+                ) : (
+                  'Según detección'
+                )}
               </dd>
             </div>
           </dl>

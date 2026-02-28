@@ -76,7 +76,9 @@ export function ClientDashboard({ userName }: { userName: string }) {
           ) : upcoming && upcoming.length > 0 ? (
             <div className="space-y-2">
               {upcoming.map((task) => {
-                const isOverdue = new Date(task.nextDueDate) < new Date();
+                const isOverdue = task.nextDueDate
+                  ? new Date(task.nextDueDate) < new Date()
+                  : false;
                 return (
                   <Link
                     key={task.id}
@@ -99,10 +101,12 @@ export function ClientDashboard({ userName }: { userName: string }) {
                         <span>{task.propertyAddress}</span>
                         <span>·</span>
                         <span className={isOverdue ? 'font-medium text-red-600' : ''}>
-                          {formatDistanceToNow(new Date(task.nextDueDate), {
-                            addSuffix: true,
-                            locale: es,
-                          })}
+                          {task.nextDueDate
+                            ? formatDistanceToNow(new Date(task.nextDueDate), {
+                                addSuffix: true,
+                                locale: es,
+                              })
+                            : 'Según detección'}
                         </span>
                       </div>
                     </div>

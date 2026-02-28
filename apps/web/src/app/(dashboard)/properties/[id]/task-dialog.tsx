@@ -62,14 +62,14 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
       setValue('priority', task.priority as TaskFormValues['priority']);
       setValue('recurrenceType', task.recurrenceType as TaskFormValues['recurrenceType']);
       if (task.recurrenceMonths) setValue('recurrenceMonths', task.recurrenceMonths);
-      setValue('nextDueDate', new Date(task.nextDueDate));
+      if (task.nextDueDate) setValue('nextDueDate', new Date(task.nextDueDate));
     } else {
       reset({ maintenancePlanId: planId, priority: 'MEDIUM', recurrenceType: 'ANNUAL' });
     }
   }, [task, planId, setValue, reset]);
 
   const onSubmit = (data: TaskFormValues) => {
-    const nextDueDate = new Date(data.nextDueDate).toISOString();
+    const nextDueDate = data.nextDueDate ? new Date(data.nextDueDate).toISOString() : undefined;
     if (isEdit) {
       const { maintenancePlanId: _maintenancePlanId, ...dto } = data;
       updateTask.mutate(

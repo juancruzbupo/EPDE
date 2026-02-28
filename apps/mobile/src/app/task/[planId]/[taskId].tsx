@@ -34,6 +34,7 @@ const recurrenceLabels: Record<string, string> = {
   BIANNUAL: 'Semestral',
   ANNUAL: 'Anual',
   CUSTOM: 'Personalizada',
+  ON_DETECTION: 'Según detección',
 };
 
 function LogItem({ log }: { log: TaskLogPublic }) {
@@ -193,7 +194,9 @@ export default function TaskDetailScreen() {
                 Proxima fecha
               </Text>
               <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground text-sm">
-                {format(new Date(task.nextDueDate), 'd MMM yyyy', { locale: es })}
+                {task.nextDueDate
+                  ? format(new Date(task.nextDueDate), 'd MMM yyyy', { locale: es })
+                  : 'Según detección'}
               </Text>
             </View>
             <View className="flex-row justify-between">

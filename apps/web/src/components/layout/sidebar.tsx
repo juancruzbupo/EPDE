@@ -4,7 +4,16 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
-import { LayoutDashboard, Users, Home, Tags, FileText, Wrench, LogOut } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Users,
+  Home,
+  Tags,
+  FileText,
+  Wrench,
+  LogOut,
+  LayoutTemplate,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserRole } from '@epde/shared';
 
@@ -15,6 +24,7 @@ const navItems = [
   { label: 'Presupuestos', href: '/budgets', icon: FileText },
   { label: 'Servicios', href: '/service-requests', icon: Wrench },
   { label: 'Categorías', href: '/categories', icon: Tags, adminOnly: true },
+  { label: 'Plantillas', href: '/templates', icon: LayoutTemplate, adminOnly: true },
 ];
 
 export function Sidebar({ className }: { className?: string }) {

@@ -15,6 +15,7 @@ import {
   addTaskNote,
 } from '@/lib/api/maintenance-plans';
 import type { PlanPublic, TaskNotePublic, UpdateTaskDto } from '@/lib/api/maintenance-plans';
+import type { CompleteTaskInput } from '@epde/shared';
 import { useAuthStore } from '@/stores/auth-store';
 
 export function usePlan(id: string) {
@@ -49,7 +50,7 @@ export function useAddTask() {
       priority?: string;
       recurrenceType?: string;
       recurrenceMonths?: number;
-      nextDueDate: string;
+      nextDueDate?: string;
     }) => addTask(planId, dto),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['plans'] }),
     onError: (err) => toast.error(getErrorMessage(err, 'Error al agregar tarea')),
@@ -127,9 +128,7 @@ export function useCompleteTask() {
     }: {
       planId: string;
       taskId: string;
-      notes?: string;
-      photoUrl?: string;
-    }) => completeTask(planId, taskId, dto),
+    } & CompleteTaskInput) => completeTask(planId, taskId, dto),
 
     onMutate: async (variables) => {
       await queryClient.cancelQueries({ queryKey: ['plans', variables.planId] });

@@ -56,7 +56,9 @@ function TaskCard({ task, planId }: { task: TaskPublic; planId: string }) {
       <View className="ml-4 flex-row items-center justify-between">
         <TaskStatusBadge status={task.status} />
         <Text style={{ fontFamily: 'DMSans_400Regular' }} className="text-muted-foreground text-xs">
-          {formatDistanceToNow(new Date(task.nextDueDate), { addSuffix: true, locale: es })}
+          {task.nextDueDate
+            ? formatDistanceToNow(new Date(task.nextDueDate), { addSuffix: true, locale: es })
+            : 'Según detección'}
         </Text>
       </View>
     </Pressable>

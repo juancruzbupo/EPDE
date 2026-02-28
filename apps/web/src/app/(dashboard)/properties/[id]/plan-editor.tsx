@@ -136,7 +136,9 @@ export function PlanEditor({ planId }: PlanEditorProps) {
                       {RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}
                     </span>
                     <span className="text-muted-foreground">
-                      Próxima: {new Date(task.nextDueDate).toLocaleDateString('es-AR')}
+                      {task.nextDueDate
+                        ? `Próxima: ${new Date(task.nextDueDate).toLocaleDateString('es-AR')}`
+                        : 'Según detección'}
                     </span>
                   </div>
                 </div>
