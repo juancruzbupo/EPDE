@@ -115,7 +115,7 @@ Si algun componente falla, `status` sera `"error"` y el campo `error` contendra 
 { "token": "jwt-token-from-email", "newPassword": "MyPassword1" }
 ```
 
-Rate limit: 5 requests/minuto en login. 3 requests/hora + burst protection 1 request/5 segundos en set-password.
+Rate limit: 5 requests/minuto en login. 15 requests/minuto en refresh. 3 requests/hora + burst protection 1 request/5 segundos en set-password.
 
 Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
 
@@ -193,17 +193,21 @@ Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
 
 ### Planes de Mantenimiento
 
-| Metodo | Ruta                                                | Auth | Rol   | Descripcion               |
-| ------ | --------------------------------------------------- | ---- | ----- | ------------------------- |
-| GET    | `/maintenance-plans/:propertyId`                    | Si   | Ambos | Obtener plan de propiedad |
-| POST   | `/maintenance-plans`                                | Si   | ADMIN | Crear plan                |
-| PATCH  | `/maintenance-plans/:id`                            | Si   | ADMIN | Actualizar plan           |
-| POST   | `/maintenance-plans/:id/tasks`                      | Si   | ADMIN | Crear tarea               |
-| PATCH  | `/maintenance-plans/:planId/tasks/:taskId`          | Si   | ADMIN | Actualizar tarea          |
-| DELETE | `/maintenance-plans/:planId/tasks/:taskId`          | Si   | ADMIN | Eliminar tarea            |
-| POST   | `/maintenance-plans/:planId/tasks/:taskId/complete` | Si   | Ambos | Completar tarea           |
-| POST   | `/maintenance-plans/:planId/tasks/:taskId/notes`    | Si   | Ambos | Agregar nota              |
-| PATCH  | `/maintenance-plans/:planId/tasks/reorder`          | Si   | ADMIN | Reordenar tareas          |
+| Metodo | Ruta                                            | Auth | Rol   | Descripcion         |
+| ------ | ----------------------------------------------- | ---- | ----- | ------------------- |
+| GET    | `/maintenance-plans/:id`                        | Si   | Ambos | Obtener plan por ID |
+| PATCH  | `/maintenance-plans/:id`                        | Si   | ADMIN | Actualizar plan     |
+| POST   | `/maintenance-plans/:id/tasks`                  | Si   | ADMIN | Crear tarea         |
+| GET    | `/maintenance-plans/:id/tasks/:taskId`          | Si   | Ambos | Detalle de tarea    |
+| PATCH  | `/maintenance-plans/:id/tasks/:taskId`          | Si   | ADMIN | Actualizar tarea    |
+| DELETE | `/maintenance-plans/:id/tasks/:taskId`          | Si   | ADMIN | Eliminar tarea      |
+| POST   | `/maintenance-plans/:id/tasks/:taskId/complete` | Si   | Ambos | Completar tarea     |
+| GET    | `/maintenance-plans/:id/tasks/:taskId/logs`     | Si   | Ambos | Historial de tarea  |
+| GET    | `/maintenance-plans/:id/tasks/:taskId/notes`    | Si   | Ambos | Notas de tarea      |
+| POST   | `/maintenance-plans/:id/tasks/:taskId/notes`    | Si   | Ambos | Agregar nota        |
+| PUT    | `/maintenance-plans/:id/tasks/reorder`          | Si   | ADMIN | Reordenar tareas    |
+
+**Nota:** Los planes se crean automaticamente al crear una propiedad (no hay endpoint `POST /maintenance-plans` independiente).
 
 ---
 
@@ -366,7 +370,7 @@ Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
 
 | Metodo | Ruta      | Auth | Rol   | Descripcion                           |
 | ------ | --------- | ---- | ----- | ------------------------------------- |
-| POST   | `/upload` | Si   | Ambos | Subir archivo via multipart/form-data |
+| POST   | `/upload` | Si   | ADMIN | Subir archivo via multipart/form-data |
 
 **POST /upload**
 
@@ -393,9 +397,8 @@ Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
 
 | Metodo | Ruta                         | Auth | Rol    | Descripcion                 |
 | ------ | ---------------------------- | ---- | ------ | --------------------------- |
-| GET    | `/dashboard/stats`           | Si   | Ambos  | Estadisticas segun rol      |
-| GET    | `/dashboard/upcoming-tasks`  | Si   | Ambos  | Tareas proximas             |
-| GET    | `/dashboard/recent-activity` | Si   | ADMIN  | Actividad reciente          |
+| GET    | `/dashboard/stats`           | Si   | ADMIN  | Estadisticas admin          |
+| GET    | `/dashboard/activity`        | Si   | ADMIN  | Actividad reciente          |
 | GET    | `/dashboard/client-stats`    | Si   | CLIENT | Estadisticas del cliente    |
 | GET    | `/dashboard/client-upcoming` | Si   | CLIENT | Tareas proximas del cliente |
 

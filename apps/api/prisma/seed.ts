@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { TEMPLATE_SEED_DATA } from '@epde/shared';
+import { seedDemo } from './seed-demo';
 
 const prisma = new PrismaClient();
 
@@ -89,6 +90,16 @@ async function main() {
     console.log(`${TEMPLATE_SEED_DATA.length} category templates created`);
   } else {
     console.log(`Category templates already exist (${existingTemplates}), skipping`);
+  }
+
+  // Create demo data (3 users with properties, tasks, logs, budgets, etc.)
+  const existingDemoUser = await prisma.user.findUnique({
+    where: { email: 'maria.gonzalez@demo.com' },
+  });
+  if (!existingDemoUser) {
+    await seedDemo(prisma);
+  } else {
+    console.log('Demo data already exists, skipping');
   }
 
   console.log('Seeding complete!');

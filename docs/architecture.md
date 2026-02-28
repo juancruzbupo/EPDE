@@ -14,7 +14,7 @@ epde/
         clients/      # Gestion de clientes (ADMIN only)
         common/       # Guards, decorators, filters, repositories
         config/       # Validacion de env con Zod
-        cron/         # Scheduler (task status cron + distributed lock)
+        scheduler/    # Scheduler (task status cron + distributed lock)
         dashboard/    # Estadisticas agregadas
         email/        # Servicio de emails (Resend)
         maintenance-plans/  # Planes de mantenimiento
@@ -26,16 +26,20 @@ epde/
         task-templates/     # Plantillas de tareas (CRUD)
         upload/       # Upload a Cloudflare R2
         users/        # Usuarios base
+        health/       # Health check (Terminus)
+        metrics/      # MetricsModule + MetricsInterceptor + PrometheusExporter
       prisma/
         schema.prisma
         seed.ts
+        seed-demo.ts  # Datos demo (3 usuarios con propiedades, tareas, historial)
     web/              # Next.js App Router
       src/
         app/
           (dashboard)/  # Layout autenticado con sidebar
             templates/  # Pagina admin de plantillas (CategoryTemplate + TaskTemplate)
-          login/        # Login page
-          set-password/ # Set password page
+          (auth)/         # Route group con layout compartido
+            login/        # Login page
+            set-password/ # Set password page
         components/
           data-table/   # DataTable reutilizable (TanStack Table)
           landing/      # Landing page publica
@@ -70,10 +74,11 @@ epde/
   packages/
     shared/           # Tipos, schemas Zod, constantes, utilidades
       src/
+        api/          # Tipos de API (respuestas paginadas, etc.)
         constants/    # Labels en espanol, defaults
-        enums/        # Enums TypeScript (TaskType, TaskResult, etc.)
         schemas/      # Zod schemas (validacion compartida)
-        types/        # Interfaces TypeScript
+        seed/         # Template seed data (nomenclador de tareas)
+        types/        # Interfaces TypeScript + enums (types/enums.ts)
         utils/        # Helpers de fechas, UUID
 ```
 
@@ -151,24 +156,24 @@ feature/
 
 Tres guards globales aplicados en orden via `APP_GUARD`:
 
-1. **JwtAuthGuard** — Valida JWT en header `Authorization: Bearer <token>`. Salta endpoints marcados con `@Public()`
-2. **RolesGuard** — Valida existencia del user en el request, luego verifica que `user.role` este en los roles permitidos via `@Roles('ADMIN')`. Si no hay `@Roles()`, permite todo. Si el user no existe en el request, retorna `false`
-3. **ThrottlerGuard** — Rate limiting global. Salta endpoints marcados con `@SkipThrottle()`
+1. **ThrottlerGuard** — Rate limiting global. Salta endpoints marcados con `@SkipThrottle()`
+2. **JwtAuthGuard** — Valida JWT en cookie `access_token`. Salta endpoints marcados con `@Public()`
+3. **RolesGuard** — Valida existencia del user en el request, luego verifica que `user.role` este en los roles permitidos via `@Roles('ADMIN')`. Si no hay `@Roles()`, permite todo. Si el user no existe en el request, retorna `false`
 
 ```typescript
 // app.module.ts providers
+{ provide: APP_GUARD, useClass: ThrottlerGuard },
 { provide: APP_GUARD, useClass: JwtAuthGuard },
 { provide: APP_GUARD, useClass: RolesGuard },
-{ provide: APP_GUARD, useClass: ThrottlerGuard },
 ```
 
 **Rate limiting:**
 
-- `short`: 10 requests/segundo
-- `medium`: 60 requests/10 segundos
+- `short`: 5 requests/segundo
+- `medium`: 30 requests/10 segundos
 - Login: override a 5 requests/minuto via `@Throttle()`
 - Set-password: override a 3 requests/hora + burst protection 1 request/5 segundos via `@Throttle()`
-- Refresh: override a 30 requests/minuto via `@Throttle()`
+- Refresh: override a 15 requests/minuto via `@Throttle()`
 
 ### 5. Decorators Personalizados
 

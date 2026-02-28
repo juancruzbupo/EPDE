@@ -217,11 +217,13 @@ CategoryTemplate ─1:N─ TaskTemplate
 | yearBuilt    | Int?         |                   |
 | squareMeters | Float?       |                   |
 | photoUrl     | String?      | URL de foto en R2 |
+| createdBy    | String?      | Auditoria         |
+| updatedBy    | String?      | Auditoria         |
 | createdAt    | DateTime     |                   |
 | updatedAt    | DateTime     |                   |
 | deletedAt    | DateTime?    | Soft delete       |
 
-**Indices:** `userId`
+**Indices:** `userId`, `[userId, deletedAt]`
 **Relaciones:** `user`, `maintenancePlan` (1:1), `budgetRequests`, `serviceRequests`
 
 ### MaintenancePlan
@@ -232,6 +234,8 @@ CategoryTemplate ─1:N─ TaskTemplate
 | propertyId | String     | FK → Property, Unique (1:1) |
 | name       | String     |                             |
 | status     | PlanStatus | Default: DRAFT              |
+| createdBy  | String?    | Auditoria                   |
+| updatedBy  | String?    | Auditoria                   |
 | createdAt  | DateTime   |                             |
 | updatedAt  | DateTime   |                             |
 
@@ -242,39 +246,42 @@ CategoryTemplate ─1:N─ TaskTemplate
 | Campo       | Tipo      | Notas                          |
 | ----------- | --------- | ------------------------------ |
 | id          | UUID      | PK                             |
-| name        | String    | Unique                         |
+| name        | String    | @@unique([name, deletedAt])    |
 | description | String?   |                                |
 | icon        | String?   | Nombre de icono Lucide         |
 | order       | Int       | Para ordenamiento (default: 0) |
 | deletedAt   | DateTime? | Soft delete                    |
 
-**Soft delete:** Si — via Prisma extension (misma mecanica que User, Property, Task)
+**Indices:** `[deletedAt]`
+**Soft delete:** Si — via Prisma extension (misma mecanica que User, Property, Task). El unique compuesto `[name, deletedAt]` permite recrear categorias con el mismo nombre si la anterior fue soft-deleted.
 **Categorias por defecto (seed):** Electricidad, Plomeria, Pintura, Techos y Cubiertas, Jardin y Exteriores, Climatizacion, Seguridad, Limpieza General, Estructural, Aberturas
 
 ### Task
 
-| Campo                    | Tipo                     | Notas                            |
-| ------------------------ | ------------------------ | -------------------------------- |
-| id                       | UUID                     | PK                               |
-| maintenancePlanId        | String                   | FK → MaintenancePlan             |
-| categoryId               | String                   | FK → Category                    |
-| name                     | String                   |                                  |
-| description              | String?                  |                                  |
-| priority                 | TaskPriority             | Default: MEDIUM                  |
-| recurrenceType           | RecurrenceType           | Default: ANNUAL                  |
-| recurrenceMonths         | Int?                     | Para CUSTOM                      |
-| nextDueDate              | DateTime?                | Null para ON_DETECTION           |
-| order                    | Int                      | Orden dentro del plan            |
-| status                   | TaskStatus               | Default: PENDING                 |
-| taskType                 | TaskType?                | Tipo de tarea del nomenclador    |
-| professionalRequirement  | ProfessionalRequirement? | Nivel profesional requerido      |
-| technicalDescription     | String?                  | Descripcion tecnica del template |
-| estimatedDurationMinutes | Int?                     | Duracion estimada en minutos     |
-| createdAt                | DateTime                 |                                  |
-| updatedAt                | DateTime                 |                                  |
-| deletedAt                | DateTime?                | Soft delete                      |
+| Campo                    | Tipo                    | Notas                            |
+| ------------------------ | ----------------------- | -------------------------------- |
+| id                       | UUID                    | PK                               |
+| maintenancePlanId        | String                  | FK → MaintenancePlan             |
+| categoryId               | String                  | FK → Category                    |
+| name                     | String                  |                                  |
+| description              | String?                 |                                  |
+| priority                 | TaskPriority            | Default: MEDIUM                  |
+| recurrenceType           | RecurrenceType          | Default: ANNUAL                  |
+| recurrenceMonths         | Int?                    | Para CUSTOM                      |
+| nextDueDate              | DateTime?               | Null para ON_DETECTION           |
+| order                    | Int                     | Orden dentro del plan            |
+| status                   | TaskStatus              | Default: PENDING                 |
+| taskType                 | TaskType                | Default: INSPECTION              |
+| professionalRequirement  | ProfessionalRequirement | Default: OWNER_CAN_DO            |
+| technicalDescription     | String?                 | Descripcion tecnica del template |
+| estimatedDurationMinutes | Int?                    | Duracion estimada en minutos     |
+| createdAt                | DateTime                |                                  |
+| updatedAt                | DateTime                |                                  |
+| createdBy                | String?                 | Auditoria                        |
+| updatedBy                | String?                 | Auditoria                        |
+| deletedAt                | DateTime?               | Soft delete                      |
 
-**Indices:** `maintenancePlanId`, `nextDueDate`, `status`, `categoryId`, `[status, nextDueDate]`, `[status, deletedAt]`
+**Indices:** `maintenancePlanId`, `nextDueDate`, `status`, `categoryId`, `[status, nextDueDate]`, `[status, deletedAt]`, `[maintenancePlanId, status]`, `[nextDueDate, status]`, `[maintenancePlanId, deletedAt, status]`
 **Status se actualiza via cron:** PENDING → UPCOMING (30 dias) → OVERDUE (excluye ON_DETECTION)
 
 ### TaskLog
@@ -305,7 +312,7 @@ CategoryTemplate ─1:N─ TaskTemplate
 | content   | String   |           |
 | createdAt | DateTime |           |
 
-**Indice:** `taskId`
+**Indices:** `taskId`, `authorId`
 
 ### BudgetRequest
 
@@ -319,11 +326,12 @@ CategoryTemplate ─1:N─ TaskTemplate
 | status      | BudgetStatus | Default: PENDING                            |
 | updatedBy   | String?      | ID del usuario que realizo el ultimo cambio |
 | version     | Int          | Optimistic locking counter (default: 0)     |
+| createdBy   | String?      | Auditoria                                   |
 | createdAt   | DateTime     |                                             |
 | updatedAt   | DateTime     |                                             |
 | deletedAt   | DateTime?    | Soft delete                                 |
 
-**Indices:** `propertyId`, `status`, `[propertyId, deletedAt]`
+**Indices:** `propertyId`, `status`, `[propertyId, deletedAt]`, `[requestedBy, status]`, `[status, createdAt]`
 **Soft delete:** Si — via Prisma extension
 **Relaciones:** `property`, `requester`, `lineItems`, `response` (1:1)
 
@@ -362,11 +370,12 @@ CategoryTemplate ─1:N─ TaskTemplate
 | urgency     | ServiceUrgency | Default: MEDIUM                             |
 | status      | ServiceStatus  | Default: OPEN                               |
 | updatedBy   | String?        | ID del usuario que realizo el ultimo cambio |
+| createdBy   | String?        | Auditoria                                   |
 | createdAt   | DateTime       |                                             |
 | updatedAt   | DateTime       |                                             |
 | deletedAt   | DateTime?      | Soft delete                                 |
 
-**Indices:** `propertyId`, `status`, `[propertyId, deletedAt]`
+**Indices:** `propertyId`, `status`, `[propertyId, deletedAt]`, `[requestedBy, status]`, `[status, urgency]`
 **Soft delete:** Si — via Prisma extension
 **Relaciones:** `property`, `requester`, `photos`
 
@@ -451,9 +460,15 @@ const INCLUDE = {
 
 ### Cascade Deletes
 
+- `Task` → cascade on delete de `MaintenancePlan`
+- `TaskLog` → cascade on delete de `Task`
+- `TaskNote` → cascade on delete de `Task`
+- `BudgetRequest` → cascade on delete de `Property`
 - `BudgetLineItem` → cascade on delete de `BudgetRequest`
 - `BudgetResponse` → cascade on delete de `BudgetRequest`
+- `ServiceRequest` → cascade on delete de `Property`
 - `ServiceRequestPhoto` → cascade on delete de `ServiceRequest`
+- `Notification` → cascade on delete de `User`
 - `TaskTemplate` → cascade on delete de `CategoryTemplate`
 
 ### Restrict Deletes
@@ -476,7 +491,8 @@ En el backend se usa `Prisma.Decimal` para aritmetica. Los valores se serializan
 
 ### Campos de Auditoria
 
-`BudgetRequest.updatedBy` y `ServiceRequest.updatedBy` registran el ID del usuario que realizo el ultimo cambio de estado. Se setea automaticamente en cada `updateStatus()`.
+- `createdBy` y `updatedBy` en Property, MaintenancePlan, Task, BudgetRequest, ServiceRequest — registran ID del usuario que creo/modifico el registro
+- `BudgetRequest.updatedBy` y `ServiceRequest.updatedBy` se setean automaticamente en cada `updateStatus()`
 
 ### Seed Data
 
@@ -485,3 +501,53 @@ El seed (`prisma/seed.ts`) crea:
 1. Usuario admin: `admin@epde.com` / password configurable via `SEED_ADMIN_PASSWORD` (default: `Admin123!`, warning si usa default)
 2. 10 categorias de mantenimiento por defecto
 3. 9 CategoryTemplates con 45 TaskTemplates (nomenclador de tareas)
+4. Datos demo (`prisma/seed-demo.ts`) — 3 usuarios cliente con propiedades, planes, tareas, historial, presupuestos, solicitudes y notificaciones
+
+### Seed Demo
+
+El seed demo (`prisma/seed-demo.ts`) crea un dataset realista con 3 perfiles de uso diferenciado. Se ejecuta automaticamente desde `seed.ts` si no existe el usuario `maria.gonzalez@demo.com`. Es idempotente.
+
+#### Usuarios Demo
+
+| Usuario          | Email                       | Password   | Perfil     | Propiedad        | Antiguedad |
+| ---------------- | --------------------------- | ---------- | ---------- | ---------------- | ---------- |
+| María González   | `maria.gonzalez@demo.com`   | `Demo123!` | Veterana   | Casa 1985, CABA  | 18 meses   |
+| Carlos Rodríguez | `carlos.rodriguez@demo.com` | `Demo123!` | Intermedio | Casa 2015, Pilar | 6 meses    |
+| Laura Fernández  | `laura.fernandez@demo.com`  | `Demo123!` | Nueva      | Casa 2023, Funes | 1 mes      |
+
+#### Datos por Usuario
+
+**María González** (uso intensivo, historial rico):
+
+- 48 tareas (mezcla de estados: completadas, pendientes, vencidas)
+- 51 task logs en 4 ciclos + 2 detecciones (grieta activa, humedad ascendente)
+- 2 presupuestos: 1 COMPLETED (impermeabilización $185.000), 1 IN_PROGRESS (tratamiento humedad $280.000)
+- 1 solicitud de servicio IN_PROGRESS (evaluación estructural)
+- 4 notificaciones (2 no leídas)
+
+**Carlos Rodríguez** (uso parcial, priorizó seguridad):
+
+- 48 tareas (mayoría pendientes, priorizó gas y eléctrica)
+- 14 task logs en 3 meses de actividad parcial
+- 1 presupuesto QUOTED (puesta a tierra $95.000, pendiente de aprobación)
+- 2 notificaciones
+
+**Laura Fernández** (onboarding limpio):
+
+- 48 tareas (todas pendientes, sin historial)
+- Sin presupuestos, solicitudes ni historial
+- 1 notificación de bienvenida
+
+#### Resumen Cuantitativo
+
+| Entidad        | Cantidad                             |
+| -------------- | ------------------------------------ |
+| Usuarios       | 4 (1 admin + 3 clientes)             |
+| Propiedades    | 3                                    |
+| Planes         | 3 (todos ACTIVE)                     |
+| Categorías     | 9 (compartidas entre planes)         |
+| Tareas         | 144 (48 × 3 propiedades)             |
+| Task Logs      | 65 (María: 51, Carlos: 14, Laura: 0) |
+| Presupuestos   | 3 (COMPLETED, IN_PROGRESS, QUOTED)   |
+| Solicitudes    | 1 (IN_PROGRESS)                      |
+| Notificaciones | 7                                    |
