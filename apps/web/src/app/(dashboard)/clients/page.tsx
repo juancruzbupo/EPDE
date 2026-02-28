@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { useClients, useDeleteClient } from '@/hooks/use-clients';
 import { useDebounce } from '@/hooks/use-debounce';
 import { PageHeader } from '@/components/page-header';
@@ -20,6 +21,7 @@ const statusOptions = Object.entries(USER_STATUS_LABELS).map(([value, label]) =>
 }));
 
 export default function ClientsPage() {
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all');
   const [inviteOpen, setInviteOpen] = useState(false);
@@ -76,6 +78,7 @@ export default function ClientsPage() {
         onLoadMore={() => fetchNextPage()}
         total={total}
         emptyMessage="No se encontraron clientes"
+        onRowClick={(row) => router.push(`/clients/${row.id}`)}
       />
 
       <InviteClientDialog open={inviteOpen} onOpenChange={setInviteOpen} />

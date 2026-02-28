@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Eye, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Trash2 } from 'lucide-react';
 import { USER_STATUS_LABELS } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -23,7 +23,15 @@ export function clientColumns({
   onDelete: (id: string) => void;
 }): ColumnDef<ClientPublic>[] {
   return [
-    { accessorKey: 'name', header: 'Nombre' },
+    {
+      accessorKey: 'name',
+      header: 'Nombre',
+      cell: ({ row }) => (
+        <Link href={`/clients/${row.original.id}`} className="font-medium hover:underline">
+          {row.original.name}
+        </Link>
+      ),
+    },
     { accessorKey: 'email', header: 'Email' },
     {
       accessorKey: 'phone',
@@ -50,20 +58,22 @@ export function clientColumns({
       cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" aria-label="Más opciones">
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label="Más opciones"
+              onClick={(e) => e.stopPropagation()}
+            >
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link href={`/clients/${row.original.id}`}>
-                <Eye className="mr-2 h-4 w-4" />
-                Ver detalle
-              </Link>
-            </DropdownMenuItem>
             <DropdownMenuItem
               className="text-destructive"
-              onClick={() => onDelete(row.original.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(row.original.id);
+              }}
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Eliminar

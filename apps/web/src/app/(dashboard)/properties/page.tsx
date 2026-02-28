@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
 import { useProperties } from '@/hooks/use-properties';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -20,6 +21,7 @@ const typeOptions = Object.entries(PROPERTY_TYPE_LABELS).map(([value, label]) =>
 }));
 
 export default function PropertiesPage() {
+  const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const isAdmin = user?.role === UserRole.ADMIN;
 
@@ -74,6 +76,7 @@ export default function PropertiesPage() {
         onLoadMore={() => fetchNextPage()}
         total={total}
         emptyMessage="No se encontraron propiedades"
+        onRowClick={(row) => router.push(`/properties/${row.id}`)}
       />
 
       {isAdmin && <CreatePropertyDialog open={createOpen} onOpenChange={setCreateOpen} />}
