@@ -117,9 +117,10 @@ export function ClientDashboard({ userName }: { userName: string }) {
               })}
             </ul>
           ) : (
-            <p className="text-muted-foreground py-4 text-center text-sm">
-              No tenés tareas próximas
-            </p>
+            <div className="flex flex-col items-center gap-2 py-8">
+              <CheckCircle className="text-muted-foreground/50 h-8 w-8" />
+              <p className="text-muted-foreground text-sm">No tenés tareas próximas</p>
+            </div>
           )}
         </CardContent>
       </Card>

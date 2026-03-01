@@ -11,7 +11,16 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft } from 'lucide-react';
+import {
+  ArrowLeft,
+  FileText,
+  Home,
+  User,
+  AlertTriangle,
+  Calendar,
+  AlignLeft,
+  Wrench,
+} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { SERVICE_URGENCY_LABELS, SERVICE_STATUS_LABELS, UserRole } from '@epde/shared';
@@ -47,15 +56,49 @@ export default function ServiceRequestDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-64 w-full" />
+      <div className="space-y-6">
+        <div className="flex items-start justify-between">
+          <div>
+            <Skeleton className="h-7 w-56" />
+            <Skeleton className="mt-1.5 h-4 w-36" />
+          </div>
+          <Skeleton className="h-9 w-24" />
+        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <Skeleton className="h-5 w-48" />
+            <Skeleton className="h-5 w-20 rounded-full" />
+          </CardHeader>
+          <CardContent>
+            <div className="bg-muted/40 rounded-lg p-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="space-y-1.5">
+                    <Skeleton className="h-3.5 w-24" />
+                    <Skeleton className="h-4 w-36" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (!request) {
-    return <p className="text-muted-foreground">Solicitud no encontrada</p>;
+    return (
+      <div className="flex flex-col items-center gap-2 py-16">
+        <Wrench className="text-muted-foreground/50 h-10 w-10" />
+        <p className="text-muted-foreground text-sm">Solicitud no encontrada</p>
+        <Button variant="outline" asChild className="mt-2">
+          <Link href="/service-requests">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Volver a solicitudes
+          </Link>
+        </Button>
+      </div>
+    );
   }
 
   const nextStatus = STATUS_TRANSITIONS[request.status];
@@ -84,43 +127,63 @@ export default function ServiceRequestDetailPage() {
             </Badge>
           </CardHeader>
           <CardContent>
-            <dl className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <dt className="text-muted-foreground text-sm">Título</dt>
-                <dd className="font-medium">{request.title}</dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground text-sm">Propiedad</dt>
-                <dd className="font-medium">
-                  {request.property.address}, {request.property.city}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground text-sm">Solicitante</dt>
-                <dd className="font-medium">{request.requester.name}</dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground text-sm">Urgencia</dt>
-                <dd>
-                  <Badge variant={urgencyVariant[request.urgency] ?? 'outline'}>
-                    {SERVICE_URGENCY_LABELS[request.urgency] ?? request.urgency}
-                  </Badge>
-                </dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground text-sm">Fecha de creación</dt>
-                <dd className="font-medium">
-                  {formatDistanceToNow(new Date(request.createdAt), {
-                    addSuffix: true,
-                    locale: es,
-                  })}
-                </dd>
-              </div>
-              <div className="sm:col-span-2">
-                <dt className="text-muted-foreground text-sm">Descripción</dt>
-                <dd className="mt-1 font-medium whitespace-pre-wrap">{request.description}</dd>
-              </div>
-            </dl>
+            <div className="bg-muted/40 rounded-lg p-4">
+              <dl className="grid gap-4 text-sm sm:grid-cols-2">
+                <div className="space-y-1">
+                  <dt className="text-muted-foreground flex items-center gap-1.5">
+                    <FileText className="h-3.5 w-3.5" />
+                    Título
+                  </dt>
+                  <dd className="font-medium">{request.title}</dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-muted-foreground flex items-center gap-1.5">
+                    <Home className="h-3.5 w-3.5" />
+                    Propiedad
+                  </dt>
+                  <dd className="font-medium">
+                    {request.property.address}, {request.property.city}
+                  </dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-muted-foreground flex items-center gap-1.5">
+                    <User className="h-3.5 w-3.5" />
+                    Solicitante
+                  </dt>
+                  <dd className="font-medium">{request.requester.name}</dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-muted-foreground flex items-center gap-1.5">
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                    Urgencia
+                  </dt>
+                  <dd>
+                    <Badge variant={urgencyVariant[request.urgency] ?? 'outline'}>
+                      {SERVICE_URGENCY_LABELS[request.urgency] ?? request.urgency}
+                    </Badge>
+                  </dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-muted-foreground flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5" />
+                    Fecha de creación
+                  </dt>
+                  <dd className="font-medium">
+                    {formatDistanceToNow(new Date(request.createdAt), {
+                      addSuffix: true,
+                      locale: es,
+                    })}
+                  </dd>
+                </div>
+                <div className="space-y-1 sm:col-span-2">
+                  <dt className="text-muted-foreground flex items-center gap-1.5">
+                    <AlignLeft className="h-3.5 w-3.5" />
+                    Descripción
+                  </dt>
+                  <dd className="mt-1 font-medium whitespace-pre-wrap">{request.description}</dd>
+                </div>
+              </dl>
+            </div>
           </CardContent>
         </Card>
 
@@ -151,11 +214,13 @@ export default function ServiceRequestDetailPage() {
         )}
 
         {isAdmin && nextStatus && (
-          <div className="flex gap-2">
-            <Button onClick={() => setStatusConfirm(nextStatus)}>
-              {TRANSITION_LABELS[nextStatus]}
-            </Button>
-          </div>
+          <Card>
+            <CardContent className="flex gap-2 p-4">
+              <Button onClick={() => setStatusConfirm(nextStatus)}>
+                {TRANSITION_LABELS[nextStatus]}
+              </Button>
+            </CardContent>
+          </Card>
         )}
       </div>
 

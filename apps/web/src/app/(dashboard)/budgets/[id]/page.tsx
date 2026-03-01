@@ -18,7 +18,17 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ArrowLeft } from 'lucide-react';
+import {
+  ArrowLeft,
+  FileText,
+  Home,
+  User,
+  Calendar,
+  AlignLeft,
+  Clock,
+  CalendarCheck,
+  StickyNote,
+} from 'lucide-react';
 import { BUDGET_STATUS_LABELS, UserRole } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -72,15 +82,49 @@ export default function BudgetDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-64 w-full" />
+      <div className="space-y-6">
+        <div className="flex items-start justify-between">
+          <div>
+            <Skeleton className="h-7 w-56" />
+            <Skeleton className="mt-1.5 h-4 w-36" />
+          </div>
+          <Skeleton className="h-9 w-24" />
+        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <Skeleton className="h-5 w-48" />
+            <Skeleton className="h-5 w-20 rounded-full" />
+          </CardHeader>
+          <CardContent>
+            <div className="bg-muted/40 rounded-lg p-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="space-y-1.5">
+                    <Skeleton className="h-3.5 w-24" />
+                    <Skeleton className="h-4 w-36" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (!budget) {
-    return <p className="text-muted-foreground">Presupuesto no encontrado</p>;
+    return (
+      <div className="flex flex-col items-center gap-2 py-16">
+        <FileText className="text-muted-foreground/50 h-10 w-10" />
+        <p className="text-muted-foreground text-sm">Presupuesto no encontrado</p>
+        <Button variant="outline" asChild className="mt-2">
+          <Link href="/budgets">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Volver a presupuestos
+          </Link>
+        </Button>
+      </div>
+    );
   }
 
   const isAdmin = user?.role === UserRole.ADMIN;
@@ -114,37 +158,54 @@ export default function BudgetDetailPage() {
           </Badge>
         </CardHeader>
         <CardContent>
-          <dl className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <dt className="text-muted-foreground text-sm">Título</dt>
-              <dd className="font-medium">{budget.title}</dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground text-sm">Propiedad</dt>
-              <dd className="font-medium">
-                {budget.property.address}, {budget.property.city}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground text-sm">Solicitante</dt>
-              <dd className="font-medium">{budget.requester.name}</dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground text-sm">Fecha</dt>
-              <dd className="font-medium">
-                {formatDistanceToNow(new Date(budget.createdAt), {
-                  addSuffix: true,
-                  locale: es,
-                })}
-              </dd>
-            </div>
-            {budget.description && (
-              <div className="sm:col-span-2">
-                <dt className="text-muted-foreground text-sm">Descripción</dt>
-                <dd className="font-medium">{budget.description}</dd>
+          <div className="bg-muted/40 rounded-lg p-4">
+            <dl className="grid gap-4 text-sm sm:grid-cols-2">
+              <div className="space-y-1">
+                <dt className="text-muted-foreground flex items-center gap-1.5">
+                  <FileText className="h-3.5 w-3.5" />
+                  Título
+                </dt>
+                <dd className="font-medium">{budget.title}</dd>
               </div>
-            )}
-          </dl>
+              <div className="space-y-1">
+                <dt className="text-muted-foreground flex items-center gap-1.5">
+                  <Home className="h-3.5 w-3.5" />
+                  Propiedad
+                </dt>
+                <dd className="font-medium">
+                  {budget.property.address}, {budget.property.city}
+                </dd>
+              </div>
+              <div className="space-y-1">
+                <dt className="text-muted-foreground flex items-center gap-1.5">
+                  <User className="h-3.5 w-3.5" />
+                  Solicitante
+                </dt>
+                <dd className="font-medium">{budget.requester.name}</dd>
+              </div>
+              <div className="space-y-1">
+                <dt className="text-muted-foreground flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5" />
+                  Fecha
+                </dt>
+                <dd className="font-medium">
+                  {formatDistanceToNow(new Date(budget.createdAt), {
+                    addSuffix: true,
+                    locale: es,
+                  })}
+                </dd>
+              </div>
+              {budget.description && (
+                <div className="space-y-1 sm:col-span-2">
+                  <dt className="text-muted-foreground flex items-center gap-1.5">
+                    <AlignLeft className="h-3.5 w-3.5" />
+                    Descripción
+                  </dt>
+                  <dd className="font-medium">{budget.description}</dd>
+                </div>
+              )}
+            </dl>
+          </div>
         </CardContent>
       </Card>
 
@@ -185,53 +246,72 @@ export default function BudgetDetailPage() {
             </div>
 
             {budget.response && (
-              <dl className="grid gap-4 sm:grid-cols-3">
-                {budget.response.estimatedDays && (
-                  <div>
-                    <dt className="text-muted-foreground text-sm">Días estimados</dt>
-                    <dd className="font-medium">{budget.response.estimatedDays} días</dd>
-                  </div>
-                )}
-                {budget.response.validUntil && (
-                  <div>
-                    <dt className="text-muted-foreground text-sm">Válido hasta</dt>
-                    <dd className="font-medium">
-                      {new Date(budget.response.validUntil).toLocaleDateString('es-AR')}
-                    </dd>
-                  </div>
-                )}
-                {budget.response.notes && (
-                  <div className="sm:col-span-3">
-                    <dt className="text-muted-foreground text-sm">Notas</dt>
-                    <dd className="font-medium">{budget.response.notes}</dd>
-                  </div>
-                )}
-              </dl>
+              <div className="bg-muted/40 rounded-lg p-4">
+                <dl className="grid gap-4 text-sm sm:grid-cols-3">
+                  {budget.response.estimatedDays && (
+                    <div className="space-y-1">
+                      <dt className="text-muted-foreground flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5" />
+                        Días estimados
+                      </dt>
+                      <dd className="font-medium">{budget.response.estimatedDays} días</dd>
+                    </div>
+                  )}
+                  {budget.response.validUntil && (
+                    <div className="space-y-1">
+                      <dt className="text-muted-foreground flex items-center gap-1.5">
+                        <CalendarCheck className="h-3.5 w-3.5" />
+                        Válido hasta
+                      </dt>
+                      <dd className="font-medium">
+                        {new Date(budget.response.validUntil).toLocaleDateString('es-AR')}
+                      </dd>
+                    </div>
+                  )}
+                  {budget.response.notes && (
+                    <div className="space-y-1 sm:col-span-3">
+                      <dt className="text-muted-foreground flex items-center gap-1.5">
+                        <StickyNote className="h-3.5 w-3.5" />
+                        Notas
+                      </dt>
+                      <dd className="font-medium">{budget.response.notes}</dd>
+                    </div>
+                  )}
+                </dl>
+              </div>
             )}
           </CardContent>
         </Card>
       )}
 
       {/* Action Buttons */}
-      <div className="flex gap-2">
-        {isAdmin && budget.status === 'PENDING' && (
-          <Button onClick={() => setRespondOpen(true)}>Cotizar</Button>
-        )}
-        {isClient && budget.status === 'QUOTED' && (
-          <>
-            <Button onClick={() => setConfirmAction('APPROVED')}>Aprobar</Button>
-            <Button variant="destructive" onClick={() => setConfirmAction('REJECTED')}>
-              Rechazar
-            </Button>
-          </>
-        )}
-        {isAdmin && budget.status === 'APPROVED' && (
-          <Button onClick={() => setConfirmAction('IN_PROGRESS')}>Iniciar Trabajo</Button>
-        )}
-        {isAdmin && budget.status === 'IN_PROGRESS' && (
-          <Button onClick={() => setConfirmAction('COMPLETED')}>Marcar Completado</Button>
-        )}
-      </div>
+      {(isAdmin &&
+        (budget.status === 'PENDING' ||
+          budget.status === 'APPROVED' ||
+          budget.status === 'IN_PROGRESS')) ||
+      (isClient && budget.status === 'QUOTED') ? (
+        <Card>
+          <CardContent className="flex gap-2 p-4">
+            {isAdmin && budget.status === 'PENDING' && (
+              <Button onClick={() => setRespondOpen(true)}>Cotizar</Button>
+            )}
+            {isClient && budget.status === 'QUOTED' && (
+              <>
+                <Button onClick={() => setConfirmAction('APPROVED')}>Aprobar</Button>
+                <Button variant="destructive" onClick={() => setConfirmAction('REJECTED')}>
+                  Rechazar
+                </Button>
+              </>
+            )}
+            {isAdmin && budget.status === 'APPROVED' && (
+              <Button onClick={() => setConfirmAction('IN_PROGRESS')}>Iniciar Trabajo</Button>
+            )}
+            {isAdmin && budget.status === 'IN_PROGRESS' && (
+              <Button onClick={() => setConfirmAction('COMPLETED')}>Marcar Completado</Button>
+            )}
+          </CardContent>
+        </Card>
+      ) : null}
 
       {/* Respond Dialog */}
       <RespondBudgetDialog open={respondOpen} onOpenChange={setRespondOpen} budgetId={id} />

@@ -8,7 +8,16 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import {
+  ArrowLeft,
+  MapPin,
+  Building,
+  Calendar,
+  Ruler,
+  User,
+  Home,
+  ClipboardList,
+} from 'lucide-react';
 import { PROPERTY_TYPE_LABELS, UserRole } from '@epde/shared';
 import Link from 'next/link';
 import { useAuthStore } from '@/stores/auth-store';
@@ -23,15 +32,49 @@ export default function PropertyDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-96 w-full" />
+      <div className="space-y-6">
+        <div className="flex items-start justify-between">
+          <div>
+            <Skeleton className="h-7 w-56" />
+            <Skeleton className="mt-1.5 h-4 w-36" />
+          </div>
+          <Skeleton className="h-9 w-24" />
+        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <Skeleton className="h-5 w-48" />
+            <Skeleton className="h-5 w-20 rounded-full" />
+          </CardHeader>
+          <CardContent>
+            <div className="bg-muted/40 rounded-lg p-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="space-y-1.5">
+                    <Skeleton className="h-3.5 w-24" />
+                    <Skeleton className="h-4 w-36" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (!property) {
-    return <p className="text-muted-foreground">Propiedad no encontrada</p>;
+    return (
+      <div className="flex flex-col items-center gap-2 py-16">
+        <Home className="text-muted-foreground/50 h-10 w-10" />
+        <p className="text-muted-foreground text-sm">Propiedad no encontrada</p>
+        <Button variant="outline" asChild className="mt-2">
+          <Link href="/properties">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Volver a propiedades
+          </Link>
+        </Button>
+      </div>
+    );
   }
 
   return (
@@ -64,30 +107,47 @@ export default function PropertyDetailPage() {
               </Badge>
             </CardHeader>
             <CardContent>
-              <dl className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <dt className="text-muted-foreground text-sm">Dirección</dt>
-                  <dd className="font-medium">{property.address}</dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground text-sm">Ciudad</dt>
-                  <dd className="font-medium">{property.city}</dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground text-sm">Año de construcción</dt>
-                  <dd className="font-medium">{property.yearBuilt ?? '—'}</dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground text-sm">Metros cuadrados</dt>
-                  <dd className="font-medium">{property.squareMeters ?? '—'}</dd>
-                </div>
-                {property.user && (
-                  <div>
-                    <dt className="text-muted-foreground text-sm">Cliente</dt>
-                    <dd className="font-medium">{property.user.name}</dd>
+              <div className="bg-muted/40 rounded-lg p-4">
+                <dl className="grid gap-4 text-sm sm:grid-cols-2">
+                  <div className="space-y-1">
+                    <dt className="text-muted-foreground flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5" />
+                      Dirección
+                    </dt>
+                    <dd className="font-medium">{property.address}</dd>
                   </div>
-                )}
-              </dl>
+                  <div className="space-y-1">
+                    <dt className="text-muted-foreground flex items-center gap-1.5">
+                      <Building className="h-3.5 w-3.5" />
+                      Ciudad
+                    </dt>
+                    <dd className="font-medium">{property.city}</dd>
+                  </div>
+                  <div className="space-y-1">
+                    <dt className="text-muted-foreground flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5" />
+                      Año de construcción
+                    </dt>
+                    <dd className="font-medium">{property.yearBuilt ?? '—'}</dd>
+                  </div>
+                  <div className="space-y-1">
+                    <dt className="text-muted-foreground flex items-center gap-1.5">
+                      <Ruler className="h-3.5 w-3.5" />
+                      Metros cuadrados
+                    </dt>
+                    <dd className="font-medium">{property.squareMeters ?? '—'}</dd>
+                  </div>
+                  {property.user && (
+                    <div className="space-y-1">
+                      <dt className="text-muted-foreground flex items-center gap-1.5">
+                        <User className="h-3.5 w-3.5" />
+                        Cliente
+                      </dt>
+                      <dd className="font-medium">{property.user.name}</dd>
+                    </div>
+                  )}
+                </dl>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -101,8 +161,11 @@ export default function PropertyDetailPage() {
             )
           ) : (
             <Card>
-              <CardContent className="p-6">
-                <p className="text-muted-foreground">No hay plan de mantenimiento asociado.</p>
+              <CardContent className="flex flex-col items-center gap-2 py-12">
+                <ClipboardList className="text-muted-foreground/50 h-8 w-8" />
+                <p className="text-muted-foreground text-sm">
+                  No hay plan de mantenimiento asociado.
+                </p>
               </CardContent>
             </Card>
           )}

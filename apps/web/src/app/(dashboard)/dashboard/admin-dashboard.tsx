@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/page-header';
 import { StatCard } from '@/components/stat-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Users, Home, AlertTriangle, FileText, Wrench } from 'lucide-react';
+import { Users, Home, AlertTriangle, FileText, Wrench, Activity } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -30,7 +30,12 @@ export function AdminDashboard() {
           <>
             <StatCard title="Clientes" value={stats.totalClients} icon={Users} />
             <StatCard title="Propiedades" value={stats.totalProperties} icon={Home} />
-            <StatCard title="Tareas Vencidas" value={stats.overdueTasks} icon={AlertTriangle} />
+            <StatCard
+              title="Tareas Vencidas"
+              value={stats.overdueTasks}
+              icon={AlertTriangle}
+              className={stats.overdueTasks > 0 ? 'border-destructive/30 bg-destructive/10' : ''}
+            />
             <StatCard
               title="Presupuestos Pendientes"
               value={stats.pendingBudgets}
@@ -55,19 +60,27 @@ export function AdminDashboard() {
           ) : activity && activity.length > 0 ? (
             <ul className="space-y-3">
               {activity.map((item) => (
-                <li key={item.id} className="flex items-center justify-between text-sm">
-                  <span>{item.description}</span>
-                  <span className="text-muted-foreground text-xs">
-                    {formatDistanceToNow(new Date(item.timestamp), {
-                      addSuffix: true,
-                      locale: es,
-                    })}
-                  </span>
+                <li key={item.id} className="flex items-start gap-3 rounded-lg border p-3">
+                  <div className="bg-muted mt-0.5 rounded-full p-2">
+                    <Activity className="h-4 w-4" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-sm font-medium">{item.description}</span>
+                    <span className="text-muted-foreground mt-0.5 block text-xs">
+                      {formatDistanceToNow(new Date(item.timestamp), {
+                        addSuffix: true,
+                        locale: es,
+                      })}
+                    </span>
+                  </div>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-muted-foreground text-sm">Sin actividad reciente</p>
+            <div className="flex flex-col items-center gap-2 py-8">
+              <Activity className="text-muted-foreground/50 h-8 w-8" />
+              <p className="text-muted-foreground text-sm">Sin actividad reciente</p>
+            </div>
           )}
         </CardContent>
       </Card>

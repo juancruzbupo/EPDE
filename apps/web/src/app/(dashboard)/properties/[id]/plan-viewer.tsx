@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FilterSelect } from '@/components/filter-select';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, ClipboardList } from 'lucide-react';
 import {
   TASK_PRIORITY_LABELS,
   RECURRENCE_TYPE_LABELS,
@@ -114,11 +114,14 @@ export function PlanViewer({ planId }: PlanViewerProps) {
           )}
 
           {filteredTasks.length === 0 ? (
-            <p className="text-muted-foreground py-8 text-center text-sm">
-              {tasks.length === 0
-                ? 'No hay tareas en este plan.'
-                : 'No hay tareas que coincidan con los filtros.'}
-            </p>
+            <div className="flex flex-col items-center gap-2 py-8">
+              <ClipboardList className="text-muted-foreground/50 h-8 w-8" />
+              <p className="text-muted-foreground text-sm">
+                {tasks.length === 0
+                  ? 'No hay tareas en este plan.'
+                  : 'No hay tareas que coincidan con los filtros.'}
+              </p>
+            </div>
           ) : (
             <div className="space-y-2">
               {filteredTasks.map((task) => {

@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Trash2 } from 'lucide-react';
+import { ArrowLeft, Trash2, User as UserIcon, Mail, Phone, Calendar } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ClientDetailPage() {
@@ -46,15 +46,49 @@ export default function ClientDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-64 w-full" />
+      <div className="space-y-6">
+        <div className="flex items-start justify-between">
+          <div>
+            <Skeleton className="h-7 w-56" />
+            <Skeleton className="mt-1.5 h-4 w-36" />
+          </div>
+          <Skeleton className="h-9 w-24" />
+        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <Skeleton className="h-5 w-48" />
+            <Skeleton className="h-5 w-20 rounded-full" />
+          </CardHeader>
+          <CardContent>
+            <div className="bg-muted/40 rounded-lg p-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="space-y-1.5">
+                    <Skeleton className="h-3.5 w-24" />
+                    <Skeleton className="h-4 w-36" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (!client) {
-    return <p className="text-muted-foreground">Cliente no encontrado</p>;
+    return (
+      <div className="flex flex-col items-center gap-2 py-16">
+        <UserIcon className="text-muted-foreground/50 h-10 w-10" />
+        <p className="text-muted-foreground text-sm">Cliente no encontrado</p>
+        <Button variant="outline" asChild className="mt-2">
+          <Link href="/clients">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Volver a clientes
+          </Link>
+        </Button>
+      </div>
+    );
   }
 
   return (
@@ -112,29 +146,43 @@ export default function ClientDetailPage() {
               </div>
             </form>
           ) : (
-            <dl className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <dt className="text-muted-foreground text-sm">Nombre</dt>
-                <dd className="font-medium">{client.name}</dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground text-sm">Email</dt>
-                <dd className="font-medium">{client.email}</dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground text-sm">Teléfono</dt>
-                <dd className="font-medium">{client.phone || '—'}</dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground text-sm">Fecha de creación</dt>
-                <dd className="font-medium">
-                  {formatDistanceToNow(new Date(client.createdAt), {
-                    addSuffix: true,
-                    locale: es,
-                  })}
-                </dd>
-              </div>
-            </dl>
+            <div className="bg-muted/40 rounded-lg p-4">
+              <dl className="grid gap-4 text-sm sm:grid-cols-2">
+                <div className="space-y-1">
+                  <dt className="text-muted-foreground flex items-center gap-1.5">
+                    <UserIcon className="h-3.5 w-3.5" />
+                    Nombre
+                  </dt>
+                  <dd className="font-medium">{client.name}</dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-muted-foreground flex items-center gap-1.5">
+                    <Mail className="h-3.5 w-3.5" />
+                    Email
+                  </dt>
+                  <dd className="font-medium">{client.email}</dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-muted-foreground flex items-center gap-1.5">
+                    <Phone className="h-3.5 w-3.5" />
+                    Teléfono
+                  </dt>
+                  <dd className="font-medium">{client.phone || '—'}</dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-muted-foreground flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5" />
+                    Fecha de creación
+                  </dt>
+                  <dd className="font-medium">
+                    {formatDistanceToNow(new Date(client.createdAt), {
+                      addSuffix: true,
+                      locale: es,
+                    })}
+                  </dd>
+                </div>
+              </dl>
+            </div>
           )}
         </CardContent>
       </Card>
