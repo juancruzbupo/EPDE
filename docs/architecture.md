@@ -44,12 +44,14 @@ epde/
           data-table/   # DataTable reutilizable (TanStack Table)
           landing/      # Landing page publica
           layout/       # Header + Sidebar
-          ui/           # shadcn/ui components
+          ui/           # shadcn/ui components + AnimatedNumber
+          health-card.tsx # Salud del mantenimiento (Framer Motion)
           __tests__/    # Tests (vitest + jsdom + @testing-library/react)
         hooks/          # React Query hooks por entidad
           __tests__/    # Tests de hooks
         lib/
           api/          # Axios client + funciones API por entidad
+          motion.ts     # Sistema de animacion Framer Motion (duraciones, hooks)
         providers/      # QueryProvider, AuthProvider
         stores/         # Zustand stores
       vitest.config.ts  # Vitest + jsdom config
@@ -62,13 +64,22 @@ epde/
           budget/       # Detalle de presupuesto [id]
           service-requests/ # Lista y detalle
           task/         # Detalle de tarea [planId]/[taskId]
-        components/     # StatusBadge, EmptyState, StatCard, Modals
+        components/     # StatusBadge, EmptyState, StatCard, HealthCard, Modals
           __tests__/    # Tests (jest-expo + @testing-library/react-native)
+          animated-list-item.tsx  # Item con animacion fade+slide + haptics
+          animated-number.tsx     # Numero animado (conteo)
+          collapsible-section.tsx # Seccion expandible con chevron
+          health-card.tsx         # Salud del mantenimiento (barra + %)
+          swipeable-row.tsx       # Fila deslizable con acciones (gestos)
+          error-state.tsx         # Estado de error con retry
         hooks/          # React Query hooks (infinite scroll)
         lib/
           api/          # Funciones API por entidad
           api-client.ts # Axios con token refresh
           token-service.ts # Expo SecureStore
+          fonts.ts      # TYPE scale tipografica
+          haptics.ts    # Wrapper expo-haptics
+          animations.ts # Presets reanimated (TIMING, SPRING, hooks)
         stores/         # Zustand auth store
       jest.config.js    # Jest + jest-expo config
   packages/

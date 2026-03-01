@@ -79,6 +79,64 @@ El proyecto usa Tailwind CSS 4 con `@theme inline` en `globals.css`. Los tokens 
 <h1 className="font-heading text-3xl font-bold">EPDE</h1>
 ```
 
+### Escala Tipografica (TYPE Scale)
+
+Sistema unificado de tipografia aplicado en web y mobile. Define combinaciones de `font-family`, `fontSize`, `lineHeight` y `fontWeight` para consistencia cross-platform.
+
+**Web — Utility classes** (definidas en `globals.css` `@layer utilities`):
+
+| Clase             | Font                  | Size | Line Height | Weight |
+| ----------------- | --------------------- | ---- | ----------- | ------ |
+| `type-display-lg` | `var(--font-heading)` | 28px | 34px        | 700    |
+| `type-display-sm` | `var(--font-heading)` | 22px | 28px        | 700    |
+| `type-title-lg`   | inherit               | 18px | 24px        | 700    |
+| `type-title-md`   | inherit               | 16px | 22px        | 700    |
+| `type-title-sm`   | inherit               | 14px | 20px        | 700    |
+| `type-body-lg`    | inherit               | 16px | 22px        | 400    |
+| `type-body-md`    | inherit               | 14px | 20px        | 400    |
+| `type-body-sm`    | inherit               | 12px | 16px        | 400    |
+| `type-label-lg`   | inherit               | 14px | 20px        | 500    |
+| `type-label-md`   | inherit               | 12px | 16px        | 500    |
+| `type-label-sm`   | inherit               | 11px | 14px        | 500    |
+| `type-number-lg`  | inherit               | 24px | 30px        | 700    |
+| `type-number-md`  | inherit               | 18px | 24px        | 700    |
+
+```tsx
+// Web — usar clases type-*
+<p className="type-title-md text-foreground">Salud del Mantenimiento</p>
+<span className="type-label-sm text-muted-foreground">Completadas</span>
+<span className="type-number-lg text-green-600">95</span>
+```
+
+**Mobile — TYPE object** (definido en `lib/fonts.ts`):
+
+```tsx
+import { TYPE } from '@/lib/fonts';
+
+// Mobile — usar style={TYPE.xxx}
+<Text style={TYPE.titleMd} className="text-foreground">Salud del Mantenimiento</Text>
+<Text style={TYPE.labelSm} className="text-muted-foreground">Completadas</Text>
+<Text style={[TYPE.numberLg, { color }]}>{percent}</Text>
+```
+
+| Token       | Font Family             | Size | Line Height |
+| ----------- | ----------------------- | ---- | ----------- |
+| `displayLg` | PlayfairDisplay_700Bold | 28px | 34px        |
+| `displaySm` | PlayfairDisplay_700Bold | 22px | 28px        |
+| `titleLg`   | DMSans_700Bold          | 18px | 24px        |
+| `titleMd`   | DMSans_700Bold          | 16px | 22px        |
+| `titleSm`   | DMSans_700Bold          | 14px | 20px        |
+| `bodyLg`    | DMSans_400Regular       | 16px | 22px        |
+| `bodyMd`    | DMSans_400Regular       | 14px | 20px        |
+| `bodySm`    | DMSans_400Regular       | 12px | 16px        |
+| `labelLg`   | DMSans_500Medium        | 14px | 20px        |
+| `labelMd`   | DMSans_500Medium        | 12px | 16px        |
+| `labelSm`   | DMSans_500Medium        | 11px | 14px        |
+| `numberLg`  | DMSans_700Bold          | 24px | 30px        |
+| `numberMd`  | DMSans_700Bold          | 18px | 24px        |
+
+**Nota:** En mobile, las clases NativeWind de tamano (`text-xs`, `text-sm`, `text-base`, etc.) se eliminaron porque el `fontSize` viene del TYPE. Solo se mantienen clases de color (`text-foreground`, `text-muted-foreground`, etc.).
+
 ### Uso en componentes
 
 ```tsx
@@ -410,10 +468,118 @@ La app mobile replica el design system web usando **NativeWind 5** (Tailwind CSS
 | --------------------------- | -------------------------------------------------------------------------- |
 | `StatusBadge`               | Badge con variantes por estado/prioridad/urgencia                          |
 | `EmptyState`                | Placeholder para listas vacias                                             |
-| `StatCard`                  | Tarjeta de estadistica del dashboard                                       |
+| `ErrorState`                | Estado de error con boton de reintentar                                    |
+| `StatCard`                  | Tarjeta de estadistica compacta                                            |
+| `HealthCard`                | Barra de progreso animada de salud del mantenimiento (%, label, colores)   |
+| `AnimatedListItem`          | Item de lista con animacion de entrada (fade + slide) y haptics            |
+| `AnimatedNumber`            | Numero con animacion de conteo (reanimated)                                |
+| `CollapsibleSection`        | Seccion expandible con chevron animado y haptics                           |
+| `SwipeableRow`              | Fila deslizable con acciones (Gesture.Pan + reanimated + haptics)          |
 | `CreateBudgetModal`         | Modal de creacion de presupuesto                                           |
 | `CreateServiceRequestModal` | Modal con upload de fotos (camara/galeria)                                 |
 | `CompleteTaskModal`         | Modal con 4 selectores (resultado, estado, ejecutor, accion), costo y nota |
+
+### Componentes Web (custom)
+
+| Componente       | Descripcion                                                          |
+| ---------------- | -------------------------------------------------------------------- |
+| `HealthCard`     | Barra de progreso animada (Framer Motion) de salud del mantenimiento |
+| `AnimatedNumber` | Numero con animacion de conteo (Framer Motion `useSpring`)           |
+| `StatCard`       | Tarjeta de estadistica con icono y valor                             |
+
+## Animaciones
+
+### Web — Framer Motion
+
+Sistema de animacion centralizado en `lib/motion.ts`:
+
+```typescript
+import { useMotionPreference, MOTION_DURATION } from '@/lib/motion';
+
+const { shouldAnimate } = useMotionPreference(); // respeta prefers-reduced-motion
+
+// Duraciones estandar
+MOTION_DURATION.fast; // 150ms
+MOTION_DURATION.normal; // 250ms
+MOTION_DURATION.slow; // 400ms
+```
+
+- `HealthCard`: barra de progreso con ease-out y `AnimatedNumber` para porcentaje
+- Respeta `prefers-reduced-motion` — animaciones deshabilitadas si el usuario lo prefiere
+
+### Mobile — React Native Reanimated 4.1
+
+Sistema de animacion centralizado en `lib/animations.ts`:
+
+```typescript
+import { TIMING, SPRING, useReducedMotion, useSlideIn, useFadeIn } from '@/lib/animations';
+
+const reduced = useReducedMotion(); // hook para respetar accesibilidad
+const slideStyle = useSlideIn('bottom'); // animacion de entrada desde abajo
+
+// Presets de timing
+TIMING.fast; // 150ms
+TIMING.normal; // 250ms
+TIMING.slow; // 400ms
+
+// Presets de spring
+SPRING.gentle; // damping: 15, stiffness: 100
+SPRING.stiff; // damping: 20, stiffness: 200
+```
+
+**Principio:** Toda animacion se deshabilita si `useReducedMotion()` retorna `true`. Los componentes (`SwipeableRow`, `CollapsibleSection`, `AnimatedListItem`, `HealthCard`) verifican esto internamente.
+
+## Haptics (Mobile)
+
+Servicio wrapper de `expo-haptics` en `lib/haptics.ts`:
+
+```typescript
+import { haptics } from '@/lib/haptics';
+
+haptics.light(); // Tap, list item press
+haptics.medium(); // Acciones importantes (aprobar, rechazar)
+haptics.heavy(); // No usado actualmente
+haptics.success(); // Submit exitoso (completar tarea, crear presupuesto)
+haptics.warning(); // No usado actualmente
+haptics.error(); // No usado actualmente
+haptics.selection(); // Tab press, toggle
+```
+
+**Donde se usa:**
+
+| Componente/Pantalla         | Evento            | Tipo                  |
+| --------------------------- | ----------------- | --------------------- |
+| `AnimatedListItem`          | `onPressIn`       | `haptics.light()`     |
+| `CompleteTaskModal`         | Submit exitoso    | `haptics.success()`   |
+| `CreateBudgetModal`         | Submit exitoso    | `haptics.success()`   |
+| `CreateServiceRequestModal` | Submit exitoso    | `haptics.success()`   |
+| `CollapsibleSection`        | Toggle            | `haptics.light()`     |
+| `SwipeableRow`              | Threshold cruzado | `haptics.light()`     |
+| Tab navigator `_layout`     | Tab press         | `haptics.selection()` |
+| Notificaciones              | Mark as read      | `haptics.light()`     |
+| Notificaciones              | Mark all as read  | `haptics.medium()`    |
+| Budget detail               | Aprobar/Rechazar  | `haptics.medium()`    |
+
+## Gestos (Mobile)
+
+### SwipeableRow
+
+Componente generico para filas deslizables con `Gesture.Pan` de react-native-gesture-handler:
+
+```tsx
+<SwipeableRow
+  rightActions={[{ icon: '✓', color: '#6b9b7a', onPress: handleComplete }]}
+  threshold={72}
+>
+  <TaskCard ... />
+</SwipeableRow>
+```
+
+- Swipe izquierda revela acciones a la derecha
+- Haptic feedback al cruzar threshold
+- Spring back al soltar
+- Deshabilitado si `useReducedMotion()` retorna `true`
+- Usado en: notificaciones (marcar como leida), tareas en property detail (completar tarea)
 
 ### Uso de Colores en Mobile
 

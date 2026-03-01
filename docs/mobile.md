@@ -16,6 +16,9 @@ App nativa para clientes (rol `CLIENT`) construida con Expo + React Native. Repl
 | HTTP           | Axios                                          | 1.13    |
 | Token Storage  | expo-secure-store                              | 15      |
 | Image Picker   | expo-image-picker                              | 17      |
+| Animaciones    | react-native-reanimated                        | 4.1     |
+| Gestos         | react-native-gesture-handler                   | 2.28    |
+| Haptics        | expo-haptics                                   | 15      |
 | Tipografia     | @expo-google-fonts (DM Sans, Playfair Display) | -       |
 | Shared         | @epde/shared (workspace)                       | -       |
 
@@ -51,7 +54,13 @@ apps/mobile/
     components/
       status-badge.tsx                # Badge con variantes por entidad
       empty-state.tsx                 # Placeholder para listas vacias
-      stat-card.tsx                   # Tarjeta de estadistica
+      error-state.tsx                 # Estado de error con retry
+      stat-card.tsx                   # Tarjeta de estadistica compacta
+      health-card.tsx                 # Salud del mantenimiento (barra + %)
+      animated-list-item.tsx          # Item con animacion fade+slide + haptics
+      animated-number.tsx             # Numero con animacion de conteo
+      collapsible-section.tsx         # Seccion expandible con chevron animado
+      swipeable-row.tsx               # Fila deslizable con acciones (gestos)
       create-budget-modal.tsx         # Modal crear presupuesto
       create-service-request-modal.tsx # Modal crear solicitud (con fotos)
       complete-task-modal.tsx         # Modal completar tarea (con foto)
@@ -69,6 +78,9 @@ apps/mobile/
       token-service.ts               # SecureStore abstraction
       query-persister.ts             # AsyncStorage persister para offline cache
       auth.ts                        # Funciones de auth API
+      fonts.ts                       # TYPE scale tipografica + font families
+      haptics.ts                     # Wrapper de expo-haptics (light/medium/success/selection)
+      animations.ts                  # Presets reanimated (TIMING, SPRING, useSlideIn, useFadeIn)
       api/
         dashboard.ts                 # GET /dashboard/client-stats, client-upcoming
         properties.ts                # GET /properties
@@ -99,7 +111,7 @@ Componente `AuthGate` que decide la ruta segun el estado de autenticacion:
 - No autenticado → `/(auth)/login`
 - Autenticado → `/(tabs)`
 
-Wraps: `ErrorBoundary` → `PersistQueryClientProvider` (offline cache, gcTime 24h) → `AuthGate` → rutas
+Wraps: `GestureHandlerRootView` → `ErrorBoundary` → `PersistQueryClientProvider` (offline cache, gcTime 24h) → `AuthGate` → rutas
 
 ### Tabs (5 pantallas)
 
@@ -179,9 +191,10 @@ const apiClient = axios.create({
 
 ### Dashboard (Mi Panel)
 
-- 6 tarjetas de estadisticas (propiedades, tareas pendientes/vencidas/completadas, presupuestos, solicitudes)
+- **HealthCard**: barra de progreso animada con porcentaje de salud del mantenimiento y label de estado (Excelente/Bueno/Necesita atencion/Critico)
+- 3 tarjetas de estadisticas compactas (vencidas, pendientes, completadas del mes)
 - Boton rapido a solicitudes de servicio
-- Lista de tareas proximas (por prioridad y fecha)
+- Lista de tareas proximas con `AnimatedListItem` (entrada animada + haptics)
 - Pull-to-refresh
 - Usa `FlatList` con `ListHeaderComponent` para renderizado virtualizado eficiente
 
@@ -202,9 +215,9 @@ const apiClient = axios.create({
 ### Detalle de Tarea
 
 - Info completa: nombre, descripcion, estado, prioridad, recurrencia, categoria
-- Boton "Completar Tarea" → modal con notas y foto
-- Historial de completados (logs)
-- Seccion de comentarios/notas
+- Boton "Completar Tarea" → modal con 4 selectores, costo y foto
+- Historial de completados (logs) — `CollapsibleSection` expandible
+- Seccion de comentarios/notas — `CollapsibleSection` expandible
 
 ### Presupuestos
 
@@ -232,8 +245,9 @@ const apiClient = axios.create({
 - Lista con scroll infinito
 - Distincion visual: no leidas (fondo tintado + titulo bold + dot indicador)
 - Iconos por tipo: Tarea 🕐, Presupuesto 📋, Servicio 🔧, Sistema 🔔
+- **Swipe derecha**: marcar como leida (SwipeableRow con icono ✓ verde)
 - Tap → marca como leida
-- Boton "Marcar todas como leidas"
+- Boton "Marcar todas como leidas" (haptics medium)
 - Auto-refresh del conteo cada 30 segundos
 
 ### Perfil
@@ -293,6 +307,61 @@ Las queries de React Query se persisten automaticamente en `AsyncStorage` via `P
 - Al abrir la app sin conexion, los datos del ultimo uso se muestran inmediatamente
 - Las queries se revalidan automaticamente cuando hay conexion
 - En logout, se limpian todas las keys de cache (`epde-query-cache*`) de AsyncStorage
+
+### Tipografia (TYPE Scale)
+
+Escala tipografica centralizada en `lib/fonts.ts`. Reemplaza el uso de `style={{ fontFamily: '...' }}` + clases NativeWind de tamano sueltas:
+
+```tsx
+import { TYPE } from '@/lib/fonts';
+
+// Antes (inline):
+<Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-lg">Titulo</Text>
+
+// Ahora (TYPE scale):
+<Text style={TYPE.titleLg} className="text-foreground">Titulo</Text>
+```
+
+Las clases NativeWind de tamano (`text-xs`, `text-sm`, etc.) se eliminaron de los componentes migrados porque el `fontSize` viene del TYPE. Solo se mantienen clases de color.
+
+Ver tabla completa de tokens en [design-system.md](design-system.md#escala-tipografica-type-scale).
+
+### Haptics
+
+Servicio wrapper de `expo-haptics` en `lib/haptics.ts`. Proporciona feedback tactil en interacciones clave:
+
+- `haptics.light()` — taps, list items, swipe threshold
+- `haptics.medium()` — acciones importantes (aprobar/rechazar)
+- `haptics.success()` — submits exitosos (completar tarea, crear presupuesto)
+- `haptics.selection()` — tab press, toggles
+
+### Animaciones (Reanimated 4.1)
+
+Presets centralizados en `lib/animations.ts`:
+
+- **TIMING**: `fast` (150ms), `normal` (250ms), `slow` (400ms)
+- **SPRING**: `gentle` (damping 15, stiffness 100), `stiff` (damping 20, stiffness 200)
+- **Hooks**: `useSlideIn(direction)`, `useFadeIn()`, `useReducedMotion()`
+- Todos los componentes animados respetan `useReducedMotion()` — accesibilidad first
+
+### Gestos (react-native-gesture-handler)
+
+`GestureHandlerRootView` wrappea toda la app en `_layout.tsx`. Componente `SwipeableRow` disponible para filas deslizables:
+
+- Usa `Gesture.Pan` para deteccion de swipe horizontal
+- Revela acciones bajo el contenido (absolute positioned)
+- Spring back al soltar si no supera threshold
+- Haptic feedback al cruzar threshold
+- Se deshabilita automaticamente con reduced motion
+- Usado en: notificaciones (marcar como leida), tareas en property detail (completar)
+
+### Densidad de Cards
+
+Patron de densidad compacta aplicado a todas las cards mobile:
+
+- Padding reducido: `p-4` → `p-3`
+- Gaps reducidos: `mb-3` → `mb-2`
+- Metadata compactada en una linea con separador `·` (ej: `Buenos Aires · 2015 · 180 m²`)
 
 ### Error Boundary
 
