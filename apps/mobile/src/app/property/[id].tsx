@@ -7,11 +7,17 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useProperty } from '@/hooks/use-properties';
 import { usePlan } from '@/hooks/use-maintenance-plans';
+import { AnimatedListItem } from '@/components/animated-list-item';
+import { SwipeableRow } from '@/components/swipeable-row';
+import { CompleteTaskModal } from '@/components/complete-task-modal';
 import { TaskStatusBadge, PriorityBadge, PropertyTypeBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
+import { useAnimatedEntry } from '@/lib/animations';
+import { TYPE } from '@/lib/fonts';
 import type { TaskPublic } from '@epde/shared/types';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -39,23 +45,19 @@ function TaskCard({ task, planId }: { task: TaskPublic; planId: string }) {
 
   return (
     <Pressable
-      className="border-border bg-card mb-2 rounded-xl border p-4"
+      className="border-border bg-card mb-2 rounded-xl border p-3"
       onPress={() => router.push(`/task/${planId}/${task.id}` as never)}
     >
       <View className="mb-1 flex-row items-center gap-2">
         <View className={`h-2.5 w-2.5 rounded-full ${statusDotColor}`} />
-        <Text
-          style={{ fontFamily: 'DMSans_700Bold' }}
-          className="text-foreground flex-1 text-sm"
-          numberOfLines={1}
-        >
+        <Text style={TYPE.titleSm} className="text-foreground flex-1" numberOfLines={1}>
           {task.name}
         </Text>
         <PriorityBadge priority={task.priority} />
       </View>
       <View className="ml-4 flex-row items-center justify-between">
         <TaskStatusBadge status={task.status} />
-        <Text style={{ fontFamily: 'DMSans_400Regular' }} className="text-muted-foreground text-xs">
+        <Text style={TYPE.bodySm} className="text-muted-foreground">
           {task.nextDueDate
             ? formatDistanceToNow(new Date(task.nextDueDate), { addSuffix: true, locale: es })
             : 'Según detección'}
@@ -68,7 +70,9 @@ function TaskCard({ task, planId }: { task: TaskPublic; planId: string }) {
 export default function PropertyDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
+  const [completeTask, setCompleteTask] = useState<TaskPublic | null>(null);
 
+  const infoCardStyle = useAnimatedEntry();
   const { data: property, isLoading: propertyLoading, refetch: refetchProperty } = useProperty(id);
   const planId = property?.maintenancePlan?.id;
   const { data: plan, isLoading: planLoading, refetch: refetchPlan } = usePlan(planId ?? '');
@@ -139,44 +143,29 @@ export default function PropertyDetailScreen() {
         ListHeaderComponent={
           <View>
             {/* Property info card */}
-            <View className="border-border bg-card mb-4 rounded-xl border p-4">
-              <View className="mb-2 flex-row items-center justify-between">
-                <Text
-                  style={{ fontFamily: 'DMSans_700Bold' }}
-                  className="text-foreground flex-1 text-lg"
-                >
+            <Animated.View
+              style={infoCardStyle}
+              className="border-border bg-card mb-4 rounded-xl border p-3"
+            >
+              <View className="mb-1 flex-row items-center justify-between">
+                <Text style={TYPE.titleLg} className="text-foreground flex-1">
                   {property.address}
                 </Text>
                 <PropertyTypeBadge type={property.type} />
               </View>
-              <Text
-                style={{ fontFamily: 'DMSans_400Regular' }}
-                className="text-muted-foreground mb-2 text-sm"
-              >
-                {property.city}
+              <Text style={TYPE.bodySm} className="text-muted-foreground">
+                {[
+                  property.city,
+                  property.yearBuilt && `${property.yearBuilt}`,
+                  property.squareMeters && `${property.squareMeters} m²`,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
               </Text>
-              <View className="flex-row gap-4">
-                {property.yearBuilt && (
-                  <Text
-                    style={{ fontFamily: 'DMSans_400Regular' }}
-                    className="text-muted-foreground text-xs"
-                  >
-                    Ano: {property.yearBuilt}
-                  </Text>
-                )}
-                {property.squareMeters && (
-                  <Text
-                    style={{ fontFamily: 'DMSans_400Regular' }}
-                    className="text-muted-foreground text-xs"
-                  >
-                    {property.squareMeters} m2
-                  </Text>
-                )}
-              </View>
-            </View>
+            </Animated.View>
 
             {/* Plan section title */}
-            <Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-foreground mb-3 text-lg">
+            <Text style={TYPE.titleLg} className="text-foreground mb-3">
               Plan de Mantenimiento
             </Text>
 
@@ -199,10 +188,10 @@ export default function PropertyDetailScreen() {
                     }`}
                   >
                     <Text
-                      style={{ fontFamily: 'DMSans_500Medium' }}
-                      className={`text-xs ${
+                      style={TYPE.labelMd}
+                      className={
                         statusFilter === f.key ? 'text-primary-foreground' : 'text-muted-foreground'
-                      }`}
+                      }
                     >
                       {f.label}
                     </Text>
@@ -212,12 +201,21 @@ export default function PropertyDetailScreen() {
             )}
           </View>
         }
-        renderItem={({ item }) => <TaskCard task={item} planId={planId!} />}
+        renderItem={({ item, index }) => (
+          <AnimatedListItem index={index}>
+            <SwipeableRow
+              rightActions={
+                item.status !== 'COMPLETED'
+                  ? [{ icon: '✓', color: '#6b9b7a', onPress: () => setCompleteTask(item) }]
+                  : []
+              }
+            >
+              <TaskCard task={item} planId={planId!} />
+            </SwipeableRow>
+          </AnimatedListItem>
+        )}
         renderSectionHeader={({ section: { title } }) => (
-          <Text
-            style={{ fontFamily: 'DMSans_700Bold' }}
-            className="text-foreground bg-background mt-2 mb-2 text-sm"
-          >
+          <Text style={TYPE.titleSm} className="text-foreground bg-background mt-2 mb-2">
             {title}
           </Text>
         )}
@@ -230,6 +228,15 @@ export default function PropertyDetailScreen() {
           ) : null
         }
       />
+
+      {completeTask && planId && (
+        <CompleteTaskModal
+          visible={!!completeTask}
+          onClose={() => setCompleteTask(null)}
+          task={completeTask}
+          planId={planId}
+        />
+      )}
     </View>
   );
 }

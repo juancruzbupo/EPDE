@@ -12,6 +12,7 @@ import {
   DMSans_700Bold,
 } from '@expo-google-fonts/dm-sans';
 import { PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { useAuthStore } from '@/stores/auth-store';
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -89,14 +90,16 @@ export default function RootLayout() {
   }
 
   return (
-    <ErrorBoundary>
-      <PersistQueryClientProvider
-        client={queryClient}
-        persistOptions={{ persister: asyncStoragePersister }}
-      >
-        <AuthGate />
-        <StatusBar style="dark" />
-      </PersistQueryClientProvider>
-    </ErrorBoundary>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ErrorBoundary>
+        <PersistQueryClientProvider
+          client={queryClient}
+          persistOptions={{ persister: asyncStoragePersister }}
+        >
+          <AuthGate />
+          <StatusBar style="dark" />
+        </PersistQueryClientProvider>
+      </ErrorBoundary>
+    </GestureHandlerRootView>
   );
 }

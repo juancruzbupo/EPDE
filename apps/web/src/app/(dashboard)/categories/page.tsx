@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { PageTransition } from '@/components/ui/page-transition';
 import { CategoryDialog } from './category-dialog';
 import type { CategoryPublic } from '@/lib/api/categories';
 
@@ -28,7 +29,7 @@ export default function CategoriesPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   return (
-    <div>
+    <PageTransition>
       <PageHeader
         title="Categorías"
         description="Categorías de tareas de mantenimiento"
@@ -126,6 +127,6 @@ export default function CategoriesPage() {
         }}
         isLoading={deleteCategory.isPending}
       />
-    </div>
+    </PageTransition>
   );
 }

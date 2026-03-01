@@ -12,8 +12,11 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
+import Animated from 'react-native-reanimated';
 import * as ImagePicker from 'expo-image-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSlideIn } from '@/lib/animations';
+import { haptics } from '@/lib/haptics';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createServiceRequestSchema } from '@epde/shared';
@@ -21,6 +24,7 @@ import type { CreateServiceRequestInput } from '@epde/shared';
 import { useCreateServiceRequest } from '@/hooks/use-service-requests';
 import { useProperties } from '@/hooks/use-properties';
 import { useUploadFile } from '@/hooks/use-upload';
+import { TYPE } from '@/lib/fonts';
 import type { PropertyPublic } from '@epde/shared/types';
 
 const URGENCY_OPTIONS = [
@@ -37,6 +41,7 @@ interface CreateServiceRequestModalProps {
 
 export function CreateServiceRequestModal({ visible, onClose }: CreateServiceRequestModalProps) {
   const insets = useSafeAreaInsets();
+  const contentStyle = useSlideIn('bottom');
   const [photos, setPhotos] = useState<{ uri: string; uploadedUrl?: string }[]>([]);
   const [uploadingCount, setUploadingCount] = useState(0);
 
@@ -148,11 +153,13 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
       },
       {
         onSuccess: () => {
+          haptics.success();
           reset();
           setPhotos([]);
           onClose();
         },
         onError: () => {
+          haptics.error();
           Alert.alert('Error', 'No se pudo crear la solicitud.');
         },
       },
@@ -198,29 +205,26 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
           className="border-border flex-row items-center justify-between border-b px-4 py-3"
         >
           <Pressable onPress={handleClose}>
-            <Text
-              style={{ fontFamily: 'DMSans_500Medium' }}
-              className="text-muted-foreground text-base"
-            >
+            <Text style={TYPE.labelLg} className="text-muted-foreground">
               Cancelar
             </Text>
           </Pressable>
-          <Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-foreground text-base">
+          <Text style={TYPE.titleMd} className="text-foreground">
             Nueva Solicitud
           </Text>
           <Pressable onPress={handleSubmit(onSubmit)} disabled={!canSubmit || isSubmitting}>
             <Text
-              style={{ fontFamily: 'DMSans_700Bold' }}
-              className={`text-base ${!canSubmit || isSubmitting ? 'text-muted-foreground' : 'text-primary'}`}
+              style={TYPE.titleMd}
+              className={!canSubmit || isSubmitting ? 'text-muted-foreground' : 'text-primary'}
             >
               {isSubmitting ? 'Creando...' : 'Crear'}
             </Text>
           </Pressable>
         </View>
 
-        <ScrollView contentContainerStyle={{ padding: 16 }}>
+        <Animated.ScrollView style={contentStyle} contentContainerStyle={{ padding: 16 }}>
           {/* Property selector */}
-          <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground mb-2 text-sm">
+          <Text style={TYPE.labelLg} className="text-foreground mb-2">
             Propiedad
           </Text>
           <ScrollView
@@ -239,23 +243,23 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
                 }`}
               >
                 <Text
-                  style={{ fontFamily: 'DMSans_500Medium' }}
-                  className={`text-sm ${
+                  style={TYPE.labelLg}
+                  className={
                     selectedPropertyId === property.id
                       ? 'text-primary-foreground'
                       : 'text-foreground'
-                  }`}
+                  }
                   numberOfLines={1}
                 >
                   {property.address}
                 </Text>
                 <Text
-                  style={{ fontFamily: 'DMSans_400Regular' }}
-                  className={`text-xs ${
+                  style={TYPE.bodySm}
+                  className={
                     selectedPropertyId === property.id
                       ? 'text-primary-foreground/70'
                       : 'text-muted-foreground'
-                  }`}
+                  }
                 >
                   {property.city}
                 </Text>
@@ -268,17 +272,14 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
             )}
           </ScrollView>
           {errors.propertyId && (
-            <Text
-              style={{ fontFamily: 'DMSans_400Regular' }}
-              className="text-destructive mb-2 text-xs"
-            >
+            <Text style={TYPE.bodySm} className="text-destructive mb-2">
               {errors.propertyId.message}
             </Text>
           )}
           {!errors.propertyId && <View className="mb-4" />}
 
           {/* Title */}
-          <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground mb-2 text-sm">
+          <Text style={TYPE.labelLg} className="text-foreground mb-2">
             Titulo
           </Text>
           <Controller
@@ -292,23 +293,20 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
                 placeholder="Describir brevemente el problema..."
                 placeholderTextColor="#4a4542"
                 maxLength={200}
-                style={{ fontFamily: 'DMSans_400Regular' }}
-                className="border-border bg-card text-foreground mb-1 rounded-xl border p-3 text-sm"
+                style={TYPE.bodyMd}
+                className="border-border bg-card text-foreground mb-1 rounded-xl border p-3"
               />
             )}
           />
           {errors.title && (
-            <Text
-              style={{ fontFamily: 'DMSans_400Regular' }}
-              className="text-destructive mb-3 text-xs"
-            >
+            <Text style={TYPE.bodySm} className="text-destructive mb-3">
               {errors.title.message}
             </Text>
           )}
           {!errors.title && <View className="mb-4" />}
 
           {/* Description */}
-          <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground mb-2 text-sm">
+          <Text style={TYPE.labelLg} className="text-foreground mb-2">
             Descripcion
           </Text>
           <Controller
@@ -323,27 +321,20 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
                 placeholderTextColor="#4a4542"
                 multiline
                 maxLength={2000}
-                style={{
-                  fontFamily: 'DMSans_400Regular',
-                  minHeight: 100,
-                  textAlignVertical: 'top',
-                }}
-                className="border-border bg-card text-foreground mb-1 rounded-xl border p-3 text-sm"
+                style={[TYPE.bodyMd, { minHeight: 100, textAlignVertical: 'top' }]}
+                className="border-border bg-card text-foreground mb-1 rounded-xl border p-3"
               />
             )}
           />
           {errors.description && (
-            <Text
-              style={{ fontFamily: 'DMSans_400Regular' }}
-              className="text-destructive mb-3 text-xs"
-            >
+            <Text style={TYPE.bodySm} className="text-destructive mb-3">
               {errors.description.message}
             </Text>
           )}
           {!errors.description && <View className="mb-4" />}
 
           {/* Urgency */}
-          <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground mb-2 text-sm">
+          <Text style={TYPE.labelLg} className="text-foreground mb-2">
             Urgencia
           </Text>
           <View className="mb-4 flex-row gap-2">
@@ -356,8 +347,8 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
                 }`}
               >
                 <Text
-                  style={{ fontFamily: 'DMSans_500Medium' }}
-                  className={`text-xs ${urgency === opt.key ? 'text-primary-foreground' : 'text-foreground'}`}
+                  style={TYPE.labelMd}
+                  className={urgency === opt.key ? 'text-primary-foreground' : 'text-foreground'}
                 >
                   {opt.label}
                 </Text>
@@ -366,7 +357,7 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
           </View>
 
           {/* Photos */}
-          <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground mb-2 text-sm">
+          <Text style={TYPE.labelLg} className="text-foreground mb-2">
             Fotos (opcional, max 5)
           </Text>
           <ScrollView
@@ -395,17 +386,16 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
                 onPress={pickImage}
                 className="border-border h-24 w-24 items-center justify-center rounded-xl border border-dashed"
               >
-                <Text className="text-muted-foreground text-2xl">+</Text>
-                <Text
-                  style={{ fontFamily: 'DMSans_400Regular' }}
-                  className="text-muted-foreground text-xs"
-                >
+                <Text style={TYPE.displayLg} className="text-muted-foreground">
+                  +
+                </Text>
+                <Text style={TYPE.bodySm} className="text-muted-foreground">
                   Foto
                 </Text>
               </Pressable>
             )}
           </ScrollView>
-        </ScrollView>
+        </Animated.ScrollView>
       </KeyboardAvoidingView>
     </Modal>
   );

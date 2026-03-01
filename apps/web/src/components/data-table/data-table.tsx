@@ -1,6 +1,7 @@
 'use client';
 
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { motion } from 'framer-motion';
 import {
   Table,
   TableBody,
@@ -10,7 +11,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
+import { fadeInUp, useMotionPreference, MOTION_DURATION } from '@/lib/motion';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -41,6 +43,9 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const { shouldAnimate } = useMotionPreference();
+  const RowWrapper = shouldAnimate ? motion.tr : 'tr';
+
   return (
     <div>
       <div className="rounded-md border">
@@ -65,26 +70,36 @@ export function DataTable<TData, TValue>({
                 <TableRow key={i}>
                   {columns.map((_, j) => (
                     <TableCell key={j}>
-                      <Skeleton className="h-5 w-full" />
+                      <SkeletonShimmer className="h-5 w-full" />
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
+              table.getRowModel().rows.map((row, index) => (
+                <RowWrapper
                   key={row.id}
                   className={onRowClick ? 'hover:bg-muted/50 cursor-pointer' : undefined}
                   onClick={() => onRowClick?.(row.original)}
                   {...(onRowClick
                     ? {
                         tabIndex: 0,
-                        role: 'button',
+                        role: 'button' as const,
                         onKeyDown: (e: React.KeyboardEvent) => {
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
                             onRowClick(row.original);
                           }
+                        },
+                      }
+                    : {})}
+                  {...(shouldAnimate
+                    ? {
+                        initial: { opacity: 0, y: 4 },
+                        animate: { opacity: 1, y: 0 },
+                        transition: {
+                          duration: MOTION_DURATION.normal,
+                          delay: index * 0.03,
                         },
                       }
                     : {})}
@@ -94,12 +109,18 @@ export function DataTable<TData, TValue>({
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
-                </TableRow>
+                </RowWrapper>
               ))
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  {emptyMessage}
+                  {shouldAnimate ? (
+                    <motion.span variants={fadeInUp} initial="hidden" animate="visible">
+                      {emptyMessage}
+                    </motion.span>
+                  ) : (
+                    emptyMessage
+                  )}
                 </TableCell>
               </TableRow>
             )}

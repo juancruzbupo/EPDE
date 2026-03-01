@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { NOTIFICATION_TYPE_LABELS } from '@epde/shared';
 import { Bell, FileText, Wrench, Clock, CheckCheck } from 'lucide-react';
+import { PageTransition } from '@/components/ui/page-transition';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import type { NotificationPublic } from '@/lib/api/notifications';
@@ -33,7 +34,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div>
+    <PageTransition>
       <PageHeader
         title="Notificaciones"
         description="Centro de notificaciones"
@@ -111,6 +112,6 @@ export default function NotificationsPage() {
           )}
         </ul>
       )}
-    </div>
+    </PageTransition>
   );
 }

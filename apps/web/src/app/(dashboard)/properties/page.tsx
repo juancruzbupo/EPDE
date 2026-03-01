@@ -12,6 +12,7 @@ import { FilterSelect } from '@/components/filter-select';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { PROPERTY_TYPE_LABELS, UserRole } from '@epde/shared';
+import { PageTransition } from '@/components/ui/page-transition';
 import { propertyColumns } from './columns';
 import { CreatePropertyDialog } from './create-property-dialog';
 
@@ -45,7 +46,7 @@ export default function PropertiesPage() {
   const total = data?.pages[0]?.total;
 
   return (
-    <div>
+    <PageTransition>
       <PageHeader
         title="Propiedades"
         description="Gestión de propiedades"
@@ -80,6 +81,6 @@ export default function PropertiesPage() {
       />
 
       {isAdmin && <CreatePropertyDialog open={createOpen} onOpenChange={setCreateOpen} />}
-    </div>
+    </PageTransition>
   );
 }

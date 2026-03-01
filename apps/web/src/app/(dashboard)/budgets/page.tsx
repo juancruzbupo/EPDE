@@ -10,6 +10,7 @@ import { FilterSelect } from '@/components/filter-select';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { BUDGET_STATUS_LABELS, UserRole } from '@epde/shared';
+import { PageTransition } from '@/components/ui/page-transition';
 import { budgetColumns } from './columns';
 import { CreateBudgetDialog } from './create-budget-dialog';
 import type { BudgetRequestPublic } from '@/lib/api/budgets';
@@ -38,7 +39,7 @@ export default function BudgetsPage() {
   const total = data?.pages[0]?.total;
 
   return (
-    <div>
+    <PageTransition>
       <PageHeader
         title="Presupuestos"
         description="Gestion de presupuestos"
@@ -73,6 +74,6 @@ export default function BudgetsPage() {
       />
 
       <CreateBudgetDialog open={createOpen} onOpenChange={setCreateOpen} />
-    </div>
+    </PageTransition>
   );
 }

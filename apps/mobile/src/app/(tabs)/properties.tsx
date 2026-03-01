@@ -2,9 +2,11 @@ import { memo, useCallback } from 'react';
 import { View, Text, FlatList, RefreshControl, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useProperties } from '@/hooks/use-properties';
+import { AnimatedListItem } from '@/components/animated-list-item';
 import { PropertyTypeBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
+import { TYPE } from '@/lib/fonts';
 import type { PropertyPublic } from '@epde/shared/types';
 
 const PropertyCard = memo(function PropertyCard({ property }: { property: PropertyPublic }) {
@@ -12,48 +14,30 @@ const PropertyCard = memo(function PropertyCard({ property }: { property: Proper
 
   return (
     <Pressable
-      className="border-border bg-card mb-3 rounded-xl border p-4"
+      className="border-border bg-card mb-3 rounded-xl border p-3"
       onPress={() => router.push(`/property/${property.id}` as never)}
     >
       <View className="mb-1 flex-row items-center justify-between">
-        <Text
-          style={{ fontFamily: 'DMSans_700Bold' }}
-          className="text-foreground flex-1 text-base"
-          numberOfLines={1}
-        >
+        <Text style={TYPE.titleMd} className="text-foreground flex-1" numberOfLines={1}>
           {property.address}
         </Text>
         <PropertyTypeBadge type={property.type} />
       </View>
-      <Text
-        style={{ fontFamily: 'DMSans_400Regular' }}
-        className="text-muted-foreground mb-2 text-sm"
-      >
-        {property.city}
-      </Text>
-      <View className="flex-row items-center gap-4">
-        {property.yearBuilt && (
-          <Text
-            style={{ fontFamily: 'DMSans_400Regular' }}
-            className="text-muted-foreground text-xs"
-          >
-            Ano: {property.yearBuilt}
-          </Text>
-        )}
-        {property.squareMeters && (
-          <Text
-            style={{ fontFamily: 'DMSans_400Regular' }}
-            className="text-muted-foreground text-xs"
-          >
-            {property.squareMeters} m2
-          </Text>
-        )}
+      <Text style={TYPE.bodySm} className="text-muted-foreground">
+        {[
+          property.city,
+          property.yearBuilt && `${property.yearBuilt}`,
+          property.squareMeters && `${property.squareMeters} m²`,
+        ]
+          .filter(Boolean)
+          .join(' · ')}
         {property.maintenancePlan && (
-          <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-primary text-xs">
-            Plan: {property.maintenancePlan.name}
+          <Text style={TYPE.labelMd} className="text-primary">
+            {' · '}
+            {property.maintenancePlan.name}
           </Text>
         )}
-      </View>
+      </Text>
     </Pressable>
   );
 });
@@ -84,7 +68,11 @@ export default function PropertiesScreen() {
       contentContainerStyle={{ padding: 16, flexGrow: 1 }}
       data={properties}
       keyExtractor={(item) => item.id}
-      renderItem={({ item }) => <PropertyCard property={item} />}
+      renderItem={({ item, index }) => (
+        <AnimatedListItem index={index}>
+          <PropertyCard property={item} />
+        </AnimatedListItem>
+      )}
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
       maxToRenderPerBatch={10}
@@ -92,10 +80,7 @@ export default function PropertiesScreen() {
       removeClippedSubviews
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
       ListHeaderComponent={
-        <Text
-          style={{ fontFamily: 'PlayfairDisplay_700Bold' }}
-          className="text-foreground mb-4 text-2xl"
-        >
+        <Text style={TYPE.displayLg} className="text-foreground mb-4">
           Mis Propiedades
         </Text>
       }

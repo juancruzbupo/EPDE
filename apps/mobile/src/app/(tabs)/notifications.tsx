@@ -8,18 +8,22 @@ import {
   useMarkAsRead,
   useMarkAllAsRead,
 } from '@/hooks/use-notifications';
+import { AnimatedListItem } from '@/components/animated-list-item';
+import { SwipeableRow } from '@/components/swipeable-row';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
+import { haptics } from '@/lib/haptics';
+import { TYPE } from '@/lib/fonts';
 import type { NotificationPublic } from '@epde/shared/types';
 
-const TYPE_ICONS: Record<string, string> = {
+const NOTIF_TYPE_ICONS: Record<string, string> = {
   TASK_REMINDER: '\u{1F552}',
   BUDGET_UPDATE: '\u{1F4CB}',
   SERVICE_UPDATE: '\u{1F527}',
   SYSTEM: '\u{1F514}',
 };
 
-const TYPE_LABELS: Record<string, string> = {
+const NOTIF_TYPE_LABELS: Record<string, string> = {
   TASK_REMINDER: 'Recordatorio',
   BUDGET_UPDATE: 'Presupuesto',
   SERVICE_UPDATE: 'Servicio',
@@ -33,45 +37,35 @@ function NotificationCard({
   notification: NotificationPublic;
   onPress: () => void;
 }) {
-  const icon = TYPE_ICONS[notification.type] ?? '\u{1F514}';
-  const typeLabel = TYPE_LABELS[notification.type] ?? notification.type;
+  const icon = NOTIF_TYPE_ICONS[notification.type] ?? '\u{1F514}';
+  const typeLabel = NOTIF_TYPE_LABELS[notification.type] ?? notification.type;
 
   return (
     <Pressable
       onPress={onPress}
-      className={`border-border mb-2 rounded-xl border p-4 ${notification.read ? 'bg-card' : 'bg-primary/5 border-primary/20'}`}
+      className={`border-border mb-2 rounded-xl border p-3 ${notification.read ? 'bg-card' : 'bg-primary/5 border-primary/20'}`}
     >
       <View className="flex-row items-start gap-3">
         <Text style={{ fontSize: 20 }}>{icon}</Text>
         <View className="flex-1">
           <View className="mb-1 flex-row items-center justify-between">
             <Text
-              style={{ fontFamily: notification.read ? 'DMSans_500Medium' : 'DMSans_700Bold' }}
-              className="text-foreground flex-1 text-sm"
+              style={notification.read ? TYPE.labelLg : TYPE.titleSm}
+              className="text-foreground flex-1"
               numberOfLines={1}
             >
               {notification.title}
             </Text>
             {!notification.read && <View className="bg-primary ml-2 h-2 w-2 rounded-full" />}
           </View>
-          <Text
-            style={{ fontFamily: 'DMSans_400Regular' }}
-            className="text-muted-foreground mb-1 text-sm"
-            numberOfLines={2}
-          >
+          <Text style={TYPE.bodyMd} className="text-muted-foreground mb-1" numberOfLines={2}>
             {notification.message}
           </Text>
           <View className="flex-row items-center gap-2">
-            <Text
-              style={{ fontFamily: 'DMSans_500Medium' }}
-              className="text-muted-foreground text-xs"
-            >
+            <Text style={TYPE.labelMd} className="text-muted-foreground">
               {typeLabel}
             </Text>
-            <Text
-              style={{ fontFamily: 'DMSans_400Regular' }}
-              className="text-muted-foreground text-xs"
-            >
+            <Text style={TYPE.bodySm} className="text-muted-foreground">
               {formatDistanceToNow(new Date(notification.createdAt), {
                 addSuffix: true,
                 locale: es,
@@ -109,8 +103,14 @@ export default function NotificationsScreen() {
 
   const handleNotificationPress = (notification: NotificationPublic) => {
     if (!notification.read) {
+      haptics.light();
       markAsRead.mutate(notification.id);
     }
+  };
+
+  const handleMarkAllAsRead = () => {
+    haptics.medium();
+    markAllAsRead.mutate();
   };
 
   return (
@@ -119,8 +119,27 @@ export default function NotificationsScreen() {
       contentContainerStyle={{ padding: 16, flexGrow: 1 }}
       data={notifications}
       keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
-        <NotificationCard notification={item} onPress={() => handleNotificationPress(item)} />
+      renderItem={({ item, index }) => (
+        <AnimatedListItem index={index}>
+          <SwipeableRow
+            rightActions={
+              !item.read
+                ? [
+                    {
+                      icon: '✓',
+                      color: '#6b9b7a',
+                      onPress: () => {
+                        haptics.light();
+                        markAsRead.mutate(item.id);
+                      },
+                    },
+                  ]
+                : []
+            }
+          >
+            <NotificationCard notification={item} onPress={() => handleNotificationPress(item)} />
+          </SwipeableRow>
+        </AnimatedListItem>
       )}
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
@@ -131,19 +150,16 @@ export default function NotificationsScreen() {
       ListHeaderComponent={
         <View className="mb-4">
           <View className="flex-row items-center justify-between">
-            <Text
-              style={{ fontFamily: 'PlayfairDisplay_700Bold' }}
-              className="text-foreground text-2xl"
-            >
+            <Text style={TYPE.displayLg} className="text-foreground">
               Avisos
             </Text>
             {(unreadCount ?? 0) > 0 && (
               <Pressable
-                onPress={() => markAllAsRead.mutate()}
+                onPress={handleMarkAllAsRead}
                 disabled={markAllAsRead.isPending}
                 className="bg-card border-border rounded-xl border px-3 py-1.5"
               >
-                <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-primary text-xs">
+                <Text style={TYPE.labelMd} className="text-primary">
                   Marcar todas como leidas
                 </Text>
               </Pressable>

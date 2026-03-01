@@ -10,18 +10,23 @@ import {
   Modal,
   Dimensions,
 } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useLocalSearchParams, Stack } from 'expo-router';
+import { useSlideIn } from '@/lib/animations';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useServiceRequest } from '@/hooks/use-service-requests';
 import { ServiceStatusBadge, UrgencyBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
+import { CollapsibleSection } from '@/components/collapsible-section';
+import { TYPE } from '@/lib/fonts';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export default function ServiceRequestDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const contentStyle = useSlideIn('bottom');
   const { data: request, isLoading, error, refetch } = useServiceRequest(id);
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
 
@@ -71,18 +76,15 @@ export default function ServiceRequestDetailScreen() {
         }}
       />
 
-      <ScrollView
+      <Animated.ScrollView
+        style={contentStyle}
         contentContainerStyle={{ padding: 16 }}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => refetch()} />}
       >
         {/* Request info card */}
         <View className="border-border bg-card mb-4 rounded-xl border p-4">
           <View className="mb-2 flex-row items-center justify-between">
-            <Text
-              style={{ fontFamily: 'DMSans_700Bold' }}
-              className="text-foreground flex-1 text-lg"
-              numberOfLines={2}
-            >
+            <Text style={TYPE.titleLg} className="text-foreground flex-1" numberOfLines={2}>
               {request.title}
             </Text>
           </View>
@@ -92,33 +94,24 @@ export default function ServiceRequestDetailScreen() {
             <UrgencyBadge urgency={request.urgency} />
           </View>
 
-          <Text
-            style={{ fontFamily: 'DMSans_400Regular' }}
-            className="text-foreground mb-3 text-sm"
-          >
+          <Text style={TYPE.bodyMd} className="text-foreground mb-3">
             {request.description}
           </Text>
 
           <View className="gap-2">
             <View className="flex-row justify-between">
-              <Text
-                style={{ fontFamily: 'DMSans_400Regular' }}
-                className="text-muted-foreground text-sm"
-              >
+              <Text style={TYPE.bodyMd} className="text-muted-foreground">
                 Propiedad
               </Text>
-              <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground text-sm">
+              <Text style={TYPE.labelLg} className="text-foreground">
                 {request.property.address}
               </Text>
             </View>
             <View className="flex-row justify-between">
-              <Text
-                style={{ fontFamily: 'DMSans_400Regular' }}
-                className="text-muted-foreground text-sm"
-              >
+              <Text style={TYPE.bodyMd} className="text-muted-foreground">
                 Fecha
               </Text>
-              <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground text-sm">
+              <Text style={TYPE.labelLg} className="text-foreground">
                 {format(new Date(request.createdAt), 'd MMM yyyy', { locale: es })}
               </Text>
             </View>
@@ -127,17 +120,11 @@ export default function ServiceRequestDetailScreen() {
 
         {/* Photos */}
         {request.photos && request.photos.length > 0 && (
-          <>
-            <Text
-              style={{ fontFamily: 'DMSans_700Bold' }}
-              className="text-foreground mb-2 text-base"
-            >
-              Fotos ({request.photos.length})
-            </Text>
+          <CollapsibleSection title="Fotos" count={request.photos.length}>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ gap: 8, marginBottom: 16 }}
+              contentContainerStyle={{ gap: 8 }}
             >
               {request.photos.map((photo) => (
                 <Pressable key={photo.id} onPress={() => setPreviewPhoto(photo.url)}>
@@ -149,9 +136,9 @@ export default function ServiceRequestDetailScreen() {
                 </Pressable>
               ))}
             </ScrollView>
-          </>
+          </CollapsibleSection>
         )}
-      </ScrollView>
+      </Animated.ScrollView>
 
       {/* Full-screen photo preview */}
       <Modal visible={!!previewPhoto} transparent animationType="fade">
@@ -166,7 +153,7 @@ export default function ServiceRequestDetailScreen() {
               resizeMode="contain"
             />
           )}
-          <Text style={{ fontFamily: 'DMSans_500Medium' }} className="mt-4 text-base text-white">
+          <Text style={TYPE.labelLg} className="mt-4 text-white">
             Toca para cerrar
           </Text>
         </Pressable>

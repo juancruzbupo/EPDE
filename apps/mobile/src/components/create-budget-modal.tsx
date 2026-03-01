@@ -10,13 +10,17 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSlideIn } from '@/lib/animations';
+import { haptics } from '@/lib/haptics';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createBudgetRequestSchema } from '@epde/shared';
 import type { CreateBudgetRequestInput } from '@epde/shared';
 import { useCreateBudgetRequest } from '@/hooks/use-budgets';
 import { useProperties } from '@/hooks/use-properties';
+import { TYPE } from '@/lib/fonts';
 import type { PropertyPublic } from '@epde/shared/types';
 
 interface CreateBudgetModalProps {
@@ -26,6 +30,7 @@ interface CreateBudgetModalProps {
 
 export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) {
   const insets = useSafeAreaInsets();
+  const contentStyle = useSlideIn('bottom');
   const createBudget = useCreateBudgetRequest();
   const { data: propertiesData } = useProperties();
   const properties = propertiesData?.pages.flatMap((p) => p.data) ?? [];
@@ -54,10 +59,12 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
       },
       {
         onSuccess: () => {
+          haptics.success();
           reset();
           onClose();
         },
         onError: () => {
+          haptics.error();
           Alert.alert('Error', 'No se pudo crear el presupuesto.');
         },
       },
@@ -99,28 +106,25 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
           className="border-border flex-row items-center justify-between border-b px-4 py-3"
         >
           <Pressable onPress={handleClose}>
-            <Text
-              style={{ fontFamily: 'DMSans_500Medium' }}
-              className="text-muted-foreground text-base"
-            >
+            <Text style={TYPE.labelLg} className="text-muted-foreground">
               Cancelar
             </Text>
           </Pressable>
-          <Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-foreground text-base">
+          <Text style={TYPE.titleMd} className="text-foreground">
             Nuevo Presupuesto
           </Text>
           <Pressable onPress={handleSubmit(onSubmit)} disabled={!isValid || isSubmitting}>
             <Text
-              style={{ fontFamily: 'DMSans_700Bold' }}
-              className={`text-base ${!isValid || isSubmitting ? 'text-muted-foreground' : 'text-primary'}`}
+              style={TYPE.titleMd}
+              className={!isValid || isSubmitting ? 'text-muted-foreground' : 'text-primary'}
             >
               {isSubmitting ? 'Creando...' : 'Crear'}
             </Text>
           </Pressable>
         </View>
 
-        <ScrollView contentContainerStyle={{ padding: 16 }}>
-          <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground mb-2 text-sm">
+        <Animated.ScrollView style={contentStyle} contentContainerStyle={{ padding: 16 }}>
+          <Text style={TYPE.labelLg} className="text-foreground mb-2">
             Propiedad
           </Text>
           <ScrollView
@@ -139,23 +143,23 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
                 }`}
               >
                 <Text
-                  style={{ fontFamily: 'DMSans_500Medium' }}
-                  className={`text-sm ${
+                  style={TYPE.labelLg}
+                  className={
                     selectedPropertyId === property.id
                       ? 'text-primary-foreground'
                       : 'text-foreground'
-                  }`}
+                  }
                   numberOfLines={1}
                 >
                   {property.address}
                 </Text>
                 <Text
-                  style={{ fontFamily: 'DMSans_400Regular' }}
-                  className={`text-xs ${
+                  style={TYPE.bodySm}
+                  className={
                     selectedPropertyId === property.id
                       ? 'text-primary-foreground/70'
                       : 'text-muted-foreground'
-                  }`}
+                  }
                 >
                   {property.city}
                 </Text>
@@ -168,16 +172,13 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
             )}
           </ScrollView>
           {errors.propertyId && (
-            <Text
-              style={{ fontFamily: 'DMSans_400Regular' }}
-              className="text-destructive mb-2 text-xs"
-            >
+            <Text style={TYPE.bodySm} className="text-destructive mb-2">
               {errors.propertyId.message}
             </Text>
           )}
           {!errors.propertyId && <View className="mb-4" />}
 
-          <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground mb-2 text-sm">
+          <Text style={TYPE.labelLg} className="text-foreground mb-2">
             Titulo
           </Text>
           <Controller
@@ -191,22 +192,19 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
                 placeholder="Describir brevemente el trabajo..."
                 placeholderTextColor="#4a4542"
                 maxLength={200}
-                style={{ fontFamily: 'DMSans_400Regular' }}
-                className="border-border bg-card text-foreground mb-1 rounded-xl border p-3 text-sm"
+                style={TYPE.bodyMd}
+                className="border-border bg-card text-foreground mb-1 rounded-xl border p-3"
               />
             )}
           />
           {errors.title && (
-            <Text
-              style={{ fontFamily: 'DMSans_400Regular' }}
-              className="text-destructive mb-3 text-xs"
-            >
+            <Text style={TYPE.bodySm} className="text-destructive mb-3">
               {errors.title.message}
             </Text>
           )}
           {!errors.title && <View className="mb-4" />}
 
-          <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground mb-2 text-sm">
+          <Text style={TYPE.labelLg} className="text-foreground mb-2">
             Descripcion (opcional)
           </Text>
           <Controller
@@ -221,21 +219,17 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
                 placeholderTextColor="#4a4542"
                 multiline
                 maxLength={2000}
-                style={{
-                  fontFamily: 'DMSans_400Regular',
-                  minHeight: 100,
-                  textAlignVertical: 'top',
-                }}
-                className="border-border bg-card text-foreground mb-4 rounded-xl border p-3 text-sm"
+                style={[TYPE.bodyMd, { minHeight: 100, textAlignVertical: 'top' }]}
+                className="border-border bg-card text-foreground mb-4 rounded-xl border p-3"
               />
             )}
           />
           {errors.description && (
-            <Text style={{ fontFamily: 'DMSans_400Regular' }} className="text-destructive text-xs">
+            <Text style={TYPE.bodySm} className="text-destructive">
               {errors.description.message}
             </Text>
           )}
-        </ScrollView>
+        </Animated.ScrollView>
       </KeyboardAvoidingView>
     </Modal>
   );

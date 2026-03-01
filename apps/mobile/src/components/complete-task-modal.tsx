@@ -10,12 +10,15 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
 } from 'react-native';
+import Animated from 'react-native-reanimated';
 import * as ImagePicker from 'expo-image-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSlideIn } from '@/lib/animations';
+import { haptics } from '@/lib/haptics';
 import { useCompleteTask } from '@/hooks/use-maintenance-plans';
 import { useUploadFile } from '@/hooks/use-upload';
+import { TYPE } from '@/lib/fonts';
 import {
   TASK_RESULT_LABELS,
   CONDITION_FOUND_LABELS,
@@ -52,7 +55,7 @@ function SelectorGroup<T extends string>({
 }) {
   return (
     <View className="mb-4">
-      <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground mb-2 text-sm">
+      <Text style={TYPE.labelLg} className="text-foreground mb-2">
         {label}
       </Text>
       <View className="flex-row flex-wrap gap-2">
@@ -67,8 +70,8 @@ function SelectorGroup<T extends string>({
               }`}
             >
               <Text
-                style={{ fontFamily: selected ? 'DMSans_700Bold' : 'DMSans_400Regular' }}
-                className={`text-xs ${selected ? 'text-primary-foreground' : 'text-foreground'}`}
+                style={selected ? TYPE.titleSm : TYPE.bodyMd}
+                className={selected ? 'text-primary-foreground' : 'text-foreground'}
               >
                 {labels[opt] ?? opt}
               </Text>
@@ -105,6 +108,7 @@ const ACTIONS: ActionTaken[] = [
 
 export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTaskModalProps) {
   const insets = useSafeAreaInsets();
+  const contentStyle = useSlideIn('bottom');
   const [result, setResult] = useState<TaskResult | null>(null);
   const [conditionFound, setConditionFound] = useState<ConditionFound | null>(null);
   const [executor, setExecutor] = useState<TaskExecutor | null>(null);
@@ -211,10 +215,12 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
       },
       {
         onSuccess: () => {
+          haptics.success();
           resetForm();
           onClose();
         },
         onError: () => {
+          haptics.error();
           Alert.alert('Error', 'No se pudo completar la tarea.');
         },
       },
@@ -264,14 +270,11 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
           className="border-border flex-row items-center justify-between border-b px-4 py-3"
         >
           <Pressable onPress={handleClose}>
-            <Text
-              style={{ fontFamily: 'DMSans_500Medium' }}
-              className="text-muted-foreground text-base"
-            >
+            <Text style={TYPE.labelLg} className="text-muted-foreground">
               Cancelar
             </Text>
           </Pressable>
-          <Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-foreground text-base">
+          <Text style={TYPE.titleMd} className="text-foreground">
             Completar Tarea
           </Text>
           <Pressable
@@ -279,22 +282,19 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
             disabled={!canSubmit || isSubmitting || (isUploading && !uploadedUrl)}
           >
             <Text
-              style={{ fontFamily: 'DMSans_700Bold' }}
-              className={`text-base ${!canSubmit || isSubmitting ? 'text-muted-foreground' : 'text-primary'}`}
+              style={TYPE.titleMd}
+              className={!canSubmit || isSubmitting ? 'text-muted-foreground' : 'text-primary'}
             >
               {isSubmitting ? 'Enviando...' : 'Confirmar'}
             </Text>
           </Pressable>
         </View>
 
-        <ScrollView contentContainerStyle={{ padding: 16 }}>
-          <Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-foreground mb-1 text-lg">
+        <Animated.ScrollView style={contentStyle} contentContainerStyle={{ padding: 16 }}>
+          <Text style={TYPE.titleLg} className="text-foreground mb-1">
             {task.name}
           </Text>
-          <Text
-            style={{ fontFamily: 'DMSans_400Regular' }}
-            className="text-muted-foreground mb-4 text-sm"
-          >
+          <Text style={TYPE.bodyMd} className="text-muted-foreground mb-4">
             Completá los campos requeridos para registrar la tarea.
           </Text>
 
@@ -330,7 +330,7 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
             onChange={setActionTaken}
           />
 
-          <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground mb-2 text-sm">
+          <Text style={TYPE.labelLg} className="text-foreground mb-2">
             Costo (opcional)
           </Text>
           <TextInput
@@ -339,11 +339,11 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
             placeholder="0.00"
             placeholderTextColor="#4a4542"
             keyboardType="decimal-pad"
-            style={{ fontFamily: 'DMSans_400Regular' }}
-            className="border-border bg-card text-foreground mb-4 rounded-xl border p-3 text-sm"
+            style={TYPE.bodyMd}
+            className="border-border bg-card text-foreground mb-4 rounded-xl border p-3"
           />
 
-          <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground mb-2 text-sm">
+          <Text style={TYPE.labelLg} className="text-foreground mb-2">
             Notas (opcional)
           </Text>
           <TextInput
@@ -353,11 +353,11 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
             placeholderTextColor="#4a4542"
             multiline
             maxLength={500}
-            style={{ fontFamily: 'DMSans_400Regular', minHeight: 80, textAlignVertical: 'top' }}
-            className="border-border bg-card text-foreground mb-4 rounded-xl border p-3 text-sm"
+            style={[TYPE.bodyMd, { minHeight: 80, textAlignVertical: 'top' }]}
+            className="border-border bg-card text-foreground mb-4 rounded-xl border p-3"
           />
 
-          <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-foreground mb-2 text-sm">
+          <Text style={TYPE.labelLg} className="text-foreground mb-2">
             Foto (opcional)
           </Text>
           {photoUri ? (
@@ -382,15 +382,12 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
               onPress={pickImage}
               className="border-border mb-4 flex-row items-center gap-2 rounded-xl border border-dashed px-4 py-3"
             >
-              <Text
-                style={{ fontFamily: 'DMSans_500Medium' }}
-                className="text-muted-foreground text-sm"
-              >
+              <Text style={TYPE.labelLg} className="text-muted-foreground">
                 Subir foto
               </Text>
             </Pressable>
           )}
-        </ScrollView>
+        </Animated.ScrollView>
       </KeyboardAvoidingView>
     </Modal>
   );

@@ -10,6 +10,7 @@ import { FilterSelect } from '@/components/filter-select';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { SERVICE_STATUS_LABELS, SERVICE_URGENCY_LABELS, UserRole } from '@epde/shared';
+import { PageTransition } from '@/components/ui/page-transition';
 import { serviceRequestColumns } from './columns';
 import { CreateServiceDialog } from './create-service-dialog';
 
@@ -45,7 +46,7 @@ export default function ServiceRequestsPage() {
   const total = data?.pages[0]?.total;
 
   return (
-    <div>
+    <PageTransition>
       <PageHeader
         title="Solicitudes de Servicio"
         description="Gestion de solicitudes de servicio"
@@ -88,6 +89,6 @@ export default function ServiceRequestsPage() {
       {user?.role === UserRole.CLIENT && (
         <CreateServiceDialog open={createOpen} onOpenChange={setCreateOpen} />
       )}
-    </div>
+    </PageTransition>
   );
 }

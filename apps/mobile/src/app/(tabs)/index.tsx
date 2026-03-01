@@ -4,47 +4,46 @@ import { useRouter } from 'expo-router';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useClientDashboardStats, useClientUpcomingTasks } from '@/hooks/use-dashboard';
-import { StatCard } from '@/components/stat-card';
+import { AnimatedStatCard } from '@/components/animated-stat-card';
+import { HealthCard } from '@/components/health-card';
+import { StatCardSkeleton } from '@/components/skeleton-placeholder';
+import { AnimatedListItem } from '@/components/animated-list-item';
 import { PriorityBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
+import { TYPE } from '@/lib/fonts';
 import type { UpcomingTask } from '@epde/shared/types';
 
-const TaskCard = memo(function TaskCard({ task }: { task: UpcomingTask }) {
+const TaskCard = memo(function TaskCard({ task, index }: { task: UpcomingTask; index: number }) {
   const router = useRouter();
 
   return (
-    <Pressable
-      className="border-border bg-card mb-3 rounded-xl border p-4"
-      onPress={() => router.push(`/property/${task.propertyId}` as never)}
-    >
-      <View className="mb-1 flex-row items-center justify-between">
-        <Text
-          style={{ fontFamily: 'DMSans_700Bold' }}
-          className="text-foreground flex-1 text-sm"
-          numberOfLines={1}
-        >
-          {task.name}
-        </Text>
-        <PriorityBadge priority={task.priority} />
-      </View>
-      <Text
-        style={{ fontFamily: 'DMSans_400Regular' }}
-        className="text-muted-foreground mb-1 text-xs"
+    <AnimatedListItem index={index}>
+      <Pressable
+        className="border-border bg-card mb-3 rounded-xl border p-3"
+        onPress={() => router.push(`/property/${task.propertyId}` as never)}
       >
-        {task.propertyAddress}
-      </Text>
-      <View className="flex-row items-center justify-between">
-        <Text style={{ fontFamily: 'DMSans_500Medium' }} className="text-muted-foreground text-xs">
-          {task.categoryName}
+        <View className="mb-1 flex-row items-center justify-between">
+          <Text style={TYPE.titleSm} className="text-foreground flex-1" numberOfLines={1}>
+            {task.name}
+          </Text>
+          <PriorityBadge priority={task.priority} />
+        </View>
+        <Text style={TYPE.bodySm} className="text-muted-foreground mb-1">
+          {task.propertyAddress}
         </Text>
-        <Text style={{ fontFamily: 'DMSans_400Regular' }} className="text-muted-foreground text-xs">
-          {task.nextDueDate
-            ? formatDistanceToNow(new Date(task.nextDueDate), { addSuffix: true, locale: es })
-            : 'Según detección'}
-        </Text>
-      </View>
-    </Pressable>
+        <View className="flex-row items-center justify-between">
+          <Text style={TYPE.labelMd} className="text-muted-foreground">
+            {task.categoryName}
+          </Text>
+          <Text style={TYPE.bodySm} className="text-muted-foreground">
+            {task.nextDueDate
+              ? formatDistanceToNow(new Date(task.nextDueDate), { addSuffix: true, locale: es })
+              : 'Según detección'}
+          </Text>
+        </View>
+      </Pressable>
+    </AnimatedListItem>
   );
 });
 
@@ -77,59 +76,69 @@ export default function DashboardScreen() {
   const ListHeader = useCallback(
     () => (
       <View>
-        <Text
-          style={{ fontFamily: 'PlayfairDisplay_700Bold' }}
-          className="text-foreground mb-4 text-2xl"
-        >
+        <Text style={TYPE.displayLg} className="text-foreground mb-4">
           Mi Panel
         </Text>
 
-        {stats && (
+        {statsLoading && !stats ? (
           <View className="mb-6">
-            <View className="mb-3 flex-row gap-3">
-              <StatCard title="Propiedades" value={stats.totalProperties} />
-              <StatCard title="Tareas Pendientes" value={stats.pendingTasks} />
-            </View>
-            <View className="mb-3 flex-row gap-3">
-              <StatCard title="Tareas Vencidas" value={stats.overdueTasks} variant="destructive" />
-              <StatCard title="Completadas (mes)" value={stats.completedThisMonth} />
-            </View>
+            <StatCardSkeleton />
             <View className="flex-row gap-3">
-              <StatCard title="Presupuestos" value={stats.pendingBudgets} />
-              <StatCard title="Servicios" value={stats.openServices} />
+              <StatCardSkeleton />
+              <StatCardSkeleton />
+              <StatCardSkeleton />
             </View>
           </View>
-        )}
+        ) : stats ? (
+          <View className="mb-6">
+            <HealthCard
+              totalTasks={stats.pendingTasks + stats.overdueTasks + stats.completedThisMonth}
+              completedTasks={stats.completedThisMonth}
+              overdueTasks={stats.overdueTasks}
+            />
+            <View className="flex-row gap-3">
+              <AnimatedStatCard
+                title="Vencidas"
+                value={stats.overdueTasks}
+                variant="destructive"
+                index={0}
+              />
+              <AnimatedStatCard title="Pendientes" value={stats.pendingTasks} index={1} />
+              <AnimatedStatCard title="Completadas" value={stats.completedThisMonth} index={2} />
+            </View>
+          </View>
+        ) : null}
 
         {/* Quick actions */}
         <Pressable
           onPress={() => router.push('/service-requests' as never)}
-          className="border-border bg-card mb-6 flex-row items-center justify-between rounded-xl border p-4"
+          className="border-border bg-card mb-6 flex-row items-center justify-between rounded-xl border p-3"
         >
           <View>
-            <Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-foreground text-sm">
+            <Text style={TYPE.titleSm} className="text-foreground">
               Solicitudes de Servicio
             </Text>
-            <Text
-              style={{ fontFamily: 'DMSans_400Regular' }}
-              className="text-muted-foreground text-xs"
-            >
+            <Text style={TYPE.bodySm} className="text-muted-foreground">
               Reportar problemas o pedir asistencia
             </Text>
           </View>
-          <Text className="text-muted-foreground text-lg">&gt;</Text>
+          <Text className="text-muted-foreground" style={{ fontSize: 18 }}>
+            &gt;
+          </Text>
         </Pressable>
 
-        <Text style={{ fontFamily: 'DMSans_700Bold' }} className="text-foreground mb-3 text-lg">
+        <Text style={TYPE.titleLg} className="text-foreground mb-3">
           Proximas Tareas
         </Text>
       </View>
     ),
-    [stats, router],
+    [stats, statsLoading, router],
   );
 
   const renderTask = useCallback(
-    ({ item }: { item: UpcomingTask }) => <TaskCard task={item} />,
+    ({ item, index }: { item: UpcomingTask; index: number }) => (
+      <TaskCard task={item} index={index} />
+    ),
     [],
   );
 

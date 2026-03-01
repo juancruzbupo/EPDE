@@ -12,6 +12,7 @@ import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { USER_STATUS_LABELS } from '@epde/shared';
+import { PageTransition } from '@/components/ui/page-transition';
 import { clientColumns } from './columns';
 import { InviteClientDialog } from './invite-client-dialog';
 
@@ -44,7 +45,7 @@ export default function ClientsPage() {
   const total = data?.pages[0]?.total;
 
   return (
-    <div>
+    <PageTransition>
       <PageHeader
         title="Clientes"
         description="Gestión de clientes de la plataforma"
@@ -95,6 +96,6 @@ export default function ClientsPage() {
         }}
         isLoading={deleteClient.isPending}
       />
-    </div>
+    </PageTransition>
   );
 }

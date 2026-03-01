@@ -4,10 +4,12 @@ import { useRouter, Stack } from 'expo-router';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useServiceRequests } from '@/hooks/use-service-requests';
+import { AnimatedListItem } from '@/components/animated-list-item';
 import { ServiceStatusBadge, UrgencyBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { CreateServiceRequestModal } from '@/components/create-service-request-modal';
+import { TYPE } from '@/lib/fonts';
 import type { ServiceRequestPublic } from '@epde/shared/types';
 
 const STATUS_FILTERS = [
@@ -32,24 +34,17 @@ const ServiceRequestCard = memo(function ServiceRequestCard({
       onPress={() => router.push(`/service-requests/${request.id}` as never)}
     >
       <View className="mb-1 flex-row items-center justify-between">
-        <Text
-          style={{ fontFamily: 'DMSans_700Bold' }}
-          className="text-foreground flex-1 text-sm"
-          numberOfLines={1}
-        >
+        <Text style={TYPE.titleSm} className="text-foreground flex-1" numberOfLines={1}>
           {request.title}
         </Text>
         <ServiceStatusBadge status={request.status} />
       </View>
-      <Text
-        style={{ fontFamily: 'DMSans_400Regular' }}
-        className="text-muted-foreground mb-2 text-xs"
-      >
+      <Text style={TYPE.bodySm} className="text-muted-foreground mb-2">
         {request.property.address}, {request.property.city}
       </Text>
       <View className="flex-row items-center justify-between">
         <UrgencyBadge urgency={request.urgency} />
-        <Text style={{ fontFamily: 'DMSans_400Regular' }} className="text-muted-foreground text-xs">
+        <Text style={TYPE.bodySm} className="text-muted-foreground">
           {formatDistanceToNow(new Date(request.createdAt), { addSuffix: true, locale: es })}
         </Text>
       </View>
@@ -98,7 +93,11 @@ export default function ServiceRequestsScreen() {
         contentContainerStyle={{ padding: 16, flexGrow: 1 }}
         data={requests}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ServiceRequestCard request={item} />}
+        renderItem={({ item, index }) => (
+          <AnimatedListItem index={index}>
+            <ServiceRequestCard request={item} />
+          </AnimatedListItem>
+        )}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.5}
         maxToRenderPerBatch={10}
@@ -112,10 +111,7 @@ export default function ServiceRequestsScreen() {
                 onPress={() => setCreateModalVisible(true)}
                 className="bg-primary rounded-xl px-4 py-2"
               >
-                <Text
-                  style={{ fontFamily: 'DMSans_700Bold' }}
-                  className="text-primary-foreground text-sm"
-                >
+                <Text style={TYPE.titleSm} className="text-primary-foreground">
                   Nueva Solicitud
                 </Text>
               </Pressable>
@@ -132,8 +128,10 @@ export default function ServiceRequestsScreen() {
                   className={`rounded-full px-3 py-1.5 ${statusFilter === f.key ? 'bg-primary' : 'bg-card border-border border'}`}
                 >
                   <Text
-                    style={{ fontFamily: 'DMSans_500Medium' }}
-                    className={`text-xs ${statusFilter === f.key ? 'text-primary-foreground' : 'text-foreground'}`}
+                    style={TYPE.labelMd}
+                    className={
+                      statusFilter === f.key ? 'text-primary-foreground' : 'text-foreground'
+                    }
                   >
                     {f.label}
                   </Text>

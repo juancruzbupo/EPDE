@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Plus, Pencil, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
+import { PageTransition } from '@/components/ui/page-transition';
 import {
   TASK_TYPE_LABELS,
   PROFESSIONAL_REQUIREMENT_LABELS,
@@ -58,7 +59,7 @@ export default function TemplatesPage() {
   };
 
   return (
-    <div>
+    <PageTransition>
       <PageHeader
         title="Plantillas de Tareas"
         description="Nomenclador maestro de categorías y tareas de mantenimiento"
@@ -280,6 +281,6 @@ export default function TemplatesPage() {
         }}
         isLoading={deleteTask.isPending}
       />
-    </div>
+    </PageTransition>
   );
 }
