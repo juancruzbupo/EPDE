@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getErrorMessage } from '@/lib/errors';
+import type { ApiResponse, ServiceRequestPublic } from '@epde/shared';
 import {
   getServiceRequests,
   getServiceRequest,
@@ -19,10 +20,14 @@ export function useServiceRequests(filters: ServiceRequestFilters) {
   });
 }
 
-export function useServiceRequest(id: string) {
+export function useServiceRequest(
+  id: string,
+  options?: { initialData?: ApiResponse<ServiceRequestPublic> },
+) {
   return useQuery({
     queryKey: ['service-requests', id],
     queryFn: ({ signal }) => getServiceRequest(id, signal),
+    initialData: options?.initialData,
     enabled: !!id,
   });
 }

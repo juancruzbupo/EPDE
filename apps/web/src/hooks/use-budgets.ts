@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getErrorMessage } from '@/lib/errors';
+import type { ApiResponse, BudgetRequestPublic } from '@epde/shared';
 import {
   getBudgets,
   getBudget,
@@ -19,10 +20,14 @@ export function useBudgets(filters: BudgetFilters) {
   });
 }
 
-export function useBudget(id: string) {
+export function useBudget(
+  id: string,
+  options?: { initialData?: ApiResponse<BudgetRequestPublic> },
+) {
   return useQuery({
     queryKey: ['budgets', id],
     queryFn: ({ signal }) => getBudget(id, signal),
+    initialData: options?.initialData,
     enabled: !!id,
   });
 }

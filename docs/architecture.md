@@ -193,19 +193,22 @@ Tres guards globales aplicados en orden via `APP_GUARD`:
 
 ### 7. Event-Driven Communication
 
-`EventEmitter2` para operaciones asincronas (notificaciones in-app). Los emails se procesan via **BullMQ** con retry automatico:
+`EventEmitter2` emite eventos de dominio. Tanto notificaciones in-app como emails se procesan via **BullMQ** con retry automatico y persistencia en Redis:
 
-| Evento                  | Emisor                 | Listener              | Accion                                       |
-| ----------------------- | ---------------------- | --------------------- | -------------------------------------------- |
-| `service.created`       | ServiceRequestsService | NotificationsListener | Notificacion in-app + email via BullMQ queue |
-| `service.statusChanged` | ServiceRequestsService | NotificationsListener | Notificacion al cliente                      |
-| `budget.created`        | BudgetsService         | NotificationsListener | Notificacion in-app + email via BullMQ queue |
-| `budget.statusChanged`  | BudgetsService         | NotificationsListener | Notificacion al cliente + email via BullMQ   |
-| `client.invited`        | ClientsService         | EmailQueueService     | Email de invitacion via BullMQ queue         |
+| Evento                  | Emisor                 | Listener              | Accion                                                    |
+| ----------------------- | ---------------------- | --------------------- | --------------------------------------------------------- |
+| `service.created`       | ServiceRequestsService | NotificationsListener | Notificacion in-app (BullMQ queue) + email (BullMQ queue) |
+| `service.statusChanged` | ServiceRequestsService | NotificationsListener | Notificacion in-app al cliente (BullMQ queue)             |
+| `budget.created`        | BudgetsService         | NotificationsListener | Notificacion in-app (BullMQ queue) + email (BullMQ queue) |
+| `budget.quoted`         | BudgetsService         | NotificationsListener | Notificacion in-app + email al cliente (BullMQ queues)    |
+| `budget.statusChanged`  | BudgetsService         | NotificationsListener | Notificacion in-app + email al cliente (BullMQ queues)    |
+| `client.invited`        | ClientsService         | EmailQueueService     | Email de invitacion via BullMQ queue                      |
 
-**Email Queue (BullMQ):** Los emails se encolan en Redis via `EmailQueueService` y se procesan asincrónicamente por `EmailQueueProcessor`. Configuración: 5 reintentos con backoff exponencial (base 5s). Tipos de jobs: `invite`, `taskReminder`, `budgetQuoted`, `budgetStatus`.
+**Notification Queue (BullMQ):** Las notificaciones in-app se encolan via `NotificationQueueService` (`enqueue` / `enqueueBatch`) y se procesan por `NotificationQueueProcessor`. Configuracion: 3 reintentos con backoff exponencial (base 3s). Queue name: `notification`.
 
-**Error Boundaries:** Cada handler en `NotificationsListener` esta envuelto en `try-catch` para evitar que errores de DB propaguen al event loop. Los errores de email se manejan automaticamente por BullMQ con reintentos.
+**Email Queue (BullMQ):** Los emails se encolan via `EmailQueueService` y se procesan por `EmailQueueProcessor`. Configuracion: 5 reintentos con backoff exponencial (base 5s). Tipos de jobs: `invite`, `taskReminder`, `budgetQuoted`, `budgetStatus`. Queue name: `emails`.
+
+**Error Boundaries:** Cada handler en `NotificationsListener` esta envuelto en `try-catch` para evitar que errores propaguen al event loop. Los errores de notificaciones y emails se manejan automaticamente por BullMQ con reintentos.
 
 ### 8. Error Handling
 
@@ -312,6 +315,16 @@ Dependencias: `TasksRepository`, `NotificationsRepository`, `UsersRepository`, `
 - Invalidacion especifica en `onSuccess` de mutations (sub-keys de dashboard: `['dashboard', 'stats']`, `['dashboard', 'activity']`, etc. en vez de invalidar todo `['dashboard']`)
 - `queryClient` singleton exportable (`lib/query-client.ts`) — usado tanto por el QueryProvider como por el auth store (para `queryClient.clear()` en logout)
 - Paginacion cursor-based con `hasMore` + "Cargar mas"
+- Hooks de detalle aceptan `options?: { initialData }` para hydration desde Server Components
+
+**Server Components (detail pages):**
+
+- Las 4 detail pages (`budgets/[id]`, `service-requests/[id]`, `clients/[id]`, `properties/[id]`) son **Server Components**
+- Pattern: `page.tsx` (Server) hace fetch con `serverFetch()` + obtiene rol con `getServerUser()` → pasa `initialData` + `isAdmin` a Client Component hijo
+- `serverFetch()` (`lib/server-api.ts`): usa `fetch()` + forward de cookies via `cookies()` de `next/headers`
+- `getServerUser()` (`lib/server-auth.ts`): decodifica JWT del cookie `access_token` sin verificar firma (backend lo hace)
+- Si el recurso no existe, el Server Component llama `notFound()` — sin flash de skeleton
+- Los Client Components (`budget-detail.tsx`, etc.) reciben `initialData` que se usa como cache seed en React Query
 
 **UI/UX Patterns (Web):**
 
@@ -365,13 +378,13 @@ export function middleware(request: NextRequest) {
 
 Modulo global `RedisModule` (`redis/redis.module.ts`) con dos servicios:
 
-- **RedisService**: Wrapper sobre `ioredis` con metodos `get`, `set`, `del`, `setnx`, `expire`, `eval(script, keys, args)` (ejecuta Lua scripts atomicos), `isHealthy()` (PING/PONG check)
+- **RedisService**: Wrapper sobre `ioredis` con metodos `get`, `set`, `del`, `setnx`, `expire`, `eval(script, keys, args)` (ejecuta Lua scripts atomicos), `isHealthy()` (PING/PONG check), `safeExists(key)` (retorna `boolean | null` — `null` si Redis no responde, para graceful degradation). Tracking de conexion via eventos `connect`/`ready`/`error`/`close` con getter `isConnected`
 - **DistributedLockService**: Distributed lock via Redis SETNX con TTL. Metodo `withLock<T>(key, ttlSeconds, fn)` que adquiere lock, ejecuta fn, y libera lock. Usa ownership pattern (genera UUID owner, Lua script para release solo si es owned). Incluye **watchdog** que extiende TTL automaticamente y metodo `extendLock()` con Lua script atomico
 
 **Casos de uso:**
 
 - Token rotation: almacena familias de refresh tokens (`rt:{family}`) con TTL 7d
-- Token blacklist: almacena JTIs de access tokens revocados (`bl:{jti}`) con TTL restante
+- Token blacklist: almacena JTIs de access tokens revocados (`bl:{jti}`) con TTL restante. **Circuit breaker:** si Redis no responde, `isBlacklisted()` retorna `false` (permite request) con warning en logs — disponibilidad sobre seguridad perfecta durante downtime
 - Distributed lock: previene ejecucion concurrente de cron jobs (`lock:cron:{name}`)
 
 **Configuracion:** `REDIS_URL` en `.env` (default: `redis://localhost:6379`). Redis 7 Alpine en Docker Compose con `volatile-lru` eviction policy (solo evicta keys con TTL — protege keys de auth sin TTL explícito).
@@ -412,22 +425,30 @@ Modulo global `RedisModule` (`redis/redis.module.ts`) con dos servicios:
 
 ### 18. Decision Record: EventEmitter2 + BullMQ (arquitectura híbrida)
 
-**Estado actual:** Arquitectura híbrida — EventEmitter2 para notificaciones in-app (sincrónicas, baja latencia) + BullMQ para emails (asíncrono, con retry).
+**Estado actual:** EventEmitter2 emite eventos de dominio → BullMQ procesa tanto notificaciones in-app como emails via queues durables con retry.
 
-**Por qué esta combinación:**
+**Por qué BullMQ para todo:**
 
-- **EventEmitter2** para notificaciones in-app: baja latencia, procesamiento inmediato, sin overhead de serialización
-- **BullMQ** para emails: retry automático (5 intentos, backoff exponencial desde 5s), tolerancia a fallos de Resend API, jobs persistidos en Redis
-- Ambos comparten la misma instancia de Redis (BullMQ usa la URL de `REDIS_URL`)
+- **Durabilidad:** Jobs persistidos en Redis — si el proceso se reinicia, los jobs pendientes se re-procesan
+- **Retry automatico:** Notificaciones (3 intentos, backoff 3s) y emails (5 intentos, backoff 5s) con backoff exponencial
+- **Observabilidad:** Jobs fallidos se retienen (`removeOnFail: { count: 500 }`) para diagnostico
+- EventEmitter2 sigue siendo el mecanismo de dispatch (bajo acoplamiento entre modulos)
+- Ambas queues comparten la misma instancia de Redis (`REDIS_URL`)
+
+**Componentes de notification queue:**
+
+- `NotificationQueueService`: encola notificaciones in-app (`enqueue` para una, `enqueueBatch` para varias)
+- `NotificationQueueProcessor` (`@Processor`): worker que consume y persiste via `NotificationsService.createNotification()`
+- Configuracion en `NotificationsModule`: `BullModule.registerQueue('notification')` con retry policy
 
 **Componentes de email queue:**
 
 - `EmailQueueService`: encola jobs de email (`enqueueInvite`, `enqueueTaskReminder`, `enqueueBudgetQuoted`, `enqueueBudgetStatus`)
 - `EmailQueueProcessor` (`@Processor`): worker que consume y procesa los jobs via `EmailService` (Resend)
-- Configuración en `EmailModule`: `BullModule.registerQueue('emails')` con retry policy
+- Configuracion en `EmailModule`: `BullModule.registerQueue('emails')` con retry policy
 
-**Cuándo escalar:**
+**Cuando escalar:**
 
-- Si el volumen de emails excede la capacidad de un solo worker → agregar workers adicionales
-- Para procesamiento pesado (reportes PDF, facturación) → crear queues separadas con prioridades
+- Si el volumen excede la capacidad de un solo worker → agregar workers adicionales
+- Para procesamiento pesado (reportes PDF, facturacion) → crear queues separadas con prioridades
 - Para dead-letter queues → configurar `removeOnFail: false` y monitorear jobs fallidos

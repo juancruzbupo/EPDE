@@ -204,6 +204,9 @@ model MaintenancePlan {
   // Restrict: Properties use soft-delete, never hard-deleted. Restrict prevents accidental cascade.
   property Property @relation(fields: [propertyId], references: [id], onDelete: Restrict)
   tasks    Task[]
+
+  @@index([status])
+  @@index([createdBy])
 }
 
 model Category {
@@ -410,6 +413,8 @@ model CategoryTemplate {
   tasks        TaskTemplate[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+
+  @@index([createdAt])
 }
 
 model TaskTemplate {
@@ -429,4 +434,5 @@ model TaskTemplate {
   updatedAt                DateTime                @updatedAt
 
   @@index([categoryId])
+  @@index([categoryId, displayOrder])
 }

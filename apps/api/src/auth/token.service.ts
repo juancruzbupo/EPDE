@@ -143,9 +143,16 @@ export class TokenService {
 
   /**
    * Check if an access token JTI is blacklisted.
+   * Degrades gracefully if Redis is unavailable: logs warning and allows the request.
+   * Trade-off: availability over perfect security during Redis downtime.
    */
   async isBlacklisted(jti: string): Promise<boolean> {
-    return this.redisService.exists(`bl:${jti}`);
+    const result = await this.redisService.safeExists(`bl:${jti}`);
+    if (result === null) {
+      this.logger.warn(`Redis unavailable — skipping blacklist check for JTI ${jti}`);
+      return false;
+    }
+    return result;
   }
 
   private createAccessToken(

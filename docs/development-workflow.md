@@ -317,6 +317,8 @@ Cuerpo opcional (lineas max 100 chars)
 
 **Tipos:** `feat`, `fix`, `refactor`, `docs`, `style`, `test`, `chore`, `ci`
 
+**Scopes:** `web`, `api`, `shared`, `mobile`, `infra`, `ci`, `docs`, `deps`, `root`
+
 **Reglas:**
 
 - Subject en minuscula (no `fix: Add feature`, si `fix: add feature`)

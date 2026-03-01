@@ -2,6 +2,7 @@ import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tansta
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { getErrorMessage } from '@/lib/errors';
+import type { ApiResponse, ClientPublic } from '@epde/shared';
 import {
   getClients,
   getClient,
@@ -20,10 +21,11 @@ export function useClients(filters: ClientFilters) {
   });
 }
 
-export function useClient(id: string) {
+export function useClient(id: string, options?: { initialData?: ApiResponse<ClientPublic> }) {
   return useQuery({
     queryKey: ['clients', id],
     queryFn: ({ signal }) => getClient(id, signal),
+    initialData: options?.initialData,
     enabled: !!id,
   });
 }

@@ -258,10 +258,10 @@ export class BudgetsService {
 
 **Reglas del service:**
 
-- Inyectar SOLO repositorios y servicios auxiliares (EventEmitter, EmailService)
+- Inyectar SOLO repositorios y servicios auxiliares (EventEmitter, EmailQueueService, NotificationQueueService)
 - Verificar permisos: CLIENT solo accede a sus recursos via `property.userId`
 - Lanzar excepciones NestJS: `NotFoundException`, `ForbiddenException`, `BadRequestException`
-- Emitir eventos para operaciones async: `this.eventEmitter.emit('budget.created', payload)`
+- Emitir eventos para operaciones async: `this.eventEmitter.emit('budget.created', payload)` — los listeners enqueue en BullMQ (notificaciones y emails)
 
 ### 3.4 Controller Pattern
 

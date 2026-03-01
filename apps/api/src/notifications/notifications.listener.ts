@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { UsersRepository } from '../common/repositories/users.repository';
-import { NotificationsService } from './notifications.service';
+import { NotificationQueueService } from './notification-queue.service';
 import { EmailQueueService } from '../email/email-queue.service';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class NotificationsListener {
   private readonly logger = new Logger(NotificationsListener.name);
 
   constructor(
-    private readonly notificationsService: NotificationsService,
+    private readonly notificationQueueService: NotificationQueueService,
     private readonly usersRepository: UsersRepository,
     private readonly emailQueueService: EmailQueueService,
   ) {}
@@ -24,7 +24,7 @@ export class NotificationsListener {
     try {
       const adminIds = await this.usersRepository.findAdminIds();
 
-      await this.notificationsService.createNotifications(
+      await this.notificationQueueService.enqueueBatch(
         adminIds.map((adminId) => ({
           userId: adminId,
           type: 'BUDGET_UPDATE' as const,
@@ -49,7 +49,7 @@ export class NotificationsListener {
     totalAmount: number;
   }) {
     try {
-      await this.notificationsService.createNotification({
+      await this.notificationQueueService.enqueue({
         userId: payload.requesterId,
         type: 'BUDGET_UPDATE',
         title: 'Presupuesto cotizado',
@@ -95,7 +95,7 @@ export class NotificationsListener {
 
       if (['APPROVED', 'REJECTED'].includes(payload.newStatus)) {
         const adminIds = await this.usersRepository.findAdminIds();
-        await this.notificationsService.createNotifications(
+        await this.notificationQueueService.enqueueBatch(
           adminIds.map((adminId) => ({
             userId: adminId,
             type: 'BUDGET_UPDATE' as const,
@@ -105,7 +105,7 @@ export class NotificationsListener {
           })),
         );
       } else {
-        await this.notificationsService.createNotification({
+        await this.notificationQueueService.enqueue({
           userId: payload.requesterId,
           type: 'BUDGET_UPDATE',
           title: 'Actualización de presupuesto',
@@ -142,7 +142,7 @@ export class NotificationsListener {
     try {
       const adminIds = await this.usersRepository.findAdminIds();
 
-      await this.notificationsService.createNotifications(
+      await this.notificationQueueService.enqueueBatch(
         adminIds.map((adminId) => ({
           userId: adminId,
           type: 'SERVICE_UPDATE' as const,
@@ -177,7 +177,7 @@ export class NotificationsListener {
 
       const message = statusMessages[payload.newStatus] ?? 'cambió de estado';
 
-      await this.notificationsService.createNotification({
+      await this.notificationQueueService.enqueue({
         userId: payload.requesterId,
         type: 'SERVICE_UPDATE',
         title: 'Actualización de servicio',

@@ -6,6 +6,11 @@ import Redis from 'ioredis';
 export class RedisService implements OnModuleDestroy {
   private readonly client: Redis;
   private readonly logger = new Logger(RedisService.name);
+  private _isConnected = false;
+
+  get isConnected(): boolean {
+    return this._isConnected;
+  }
 
   constructor(private readonly configService: ConfigService) {
     const url = this.configService.get<string>('REDIS_URL', 'redis://localhost:6379');
@@ -23,12 +28,24 @@ export class RedisService implements OnModuleDestroy {
       maxRetriesPerRequest: 3,
       ...(url.startsWith('rediss://') && { tls: { rejectUnauthorized: true } }),
     });
-    this.client.on('connect', () => this.logger.log('Redis connected'));
-    this.client.on('error', (err) => this.logger.error('Redis error', err.message));
+    this.client.on('connect', () => {
+      this._isConnected = true;
+      this.logger.log('Redis connected');
+    });
+    this.client.on('ready', () => {
+      this._isConnected = true;
+    });
+    this.client.on('error', (err) => {
+      this._isConnected = false;
+      this.logger.error('Redis error', err.message);
+    });
     this.client.on('reconnecting', (ms: number) =>
       this.logger.warn(`Redis reconnecting in ${ms}ms`),
     );
-    this.client.on('close', () => this.logger.warn('Redis connection closed'));
+    this.client.on('close', () => {
+      this._isConnected = false;
+      this.logger.warn('Redis connection closed');
+    });
   }
 
   async onModuleDestroy() {
@@ -54,6 +71,19 @@ export class RedisService implements OnModuleDestroy {
   async exists(key: string): Promise<boolean> {
     const result = await this.client.exists(key);
     return result === 1;
+  }
+
+  /**
+   * Safe version of exists() that returns null instead of throwing when Redis is unavailable.
+   * Used for graceful degradation (e.g., skipping blacklist checks when Redis is down).
+   */
+  async safeExists(key: string): Promise<boolean | null> {
+    try {
+      const result = await this.client.exists(key);
+      return result === 1;
+    } catch {
+      return null;
+    }
   }
 
   /**

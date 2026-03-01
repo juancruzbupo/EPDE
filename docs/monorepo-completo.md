@@ -357,17 +357,18 @@ Tres guards globales en orden via `APP_GUARD`:
 
 ### P7: Event-Driven Communication
 
-`EventEmitter2` para operaciones asincronas entre modulos:
+`EventEmitter2` emite eventos de dominio. Tanto notificaciones in-app como emails se procesan via **BullMQ** queues durables:
 
-| Evento                  | Emisor                 | Accion                        |
-| ----------------------- | ---------------------- | ----------------------------- |
-| `service.created`       | ServiceRequestsService | Notificacion + email al admin |
-| `service.statusChanged` | ServiceRequestsService | Notificacion al cliente       |
-| `budget.created`        | BudgetsService         | Notificacion + email al admin |
-| `budget.statusChanged`  | BudgetsService         | Notificacion al cliente       |
-| `client.invited`        | ClientsService         | Email de invitacion           |
+| Evento                  | Emisor                 | Accion                                               |
+| ----------------------- | ---------------------- | ---------------------------------------------------- |
+| `service.created`       | ServiceRequestsService | Notificacion in-app (queue) + email (queue) al admin |
+| `service.statusChanged` | ServiceRequestsService | Notificacion in-app al cliente (queue)               |
+| `budget.created`        | BudgetsService         | Notificacion in-app (queue) + email (queue) al admin |
+| `budget.quoted`         | BudgetsService         | Notificacion in-app + email al cliente (queues)      |
+| `budget.statusChanged`  | BudgetsService         | Notificacion in-app + email al cliente (queues)      |
+| `client.invited`        | ClientsService         | Email de invitacion (queue)                          |
 
-Cada handler en `NotificationsListener` esta envuelto en `try-catch` para evitar que errores de DB/email propaguen al event loop.
+**Queues:** `notification` (3 reintentos, backoff 3s) para in-app, `emails` (5 reintentos, backoff 5s) para emails. Cada handler en `NotificationsListener` esta envuelto en `try-catch`. Errores se manejan automaticamente por BullMQ con reintentos.
 
 ### P8: Error Handling Centralizado
 

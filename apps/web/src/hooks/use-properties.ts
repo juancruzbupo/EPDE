@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import type { UpdatePropertyInput } from '@epde/shared';
+import type { UpdatePropertyInput, ApiResponse, PropertyPublic } from '@epde/shared';
 import { getErrorMessage } from '@/lib/errors';
 import {
   getProperties,
@@ -20,10 +20,11 @@ export function useProperties(filters: PropertyFilters) {
   });
 }
 
-export function useProperty(id: string) {
+export function useProperty(id: string, options?: { initialData?: ApiResponse<PropertyPublic> }) {
   return useQuery({
     queryKey: ['properties', id],
     queryFn: ({ signal }) => getProperty(id, signal),
+    initialData: options?.initialData,
     enabled: !!id,
   });
 }
