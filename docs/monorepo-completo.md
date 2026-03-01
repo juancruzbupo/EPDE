@@ -623,6 +623,45 @@ Casos de uso: token rotation (families), token blacklist (JTIs), distributed loc
 | CreateServiceRequestModal | Formulario con upload de fotos           |
 | CompleteTaskModal         | Completar tarea con nota y foto          |
 
+### UI/UX Patterns (Web)
+
+#### Detail Page Info Card
+
+Todas las detail pages muestran informacion en un card con fondo sutil e iconos:
+
+```tsx
+<div className="bg-muted/40 rounded-lg p-4">
+  <dl className="grid gap-4 text-sm sm:grid-cols-2">
+    <div className="space-y-1">
+      <dt className="text-muted-foreground flex items-center gap-1.5">
+        <Icon className="h-3.5 w-3.5" /> Label
+      </dt>
+      <dd className="font-medium">{value}</dd>
+    </div>
+  </dl>
+</div>
+```
+
+#### Loading Skeletons
+
+Skeletons estructurados que reflejan el layout real: PageHeader (titulo + descripcion + boton), Card (header con titulo + badge, body con grid de campos `space-y-1.5`).
+
+#### Not-Found / Empty States
+
+- **Not-found:** Icon `h-10 w-10 text-muted-foreground/50` + texto + `<Button variant="outline">Volver</Button>`
+- **Empty state:** Icon `h-8 w-8 text-muted-foreground/50` + texto descriptivo centrado (`py-8`)
+
+#### DataTable Row Interaction
+
+- Row click navega a detail page via `onRowClick`
+- Titulo de la columna principal como `<Link>` clickeable
+- Menu 3-dot solo para acciones destructivas (eliminar, cambiar estado)
+
+#### Dashboard
+
+- Stat cards con styling condicional para overdue: `border-destructive/30 bg-destructive/10`
+- Activity list con icon circles (`bg-muted rounded-full p-2`) en bordered card items
+
 ### Style Maps (Variantes de Badge)
 
 Centralizados en `lib/style-maps.ts` (web) y `components/status-badge.tsx` (mobile):

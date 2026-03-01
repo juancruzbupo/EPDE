@@ -636,6 +636,137 @@ export const queryClient = new QueryClient({ defaultOptions: { queries: { staleT
 
 **Middleware (Next.js):** Verifica cookie `access_token`, decodifica JWT, redirige a `/login` si expirado (buffer 30s).
 
+### 4.7 UI/UX Patterns
+
+#### Detail Page — Info Card
+
+Todas las detail pages usan el mismo patron para mostrar informacion del recurso:
+
+```tsx
+<Card>
+  <CardHeader className="flex flex-row items-center justify-between">
+    <CardTitle className="text-lg">Informacion del recurso</CardTitle>
+    <Badge variant="outline">{statusLabel}</Badge>
+  </CardHeader>
+  <CardContent>
+    <div className="bg-muted/40 rounded-lg p-4">
+      <dl className="grid gap-4 text-sm sm:grid-cols-2">
+        <div className="space-y-1">
+          <dt className="text-muted-foreground flex items-center gap-1.5">
+            <Icon className="h-3.5 w-3.5" />
+            Label
+          </dt>
+          <dd className="font-medium">{value}</dd>
+        </div>
+        {/* ... mas campos */}
+      </dl>
+    </div>
+  </CardContent>
+</Card>
+```
+
+**Reglas:** Fondo `bg-muted/40 rounded-lg p-4`, `text-sm` en `<dl>`, `space-y-1` por campo, icono Lucide `h-3.5 w-3.5` en cada `<dt>`.
+
+#### Loading Skeleton Estructurado
+
+Los skeletons deben reflejar la estructura real del contenido:
+
+```tsx
+<div className="space-y-6">
+  <div className="flex items-start justify-between">
+    <div>
+      <Skeleton className="h-7 w-56" /> {/* PageHeader title */}
+      <Skeleton className="mt-1.5 h-4 w-36" /> {/* PageHeader description */}
+    </div>
+    <Skeleton className="h-9 w-24" /> {/* Back button */}
+  </div>
+  <Card>
+    <CardHeader className="flex flex-row items-center justify-between">
+      <Skeleton className="h-5 w-48" /> {/* Card title */}
+      <Skeleton className="h-5 w-20 rounded-full" /> {/* Badge */}
+    </CardHeader>
+    <CardContent>
+      <div className="bg-muted/40 rounded-lg p-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          {Array.from({ length: N }).map((_, i) => (
+            <div key={i} className="space-y-1.5">
+              <Skeleton className="h-3.5 w-24" /> {/* Label */}
+              <Skeleton className="h-4 w-36" /> {/* Value */}
+            </div>
+          ))}
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+</div>
+```
+
+#### Not-Found State
+
+Patron unificado para recursos no encontrados:
+
+```tsx
+<div className="flex flex-col items-center gap-2 py-16">
+  <EntityIcon className="text-muted-foreground/50 h-10 w-10" />
+  <p className="text-muted-foreground text-sm">Recurso no encontrado</p>
+  <Button variant="outline" asChild className="mt-2">
+    <Link href="/entity-list">
+      <ArrowLeft className="mr-2 h-4 w-4" />
+      Volver a listado
+    </Link>
+  </Button>
+</div>
+```
+
+#### Empty State
+
+Patron para listas vacias o sin resultados:
+
+```tsx
+<div className="flex flex-col items-center gap-2 py-8">
+  <ContextIcon className="text-muted-foreground/50 h-8 w-8" />
+  <p className="text-muted-foreground text-sm">Mensaje descriptivo</p>
+</div>
+```
+
+#### DataTable — Row Interaction
+
+Las tablas de datos siguen este patron de interaccion:
+
+- **Row click:** `onRowClick` navega a la detail page
+- **Title column:** Renderiza como `<Link>` clickeable (doble acceso: fila o link)
+- **3-dot menu:** Solo para acciones destructivas o de estado (eliminar, cambiar estado). NO para navegacion
+- **NUNCA:** Poner botones "Ver" en la tabla — la fila entera ya navega
+
+#### Stat Card — Overdue Styling
+
+Las stat cards de tareas vencidas usan styling condicional:
+
+```tsx
+<StatCard
+  title="Tareas Vencidas"
+  value={stats.overdueTasks}
+  icon={AlertTriangle}
+  className={stats.overdueTasks > 0 ? 'border-destructive/30 bg-destructive/10' : ''}
+/>
+```
+
+#### Dashboard Activity List
+
+Items de actividad con icon circle + card border:
+
+```tsx
+<li className="flex items-start gap-3 rounded-lg border p-3">
+  <div className="bg-muted mt-0.5 rounded-full p-2">
+    <Activity className="h-4 w-4" />
+  </div>
+  <div className="flex-1">
+    <span className="text-sm font-medium">{description}</span>
+    <span className="text-muted-foreground mt-0.5 block text-xs">{time}</span>
+  </div>
+</li>
+```
+
 ---
 
 ## 5. Mobile (`@epde/mobile`) — Expo
@@ -841,3 +972,8 @@ pnpm test       # Todos los tests pasan
 | `<div onClick={fn}>` (clickeable sin teclado)                        | `<div role="button" tabIndex={0} onClick={fn} onKeyDown={handleEnterSpace}>`       |
 | `<span className="text-red-600">Error</span>`                        | `<span className="text-destructive">Error</span>`                                  |
 | `<div className="bg-white">`                                         | `<div className="bg-background">`                                                  |
+| `<dl>` plano sin fondo ni iconos                                     | `bg-muted/40 rounded-lg p-4` + iconos Lucide en `<dt>`                             |
+| Skeleton generico (`h-8 w-48` + `h-64 w-full`)                       | Skeleton estructurado que refleja layout real (PageHeader + Card + grid)           |
+| `<p>Recurso no encontrado</p>` (texto plano)                         | Icon centrado `h-10 w-10` + texto + boton "Volver"                                 |
+| Boton "Ver" en columna de tabla                                      | `onRowClick` en DataTable + titulo como `<Link>`                                   |
+| Activity list con `<li>` planos                                      | Items con icon circle (`bg-muted rounded-full p-2`) + border card                  |

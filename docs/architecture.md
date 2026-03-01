@@ -313,6 +313,14 @@ Dependencias: `TasksRepository`, `NotificationsRepository`, `UsersRepository`, `
 - `queryClient` singleton exportable (`lib/query-client.ts`) — usado tanto por el QueryProvider como por el auth store (para `queryClient.clear()` en logout)
 - Paginacion cursor-based con `hasMore` + "Cargar mas"
 
+**UI/UX Patterns (Web):**
+
+- **Detail pages:** Info card con `bg-muted/40 rounded-lg p-4`, iconos Lucide en labels, structured loading skeletons
+- **Not-found states:** Icon centrado + texto + boton "Volver" al listado
+- **Empty states:** Icon `text-muted-foreground/50` + texto descriptivo centrado
+- **DataTable:** Row click para navegacion, titulo como `<Link>`, menu 3-dot solo para acciones destructivas
+- **Dashboard:** Activity list con icon circles en bordered cards, stat cards con styling condicional para overdue (`border-destructive/30 bg-destructive/10`)
+
 ### 13. API Client (Axios)
 
 ```typescript
