@@ -48,3 +48,9 @@ export const CLIENT_STATUS_VARIANT: Record<string, BadgeVariant> = {
   INVITED: 'secondary',
   INACTIVE: 'outline',
 };
+
+export const PLAN_STATUS_VARIANT: Record<string, BadgeVariant> = {
+  DRAFT: 'secondary',
+  ACTIVE: 'default',
+  ARCHIVED: 'outline',
+};
