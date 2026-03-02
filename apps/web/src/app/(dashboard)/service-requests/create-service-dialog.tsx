@@ -207,6 +207,7 @@ export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogP
               <div className="mt-2 flex flex-wrap gap-2">
                 {photos.map((photo, index) => (
                   <div key={index} className="relative">
+                    {}
                     <img
                       src={photo.preview}
                       alt={`Foto ${index + 1}`}

@@ -3,6 +3,8 @@ import { toast } from 'sonner';
 import { getErrorMessage } from '@/lib/errors';
 import {
   getPlan,
+  getPlans,
+  getAllTasks,
   updatePlan,
   addTask,
   updateTask,
@@ -17,6 +19,20 @@ import {
 import type { PlanPublic, TaskNotePublic, UpdateTaskDto } from '@/lib/api/maintenance-plans';
 import { QUERY_KEYS, type CompleteTaskInput } from '@epde/shared';
 import { useAuthStore } from '@/stores/auth-store';
+
+export function usePlans() {
+  return useQuery({
+    queryKey: [QUERY_KEYS.plans, 'list'],
+    queryFn: () => getPlans().then((r) => r.data),
+  });
+}
+
+export function useAllTasks(status?: string) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.plans, 'tasks', status ?? 'all'],
+    queryFn: () => getAllTasks(status).then((r) => r.data),
+  });
+}
 
 export function usePlan(id: string) {
   return useQuery({

@@ -2,6 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
 import {
   getPlan,
+  getPlans,
+  getAllTasks,
   getTaskDetail,
   getTaskLogs,
   getTaskNotes,
@@ -12,6 +14,20 @@ import type { PlanPublic, TaskNotePublic } from '@epde/shared/types';
 import type { CompleteTaskInput } from '@epde/shared/schemas';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useAuthStore } from '@/stores/auth-store';
+
+export function usePlans() {
+  return useQuery({
+    queryKey: [QUERY_KEYS.plans, 'list'],
+    queryFn: () => getPlans().then((r) => r.data),
+  });
+}
+
+export function useAllTasks(status?: string) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.plans, 'tasks', status ?? 'all'],
+    queryFn: () => getAllTasks(status).then((r) => r.data),
+  });
+}
 
 export function usePlan(id: string) {
   return useQuery({

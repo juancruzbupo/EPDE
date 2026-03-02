@@ -9,6 +9,19 @@ export class MaintenancePlansRepository extends BaseRepository<MaintenancePlan, 
     super(prisma, 'maintenancePlan', false);
   }
 
+  async findAll(userId?: string) {
+    return this.model.findMany({
+      where: userId ? { property: { userId } } : undefined,
+      include: {
+        property: {
+          select: { id: true, address: true, city: true, userId: true },
+        },
+        _count: { select: { tasks: { where: { deletedAt: null } } } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   async findByPropertyId(propertyId: string) {
     return this.model.findFirst({
       where: { propertyId },

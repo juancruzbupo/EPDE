@@ -14,8 +14,10 @@ import { colors } from '@/lib/colors';
 import { defaultScreenOptions } from '@/lib/screen-options';
 import type { BudgetLineItemPublic } from '@epde/shared/types';
 
-function formatAmount(amount: number): string {
-  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
+function formatAmount(amount: number | string): string {
+  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(
+    Number(amount),
+  );
 }
 
 function LineItem({ item }: { item: BudgetLineItemPublic }) {

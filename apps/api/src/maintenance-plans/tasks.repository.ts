@@ -16,6 +16,28 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
     super(prisma, 'task', true);
   }
 
+  async findAllForList(userId?: string, status?: string) {
+    return this.model.findMany({
+      where: {
+        deletedAt: null,
+        ...(status && status !== 'all' ? { status: status as TaskStatus } : {}),
+        ...(userId ? { maintenancePlan: { property: { userId } } } : {}),
+      },
+      include: {
+        category: { select: { id: true, name: true, icon: true } },
+        maintenancePlan: {
+          select: {
+            id: true,
+            name: true,
+            property: { select: { id: true, address: true, city: true } },
+          },
+        },
+      },
+      orderBy: [{ nextDueDate: 'asc' }, { priority: 'asc' }],
+      take: 200,
+    });
+  }
+
   async findByPlanId(planId: string) {
     return this.model.findMany({
       where: { maintenancePlanId: planId },

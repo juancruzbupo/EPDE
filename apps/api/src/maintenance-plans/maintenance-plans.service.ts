@@ -40,6 +40,16 @@ export class MaintenancePlansService {
     return task;
   }
 
+  async listPlans(currentUser?: { id: string; role: string }) {
+    const userId = currentUser?.role === UserRole.CLIENT ? currentUser.id : undefined;
+    return this.plansRepository.findAll(userId);
+  }
+
+  async listAllTasks(currentUser?: { id: string; role: string }, status?: string) {
+    const userId = currentUser?.role === UserRole.CLIENT ? currentUser.id : undefined;
+    return this.tasksRepository.findAllForList(userId, status);
+  }
+
   async getPlan(id: string, currentUser?: { id: string; role: string }) {
     const plan = await this.plansRepository.findWithFullDetails(id);
     if (!plan) {

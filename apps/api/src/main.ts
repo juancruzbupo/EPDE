@@ -6,6 +6,7 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
+import type { Request, Response, NextFunction } from 'express';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 
@@ -15,7 +16,7 @@ async function bootstrap() {
   app.enableShutdownHooks();
 
   // Request-ID propagation: set on request + response for cross-service tracing
-  app.use((req: any, res: any, next: any) => {
+  app.use((req: Request, res: Response, next: NextFunction) => {
     const requestId = (req.headers['x-request-id'] as string) || randomUUID();
     req.headers['x-request-id'] = requestId;
     res.setHeader('x-request-id', requestId);

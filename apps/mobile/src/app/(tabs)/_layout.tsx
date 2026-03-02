@@ -68,6 +68,24 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="planes"
+          options={{
+            title: 'Planes',
+            tabBarIcon: ({ color, focused }) => (
+              <AnimatedTabIcon emoji="📅" color={color} focused={focused} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="tareas"
+          options={{
+            title: 'Tareas',
+            tabBarIcon: ({ color, focused }) => (
+              <AnimatedTabIcon emoji="✅" color={color} focused={focused} />
+            ),
+          }}
+        />
+        <Tabs.Screen
           name="budgets"
           options={{
             title: 'Presupuestos',

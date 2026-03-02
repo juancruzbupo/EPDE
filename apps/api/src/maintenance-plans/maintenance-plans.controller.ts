@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Put, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Put, Param, Body, Query } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -40,6 +40,21 @@ type CreateTaskBody = z.infer<typeof createTaskBodySchema>;
 @Controller('maintenance-plans')
 export class MaintenancePlansController {
   constructor(private readonly plansService: MaintenancePlansService) {}
+
+  @Get()
+  async listPlans(@CurrentUser() user: { id: string; role: string }) {
+    const data = await this.plansService.listPlans(user);
+    return { data };
+  }
+
+  @Get('tasks')
+  async listAllTasks(
+    @CurrentUser() user: { id: string; role: string },
+    @Query('status') status?: string,
+  ) {
+    const data = await this.plansService.listAllTasks(user, status);
+    return { data };
+  }
 
   @Get(':id')
   async getPlan(@Param('id') id: string, @CurrentUser() user: { id: string; role: string }) {

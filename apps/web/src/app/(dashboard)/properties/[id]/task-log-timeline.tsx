@@ -90,6 +90,7 @@ export function TaskLogTimeline({ planId, taskId }: TaskLogTimelineProps) {
 
             {log.photoUrl && (
               <div className="pt-1">
+                {}
                 <img
                   src={log.photoUrl}
                   alt="Foto de completado"

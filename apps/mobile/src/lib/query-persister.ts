@@ -8,7 +8,6 @@ const CACHE_KEY = `epde-query-cache-v${APP_VERSION}`;
 export const asyncStoragePersister = createAsyncStoragePersister({
   storage: AsyncStorage,
   key: CACHE_KEY,
-  maxAge: 1000 * 60 * 60 * 24, // 24 hours
 });
 
 // Clean up stale cache keys from previous app versions

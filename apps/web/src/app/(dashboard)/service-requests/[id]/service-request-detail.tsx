@@ -147,6 +147,7 @@ export function ServiceRequestDetail({ id, isAdmin, initialData }: ServiceReques
                     onClick={() => setPreviewPhoto(photo.url)}
                     className="overflow-hidden rounded-md border"
                   >
+                    {}
                     <img
                       src={photo.url}
                       alt="Foto de solicitud"
@@ -172,6 +173,7 @@ export function ServiceRequestDetail({ id, isAdmin, initialData }: ServiceReques
 
       <Dialog open={!!previewPhoto} onOpenChange={() => setPreviewPhoto(null)}>
         <DialogContent className="max-w-[90vw] border-none bg-transparent p-0 shadow-none">
+          {}
           <img
             src={previewPhoto ?? ''}
             alt="Vista previa de foto"

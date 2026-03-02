@@ -6,6 +6,7 @@ module.exports = {
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^react-native-reanimated$': '<rootDir>/__mocks__/react-native-reanimated.js',
   },
   coverageThreshold: {
     global: { statements: 10, branches: 5, functions: 10, lines: 10 },

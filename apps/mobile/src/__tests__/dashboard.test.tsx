@@ -56,6 +56,7 @@ const mockTasks: UpcomingTask[] = [
     priority: 'HIGH',
     status: 'UPCOMING',
     propertyAddress: 'Av. Corrientes 1234',
+    propertyId: 'prop-1',
     categoryName: 'Calefaccion',
     maintenancePlanId: 'plan-1',
   },
@@ -66,6 +67,7 @@ const mockTasks: UpcomingTask[] = [
     priority: 'MEDIUM',
     status: 'PENDING',
     propertyAddress: 'Av. Santa Fe 5678',
+    propertyId: 'prop-2',
     categoryName: 'Exterior',
     maintenancePlanId: 'plan-2',
   },
@@ -108,20 +110,15 @@ describe('DashboardScreen', () => {
     // Heading
     expect(getByText('Mi Panel')).toBeTruthy();
 
-    // Stat card titles
-    expect(getByText('Propiedades')).toBeTruthy();
-    expect(getByText('Tareas Pendientes')).toBeTruthy();
-    expect(getByText('Tareas Vencidas')).toBeTruthy();
-    expect(getByText('Completadas (mes)')).toBeTruthy();
-    expect(getByText('Presupuestos')).toBeTruthy();
-    expect(getByText('Servicios')).toBeTruthy();
+    // HealthCard + 3 compact stat cards (new layout after Premium Polish)
+    expect(getByText('Salud del Mantenimiento')).toBeTruthy();
+    expect(getAllByText('Vencidas').length).toBeGreaterThanOrEqual(1);
+    expect(getAllByText('Completadas').length).toBeGreaterThanOrEqual(1);
+    expect(getByText('Pendientes')).toBeTruthy();
 
-    // Stat card values (use getAllByText for values that appear more than once)
-    expect(getByText('3')).toBeTruthy(); // totalProperties
-    expect(getByText('5')).toBeTruthy(); // pendingTasks
+    // HealthCard shows exact counts from stats
     expect(getByText('7')).toBeTruthy(); // completedThisMonth
-    expect(getAllByText('1').length).toBeGreaterThanOrEqual(1); // overdueTasks & openServices
-    expect(getByText('2')).toBeTruthy(); // pendingBudgets
+    expect(getAllByText('1').length).toBeGreaterThanOrEqual(1); // overdueTasks
 
     // Section heading
     expect(getByText('Proximas Tareas')).toBeTruthy();

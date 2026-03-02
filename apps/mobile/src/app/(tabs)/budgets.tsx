@@ -22,8 +22,10 @@ const FILTERS = [
   { key: 'COMPLETED', label: 'Completados' },
 ] as const;
 
-function formatAmount(amount: number): string {
-  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
+function formatAmount(amount: number | string): string {
+  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(
+    Number(amount),
+  );
 }
 
 const BudgetCard = memo(function BudgetCard({ budget }: { budget: BudgetRequestPublic }) {

@@ -381,12 +381,12 @@ pnpm --filter @epde/web test                 # Solo Web (vitest + jsdom)
 pnpm --filter @epde/mobile test              # Solo Mobile (jest-expo)
 ```
 
-- **API**: Jest con mocks de repositorios (no accede a DB). `--runInBand` evita conflictos
+- **API**: Jest con mocks de repositorios (no accede a DB). `--runInBand --forceExit` evita conflictos y cierra conexiones BullMQ/Redis al finalizar
 - **Shared**: Vitest — schemas Zod + utils
 - **Web**: Vitest + jsdom + @testing-library/react — hooks y componentes
-- **Mobile**: jest-expo + @testing-library/react-native — componentes
+- **Mobile**: jest-expo + @testing-library/react-native — componentes. Mock manual de `react-native-reanimated` en `__mocks__/react-native-reanimated.js` (v4.x requiere worklets nativos incluso en el mock oficial)
 
-Total: 427 tests (192 API + 187 Shared + 35 Web + 13 Mobile)
+Total: 438 tests (192 API + 187 Shared + 35 Web + 24 Mobile)
 
 ### Tests E2E
 

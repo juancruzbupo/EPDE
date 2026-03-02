@@ -6,11 +6,13 @@ import {
   BUDGET_STATUS_LABELS,
   SERVICE_STATUS_LABELS,
   SERVICE_URGENCY_LABELS,
+  PLAN_STATUS_LABELS,
   TASK_STATUS_VARIANT,
   PRIORITY_VARIANT,
   BUDGET_STATUS_VARIANT,
   SERVICE_STATUS_VARIANT,
   URGENCY_VARIANT,
+  PLAN_STATUS_VARIANT,
 } from '@epde/shared';
 import type { BadgeVariant } from '@epde/shared';
 
@@ -71,5 +73,11 @@ export function ServiceStatusBadge({ status }: { status: string }) {
 export function UrgencyBadge({ urgency }: { urgency: string }) {
   const label = SERVICE_URGENCY_LABELS[urgency] ?? urgency;
   const variant = URGENCY_VARIANT[urgency] ?? 'outline';
+  return <StatusBadge label={label} variant={variant} />;
+}
+
+export function PlanStatusBadge({ status }: { status: string }) {
+  const label = PLAN_STATUS_LABELS[status] ?? status;
+  const variant = PLAN_STATUS_VARIANT[status] ?? 'outline';
   return <StatusBadge label={label} variant={variant} />;
 }
