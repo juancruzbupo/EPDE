@@ -1,3 +1,10 @@
+/**
+ * UserLookupRepository — lightweight, read-only user queries for cross-module use.
+ *
+ * Lives in `common/repositories/` because it is consumed by the Scheduler and
+ * Notifications subsystems, which must NOT import UsersModule (circular-dependency risk).
+ * It intentionally exposes only the minimal projections each consumer needs.
+ */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UserRole } from '@epde/shared';

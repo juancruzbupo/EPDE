@@ -52,6 +52,28 @@ export abstract class BaseRepository<T, M extends PrismaModelName = PrismaModelN
     return this.model.findUnique({ where: { id }, ...(include && { include }) });
   }
 
+  /**
+   * Retrieves specific fields of an entity by ID using a typed `select` object.
+   * Use this for ownership checks or when you need a typed subset of fields
+   * without the `include`/`T` type gap that `findById` has.
+   *
+   * NOTE: `findById` with `include` returns `T` at the type level but the runtime
+   * object contains the included relations. Use `findByIdSelect` when you need
+   * to access specific fields in a type-safe way.
+   *
+   * @example
+   * // Type-safe ownership check
+   * const record = await this.repo.findByIdSelect<{ userId: string }>(id, { userId: true });
+   * if (record?.userId !== currentUser.id) throw new ForbiddenException();
+   */
+  async findByIdSelect<TResult>(
+    id: string,
+    select: Record<string, boolean>,
+  ): Promise<TResult | null> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (this.model as any).findUnique({ where: { id }, select });
+  }
+
   async findMany(params: FindManyParams = {}): Promise<PaginatedResult<T>> {
     const take = Math.min(Math.max(params.take ?? PAGINATION_DEFAULT_TAKE, 1), PAGINATION_MAX_TAKE);
     const where = params.where ?? {};

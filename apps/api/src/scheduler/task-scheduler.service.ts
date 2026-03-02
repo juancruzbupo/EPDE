@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { TasksRepository } from '../maintenance-plans/tasks.repository';
 import { NotificationsRepository } from '../notifications/notifications.repository';
-import { UserLookupRepository } from '../common/repositories/users.repository';
+import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
 import { NotificationsService } from '../notifications/notifications.service';
 import { EmailQueueService } from '../email/email-queue.service';
 import { DistributedLockService } from '../redis/distributed-lock.service';

@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   ServiceRequestsRepository,
   type ServiceRequestWithDetails,
 } from './service-requests.repository';
 import { PropertiesRepository } from '../properties/properties.repository';
+import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { UserRole } from '@epde/shared';
 import type {
   CreateServiceRequestInput,
@@ -22,7 +22,7 @@ export class ServiceRequestsService {
   constructor(
     private readonly serviceRequestsRepository: ServiceRequestsRepository,
     private readonly propertiesRepository: PropertiesRepository,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly notificationsHandler: NotificationsHandlerService,
   ) {}
 
   async listRequests(filters: ServiceRequestFiltersInput, currentUser: CurrentUser) {
@@ -71,7 +71,7 @@ export class ServiceRequestsService {
       photoUrls: dto.photoUrls,
     });
 
-    this.eventEmitter.emit('service.created', {
+    void this.notificationsHandler.handleServiceCreated({
       serviceRequestId: result!.id,
       title: dto.title,
       requesterId: userId,
@@ -106,7 +106,7 @@ export class ServiceRequestsService {
       },
     );
 
-    this.eventEmitter.emit('service.statusChanged', {
+    void this.notificationsHandler.handleServiceStatusChanged({
       serviceRequestId: id,
       title: request.title,
       oldStatus: request.status,

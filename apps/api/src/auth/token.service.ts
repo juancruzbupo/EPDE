@@ -1,6 +1,6 @@
 import {
   Injectable,
-  InternalServerErrorException,
+  ServiceUnavailableException,
   UnauthorizedException,
   Logger,
 } from '@nestjs/common';
@@ -59,6 +59,9 @@ export class TokenService {
 
   /**
    * Generate a new token pair. Creates a new token family on login.
+   * If Redis is unavailable, logs a warning and returns tokens without persisting the family.
+   * The refresh token rotation will fail gracefully in that case (session won't be rotatable
+   * until Redis recovers), but login itself succeeds — availability over strict consistency.
    */
   async generateTokenPair(user: { id: string; email: string; role: string }): Promise<TokenPair> {
     const family = randomUUID();
@@ -69,11 +72,18 @@ export class TokenService {
 
     // Store family state in Redis (TTL = refresh token lifetime)
     const refreshTtl = this.getRefreshTtlSeconds();
-    await this.redisService.setex(
-      `rt:${family}`,
-      refreshTtl,
-      JSON.stringify({ userId: user.id, generation }),
-    );
+    try {
+      await this.redisService.setex(
+        `rt:${family}`,
+        refreshTtl,
+        JSON.stringify({ userId: user.id, generation }),
+      );
+    } catch (error) {
+      this.logger.warn(
+        `Redis unavailable during token generation for user ${user.id}: ${(error as Error).message}. ` +
+          `Tokens issued but refresh rotation will not work until Redis recovers.`,
+      );
+    }
 
     return { accessToken, refreshToken };
   }
@@ -104,9 +114,10 @@ export class TokenService {
       );
     } catch (error) {
       this.logger.error(
-        `Redis error during token rotation for user ${sub}: ${(error as Error).message}`,
+        `Redis unavailable during token rotation for user ${sub}: ${(error as Error).message}`,
+        (error as Error).stack,
       );
-      throw new InternalServerErrorException('Error al rotar token');
+      throw new ServiceUnavailableException('Auth service temporarily unavailable');
     }
 
     if (result === 0) {

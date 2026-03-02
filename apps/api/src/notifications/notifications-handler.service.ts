@@ -1,12 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
-import { UserLookupRepository } from '../common/repositories/users.repository';
+import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
 import { NotificationQueueService } from './notification-queue.service';
 import { EmailQueueService } from '../email/email-queue.service';
 
 @Injectable()
-export class NotificationsListener {
-  private readonly logger = new Logger(NotificationsListener.name);
+export class NotificationsHandlerService {
+  private readonly logger = new Logger(NotificationsHandlerService.name);
 
   constructor(
     private readonly notificationQueueService: NotificationQueueService,
@@ -14,13 +13,12 @@ export class NotificationsListener {
     private readonly emailQueueService: EmailQueueService,
   ) {}
 
-  @OnEvent('budget.created')
   async handleBudgetCreated(payload: {
     budgetId: string;
     title: string;
     requesterId: string;
     propertyId: string;
-  }) {
+  }): Promise<void> {
     try {
       const adminIds = await this.usersRepository.findAdminIds();
 
@@ -41,13 +39,12 @@ export class NotificationsListener {
     }
   }
 
-  @OnEvent('budget.quoted')
   async handleBudgetQuoted(payload: {
     budgetId: string;
     title: string;
     requesterId: string;
     totalAmount: number;
-  }) {
+  }): Promise<void> {
     try {
       await this.notificationQueueService.enqueue({
         userId: payload.requesterId,
@@ -75,14 +72,13 @@ export class NotificationsListener {
     }
   }
 
-  @OnEvent('budget.statusChanged')
   async handleBudgetStatusChanged(payload: {
     budgetId: string;
     title: string;
     oldStatus: string;
     newStatus: string;
     requesterId: string;
-  }) {
+  }): Promise<void> {
     try {
       const statusMessages: Record<string, string> = {
         APPROVED: 'fue aprobado',
@@ -132,13 +128,12 @@ export class NotificationsListener {
     }
   }
 
-  @OnEvent('service.created')
   async handleServiceCreated(payload: {
     serviceRequestId: string;
     title: string;
     requesterId: string;
     urgency: string;
-  }) {
+  }): Promise<void> {
     try {
       const adminIds = await this.usersRepository.findAdminIds();
 
@@ -159,14 +154,13 @@ export class NotificationsListener {
     }
   }
 
-  @OnEvent('service.statusChanged')
   async handleServiceStatusChanged(payload: {
     serviceRequestId: string;
     title: string;
     oldStatus: string;
     newStatus: string;
     requesterId: string;
-  }) {
+  }): Promise<void> {
     try {
       const statusMessages: Record<string, string> = {
         IN_REVIEW: 'está en revisión',

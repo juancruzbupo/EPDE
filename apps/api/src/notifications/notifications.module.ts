@@ -3,11 +3,11 @@ import { BullModule } from '@nestjs/bullmq';
 import { NotificationsController } from './notifications.controller';
 import { NotificationsService } from './notifications.service';
 import { NotificationsRepository } from './notifications.repository';
-import { NotificationsListener } from './notifications.listener';
+import { NotificationsHandlerService } from './notifications-handler.service';
 import { NotificationQueueService } from './notification-queue.service';
 import { NotificationQueueProcessor } from './notification-queue.processor';
 import { NOTIFICATION_QUEUE } from './notification-queue.types';
-import { UserLookupRepository } from '../common/repositories/users.repository';
+import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailModule } from '../email/email.module';
 
@@ -28,12 +28,12 @@ import { EmailModule } from '../email/email.module';
   providers: [
     NotificationsService,
     NotificationsRepository,
-    NotificationsListener,
+    NotificationsHandlerService,
     NotificationQueueService,
     NotificationQueueProcessor,
     UserLookupRepository,
     PrismaService,
   ],
-  exports: [NotificationsService, NotificationQueueService],
+  exports: [NotificationsService, NotificationQueueService, NotificationsHandlerService],
 })
 export class NotificationsModule {}

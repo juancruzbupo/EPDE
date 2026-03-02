@@ -13,6 +13,8 @@ import {
   Wrench,
   LogOut,
   LayoutTemplate,
+  ClipboardList,
+  CheckSquare,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserRole } from '@epde/shared';
@@ -21,6 +23,8 @@ const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Clientes', href: '/clients', icon: Users, adminOnly: true },
   { label: 'Propiedades', href: '/properties', icon: Home },
+  { label: 'Planes', href: '/planes', icon: ClipboardList },
+  { label: 'Tareas', href: '/tareas', icon: CheckSquare },
   { label: 'Presupuestos', href: '/budgets', icon: FileText },
   { label: 'Servicios', href: '/service-requests', icon: Wrench },
   { label: 'Categorías', href: '/categories', icon: Tags, adminOnly: true },

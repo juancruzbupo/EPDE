@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ServiceRequestsService } from './service-requests.service';
 import { ServiceRequestsRepository } from './service-requests.repository';
 import { PropertiesRepository } from '../properties/properties.repository';
+import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { UserRole } from '@epde/shared';
 
 const mockServiceRequestsRepository = {
@@ -17,8 +17,9 @@ const mockPropertiesRepository = {
   findOwnership: jest.fn(),
 };
 
-const mockEventEmitter = {
-  emit: jest.fn(),
+const mockNotificationsHandler = {
+  handleServiceCreated: jest.fn().mockResolvedValue(undefined),
+  handleServiceStatusChanged: jest.fn().mockResolvedValue(undefined),
 };
 
 const adminUser = { id: 'admin-1', role: UserRole.ADMIN };
@@ -50,7 +51,7 @@ describe('ServiceRequestsService', () => {
   let service: ServiceRequestsService;
   let serviceRequestsRepo: typeof mockServiceRequestsRepository;
   let propertiesRepo: typeof mockPropertiesRepository;
-  let eventEmitter: typeof mockEventEmitter;
+  let notificationsHandler: typeof mockNotificationsHandler;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -58,14 +59,14 @@ describe('ServiceRequestsService', () => {
         ServiceRequestsService,
         { provide: ServiceRequestsRepository, useValue: mockServiceRequestsRepository },
         { provide: PropertiesRepository, useValue: mockPropertiesRepository },
-        { provide: EventEmitter2, useValue: mockEventEmitter },
+        { provide: NotificationsHandlerService, useValue: mockNotificationsHandler },
       ],
     }).compile();
 
     service = module.get<ServiceRequestsService>(ServiceRequestsService);
     serviceRequestsRepo = module.get(ServiceRequestsRepository);
     propertiesRepo = module.get(PropertiesRepository);
-    eventEmitter = module.get(EventEmitter2);
+    notificationsHandler = module.get(NotificationsHandlerService);
 
     jest.clearAllMocks();
   });
@@ -186,7 +187,7 @@ describe('ServiceRequestsService', () => {
       photoUrls: ['https://example.com/photo1.jpg'],
     };
 
-    it('should create a service request and emit event', async () => {
+    it('should create a service request and call notification handler', async () => {
       propertiesRepo.findOwnership.mockResolvedValue({ id: 'prop-1', userId: 'client-1' });
       const createdRequest = { ...mockServiceRequest, id: 'sr-new', title: createDto.title };
       serviceRequestsRepo.createWithPhotos.mockResolvedValue(createdRequest);
@@ -203,7 +204,7 @@ describe('ServiceRequestsService', () => {
         urgency: 'MEDIUM',
         photoUrls: ['https://example.com/photo1.jpg'],
       });
-      expect(eventEmitter.emit).toHaveBeenCalledWith('service.created', {
+      expect(notificationsHandler.handleServiceCreated).toHaveBeenCalledWith({
         serviceRequestId: 'sr-new',
         title: 'Humedad en pared',
         requesterId: 'client-1',
@@ -247,12 +248,12 @@ describe('ServiceRequestsService', () => {
       );
     });
 
-    it('should not emit event when property is not found', async () => {
+    it('should not call notification handler when property is not found', async () => {
       propertiesRepo.findOwnership.mockResolvedValue(null);
 
       await expect(service.createRequest(createDto, 'client-1')).rejects.toThrow(NotFoundException);
 
-      expect(eventEmitter.emit).not.toHaveBeenCalled();
+      expect(notificationsHandler.handleServiceCreated).not.toHaveBeenCalled();
     });
   });
 
@@ -260,7 +261,7 @@ describe('ServiceRequestsService', () => {
     const updateDto = { status: 'IN_PROGRESS' as const };
     const adminUser = { id: 'admin-1', role: 'ADMIN' };
 
-    it('should update status and emit statusChanged event', async () => {
+    it('should update status and call notification handler', async () => {
       serviceRequestsRepo.findByIdWithDetails.mockResolvedValue(mockServiceRequest);
       const updatedRequest = { ...mockServiceRequest, status: 'IN_PROGRESS' };
       serviceRequestsRepo.update.mockResolvedValue(updatedRequest);
@@ -284,7 +285,7 @@ describe('ServiceRequestsService', () => {
           photos: true,
         },
       );
-      expect(eventEmitter.emit).toHaveBeenCalledWith('service.statusChanged', {
+      expect(notificationsHandler.handleServiceStatusChanged).toHaveBeenCalledWith({
         serviceRequestId: 'sr-1',
         title: 'Filtración en el techo',
         oldStatus: 'OPEN',
@@ -305,7 +306,7 @@ describe('ServiceRequestsService', () => {
       );
     });
 
-    it('should not call update or emit event when request not found', async () => {
+    it('should not call update or notification handler when request not found', async () => {
       serviceRequestsRepo.findByIdWithDetails.mockResolvedValue(null);
 
       await expect(service.updateStatus('non-existent', updateDto, adminUser)).rejects.toThrow(
@@ -313,7 +314,7 @@ describe('ServiceRequestsService', () => {
       );
 
       expect(serviceRequestsRepo.update).not.toHaveBeenCalled();
-      expect(eventEmitter.emit).not.toHaveBeenCalled();
+      expect(notificationsHandler.handleServiceStatusChanged).not.toHaveBeenCalled();
     });
   });
 });

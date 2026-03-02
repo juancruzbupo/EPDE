@@ -1053,23 +1053,243 @@ pnpm build && pnpm typecheck && pnpm lint && pnpm test
 
 ---
 
+## Fase 15 — Auditoria arquitectónica staff-level: C1-C4 + M1-M7
+
+> **Prioridad:** Alta (C1–C4 críticos) + Media (M1–M7)
+> **Estimación:** 6-8 días
+> **Dependencias:** Fase 14 completada
+> **Issues que resuelve:** 4 hallazgos críticos y 7 medios de la auditoría estructural del monorepo
+
+### Contexto
+
+Auditoría staff-level del monorepo identificó 11 hallazgos estructurales agrupados en dos niveles:
+
+**Críticos (C):**
+
+- **C1** — EventEmitter2 como intermediario innecesario: el flujo `Service → EventEmitter2 → NotificationsListener → BullMQ` agrega un hop que hace el error tracing opaco y la testabilidad más difícil
+- **C2** — `BaseRepository` type gap: `findById(id, include?)` retorna siempre `T`, pero cuando se pasa `include` el runtime object tiene campos extra. Los ownership checks usan `as any` para sortear esto
+- **C3** — Redis como SPOF silencioso en auth: si Redis no responde, el token rotation lanza un error no controlado que puede crashear la request
+- **C4** — `task-templates` y `category-templates` sin Zod schemas en `@epde/shared`: los endpoints usan tipos ad-hoc o ninguna validación, rompiendo el patrón SSoT
+
+**Medios (M):**
+
+- **M1** — `NotificationsListener` como God Object (todos los eventos de dominio en un solo archivo)
+- **M2** — Riesgo de drift entre `schema.prisma` y schemas Zod sin mecanismo de detección
+- **M3** — Módulo `users/` con nombre ambiguo (confunde con CRUD de usuarios, pero solo hace lookup)
+- **M4** — 3 definiciones paralelas de colores: `globals.css` (web), `global.css` (mobile), `colors.ts` (mobile)
+- **M5** — `tasks.repository.ts` ubicado en `maintenance-plans/` sin justificación explícita
+- **M6** — Umbrales de coverage demasiado bajos en jest config del API
+- **M7** — Rutas `/planes` y `/tareas` inexistentes en la web app (solo accesibles via detalle de propiedad)
+
+---
+
+### 15.1 — C4: Schemas Zod para task-templates y category-templates
+
+> Semana 1 — quick wins: establece el patrón SSoT que ya usan todos los demás módulos.
+
+- [ ] **15.1.1 — `packages/shared/src/schemas/task-templates.ts`** — Crear schema:
+
+  ```ts
+  export const createTaskTemplateSchema = z
+    .object({
+      title: z.string().min(3).max(200),
+      description: z.string().max(1000).optional(),
+      type: z.enum(['PREVENTIVE', 'CORRECTIVE', 'ON_DETECTION']),
+      frequency: z.enum(['MONTHLY', 'QUARTERLY', 'SEMIANNUAL', 'ANNUAL', 'CUSTOM']),
+      recurrenceMonths: z.number().int().min(1).max(120).optional(),
+      professionalRequired: z.boolean().default(false),
+    })
+    .superRefine((val, ctx) => {
+      if (val.frequency === 'CUSTOM' && !val.recurrenceMonths) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'recurrenceMonths requerido con CUSTOM',
+          path: ['recurrenceMonths'],
+        });
+      }
+    });
+  export const updateTaskTemplateSchema = createTaskTemplateSchema.partial();
+  export type CreateTaskTemplateInput = z.infer<typeof createTaskTemplateSchema>;
+  export type UpdateTaskTemplateInput = z.infer<typeof updateTaskTemplateSchema>;
+  ```
+
+- [ ] **15.1.2 — `packages/shared/src/schemas/category-templates.ts`** — Crear schema:
+
+  ```ts
+  export const createCategoryTemplateSchema = z.object({
+    name: z.string().min(2).max(100),
+    description: z.string().max(500).optional(),
+  });
+  export const updateCategoryTemplateSchema = createCategoryTemplateSchema.partial();
+  export type CreateCategoryTemplateInput = z.infer<typeof createCategoryTemplateSchema>;
+  export type UpdateCategoryTemplateInput = z.infer<typeof updateCategoryTemplateSchema>;
+  ```
+
+- [ ] **15.1.3 — Exportar desde `schemas/index.ts`** — Agregar:
+
+  ```ts
+  export * from './task-templates';
+  export * from './category-templates';
+  ```
+
+- [ ] **15.1.4 — Aplicar en `task-templates.controller.ts`** — En `@Post()`: `@UsePipes(new ZodValidationPipe(createTaskTemplateSchema))`. En `@Patch(':id')`: `@UsePipes(new ZodValidationPipe(updateTaskTemplateSchema))`. Reemplazar tipos ad-hoc por `CreateTaskTemplateInput` / `UpdateTaskTemplateInput`
+
+- [ ] **15.1.5 — Aplicar en `category-templates.controller.ts`** — Mismo patrón con `createCategoryTemplateSchema` / `updateCategoryTemplateSchema`
+
+- [ ] **15.1.6 — Rebuild shared + specs** — `pnpm --filter @epde/shared build`. Verificar que los controllers compilan y que el campo `recurrenceMonths` es required con `CUSTOM`
+
+### 15.2 — C1: Eliminar EventEmitter2 como intermediario
+
+> Semana 1 — simplifica el flujo de notificaciones y hace el error path explícito.
+
+- [ ] **15.2.1 — Auditar usos de EventEmitter2** — Ejecutar `grep -r "eventEmitter.emit\|@OnEvent" apps/api/src/ --include="*.ts"` y listar todos los eventos. Confirmar que el único uso es el flujo notifications
+
+- [ ] **15.2.2 — Crear `NotificationsEnqueueService`** — En `apps/api/src/notifications/notifications-enqueue.service.ts`: service `@Injectable()` con método `enqueue(type: NotificationType, payload: unknown): Promise<void>` que llama directamente al `Queue` de BullMQ. Exportado desde `notifications.module`
+
+- [ ] **15.2.3 — Refactorizar los services que emiten eventos** — En cada service que hace `this.eventEmitter.emit('notification.*', ...)`, inyectar `NotificationsEnqueueService` y llamar `this.notificationsEnqueue.enqueue(...)`. Afecta: todos los servicios de dominio que generan notificaciones (budgets, service-requests, maintenance-plans, etc.)
+
+- [ ] **15.2.4 — Eliminar `notifications.listener.ts`** — Borrar el archivo y removerlo del array `providers` en `notifications.module.ts`
+
+- [ ] **15.2.5 — Remover `EventEmitterModule` de `app.module.ts`** — Solo si no hay otros usos de EventEmitter2 en el codebase (verificar con el grep del paso 15.2.1). Remover también `@nestjs/event-emitter` del `package.json` si queda sin uso
+
+### 15.3 — C2: BaseRepository type safety
+
+> Semana 1 — elimina los `as any` que son potenciales runtime bugs en los checks de ownership.
+
+- [ ] **15.3.1 — Método `findByIdSelect<S>(id, select: S)`** — En `apps/api/src/common/repositories/base.repository.ts`: agregar método genérico que acepta un `select` tipado y retorna `Prisma.Result<...>`. Permite hacer `findByIdSelect(id, { userId: true })` y obtener `{ userId: string }` tipado sin `as any`
+
+- [ ] **15.3.2 — Reemplazar ownership checks con `as any`** — Buscar todos los `as any` en el API:
+
+  ```bash
+  grep -rn "as any" apps/api/src/ --include="*.ts"
+  ```
+
+  Para cada caso en un controller/service que hace `(await this.repo.findById(id) as any).userId`, reemplazar por `(await this.repo.findByIdSelect(id, { userId: true }))?.userId`
+
+- [ ] **15.3.3 — JSDoc en `findById`** — Documentar la limitación conocida: "cuando se pasa `include`, el objeto runtime contiene los campos incluidos pero el tipo estático no los refleja. Para acceder a campos de relaciones, usar `findByIdSelect` con `select` explícito"
+
+### 15.4 — C3: Redis graceful degradation en auth
+
+> Semana 1 — evita que una caída de Redis tire requests de auth en producción.
+
+- [ ] **15.4.1 — Try/catch en `token-rotation.service.ts`** — Envolver todas las operaciones Redis (`this.redis.eval(...)`) en try/catch. Si el error es `ECONNREFUSED` o `ETIMEDOUT`, lanzar `new ServiceUnavailableException('Auth service temporarily unavailable')` con un log `Logger.error('Redis unavailable: token rotation failed', ...)`. Nunca dejar que el error de Redis se propague como 500
+
+- [ ] **15.4.2 — Redis en health check** — En el endpoint `/health` (o donde esté el health controller), agregar check de Redis: `await this.redis.ping()`. Si falla, retornar `{ status: 'degraded', redis: 'down' }` con HTTP 200 (no 503) para que Railway no reinicie el pod por Redis caído
+
+- [ ] **15.4.3 — Spec para degradación** — En `token-rotation.service.spec.ts` (si existe) o nuevo `auth.service.spec.ts`: agregar test que mockea `this.redis.eval` para lanzar `Error('ECONNREFUSED')` y verifica que el service lanza `ServiceUnavailableException`
+
+### 15.5 — M1: Dividir NotificationsListener
+
+> Semana 2 — reduce el acoplamiento y hace cada listener testeable de forma aislada.
+
+> **Nota:** Este punto se vuelve obsoleto si se implementa 15.2 (eliminar EventEmitter2). Si 15.2 se implementa, saltear 15.5 y marcar como `[-]`.
+
+- [ ] **15.5.1 — `notifications-budget.listener.ts`** — Extraer los handlers de eventos `budget.*` del listener actual a un nuevo archivo. Mismo decorador `@OnEvent`
+
+- [ ] **15.5.2 — `notifications-service-request.listener.ts`** — Extraer los handlers de eventos `service-request.*`
+
+- [ ] **15.5.3 — `notifications-task.listener.ts`** — Extraer los handlers de eventos `task.*` (si existen)
+
+- [ ] **15.5.4 — Registrar en `notifications.module`** — Agregar los nuevos listeners al array `providers`. Eliminar el listener monolítico original
+
+### 15.6 — M2: Drift detection Prisma↔Zod
+
+> Semana 2 — añade un safety net para que un nuevo modelo Prisma sin schema Zod no pase desapercibido.
+
+- [ ] **15.6.1 — `scripts/check-schema-drift.ts`** — Script que:
+  1. Lee los nombres de modelos de `apps/api/prisma/schema.prisma` (busca líneas `^model (\w+)`)
+  2. Lee los exports de `packages/shared/src/schemas/index.ts`
+  3. Por cada modelo Prisma, verifica que exista al menos un schema `create<Model>Schema` en shared
+  4. Imprime warnings para modelos sin schema y falla con exit code 1 si hay alguno
+
+- [ ] **15.6.2 — Agregar a CI (informativo)** — En `.github/workflows/ci.yml`, step `Schema drift check` que ejecuta `pnpm tsx scripts/check-schema-drift.ts`. Que sea `continue-on-error: true` inicialmente para no bloquear PRs — cambiar a hard fail una vez que todos los modelos tengan schema
+
+### 15.7 — M3 + M5: Claridad de módulos y ubicación de repositorios
+
+> Semana 2 — reduce la carga cognitiva al navegar el codebase.
+
+- [ ] **15.7.1 — Comentario en `tasks.repository.ts`** — Al inicio del archivo agregar: `// Este repositorio pertenece al módulo maintenance-plans porque Task es una entidad hija de MaintenancePlan (no existe módulo tasks independiente). Acceso exclusivo desde maintenance-plans.service.ts` — documenta la decisión de diseño en lugar de mover el archivo (moverlo rompería el módulo boundary sin beneficio real)
+
+- [ ] **15.7.2 — Renombrar clase `UserLookupRepository` consistentemente** — Verificar que el renombrado de Fase 14 (UsersRepository → UserLookupRepository) esté aplicado también en el nombre del archivo: `users.repository.ts` → `user-lookup.repository.ts`. Actualizar imports en notifications.module, scheduler.module, task-scheduler.service
+
+- [ ] **15.7.3 — JSDoc en módulo `users/`** — En `users.module.ts`: agregar comentario de módulo: `// Módulo de solo-lectura para lookup de usuarios. No expone CRUD de usuarios. Para gestión de usuarios, ver auth module.`
+
+### 15.8 — M4: Unificación del sistema de colores
+
+> Semana 2-3 — elimina la triple definición que provoca inconsistencias en dark mode o temas.
+
+- [ ] **15.8.1 — Audit de las 3 fuentes** — Listar todos los tokens de color en `apps/web/src/app/globals.css` (CSS variables), `apps/mobile/src/app/global.css` (si existe) y `apps/mobile/src/lib/colors.ts`. Crear tabla de equivalencias en un comentario en `colors.ts`
+
+- [ ] **15.8.2 — `packages/shared/src/constants/design-tokens.ts`** — Mover los colores semánticos compartidos (destructive, success, warning, etc.) como constantes hex/HSL:
+
+  ```ts
+  export const DESIGN_TOKENS = {
+    destructive: 'hsl(0 84.2% 60.2%)',
+    success: 'hsl(142.1 76.2% 36.3%)',
+    // ...
+  } as const;
+  ```
+
+- [ ] **15.8.3 — `colors.ts` mobile consume desde shared** — Reemplazar los valores hardcodeados en `colors.ts` por los tokens del shared package. Validar que los colores resultantes sean idénticos
+
+- [ ] **15.8.4 — Exportar desde `@epde/shared/index.ts`** — Agregar `export { DESIGN_TOKENS } from './constants/design-tokens';`
+
+### 15.9 — M6 + M7: Coverage thresholds y rutas faltantes en web
+
+> Semana 3 — cierra los dos gaps de calidad más visibles.
+
+- [ ] **15.9.1 — Subir umbrales de coverage en API** — En `apps/api/jest.config.ts`, ajustar `coverageThreshold.global`:
+  - `branches`: actual → 75
+  - `lines`: actual → 80
+  - `functions`: actual → 80
+  - `statements`: actual → 80
+    Correr `pnpm --filter @epde/api test --coverage` y verificar que pasa. Si no pasa, agregar los specs necesarios antes de subir los umbrales
+
+- [ ] **15.9.2 — Página `/planes` en web** — `apps/web/src/app/(dashboard)/planes/page.tsx`: listado de planes de mantenimiento con DataTable. Columnas: Propiedad, Estado (DRAFT/ACTIVE/ARCHIVED), Fecha creación. Filtros: estado, búsqueda por propiedad. Hook `useMaintenancePlans()` si no existe
+
+- [ ] **15.9.3 — Página `/tareas` en web** — `apps/web/src/app/(dashboard)/tareas/page.tsx`: listado de tareas filtrables. Columnas: Título, Categoría, Próximo vencimiento, Estado, Propiedad. Filtros: estado (PENDING/OVERDUE/COMPLETED), propiedad. Hook `useTasks()` con params si no existe
+
+- [ ] **15.9.4 — Agregar a `sidebar.tsx`** — Agregar items de navegación para `/planes` y `/tareas` en la sección de admin (y client si aplica). Usar los mismos iconos de Lucide que el resto del sidebar
+
+### Verificación
+
+```bash
+# Builds y typecheck
+pnpm build && pnpm typecheck
+
+# Lint
+pnpm lint
+
+# Tests (debe superar los nuevos umbrales)
+pnpm test
+
+# Verificar que no quedan `as any` en ownership checks
+grep -rn "as any" apps/api/src/ --include="*.ts"
+
+# Verificar que EventEmitter2 fue removido (si se implementó 15.2)
+grep -rn "EventEmitter2\|@OnEvent\|eventEmitter.emit" apps/api/src/ --include="*.ts"
+```
+
+---
+
 ## Resumen de progreso (final)
 
-| Fase | Descripcion                        | Estado           | Tareas |
-| ---- | ---------------------------------- | ---------------- | ------ |
-| 1    | Seguridad                          | `[x] Completado` | 3      |
-| 2    | Validacion unica                   | `[x] Completado` | 8      |
-| 3    | Backend clean arch                 | `[x] Completado` | 8      |
-| 4    | Type safety E2E                    | `[x] Completado` | 6      |
-| 5    | Performance                        | `[x] Completado` | 6      |
-| 6    | Testing + polish                   | `[x] Completado` | 10     |
-| 7    | Hardening post-audit               | `[x] Completado` | 12     |
-| 8    | Roadmap arquitectonico             | `[x] Completado` | 23     |
-| 9    | Remediacion ronda 4                | `[x] Completado` | 16     |
-| 10   | Roadmap 90 dias (ronda 5)          | `[x] Completado` | 33     |
-| 11   | Remediacion ronda 10               | `[x] Completado` | 54     |
-| 12   | Auditoria UI/UX a11y               | `[x] Completado` | 30     |
-| 13   | Consistencia frontend              | `[x] Completado` | 18     |
-| 14   | Hardening post-premium (esta fase) | `[x] Completado` | 27     |
+| Fase | Descripcion                         | Estado           | Tareas |
+| ---- | ----------------------------------- | ---------------- | ------ |
+| 1    | Seguridad                           | `[x] Completado` | 3      |
+| 2    | Validacion unica                    | `[x] Completado` | 8      |
+| 3    | Backend clean arch                  | `[x] Completado` | 8      |
+| 4    | Type safety E2E                     | `[x] Completado` | 6      |
+| 5    | Performance                         | `[x] Completado` | 6      |
+| 6    | Testing + polish                    | `[x] Completado` | 10     |
+| 7    | Hardening post-audit                | `[x] Completado` | 12     |
+| 8    | Roadmap arquitectonico              | `[x] Completado` | 23     |
+| 9    | Remediacion ronda 4                 | `[x] Completado` | 16     |
+| 10   | Roadmap 90 dias (ronda 5)           | `[x] Completado` | 33     |
+| 11   | Remediacion ronda 10                | `[x] Completado` | 54     |
+| 12   | Auditoria UI/UX a11y                | `[x] Completado` | 30     |
+| 13   | Consistencia frontend               | `[x] Completado` | 18     |
+| 14   | Hardening post-premium              | `[x] Completado` | 27     |
+| 15   | Auditoria staff-level C1-C4 + M1-M7 | `[ ] Pendiente`  | 35     |
 
-**Progreso total: 253 / 253 tareas** (+ 6 diferidas con justificacion + 4 roadmap items)
+**Progreso total: 253 / 288 tareas** (+ 6 diferidas con justificacion + 4 roadmap items)

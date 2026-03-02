@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { BudgetsService } from './budgets.service';
 import { BudgetsRepository } from './budgets.repository';
 import { PropertiesRepository } from '../properties/properties.repository';
+import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { UserRole } from '@epde/shared';
 
 describe('BudgetsService', () => {
@@ -17,7 +17,11 @@ describe('BudgetsService', () => {
     respondToBudget: jest.Mock;
   };
   let propertiesRepository: { findOwnership: jest.Mock };
-  let eventEmitter: { emit: jest.Mock };
+  let notificationsHandler: {
+    handleBudgetCreated: jest.Mock;
+    handleBudgetQuoted: jest.Mock;
+    handleBudgetStatusChanged: jest.Mock;
+  };
 
   const clientUser = { id: 'client-1', role: UserRole.CLIENT };
   const adminUser = { id: 'admin-1', role: UserRole.ADMIN };
@@ -36,8 +40,10 @@ describe('BudgetsService', () => {
       findOwnership: jest.fn(),
     };
 
-    eventEmitter = {
-      emit: jest.fn(),
+    notificationsHandler = {
+      handleBudgetCreated: jest.fn().mockResolvedValue(undefined),
+      handleBudgetQuoted: jest.fn().mockResolvedValue(undefined),
+      handleBudgetStatusChanged: jest.fn().mockResolvedValue(undefined),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -45,7 +51,7 @@ describe('BudgetsService', () => {
         BudgetsService,
         { provide: BudgetsRepository, useValue: budgetsRepository },
         { provide: PropertiesRepository, useValue: propertiesRepository },
-        { provide: EventEmitter2, useValue: eventEmitter },
+        { provide: NotificationsHandlerService, useValue: notificationsHandler },
       ],
     }).compile();
 
@@ -140,7 +146,7 @@ describe('BudgetsService', () => {
       description: 'Filtracion en el techo',
     };
 
-    it('should create budget and emit event', async () => {
+    it('should create budget and call notification handler', async () => {
       propertiesRepository.findOwnership.mockResolvedValue({
         id: 'prop-1',
         userId: clientUser.id,
@@ -176,7 +182,7 @@ describe('BudgetsService', () => {
           response: true,
         },
       );
-      expect(eventEmitter.emit).toHaveBeenCalledWith('budget.created', {
+      expect(notificationsHandler.handleBudgetCreated).toHaveBeenCalledWith({
         budgetId: 'budget-new',
         title: dto.title,
         requesterId: clientUser.id,
@@ -217,7 +223,7 @@ describe('BudgetsService', () => {
       validUntil: '2026-12-31',
     };
 
-    it('should create response with line items and emit event', async () => {
+    it('should create response with line items and call notification handler', async () => {
       budgetsRepository.findById.mockResolvedValue({
         id: 'budget-1',
         status: 'PENDING',
@@ -243,7 +249,7 @@ describe('BudgetsService', () => {
         validUntil: new Date('2026-12-31'),
         updatedBy: undefined,
       });
-      expect(eventEmitter.emit).toHaveBeenCalledWith('budget.quoted', {
+      expect(notificationsHandler.handleBudgetQuoted).toHaveBeenCalledWith({
         budgetId: 'budget-1',
         title: 'Reparacion de techo',
         requesterId: 'client-1',
@@ -321,7 +327,7 @@ describe('BudgetsService', () => {
         { status: 'APPROVED', updatedBy: 'client-1' },
         expect.any(Object),
       );
-      expect(eventEmitter.emit).toHaveBeenCalledWith('budget.statusChanged', {
+      expect(notificationsHandler.handleBudgetStatusChanged).toHaveBeenCalledWith({
         budgetId: 'budget-1',
         title: 'Test Budget',
         oldStatus: 'QUOTED',
@@ -351,7 +357,7 @@ describe('BudgetsService', () => {
         { status: 'IN_PROGRESS', updatedBy: 'admin-1' },
         expect.any(Object),
       );
-      expect(eventEmitter.emit).toHaveBeenCalledWith('budget.statusChanged', {
+      expect(notificationsHandler.handleBudgetStatusChanged).toHaveBeenCalledWith({
         budgetId: 'budget-1',
         title: 'Test Budget',
         oldStatus: 'APPROVED',

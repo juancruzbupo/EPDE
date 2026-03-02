@@ -42,7 +42,11 @@ describe('TaskTemplatesService', () => {
   });
 
   describe('create', () => {
-    const dto = { name: 'Revisar tablero', recurrenceType: 'ANNUAL' as const };
+    // Minimal dto — defaults (priority, professionalRequirement, etc.) are applied by ZodValidationPipe before reaching service
+    const dto = {
+      name: 'Revisar tablero',
+      recurrenceType: 'ANNUAL' as const,
+    } as import('@epde/shared').CreateTaskTemplateInput;
 
     it('should create when category exists', async () => {
       categoryTemplatesRepository.findById.mockResolvedValue({ id: 'cat-1', name: 'Electricidad' });

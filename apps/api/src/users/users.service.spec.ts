@@ -97,7 +97,7 @@ describe('UsersService', () => {
         email: 'nuevo@test.com',
         name: 'Nuevo Usuario',
         role: UserRole.CLIENT,
-        status: 'ACTIVE',
+        status: 'ACTIVE' as const,
         passwordHash: 'hashed-password',
       };
       const createdUser = { id: 'new-user-1', ...createData };
@@ -129,7 +129,7 @@ describe('UsersService', () => {
     });
 
     it('should update user status', async () => {
-      const updateData = { status: 'ACTIVE' };
+      const updateData = { status: 'ACTIVE' as const };
       const updatedUser = {
         id: 'client-1',
         name: 'Juan',

@@ -15,6 +15,15 @@ interface JwtPayload {
   purpose?: string;
 }
 
+/**
+ * JWT Passport strategy for access token validation on every protected request.
+ *
+ * **Redis dependency (soft):** The `validate` method checks the token's JTI against the
+ * Redis blacklist via `TokenService.isBlacklisted`. If Redis is unavailable,
+ * `isBlacklisted` degrades gracefully and returns `false` (allow through) rather than
+ * throwing, so requests are not blocked during Redis downtime.
+ * Trade-off: revoked tokens may work until Redis recovers — availability over perfect security.
+ */
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   private readonly logger = new Logger(JwtStrategy.name);

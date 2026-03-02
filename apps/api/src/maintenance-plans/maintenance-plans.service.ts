@@ -47,9 +47,8 @@ export class MaintenancePlansService {
     }
 
     if (currentUser?.role === UserRole.CLIENT) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const property = (plan as any).property;
-      if (property?.userId !== currentUser.id) {
+      const planWithProperty = plan as { property?: { userId?: string } | null };
+      if (planWithProperty.property?.userId !== currentUser.id) {
         throw new ForbiddenException('No tenés acceso a este plan');
       }
     }

@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { BullModule } from '@nestjs/bullmq';
 import { AppController } from './app.controller';
@@ -36,7 +35,6 @@ import { MetricsInterceptor } from './metrics/metrics.interceptor';
   imports: [
     SentryModule.forRoot(),
     ConfigModule,
-    EventEmitterModule.forRoot(),
     ThrottlerModule.forRoot([
       { name: 'short', ttl: 1000, limit: 5 },
       { name: 'medium', ttl: 10000, limit: 30 },

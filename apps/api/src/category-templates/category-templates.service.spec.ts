@@ -85,7 +85,10 @@ describe('CategoryTemplatesService', () => {
       repository.findByName.mockResolvedValue(null);
       repository.create.mockResolvedValue(created);
 
-      const result = await service.create(data);
+      // Cast: displayOrder default applied by ZodValidationPipe before reaching service
+      const result = await service.create(
+        data as import('@epde/shared').CreateCategoryTemplateInput,
+      );
 
       expect(result).toEqual(created);
       expect(repository.findByName).toHaveBeenCalledWith('Plomería');
@@ -96,7 +99,9 @@ describe('CategoryTemplatesService', () => {
       const existing = { id: 'cat-1', name: 'Techos' };
       repository.findByName.mockResolvedValue(existing);
 
-      await expect(service.create({ name: 'Techos' })).rejects.toThrow(ConflictException);
+      await expect(
+        service.create({ name: 'Techos' } as import('@epde/shared').CreateCategoryTemplateInput),
+      ).rejects.toThrow(ConflictException);
       expect(repository.create).not.toHaveBeenCalled();
     });
   });

@@ -87,7 +87,7 @@ describe('ClientsService', () => {
         total: 0,
       });
 
-      const filters = { cursor: undefined, take: 20, search: 'juan', status: 'ACTIVE' };
+      const filters = { cursor: undefined, take: 20, search: 'juan', status: 'ACTIVE' as const };
       await service.listClients(filters);
 
       expect(clientsRepository.findClients).toHaveBeenCalledWith({

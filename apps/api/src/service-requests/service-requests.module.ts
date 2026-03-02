@@ -4,8 +4,10 @@ import { ServiceRequestsService } from './service-requests.service';
 import { ServiceRequestsRepository } from './service-requests.repository';
 import { PropertiesRepository } from '../properties/properties.repository';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
+  imports: [NotificationsModule],
   controllers: [ServiceRequestsController],
   providers: [
     ServiceRequestsService,

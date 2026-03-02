@@ -1,3 +1,9 @@
+/**
+ * TasksRepository lives inside the `maintenance-plans/` module rather than `common/repositories/`
+ * because Tasks are domain-children of MaintenancePlan: they cannot exist independently and
+ * their business logic (reorder, complete-and-reschedule) is tightly coupled to the plan lifecycle.
+ * Only MaintenancePlansModule and the Scheduler consume this repository.
+ */
 import { Injectable } from '@nestjs/common';
 import { Task, TaskStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';

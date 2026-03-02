@@ -1,24 +1,11 @@
 /**
- * Design tokens as JS constants.
- * Mirrors the CSS theme in global.css for use in JS-only APIs
- * (navigation headers, ActivityIndicator, StyleSheet, etc.).
+ * Design tokens as JS constants for React Native.
+ * Re-exports from @epde/shared so that the mobile app always uses
+ * the canonical brand palette. Dark mode is web-only; mobile is always light.
+ *
+ * Use these constants for JS-only APIs (navigation headers, ActivityIndicator,
+ * StyleSheet) where Tailwind/CSS custom properties are not available.
  */
-export const colors = {
-  primary: '#c4704b',
-  primaryForeground: '#ffffff',
-  secondary: '#e8ddd3',
-  secondaryForeground: '#2e2a27',
-  background: '#fafaf8',
-  foreground: '#2e2a27',
-  card: '#ffffff',
-  cardForeground: '#2e2a27',
-  muted: '#f5f0eb',
-  mutedForeground: '#4a4542',
-  destructive: '#c45b4b',
-  destructiveForeground: '#ffffff',
-  border: '#e8ddd3',
-  input: '#e8ddd3',
-  ring: '#c4704b',
-  success: '#6b9b7a',
-  warning: '#d4a843',
-} as const;
+import { DESIGN_TOKENS_LIGHT } from '@epde/shared';
+
+export const colors = DESIGN_TOKENS_LIGHT;

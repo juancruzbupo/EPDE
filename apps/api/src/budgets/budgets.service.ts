@@ -4,10 +4,10 @@ import {
   ForbiddenException,
   BadRequestException,
 } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { BudgetRequest, Prisma } from '@prisma/client';
 import { BudgetsRepository } from './budgets.repository';
 import { PropertiesRepository } from '../properties/properties.repository';
+import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { UserRole } from '@epde/shared';
 import type {
   CreateBudgetRequestInput,
@@ -26,7 +26,7 @@ export class BudgetsService {
   constructor(
     private readonly budgetsRepository: BudgetsRepository,
     private readonly propertiesRepository: PropertiesRepository,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly notificationsHandler: NotificationsHandlerService,
   ) {}
 
   async listBudgets(filters: BudgetFiltersInput, currentUser: CurrentUser) {
@@ -86,7 +86,7 @@ export class BudgetsService {
       },
     );
 
-    this.eventEmitter.emit('budget.created', {
+    void this.notificationsHandler.handleBudgetCreated({
       budgetId: budget.id,
       title: dto.title,
       requesterId: userId,
@@ -121,7 +121,7 @@ export class BudgetsService {
       },
     );
 
-    this.eventEmitter.emit('budget.quoted', {
+    void this.notificationsHandler.handleBudgetQuoted({
       budgetId: id,
       title: result.title,
       requesterId: result.requestedBy,
@@ -162,7 +162,7 @@ export class BudgetsService {
       },
     );
 
-    this.eventEmitter.emit('budget.statusChanged', {
+    void this.notificationsHandler.handleBudgetStatusChanged({
       budgetId: id,
       title: budget.title,
       oldStatus: budget.status,

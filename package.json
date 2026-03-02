@@ -17,7 +17,8 @@
     "db:migrate": "pnpm --filter @epde/api exec prisma migrate dev",
     "db:seed": "pnpm --filter @epde/api exec prisma db seed",
     "db:studio": "pnpm --filter @epde/api exec prisma studio",
-    "db:generate": "pnpm --filter @epde/api exec prisma generate"
+    "db:generate": "pnpm --filter @epde/api exec prisma generate",
+    "check:schema-drift": "node scripts/check-schema-drift.mjs"
   },
   "devDependencies": {
     "turbo": "^2",

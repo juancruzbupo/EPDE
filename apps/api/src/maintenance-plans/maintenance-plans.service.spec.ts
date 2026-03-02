@@ -306,7 +306,9 @@ describe('MaintenancePlansService', () => {
       name: 'Revisar canaletas',
       description: 'Limpieza de canaletas',
       priority: 'HIGH' as const,
-      recurrenceType: 'SEMI_ANNUAL' as const,
+      taskType: 'INSPECTION' as const,
+      professionalRequirement: 'OWNER_CAN_DO' as const,
+      recurrenceType: 'BIANNUAL' as const,
       nextDueDate: new Date('2026-06-01'),
     };
 
