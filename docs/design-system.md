@@ -583,6 +583,8 @@ Componente generico para filas deslizables con `Gesture.Pan` de react-native-ges
 
 ### Uso de Colores en Mobile
 
+Los colores JS para APIs no-NativeWind se importan desde `@/lib/colors`, que a su vez re-exporta `DESIGN_TOKENS_LIGHT` de `@epde/shared` — fuente unica de verdad para la paleta.
+
 ```tsx
 // Correcto — tokens NativeWind
 <View className="bg-primary rounded-lg p-4" />
@@ -590,9 +592,11 @@ Componente generico para filas deslizables con `Gesture.Pan` de react-native-ges
 <View className="border border-border bg-card" />
 
 // Para APIs que requieren valores JS (navigation, ActivityIndicator):
-import { colors } from '@/lib/colors';
+import { colors } from '@/lib/colors'; // re-exports DESIGN_TOKENS_LIGHT de @epde/shared
 <View style={{ backgroundColor: colors.primary }} />
 
 // Incorrecto — colores hardcodeados
 <View style={{ backgroundColor: '#C4704B' }} />
 ```
+
+**Fuente de verdad de tokens:** `packages/shared/src/constants/design-tokens.ts` exporta `DESIGN_TOKENS_LIGHT` y `DESIGN_TOKENS_DARK`. Cuando se modifica un color, se actualiza ahi primero y luego se propaga manualmente a `apps/web/src/app/globals.css` y `apps/mobile/src/app/global.css` (que usan CSS custom properties).

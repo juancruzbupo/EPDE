@@ -116,6 +116,7 @@ export class BaseRepository<T, M extends PrismaModelName = PrismaModelName> {
 
   async findMany(params: FindManyParams): Promise<PaginatedResult<T>>;
   async findById(id: string, include?): Promise<T | null>; // usa findUnique (PK index)
+  async findByIdSelect<TResult>(id: string, select: Record<string, boolean>): Promise<TResult | null>; // para ownership checks tipados
   async create(data, include?): Promise<T>;
   async update(id: string, data, include?): Promise<T>;
   async delete(id: string): Promise<T>; // soft delete si habilitado
@@ -128,6 +129,7 @@ export class BaseRepository<T, M extends PrismaModelName = PrismaModelName> {
 - `this.writeModel` accede a TODOS los registros (incluidos soft-deleted)
 - Usar `writeModel` cuando se necesita buscar por email (ej: restaurar usuario eliminado)
 - El flag `softDelete` en el constructor controla si el modelo usa la extension
+- `findByIdSelect<TResult>(id, select)`: alternativa tipada a `findById` cuando solo se necesitan campos especificos (ownership checks, proyecciones). Evita el cast `as any`. Ejemplo: `await repo.findByIdSelect<{ userId: string }>(id, { userId: true })`
 
 **Paginacion cursor-based:**
 
@@ -219,24 +221,31 @@ Tres guards globales aplicados en orden via `APP_GUARD`:
 - El frontend usa los mismos schemas con `@hookform/resolvers/zod`
 - **No se usa class-validator ni class-transformer** — eliminados en la remediacion
 
-### 7. Event-Driven Communication
+### 7. Notification Flow (Direct Service Injection)
 
-`EventEmitter2` emite eventos de dominio. Tanto notificaciones in-app como emails se procesan via **BullMQ** con retry automatico y persistencia en Redis:
+Las notificaciones y emails se disparan con **inyeccion directa** desde los servicios de dominio — sin capa de eventos (`EventEmitter2` fue eliminado en Fase 15):
 
-| Evento                  | Emisor                 | Listener              | Accion                                                    |
-| ----------------------- | ---------------------- | --------------------- | --------------------------------------------------------- |
-| `service.created`       | ServiceRequestsService | NotificationsListener | Notificacion in-app (BullMQ queue) + email (BullMQ queue) |
-| `service.statusChanged` | ServiceRequestsService | NotificationsListener | Notificacion in-app al cliente (BullMQ queue)             |
-| `budget.created`        | BudgetsService         | NotificationsListener | Notificacion in-app (BullMQ queue) + email (BullMQ queue) |
-| `budget.quoted`         | BudgetsService         | NotificationsListener | Notificacion in-app + email al cliente (BullMQ queues)    |
-| `budget.statusChanged`  | BudgetsService         | NotificationsListener | Notificacion in-app + email al cliente (BullMQ queues)    |
-| `client.invited`        | ClientsService         | EmailQueueService     | Email de invitacion via BullMQ queue                      |
+| Accion de dominio            | Emisor                 | Handler                     | Accion                                                    |
+| ---------------------------- | ---------------------- | --------------------------- | --------------------------------------------------------- |
+| Solicitud de servicio creada | ServiceRequestsService | NotificationsHandlerService | Notificacion in-app (BullMQ queue) + email (BullMQ queue) |
+| Estado de servicio cambiado  | ServiceRequestsService | NotificationsHandlerService | Notificacion in-app al cliente (BullMQ queue)             |
+| Presupuesto creado           | BudgetsService         | NotificationsHandlerService | Notificacion in-app (BullMQ queue) + email (BullMQ queue) |
+| Presupuesto cotizado         | BudgetsService         | NotificationsHandlerService | Notificacion in-app + email al cliente (BullMQ queues)    |
+| Estado de presupuesto cambia | BudgetsService         | NotificationsHandlerService | Notificacion in-app + email al cliente (BullMQ queues)    |
+| Cliente invitado             | ClientsService         | EmailQueueService (directo) | Email de invitacion via BullMQ queue                      |
+
+**Pattern:** Los servicios de dominio inyectan `NotificationsHandlerService` y llaman sus metodos con `void` (fire-and-forget):
+
+```typescript
+// BudgetsService llama directamente — sin EventEmitter2
+void this.notificationsHandler.handleBudgetCreated({ budgetId, title, requesterId, propertyId });
+```
+
+**Error Boundaries:** Cada metodo de `NotificationsHandlerService` esta envuelto en `try-catch` con `logger.error`. Los errores de BullMQ se manejan con reintentos automaticos.
 
 **Notification Queue (BullMQ):** Las notificaciones in-app se encolan via `NotificationQueueService` (`enqueue` / `enqueueBatch`) y se procesan por `NotificationQueueProcessor`. Configuracion: 3 reintentos con backoff exponencial (base 3s). Queue name: `notification`.
 
 **Email Queue (BullMQ):** Los emails se encolan via `EmailQueueService` y se procesan por `EmailQueueProcessor`. Configuracion: 5 reintentos con backoff exponencial (base 5s). Tipos de jobs: `invite`, `taskReminder`, `budgetQuoted`, `budgetStatus`. Queue name: `emails`.
-
-**Error Boundaries:** Cada handler en `NotificationsListener` esta envuelto en `try-catch` para evitar que errores propaguen al event loop. Los errores de notificaciones y emails se manejan automaticamente por BullMQ con reintentos.
 
 ### 8. Error Handling
 
@@ -276,7 +285,8 @@ Login → LocalStrategy (email+password) → JWT access + refresh tokens
 - Redis almacena `rt:{family}` con generation actual (TTL 7d)
 - Al hacer refresh: si generation no coincide → **token reuse attack** → revocar toda la family
 - La rotacion usa un **Lua script atomico** en Redis para prevenir race conditions (GET + compare + SET en una sola operacion)
-- La rotacion tiene **try-catch** alrededor del `eval()` de Redis — si Redis falla, retorna `InternalServerErrorException` en vez de crash sin contexto
+- La rotacion tiene **try-catch** alrededor del `eval()` de Redis — si Redis falla, lanza `ServiceUnavailableException` (HTTP 503) con mensaje `'Auth service temporarily unavailable'`
+- `generateTokenPair` tiene **try-catch** alrededor del `setex` de Redis — si Redis no esta disponible al hacer login, se emiten los tokens igualmente (los logs indican que el refresh rotation no funcionara hasta que Redis se recupere)
 - Logout: blacklist access token JTI (TTL = tiempo restante) + revocar family + `queryClient.clear()` en frontend
 - `JwtStrategy.validate()` verifica que el JTI no este en blacklist y que el campo `purpose` (si presente) sea `'access'` antes de autenticar. Esto previene uso de tokens de invitacion como access tokens
 - Implementado en `auth/token.service.ts` (genera pares, rota, revoca, blacklist)
@@ -449,22 +459,30 @@ Modulo global `RedisModule` (`redis/redis.module.ts`) con dos servicios:
 
 - `GET /api/v1/health` con `@Public()` (no requiere auth)
 - Usa `@nestjs/terminus` con indicadores de DB (Prisma) y Redis (custom)
-- Respuesta: `{ status: "ok", info: { database: { status: "up" }, redis: { status: "up" } } }`
+- Respuesta OK: `{ status: "ok", info: { database: { status: "up" }, redis: { status: "up" } } }`
+- **Degraded (Redis caido):** retorna HTTP **200** con `redis.status: "down"` — no 503. La app sigue disponible para load balancers mientras Redis se recupera. El status global sigue siendo `"ok"` porque solo la DB es critica para funcionar
 
-### 18. Decision Record: EventEmitter2 + BullMQ (arquitectura híbrida)
+### 18. Decision Record: Notification Architecture (Direct Injection + BullMQ)
 
-**Estado actual:** EventEmitter2 emite eventos de dominio → BullMQ procesa tanto notificaciones in-app como emails via queues durables con retry.
+**Estado actual (Fase 15):** Los servicios de dominio inyectan `NotificationsHandlerService` directamente y llaman sus metodos con `void`. BullMQ procesa notificaciones in-app y emails con retry automatico y persistencia en Redis. `@nestjs/event-emitter` fue eliminado.
+
+**Por qué se eliminó EventEmitter2:**
+
+- Acopla el dispatch al runtime del proceso (si el proceso muere, el evento se pierde)
+- El acoplamiento indirecto ocultaba el flujo de efectos secundarios, dificultando el debugging y los tests
+- BullMQ ya proveia durabilidad y retry — EventEmitter2 era una capa redundante
+- La inyeccion directa de `NotificationsHandlerService` es mas explicita, testeable (mock simple) y mantenible
 
 **Por qué BullMQ para todo:**
 
 - **Durabilidad:** Jobs persistidos en Redis — si el proceso se reinicia, los jobs pendientes se re-procesan
 - **Retry automatico:** Notificaciones (3 intentos, backoff 3s) y emails (5 intentos, backoff 5s) con backoff exponencial
 - **Observabilidad:** Jobs fallidos se retienen (`removeOnFail: { count: 500 }`) para diagnostico
-- EventEmitter2 sigue siendo el mecanismo de dispatch (bajo acoplamiento entre modulos)
 - Ambas queues comparten la misma instancia de Redis (`REDIS_URL`)
 
 **Componentes de notification queue:**
 
+- `NotificationsHandlerService`: handler de dominio inyectado en BudgetsService y ServiceRequestsService. Decide que notificar y quienes son los destinatarios, luego delega a `NotificationQueueService` y `EmailQueueService`
 - `NotificationQueueService`: encola notificaciones in-app (`enqueue` para una, `enqueueBatch` para varias)
 - `NotificationQueueProcessor` (`@Processor`): worker que consume y persiste via `NotificationsService.createNotification()`
 - Configuracion en `NotificationsModule`: `BullModule.registerQueue('notification')` con retry policy

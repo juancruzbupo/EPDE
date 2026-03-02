@@ -61,7 +61,7 @@ epde/
 │   │   │   ├── service-requests/     # Solicitudes + fotos
 │   │   │   ├── task-templates/        # Templates de tareas por categoria
 │   │   │   ├── category-templates/   # Templates de categorias
-│   │   │   ├── notifications/        # Sistema de notificaciones
+│   │   │   ├── notifications/        # Sistema de notificaciones (NotificationsHandlerService + BullMQ queues)
 │   │   │   ├── dashboard/            # Estadisticas agregadas
 │   │   │   ├── email/                # Servicio de emails (Resend)
 │   │   │   ├── upload/               # Upload a Cloudflare R2
@@ -100,6 +100,8 @@ epde/
 │   │   │   │       ├── clients/      # CRUD clientes (ADMIN)
 │   │   │   │       ├── properties/   # CRUD propiedades
 │   │   │   │       ├── categories/   # CRUD categorias (ADMIN)
+│   │   │   │       ├── planes/       # Planes de mantenimiento (stub)
+│   │   │   │       ├── tareas/       # Tareas globales (stub)
 │   │   │   │       ├── budgets/      # Presupuestos
 │   │   │   │       ├── service-requests/  # Solicitudes
 │   │   │   │       └── notifications/     # Notificaciones
@@ -142,7 +144,7 @@ epde/
 │       │   │   ├── token-service.ts  # SecureStore (nativo) + sessionStorage (web)
 │       │   │   ├── query-persister.ts # AsyncStorage persister (offline cache)
 │       │   │   ├── auth.ts           # Auth API functions
-│       │   │   ├── colors.ts         # Design tokens JS (para APIs no-NativeWind)
+│       │   │   ├── colors.ts         # Re-exports DESIGN_TOKENS_LIGHT de @epde/shared
 │       │   │   ├── screen-options.ts # Navigation header/tab defaults
 │       │   │   └── api/              # Endpoints por entidad
 │       │   ├── stores/               # Zustand auth store
@@ -177,7 +179,8 @@ epde/
 │       │   ├── constants/
 │       │   │   ├── index.ts          # Labels en espanol, defaults, mappings
 │       │   │   ├── query-keys.ts     # QUERY_KEYS centralizados (SSoT)
-│       │   │   └── badge-variants.ts # Variantes de Badge compartidas web/mobile
+│       │   │   ├── badge-variants.ts # Variantes de Badge compartidas web/mobile
+│       │   │   └── design-tokens.ts  # DESIGN_TOKENS_LIGHT + DESIGN_TOKENS_DARK (SSoT paleta)
 │       │   └── utils/                # Date/string helpers, getErrorMessage
 │       ├── tsup.config.ts            # Dual ESM(.js) + CJS(.cjs) build
 │       ├── vitest.config.ts          # Unit tests
@@ -219,25 +222,25 @@ epde/
 
 ### Backend (NestJS)
 
-| Tecnologia            | Version | Uso                                  |
-| --------------------- | ------- | ------------------------------------ |
-| NestJS                | 11      | Framework REST API                   |
-| Prisma                | 6       | ORM + migraciones                    |
-| PostgreSQL            | 16      | Base de datos                        |
-| Redis                 | 7       | Cache, token state, distributed lock |
-| ioredis               | 5.9     | Redis client para Node.js            |
-| Passport              | -       | Autenticacion (JWT + Local strategy) |
-| @nestjs/jwt           | -       | JWT tokens (access 15m, refresh 7d)  |
-| @nestjs/throttler     | 6.5     | Rate limiting                        |
-| @nestjs/swagger       | 11.2    | Documentacion OpenAPI                |
-| @nestjs/schedule      | 6.1     | Cron jobs                            |
-| @nestjs/event-emitter | 3.0     | Comunicacion event-driven            |
-| Helmet                | 8.1     | Headers de seguridad                 |
-| Resend                | 6.9     | Envio de emails transaccionales      |
-| AWS S3 SDK            | -       | Upload a Cloudflare R2               |
-| Sentry                | 10.40   | Monitoreo de errores                 |
-| bcrypt                | 6.0     | Hash de passwords (12 rounds)        |
-| Jest                  | 29      | Testing unitario + E2E               |
+| Tecnologia                | Version | Uso                                                                                           |
+| ------------------------- | ------- | --------------------------------------------------------------------------------------------- |
+| NestJS                    | 11      | Framework REST API                                                                            |
+| Prisma                    | 6       | ORM + migraciones                                                                             |
+| PostgreSQL                | 16      | Base de datos                                                                                 |
+| Redis                     | 7       | Cache, token state, distributed lock                                                          |
+| ioredis                   | 5.9     | Redis client para Node.js                                                                     |
+| Passport                  | -       | Autenticacion (JWT + Local strategy)                                                          |
+| @nestjs/jwt               | -       | JWT tokens (access 15m, refresh 7d)                                                           |
+| @nestjs/throttler         | 6.5     | Rate limiting                                                                                 |
+| @nestjs/swagger           | 11.2    | Documentacion OpenAPI                                                                         |
+| @nestjs/schedule          | 6.1     | Cron jobs                                                                                     |
+| ~~@nestjs/event-emitter~~ | —       | ~~Eliminado en Fase 15~~ — reemplazado por inyeccion directa de `NotificationsHandlerService` |
+| Helmet                    | 8.1     | Headers de seguridad                                                                          |
+| Resend                    | 6.9     | Envio de emails transaccionales                                                               |
+| AWS S3 SDK                | -       | Upload a Cloudflare R2                                                                        |
+| Sentry                    | 10.40   | Monitoreo de errores                                                                          |
+| bcrypt                    | 6.0     | Hash de passwords (12 rounds)                                                                 |
+| Jest                      | 29      | Testing unitario + E2E                                                                        |
 
 ### Frontend Web (Next.js)
 
@@ -365,20 +368,22 @@ Tres guards globales en orden via `APP_GUARD`:
 - Frontend mobile: `zodResolver` con React Hook Form
 - **No se usa class-validator/class-transformer**
 
-### P7: Event-Driven Communication
+### P7: Notification Flow (Direct Service Injection + BullMQ)
 
-`EventEmitter2` emite eventos de dominio. Tanto notificaciones in-app como emails se procesan via **BullMQ** queues durables:
+Los servicios de dominio inyectan `NotificationsHandlerService` directamente. No hay capa de eventos — `EventEmitter2` fue eliminado en Fase 15:
 
-| Evento                  | Emisor                 | Accion                                               |
-| ----------------------- | ---------------------- | ---------------------------------------------------- |
-| `service.created`       | ServiceRequestsService | Notificacion in-app (queue) + email (queue) al admin |
-| `service.statusChanged` | ServiceRequestsService | Notificacion in-app al cliente (queue)               |
-| `budget.created`        | BudgetsService         | Notificacion in-app (queue) + email (queue) al admin |
-| `budget.quoted`         | BudgetsService         | Notificacion in-app + email al cliente (queues)      |
-| `budget.statusChanged`  | BudgetsService         | Notificacion in-app + email al cliente (queues)      |
-| `client.invited`        | ClientsService         | Email de invitacion (queue)                          |
+| Accion de dominio            | Emisor                 | Accion en BullMQ                                     |
+| ---------------------------- | ---------------------- | ---------------------------------------------------- |
+| Solicitud de servicio creada | ServiceRequestsService | Notificacion in-app (queue) + email (queue) al admin |
+| Estado de servicio cambiado  | ServiceRequestsService | Notificacion in-app al cliente (queue)               |
+| Presupuesto creado           | BudgetsService         | Notificacion in-app (queue) + email (queue) al admin |
+| Presupuesto cotizado         | BudgetsService         | Notificacion in-app + email al cliente (queues)      |
+| Estado de presupuesto cambia | BudgetsService         | Notificacion in-app + email al cliente (queues)      |
+| Cliente invitado             | ClientsService         | Email de invitacion (queue)                          |
 
-**Queues:** `notification` (3 reintentos, backoff 3s) para in-app, `emails` (5 reintentos, backoff 5s) para emails. Cada handler en `NotificationsListener` esta envuelto en `try-catch`. Errores se manejan automaticamente por BullMQ con reintentos.
+**Pattern:** `void this.notificationsHandler.handleBudgetCreated({...})` — fire-and-forget tipado.
+
+**Queues:** `notification` (3 reintentos, backoff 3s) para in-app, `emails` (5 reintentos, backoff 5s) para emails. `NotificationsHandlerService` envuelve cada llamada en `try-catch`. Errores de BullMQ se reintentan automaticamente.
 
 ### P8: Error Handling Centralizado
 
