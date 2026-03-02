@@ -46,7 +46,7 @@ export function TaskLogTimeline({ planId, taskId }: TaskLogTimelineProps) {
 
       {logs.map((log) => (
         <div key={log.id} className="relative">
-          <div className="bg-primary absolute top-2 -left-4 h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-gray-950" />
+          <div className="bg-primary absolute top-2 -left-4 h-2.5 w-2.5 rounded-full ring-2 ring-white" />
 
           <div className="bg-muted/30 space-y-2 rounded-lg border p-3">
             <div className="flex items-center justify-between">

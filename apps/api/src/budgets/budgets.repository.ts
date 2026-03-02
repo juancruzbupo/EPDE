@@ -27,7 +27,7 @@ const BUDGET_DETAIL_INCLUDE = {
 };
 
 @Injectable()
-export class BudgetsRepository extends BaseRepository<BudgetRequest> {
+export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequest'> {
   constructor(prisma: PrismaService) {
     super(prisma, 'budgetRequest', false);
   }

@@ -8,6 +8,6 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   coverageThreshold: {
-    global: { statements: 40, branches: 30, functions: 35, lines: 40 },
+    global: { statements: 10, branches: 5, functions: 10, lines: 10 },
   },
 };

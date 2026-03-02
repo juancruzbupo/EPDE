@@ -6,6 +6,8 @@ import { useUnreadCount } from '@/hooks/use-notifications';
 import { OfflineBanner } from '@/components/offline-banner';
 import { SPRING, useReducedMotion } from '@/lib/animations';
 import { haptics } from '@/lib/haptics';
+import { colors } from '@/lib/colors';
+import { defaultTabBarOptions } from '@/lib/screen-options';
 
 function AnimatedTabIcon({
   emoji,
@@ -45,15 +47,7 @@ export default function TabLayout() {
         screenListeners={{
           tabPress: () => haptics.selection(),
         }}
-        screenOptions={{
-          headerStyle: { backgroundColor: '#fafaf8' },
-          headerTintColor: '#2e2a27',
-          headerTitleStyle: { fontFamily: 'DMSans_700Bold' },
-          tabBarStyle: { backgroundColor: '#fafaf8', borderTopColor: '#e8ddd3' },
-          tabBarActiveTintColor: '#c4704b',
-          tabBarInactiveTintColor: '#4a4542',
-          tabBarLabelStyle: { fontFamily: 'DMSans_500Medium', fontSize: 12 },
-        }}
+        screenOptions={defaultTabBarOptions}
       >
         <Tabs.Screen
           name="index"
@@ -90,7 +84,7 @@ export default function TabLayout() {
               <AnimatedTabIcon emoji="🔔" color={color} focused={focused} />
             ),
             tabBarBadge: unreadCount && unreadCount > 0 ? unreadCount : undefined,
-            tabBarBadgeStyle: { backgroundColor: '#c4704b', fontSize: 10 },
+            tabBarBadgeStyle: { backgroundColor: colors.primary, fontSize: 10 },
           }}
         />
         <Tabs.Screen

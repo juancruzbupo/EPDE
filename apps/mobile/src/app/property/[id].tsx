@@ -18,6 +18,8 @@ import { TaskStatusBadge, PriorityBadge, PropertyTypeBadge } from '@/components/
 import { EmptyState } from '@/components/empty-state';
 import { useAnimatedEntry } from '@/lib/animations';
 import { TYPE } from '@/lib/fonts';
+import { colors } from '@/lib/colors';
+import { defaultScreenOptions } from '@/lib/screen-options';
 import type { TaskPublic } from '@epde/shared/types';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -104,7 +106,7 @@ export default function PropertyDetailScreen() {
         <Stack.Screen
           options={{ headerShown: true, title: 'Propiedad', headerBackTitle: 'Volver' }}
         />
-        <ActivityIndicator size="large" color="#c4704b" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -127,9 +129,7 @@ export default function PropertyDetailScreen() {
           headerShown: true,
           title: 'Propiedad',
           headerBackTitle: 'Volver',
-          headerStyle: { backgroundColor: '#fafaf8' },
-          headerTintColor: '#2e2a27',
-          headerTitleStyle: { fontFamily: 'DMSans_700Bold' },
+          ...defaultScreenOptions,
         }}
       />
 
@@ -206,7 +206,7 @@ export default function PropertyDetailScreen() {
             <SwipeableRow
               rightActions={
                 item.status !== 'COMPLETED'
-                  ? [{ icon: '✓', color: '#6b9b7a', onPress: () => setCompleteTask(item) }]
+                  ? [{ icon: '✓', color: colors.success, onPress: () => setCompleteTask(item) }]
                   : []
               }
             >

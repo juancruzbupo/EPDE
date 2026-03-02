@@ -10,6 +10,8 @@ import { BudgetStatusBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { TYPE } from '@/lib/fonts';
+import { colors } from '@/lib/colors';
+import { defaultScreenOptions } from '@/lib/screen-options';
 import type { BudgetLineItemPublic } from '@epde/shared/types';
 
 function formatAmount(amount: number): string {
@@ -69,7 +71,7 @@ export default function BudgetDetailScreen() {
         <Stack.Screen
           options={{ headerShown: true, title: 'Presupuesto', headerBackTitle: 'Volver' }}
         />
-        <ActivityIndicator size="large" color="#c4704b" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -103,9 +105,7 @@ export default function BudgetDetailScreen() {
           headerShown: true,
           title: 'Presupuesto',
           headerBackTitle: 'Volver',
-          headerStyle: { backgroundColor: '#fafaf8' },
-          headerTintColor: '#2e2a27',
-          headerTitleStyle: { fontFamily: 'DMSans_700Bold' },
+          ...defaultScreenOptions,
         }}
       />
 

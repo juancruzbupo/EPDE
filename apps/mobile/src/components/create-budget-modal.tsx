@@ -21,6 +21,7 @@ import type { CreateBudgetRequestInput } from '@epde/shared';
 import { useCreateBudgetRequest } from '@/hooks/use-budgets';
 import { useProperties } from '@/hooks/use-properties';
 import { TYPE } from '@/lib/fonts';
+import { colors } from '@/lib/colors';
 import type { PropertyPublic } from '@epde/shared/types';
 
 interface CreateBudgetModalProps {
@@ -167,7 +168,7 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
             ))}
             {properties.length === 0 && (
               <View className="py-2">
-                <ActivityIndicator size="small" color="#c4704b" />
+                <ActivityIndicator size="small" color={colors.primary} />
               </View>
             )}
           </ScrollView>
@@ -190,7 +191,7 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
                 onChangeText={onChange}
                 onBlur={onBlur}
                 placeholder="Describir brevemente el trabajo..."
-                placeholderTextColor="#4a4542"
+                placeholderTextColor={colors.mutedForeground}
                 maxLength={200}
                 style={TYPE.bodyMd}
                 className="border-border bg-card text-foreground mb-1 rounded-xl border p-3"
@@ -216,7 +217,7 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
                 onChangeText={onChange}
                 onBlur={onBlur}
                 placeholder="Mas detalles sobre lo que necesitas..."
-                placeholderTextColor="#4a4542"
+                placeholderTextColor={colors.mutedForeground}
                 multiline
                 maxLength={2000}
                 style={[TYPE.bodyMd, { minHeight: 100, textAlignVertical: 'top' }]}

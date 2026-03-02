@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import * as Sentry from '@sentry/react-native';
+import { colors } from '@/lib/colors';
 
 interface Props {
   children: React.ReactNode;
@@ -53,29 +54,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
   },
   title: {
     fontSize: 22,
     fontWeight: '700',
     marginBottom: 8,
-    color: '#1a1a1a',
+    color: colors.foreground,
   },
   message: {
     fontSize: 15,
-    color: '#666',
+    color: colors.mutedForeground,
     textAlign: 'center',
     marginBottom: 24,
     lineHeight: 22,
   },
   button: {
-    backgroundColor: '#2563eb',
+    backgroundColor: colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
   },
   buttonText: {
-    color: '#fff',
+    color: colors.primaryForeground,
     fontSize: 15,
     fontWeight: '600',
   },

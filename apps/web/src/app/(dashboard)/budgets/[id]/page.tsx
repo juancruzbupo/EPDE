@@ -22,5 +22,5 @@ export default async function BudgetDetailPage({ params }: Props) {
   const isAdmin = user?.role === UserRole.ADMIN;
   const isClient = user?.role === UserRole.CLIENT;
 
-  return <BudgetDetail id={id} isAdmin={isAdmin} isClient={isClient} initialData={data} />;
+  return <BudgetDetail id={id} isAdmin={isAdmin} isClient={isClient} initialData={data.data} />;
 }

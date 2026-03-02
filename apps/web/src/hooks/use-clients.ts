@@ -2,7 +2,7 @@ import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tansta
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { getErrorMessage } from '@/lib/errors';
-import type { ApiResponse, ClientPublic } from '@epde/shared';
+import { QUERY_KEYS, type ClientPublic } from '@epde/shared';
 import {
   getClients,
   getClient,
@@ -14,17 +14,17 @@ import {
 
 export function useClients(filters: ClientFilters) {
   return useInfiniteQuery({
-    queryKey: ['clients', filters],
+    queryKey: [QUERY_KEYS.clients, filters],
     queryFn: ({ pageParam, signal }) => getClients({ ...filters, cursor: pageParam }, signal),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
   });
 }
 
-export function useClient(id: string, options?: { initialData?: ApiResponse<ClientPublic> }) {
+export function useClient(id: string, options?: { initialData?: ClientPublic }) {
   return useQuery({
-    queryKey: ['clients', id],
-    queryFn: ({ signal }) => getClient(id, signal),
+    queryKey: [QUERY_KEYS.clients, id],
+    queryFn: ({ signal }) => getClient(id, signal).then((r) => r.data),
     initialData: options?.initialData,
     enabled: !!id,
   });
@@ -34,7 +34,7 @@ export function useCreateClient() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createClient,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['clients'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.clients] }),
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al crear cliente'));
     },
@@ -46,7 +46,7 @@ export function useUpdateClient() {
   return useMutation({
     mutationFn: ({ id, ...dto }: { id: string; name?: string; phone?: string; status?: string }) =>
       updateClient(id, dto),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['clients'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.clients] }),
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al actualizar cliente'));
     },
@@ -62,7 +62,7 @@ export function useClientSearch(search: string) {
   }, [search]);
 
   return useQuery({
-    queryKey: ['clients', 'search', debouncedSearch],
+    queryKey: [QUERY_KEYS.clients, 'search', debouncedSearch],
     queryFn: async ({ signal }) => {
       const result = await getClients({ search: debouncedSearch || undefined, take: 20 }, signal);
       return result.data;
@@ -75,7 +75,7 @@ export function useDeleteClient() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteClient,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['clients'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.clients] }),
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al eliminar cliente'));
     },

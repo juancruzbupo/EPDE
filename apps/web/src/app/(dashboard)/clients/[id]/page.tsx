@@ -14,5 +14,5 @@ export default async function ClientDetailPage({ params }: Props) {
 
   if (!data?.data) notFound();
 
-  return <ClientDetail id={id} initialData={data} />;
+  return <ClientDetail id={id} initialData={data.data} />;
 }

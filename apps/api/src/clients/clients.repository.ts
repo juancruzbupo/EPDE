@@ -9,7 +9,7 @@ import {
 import { UserRole } from '@epde/shared';
 
 @Injectable()
-export class ClientsRepository extends BaseRepository<User> {
+export class ClientsRepository extends BaseRepository<User, 'user'> {
   constructor(prisma: PrismaService) {
     super(prisma, 'user', true);
   }

@@ -8,7 +8,7 @@ import {
 } from '../common/repositories/base.repository';
 
 @Injectable()
-export class PropertiesRepository extends BaseRepository<Property> {
+export class PropertiesRepository extends BaseRepository<Property, 'property'> {
   constructor(prisma: PrismaService) {
     super(prisma, 'property', true);
   }

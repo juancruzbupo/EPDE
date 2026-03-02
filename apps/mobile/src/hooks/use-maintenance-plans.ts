@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Alert } from 'react-native';
 import {
   getPlan,
   getTaskDetail,
@@ -9,11 +10,12 @@ import {
 } from '@/lib/api/maintenance-plans';
 import type { PlanPublic, TaskNotePublic } from '@epde/shared/types';
 import type { CompleteTaskInput } from '@epde/shared/schemas';
+import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useAuthStore } from '@/stores/auth-store';
 
 export function usePlan(id: string) {
   return useQuery({
-    queryKey: ['plans', id],
+    queryKey: [QUERY_KEYS.plans, id],
     queryFn: ({ signal }) => getPlan(id, signal).then((r) => r.data),
     enabled: !!id,
   });
@@ -21,7 +23,7 @@ export function usePlan(id: string) {
 
 export function useTaskDetail(planId: string, taskId: string) {
   return useQuery({
-    queryKey: ['task-detail', planId, taskId],
+    queryKey: [QUERY_KEYS.taskDetail, planId, taskId],
     queryFn: ({ signal }) => getTaskDetail(planId, taskId, signal).then((r) => r.data),
     enabled: !!planId && !!taskId,
   });
@@ -29,7 +31,7 @@ export function useTaskDetail(planId: string, taskId: string) {
 
 export function useTaskLogs(planId: string, taskId: string) {
   return useQuery({
-    queryKey: ['task-logs', planId, taskId],
+    queryKey: [QUERY_KEYS.taskLogs, planId, taskId],
     queryFn: ({ signal }) => getTaskLogs(planId, taskId, signal).then((r) => r.data),
     enabled: !!planId && !!taskId,
   });
@@ -37,7 +39,7 @@ export function useTaskLogs(planId: string, taskId: string) {
 
 export function useTaskNotes(planId: string, taskId: string) {
   return useQuery({
-    queryKey: ['task-notes', planId, taskId],
+    queryKey: [QUERY_KEYS.taskNotes, planId, taskId],
     queryFn: ({ signal }) => getTaskNotes(planId, taskId, signal).then((r) => r.data),
     enabled: !!planId && !!taskId,
   });
@@ -57,11 +59,14 @@ export function useCompleteTask() {
     } & CompleteTaskInput) => completeTask(planId, taskId, dto),
 
     onMutate: async (variables) => {
-      await queryClient.cancelQueries({ queryKey: ['plans', variables.planId] });
+      await queryClient.cancelQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
 
-      const previousPlan = queryClient.getQueryData<PlanPublic>(['plans', variables.planId]);
+      const previousPlan = queryClient.getQueryData<PlanPublic>([
+        QUERY_KEYS.plans,
+        variables.planId,
+      ]);
 
-      queryClient.setQueryData<PlanPublic>(['plans', variables.planId], (old) => {
+      queryClient.setQueryData<PlanPublic>([QUERY_KEYS.plans, variables.planId], (old) => {
         if (!old) return old;
         return {
           ...old,
@@ -76,19 +81,20 @@ export function useCompleteTask() {
 
     onError: (_err, variables, context) => {
       if (context?.previousPlan) {
-        queryClient.setQueryData(['plans', variables.planId], context.previousPlan);
+        queryClient.setQueryData([QUERY_KEYS.plans, variables.planId], context.previousPlan);
       }
+      Alert.alert('Error', getErrorMessage(_err, 'Error al completar tarea'));
     },
 
     onSettled: (_data, _error, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['plans', variables.planId] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard', 'client-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard', 'client-upcoming'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'client-stats'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'client-upcoming'] });
       queryClient.invalidateQueries({
-        queryKey: ['task-logs', variables.planId, variables.taskId],
+        queryKey: [QUERY_KEYS.taskLogs, variables.planId, variables.taskId],
       });
       queryClient.invalidateQueries({
-        queryKey: ['task-detail', variables.planId, variables.taskId],
+        queryKey: [QUERY_KEYS.taskDetail, variables.planId, variables.taskId],
       });
     },
   });
@@ -111,17 +117,17 @@ export function useAddTaskNote() {
 
     onMutate: async (variables) => {
       await queryClient.cancelQueries({
-        queryKey: ['task-notes', variables.planId, variables.taskId],
+        queryKey: [QUERY_KEYS.taskNotes, variables.planId, variables.taskId],
       });
 
       const previousNotes = queryClient.getQueryData<TaskNotePublic[]>([
-        'task-notes',
+        QUERY_KEYS.taskNotes,
         variables.planId,
         variables.taskId,
       ]);
 
       queryClient.setQueryData<TaskNotePublic[]>(
-        ['task-notes', variables.planId, variables.taskId],
+        [QUERY_KEYS.taskNotes, variables.planId, variables.taskId],
         (old) => [
           {
             id: `temp-${Date.now()}`,
@@ -140,18 +146,19 @@ export function useAddTaskNote() {
     onError: (_err, variables, context) => {
       if (context?.previousNotes) {
         queryClient.setQueryData(
-          ['task-notes', variables.planId, variables.taskId],
+          [QUERY_KEYS.taskNotes, variables.planId, variables.taskId],
           context.previousNotes,
         );
       }
+      Alert.alert('Error', getErrorMessage(_err, 'Error al agregar nota'));
     },
 
     onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ['task-notes', variables.planId, variables.taskId],
+        queryKey: [QUERY_KEYS.taskNotes, variables.planId, variables.taskId],
       });
       queryClient.invalidateQueries({
-        queryKey: ['task-detail', variables.planId, variables.taskId],
+        queryKey: [QUERY_KEYS.taskDetail, variables.planId, variables.taskId],
       });
     },
   });

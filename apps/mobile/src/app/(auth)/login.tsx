@@ -13,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema } from '@epde/shared';
 import type { LoginInput } from '@epde/shared';
 import { useAuthStore } from '@/stores/auth-store';
+import { colors } from '@/lib/colors';
 
 export default function LoginScreen() {
   const login = useAuthStore((s) => s.login);
@@ -74,7 +75,7 @@ export default function LoginScreen() {
                 className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3 text-base"
                 style={{ fontFamily: 'DMSans_400Regular' }}
                 placeholder="tu@email.com"
-                placeholderTextColor="#4a4542"
+                placeholderTextColor={colors.mutedForeground}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
@@ -102,7 +103,7 @@ export default function LoginScreen() {
                 className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3 text-base"
                 style={{ fontFamily: 'DMSans_400Regular' }}
                 placeholder="••••••"
-                placeholderTextColor="#4a4542"
+                placeholderTextColor={colors.mutedForeground}
                 secureTextEntry
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -123,7 +124,7 @@ export default function LoginScreen() {
             style={{ opacity: isLoading ? 0.6 : 1 }}
           >
             {isLoading ? (
-              <ActivityIndicator color="#ffffff" />
+              <ActivityIndicator color={colors.primaryForeground} />
             ) : (
               <Text
                 style={{ fontFamily: 'DMSans_700Bold' }}

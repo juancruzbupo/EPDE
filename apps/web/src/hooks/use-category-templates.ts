@@ -10,14 +10,15 @@ import {
   updateTaskTemplate,
   deleteTaskTemplate,
 } from '@/lib/api/category-templates';
-import type {
-  CreateCategoryTemplateInput,
-  UpdateCategoryTemplateInput,
-  CreateTaskTemplateInput,
-  UpdateTaskTemplateInput,
+import {
+  QUERY_KEYS,
+  type CreateCategoryTemplateInput,
+  type UpdateCategoryTemplateInput,
+  type CreateTaskTemplateInput,
+  type UpdateTaskTemplateInput,
 } from '@epde/shared';
 
-const QUERY_KEY = ['category-templates'];
+const QUERY_KEY = [QUERY_KEYS.categoryTemplates];
 
 export function useCategoryTemplates() {
   return useQuery({

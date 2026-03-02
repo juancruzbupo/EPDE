@@ -14,6 +14,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { setPassword } from '@/lib/auth';
+import { colors } from '@/lib/colors';
 
 const schema = z
   .object({
@@ -101,7 +102,7 @@ export default function SetPasswordScreen() {
                 className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3 text-base"
                 style={{ fontFamily: 'DMSans_400Regular' }}
                 placeholder="••••••••"
-                placeholderTextColor="#4a4542"
+                placeholderTextColor={colors.mutedForeground}
                 secureTextEntry
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -127,7 +128,7 @@ export default function SetPasswordScreen() {
                 className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3 text-base"
                 style={{ fontFamily: 'DMSans_400Regular' }}
                 placeholder="••••••••"
-                placeholderTextColor="#4a4542"
+                placeholderTextColor={colors.mutedForeground}
                 secureTextEntry
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -148,7 +149,7 @@ export default function SetPasswordScreen() {
             style={{ opacity: isLoading ? 0.6 : 1 }}
           >
             {isLoading ? (
-              <ActivityIndicator color="#ffffff" />
+              <ActivityIndicator color={colors.primaryForeground} />
             ) : (
               <Text
                 style={{ fontFamily: 'DMSans_700Bold' }}

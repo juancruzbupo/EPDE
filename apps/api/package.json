@@ -16,8 +16,6 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.997.0",
     "@aws-sdk/s3-request-presigner": "^3.997.0",
-    "@casl/ability": "^6.8.0",
-    "@casl/prisma": "^1.6.1",
     "@epde/shared": "workspace:*",
     "@nestjs/bullmq": "^11.0.4",
     "@nestjs/common": "^11",
@@ -42,8 +40,6 @@
     "@sentry/node": "^10.40.0",
     "bcrypt": "^6.0.0",
     "bullmq": "^5.70.1",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.15.1",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
     "date-fns": "^4.1.0",

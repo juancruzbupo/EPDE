@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getErrorMessage } from '@/lib/errors';
-import type { ApiResponse, BudgetRequestPublic } from '@epde/shared';
+import { QUERY_KEYS, type BudgetRequestPublic } from '@epde/shared';
 import {
   getBudgets,
   getBudget,
@@ -13,20 +13,17 @@ import {
 
 export function useBudgets(filters: BudgetFilters) {
   return useInfiniteQuery({
-    queryKey: ['budgets', filters],
+    queryKey: [QUERY_KEYS.budgets, filters],
     queryFn: ({ pageParam, signal }) => getBudgets({ ...filters, cursor: pageParam }, signal),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
   });
 }
 
-export function useBudget(
-  id: string,
-  options?: { initialData?: ApiResponse<BudgetRequestPublic> },
-) {
+export function useBudget(id: string, options?: { initialData?: BudgetRequestPublic }) {
   return useQuery({
-    queryKey: ['budgets', id],
-    queryFn: ({ signal }) => getBudget(id, signal),
+    queryKey: [QUERY_KEYS.budgets, id],
+    queryFn: ({ signal }) => getBudget(id, signal).then((r) => r.data),
     initialData: options?.initialData,
     enabled: !!id,
   });
@@ -38,9 +35,9 @@ export function useCreateBudgetRequest() {
     mutationFn: createBudgetRequest,
     onSuccess: () => {
       toast.success('Presupuesto creado');
-      queryClient.invalidateQueries({ queryKey: ['budgets'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'stats'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'activity'] });
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al crear presupuesto'));
@@ -63,7 +60,7 @@ export function useRespondToBudget() {
     }) => respondToBudget(id, dto),
     onSuccess: () => {
       toast.success('Cotización enviada');
-      queryClient.invalidateQueries({ queryKey: ['budgets'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al enviar cotización'));
@@ -77,9 +74,9 @@ export function useUpdateBudgetStatus() {
     mutationFn: ({ id, status }: { id: string; status: string }) => updateBudgetStatus(id, status),
     onSuccess: () => {
       toast.success('Estado actualizado');
-      queryClient.invalidateQueries({ queryKey: ['budgets'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'stats'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'activity'] });
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al actualizar estado'));

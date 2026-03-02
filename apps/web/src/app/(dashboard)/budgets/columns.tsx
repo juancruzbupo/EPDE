@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { BUDGET_STATUS_LABELS } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { budgetStatusVariant, budgetStatusClassName } from '@/lib/style-maps';
+import { budgetStatusVariant } from '@/lib/style-maps';
 import type { BudgetRequestPublic } from '@/lib/api/budgets';
 import Link from 'next/link';
 
@@ -37,10 +37,7 @@ export const budgetColumns: ColumnDef<BudgetRequestPublic>[] = [
     cell: ({ row }) => {
       const status = row.original.status;
       return (
-        <Badge
-          variant={budgetStatusVariant[status] ?? 'outline'}
-          className={budgetStatusClassName[status] ?? ''}
-        >
+        <Badge variant={budgetStatusVariant[status] ?? 'outline'}>
           {BUDGET_STATUS_LABELS[status] ?? status}
         </Badge>
       );

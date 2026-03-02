@@ -5,7 +5,7 @@ import { BaseRepository } from '../common/repositories/base.repository';
 import { addDays } from 'date-fns';
 
 @Injectable()
-export class TasksRepository extends BaseRepository<Task> {
+export class TasksRepository extends BaseRepository<Task, 'task'> {
   constructor(prisma: PrismaService) {
     super(prisma, 'task', true);
   }

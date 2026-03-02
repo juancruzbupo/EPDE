@@ -81,6 +81,8 @@ apps/mobile/
       fonts.ts                       # TYPE scale tipografica + font families
       haptics.ts                     # Wrapper de expo-haptics (light/medium/success/selection)
       animations.ts                  # Presets reanimated (TIMING, SPRING, useSlideIn, useFadeIn)
+      colors.ts                      # Design tokens JS (para APIs no-NativeWind: navigation, etc.)
+      screen-options.ts              # defaultScreenOptions + defaultTabBarOptions compartidos
       api/
         dashboard.ts                 # GET /dashboard/client-stats, client-upcoming
         properties.ts                # GET /properties

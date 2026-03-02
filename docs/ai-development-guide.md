@@ -21,10 +21,10 @@
 9. **Idioma: Espanol (Argentina)** — Toda la UI, mensajes de error Zod, labels y toasts en espanol
 10. **Tests para cada service** — Todo `*.service.ts` nuevo DEBE tener un `*.service.spec.ts` con mocks de repositorios
 11. **Invalidar queries especificamente** — En `onSuccess` de mutations, invalidar solo las query keys afectadas. Dashboard: sub-keys especificas (`['dashboard', 'stats']`), no todo `['dashboard']`
-12. **Commit style** — Conventional commits en minuscula: `fix: add user validation`, `feat(web): add dark mode`
+12. **Commit style** — Conventional commits en minuscula: `fix: add user validation`, `feat(web): add status filters`
 13. **Accesibilidad** — Botones icon-only con `aria-label`, `htmlFor`/`id` en labels de formulario, `role="button"` + `tabIndex={0}` + `onKeyDown` en divs clickeables, focus ring (`focus-visible:ring-ring/50 focus-visible:ring-[3px]`) en elementos interactivos custom
 14. **HTML semantico** — `<nav aria-label>` en navegacion, `aria-current="page"` en link activo, `<ul>/<li>` para listas, `role="status"` en loading, `aria-expanded` en colapsables
-15. **Tokens del design system** — Usar `text-destructive` (no `text-red-600`), `bg-destructive/10` (no `bg-red-50`), `bg-background` (no `bg-white`). Los style-maps incluyen variantes `dark:` para dark mode
+15. **Tokens del design system** — Usar `text-destructive` (no `text-red-600`), `bg-destructive/10` (no `bg-red-50`), `bg-background` (no `bg-white`). Los style-maps importan variantes de Badge desde `@epde/shared/constants/badge-variants`
 
 ### NUNCA
 
@@ -163,6 +163,31 @@ export const PAGINATION_DEFAULT_TAKE = 20;
 export const PAGINATION_MAX_TAKE = 100;
 ```
 
+Query keys centralizados (SSoT para web y mobile):
+
+```typescript
+// packages/shared/src/constants/query-keys.ts
+export const QUERY_KEYS = {
+  budgets: 'budgets',
+  dashboard: 'dashboard',
+  clients: 'clients',
+  properties: 'properties',
+  serviceRequests: 'service-requests',
+  notifications: 'notifications',
+  plans: 'plans',
+  // ...
+} as const;
+```
+
+Badge variants compartidas entre web y mobile:
+
+```typescript
+// packages/shared/src/constants/badge-variants.ts
+export const TASK_STATUS_VARIANT = { COMPLETED: 'success', OVERDUE: 'destructive', ... };
+export const BUDGET_STATUS_VARIANT = { APPROVED: 'success', REJECTED: 'destructive', ... };
+// + SERVICE_STATUS_VARIANT, URGENCY_VARIANT, PRIORITY_VARIANT, CLIENT_STATUS_VARIANT
+```
+
 ---
 
 ## 3. API (`@epde/api`) — NestJS
@@ -185,7 +210,7 @@ apps/api/src/<feature>/
 ```typescript
 // Ejemplo: apps/api/src/budgets/budgets.repository.ts
 @Injectable()
-export class BudgetsRepository extends BaseRepository<BudgetRequest> {
+export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequest'> {
   constructor(prisma: PrismaService) {
     super(prisma, 'budgetRequest', false); // false = sin soft-delete
   }
@@ -435,19 +460,13 @@ describe('BudgetsService', () => {
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-// Helper reutilizable (copiar en cada hook file)
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error && typeof error === 'object' && 'response' in error) {
-    const data = (error as { response?: { data?: { message?: string } } }).response?.data;
-    if (data?.message) return data.message;
-  }
-  return fallback;
-}
+import { getErrorMessage } from '@epde/shared';
+import { QUERY_KEYS } from '@epde/shared';
 
 // Listado con infinite query
 export function useBudgets(filters: BudgetFilters) {
   return useInfiniteQuery({
-    queryKey: ['budgets', filters],
+    queryKey: [QUERY_KEYS.budgets, filters],
     queryFn: ({ pageParam, signal }) => getBudgets({ ...filters, cursor: pageParam }, signal),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
@@ -457,7 +476,7 @@ export function useBudgets(filters: BudgetFilters) {
 // Detalle con enable condicional
 export function useBudget(id: string) {
   return useQuery({
-    queryKey: ['budgets', id],
+    queryKey: [QUERY_KEYS.budgets, id],
     queryFn: ({ signal }) => getBudget(id, signal),
     enabled: !!id,
   });
@@ -470,9 +489,9 @@ export function useCreateBudgetRequest() {
     mutationFn: createBudgetRequest,
     onSuccess: () => {
       toast.success('Presupuesto creado');
-      queryClient.invalidateQueries({ queryKey: ['budgets'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'stats'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'activity'] });
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al crear presupuesto'));
@@ -590,20 +609,13 @@ Variantes de Badge centralizadas en `lib/style-maps.ts`:
 
 ```typescript
 // apps/web/src/lib/style-maps.ts
-export const budgetStatusVariant: Record<
-  string,
-  'default' | 'secondary' | 'destructive' | 'outline'
-> = {
-  PENDING: 'secondary',
-  QUOTED: 'default',
-  APPROVED: 'default',
-  REJECTED: 'destructive',
-  IN_PROGRESS: 'outline',
-  COMPLETED: 'default',
-};
-// + taskStatusVariant, priorityColors, urgencyVariant, serviceStatusVariant, clientStatusVariant
-// Los mapas de color incluyen variantes dark: para dark mode
-// Ej: LOW: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+// Los mapas de variantes Badge se importan desde shared (SSoT web + mobile)
+import {
+  TASK_STATUS_VARIANT, BUDGET_STATUS_VARIANT, SERVICE_STATUS_VARIANT,
+  URGENCY_VARIANT, PRIORITY_VARIANT, CLIENT_STATUS_VARIANT
+} from '@epde/shared';
+export { TASK_STATUS_VARIANT as taskStatusVariant, BUDGET_STATUS_VARIANT as budgetStatusVariant, ... };
+// + priorityColors, taskTypeColors, professionalReqColors (color maps locales a web)
 ```
 
 **Regla:** NUNCA definir colores por estado inline en componentes. Importar de `style-maps.ts`.
@@ -903,13 +915,13 @@ export const tokenService = {
 4. **Shared: Constants** — Labels en espanol en `constants/index.ts`
 5. **Shared: Exports** — Registrar en `schemas/index.ts`, `types/entities/index.ts`
 6. **Shared: Build** — `pnpm --filter @epde/shared build`
-7. **API: Repository** — Extiende `BaseRepository<T>`, con includes LIST vs DETAIL
+7. **API: Repository** — Extiende `BaseRepository<T, 'modelName'>`, con includes LIST vs DETAIL
 8. **API: Service** — Inyecta repo, verifica permisos CLIENT/ADMIN
 9. **API: Controller** — Decorators, ZodValidationPipe por endpoint
 10. **API: Module** — Imports, providers, controllers. Registrar en `app.module.ts`
 11. **API: Tests** — `*.service.spec.ts` con mocks
 12. **Web: API functions** — `lib/api/<entity>.ts` con tipos de shared
-13. **Web: Hooks** — `hooks/use-<entity>.ts` con getErrorMessage + toasts
+13. **Web: Hooks** — `hooks/use-<entity>.ts` con `getErrorMessage` de `@epde/shared` + toasts + `QUERY_KEYS`
 14. **Web: Page** — `app/(dashboard)/<entity>/page.tsx` + `columns.tsx`
 15. **Web: Detail** — `app/(dashboard)/<entity>/[id]/page.tsx`
 16. **Web: Dialog** — Dialog de creacion/edicion con RHF + Zod

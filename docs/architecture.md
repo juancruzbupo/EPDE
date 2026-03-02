@@ -80,34 +80,38 @@ epde/
           fonts.ts      # TYPE scale tipografica
           haptics.ts    # Wrapper expo-haptics
           animations.ts # Presets reanimated (TIMING, SPRING, hooks)
+          colors.ts     # Design tokens JS (para APIs no-NativeWind)
+          screen-options.ts # Navigation header/tab defaults
         stores/         # Zustand auth store
       jest.config.js    # Jest + jest-expo config
   packages/
     shared/           # Tipos, schemas Zod, constantes, utilidades
       src/
         api/          # Tipos de API (respuestas paginadas, etc.)
-        constants/    # Labels en espanol, defaults
+        constants/    # Labels en espanol, defaults, QUERY_KEYS, badge-variants
         schemas/      # Zod schemas (validacion compartida)
         seed/         # Template seed data (nomenclador de tareas)
         types/        # Interfaces TypeScript + enums (types/enums.ts)
-        utils/        # Helpers de fechas, UUID
+        utils/        # Helpers de fechas, UUID, getErrorMessage
 ```
 
 ## Patrones de Diseno
 
 ### 1. Repository Pattern (API)
 
-Cada modulo tiene un repositorio que extiende `BaseRepository<T>`:
+Cada modulo tiene un repositorio que extiende `BaseRepository<T, M>`:
 
 ```typescript
 // base.repository.ts
-export class BaseRepository<T> {
+type PrismaModelName = /* union de nombres de modelo validos extraidos de PrismaClient */;
+
+export class BaseRepository<T, M extends PrismaModelName = PrismaModelName> {
   protected model; // Prisma model CON soft-delete filter (deletedAt: null)
   protected writeModel; // Prisma model SIN filtro (acceso completo)
 
-  constructor(prisma: PrismaService, modelName: string, softDelete: boolean) {
+  constructor(prisma: PrismaService, modelName: M, hasSoftDelete: boolean) {
     this.writeModel = prisma[modelName];
-    this.model = softDelete ? prisma[modelName] : prisma[modelName]; // extension filtra
+    this.model = hasSoftDelete ? prisma[modelName] : prisma[modelName]; // extension filtra
   }
 
   async findMany(params: FindManyParams): Promise<PaginatedResult<T>>;
@@ -322,7 +326,7 @@ Dependencias: `TasksRepository`, `NotificationsRepository`, `UsersRepository`, `
 
 - Cada entidad tiene hooks en `/hooks/use-<entity>.ts`
 - Pattern: `useQuery` para lectura, `useMutation` para escritura
-- `queryKey` convention: `['entity', ...params]`
+- `queryKey` convention: `QUERY_KEYS` centralizados desde `@epde/shared/constants` (ej: `[QUERY_KEYS.budgets, filters]`)
 - Invalidacion especifica en `onSuccess` de mutations (sub-keys de dashboard: `['dashboard', 'stats']`, `['dashboard', 'activity']`, etc. en vez de invalidar todo `['dashboard']`)
 - `queryClient` singleton exportable (`lib/query-client.ts`) — usado tanto por el QueryProvider como por el auth store (para `queryClient.clear()` en logout)
 - Paginacion cursor-based con `hasMore` + "Cargar mas"

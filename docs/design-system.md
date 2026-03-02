@@ -163,14 +163,14 @@ import { TYPE } from '@/lib/fonts';
 
 Los mapas de variantes y colores para Badges estan centralizados en `lib/style-maps.ts`. **No duplicar** en cada componente.
 
-Los mapas de color (`priorityColors`, `taskTypeColors`, `professionalReqColors`, `budgetStatusClassName`) incluyen variantes `dark:` para soporte de dark mode:
+Los mapas de variantes para Badge (`taskStatusVariant`, `budgetStatusVariant`, `serviceStatusVariant`, etc.) se importan desde `@epde/shared/constants/badge-variants` como SSoT compartido entre web y mobile. El Badge web incluye variante `success` para estados terminales positivos (COMPLETED, APPROVED, RESOLVED).
 
 ```typescript
-// Ejemplo: priorityColors con dark mode
-LOW: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-MEDIUM: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-HIGH: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-URGENT: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+// Ejemplo: priorityColors (color maps locales a web)
+LOW: 'bg-green-100 text-green-700',
+MEDIUM: 'bg-yellow-100 text-yellow-700',
+HIGH: 'bg-orange-100 text-orange-700',
+URGENT: 'bg-red-100 text-red-700',
 ```
 
 ```typescript
@@ -207,26 +207,26 @@ El proyecto usa [shadcn/ui](https://ui.shadcn.com/) estilo **new-york** con los 
 
 ### Componentes Disponibles
 
-| Componente   | Ubicacion                         | Notas                                                      |
-| ------------ | --------------------------------- | ---------------------------------------------------------- |
-| Alert        | `components/ui/alert.tsx`         | Mensajes de error/info/warning                             |
-| Avatar       | `components/ui/avatar.tsx`        | Avatares de usuario                                        |
-| Badge        | `components/ui/badge.tsx`         | Estados, etiquetas                                         |
-| Button       | `components/ui/button.tsx`        | Variantes: default, secondary, outline, ghost, destructive |
-| Card         | `components/ui/card.tsx`          | Contenedores de contenido                                  |
-| Command      | `components/ui/command.tsx`       | Combobox/typeahead (usa cmdk)                              |
-| Dialog       | `components/ui/dialog.tsx`        | Modales                                                    |
-| DropdownMenu | `components/ui/dropdown-menu.tsx` | Menus contextuales                                         |
-| Input        | `components/ui/input.tsx`         | Inputs de formulario                                       |
-| Label        | `components/ui/label.tsx`         | Labels de formulario                                       |
-| Popover      | `components/ui/popover.tsx`       | Tooltips interactivos, dropdowns                           |
-| Select       | `components/ui/select.tsx`        | Select nativo mejorado                                     |
-| Separator    | `components/ui/separator.tsx`     | Linea divisoria                                            |
-| Sheet        | `components/ui/sheet.tsx`         | Panel lateral (mobile sidebar)                             |
-| Skeleton     | `components/ui/skeleton.tsx`      | Loading placeholders                                       |
-| Table        | `components/ui/table.tsx`         | Tablas HTML estilizadas                                    |
-| Tabs         | `components/ui/tabs.tsx`          | Pestanas de navegacion                                     |
-| Tooltip      | `components/ui/tooltip.tsx`       | Tooltips informativos                                      |
+| Componente   | Ubicacion                         | Notas                                                        |
+| ------------ | --------------------------------- | ------------------------------------------------------------ |
+| Alert        | `components/ui/alert.tsx`         | Mensajes de error/info/warning                               |
+| Avatar       | `components/ui/avatar.tsx`        | Avatares de usuario                                          |
+| Badge        | `components/ui/badge.tsx`         | Variantes: default, secondary, outline, destructive, success |
+| Button       | `components/ui/button.tsx`        | Variantes: default, secondary, outline, ghost, destructive   |
+| Card         | `components/ui/card.tsx`          | Contenedores de contenido                                    |
+| Command      | `components/ui/command.tsx`       | Combobox/typeahead (usa cmdk)                                |
+| Dialog       | `components/ui/dialog.tsx`        | Modales                                                      |
+| DropdownMenu | `components/ui/dropdown-menu.tsx` | Menus contextuales                                           |
+| Input        | `components/ui/input.tsx`         | Inputs de formulario                                         |
+| Label        | `components/ui/label.tsx`         | Labels de formulario                                         |
+| Popover      | `components/ui/popover.tsx`       | Tooltips interactivos, dropdowns                             |
+| Select       | `components/ui/select.tsx`        | Select nativo mejorado                                       |
+| Separator    | `components/ui/separator.tsx`     | Linea divisoria                                              |
+| Sheet        | `components/ui/sheet.tsx`         | Panel lateral (mobile sidebar)                               |
+| Skeleton     | `components/ui/skeleton.tsx`      | Loading placeholders                                         |
+| Table        | `components/ui/table.tsx`         | Tablas HTML estilizadas                                      |
+| Tabs         | `components/ui/tabs.tsx`          | Pestanas de navegacion                                       |
+| Tooltip      | `components/ui/tooltip.tsx`       | Tooltips informativos                                        |
 
 ### Agregar un nuevo componente shadcn
 
@@ -588,6 +588,10 @@ Componente generico para filas deslizables con `Gesture.Pan` de react-native-ges
 <View className="bg-primary rounded-lg p-4" />
 <Text className="text-foreground text-lg font-semibold" />
 <View className="border border-border bg-card" />
+
+// Para APIs que requieren valores JS (navigation, ActivityIndicator):
+import { colors } from '@/lib/colors';
+<View style={{ backgroundColor: colors.primary }} />
 
 // Incorrecto — colores hardcodeados
 <View style={{ backgroundColor: '#C4704B' }} />

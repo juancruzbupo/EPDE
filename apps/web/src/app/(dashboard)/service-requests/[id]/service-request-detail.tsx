@@ -12,7 +12,7 @@ import { ArrowLeft, FileText, Home, User, AlertTriangle, Calendar, AlignLeft } f
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { SERVICE_URGENCY_LABELS, SERVICE_STATUS_LABELS } from '@epde/shared';
-import type { ServiceRequestPublic, ApiResponse } from '@epde/shared';
+import type { ServiceRequestPublic } from '@epde/shared';
 import Link from 'next/link';
 import { urgencyVariant, serviceStatusVariant } from '@/lib/style-maps';
 
@@ -33,7 +33,7 @@ const TRANSITION_LABELS: Record<string, string> = {
 interface ServiceRequestDetailProps {
   id: string;
   isAdmin: boolean;
-  initialData?: ApiResponse<ServiceRequestPublic>;
+  initialData?: ServiceRequestPublic;
 }
 
 export function ServiceRequestDetail({ id, isAdmin, initialData }: ServiceRequestDetailProps) {
@@ -43,7 +43,7 @@ export function ServiceRequestDetail({ id, isAdmin, initialData }: ServiceReques
   const [statusConfirm, setStatusConfirm] = useState<string | null>(null);
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
 
-  const request = data?.data;
+  const request = data;
 
   if (!request) return null;
 

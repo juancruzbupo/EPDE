@@ -88,7 +88,7 @@ Agregar en `apps/api/prisma/schema.prisma` y ejecutar `prisma migrate dev`.
 
 ```typescript
 @Injectable()
-export class MyFeatureRepository extends BaseRepository<MyModel> {
+export class MyFeatureRepository extends BaseRepository<MyModel, 'myModel'> {
   constructor(prisma: PrismaService) {
     super(prisma, 'myModel', false); // true si necesita soft delete
   }
@@ -196,10 +196,11 @@ export async function getMyFeatures(params?) {
 ```typescript
 // hooks/use-my-feature.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { QUERY_KEYS, getErrorMessage } from '@epde/shared';
 
 export function useMyFeatures(filters?) {
   return useQuery({
-    queryKey: ['my-features', filters],
+    queryKey: [QUERY_KEYS.myFeatures, filters],
     queryFn: () => getMyFeatures(filters),
   });
 }
@@ -209,10 +210,10 @@ export function useCreateMyFeature() {
   return useMutation({
     mutationFn: createMyFeature,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['my-features'] });
-      // Invalidar solo sub-keys especificas del dashboard (no todo ['dashboard'])
-      queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.myFeatures] });
+      // Invalidar solo sub-keys especificas del dashboard (no todo [QUERY_KEYS.dashboard])
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'stats'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'activity'] });
     },
   });
 }
@@ -287,9 +288,10 @@ O si `pnpm dev` esta corriendo, tsup watch lo detecta automaticamente.
 
 ```typescript
 import { createBudgetRequestSchema } from '@epde/shared'; // schemas
-import { BUDGET_STATUS_LABELS } from '@epde/shared'; // constants
+import { BUDGET_STATUS_LABELS, QUERY_KEYS } from '@epde/shared'; // constants
+import { BUDGET_STATUS_VARIANT } from '@epde/shared'; // badge variants
 import type { BudgetRequest, BudgetStatus } from '@epde/shared'; // types
-import { formatRelativeDate, isOverdue } from '@epde/shared'; // utils
+import { formatRelativeDate, isOverdue, getErrorMessage } from '@epde/shared'; // utils
 
 // O imports especificos por path
 import { createBudgetRequestSchema } from '@epde/shared/schemas';
@@ -380,7 +382,7 @@ pnpm --filter @epde/mobile test              # Solo Mobile (jest-expo)
 - **Web**: Vitest + jsdom + @testing-library/react — hooks y componentes
 - **Mobile**: jest-expo + @testing-library/react-native — componentes
 
-Total: 306 tests (91 API + 187 Shared + 15 Web + 13 Mobile)
+Total: 368 tests (142 API + 187 Shared + 26 Web + 13 Mobile)
 
 ### Tests E2E
 

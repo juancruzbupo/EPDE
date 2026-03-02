@@ -13,7 +13,7 @@ function isTaskReminderData(data: unknown): data is { taskId: string } {
 }
 
 @Injectable()
-export class NotificationsRepository extends BaseRepository<Notification> {
+export class NotificationsRepository extends BaseRepository<Notification, 'notification'> {
   constructor(prisma: PrismaService) {
     super(prisma, 'notification', false);
   }

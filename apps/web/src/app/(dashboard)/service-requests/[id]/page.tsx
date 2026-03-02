@@ -21,5 +21,5 @@ export default async function ServiceRequestDetailPage({ params }: Props) {
 
   const isAdmin = user?.role === UserRole.ADMIN;
 
-  return <ServiceRequestDetail id={id} isAdmin={isAdmin} initialData={data} />;
+  return <ServiceRequestDetail id={id} isAdmin={isAdmin} initialData={data.data} />;
 }

@@ -4,7 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { BaseRepository } from '../common/repositories/base.repository';
 
 @Injectable()
-export class CategoriesRepository extends BaseRepository<Category> {
+export class CategoriesRepository extends BaseRepository<Category, 'category'> {
   constructor(prisma: PrismaService) {
     super(prisma, 'category', true);
   }

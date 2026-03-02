@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateClientSchema, type UpdateClientInput, USER_STATUS_LABELS } from '@epde/shared';
-import type { ClientPublic, ApiResponse } from '@epde/shared';
+import type { ClientPublic } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useClient, useUpdateClient, useDeleteClient } from '@/hooks/use-clients';
@@ -21,7 +21,7 @@ import Link from 'next/link';
 
 interface ClientDetailProps {
   id: string;
-  initialData?: ApiResponse<ClientPublic>;
+  initialData?: ClientPublic;
 }
 
 export function ClientDetail({ id, initialData }: ClientDetailProps) {
@@ -33,7 +33,7 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
   const updateClient = useUpdateClient();
   const deleteClient = useDeleteClient();
 
-  const client = data?.data;
+  const client = data;
 
   const {
     register,

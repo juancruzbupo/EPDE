@@ -21,5 +21,5 @@ export default async function PropertyDetailPage({ params }: Props) {
 
   const isAdmin = user?.role === UserRole.ADMIN;
 
-  return <PropertyDetail id={id} isAdmin={isAdmin} initialData={data} />;
+  return <PropertyDetail id={id} isAdmin={isAdmin} initialData={data.data} />;
 }

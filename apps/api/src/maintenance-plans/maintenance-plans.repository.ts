@@ -4,7 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { BaseRepository } from '../common/repositories/base.repository';
 
 @Injectable()
-export class MaintenancePlansRepository extends BaseRepository<MaintenancePlan> {
+export class MaintenancePlansRepository extends BaseRepository<MaintenancePlan, 'maintenancePlan'> {
   constructor(prisma: PrismaService) {
     super(prisma, 'maintenancePlan', false);
   }

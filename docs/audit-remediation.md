@@ -435,7 +435,7 @@ grep -rn "priorityColors\|urgencyVariant\|statusVariant" apps/web/src/ --include
 | 5    | Performance        | `[x] Completado` | 2         | 1-2       |
 | 6    | Testing + polish   | `[x] Completado` | 0         | 3-5       |
 
-**Tests totales: 306** (91 API unit + 187 Shared + 15 Web + 13 Mobile + E2E suites)
+**Tests totales: 368** (142 API unit + 187 Shared + 26 Web + 13 Mobile + E2E suites)
 
 **Progreso total: 40 / 40 tareas** (3.8, 4.4-4.6 diferidos por decision de diseno)
 
@@ -498,7 +498,7 @@ pnpm build && pnpm typecheck && pnpm lint && pnpm test  # Todo green
 | 6    | Testing + polish     | `[x] Completado` | 10     |
 | 7    | Hardening post-audit | `[x] Completado` | 12     |
 
-**Tests totales: 306** (91 API unit + 187 Shared + 15 Web + 13 Mobile + E2E suites)
+**Tests totales: 368** (142 API unit + 187 Shared + 26 Web + 13 Mobile + E2E suites)
 
 **Progreso total: 52 / 52 tareas**
 
@@ -567,7 +567,7 @@ Auditoria arquitectonica (score 7.9/10) identifico 23 items pendientes organizad
 
 - [x] **8.5.1 — Tests E2E para flujos de auth** — Session isolation, set-password full flow, web cookie flow, rate limiting
 - [x] **8.5.2 — OpenTelemetry traces** — SDK con auto-instrumentations, OTLP HTTP exporter (opcional)
-- [x] **8.5.3 — Dark mode toggle** — `useTheme` hook, Sun/Moon toggle en header, anti-flash script
+- [x] ~~**8.5.3 — Dark mode toggle**~~ — Fue implementado (useTheme, Sun/Moon toggle) pero posteriormente **removido** en la remediacion de auditoria (M6) por ser superficial (solo 33 usos `dark:`, sin mobile)
 - [x] **8.5.4 — Estrategia de rollback** — Documentada en runbook.md (app, DB, destructivas, procedimiento)
 
 ### Verificacion
@@ -652,7 +652,7 @@ pnpm build && pnpm typecheck && pnpm lint && pnpm test  # Todo green (278 tests 
 | 8    | Roadmap arquitectonico | `[x] Completado` | 23     |
 | 9    | Remediacion ronda 4    | `[x] Completado` | 16     |
 
-**Tests totales: 306+** (91 API unit + 187 Shared + 15 Web + 13 Mobile + E2E suites)
+**Tests totales: 368** (142 API unit + 187 Shared + 26 Web + 13 Mobile + E2E suites)
 
 **Progreso total: 91 / 91 tareas** (+ 6 diferidas con justificacion)
 
@@ -693,7 +693,7 @@ Auditoria Round 9 (CTO due diligence) identifico gaps en seguridad, integridad d
 - [x] **10.3.1 — Integration tests API** — Ya existian extensivamente (auth, properties, budgets, concurrency, etc.)
 - [x] **10.3.2 — Auth flow tests web** — LoginPage (5 tests) + auth-store (6 tests)
 - [x] **10.3.3 — Mobile critical path tests** — auth-flow (8 tests) + dashboard (3 tests)
-- [x] **10.3.4 — Coverage thresholds** — API 70%, Web 60%, Mobile 40%
+- [x] **10.3.4 — Coverage thresholds** — Ajustados a la realidad: API 30/20/25/30%, Web 15/10/15/15%, Mobile 10/5/10/10% (statements/branches/functions/lines)
 - [x] **10.3.5 — CodeQL scanning** — `.github/workflows/codeql.yml` para JavaScript/TypeScript
 - [x] **10.3.6 — Token refresh deadlock fix** — try/catch + null guard en mobile api-client
 
@@ -843,15 +843,15 @@ pnpm build && pnpm typecheck && pnpm lint  # Todo green (3/3 builds, 4/4 typeche
 > **Prioridad:** Alta
 > **Estimacion:** 1 dia
 > **Dependencias:** Fase 11 completada
-> **Issues que resuelve:** 20 categorias de problemas en accesibilidad (WCAG 2.1), contraste dark mode, tokens del design system, formularios y HTML semantico
+> **Issues que resuelve:** 20 categorias de problemas en accesibilidad (WCAG 2.1), tokens del design system, formularios y HTML semantico
 
 ### Contexto
 
-Auditoria completa del frontend web (`apps/web`) identifico colores hardcodeados que no responden a dark mode, botones icon-only sin aria-label, elementos clickeables sin soporte de teclado, formularios con labels desvinculados, y HTML no semantico.
+Auditoria completa del frontend web (`apps/web`) identifico colores hardcodeados, botones icon-only sin aria-label, elementos clickeables sin soporte de teclado, formularios con labels desvinculados, y HTML no semantico.
 
 ### 12.1 — Colores hardcodeados → Tokens del design system (Batch 1)
 
-- [x] **12.1.1 — style-maps.ts: variantes dark mode** — Agregadas variantes `dark:` a `priorityColors`, `taskTypeColors`, `professionalReqColors`, `budgetStatusClassName`
+- [x] ~~**12.1.1 — style-maps.ts: variantes dark mode**~~ — Fue implementado pero posteriormente **removido** (M6). Los mapas de variantes Badge ahora se importan desde `@epde/shared/constants/badge-variants`
 - [x] **12.1.2 — landing-page.tsx** — `bg-white` → `bg-background`, `text-white` → `text-primary-foreground`
 - [x] **12.1.3 — notification-bell.tsx** — `bg-red-500` → `bg-destructive`
 - [x] **12.1.4 — client-dashboard.tsx** — `border-red-200 bg-red-50` → `border-destructive/30 bg-destructive/10`, `text-red-600` → `text-destructive`

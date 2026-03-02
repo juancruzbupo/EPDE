@@ -25,6 +25,7 @@ import { useCreateServiceRequest } from '@/hooks/use-service-requests';
 import { useProperties } from '@/hooks/use-properties';
 import { useUploadFile } from '@/hooks/use-upload';
 import { TYPE } from '@/lib/fonts';
+import { colors } from '@/lib/colors';
 import type { PropertyPublic } from '@epde/shared/types';
 
 const URGENCY_OPTIONS = [
@@ -267,7 +268,7 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
             ))}
             {properties.length === 0 && (
               <View className="py-2">
-                <ActivityIndicator size="small" color="#c4704b" />
+                <ActivityIndicator size="small" color={colors.primary} />
               </View>
             )}
           </ScrollView>
@@ -291,7 +292,7 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
                 onChangeText={onChange}
                 onBlur={onBlur}
                 placeholder="Describir brevemente el problema..."
-                placeholderTextColor="#4a4542"
+                placeholderTextColor={colors.mutedForeground}
                 maxLength={200}
                 style={TYPE.bodyMd}
                 className="border-border bg-card text-foreground mb-1 rounded-xl border p-3"
@@ -318,7 +319,7 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
                 onChangeText={onChange}
                 onBlur={onBlur}
                 placeholder="Describir en detalle el problema o servicio necesario (minimo 10 caracteres)..."
-                placeholderTextColor="#4a4542"
+                placeholderTextColor={colors.mutedForeground}
                 multiline
                 maxLength={2000}
                 style={[TYPE.bodyMd, { minHeight: 100, textAlignVertical: 'top' }]}

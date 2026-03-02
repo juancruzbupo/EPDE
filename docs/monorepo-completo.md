@@ -141,6 +141,8 @@ epde/
 │       │   │   ├── token-service.ts  # SecureStore (nativo) + sessionStorage (web)
 │       │   │   ├── query-persister.ts # AsyncStorage persister (offline cache)
 │       │   │   ├── auth.ts           # Auth API functions
+│       │   │   ├── colors.ts         # Design tokens JS (para APIs no-NativeWind)
+│       │   │   ├── screen-options.ts # Navigation header/tab defaults
 │       │   │   └── api/              # Endpoints por entidad
 │       │   ├── stores/               # Zustand auth store
 │       │   └── global.css            # Tokens NativeWind
@@ -172,8 +174,10 @@ epde/
 │       │   │   ├── category.ts       # Category filters schema
 │       │   │   └── service-request.ts
 │       │   ├── constants/
-│       │   │   └── index.ts          # Labels en espanol, defaults, mappings
-│       │   └── utils/                # Date/string helpers
+│       │   │   ├── index.ts          # Labels en espanol, defaults, mappings
+│       │   │   ├── query-keys.ts     # QUERY_KEYS centralizados (SSoT)
+│       │   │   └── badge-variants.ts # Variantes de Badge compartidas web/mobile
+│       │   └── utils/                # Date/string helpers, getErrorMessage
 │       ├── tsup.config.ts            # Dual ESM(.js) + CJS(.cjs) build
 │       ├── vitest.config.ts          # Unit tests
 │       ├── tsconfig.json
@@ -223,7 +227,6 @@ epde/
 | ioredis               | 5.9     | Redis client para Node.js            |
 | Passport              | -       | Autenticacion (JWT + Local strategy) |
 | @nestjs/jwt           | -       | JWT tokens (access 15m, refresh 7d)  |
-| CASL                  | 6.8     | Autorizacion role-based              |
 | @nestjs/throttler     | 6.5     | Rate limiting                        |
 | @nestjs/swagger       | 11.2    | Documentacion OpenAPI                |
 | @nestjs/schedule      | 6.1     | Cron jobs                            |
@@ -289,12 +292,16 @@ epde/
 
 ### P1: Repository Pattern (Backend)
 
-Cada modulo tiene un repositorio que extiende `BaseRepository<T>`:
+Cada modulo tiene un repositorio que extiende `BaseRepository<T, M>`:
 
 ```typescript
-export class BaseRepository<T> {
+type PrismaModelName = /* union de nombres de modelo validos extraidos de PrismaClient */;
+
+export class BaseRepository<T, M extends PrismaModelName = PrismaModelName> {
   protected model; // Con filtro soft-delete (deletedAt: null)
   protected writeModel; // Sin filtro (acceso completo)
+
+  constructor(prisma: PrismaService, modelName: M, hasSoftDelete: boolean);
 
   async findMany(params): Promise<PaginatedResult<T>>;
   async findById(id, include?): Promise<T | null>;
@@ -436,7 +443,7 @@ Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en depl
 
 - Hooks por entidad: `use-properties`, `use-budgets`, `use-notifications`, etc.
 - `useQuery` para lectura, `useMutation` para escritura
-- Query keys: `['entity', ...params]`
+- Query keys centralizados: `QUERY_KEYS` desde `@epde/shared/constants` (ej: `[QUERY_KEYS.budgets, filters]`)
 - Invalidacion automatica en `onSuccess`
 - Web: paginacion cursor-based con "Cargar mas"
 - Mobile: `useInfiniteQuery` con scroll infinito
@@ -517,7 +524,7 @@ Casos de uso: token rotation (families), token blacklist (JTIs), distributed loc
 
 ### Paleta de Colores
 
-#### Light Mode (default)
+#### Paleta
 
 | Token                  | Hex       | Uso                          |
 | ---------------------- | --------- | ---------------------------- |
@@ -533,15 +540,6 @@ Casos de uso: token rotation (families), token blacklist (JTIs), distributed loc
 | `border`               | `#E8DDD3` | Bordes                       |
 | `ring`                 | `#C4704B` | Focus ring                   |
 | `success`              | `#6B9B7A` | Exito, completado            |
-
-#### Dark Mode (web only)
-
-| Token        | Hex       |
-| ------------ | --------- |
-| `primary`    | `#D4956F` |
-| `secondary`  | `#3D3835` |
-| `background` | `#1A1715` |
-| `foreground` | `#F5F0EB` |
 
 #### Chart Colors (web)
 
@@ -676,7 +674,7 @@ Centralizados en `lib/style-maps.ts` (web) y `components/status-badge.tsx` (mobi
 | `serviceStatusVariant` | Solicitudes  | OPEN, IN_REVIEW, IN_PROGRESS, RESOLVED, CLOSED                |
 | `clientStatusVariant`  | Clientes     | INVITED, ACTIVE, INACTIVE                                     |
 
-Los mapas de color (`priorityColors`, `taskTypeColors`, `professionalReqColors`, `budgetStatusClassName`) incluyen variantes `dark:` para dark mode. Ejemplo: `'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'`.
+Los mapas de variantes para Badge (`taskStatusVariant`, `budgetStatusVariant`, `serviceStatusVariant`, etc.) se importan desde `@epde/shared/constants/badge-variants` como SSoT compartido entre web y mobile. El Badge web incluye variante `success` para estados terminales positivos (COMPLETED, APPROVED, RESOLVED).
 
 ### Accesibilidad (Web)
 

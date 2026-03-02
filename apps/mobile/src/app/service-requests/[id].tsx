@@ -21,6 +21,8 @@ import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { CollapsibleSection } from '@/components/collapsible-section';
 import { TYPE } from '@/lib/fonts';
+import { colors } from '@/lib/colors';
+import { defaultScreenOptions } from '@/lib/screen-options';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -36,7 +38,7 @@ export default function ServiceRequestDetailScreen() {
         <Stack.Screen
           options={{ headerShown: true, title: 'Solicitud', headerBackTitle: 'Volver' }}
         />
-        <ActivityIndicator size="large" color="#c4704b" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -70,9 +72,7 @@ export default function ServiceRequestDetailScreen() {
           headerShown: true,
           title: 'Solicitud',
           headerBackTitle: 'Volver',
-          headerStyle: { backgroundColor: '#fafaf8' },
-          headerTintColor: '#2e2a27',
-          headerTitleStyle: { fontFamily: 'DMSans_700Bold' },
+          ...defaultScreenOptions,
         }}
       />
 

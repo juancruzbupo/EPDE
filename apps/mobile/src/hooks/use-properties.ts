@@ -1,9 +1,10 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { QUERY_KEYS } from '@epde/shared';
 import { getProperties, getProperty, type PropertyFilters } from '@/lib/api/properties';
 
 export function useProperties(filters: Omit<PropertyFilters, 'cursor'> = {}) {
   return useInfiniteQuery({
-    queryKey: ['properties', filters],
+    queryKey: [QUERY_KEYS.properties, filters],
     queryFn: ({ pageParam, signal }) => getProperties({ ...filters, cursor: pageParam }, signal),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
@@ -13,7 +14,7 @@ export function useProperties(filters: Omit<PropertyFilters, 'cursor'> = {}) {
 
 export function useProperty(id: string) {
   return useQuery({
-    queryKey: ['properties', id],
+    queryKey: [QUERY_KEYS.properties, id],
     queryFn: ({ signal }) => getProperty(id, signal).then((r) => r.data),
     enabled: !!id,
   });

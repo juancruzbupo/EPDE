@@ -1,0 +1,15 @@
+export const QUERY_KEYS = {
+  budgets: 'budgets',
+  dashboard: 'dashboard',
+  clients: 'clients',
+  properties: 'properties',
+  serviceRequests: 'service-requests',
+  notifications: 'notifications',
+  plans: 'plans',
+  categories: 'categories',
+  categoryTemplates: 'category-templates',
+  taskTemplates: 'task-templates',
+  taskDetail: 'task-detail',
+  taskLogs: 'task-logs',
+  taskNotes: 'task-notes',
+} as const;

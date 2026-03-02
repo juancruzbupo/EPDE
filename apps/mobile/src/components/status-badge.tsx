@@ -6,9 +6,13 @@ import {
   BUDGET_STATUS_LABELS,
   SERVICE_STATUS_LABELS,
   SERVICE_URGENCY_LABELS,
+  TASK_STATUS_VARIANT,
+  PRIORITY_VARIANT,
+  BUDGET_STATUS_VARIANT,
+  SERVICE_STATUS_VARIANT,
+  URGENCY_VARIANT,
 } from '@epde/shared';
-
-type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'success';
+import type { BadgeVariant } from '@epde/shared';
 
 interface StatusBadgeProps {
   label: string;
@@ -35,54 +39,15 @@ export function StatusBadge({ label, variant = 'default' }: StatusBadgeProps) {
   );
 }
 
-// Variant mappings (UI-specific, not shared)
-const taskStatusVariant: Record<string, BadgeVariant> = {
-  PENDING: 'secondary',
-  UPCOMING: 'default',
-  OVERDUE: 'destructive',
-  COMPLETED: 'success',
-};
-
-const priorityVariant: Record<string, BadgeVariant> = {
-  LOW: 'outline',
-  MEDIUM: 'secondary',
-  HIGH: 'default',
-  URGENT: 'destructive',
-};
-
-const budgetStatusVariant: Record<string, BadgeVariant> = {
-  PENDING: 'secondary',
-  QUOTED: 'default',
-  APPROVED: 'success',
-  REJECTED: 'destructive',
-  IN_PROGRESS: 'default',
-  COMPLETED: 'success',
-};
-
-const serviceStatusVariant: Record<string, BadgeVariant> = {
-  OPEN: 'default',
-  IN_REVIEW: 'secondary',
-  IN_PROGRESS: 'default',
-  RESOLVED: 'success',
-  CLOSED: 'outline',
-};
-
-const urgencyVariant: Record<string, BadgeVariant> = {
-  LOW: 'outline',
-  MEDIUM: 'secondary',
-  HIGH: 'default',
-  URGENT: 'destructive',
-};
-
 export function TaskStatusBadge({ status }: { status: string }) {
   const label = TASK_STATUS_LABELS[status] ?? status;
-  const variant = taskStatusVariant[status] ?? 'outline';
+  const variant = TASK_STATUS_VARIANT[status] ?? 'outline';
   return <StatusBadge label={label} variant={variant} />;
 }
 
 export function PriorityBadge({ priority }: { priority: string }) {
   const label = TASK_PRIORITY_LABELS[priority] ?? priority;
-  const variant = priorityVariant[priority] ?? 'outline';
+  const variant = PRIORITY_VARIANT[priority] ?? 'outline';
   return <StatusBadge label={label} variant={variant} />;
 }
 
@@ -93,18 +58,18 @@ export function PropertyTypeBadge({ type }: { type: string }) {
 
 export function BudgetStatusBadge({ status }: { status: string }) {
   const label = BUDGET_STATUS_LABELS[status] ?? status;
-  const variant = budgetStatusVariant[status] ?? 'outline';
+  const variant = BUDGET_STATUS_VARIANT[status] ?? 'outline';
   return <StatusBadge label={label} variant={variant} />;
 }
 
 export function ServiceStatusBadge({ status }: { status: string }) {
   const label = SERVICE_STATUS_LABELS[status] ?? status;
-  const variant = serviceStatusVariant[status] ?? 'outline';
+  const variant = SERVICE_STATUS_VARIANT[status] ?? 'outline';
   return <StatusBadge label={label} variant={variant} />;
 }
 
 export function UrgencyBadge({ urgency }: { urgency: string }) {
   const label = SERVICE_URGENCY_LABELS[urgency] ?? urgency;
-  const variant = urgencyVariant[urgency] ?? 'outline';
+  const variant = URGENCY_VARIANT[urgency] ?? 'outline';
   return <StatusBadge label={label} variant={variant} />;
 }

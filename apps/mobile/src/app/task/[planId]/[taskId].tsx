@@ -22,6 +22,8 @@ import { ErrorState } from '@/components/error-state';
 import { CompleteTaskModal } from '@/components/complete-task-modal';
 import { CollapsibleSection } from '@/components/collapsible-section';
 import { TYPE } from '@/lib/fonts';
+import { colors } from '@/lib/colors';
+import { defaultScreenOptions } from '@/lib/screen-options';
 import type { TaskLogPublic, TaskNotePublic } from '@epde/shared/types';
 
 const recurrenceLabels: Record<string, string> = {
@@ -105,7 +107,7 @@ export default function TaskDetailScreen() {
     return (
       <View className="bg-background flex-1 items-center justify-center">
         <Stack.Screen options={{ headerShown: true, title: 'Tarea', headerBackTitle: 'Volver' }} />
-        <ActivityIndicator size="large" color="#c4704b" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -137,9 +139,7 @@ export default function TaskDetailScreen() {
           headerShown: true,
           title: task.name,
           headerBackTitle: 'Volver',
-          headerStyle: { backgroundColor: '#fafaf8' },
-          headerTintColor: '#2e2a27',
-          headerTitleStyle: { fontFamily: 'DMSans_700Bold' },
+          ...defaultScreenOptions,
         }}
       />
 
@@ -231,7 +231,7 @@ export default function TaskDetailScreen() {
               value={noteContent}
               onChangeText={setNoteContent}
               placeholder="Agregar una nota..."
-              placeholderTextColor="#4a4542"
+              placeholderTextColor={colors.mutedForeground}
               multiline
               style={[TYPE.bodyMd, { minHeight: 40, textAlignVertical: 'top' }]}
               className="border-border bg-card text-foreground flex-1 rounded-xl border px-3 py-2"

@@ -4,7 +4,10 @@ import { PrismaService } from '../prisma/prisma.service';
 import { BaseRepository } from '../common/repositories/base.repository';
 
 @Injectable()
-export class CategoryTemplatesRepository extends BaseRepository<CategoryTemplate> {
+export class CategoryTemplatesRepository extends BaseRepository<
+  CategoryTemplate,
+  'categoryTemplate'
+> {
   constructor(prisma: PrismaService) {
     super(prisma, 'categoryTemplate', false);
   }

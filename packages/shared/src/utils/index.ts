@@ -8,3 +8,4 @@ export function isValidUUID(value: string): boolean {
 }
 
 export * from './dates';
+export * from './errors';

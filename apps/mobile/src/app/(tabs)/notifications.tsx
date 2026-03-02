@@ -14,6 +14,7 @@ import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { haptics } from '@/lib/haptics';
 import { TYPE } from '@/lib/fonts';
+import { colors } from '@/lib/colors';
 import type { NotificationPublic } from '@epde/shared/types';
 
 const NOTIF_TYPE_ICONS: Record<string, string> = {
@@ -127,7 +128,7 @@ export default function NotificationsScreen() {
                 ? [
                     {
                       icon: '✓',
-                      color: '#6b9b7a',
+                      color: colors.success,
                       onPress: () => {
                         haptics.light();
                         markAsRead.mutate(item.id);

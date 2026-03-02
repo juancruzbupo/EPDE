@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, MapPin, Building, Calendar, Ruler, User, ClipboardList } from 'lucide-react';
 import { PROPERTY_TYPE_LABELS } from '@epde/shared';
-import type { PropertyPublic, ApiResponse } from '@epde/shared';
+import type { PropertyPublic } from '@epde/shared';
 import Link from 'next/link';
 import { PlanEditor } from './plan-editor';
 import { PlanViewer } from './plan-viewer';
@@ -16,12 +16,12 @@ import { PlanViewer } from './plan-viewer';
 interface PropertyDetailProps {
   id: string;
   isAdmin: boolean;
-  initialData?: ApiResponse<PropertyPublic>;
+  initialData?: PropertyPublic;
 }
 
 export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps) {
   const { data } = useProperty(id, { initialData });
-  const property = data?.data;
+  const property = data;
 
   if (!property) return null;
 

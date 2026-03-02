@@ -19,6 +19,7 @@ import { haptics } from '@/lib/haptics';
 import { useCompleteTask } from '@/hooks/use-maintenance-plans';
 import { useUploadFile } from '@/hooks/use-upload';
 import { TYPE } from '@/lib/fonts';
+import { colors } from '@/lib/colors';
 import {
   TASK_RESULT_LABELS,
   CONDITION_FOUND_LABELS,
@@ -337,7 +338,7 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
             value={cost}
             onChangeText={setCost}
             placeholder="0.00"
-            placeholderTextColor="#4a4542"
+            placeholderTextColor={colors.mutedForeground}
             keyboardType="decimal-pad"
             style={TYPE.bodyMd}
             className="border-border bg-card text-foreground mb-4 rounded-xl border p-3"
@@ -350,7 +351,7 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
             value={note}
             onChangeText={setNote}
             placeholder="Describir el trabajo realizado..."
-            placeholderTextColor="#4a4542"
+            placeholderTextColor={colors.mutedForeground}
             multiline
             maxLength={500}
             style={[TYPE.bodyMd, { minHeight: 80, textAlignVertical: 'top' }]}

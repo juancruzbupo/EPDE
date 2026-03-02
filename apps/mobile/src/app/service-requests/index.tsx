@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { CreateServiceRequestModal } from '@/components/create-service-request-modal';
 import { TYPE } from '@/lib/fonts';
+import { defaultScreenOptions } from '@/lib/screen-options';
 import type { ServiceRequestPublic } from '@epde/shared/types';
 
 const STATUS_FILTERS = [
@@ -82,9 +83,7 @@ export default function ServiceRequestsScreen() {
           headerShown: true,
           title: 'Solicitudes de Servicio',
           headerBackTitle: 'Volver',
-          headerStyle: { backgroundColor: '#fafaf8' },
-          headerTintColor: '#2e2a27',
-          headerTitleStyle: { fontFamily: 'DMSans_700Bold' },
+          ...defaultScreenOptions,
         }}
       />
 

@@ -1,4 +1,15 @@
+import { PrismaClient } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+
+/**
+ * Union of valid Prisma model names (lowercase camelCase delegates).
+ * Constrains BaseRepository.modelName to prevent typos at compile time.
+ */
+export type PrismaModelName = {
+  [K in keyof PrismaClient]: PrismaClient[K] extends { findMany: (...args: never[]) => unknown }
+    ? K
+    : never;
+}[keyof PrismaClient];
 
 export interface FindManyParams {
   cursor?: string;
@@ -15,10 +26,10 @@ export interface PaginatedResult<T> {
   total: number;
 }
 
-export abstract class BaseRepository<T> {
+export abstract class BaseRepository<T, M extends PrismaModelName = PrismaModelName> {
   constructor(
     protected readonly prisma: PrismaService,
-    protected readonly modelName: string,
+    protected readonly modelName: M,
     protected readonly hasSoftDelete: boolean = false,
   ) {}
 
@@ -87,9 +98,16 @@ export abstract class BaseRepository<T> {
     if (!this.hasSoftDelete) {
       throw new Error(`Model ${this.modelName} does not support soft delete`);
     }
-    return this.prisma.softDeleteRecord(this.modelName as 'user' | 'property' | 'task', {
-      id,
-    }) as Promise<T>;
+    return this.prisma.softDeleteRecord(
+      this.modelName as
+        | 'user'
+        | 'property'
+        | 'task'
+        | 'category'
+        | 'budgetRequest'
+        | 'serviceRequest',
+      { id },
+    ) as Promise<T>;
   }
 
   async hardDelete(id: string): Promise<T> {

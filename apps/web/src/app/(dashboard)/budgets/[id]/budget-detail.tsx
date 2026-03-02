@@ -27,12 +27,12 @@ import {
   StickyNote,
 } from 'lucide-react';
 import { BUDGET_STATUS_LABELS } from '@epde/shared';
-import type { BudgetRequestPublic, ApiResponse } from '@epde/shared';
+import type { BudgetRequestPublic } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import Link from 'next/link';
 import { RespondBudgetDialog } from './respond-budget-dialog';
-import { budgetStatusVariant, budgetStatusClassName } from '@/lib/style-maps';
+import { budgetStatusVariant } from '@/lib/style-maps';
 
 const formatCurrency = (value: string | number) =>
   new Intl.NumberFormat('es-AR', {
@@ -66,7 +66,7 @@ interface BudgetDetailProps {
   id: string;
   isAdmin: boolean;
   isClient: boolean;
-  initialData?: ApiResponse<BudgetRequestPublic>;
+  initialData?: BudgetRequestPublic;
 }
 
 export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetailProps) {
@@ -76,7 +76,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
   const { data } = useBudget(id, { initialData });
   const updateStatus = useUpdateBudgetStatus();
 
-  const budget = data?.data;
+  const budget = data;
 
   const handleStatusChange = () => {
     if (!confirmAction) return;
@@ -105,10 +105,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg">Información del presupuesto</CardTitle>
-          <Badge
-            variant={budgetStatusVariant[budget.status] ?? 'outline'}
-            className={budgetStatusClassName[budget.status] ?? ''}
-          >
+          <Badge variant={budgetStatusVariant[budget.status] ?? 'outline'}>
             {BUDGET_STATUS_LABELS[budget.status] ?? budget.status}
           </Badge>
         </CardHeader>
