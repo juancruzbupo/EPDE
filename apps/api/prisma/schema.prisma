@@ -405,7 +405,7 @@ model Notification {
 // ─── Template Models (Master catalog) ───────────────────
 
 model CategoryTemplate {
-  id           String         @id @default(cuid())
+  id           String         @id @default(uuid())
   name         String         @db.VarChar(100)
   icon         String?        @db.VarChar(10)
   description  String?        @db.VarChar(500)
@@ -418,7 +418,7 @@ model CategoryTemplate {
 }
 
 model TaskTemplate {
-  id                       String                  @id @default(cuid())
+  id                       String                  @id @default(uuid())
   name                     String                  @db.VarChar(200)
   taskType                 TaskType
   professionalRequirement  ProfessionalRequirement @default(OWNER_CAN_DO)

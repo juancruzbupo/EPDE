@@ -51,8 +51,13 @@ export class MaintenancePlansController {
   async listAllTasks(
     @CurrentUser() user: { id: string; role: string },
     @Query('status') status?: string,
+    @Query('take') take?: string,
   ) {
-    const data = await this.plansService.listAllTasks(user, status);
+    const data = await this.plansService.listAllTasks(
+      user,
+      status,
+      take ? Number(take) : undefined,
+    );
     return { data };
   }
 

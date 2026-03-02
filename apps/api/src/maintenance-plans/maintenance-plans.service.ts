@@ -45,9 +45,9 @@ export class MaintenancePlansService {
     return this.plansRepository.findAll(userId);
   }
 
-  async listAllTasks(currentUser?: { id: string; role: string }, status?: string) {
+  async listAllTasks(currentUser?: { id: string; role: string }, status?: string, take?: number) {
     const userId = currentUser?.role === UserRole.CLIENT ? currentUser.id : undefined;
-    return this.tasksRepository.findAllForList(userId, status);
+    return this.tasksRepository.findAllForList(userId, status, take);
   }
 
   async getPlan(id: string, currentUser?: { id: string; role: string }) {

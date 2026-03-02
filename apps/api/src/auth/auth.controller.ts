@@ -15,7 +15,13 @@ import { Throttle } from '@nestjs/throttler';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
-import { loginSchema, setPasswordSchema, refreshSchema } from '@epde/shared';
+import {
+  loginSchema,
+  setPasswordSchema,
+  refreshSchema,
+  CLIENT_TYPE_HEADER,
+  CLIENT_TYPES,
+} from '@epde/shared';
 import type { LoginInput, SetPasswordInput, RefreshInput } from '@epde/shared';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -58,7 +64,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const user = req.user as { id: string; email: string; role: string };
-    const isMobile = req.headers['x-client-type'] === 'mobile';
+    const isMobile = req.headers[CLIENT_TYPE_HEADER] === CLIENT_TYPES.MOBILE;
     const result = await this.authService.login(user, {
       clientType: isMobile ? 'mobile' : 'web',
       ip: req.ip,
@@ -93,7 +99,7 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const isMobile = req.headers['x-client-type'] === 'mobile';
+    const isMobile = req.headers[CLIENT_TYPE_HEADER] === CLIENT_TYPES.MOBILE;
     const refreshToken = isMobile ? body?.refreshToken : req.cookies?.[REFRESH_COOKIE_NAME];
 
     if (!refreshToken) {

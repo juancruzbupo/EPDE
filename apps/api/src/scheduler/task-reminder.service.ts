@@ -6,11 +6,10 @@ import { UserLookupRepository } from '../common/repositories/user-lookup.reposit
 import { NotificationsService } from '../notifications/notifications.service';
 import { EmailQueueService } from '../email/email-queue.service';
 import { DistributedLockService } from '../redis/distributed-lock.service';
-import { getNextDueDate, recurrenceTypeToMonths } from '@epde/shared';
 
 @Injectable()
-export class TaskSchedulerService {
-  private readonly logger = new Logger(TaskSchedulerService.name);
+export class TaskReminderService {
+  private readonly logger = new Logger(TaskReminderService.name);
 
   constructor(
     private readonly tasksRepository: TasksRepository,
@@ -20,33 +19,6 @@ export class TaskSchedulerService {
     private readonly emailQueueService: EmailQueueService,
     private readonly lockService: DistributedLockService,
   ) {}
-
-  /**
-   * Daily status recalculation — 06:00 Argentina (09:00 UTC)
-   *
-   * PENDING → OVERDUE   (nextDueDate past)
-   * PENDING → UPCOMING  (nextDueDate within 30 days)
-   * UPCOMING → PENDING  (nextDueDate pushed beyond 30 days)
-   */
-  @Cron('0 9 * * *', { name: 'task-status-recalculation' })
-  async recalculateTaskStatuses(): Promise<void> {
-    await this.lockService.withLock('cron:task-status-recalculation', 300, async (signal) => {
-      this.logger.log('Starting daily task status recalculation...');
-
-      if (signal.lockLost) return;
-
-      const [overdueCount, upcomingCount, resetCount] = await Promise.all([
-        this.tasksRepository.markOverdue(),
-        this.tasksRepository.markUpcoming(),
-        this.tasksRepository.resetUpcomingToPending(),
-      ]);
-
-      this.logger.log(
-        `Status recalculation complete: ${overdueCount} overdue, ` +
-          `${upcomingCount} upcoming, ${resetCount} reset to pending`,
-      );
-    });
-  }
 
   /**
    * Upcoming task reminders — 06:05 Argentina (09:05 UTC)
@@ -112,7 +84,6 @@ export class TaskSchedulerService {
           ? `La tarea "${task.name}" en ${property.address} está vencida hace ${Math.abs(daysUntilDue)} día(s)`
           : `La tarea "${task.name}" en ${property.address} vence en ${daysUntilDue} día(s)`;
 
-        // Collect owner notification
         notifications.push({
           userId: owner.id,
           type: 'TASK_REMINDER',
@@ -121,7 +92,6 @@ export class TaskSchedulerService {
           data: { taskId: task.id, propertyAddress: property.address },
         });
 
-        // Enqueue email via BullMQ (retries handled by queue)
         emailPromises.push(
           this.emailQueueService
             .enqueueTaskReminder(
@@ -138,7 +108,6 @@ export class TaskSchedulerService {
             ),
         );
 
-        // Overdue tasks: also notify admins
         if (isOverdue) {
           for (const adminId of adminIds) {
             notifications.push({
@@ -154,7 +123,6 @@ export class TaskSchedulerService {
 
       if (signal.lockLost) return;
 
-      // Batch insert all notifications + send emails in parallel
       const [notificationCount] = await Promise.all([
         this.notificationsService.createNotifications(notifications),
         Promise.allSettled(emailPromises),
@@ -163,45 +131,6 @@ export class TaskSchedulerService {
       this.logger.log(
         `Reminders complete: ${notificationCount} notifications, ${emailPromises.length} emails sent`,
       );
-    });
-  }
-
-  /**
-   * Safety sweep for stale completed tasks — 06:10 Argentina (09:10 UTC)
-   *
-   * Edge case: if a COMPLETED task somehow didn't get its nextDueDate advanced
-   * (e.g., server crash mid-transaction), this fixes it.
-   */
-  @Cron('10 9 * * *', { name: 'task-safety-sweep' })
-  async safetySweepCompletedTasks(): Promise<void> {
-    await this.lockService.withLock('cron:task-safety-sweep', 300, async (signal) => {
-      this.logger.log('Starting safety sweep for completed tasks...');
-
-      const staleTasks = await this.tasksRepository.findStaleCompleted();
-
-      if (staleTasks.length === 0) {
-        this.logger.log('Safety sweep: no stale tasks found');
-        return;
-      }
-
-      if (signal.lockLost) return;
-
-      const BATCH_SIZE = 50;
-      for (let i = 0; i < staleTasks.length; i += BATCH_SIZE) {
-        if (signal.lockLost) return;
-        const batch = staleTasks.slice(i, i + BATCH_SIZE);
-        await Promise.all(
-          batch.map((task) => {
-            const months =
-              task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType) ?? 12;
-            if (!task.nextDueDate) return;
-            const newDueDate = getNextDueDate(task.nextDueDate, months);
-            return this.tasksRepository.updateDueDateAndStatus(task.id, newDueDate, 'PENDING');
-          }),
-        );
-      }
-
-      this.logger.log(`Safety sweep: fixed ${staleTasks.length} stale task(s)`);
     });
   }
 }

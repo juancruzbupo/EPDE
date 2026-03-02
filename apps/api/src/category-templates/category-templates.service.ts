@@ -20,7 +20,7 @@ export class CategoryTemplatesService {
   }
 
   async getById(id: string) {
-    const template = await this.repository.findById(id);
+    const template = await this.repository.findByIdWithTasks(id);
     if (!template) throw new NotFoundException('Categoría template no encontrada');
     return template;
   }

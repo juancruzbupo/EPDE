@@ -12,6 +12,15 @@ export type PrismaModelName = {
     : never;
 }[keyof PrismaClient];
 
+/** Union of model names that have a deletedAt field and support soft-delete via PrismaService.softDeleteRecord(). */
+export type SoftDeletableModel =
+  | 'user'
+  | 'property'
+  | 'task'
+  | 'category'
+  | 'budgetRequest'
+  | 'serviceRequest';
+
 export interface FindManyParams {
   cursor?: string;
   take?: number;
@@ -119,16 +128,7 @@ export abstract class BaseRepository<T, M extends PrismaModelName = PrismaModelN
     if (!this.hasSoftDelete) {
       throw new Error(`Model ${this.modelName} does not support soft delete`);
     }
-    return this.prisma.softDeleteRecord(
-      this.modelName as
-        | 'user'
-        | 'property'
-        | 'task'
-        | 'category'
-        | 'budgetRequest'
-        | 'serviceRequest',
-      { id },
-    ) as Promise<T>;
+    return this.prisma.softDeleteRecord(this.modelName as SoftDeletableModel, { id }) as Promise<T>;
   }
 
   async hardDelete(id: string): Promise<T> {

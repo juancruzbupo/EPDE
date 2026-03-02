@@ -16,7 +16,9 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
     super(prisma, 'task', true);
   }
 
-  async findAllForList(userId?: string, status?: string) {
+  async findAllForList(userId?: string, status?: string, take = 200) {
+    // Cap at 500 to prevent runaway queries. Default 200 covers any realistic single-user portfolio.
+    const safeTake = Math.min(take, 500);
     return this.model.findMany({
       where: {
         deletedAt: null,
@@ -34,7 +36,7 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
         },
       },
       orderBy: [{ nextDueDate: 'asc' }, { priority: 'asc' }],
-      take: 200,
+      take: safeTake,
     });
   }
 

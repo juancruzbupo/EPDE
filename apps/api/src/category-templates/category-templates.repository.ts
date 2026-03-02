@@ -12,10 +12,10 @@ export class CategoryTemplatesRepository extends BaseRepository<
     super(prisma, 'categoryTemplate', false);
   }
 
-  override async findById(id: string, include?: Record<string, unknown>) {
+  async findByIdWithTasks(id: string) {
     return this.model.findUnique({
       where: { id },
-      include: include ?? { tasks: { orderBy: { displayOrder: 'asc' } } },
+      include: { tasks: { orderBy: { displayOrder: 'asc' } } },
     });
   }
 

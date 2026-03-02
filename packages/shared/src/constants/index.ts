@@ -159,3 +159,9 @@ export const CATEGORY_DEFAULTS = [
   { name: 'Estructural', icon: 'building', order: 9 },
   { name: 'Aberturas', icon: 'door-open', order: 10 },
 ] as const;
+
+// ─── Client Type Constants ───────────────────────────────
+
+export const CLIENT_TYPE_HEADER = 'x-client-type' as const;
+export const CLIENT_TYPES = { MOBILE: 'mobile', WEB: 'web' } as const;
+export type ClientType = (typeof CLIENT_TYPES)[keyof typeof CLIENT_TYPES];

@@ -73,9 +73,8 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Schema drift check (advisory)
+      - name: Schema drift check
         run: pnpm check:schema-drift
-        continue-on-error: true
 
       - name: Lint
         run: pnpm lint

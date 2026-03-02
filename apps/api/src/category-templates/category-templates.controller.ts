@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  Query,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CategoryTemplatesService } from './category-templates.service';
@@ -16,7 +26,6 @@ import type {
   ReorderTemplatesInput,
 } from '@epde/shared';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
-import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
 
 @ApiTags('Category Templates')
 @ApiBearerAuth()
@@ -34,7 +43,7 @@ export class CategoryTemplatesController {
   }
 
   @Get(':id')
-  async getById(@Param('id', ParseCuidPipe) id: string) {
+  async getById(@Param('id', ParseUUIDPipe) id: string) {
     const data = await this.service.getById(id);
     return { data };
   }
@@ -49,7 +58,7 @@ export class CategoryTemplatesController {
 
   @Patch(':id')
   async update(
-    @Param('id', ParseCuidPipe) id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updateCategoryTemplateSchema)) dto: UpdateCategoryTemplateInput,
   ) {
     const data = await this.service.update(id, dto);
@@ -57,7 +66,7 @@ export class CategoryTemplatesController {
   }
 
   @Delete(':id')
-  async remove(@Param('id', ParseCuidPipe) id: string) {
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.remove(id);
   }
 

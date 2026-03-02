@@ -2,8 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { BullModule } from '@nestjs/bullmq';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from './prisma/prisma.service';
 import { ConfigModule } from './config/config.module';
 import { AuthModule } from './auth/auth.module';
@@ -51,12 +50,18 @@ import { MetricsInterceptor } from './metrics/metrics.interceptor';
             : undefined,
       },
     }),
-    BullModule.forRoot({
-      connection: {
-        url: process.env.REDIS_URL || 'redis://localhost:6379',
-        ...(process.env.REDIS_URL?.startsWith('rediss://') && {
-          tls: { rejectUnauthorized: true },
-        }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        const redisUrl = config.get<string>('REDIS_URL') ?? 'redis://localhost:6379';
+        return {
+          connection: {
+            url: redisUrl,
+            ...(redisUrl.startsWith('rediss://') && {
+              tls: { rejectUnauthorized: true },
+            }),
+          },
+        };
       },
     }),
     RedisModule,
@@ -77,9 +82,8 @@ import { MetricsInterceptor } from './metrics/metrics.interceptor';
     CategoryTemplatesModule,
     TaskTemplatesModule,
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [
-    AppService,
     PrismaService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },

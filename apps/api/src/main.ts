@@ -1,6 +1,7 @@
 import './instrument';
 import { randomUUID } from 'crypto';
 import { NestFactory } from '@nestjs/core';
+import { VersioningType } from '@nestjs/common';
 import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
@@ -39,7 +40,8 @@ async function bootstrap() {
   );
   app.use(compression());
 
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('api');
+  app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
 
   app.useGlobalFilters(new GlobalExceptionFilter());
 

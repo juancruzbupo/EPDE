@@ -12,7 +12,7 @@ pnpm build            # Build de produccion (todos los workspaces)
 pnpm lint             # ESLint en todos los workspaces
 pnpm typecheck        # TypeScript check en todos los workspaces
 pnpm test             # Tests unitarios (API jest, Shared vitest, Web vitest, Mobile jest-expo)
-pnpm check:schema-drift   # Verifica que cada modelo Prisma tenga schema en @epde/shared (advisory)
+pnpm check:schema-drift   # Verifica que cada modelo Prisma tenga schema en @epde/shared (bloqueante en CI)
 
 # Tests e2e (requiere DB + Redis corriendo)
 pnpm --filter @epde/api test:e2e
@@ -381,12 +381,12 @@ pnpm --filter @epde/web test                 # Solo Web (vitest + jsdom)
 pnpm --filter @epde/mobile test              # Solo Mobile (jest-expo)
 ```
 
-- **API**: Jest con mocks de repositorios (no accede a DB). `--runInBand --forceExit` evita conflictos y cierra conexiones BullMQ/Redis al finalizar
+- **API**: Jest con mocks de repositorios (no accede a DB). `--runInBand --forceExit` evita conflictos y cierra conexiones BullMQ/Redis al finalizar. Scheduler dividido en 3 services: `TaskStatusService`, `TaskReminderService`, `TaskSafetyService`
 - **Shared**: Vitest — schemas Zod + utils
 - **Web**: Vitest + jsdom + @testing-library/react — hooks y componentes
 - **Mobile**: jest-expo + @testing-library/react-native — componentes. Mock manual de `react-native-reanimated` en `__mocks__/react-native-reanimated.js` (v4.x requiere worklets nativos incluso en el mock oficial)
 
-Total: 438 tests (192 API + 187 Shared + 35 Web + 24 Mobile)
+Total: 447 tests (201 API + 187 Shared + 35 Web + 24 Mobile)
 
 ### Tests E2E
 
@@ -405,7 +405,7 @@ pnpm --filter @epde/api test:e2e
 
 ### CI
 
-GitHub Actions ejecuta en orden: lint → typecheck → build → **schema drift check** (advisory, `continue-on-error: true`) → test → test:e2e → frontend coverage check. Los services PostgreSQL 16 y Redis 7 se levantan como containers en CI.
+GitHub Actions ejecuta en orden: lint → typecheck → build → **schema drift check** (falla el build si hay drift) → test → test:e2e → frontend coverage check. Los services PostgreSQL 16 y Redis 7 se levantan como containers en CI.
 
 **Umbrales de coverage API (jest):** `statements: 50, branches: 35, functions: 45, lines: 50`
 

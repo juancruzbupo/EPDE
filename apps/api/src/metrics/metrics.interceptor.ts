@@ -10,20 +10,29 @@ export class MetricsInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest();
     const start = Date.now();
 
+    const recordMetric = (statusCode: number) => {
+      try {
+        const durationMs = Date.now() - start;
+        this.metricsService.recordHttpRequest(
+          request.method,
+          request.route?.path ?? request.url,
+          statusCode,
+          durationMs,
+        );
+      } catch {
+        // Metrics failure must never interrupt the response
+      }
+    };
+
     return next.handle().pipe(
-      tap(() => {
-        try {
+      tap({
+        next: () => {
           const response = context.switchToHttp().getResponse();
-          const durationMs = Date.now() - start;
-          this.metricsService.recordHttpRequest(
-            request.method,
-            request.route?.path ?? request.url,
-            response.statusCode,
-            durationMs,
-          );
-        } catch {
-          // Metrics failure must never interrupt the response
-        }
+          recordMetric(response.statusCode);
+        },
+        error: (err: { status?: number }) => {
+          recordMetric(err?.status ?? 500);
+        },
       }),
     );
   }

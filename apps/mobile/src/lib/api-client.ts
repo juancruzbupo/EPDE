@@ -3,6 +3,7 @@ import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { tokenService } from './token-service';
+import { CLIENT_TYPE_HEADER, CLIENT_TYPES } from '@epde/shared';
 
 function getDevApiUrl(): string {
   // On web, localhost works fine
@@ -23,7 +24,7 @@ export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
-    'X-Client-Type': 'mobile',
+    [CLIENT_TYPE_HEADER]: CLIENT_TYPES.MOBILE,
   },
   timeout: 15000,
 });
@@ -55,7 +56,7 @@ async function doRefresh(): Promise<boolean> {
       {
         headers: {
           'Content-Type': 'application/json',
-          'X-Client-Type': 'mobile',
+          [CLIENT_TYPE_HEADER]: CLIENT_TYPES.MOBILE,
         },
       },
     );

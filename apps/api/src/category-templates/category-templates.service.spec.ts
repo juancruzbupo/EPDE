@@ -7,7 +7,7 @@ describe('CategoryTemplatesService', () => {
   let service: CategoryTemplatesService;
   let repository: {
     findMany: jest.Mock;
-    findById: jest.Mock;
+    findByIdWithTasks: jest.Mock;
     findByName: jest.Mock;
     create: jest.Mock;
     update: jest.Mock;
@@ -18,7 +18,7 @@ describe('CategoryTemplatesService', () => {
   beforeEach(async () => {
     repository = {
       findMany: jest.fn(),
-      findById: jest.fn(),
+      findByIdWithTasks: jest.fn(),
       findByName: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
@@ -62,16 +62,16 @@ describe('CategoryTemplatesService', () => {
   describe('getById', () => {
     it('should return template when found', async () => {
       const template = { id: 'cat-1', name: 'Techos', tasks: [] };
-      repository.findById.mockResolvedValue(template);
+      repository.findByIdWithTasks.mockResolvedValue(template);
 
       const result = await service.getById('cat-1');
 
       expect(result).toEqual(template);
-      expect(repository.findById).toHaveBeenCalledWith('cat-1');
+      expect(repository.findByIdWithTasks).toHaveBeenCalledWith('cat-1');
     });
 
     it('should throw NotFoundException when not found', async () => {
-      repository.findById.mockResolvedValue(null);
+      repository.findByIdWithTasks.mockResolvedValue(null);
 
       await expect(service.getById('nonexistent')).rejects.toThrow(NotFoundException);
     });
@@ -112,7 +112,7 @@ describe('CategoryTemplatesService', () => {
       const updateData = { name: 'Techos y Cubiertas' };
       const updated = { id: 'cat-1', name: 'Techos y Cubiertas' };
 
-      repository.findById.mockResolvedValue(template);
+      repository.findByIdWithTasks.mockResolvedValue(template);
       repository.findByName.mockResolvedValue(null);
       repository.update.mockResolvedValue(updated);
 
@@ -126,7 +126,7 @@ describe('CategoryTemplatesService', () => {
       const template = { id: 'cat-1', name: 'Techos' };
       const otherTemplate = { id: 'cat-2', name: 'Electricidad' };
 
-      repository.findById.mockResolvedValue(template);
+      repository.findByIdWithTasks.mockResolvedValue(template);
       repository.findByName.mockResolvedValue(otherTemplate);
 
       await expect(service.update('cat-1', { name: 'Electricidad' })).rejects.toThrow(
@@ -138,7 +138,7 @@ describe('CategoryTemplatesService', () => {
     it('should allow update with same name (own name)', async () => {
       const template = { id: 'cat-1', name: 'Techos' };
 
-      repository.findById.mockResolvedValue(template);
+      repository.findByIdWithTasks.mockResolvedValue(template);
       repository.findByName.mockResolvedValue(template); // Same entity
       repository.update.mockResolvedValue(template);
 
@@ -149,7 +149,7 @@ describe('CategoryTemplatesService', () => {
     });
 
     it('should throw NotFoundException when template not found', async () => {
-      repository.findById.mockResolvedValue(null);
+      repository.findByIdWithTasks.mockResolvedValue(null);
 
       await expect(service.update('nonexistent', { name: 'Test' })).rejects.toThrow(
         NotFoundException,
@@ -159,7 +159,7 @@ describe('CategoryTemplatesService', () => {
 
   describe('remove', () => {
     it('should delete template', async () => {
-      repository.findById.mockResolvedValue({ id: 'cat-1', name: 'Techos' });
+      repository.findByIdWithTasks.mockResolvedValue({ id: 'cat-1', name: 'Techos' });
       repository.hardDelete.mockResolvedValue({});
 
       const result = await service.remove('cat-1');
@@ -169,7 +169,7 @@ describe('CategoryTemplatesService', () => {
     });
 
     it('should throw NotFoundException when not found', async () => {
-      repository.findById.mockResolvedValue(null);
+      repository.findByIdWithTasks.mockResolvedValue(null);
 
       await expect(service.remove('nonexistent')).rejects.toThrow(NotFoundException);
     });
