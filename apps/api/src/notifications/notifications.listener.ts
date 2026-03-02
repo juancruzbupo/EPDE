@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { UsersRepository } from '../common/repositories/users.repository';
+import { UserLookupRepository } from '../common/repositories/users.repository';
 import { NotificationQueueService } from './notification-queue.service';
 import { EmailQueueService } from '../email/email-queue.service';
 
@@ -10,7 +10,7 @@ export class NotificationsListener {
 
   constructor(
     private readonly notificationQueueService: NotificationQueueService,
-    private readonly usersRepository: UsersRepository,
+    private readonly usersRepository: UserLookupRepository,
     private readonly emailQueueService: EmailQueueService,
   ) {}
 

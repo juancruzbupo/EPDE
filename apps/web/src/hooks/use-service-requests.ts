@@ -17,6 +17,7 @@ export function useServiceRequests(filters: ServiceRequestFilters) {
       getServiceRequests({ ...filters, cursor: pageParam }, signal),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
+    maxPages: 10,
   });
 }
 

@@ -40,7 +40,7 @@ function AuthGate() {
     } else if (isAuthenticated && inAuthGroup) {
       router.replace('/(tabs)');
     }
-  }, [isAuthenticated, isLoading, segments]);
+  }, [isAuthenticated, isLoading, segments, router]);
 
   useEffect(() => {
     const handleDeepLink = (event: { url: string }) => {
@@ -83,7 +83,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     checkAuth();
-  }, []);
+  }, [checkAuth]);
 
   if (!fontsLoaded && !fontError) {
     return null;

@@ -1,6 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { TEMPLATE_SEED_DATA } from '@epde/shared';
+import type {
+  TaskTemplateSeed,
+  CategoryTemplateSeed,
+} from '../../../packages/shared/src/seed/template-data';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { TEMPLATE_SEED_DATA } = require('../../../packages/shared/dist/seed/index.cjs') as {
+  TEMPLATE_SEED_DATA: CategoryTemplateSeed[];
+};
 import { seedDemo } from './seed-demo';
 
 const prisma = new PrismaClient();
@@ -70,7 +77,7 @@ async function main() {
           description: category.description,
           displayOrder: category.displayOrder,
           tasks: {
-            create: category.tasks.map((task, index) => ({
+            create: category.tasks.map((task: TaskTemplateSeed, index: number) => ({
               name: task.name,
               taskType: task.taskType as 'INSPECTION',
               professionalRequirement: task.professionalRequirement as 'OWNER_CAN_DO',

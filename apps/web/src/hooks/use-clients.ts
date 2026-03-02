@@ -1,8 +1,8 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { getErrorMessage } from '@/lib/errors';
 import { QUERY_KEYS, type ClientPublic } from '@epde/shared';
+import { useDebounce } from './use-debounce';
 import {
   getClients,
   getClient,
@@ -18,6 +18,7 @@ export function useClients(filters: ClientFilters) {
     queryFn: ({ pageParam, signal }) => getClients({ ...filters, cursor: pageParam }, signal),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
+    maxPages: 10,
   });
 }
 
@@ -54,12 +55,7 @@ export function useUpdateClient() {
 }
 
 export function useClientSearch(search: string) {
-  const [debouncedSearch, setDebouncedSearch] = useState(search);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search), 300);
-    return () => clearTimeout(timer);
-  }, [search]);
+  const debouncedSearch = useDebounce(search, 300);
 
   return useQuery({
     queryKey: [QUERY_KEYS.clients, 'search', debouncedSearch],

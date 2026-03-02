@@ -7,7 +7,7 @@ import { NotificationsListener } from './notifications.listener';
 import { NotificationQueueService } from './notification-queue.service';
 import { NotificationQueueProcessor } from './notification-queue.processor';
 import { NOTIFICATION_QUEUE } from './notification-queue.types';
-import { UsersRepository } from '../common/repositories/users.repository';
+import { UserLookupRepository } from '../common/repositories/users.repository';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailModule } from '../email/email.module';
 
@@ -31,7 +31,7 @@ import { EmailModule } from '../email/email.module';
     NotificationsListener,
     NotificationQueueService,
     NotificationQueueProcessor,
-    UsersRepository,
+    UserLookupRepository,
     PrismaService,
   ],
   exports: [NotificationsService, NotificationQueueService],

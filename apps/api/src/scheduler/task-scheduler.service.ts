@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { TasksRepository } from '../maintenance-plans/tasks.repository';
 import { NotificationsRepository } from '../notifications/notifications.repository';
-import { UsersRepository } from '../common/repositories/users.repository';
+import { UserLookupRepository } from '../common/repositories/users.repository';
 import { NotificationsService } from '../notifications/notifications.service';
 import { EmailQueueService } from '../email/email-queue.service';
 import { DistributedLockService } from '../redis/distributed-lock.service';
@@ -15,7 +15,7 @@ export class TaskSchedulerService {
   constructor(
     private readonly tasksRepository: TasksRepository,
     private readonly notificationsRepository: NotificationsRepository,
-    private readonly usersRepository: UsersRepository,
+    private readonly usersRepository: UserLookupRepository,
     private readonly notificationsService: NotificationsService,
     private readonly emailQueueService: EmailQueueService,
     private readonly lockService: DistributedLockService,

@@ -5,7 +5,7 @@ import { UserRole } from '@epde/shared';
 const MAX_ADMIN_FETCH = 500;
 
 @Injectable()
-export class UsersRepository {
+export class UserLookupRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAdminIds(): Promise<string[]> {

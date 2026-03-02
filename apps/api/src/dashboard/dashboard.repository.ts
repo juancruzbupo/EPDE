@@ -3,6 +3,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { addDays, startOfMonth } from 'date-fns';
 import { UserRole } from '@epde/shared';
 
+/**
+ * Standalone repository — does not extend BaseRepository because dashboard
+ * queries span multiple models with custom aggregations and joins that don't
+ * fit the single-model CRUD pattern of BaseRepository.
+ */
 @Injectable()
 export class DashboardRepository {
   constructor(private readonly prisma: PrismaService) {}
