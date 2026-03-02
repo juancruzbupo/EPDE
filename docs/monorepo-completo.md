@@ -132,7 +132,7 @@ epde/
 │       │   │   ├── _layout.tsx       # Root layout + ErrorBoundary + PersistQueryClient + AuthGate
 │       │   │   ├── index.tsx         # Redirect segun auth state
 │       │   │   ├── (auth)/           # Login, set-password
-│       │   │   ├── (tabs)/           # 5 tabs (dashboard, properties, budgets, notifs, profile)
+│       │   │   ├── (tabs)/           # 7 tabs (dashboard, properties, planes, tareas, budgets, notifs, profile)
 │       │   │   ├── property/[id].tsx # Detalle propiedad + tareas
 │       │   │   ├── budget/[id].tsx   # Detalle presupuesto + items
 │       │   │   ├── service-requests/ # Lista y detalle

@@ -34,10 +34,12 @@ apps/mobile/
         _layout.tsx                   # Stack navigator
         login.tsx                     # Pantalla de login
         set-password.tsx              # Configurar password (invitacion)
-      (tabs)/                         # Tab navigator (5 tabs)
+      (tabs)/                         # Tab navigator (7 tabs)
         _layout.tsx                   # Configuracion de tabs
         index.tsx                     # Dashboard (Mi Panel)
         properties.tsx                # Mis Propiedades
+        planes.tsx                    # Planes de mantenimiento
+        tareas.tsx                    # Tareas (todas las propiedades)
         budgets.tsx                   # Presupuestos
         notifications.tsx             # Centro de notificaciones
         profile.tsx                   # Perfil de usuario
@@ -115,15 +117,17 @@ Componente `AuthGate` que decide la ruta segun el estado de autenticacion:
 
 Wraps: `GestureHandlerRootView` → `ErrorBoundary` → `PersistQueryClientProvider` (offline cache, gcTime 24h) → `AuthGate` → rutas
 
-### Tabs (5 pantallas)
+### Tabs (7 pantallas)
 
-| Tab          | Ruta             | Icono | Descripcion                  |
-| ------------ | ---------------- | ----- | ---------------------------- |
-| Inicio       | `/(tabs)`        | 🏠    | Dashboard con stats y tareas |
-| Propiedades  | `/properties`    | 🏘️    | Lista de propiedades         |
-| Presupuestos | `/budgets`       | 📋    | Lista de presupuestos        |
-| Avisos       | `/notifications` | 📢    | Centro de notificaciones     |
-| Perfil       | `/profile`       | 👤    | Info de usuario + logout     |
+| Tab          | Ruta             | Icono | Descripcion                        |
+| ------------ | ---------------- | ----- | ---------------------------------- |
+| Inicio       | `/(tabs)`        | 🏠    | Dashboard con stats y tareas       |
+| Propiedades  | `/properties`    | 🏘️    | Lista de propiedades               |
+| Planes       | `/planes`        | 📅    | Planes de mantenimiento            |
+| Tareas       | `/tareas`        | ✅    | Todas las tareas (todas las props) |
+| Presupuestos | `/budgets`       | 📋    | Lista de presupuestos              |
+| Avisos       | `/notifications` | 📢    | Centro de notificaciones           |
+| Perfil       | `/profile`       | 👤    | Info de usuario + logout           |
 
 La tab de Avisos muestra un **badge con conteo de no leidas** (auto-refresh cada 30s).
 
