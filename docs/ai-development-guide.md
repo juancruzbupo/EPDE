@@ -25,6 +25,8 @@
 13. **Accesibilidad** — Botones icon-only con `aria-label`, `htmlFor`/`id` en labels de formulario, `role="button"` + `tabIndex={0}` + `onKeyDown` en divs clickeables, focus ring (`focus-visible:ring-ring/50 focus-visible:ring-[3px]`) en elementos interactivos custom
 14. **HTML semantico** — `<nav aria-label>` en navegacion, `aria-current="page"` en link activo, `<ul>/<li>` para listas, `role="status"` en loading, `aria-expanded` en colapsables
 15. **Tokens del design system** — Usar `text-destructive` (no `text-red-600`), `bg-destructive/10` (no `bg-red-50`), `bg-background` (no `bg-white`). Los style-maps importan variantes de Badge desde `@epde/shared/constants/badge-variants`
+16. **`ParseCuidPipe` en params CUID** — Path params de entidades con IDs cuid (CategoryTemplate, TaskTemplate) usan `@Param('id', ParseCuidPipe) id: string`. Entidades con UUID usan `@Param('id') id: string` (validado implicitamente por Prisma)
+17. **`maxPages` en infinite queries** — Todo `useInfiniteQuery` (web y mobile) DEBE incluir `maxPages: 10` para acotar memoria. Sin este limite, listas infinitas acumulan paginas indefinidamente
 
 ### NUNCA
 
@@ -41,6 +43,8 @@
 11. **NUNCA usar colores raw de Tailwind para estados** — `text-red-600` → `text-destructive`, `bg-red-50` → `bg-destructive/10`, `bg-white` → `bg-background`
 12. **NUNCA crear botones icon-only sin `aria-label`** — Screen readers necesitan texto descriptivo
 13. **NUNCA crear `<Label>` sin `htmlFor` vinculado a un `id`** — Accesibilidad de formularios
+14. **NUNCA usar `useInfiniteQuery` sin `maxPages`** — Acotar siempre a `maxPages: 10`
+15. **NUNCA usar debounce inline** — Usar el hook `useDebounce(value, delay)` de `@/hooks/use-debounce`
 
 ---
 
@@ -185,6 +189,7 @@ Badge variants compartidas entre web y mobile:
 // packages/shared/src/constants/badge-variants.ts
 export const TASK_STATUS_VARIANT = { COMPLETED: 'success', OVERDUE: 'destructive', ... };
 export const BUDGET_STATUS_VARIANT = { APPROVED: 'success', REJECTED: 'destructive', ... };
+export const PLAN_STATUS_VARIANT = { DRAFT: 'secondary', ACTIVE: 'default', ARCHIVED: 'outline' };
 // + SERVICE_STATUS_VARIANT, URGENCY_VARIANT, PRIORITY_VARIANT, CLIENT_STATUS_VARIANT
 ```
 
@@ -991,3 +996,6 @@ pnpm test       # Todos los tests pasan
 | `<p>Recurso no encontrado</p>` (texto plano)                         | Icon centrado `h-10 w-10` + texto + boton "Volver"                                 |
 | Boton "Ver" en columna de tabla                                      | `onRowClick` en DataTable + titulo como `<Link>`                                   |
 | Activity list con `<li>` planos                                      | Items con icon circle (`bg-muted rounded-full p-2`) + border card                  |
+| `@Param('id') id: string` en ruta de CategoryTemplate/TaskTemplate   | `@Param('id', ParseCuidPipe) id: string`                                           |
+| `useInfiniteQuery({...})` sin `maxPages`                             | `useInfiniteQuery({ ..., maxPages: 10 })`                                          |
+| `const [debounced, setDebounced] = useState` con `useEffect` inline  | `const debouncedSearch = useDebounce(search, 300)`                                 |

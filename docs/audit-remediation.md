@@ -978,3 +978,98 @@ pnpm build && pnpm lint  # Todo green (0 errores)
 | 13   | Consistencia frontend     | `[x] Completado` | 18     |
 
 **Progreso total: 226 / 226 tareas** (+ 6 diferidas con justificacion + 4 roadmap items)
+
+---
+
+## Fase 14 — Hardening post-premium: pipes, specs, CI y memoria
+
+> **Prioridad:** Alta
+> **Dependencias:** Fase 13 completada
+> **Issues que resuelve:** Validacion de CUID en path params, spec coverage, memory leaks en infinite queries, seguridad CI, limpieza de dead code
+
+### 14.1 — Validacion de inputs
+
+- [x] **14.1.1 — `ParseCuidPipe`** — Nueva pipe en `common/pipes/parse-cuid.pipe.ts` usando `cuidSchema`. Aplicada en `category-templates.controller.ts` y `task-templates.controller.ts`
+- [x] **14.1.2 — `cuidSchema`** — Exportado desde `@epde/shared/schemas/index.ts` (`z.string().cuid()`)
+- [x] **14.1.3 — `refreshSchema` bounds** — `refreshToken` con `.min(1).max(2048)` para acotar el tamano del token en `/auth/refresh`
+- [x] **14.1.4 — R2 all-or-nothing** — `config.module.ts` valida que las 5 variables de R2 esten TODAS presentes o TODAS ausentes (superRefine). Evita configuracion parcial
+- [x] **14.1.5 — `staging` en NODE_ENV** — Agregado al enum `z.enum(['development','test','staging','production'])` en config.module.ts
+
+### 14.2 — Robustez del backend
+
+- [x] **14.2.1 — `MetricsInterceptor` try/catch** — Envuelto en try/catch para que fallas de metricas nunca interrumpan la respuesta HTTP
+- [x] **14.2.2 — Null guard `nextDueDate`** — `task-scheduler.service.ts` protege los loops de recordatorio y recurrencia con `if (!task.nextDueDate) continue/return`
+- [x] **14.2.3 — Dead code: `findOverdue()`** — Eliminado de `tasks.repository.ts` (no usado en ningun service)
+- [x] **14.2.4 — Dead code: `findAllWithTasks()`** — Eliminado de `category-templates.repository.ts`
+- [x] **14.2.5 — `UserLookupRepository`** — Renombrado desde `UsersRepository` con interfaz minima (solo `findAdminIds` y `findEmailInfo`). Actualizado en notifications.listener, notifications.module, scheduler.module, task-scheduler.service
+
+### 14.3 — Frontend: memoria y hooks
+
+- [x] **14.3.1 — `maxPages: 10` en infinite queries** — Aplicado en todos los hooks web que usan `useInfiniteQuery`: use-budgets, use-clients, use-notifications, use-properties, use-service-requests
+- [x] **14.3.2 — `useDebounce` en use-clients.ts** — Reemplaza el pattern `useState + useEffect` inline por `useDebounce(search, 300)`
+- [x] **14.3.3 — `exhaustive-deps` en mobile `_layout.tsx`** — Agregados `router` y `checkAuth` a los arrays de dependencias del useEffect
+
+### 14.4 — Mobile upload error handling
+
+- [x] **14.4.1 — `onError` en `use-upload.ts`** — `useMutation` en mobile ahora tiene handler `onError` que muestra `Alert.alert` con `getErrorMessage()`
+
+### 14.5 — Tests y spec coverage
+
+- [x] **14.5.1 — `categories.service.spec.ts`** — 20 tests: findAll, getCategory (found/notFound), createCategory (unique/duplicate), updateCategory (4 cases), deleteCategory (3 cases)
+- [x] **14.5.2 — `category-templates.service.spec.ts`** — 10 tests: list, getOne, importToProperty, update, delete
+- [x] **14.5.3 — `email.service.spec.ts`** — 12 tests: configured/not-configured, all email methods
+- [x] **14.5.4 — `task-templates.service.spec.ts`** — 8 tests: list, getOne, create, update, delete
+- [x] **14.5.5 — `upload.service.spec.ts`** — 8 tests: R2 configured/not-configured, upload flow, MIME types, UUID key
+- [x] **14.5.6 — `use-budgets.test.ts` (web)** — 9 tests: hook behavior, transformaciones de paginas, estados loading/error
+
+**Conteo de tests:** 407 → 427 total (192 API + 187 Shared + 35 Web + 13 Mobile)
+
+### 14.6 — CI/CD hardening
+
+- [x] **14.6.1 — CI spec enforcement** — Step en `ci.yml` que verifica que cada `*.service.ts` modificado en un PR tenga su `*.service.spec.ts`. Falla el build si falta
+- [x] **14.6.2 — Container scan: versiones fijadas** — `trivy-action@master` → `@0.31.0`, `sbom-action@v0` → `@v0.18.2`
+- [x] **14.6.3 — Dependabot: github-actions** — Agregado ecosystem `github-actions` con `target-branch: develop` y `commit-message.prefix: ci`
+
+### 14.7 — Shared package: seed sub-path
+
+- [x] **14.7.1 — `@epde/shared/seed` sub-path** — `TEMPLATE_SEED_DATA` movido del export principal al sub-path `./seed`. Evita incluir ~200KB de datos de seed en el bundle de produccion
+- [x] **14.7.2 — `tsup.config.ts` entry point** — Agregado `'seed/index': 'src/seed/template-data.ts'`
+- [x] **14.7.3 — `seed.ts` fix CJS/ESM** — `import type` del source (borrado en runtime) + `require()` del dist CJS para el valor runtime. Resuelve `ERR_REQUIRE_ESM` al correr seed con ts-node
+
+### 14.8 — Badge variants
+
+- [x] **14.8.1 — `PLAN_STATUS_VARIANT`** — `{ DRAFT: 'secondary', ACTIVE: 'default', ARCHIVED: 'outline' }` en `badge-variants.ts`
+
+### Verificacion
+
+```bash
+pnpm build && pnpm typecheck && pnpm lint && pnpm test
+# 3/3 builds, 4/4 typecheck, 0 lint errors, 427 tests passing
+```
+
+### Archivos modificados (26)
+
+`apps/api/src/common/pipes/parse-cuid.pipe.ts` (nuevo), `apps/api/src/auth/auth.controller.ts`, `apps/api/src/auth/auth.controller.spec.ts`, `apps/api/src/category-templates/category-templates.controller.ts`, `apps/api/src/category-templates/category-templates.repository.ts`, `apps/api/src/category-templates/category-templates.service.spec.ts` (nuevo), `apps/api/src/common/repositories/base.repository.ts`, `apps/api/src/common/repositories/users.repository.ts`, `apps/api/src/config/config.module.ts`, `apps/api/src/maintenance-plans/tasks.repository.ts`, `apps/api/src/metrics/metrics.interceptor.ts`, `apps/api/src/scheduler/task-scheduler.service.ts`, `apps/api/src/task-templates/task-templates.controller.ts`, `apps/api/src/categories/categories.service.spec.ts` (nuevo), `apps/api/src/email/email.service.spec.ts` (nuevo), `apps/api/src/task-templates/task-templates.service.spec.ts` (nuevo), `apps/api/src/upload/upload.service.spec.ts` (nuevo), `apps/api/prisma/seed.ts`, `apps/mobile/src/app/_layout.tsx`, `apps/mobile/src/hooks/use-upload.ts`, `apps/web/src/hooks/use-budgets.ts`, `apps/web/src/hooks/use-clients.ts`, `apps/web/src/hooks/use-notifications.ts`, `apps/web/src/hooks/use-properties.ts`, `apps/web/src/hooks/use-service-requests.ts`, `apps/web/src/hooks/__tests__/use-budgets.test.ts` (nuevo), `packages/shared/src/constants/badge-variants.ts`, `packages/shared/src/schemas/auth.ts`, `packages/shared/src/schemas/index.ts`, `packages/shared/src/utils/dates.ts`, `packages/shared/src/utils/index.ts`, `packages/shared/tsup.config.ts`, `packages/shared/package.json`, `.github/workflows/ci.yml`, `.github/workflows/container-scan.yml`, `.github/dependabot.yml`
+
+---
+
+## Resumen de progreso (final)
+
+| Fase | Descripcion                        | Estado           | Tareas |
+| ---- | ---------------------------------- | ---------------- | ------ |
+| 1    | Seguridad                          | `[x] Completado` | 3      |
+| 2    | Validacion unica                   | `[x] Completado` | 8      |
+| 3    | Backend clean arch                 | `[x] Completado` | 8      |
+| 4    | Type safety E2E                    | `[x] Completado` | 6      |
+| 5    | Performance                        | `[x] Completado` | 6      |
+| 6    | Testing + polish                   | `[x] Completado` | 10     |
+| 7    | Hardening post-audit               | `[x] Completado` | 12     |
+| 8    | Roadmap arquitectonico             | `[x] Completado` | 23     |
+| 9    | Remediacion ronda 4                | `[x] Completado` | 16     |
+| 10   | Roadmap 90 dias (ronda 5)          | `[x] Completado` | 33     |
+| 11   | Remediacion ronda 10               | `[x] Completado` | 54     |
+| 12   | Auditoria UI/UX a11y               | `[x] Completado` | 30     |
+| 13   | Consistencia frontend              | `[x] Completado` | 18     |
+| 14   | Hardening post-premium (esta fase) | `[x] Completado` | 27     |
+
+**Progreso total: 253 / 253 tareas** (+ 6 diferidas con justificacion + 4 roadmap items)

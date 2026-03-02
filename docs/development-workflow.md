@@ -304,6 +304,7 @@ import type { BudgetRequest } from '@epde/shared/types';
 - En modo dev, `tsup --watch` rebuilda automaticamente
 - **Siempre rebuildar shared** si cambiaron schemas y no esta en modo watch
 - El API (NestJS) consume como CommonJS, el Web (Next.js) como ESM
+- El sub-path `@epde/shared/seed` exporta `TEMPLATE_SEED_DATA` (datos de seed separados del bundle principal). NestJS no resuelve sub-paths de package.json exports (moduleResolution: "node"), por lo que `seed.ts` usa `import type` del source (borrado en runtime) + `require()` del dist CJS
 
 ## Git y Commits
 
@@ -364,6 +365,7 @@ Referencia completa en [env-vars.md](env-vars.md).
 | Permission check falla (403)                 | Falta campo en Prisma `select`       | Agregar campo (ej: `userId: true`)    |
 | Redis connection refused                     | Redis no esta corriendo              | `docker compose up -d`                |
 | Port 8081 in use                             | Expo ya corriendo                    | `lsof -ti:8081 \| xargs kill -9`      |
+| `FATAL: sorry, too many clients already`     | Zombie connections por `kill -9`     | `docker compose restart postgres`     |
 
 ## Testing
 
@@ -382,7 +384,7 @@ pnpm --filter @epde/mobile test              # Solo Mobile (jest-expo)
 - **Web**: Vitest + jsdom + @testing-library/react — hooks y componentes
 - **Mobile**: jest-expo + @testing-library/react-native — componentes
 
-Total: 407 tests (172 API + 187 Shared + 35 Web + 13 Mobile)
+Total: 427 tests (192 API + 187 Shared + 35 Web + 13 Mobile)
 
 ### Tests E2E
 
