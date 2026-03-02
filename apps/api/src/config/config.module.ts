@@ -8,7 +8,8 @@ const baseSchema = z.object({
   JWT_EXPIRATION: z.string().default('15m'),
   JWT_REFRESH_EXPIRATION: z.string().default('7d'),
   PORT: z.coerce.number().default(3001),
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  NODE_ENV: z.enum(['development', 'staging', 'production', 'test']).default('development'),
+  EMAIL_FROM: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
   FRONTEND_URL: z.string().default('http://localhost:3000'),
   R2_ENDPOINT: z.string().optional(),
@@ -71,6 +72,29 @@ const envSchema = baseSchema.superRefine((data, ctx) => {
       path: ['REDIS_URL'],
       message: 'REDIS_URL must use TLS (rediss://) in production',
     });
+  }
+
+  // R2: if any R2_* variable is set, all must be present
+  const r2Names = [
+    'R2_ENDPOINT',
+    'R2_ACCESS_KEY_ID',
+    'R2_SECRET_ACCESS_KEY',
+    'R2_BUCKET_NAME',
+    'R2_PUBLIC_URL',
+  ] as const;
+  const r2Values = r2Names.map((name) => data[name]);
+  const r2SetCount = r2Values.filter(Boolean).length;
+  if (r2SetCount > 0 && r2SetCount < r2Names.length) {
+    for (let i = 0; i < r2Names.length; i++) {
+      if (!r2Values[i]) {
+        const name = r2Names[i] as string;
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [name],
+          message: `${name} es requerido cuando otras variables R2_* estan configuradas`,
+        });
+      }
+    }
   }
 });
 

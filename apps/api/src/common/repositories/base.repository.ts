@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { PAGINATION_DEFAULT_TAKE, PAGINATION_MAX_TAKE } from '@epde/shared';
 
 /**
  * Union of valid Prisma model names (lowercase camelCase delegates).
@@ -51,10 +52,8 @@ export abstract class BaseRepository<T, M extends PrismaModelName = PrismaModelN
     return this.model.findUnique({ where: { id }, ...(include && { include }) });
   }
 
-  private static readonly MAX_PAGE_SIZE = 100;
-
   async findMany(params: FindManyParams = {}): Promise<PaginatedResult<T>> {
-    const take = Math.min(Math.max(params.take ?? 20, 1), BaseRepository.MAX_PAGE_SIZE);
+    const take = Math.min(Math.max(params.take ?? PAGINATION_DEFAULT_TAKE, 1), PAGINATION_MAX_TAKE);
     const where = params.where ?? {};
     const orderBy = params.orderBy ?? { createdAt: 'desc' };
     const include = params.include;

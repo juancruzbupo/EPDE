@@ -10,6 +10,7 @@ export default defineConfig({
     'constants/index': 'src/constants/index.ts',
     'utils/index': 'src/utils/index.ts',
     'api/index': 'src/api/index.ts',
+    'seed/index': 'src/seed/template-data.ts',
   },
   format: ['esm', 'cjs'],
   dts: true,

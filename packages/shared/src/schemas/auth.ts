@@ -28,7 +28,7 @@ export const setPasswordSchema = z.object({
 export type SetPasswordInput = z.infer<typeof setPasswordSchema>;
 
 export const refreshSchema = z.object({
-  refreshToken: z.string().optional(),
+  refreshToken: z.string().min(1).max(2048).optional(),
 });
 
 export type RefreshInput = z.infer<typeof refreshSchema>;

@@ -16,6 +16,7 @@ import type {
   ReorderTemplatesInput,
 } from '@epde/shared';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
 
 @ApiTags('Category Templates')
 @ApiBearerAuth()
@@ -33,7 +34,7 @@ export class CategoryTemplatesController {
   }
 
   @Get(':id')
-  async getById(@Param('id') id: string) {
+  async getById(@Param('id', ParseCuidPipe) id: string) {
     const data = await this.service.getById(id);
     return { data };
   }
@@ -48,7 +49,7 @@ export class CategoryTemplatesController {
 
   @Patch(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body(new ZodValidationPipe(updateCategoryTemplateSchema)) dto: UpdateCategoryTemplateInput,
   ) {
     const data = await this.service.update(id, dto);
@@ -56,7 +57,7 @@ export class CategoryTemplatesController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id', ParseCuidPipe) id: string) {
     return this.service.remove(id);
   }
 

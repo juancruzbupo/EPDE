@@ -22,6 +22,11 @@ export function getNextDueDate(currentDate: Date, recurrenceMonths: number): Dat
   return addMonths(currentDate, recurrenceMonths);
 }
 
+/**
+ * Maps a recurrence type to its interval in months.
+ * ON_DETECTION and CUSTOM have no fixed recurrence — returns null.
+ * Callers handle with `?? fallback` (e.g., `?? 12` in the safety sweep).
+ */
 export function recurrenceTypeToMonths(type: string): number | null {
   const map: Record<string, number> = {
     MONTHLY: 1,

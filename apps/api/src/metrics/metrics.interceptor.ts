@@ -12,14 +12,18 @@ export class MetricsInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap(() => {
-        const response = context.switchToHttp().getResponse();
-        const durationMs = Date.now() - start;
-        this.metricsService.recordHttpRequest(
-          request.method,
-          request.route?.path ?? request.url,
-          response.statusCode,
-          durationMs,
-        );
+        try {
+          const response = context.switchToHttp().getResponse();
+          const durationMs = Date.now() - start;
+          this.metricsService.recordHttpRequest(
+            request.method,
+            request.route?.path ?? request.url,
+            response.statusCode,
+            durationMs,
+          );
+        } catch {
+          // Metrics failure must never interrupt the response
+        }
       }),
     );
   }

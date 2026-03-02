@@ -15,8 +15,8 @@ import { Throttle } from '@nestjs/throttler';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
-import { loginSchema, setPasswordSchema } from '@epde/shared';
-import type { LoginInput, SetPasswordInput } from '@epde/shared';
+import { loginSchema, setPasswordSchema, refreshSchema } from '@epde/shared';
+import type { LoginInput, SetPasswordInput, RefreshInput } from '@epde/shared';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
@@ -89,7 +89,7 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(
-    @Body() body: { refreshToken?: string },
+    @Body(new ZodValidationPipe(refreshSchema)) body: RefreshInput,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-export const idSchema = z.string().uuid();
+export const idSchema: z.ZodString = z.string().uuid();
+export const cuidSchema: z.ZodString = z.string().cuid();
 
 export const paginationSchema = z.object({
   cursor: z.string().uuid().optional(),

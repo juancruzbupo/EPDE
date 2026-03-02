@@ -101,6 +101,7 @@ export class TaskSchedulerService {
 
         const property = task.maintenancePlan.property;
         const owner = property.user;
+        if (!task.nextDueDate) continue;
         const daysUntilDue = Math.ceil(
           (task.nextDueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
         );
@@ -193,7 +194,8 @@ export class TaskSchedulerService {
           batch.map((task) => {
             const months =
               task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType) ?? 12;
-            const newDueDate = getNextDueDate(task.nextDueDate!, months);
+            if (!task.nextDueDate) return;
+            const newDueDate = getNextDueDate(task.nextDueDate, months);
             return this.tasksRepository.updateDueDateAndStatus(task.id, newDueDate, 'PENDING');
           }),
         );

@@ -14,6 +14,7 @@ import type {
   ReorderTemplatesInput,
 } from '@epde/shared';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
 
 @ApiTags('Task Templates')
 @ApiBearerAuth()
@@ -24,7 +25,7 @@ export class TaskTemplatesController {
 
   @Post('category-templates/:categoryId/tasks')
   async create(
-    @Param('categoryId') categoryId: string,
+    @Param('categoryId', ParseCuidPipe) categoryId: string,
     @Body(new ZodValidationPipe(createTaskTemplateSchema)) dto: CreateTaskTemplateInput,
   ) {
     const data = await this.service.create(categoryId, dto);
@@ -33,7 +34,7 @@ export class TaskTemplatesController {
 
   @Patch('task-templates/:id')
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body(new ZodValidationPipe(updateTaskTemplateSchema)) dto: UpdateTaskTemplateInput,
   ) {
     const data = await this.service.update(id, dto);
@@ -41,13 +42,13 @@ export class TaskTemplatesController {
   }
 
   @Delete('task-templates/:id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id', ParseCuidPipe) id: string) {
     return this.service.remove(id);
   }
 
   @Patch('category-templates/:categoryId/tasks/reorder')
   async reorder(
-    @Param('categoryId') categoryId: string,
+    @Param('categoryId', ParseCuidPipe) categoryId: string,
     @Body(new ZodValidationPipe(reorderTemplatesSchema)) dto: ReorderTemplatesInput,
   ) {
     return this.service.reorder(categoryId, dto.ids);

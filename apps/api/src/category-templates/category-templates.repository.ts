@@ -12,13 +12,6 @@ export class CategoryTemplatesRepository extends BaseRepository<
     super(prisma, 'categoryTemplate', false);
   }
 
-  async findAllWithTasks() {
-    return this.model.findMany({
-      include: { tasks: { orderBy: { displayOrder: 'asc' } } },
-      orderBy: { displayOrder: 'asc' },
-    });
-  }
-
   override async findById(id: string, include?: Record<string, unknown>) {
     return this.model.findUnique({
       where: { id },

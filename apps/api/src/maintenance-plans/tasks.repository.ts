@@ -18,20 +18,6 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
     });
   }
 
-  async findOverdue() {
-    return this.model.findMany({
-      where: {
-        nextDueDate: { lt: new Date() },
-        status: { not: 'COMPLETED' },
-      },
-      include: {
-        category: true,
-        maintenancePlan: { include: { property: true } },
-      },
-      orderBy: { nextDueDate: 'asc' },
-    });
-  }
-
   async getMaxOrder(planId: string): Promise<number> {
     const result = await this.model.findFirst({
       where: { maintenancePlanId: planId },

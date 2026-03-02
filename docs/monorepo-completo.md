@@ -338,6 +338,8 @@ feature/
   feature.service.spec.ts   # Unit tests
 ```
 
+**Excepciones:** No todos los modulos siguen la estructura completa. Ver tabla de excepciones en `docs/architecture.md` (seccion "Excepciones al Module Pattern"). Ejemplos: `users` (sin controller), `upload` (sin repository), `scheduler` (sin controller ni repository).
+
 ### P4: Guard Composition
 
 Tres guards globales en orden via `APP_GUARD`:
@@ -827,9 +829,10 @@ Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `
 ### GitHub Actions CI
 
 ```yaml
-Jobs: lint → typecheck → build → test → test:e2e
+Jobs: lint → typecheck → build → test → test:e2e → coverage (web + API)
+Enforcement (PRs): service modificado sin spec → fail
 Services: PostgreSQL 16 Alpine, Redis 7 Alpine
-Triggers: push a main, PRs
+Triggers: push a main/develop, PRs a main/develop
 ```
 
 ### GitHub Actions CD

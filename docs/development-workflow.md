@@ -382,7 +382,7 @@ pnpm --filter @epde/mobile test              # Solo Mobile (jest-expo)
 - **Web**: Vitest + jsdom + @testing-library/react — hooks y componentes
 - **Mobile**: jest-expo + @testing-library/react-native — componentes
 
-Total: 368 tests (142 API + 187 Shared + 26 Web + 13 Mobile)
+Total: 407 tests (172 API + 187 Shared + 35 Web + 13 Mobile)
 
 ### Tests E2E
 

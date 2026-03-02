@@ -167,6 +167,19 @@ feature/
   feature.service.spec.ts # Unit tests con mocks de repositorios
 ```
 
+#### Excepciones al Module Pattern
+
+| Modulo      | Excepcion                    | Justificacion                                                                             |
+| ----------- | ---------------------------- | ----------------------------------------------------------------------------------------- |
+| `users`     | Sin controller               | Modulo internal-only. Consumido por `auth` y `clients`. No expone endpoints REST propios. |
+| `upload`    | Sin repository               | Infraestructura (S3/R2), no domain entity. Service accede directamente a S3Client.        |
+| `scheduler` | Sin controller ni repository | Cron jobs puros. Consume services de otros modulos via DI.                                |
+| `dashboard` | Sin repository propio        | Agregacion cross-entity. DashboardRepository hace queries directas a Prisma para stats.   |
+| `email`     | Sin controller ni repository | Servicio transversal. Envia emails via Resend SDK. Consumido por queues.                  |
+| `redis`     | Sin controller               | Infraestructura global. Provee RedisService y DistributedLockService.                     |
+| `health`    | Sin service ni repository    | Infraestructura. Controller directo con @nestjs/terminus checks.                          |
+| `metrics`   | Sin controller ni repository | Infraestructura. Interceptor + service para OpenTelemetry.                                |
+
 ### 4. Guard Composition
 
 Tres guards globales aplicados en orden via `APP_GUARD`:

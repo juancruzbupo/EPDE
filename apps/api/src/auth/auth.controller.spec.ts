@@ -75,7 +75,10 @@ describe('AuthController (e2e)', () => {
     });
 
     it('should reject refresh without token', async () => {
-      const res = await request(app.getHttpServer()).post('/api/v1/auth/refresh').set(MOBILE);
+      const res = await request(app.getHttpServer())
+        .post('/api/v1/auth/refresh')
+        .set(MOBILE)
+        .send({});
 
       expect(res.status).toBe(401);
     });

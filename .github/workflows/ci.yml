@@ -93,3 +93,21 @@ jobs:
 
       - name: API coverage check
         run: pnpm --filter @epde/api test -- --coverage
+
+      - name: Enforce spec files for modified services
+        if: github.event_name == 'pull_request'
+        run: |
+          missing=""
+          for svc in $(find apps/api/src -name "*.service.ts" -not -name "*.spec.ts" -not -path "*/node_modules/*" -not -path "*/dist/*"); do
+            spec="${svc%.ts}.spec.ts"
+            if [ ! -f "$spec" ]; then
+              svc_relative="${svc#./}"
+              if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -qF "$svc_relative"; then
+                missing="$missing\n  $svc"
+              fi
+            fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Services modificados sin spec file:$missing"
+            exit 1
+          fi
