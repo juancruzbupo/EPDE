@@ -41,7 +41,7 @@ epde/
 ├── apps/
 │   ├── api/                          # ── @epde/api ──────────────────────
 │   │   ├── prisma/
-│   │   │   ├── schema.prisma         # 14 modelos, 11 enums
+│   │   │   ├── schema.prisma         # 15 modelos, 17 enums
 │   │   │   ├── seed.ts               # Admin + 10 categorias default
 │   │   │   └── migrations/
 │   │   ├── src/
@@ -59,7 +59,8 @@ epde/
 │   │   │   ├── categories/           # Categorias de mantenimiento
 │   │   │   ├── budgets/              # Presupuestos (ciclo completo)
 │   │   │   ├── service-requests/     # Solicitudes + fotos
-│   │   │   ├── tasks/                # Gestion de tareas
+│   │   │   ├── task-templates/        # Templates de tareas por categoria
+│   │   │   ├── category-templates/   # Templates de categorias
 │   │   │   ├── notifications/        # Sistema de notificaciones
 │   │   │   ├── dashboard/            # Estadisticas agregadas
 │   │   │   ├── email/                # Servicio de emails (Resend)
