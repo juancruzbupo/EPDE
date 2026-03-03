@@ -1,5 +1,6 @@
 import { View, Text, Pressable, Alert, ScrollView } from 'react-native';
 import { useAuthStore } from '@/stores/auth-store';
+import { fonts } from '@/lib/fonts';
 
 export default function ProfileScreen() {
   const user = useAuthStore((s) => s.user);
@@ -18,10 +19,7 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView className="bg-background flex-1" contentContainerStyle={{ padding: 16 }}>
-      <Text
-        style={{ fontFamily: 'PlayfairDisplay_700Bold' }}
-        className="text-foreground mb-6 text-2xl"
-      >
+      <Text style={fonts.heading} className="text-foreground mb-6 text-2xl">
         Mi Perfil
       </Text>
 

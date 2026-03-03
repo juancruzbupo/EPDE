@@ -2,13 +2,13 @@ export const fonts = {
   regular: { fontFamily: 'DMSans_400Regular' },
   medium: { fontFamily: 'DMSans_500Medium' },
   bold: { fontFamily: 'DMSans_700Bold' },
-  heading: { fontFamily: 'PlayfairDisplay_700Bold' },
+  heading: { fontFamily: 'DMSerifDisplay_400Regular' },
 } as const;
 
 export const TYPE = {
-  // Headings (Playfair Display)
-  displayLg: { fontFamily: 'PlayfairDisplay_700Bold', fontSize: 28, lineHeight: 34 },
-  displaySm: { fontFamily: 'PlayfairDisplay_700Bold', fontSize: 22, lineHeight: 28 },
+  // Headings (DM Serif Display)
+  displayLg: { fontFamily: 'DMSerifDisplay_400Regular', fontSize: 28, lineHeight: 34 },
+  displaySm: { fontFamily: 'DMSerifDisplay_400Regular', fontSize: 22, lineHeight: 28 },
   // Titles (DM Sans Bold)
   titleLg: { fontFamily: 'DMSans_700Bold', fontSize: 18, lineHeight: 24 },
   titleMd: { fontFamily: 'DMSans_700Bold', fontSize: 16, lineHeight: 22 },

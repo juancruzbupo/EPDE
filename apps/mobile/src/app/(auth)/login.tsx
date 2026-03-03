@@ -14,6 +14,7 @@ import { loginSchema } from '@epde/shared';
 import type { LoginInput } from '@epde/shared';
 import { useAuthStore } from '@/stores/auth-store';
 import { colors } from '@/lib/colors';
+import { fonts } from '@/lib/fonts';
 
 export default function LoginScreen() {
   const login = useAuthStore((s) => s.login);
@@ -47,10 +48,7 @@ export default function LoginScreen() {
       className="bg-background flex-1"
     >
       <View className="flex-1 justify-center px-6">
-        <Text
-          style={{ fontFamily: 'PlayfairDisplay_700Bold' }}
-          className="text-primary mb-2 text-center text-4xl"
-        >
+        <Text style={fonts.heading} className="text-primary mb-2 text-center text-4xl">
           EPDE
         </Text>
         <Text

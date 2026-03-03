@@ -11,7 +11,7 @@ import {
   DMSans_500Medium,
   DMSans_700Bold,
 } from '@expo-google-fonts/dm-sans';
-import { PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display';
+import { DMSerifDisplay_400Regular } from '@expo-google-fonts/dm-serif-display';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { useAuthStore } from '@/stores/auth-store';
@@ -72,7 +72,7 @@ export default function RootLayout() {
     DMSans_400Regular,
     DMSans_500Medium,
     DMSans_700Bold,
-    PlayfairDisplay_700Bold,
+    DMSerifDisplay_400Regular,
   });
 
   useEffect(() => {

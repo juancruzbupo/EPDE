@@ -1,9 +1,24 @@
 import type { Metadata } from 'next';
+import { DM_Sans, DM_Serif_Display } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import { QueryProvider } from '@/providers/query-provider';
 import { AuthProvider } from '@/providers/auth-provider';
 import { Toaster } from 'sonner';
+
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  variable: '--font-dm-sans',
+  display: 'swap',
+});
+
+const dmSerifDisplay = DM_Serif_Display({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-dm-serif',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'EPDE - Mantenimiento Preventivo',
@@ -19,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           strategy="beforeInteractive"
         >{`(function(){try{var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.classList.add('dark')}catch(e){}})()`}</Script>
       </head>
-      <body>
+      <body className={`${dmSans.variable} ${dmSerifDisplay.variable}`}>
         <QueryProvider>
           <AuthProvider>{children}</AuthProvider>
         </QueryProvider>

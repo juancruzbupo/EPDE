@@ -263,9 +263,9 @@ importers:
       '@expo-google-fonts/dm-sans':
         specifier: ^0.2.3
         version: 0.2.3
-      '@expo-google-fonts/playfair-display':
-        specifier: ^0.2.3
-        version: 0.2.3
+      '@expo-google-fonts/dm-serif-display':
+        specifier: ^0.4.2
+        version: 0.4.2
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.71.2(react@19.1.0))
@@ -1614,8 +1614,8 @@ packages:
   '@expo-google-fonts/dm-sans@0.2.3':
     resolution: {integrity: sha512-sMrW6bc3ZWg5tyasDe6GB56N1/q/wY5zjMFp1vnA61MUX19mVd62ZiiubDaroSsQIhKEJvRW662NjDGUkqmEmg==}
 
-  '@expo-google-fonts/playfair-display@0.2.3':
-    resolution: {integrity: sha512-J4H/k29XpbM7WDfC/rsJk9qOt/mmKDLFi4UFWxZxmleQoMp8KYRJhAFlESxRQeecYdp0QNcYpDlTzjs8tHddvg==}
+  '@expo-google-fonts/dm-serif-display@0.4.2':
+    resolution: {integrity: sha512-onlO8xAzsgMbKcwUE+fAgJ5AFHhk06VtaDN7eQOJwjV65QIciDKTiSNu1ymHc4m6g/x6D9OqPIYPXdTNIfaEaA==}
 
   '@expo/cli@54.0.23':
     resolution: {integrity: sha512-km0h72SFfQCmVycH/JtPFTVy69w6Lx1cHNDmfLfQqgKFYeeHTjx7LVDP4POHCtNxFP2UeRazrygJhlh4zz498g==}
@@ -12568,7 +12568,7 @@ snapshots:
 
   '@expo-google-fonts/dm-sans@0.2.3': {}
 
-  '@expo-google-fonts/playfair-display@0.2.3': {}
+  '@expo-google-fonts/dm-serif-display@0.4.2': {}
 
   '@expo/cli@54.0.23(expo-router@6.0.23)(expo@54.0.33)(graphql@16.13.0)(react-native@0.81.5(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.1.0))':
     dependencies:

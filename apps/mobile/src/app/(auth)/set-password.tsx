@@ -15,6 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { setPassword } from '@/lib/auth';
 import { colors } from '@/lib/colors';
+import { fonts } from '@/lib/fonts';
 
 const schema = z
   .object({
@@ -74,10 +75,7 @@ export default function SetPasswordScreen() {
         contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
         className="px-6"
       >
-        <Text
-          style={{ fontFamily: 'PlayfairDisplay_700Bold' }}
-          className="text-primary mb-2 text-center text-3xl"
-        >
+        <Text style={fonts.heading} className="text-primary mb-2 text-center text-3xl">
           Configurar Contraseña
         </Text>
         <Text
