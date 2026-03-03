@@ -2,12 +2,13 @@ import type { Metadata } from 'next';
 import { LandingPage } from '@/components/landing/landing-page';
 
 export const metadata: Metadata = {
-  title: 'EPDE - Mantenimiento Preventivo para Viviendas',
+  title: 'EPDE — Diagnóstico y Mantenimiento Preventivo Profesional para Viviendas',
   description:
-    'Plataforma profesional de diagnóstico y mantenimiento preventivo edilicio. Organizá el cuidado de tu vivienda con planes personalizados, presupuestos y seguimiento completo.',
+    'Servicio profesional de diagnóstico arquitectónico y planificación preventiva personalizada para viviendas. Evaluación técnica integral con sistema digital de seguimiento.',
   openGraph: {
-    title: 'EPDE - Mantenimiento Preventivo para Viviendas',
-    description: 'Organizá el cuidado de tu vivienda con planes de mantenimiento personalizados.',
+    title: 'EPDE — La nueva forma profesional de cuidar tu casa',
+    description:
+      'Diagnóstico arquitectónico personalizado + plan de mantenimiento preventivo con seguimiento en sistema digital.',
     type: 'website',
   },
 };
