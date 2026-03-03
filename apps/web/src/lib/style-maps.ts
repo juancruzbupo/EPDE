@@ -29,10 +29,10 @@ export {
 // ─── Color class maps (platform-specific, not shared) ───
 
 export const priorityColors: Record<string, string> = {
-  LOW: 'bg-green-100 text-green-700',
-  MEDIUM: 'bg-yellow-100 text-yellow-700',
-  HIGH: 'bg-orange-100 text-orange-700',
-  URGENT: 'bg-red-100 text-red-700',
+  LOW: 'bg-success/15 text-success',
+  MEDIUM: 'bg-warning/15 text-warning',
+  HIGH: 'bg-caution/15 text-caution',
+  URGENT: 'bg-destructive/15 text-destructive',
 };
 
 export const taskTypeColors: Record<string, string> = {
@@ -48,7 +48,7 @@ export const taskTypeColors: Record<string, string> = {
 };
 
 export const professionalReqColors: Record<string, string> = {
-  OWNER_CAN_DO: 'bg-green-100 text-green-700',
-  PROFESSIONAL_RECOMMENDED: 'bg-yellow-100 text-yellow-700',
-  PROFESSIONAL_REQUIRED: 'bg-red-100 text-red-700',
+  OWNER_CAN_DO: 'bg-success/15 text-success',
+  PROFESSIONAL_RECOMMENDED: 'bg-warning/15 text-warning',
+  PROFESSIONAL_REQUIRED: 'bg-destructive/15 text-destructive',
 };

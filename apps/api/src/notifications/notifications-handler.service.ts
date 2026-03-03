@@ -3,6 +3,25 @@ import { UserLookupRepository } from '../common/repositories/user-lookup.reposit
 import { NotificationQueueService } from './notification-queue.service';
 import { EmailQueueService } from '../email/email-queue.service';
 
+/**
+ * Centralized extension point for domain side-effects (notifications, emails, etc.).
+ *
+ * ## Architecture rule
+ * Domain services (BudgetsService, ServiceRequestsService, etc.) MUST inject THIS service
+ * instead of NotificationQueueService or EmailQueueService directly.
+ * Adding a new side-effect = add a method here — domain services never change.
+ *
+ * ## Usage pattern (fire-and-forget)
+ * ```typescript
+ * void this.notificationsHandler.handleBudgetCreated({ budgetId, title, requesterId, propertyId });
+ * ```
+ * Each method catches its own errors and logs them, so callers never need try/catch.
+ *
+ * ## Adding a new side-effect
+ * 1. Add a `handleXxxYyy(payload: { ... }): Promise<void>` method here.
+ * 2. Inject `NotificationsHandlerService` in the target domain service.
+ * 3. Call `void this.notificationsHandler.handleXxxYyy(...)` after the DB write.
+ */
 @Injectable()
 export class NotificationsHandlerService {
   private readonly logger = new Logger(NotificationsHandlerService.name);

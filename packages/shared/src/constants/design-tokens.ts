@@ -61,3 +61,38 @@ export const DESIGN_TOKENS_DARK = {
 } as const;
 
 export type DesignTokens = typeof DESIGN_TOKENS_LIGHT;
+
+// ---------------------------------------------------------------------------
+// CSS custom properties — programmatic SSoT
+// ---------------------------------------------------------------------------
+
+/** Convert camelCase design token key to kebab-case CSS custom property name. */
+function toCSSVar(key: string): `--${string}` {
+  return `--${key.replace(/([A-Z])/g, '-$1').toLowerCase()}` as `--${string}`;
+}
+
+/**
+ * CSS custom property map for light mode, derived from DESIGN_TOKENS_LIGHT.
+ *
+ * Usage: inject into a `:root {}` block or pass to a style object.
+ *
+ * Example:
+ * ```css
+ * :root {
+ *   --primary: #c4704b;
+ *   --primary-foreground: #fafaf8;
+ *   ...
+ * }
+ * ```
+ *
+ * When updating a color, change it in DESIGN_TOKENS_LIGHT/DARK above —
+ * CSS_VARIABLES_LIGHT/DARK are derived automatically from those values.
+ */
+export const CSS_VARIABLES_LIGHT: Record<string, string> = Object.fromEntries(
+  Object.entries(DESIGN_TOKENS_LIGHT).map(([k, v]) => [toCSSVar(k), v]),
+);
+
+/** CSS custom property map for dark mode, derived from DESIGN_TOKENS_DARK. */
+export const CSS_VARIABLES_DARK: Record<string, string> = Object.fromEntries(
+  Object.entries(DESIGN_TOKENS_DARK).map(([k, v]) => [toCSSVar(k), v]),
+);

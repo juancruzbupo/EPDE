@@ -295,6 +295,46 @@ export class BudgetsService {
 - Lanzar excepciones NestJS: `NotFoundException`, `ForbiddenException`, `BadRequestException`
 - Disparar notificaciones/emails con inyeccion directa fire-and-forget: `void this.notificationsHandler.handleBudgetCreated({ ... })` — EventEmitter2 fue eliminado (Fase 15)
 
+### 3.3b Extension Point: NotificationsHandlerService
+
+`NotificationsHandlerService` es el **punto de extensión centralizado** para todos los side-effects
+de dominio (notificaciones in-app, emails transaccionales). Es el único servicio que los domain
+services deben inyectar para este propósito.
+
+**Regla:** nunca inyectar `NotificationQueueService` o `EmailQueueService` directamente en un
+domain service — siempre a través de `NotificationsHandlerService`.
+
+```typescript
+// ✅ Correcto — el domain service usa el extension point
+class BudgetsService {
+  constructor(
+    private readonly repo: BudgetsRepository,
+    private readonly notificationsHandler: NotificationsHandlerService,
+  ) {}
+
+  async createBudget(data: CreateBudgetInput, userId: string) {
+    const budget = await this.repo.create({ ...data, requestedBy: userId });
+    void this.notificationsHandler.handleBudgetCreated({
+      budgetId: budget.id,
+      title: budget.title,
+      requesterId: userId,
+      propertyId: budget.propertyId,
+    });
+    return budget;
+  }
+}
+
+// ❌ Incorrecto — inyección directa de servicios de infraestructura
+class BudgetsService {
+  constructor(private readonly emailQueue: EmailQueueService) {} // nunca así
+}
+```
+
+**Agregar un nuevo side-effect:**
+1. Agregar `handleXxxYyy(payload): Promise<void>` en `NotificationsHandlerService`
+2. Llamar `void this.notificationsHandler.handleXxxYyy(...)` después del DB write
+3. El método maneja su propio try/catch — el caller nunca necesita try/catch
+
 ### 3.4 Controller Pattern
 
 ```typescript
@@ -418,7 +458,7 @@ describe('BudgetsService', () => {
           provide: PropertiesRepository,
           useValue: { findById: jest.fn() },
         },
-        { provide: EventEmitter2, useValue: { emit: jest.fn() } },
+        { provide: NotificationsHandlerService, useValue: { handleBudgetCreated: jest.fn() } },
       ],
     }).compile();
 

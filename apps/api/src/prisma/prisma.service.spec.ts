@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Prisma } from '@prisma/client';
+import type { ZodObject, ZodRawShape } from 'zod';
 import { PrismaService, SOFT_DELETABLE_MODELS } from './prisma.service';
+import { createPropertySchema, createTaskSchema, createBudgetRequestSchema } from '@epde/shared';
 
 describe('PrismaService', () => {
   let service: PrismaService;
@@ -80,6 +82,67 @@ describe('PrismaService soft-delete consistency', () => {
 
     for (const modelName of SOFT_DELETABLE_MODELS) {
       expect(modelsWithDeletedAt.has(modelName)).toBe(true);
+    }
+  });
+});
+
+describe('Zod-Prisma schema consistency', () => {
+  /**
+   * Verify that non-auto required Prisma fields are present in the corresponding Zod create schema.
+   * Fields in AUTO_FIELDS are intentionally omitted from create inputs (server-generated).
+   * Relation fields are also excluded (they appear as FK scalar fields, not objects).
+   */
+  // Auto/server-set fields that are never included in client create schemas
+  const AUTO_FIELDS = new Set([
+    'id', 'createdAt', 'updatedAt', 'deletedAt',
+    'status',   // defaulted server-side
+    'order',    // defaulted server-side
+    'requestedBy', // set from authenticated user context (JWT)
+    'updatedBy',   // set from authenticated user context (JWT)
+    'version',     // optimistic concurrency control — managed by Prisma
+  ]);
+
+  /** Returns the required non-auto scalar field names for a Prisma model. */
+  function requiredScalarFields(modelName: string): string[] {
+    const model = Prisma.dmmf.datamodel.models.find((m) => m.name === modelName);
+    if (!model) return [];
+    return model.fields
+      .filter(
+        (f) =>
+          f.isRequired &&
+          !AUTO_FIELDS.has(f.name) &&
+          !f.relationName && // exclude virtual relation fields
+          f.kind === 'scalar',
+      )
+      .map((f) => f.name);
+  }
+
+  /** Returns the key set of a plain ZodObject schema. */
+  function zodKeys(schema: ZodObject<ZodRawShape>): Set<string> {
+    return new Set(Object.keys(schema.shape));
+  }
+
+  it('createPropertySchema covers all required Property scalar fields', () => {
+    const fields = requiredScalarFields('Property');
+    const keys = zodKeys(createPropertySchema);
+    for (const field of fields) {
+      expect(keys).toContain(field);
+    }
+  });
+
+  it('createTaskSchema covers all required Task scalar fields', () => {
+    const fields = requiredScalarFields('Task');
+    const keys = zodKeys(createTaskSchema);
+    for (const field of fields) {
+      expect(keys).toContain(field);
+    }
+  });
+
+  it('createBudgetRequestSchema covers all required BudgetRequest scalar fields', () => {
+    const fields = requiredScalarFields('BudgetRequest');
+    const keys = zodKeys(createBudgetRequestSchema);
+    for (const field of fields) {
+      expect(keys).toContain(field);
     }
   });
 });

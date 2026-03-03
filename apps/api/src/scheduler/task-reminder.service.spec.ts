@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TaskReminderService } from './task-reminder.service';
-import { TasksRepository } from '../maintenance-plans/tasks.repository';
+import { TasksRepository } from '../tasks/tasks.repository';
 import { NotificationsRepository } from '../notifications/notifications.repository';
 import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
 import { NotificationsService } from '../notifications/notifications.service';

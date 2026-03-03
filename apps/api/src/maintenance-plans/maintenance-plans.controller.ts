@@ -3,6 +3,8 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { MaintenancePlansService } from './maintenance-plans.service';
+import { TaskLifecycleService } from '../tasks/task-lifecycle.service';
+import { TaskNotesService } from '../tasks/task-notes.service';
 import {
   updatePlanSchema,
   createTaskSchema,
@@ -39,7 +41,11 @@ type CreateTaskBody = z.infer<typeof createTaskBodySchema>;
 @ApiBearerAuth()
 @Controller('maintenance-plans')
 export class MaintenancePlansController {
-  constructor(private readonly plansService: MaintenancePlansService) {}
+  constructor(
+    private readonly plansService: MaintenancePlansService,
+    private readonly taskLifecycle: TaskLifecycleService,
+    private readonly taskNotes: TaskNotesService,
+  ) {}
 
   @Get()
   async listPlans(@CurrentUser() user: { id: string; role: string }) {
@@ -53,11 +59,10 @@ export class MaintenancePlansController {
     @Query('status') status?: string,
     @Query('take') take?: string,
   ) {
-    const data = await this.plansService.listAllTasks(
-      user,
-      status,
-      take ? Number(take) : undefined,
-    );
+    const userId = user.role === UserRole.CLIENT ? user.id : undefined;
+    // Guard against NaN — Number('abc') is NaN which breaks Prisma
+    const parsedTake = take !== undefined && /^\d+$/.test(take) ? Number(take) : undefined;
+    const data = await this.taskLifecycle.listAllTasks(userId, status, parsedTake);
     return { data };
   }
 
@@ -85,7 +90,7 @@ export class MaintenancePlansController {
     @Body(new ZodValidationPipe(createTaskBodySchema)) dto: CreateTaskBody,
     @CurrentUser() user: { id: string },
   ) {
-    const data = await this.plansService.addTask(planId, dto, user.id);
+    const data = await this.taskLifecycle.addTask(planId, dto, user.id);
     return { data, message: 'Tarea agregada' };
   }
 
@@ -96,14 +101,14 @@ export class MaintenancePlansController {
     @Body(new ZodValidationPipe(updateTaskWithRecurrenceSchema)) dto: UpdateTaskInput,
     @CurrentUser() user: { id: string },
   ) {
-    const data = await this.plansService.updateTask(taskId, dto, user.id);
+    const data = await this.taskLifecycle.updateTask(taskId, dto, user.id);
     return { data };
   }
 
   @Delete(':id/tasks/:taskId')
   @Roles(UserRole.ADMIN)
   async removeTask(@Param('taskId') taskId: string) {
-    return this.plansService.removeTask(taskId);
+    return this.taskLifecycle.removeTask(taskId);
   }
 
   @Put(':id/tasks/reorder')
@@ -112,7 +117,7 @@ export class MaintenancePlansController {
     @Param('id') planId: string,
     @Body(new ZodValidationPipe(reorderTasksSchema)) dto: ReorderTasksInput,
   ) {
-    const data = await this.plansService.reorderTasks(planId, dto);
+    const data = await this.taskLifecycle.reorderTasks(planId, dto);
     return { data };
   }
 
@@ -121,7 +126,8 @@ export class MaintenancePlansController {
     @Param('taskId') taskId: string,
     @CurrentUser() user: { id: string; role: string },
   ) {
-    const data = await this.plansService.getTaskDetail(taskId, user);
+    await this.taskLifecycle.verifyTaskAccess(taskId, user);
+    const data = await this.taskNotes.getTaskDetail(taskId);
     return { data };
   }
 
@@ -131,7 +137,7 @@ export class MaintenancePlansController {
     @Body(new ZodValidationPipe(completeTaskSchema)) dto: CompleteTaskInput,
     @CurrentUser() user: { id: string; role: string },
   ) {
-    const data = await this.plansService.completeTask(taskId, user.id, dto, user);
+    const data = await this.taskLifecycle.completeTask(taskId, user.id, dto, user);
     return { data, message: 'Tarea completada' };
   }
 
@@ -140,7 +146,8 @@ export class MaintenancePlansController {
     @Param('taskId') taskId: string,
     @CurrentUser() user: { id: string; role: string },
   ) {
-    const data = await this.plansService.getTaskLogs(taskId, user);
+    await this.taskLifecycle.verifyTaskAccess(taskId, user);
+    const data = await this.taskNotes.getTaskLogs(taskId);
     return { data };
   }
 
@@ -150,7 +157,8 @@ export class MaintenancePlansController {
     @Body(new ZodValidationPipe(createTaskNoteSchema)) dto: CreateTaskNoteInput,
     @CurrentUser() user: { id: string; role: string },
   ) {
-    const data = await this.plansService.addTaskNote(taskId, user.id, dto, user);
+    await this.taskLifecycle.verifyTaskAccess(taskId, user);
+    const data = await this.taskNotes.addTaskNote(taskId, user.id, dto);
     return { data, message: 'Nota agregada' };
   }
 
@@ -159,7 +167,8 @@ export class MaintenancePlansController {
     @Param('taskId') taskId: string,
     @CurrentUser() user: { id: string; role: string },
   ) {
-    const data = await this.plansService.getTaskNotes(taskId, user);
+    await this.taskLifecycle.verifyTaskAccess(taskId, user);
+    const data = await this.taskNotes.getTaskNotes(taskId);
     return { data };
   }
 }

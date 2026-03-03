@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { TasksRepository } from '../maintenance-plans/tasks.repository';
+import { TasksRepository } from '../tasks/tasks.repository';
 import { DistributedLockService } from '../redis/distributed-lock.service';
 
 @Injectable()

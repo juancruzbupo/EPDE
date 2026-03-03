@@ -2,27 +2,13 @@ import { Module } from '@nestjs/common';
 import { MaintenancePlansController } from './maintenance-plans.controller';
 import { MaintenancePlansService } from './maintenance-plans.service';
 import { MaintenancePlansRepository } from './maintenance-plans.repository';
-import { TasksRepository } from './tasks.repository';
-import { TaskLogsRepository } from './task-logs.repository';
-import { TaskNotesRepository } from './task-notes.repository';
-import { TaskLifecycleService } from './task-lifecycle.service';
-import { TaskNotesService } from './task-notes.service';
-import { TaskAuditLogRepository } from './task-audit-log.repository';
+import { TasksModule } from '../tasks/tasks.module';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
+  imports: [TasksModule],
   controllers: [MaintenancePlansController],
-  providers: [
-    MaintenancePlansService,
-    MaintenancePlansRepository,
-    TasksRepository,
-    TaskLogsRepository,
-    TaskNotesRepository,
-    TaskLifecycleService,
-    TaskNotesService,
-    TaskAuditLogRepository,
-    PrismaService,
-  ],
+  providers: [MaintenancePlansService, MaintenancePlansRepository, PrismaService],
   exports: [MaintenancePlansService],
 })
 export class MaintenancePlansModule {}

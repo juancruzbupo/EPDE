@@ -30,6 +30,8 @@ export interface FindManyParams {
   where?: Record<string, unknown>;
   orderBy?: Record<string, string>;
   include?: Record<string, unknown>;
+  /** Skip COUNT(*) query for infinite-scroll callers that don't need a total. Default: true. */
+  count?: boolean;
 }
 
 export interface PaginatedResult<T> {
@@ -107,9 +109,11 @@ export abstract class BaseRepository<T, M extends PrismaModelName = PrismaModelN
       queryParams.skip = 1;
     }
 
-    // Parallelize count + findMany for better performance
+    // Parallelize count + findMany for better performance.
+    // Pass count: false for infinite-scroll callers that don't need a total (saves one DB round-trip).
+    const shouldCount = params.count !== false;
     const [total, items] = await Promise.all([
-      this.model.count({ where }) as Promise<number>,
+      shouldCount ? (this.model.count({ where }) as Promise<number>) : Promise.resolve(0),
       this.model.findMany(queryParams) as Promise<T[]>,
     ]);
 

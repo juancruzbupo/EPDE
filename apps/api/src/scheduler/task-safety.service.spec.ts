@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TaskSafetyService } from './task-safety.service';
-import { TasksRepository } from '../maintenance-plans/tasks.repository';
+import { TasksRepository } from '../tasks/tasks.repository';
 import { DistributedLockService } from '../redis/distributed-lock.service';
 
 const mockTasksRepository = {

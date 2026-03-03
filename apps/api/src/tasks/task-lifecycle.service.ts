@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { TasksRepository } from './tasks.repository';
-import { MaintenancePlansRepository } from './maintenance-plans.repository';
+import { MaintenancePlansRepository } from '../maintenance-plans/maintenance-plans.repository';
 import { TaskAuditLogRepository } from './task-audit-log.repository';
 import type {
   CreateTaskInput,
@@ -24,10 +24,12 @@ export class TaskLifecycleService {
     private readonly auditLogRepository: TaskAuditLogRepository,
   ) {}
 
-  private async assertTaskAccess(
-    taskId: string,
-    user?: { id: string; role: string },
-  ): Promise<Task> {
+  /**
+   * Verifies that the given user has access to the task.
+   * ADMINs always pass. CLIENTs must own the property the task belongs to.
+   * Throws NotFoundException if task doesn't exist, ForbiddenException if access denied.
+   */
+  async verifyTaskAccess(taskId: string, user?: { id: string; role: string }): Promise<Task> {
     const task = await this.tasksRepository.findById(taskId);
     if (!task) throw new NotFoundException('Tarea no encontrada');
 
@@ -39,6 +41,10 @@ export class TaskLifecycleService {
     }
 
     return task;
+  }
+
+  async listAllTasks(userId?: string, status?: string, take?: number) {
+    return this.tasksRepository.findAllForList(userId, status, take);
   }
 
   async addTask(
@@ -126,7 +132,7 @@ export class TaskLifecycleService {
     dto: CompleteTaskInput,
     user?: { id: string; role: string },
   ) {
-    const task = await this.assertTaskAccess(taskId, user);
+    const task = await this.verifyTaskAccess(taskId, user);
 
     const COMPLETABLE_STATUSES = ['PENDING', 'UPCOMING', 'OVERDUE'];
     if (!COMPLETABLE_STATUSES.includes(task.status)) {

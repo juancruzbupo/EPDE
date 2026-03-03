@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { TasksRepository } from '../maintenance-plans/tasks.repository';
+import { TasksRepository } from '../tasks/tasks.repository';
 import { NotificationsRepository } from '../notifications/notifications.repository';
 import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
 import { NotificationsService } from '../notifications/notifications.service';

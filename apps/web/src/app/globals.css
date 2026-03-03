@@ -48,6 +48,13 @@ body {
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  /* Semantic priority tokens */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-caution: var(--caution);
+  --color-caution-foreground: var(--caution-foreground);
 }
 
 :root {
@@ -76,6 +83,13 @@ body {
   --chart-3: #5b8ec4;
   --chart-4: #d4a843;
   --chart-5: #d4956f;
+  /* Priority severity tokens */
+  --success: #6b9b7a;
+  --success-foreground: #1a1715;
+  --warning: #c4a030;
+  --warning-foreground: #1a1715;
+  --caution: #c47030;
+  --caution-foreground: #fafaf8;
   --sidebar: #f5f0eb;
   --sidebar-foreground: #2e2a27;
   --sidebar-primary: #c4704b;
@@ -110,6 +124,13 @@ body {
   --chart-3: #5b8ec4;
   --chart-4: #d4a843;
   --chart-5: #c4704b;
+  /* Priority severity tokens (dark) */
+  --success: #7ab588;
+  --success-foreground: #1a1715;
+  --warning: #d4b050;
+  --warning-foreground: #1a1715;
+  --caution: #d48050;
+  --caution-foreground: #1a1715;
   --sidebar: #2e2a27;
   --sidebar-foreground: #f5f0eb;
   --sidebar-primary: #d4956f;

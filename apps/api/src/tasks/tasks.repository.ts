@@ -5,13 +5,6 @@ import { BaseRepository } from '../common/repositories/base.repository';
 import { TASKS_MAX_TAKE } from '@epde/shared';
 import { addDays } from 'date-fns';
 
-/**
- * TasksRepository lives in maintenance-plans/ because tasks are a domain child of MaintenancePlans.
- * Tasks have no independent lifecycle outside a MaintenancePlan — they are always created,
- * queried, and deleted in the context of a plan.
- * If tasks ever become a standalone feature with their own lifecycle, move to apps/api/src/tasks/.
- */
-
 @Injectable()
 export class TasksRepository extends BaseRepository<Task, 'task'> {
   constructor(prisma: PrismaService) {

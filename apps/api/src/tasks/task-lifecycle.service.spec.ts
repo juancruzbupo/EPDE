@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { TaskLifecycleService } from './task-lifecycle.service';
 import { TasksRepository } from './tasks.repository';
-import { MaintenancePlansRepository } from './maintenance-plans.repository';
+import { MaintenancePlansRepository } from '../maintenance-plans/maintenance-plans.repository';
 import { TaskAuditLogRepository } from './task-audit-log.repository';
 
 const mockTasksRepository = {
@@ -225,16 +225,23 @@ describe('TaskLifecycleService', () => {
     });
   });
 
-  describe('assertTaskAccess (via completeTask)', () => {
+  describe('verifyTaskAccess', () => {
+    it('should return task when ADMIN accesses any task', async () => {
+      const task = { id: 'task-1', maintenancePlanId: 'plan-1', status: 'PENDING' };
+      mockTasksRepository.findById.mockResolvedValue(task);
+
+      const result = await service.verifyTaskAccess('task-1', { id: 'admin-1', role: 'ADMIN' });
+
+      expect(result).toEqual(task);
+      expect(mockPlansRepository.findWithProperty).not.toHaveBeenCalled();
+    });
+
     it('should throw ForbiddenException when client accesses task from another user', async () => {
       const taskId = 'task-1';
       const task = {
         id: taskId,
         status: 'PENDING',
         maintenancePlanId: 'plan-1',
-        recurrenceType: 'ANNUAL',
-        nextDueDate: new Date(),
-        recurrenceMonths: 12,
       };
 
       mockTasksRepository.findById.mockResolvedValue(task);
@@ -243,13 +250,23 @@ describe('TaskLifecycleService', () => {
       });
 
       await expect(
-        service.completeTask(
-          taskId,
-          'client-user',
-          {} as never,
-          { id: 'client-user', role: 'CLIENT' },
-        ),
+        service.verifyTaskAccess(taskId, { id: 'client-user', role: 'CLIENT' }),
       ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should return task when CLIENT owns the property', async () => {
+      const task = { id: 'task-1', maintenancePlanId: 'plan-1', status: 'PENDING' };
+      mockTasksRepository.findById.mockResolvedValue(task);
+      mockPlansRepository.findWithProperty.mockResolvedValue({
+        property: { userId: 'client-user' },
+      });
+
+      const result = await service.verifyTaskAccess('task-1', {
+        id: 'client-user',
+        role: 'CLIENT',
+      });
+
+      expect(result).toEqual(task);
     });
   });
 });
