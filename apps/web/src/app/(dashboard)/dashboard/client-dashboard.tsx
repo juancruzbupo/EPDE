@@ -9,6 +9,7 @@ import { StatCard } from '@/components/stat-card';
 import { HealthCard } from '@/components/health-card';
 import { AnimatedNumber } from '@/components/ui/animated-number';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -26,8 +27,18 @@ import { TASK_PRIORITY_LABELS } from '@epde/shared';
 import { priorityColors } from '@/lib/style-maps';
 
 export function ClientDashboard({ userName }: { userName: string }) {
-  const { data: stats, isLoading: statsLoading } = useClientDashboardStats();
-  const { data: upcoming, isLoading: upcomingLoading } = useClientUpcomingTasks();
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    isError: statsError,
+    refetch: refetchStats,
+  } = useClientDashboardStats();
+  const {
+    data: upcoming,
+    isLoading: upcomingLoading,
+    isError: upcomingError,
+    refetch: refetchUpcoming,
+  } = useClientUpcomingTasks();
   const { shouldAnimate } = useMotionPreference();
 
   const Wrapper = shouldAnimate ? motion.div : 'div';
@@ -40,7 +51,15 @@ export function ClientDashboard({ userName }: { userName: string }) {
         description="Resumen de tus propiedades y tareas"
       />
 
-      {stats && (
+      {statsLoading ? (
+        <div className="mb-4">
+          <Card>
+            <CardContent className="p-6">
+              <SkeletonShimmer className="h-24 w-full" />
+            </CardContent>
+          </Card>
+        </div>
+      ) : stats ? (
         <div className="mb-4">
           <HealthCard
             totalTasks={stats.pendingTasks + stats.overdueTasks + stats.completedThisMonth}
@@ -48,7 +67,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
             overdueTasks={stats.overdueTasks}
           />
         </div>
-      )}
+      ) : null}
 
       <Wrapper
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
@@ -67,6 +86,18 @@ export function ClientDashboard({ userName }: { userName: string }) {
                 </Card>
               </Item>
             ))
+          ) : statsError ? (
+            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+              <div className="col-span-full flex flex-col items-center gap-2 py-8">
+                <AlertTriangle className="h-8 w-8 text-destructive" />
+                <p className="text-muted-foreground text-sm">
+                  No se pudieron cargar las estadísticas
+                </p>
+                <Button variant="outline" size="sm" onClick={() => void refetchStats()}>
+                  Reintentar
+                </Button>
+              </div>
+            </Item>
           ) : stats ? (
             <>
               <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
@@ -132,6 +163,14 @@ export function ClientDashboard({ userName }: { userName: string }) {
                 {Array.from({ length: 4 }).map((_, i) => (
                   <SkeletonShimmer key={i} className="h-14 w-full" />
                 ))}
+              </div>
+            ) : upcomingError ? (
+              <div className="flex flex-col items-center gap-2 py-8">
+                <AlertTriangle className="h-8 w-8 text-destructive" />
+                <p className="text-muted-foreground text-sm">No se pudieron cargar las tareas</p>
+                <Button variant="outline" size="sm" onClick={() => void refetchUpcoming()}>
+                  Reintentar
+                </Button>
               </div>
             ) : upcoming && upcoming.length > 0 ? (
               <Wrapper

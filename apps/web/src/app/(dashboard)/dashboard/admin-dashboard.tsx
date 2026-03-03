@@ -7,14 +7,25 @@ import { PageHeader } from '@/components/page-header';
 import { StatCard } from '@/components/stat-card';
 import { AnimatedNumber } from '@/components/ui/animated-number';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Home, AlertTriangle, FileText, Wrench, Activity } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export function AdminDashboard() {
-  const { data: stats, isLoading: statsLoading } = useDashboardStats();
-  const { data: activity, isLoading: activityLoading } = useDashboardActivity();
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    isError: statsError,
+    refetch: refetchStats,
+  } = useDashboardStats();
+  const {
+    data: activity,
+    isLoading: activityLoading,
+    isError: activityError,
+    refetch: refetchActivity,
+  } = useDashboardActivity();
   const { shouldAnimate } = useMotionPreference();
 
   const Wrapper = shouldAnimate ? motion.div : 'div';
@@ -41,6 +52,18 @@ export function AdminDashboard() {
                 </Card>
               </Item>
             ))
+          ) : statsError ? (
+            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+              <div className="col-span-full flex flex-col items-center gap-2 py-8">
+                <AlertTriangle className="h-8 w-8 text-destructive" />
+                <p className="text-muted-foreground text-sm">
+                  No se pudieron cargar las estadísticas
+                </p>
+                <Button variant="outline" size="sm" onClick={() => void refetchStats()}>
+                  Reintentar
+                </Button>
+              </div>
+            </Item>
           ) : stats ? (
             <>
               <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
@@ -99,6 +122,16 @@ export function AdminDashboard() {
                 {Array.from({ length: 5 }).map((_, i) => (
                   <SkeletonShimmer key={i} className="h-6 w-full" />
                 ))}
+              </div>
+            ) : activityError ? (
+              <div className="flex flex-col items-center gap-2 py-8">
+                <AlertTriangle className="h-8 w-8 text-destructive" />
+                <p className="text-muted-foreground text-sm">
+                  No se pudo cargar la actividad reciente
+                </p>
+                <Button variant="outline" size="sm" onClick={() => void refetchActivity()}>
+                  Reintentar
+                </Button>
               </div>
             ) : activity && activity.length > 0 ? (
               <Wrapper
