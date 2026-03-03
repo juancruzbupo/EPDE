@@ -90,14 +90,14 @@ export function AdminDashboard() {
             </Item>
             <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
               <StatCard
-                title="Presupuestos Pendientes"
+                title="Presupuestos"
                 value={<AnimatedNumber value={stats.pendingBudgets} />}
                 icon={FileText}
               />
             </Item>
             <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
               <StatCard
-                title="Servicios Pendientes"
+                title="Servicios"
                 value={<AnimatedNumber value={stats.pendingServices} />}
                 icon={Wrench}
               />
