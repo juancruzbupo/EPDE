@@ -121,7 +121,7 @@ export class MyFeatureController {
   }
 
   @Post()
-  @Roles('ADMIN') // o 'CLIENT', o sin decorator para ambos
+  @Roles(UserRole.ADMIN) // OBLIGATORIO: todo endpoint no-@Public() DEBE tener @Roles() — deny by default
   create(@Body() dto: CreateDto, @CurrentUser() user) {
     return this.service.create(dto, user.id);
   }
@@ -197,7 +197,8 @@ export async function getMyFeatures(params?) {
 ```typescript
 // hooks/use-my-feature.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { QUERY_KEYS, getErrorMessage } from '@epde/shared';
+import { getErrorMessage } from '@epde/shared';
+import { QUERY_KEYS } from '@/lib/query-keys'; // frontend-only, no importar desde @epde/shared
 
 export function useMyFeatures(filters?) {
   return useQuery({
@@ -289,7 +290,7 @@ O si `pnpm dev` esta corriendo, tsup watch lo detecta automaticamente.
 
 ```typescript
 import { createBudgetRequestSchema } from '@epde/shared'; // schemas
-import { BUDGET_STATUS_LABELS, QUERY_KEYS } from '@epde/shared'; // constants
+import { BUDGET_STATUS_LABELS } from '@epde/shared'; // constants (QUERY_KEYS is frontend-only: @/lib/query-keys)
 import { BUDGET_STATUS_VARIANT } from '@epde/shared'; // badge variants
 import type { BudgetRequest, BudgetStatus } from '@epde/shared'; // types
 import { formatRelativeDate, isOverdue, getErrorMessage } from '@epde/shared'; // utils
@@ -386,7 +387,7 @@ pnpm --filter @epde/mobile test              # Solo Mobile (jest-expo)
 - **Web**: Vitest + jsdom + @testing-library/react — hooks y componentes
 - **Mobile**: jest-expo + @testing-library/react-native — componentes. Mock manual de `react-native-reanimated` en `__mocks__/react-native-reanimated.js` (v4.x requiere worklets nativos incluso en el mock oficial)
 
-Total: 538 tests (281 API + 187 Shared + 46 Web + 24 Mobile)
+Total: ~560 tests (309 API + 187 Shared + ~30 Web + 35 Mobile)
 
 ### Tests E2E
 

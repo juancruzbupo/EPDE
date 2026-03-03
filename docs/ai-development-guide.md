@@ -172,10 +172,10 @@ export const PAGINATION_DEFAULT_TAKE = 20;
 export const PAGINATION_MAX_TAKE = 100;
 ```
 
-Query keys centralizados (SSoT para web y mobile):
+Query keys son **frontend-only** — definidos localmente en cada app:
 
 ```typescript
-// packages/shared/src/constants/query-keys.ts
+// apps/web/src/lib/query-keys.ts  (y apps/mobile/src/lib/query-keys.ts)
 export const QUERY_KEYS = {
   budgets: 'budgets',
   dashboard: 'dashboard',
@@ -186,6 +186,7 @@ export const QUERY_KEYS = {
   plans: 'plans',
   // ...
 } as const;
+// NUNCA exportar desde @epde/shared — no son constantes de dominio
 ```
 
 Badge variants compartidas entre web y mobile:
@@ -336,6 +337,7 @@ class BudgetsService {
 ```
 
 **Agregar un nuevo side-effect:**
+
 1. Agregar `handleXxxYyy(payload): Promise<void>` en `NotificationsHandlerService`
 2. Llamar `void this.notificationsHandler.handleXxxYyy(...)` después del DB write
 3. El método maneja su propio try/catch — el caller nunca necesita try/catch
@@ -513,7 +515,7 @@ import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tansta
 import { toast } from 'sonner';
 
 import { getErrorMessage } from '@epde/shared';
-import { QUERY_KEYS } from '@epde/shared';
+import { QUERY_KEYS } from '@/lib/query-keys';
 
 // Listado con infinite query
 export function useBudgets(filters: BudgetFilters) {

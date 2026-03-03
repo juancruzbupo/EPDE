@@ -178,7 +178,7 @@ epde/
 │       │   │   └── service-request.ts
 │       │   ├── constants/
 │       │   │   ├── index.ts          # Labels en espanol, defaults, mappings
-│       │   │   ├── query-keys.ts     # QUERY_KEYS centralizados (SSoT)
+│       │   │   │                      # (QUERY_KEYS removido — ahora local en web/mobile @/lib/query-keys.ts)
 │       │   │   ├── badge-variants.ts # Variantes de Badge compartidas web/mobile
 │       │   │   └── design-tokens.ts  # DESIGN_TOKENS_LIGHT + DESIGN_TOKENS_DARK (SSoT paleta)
 │       │   └── utils/                # Date/string helpers, getErrorMessage
@@ -344,12 +344,12 @@ feature/
 
 **Excepciones documentadas:**
 
-| Modulo | Excepcion | Razon |
-| ------ | --------- | ----- |
-| `users` | Sin controller | CRUD de usuarios expuesto via `clients/` — no tiene endpoints directos |
-| `upload` | Sin repository | Solo interactua con Cloudflare R2, no persiste en DB |
-| `scheduler` | Sin controller ni repository | Solo cron jobs — sin endpoints REST ni acceso a datos propios |
-| `email` | Sin controller ni repository | Servicio auxiliar de envio — invocado por `notifications/` |
+| Modulo      | Excepcion                                          | Razon                                                                                                                                  |
+| ----------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `users`     | Sin controller                                     | CRUD de usuarios expuesto via `clients/` — no tiene endpoints directos                                                                 |
+| `upload`    | Sin repository                                     | Solo interactua con Cloudflare R2, no persiste en DB                                                                                   |
+| `scheduler` | Sin controller ni repository                       | Solo cron jobs — sin endpoints REST ni acceso a datos propios                                                                          |
+| `email`     | Sin controller ni repository                       | Servicio auxiliar de envio — invocado por `notifications/`                                                                             |
 | `dashboard` | Repository standalone (no extiende BaseRepository) | Queries de agregacion multi-modelo (JOINs entre User, Task, Budget, ServiceRequest) que no encajan en el patron CRUD de un solo modelo |
 
 ### P4: Guard Composition
@@ -357,7 +357,7 @@ feature/
 Tres guards globales en orden via `APP_GUARD`:
 
 1. **JwtAuthGuard** — Valida JWT. Salta `@Public()` endpoints
-2. **RolesGuard** — Verifica `user.role` contra `@Roles()`. **Sin decorator = deniega (403)** — deny-by-default para prevenir escalation of privilege. Todo endpoint autenticado requiere `@Roles()` explicito
+2. **RolesGuard** — Primero verifica `@Public()` (permite sin auth). Luego verifica `user.role` contra `@Roles()`. **Sin `@Roles()` ni `@Public()` = deniega (403)** — deny-by-default para prevenir escalation of privilege. Todo endpoint autenticado requiere `@Roles()` explicito
 3. **ThrottlerGuard** — Rate limiting (10/s corto, 60/10s medio, 5/min login, 3/hora + 1/5s burst set-password)
 
 ### P5: Decorators Personalizados
@@ -459,7 +459,7 @@ Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en depl
 
 - Hooks por entidad: `use-properties`, `use-budgets`, `use-notifications`, etc.
 - `useQuery` para lectura, `useMutation` para escritura
-- Query keys centralizados: `QUERY_KEYS` desde `@epde/shared/constants` (ej: `[QUERY_KEYS.budgets, filters]`)
+- Query keys locales: `QUERY_KEYS` definidos en `@/lib/query-keys` (frontend-only, no en `@epde/shared`). Ej: `[QUERY_KEYS.budgets, filters]`
 - Invalidacion automatica en `onSuccess`
 - Web: paginacion cursor-based con "Cargar mas"
 - Mobile: `useInfiniteQuery` con scroll infinito
@@ -589,7 +589,7 @@ Casos de uso: token rotation (families), token blacklist (JTIs), distributed loc
 
 ```css
 @theme inline {
-  --color-primary: #c4704b;    /* fuente: DESIGN_TOKENS_LIGHT.primary */
+  --color-primary: #c4704b; /* fuente: DESIGN_TOKENS_LIGHT.primary */
   --color-background: #fafaf8; /* fuente: DESIGN_TOKENS_LIGHT.background */
   --radius: 0.625rem;
 }
@@ -780,18 +780,18 @@ La extension Prisma en `PrismaService` aplica `deletedAt: null` automaticamente 
 
 **Scope de soft delete — por que los demas modelos NO lo tienen:**
 
-| Modelo sin soft delete | Razon |
-| ---------------------- | ----- |
+| Modelo sin soft delete | Razon                                                                                               |
+| ---------------------- | --------------------------------------------------------------------------------------------------- |
 | `MaintenancePlan`      | Ciclo de vida ligado a Property — si la property se elimina, el plan no tiene sentido independiente |
-| `Notification`         | Efimeras por naturaleza — marcar leida/no-leida es suficiente; borrado fisico no tiene impacto |
-| `TaskLog`              | Audit trail inmutable — nunca debe eliminarse; restrict delete del User que lo creo |
-| `TaskNote`             | Notas de historial — restrict delete; perder notas seria un bug de UX |
-| `TaskAuditLog`         | Audit trail de cambios de campo — inmutable por diseno |
-| `BudgetLineItem`       | Cascade delete con BudgetRequest — si el presupuesto se elimina, los items tambien |
-| `BudgetResponse`       | Cascade delete con BudgetRequest |
-| `ServiceRequestPhoto`  | Cascade delete con ServiceRequest |
-| `CategoryTemplate`     | Templates de configuracion — sin soft delete, administradas por ADMIN |
-| `TaskTemplate`         | Templates de configuracion — sin soft delete |
+| `Notification`         | Efimeras por naturaleza — marcar leida/no-leida es suficiente; borrado fisico no tiene impacto      |
+| `TaskLog`              | Audit trail inmutable — nunca debe eliminarse; restrict delete del User que lo creo                 |
+| `TaskNote`             | Notas de historial — restrict delete; perder notas seria un bug de UX                               |
+| `TaskAuditLog`         | Audit trail de cambios de campo — inmutable por diseno                                              |
+| `BudgetLineItem`       | Cascade delete con BudgetRequest — si el presupuesto se elimina, los items tambien                  |
+| `BudgetResponse`       | Cascade delete con BudgetRequest                                                                    |
+| `ServiceRequestPhoto`  | Cascade delete con ServiceRequest                                                                   |
+| `CategoryTemplate`     | Templates de configuracion — sin soft delete, administradas por ADMIN                               |
+| `TaskTemplate`         | Templates de configuracion — sin soft delete                                                        |
 
 ### Tipos Decimal
 

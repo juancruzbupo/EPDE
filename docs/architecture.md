@@ -88,7 +88,7 @@ epde/
     shared/           # Tipos, schemas Zod, constantes, utilidades
       src/
         api/          # Tipos de API (respuestas paginadas, etc.)
-        constants/    # Labels en espanol, defaults, QUERY_KEYS, badge-variants
+        constants/    # Labels en espanol, defaults, badge-variants
         schemas/      # Zod schemas (validacion compartida)
         seed/         # Template seed data (nomenclador de tareas)
         types/        # Interfaces TypeScript + enums (types/enums.ts)
@@ -188,7 +188,7 @@ Tres guards globales aplicados en orden via `APP_GUARD`:
 
 1. **ThrottlerGuard** — Rate limiting global. Salta endpoints marcados con `@SkipThrottle()`
 2. **JwtAuthGuard** — Valida JWT en cookie `access_token`. Salta endpoints marcados con `@Public()`
-3. **RolesGuard** — Valida existencia del user en el request, luego verifica que `user.role` este en los roles permitidos via `@Roles('ADMIN')`. Si no hay `@Roles()`, permite todo. Si el user no existe en el request, retorna `false`
+3. **RolesGuard** — Primero verifica `@Public()` (permite sin auth). Luego verifica que `user.role` este en los roles permitidos via `@Roles(UserRole.ADMIN)`. **Deny by default:** si no hay `@Roles()` ni `@Public()`, retorna `false` (403). Todo endpoint autenticado DEBE tener `@Roles()` explicito
 
 ```typescript
 // app.module.ts providers
@@ -350,7 +350,7 @@ Dependencias: `TasksRepository`, `NotificationsRepository`, `UsersRepository`, `
 
 - Cada entidad tiene hooks en `/hooks/use-<entity>.ts`
 - Pattern: `useQuery` para lectura, `useMutation` para escritura
-- `queryKey` convention: `QUERY_KEYS` centralizados desde `@epde/shared/constants` (ej: `[QUERY_KEYS.budgets, filters]`)
+- `queryKey` convention: `QUERY_KEYS` definidos localmente en cada frontend (`@/lib/query-keys` en web y mobile). No se exportan desde `@epde/shared` — son constantes frontend-only (ej: `[QUERY_KEYS.budgets, filters]`)
 - Invalidacion especifica en `onSuccess` de mutations (sub-keys de dashboard: `['dashboard', 'stats']`, `['dashboard', 'activity']`, etc. en vez de invalidar todo `['dashboard']`)
 - `queryClient` singleton exportable (`lib/query-client.ts`) — usado tanto por el QueryProvider como por el auth store (para `queryClient.clear()` en logout)
 - Paginacion cursor-based con `hasMore` + "Cargar mas"
@@ -396,10 +396,10 @@ apiClient.interceptors.response.use(
 
 **Paridad web / mobile (singleton refresh):**
 
-| Plataforma | Mecanismo de auth | Almacenamiento | Interceptor |
-|------------|-------------------|----------------|-------------|
+| Plataforma | Mecanismo de auth                                        | Almacenamiento                | Interceptor                                                                 |
+| ---------- | -------------------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------- |
 | Web        | Cookie HttpOnly `access_token` + `withCredentials: true` | Cookie segura (sin acceso JS) | Axios response interceptor — singleton que deduplica refreshes concurrentes |
-| Mobile     | Bearer token en header `Authorization` | Expo SecureStore | Axios response interceptor — mismo patron singleton |
+| Mobile     | Bearer token en header `Authorization`                   | Expo SecureStore              | Axios response interceptor — mismo patron singleton                         |
 
 Ambas plataformas evitan **concurrent 401 storms**: si multiples requests fallan con 401 al mismo tiempo, solo se lanza un unico refresh; las demas peticiones esperan la misma promesa (via `let refreshPromise: Promise | null = null`).
 
@@ -513,8 +513,10 @@ Repositories live in the folder of the **domain owner** that controls the entity
 
 - `users/users.repository.ts` — Users own their own lifecycle
 - `properties/properties.repository.ts` — Properties are standalone features
-- `maintenance-plans/tasks.repository.ts` — Tasks are domain children of MaintenancePlans (no independent lifecycle)
-- `maintenance-plans/task-logs.repository.ts` — TaskLogs are always in context of a task
-- `maintenance-plans/task-notes.repository.ts` — TaskNotes are always in context of a task
+- `tasks/tasks.repository.ts` — Tasks were extracted to their own module (`TasksModule`) but remain domain children of MaintenancePlans
+- `tasks/task-audit-log.repository.ts` — TaskAuditLogs are always in context of a task
+- `maintenance-plans/maintenance-plans.repository.ts` — Plans own the plan lifecycle; `TasksModule` imports `MaintenancePlansRepository` directly (dual-provider to avoid circular dep)
+
+**Note on dual-provider:** Both `TasksModule` and `MaintenancePlansModule` register `MaintenancePlansRepository` as a provider. This avoids `forwardRef()` with the circular import chain. Both instances are stateless (pure BaseRepository subclass).
 
 **Rule**: If entity X is always created/deleted in the context of entity Y, X's repository lives in Y's module folder.
