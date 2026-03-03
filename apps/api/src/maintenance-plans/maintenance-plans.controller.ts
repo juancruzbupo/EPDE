@@ -48,12 +48,14 @@ export class MaintenancePlansController {
   ) {}
 
   @Get()
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async listPlans(@CurrentUser() user: { id: string; role: string }) {
     const data = await this.plansService.listPlans(user);
     return { data };
   }
 
   @Get('tasks')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async listAllTasks(
     @CurrentUser() user: { id: string; role: string },
     @Query('status') status?: string,
@@ -67,6 +69,7 @@ export class MaintenancePlansController {
   }
 
   @Get(':id')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async getPlan(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: { id: string; role: string }) {
     const data = await this.plansService.getPlan(id, user);
     return { data };
@@ -122,6 +125,7 @@ export class MaintenancePlansController {
   }
 
   @Get(':id/tasks/:taskId')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async getTaskDetail(
     @Param('taskId', ParseUUIDPipe) taskId: string,
     @CurrentUser() user: { id: string; role: string },
@@ -132,6 +136,7 @@ export class MaintenancePlansController {
   }
 
   @Post(':id/tasks/:taskId/complete')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async completeTask(
     @Param('taskId', ParseUUIDPipe) taskId: string,
     @Body(new ZodValidationPipe(completeTaskSchema)) dto: CompleteTaskInput,
@@ -142,6 +147,7 @@ export class MaintenancePlansController {
   }
 
   @Get(':id/tasks/:taskId/logs')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async getTaskLogs(
     @Param('taskId', ParseUUIDPipe) taskId: string,
     @CurrentUser() user: { id: string; role: string },
@@ -152,6 +158,7 @@ export class MaintenancePlansController {
   }
 
   @Post(':id/tasks/:taskId/notes')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async addTaskNote(
     @Param('taskId', ParseUUIDPipe) taskId: string,
     @Body(new ZodValidationPipe(createTaskNoteSchema)) dto: CreateTaskNoteInput,
@@ -163,6 +170,7 @@ export class MaintenancePlansController {
   }
 
   @Get(':id/tasks/:taskId/notes')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async getTaskNotes(
     @Param('taskId', ParseUUIDPipe) taskId: string,
     @CurrentUser() user: { id: string; role: string },

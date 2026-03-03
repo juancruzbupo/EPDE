@@ -22,11 +22,13 @@ import {
   refreshSchema,
   CLIENT_TYPE_HEADER,
   CLIENT_TYPES,
+  UserRole,
 } from '@epde/shared';
 import type { LoginInput, SetPasswordInput, RefreshInput } from '@epde/shared';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
 
 const ACCESS_COOKIE_NAME = 'access_token';
 const REFRESH_COOKIE_NAME = 'refresh_token';
@@ -134,6 +136,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
   async logout(
     @CurrentUser() user: { id: string; jti?: string; family?: string; exp?: number },
@@ -157,6 +160,7 @@ export class AuthController {
   }
 
   @Get('me')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async getMe(@CurrentUser('id') userId: string) {
     const user = await this.authService.getMe(userId);
     return { data: user };

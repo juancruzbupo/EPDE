@@ -86,21 +86,20 @@ export class DashboardRepository {
 
     const taskWhere = {
       maintenancePlanId: { in: planIds },
-      deletedAt: null,
     };
 
     const [pendingTasks, overdueTasks, upcomingTasks, completedThisMonth] = await Promise.all([
-      this.prisma.task.count({
+      this.prisma.softDelete.task.count({
         where: { ...taskWhere, status: 'PENDING' },
       }),
-      this.prisma.task.count({
+      this.prisma.softDelete.task.count({
         where: {
           ...taskWhere,
           nextDueDate: { lt: now },
           status: { not: 'COMPLETED' },
         },
       }),
-      this.prisma.task.count({
+      this.prisma.softDelete.task.count({
         where: {
           ...taskWhere,
           nextDueDate: { gte: now, lte: thirtyDaysFromNow },
@@ -141,9 +140,8 @@ export class DashboardRepository {
     const now = new Date();
     const thirtyDaysFromNow = addDays(now, 30);
 
-    return this.prisma.task.findMany({
+    return this.prisma.softDelete.task.findMany({
       where: {
-        deletedAt: null,
         maintenancePlan: {
           property: { userId, deletedAt: null },
         },

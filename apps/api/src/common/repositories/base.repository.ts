@@ -65,6 +65,14 @@ export abstract class BaseRepository<T, M extends PrismaModelName = PrismaModelN
     return (this.prisma as any)[this.modelName];
   }
 
+  /**
+   * Finds a record by primary key.
+   * ⚠️ Owner-agnostic by design — does NOT filter by userId or any ownership field.
+   * For CLIENT-accessible endpoints, always verify ownership in the service layer:
+   *   - Listados: add `where.property = { userId: user.id }` before calling findMany
+   *   - getById: check `record.userId === user.id` and throw ForbiddenException if not
+   *   - Use findByIdSelect() for type-safe ownership field access
+   */
   async findById(id: string, include?: Record<string, unknown>): Promise<T | null> {
     return this.model.findUnique({ where: { id }, ...(include && { include }) });
   }

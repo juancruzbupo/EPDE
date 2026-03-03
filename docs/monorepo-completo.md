@@ -62,7 +62,7 @@ epde/
 │   │   │   ├── task-templates/        # Templates de tareas por categoria
 │   │   │   ├── category-templates/   # Templates de categorias
 │   │   │   ├── notifications/        # Sistema de notificaciones (NotificationsHandlerService + BullMQ queues)
-│   │   │   ├── dashboard/            # Estadisticas agregadas
+│   │   │   ├── dashboard/            # Estadisticas agregadas (DashboardRepository standalone — queries multi-modelo)
 │   │   │   ├── email/                # Servicio de emails (Resend)
 │   │   │   ├── upload/               # Upload a Cloudflare R2
 │   │   │   ├── scheduler/            # Cron jobs (3 diarios, distributed lock)
@@ -100,8 +100,8 @@ epde/
 │   │   │   │       ├── clients/      # CRUD clientes (ADMIN)
 │   │   │   │       ├── properties/   # CRUD propiedades
 │   │   │   │       ├── categories/   # CRUD categorias (ADMIN)
-│   │   │   │       ├── planes/       # Planes de mantenimiento (stub)
-│   │   │   │       ├── tareas/       # Tareas globales (stub)
+│   │   │   │       ├── maintenance-plans/ # Planes de mantenimiento
+│   │   │   │       ├── tasks/        # Tareas globales
 │   │   │   │       ├── budgets/      # Presupuestos
 │   │   │   │       ├── service-requests/  # Solicitudes
 │   │   │   │       └── notifications/     # Notificaciones
@@ -342,14 +342,22 @@ feature/
   feature.service.spec.ts   # Unit tests
 ```
 
-**Excepciones:** No todos los modulos siguen la estructura completa. Ver tabla de excepciones en `docs/architecture.md` (seccion "Excepciones al Module Pattern"). Ejemplos: `users` (sin controller), `upload` (sin repository), `scheduler` (sin controller ni repository).
+**Excepciones documentadas:**
+
+| Modulo | Excepcion | Razon |
+| ------ | --------- | ----- |
+| `users` | Sin controller | CRUD de usuarios expuesto via `clients/` — no tiene endpoints directos |
+| `upload` | Sin repository | Solo interactua con Cloudflare R2, no persiste en DB |
+| `scheduler` | Sin controller ni repository | Solo cron jobs — sin endpoints REST ni acceso a datos propios |
+| `email` | Sin controller ni repository | Servicio auxiliar de envio — invocado por `notifications/` |
+| `dashboard` | Repository standalone (no extiende BaseRepository) | Queries de agregacion multi-modelo (JOINs entre User, Task, Budget, ServiceRequest) que no encajan en el patron CRUD de un solo modelo |
 
 ### P4: Guard Composition
 
 Tres guards globales en orden via `APP_GUARD`:
 
 1. **JwtAuthGuard** — Valida JWT. Salta `@Public()` endpoints
-2. **RolesGuard** — Valida existencia del user en el request, luego verifica `user.role` contra `@Roles()`. Sin decorator = permite todo
+2. **RolesGuard** — Verifica `user.role` contra `@Roles()`. **Sin decorator = deniega (403)** — deny-by-default para prevenir escalation of privilege. Todo endpoint autenticado requiere `@Roles()` explicito
 3. **ThrottlerGuard** — Rate limiting (10/s corto, 60/10s medio, 5/min login, 3/hora + 1/5s burst set-password)
 
 ### P5: Decorators Personalizados
@@ -577,15 +585,19 @@ Casos de uso: token rotation (families), token blacklist (JTIs), distributed loc
 }
 ```
 
-**Mobile** (`global.css`): Usa `@theme inline` directamente con NativeWind:
+**Mobile** (`global.css`): Usa `@theme inline` directamente con NativeWind (NativeWind usa prefijo `--color-*`, a diferencia de web que usa `var(--primary)` via CSS custom properties):
 
 ```css
 @theme inline {
-  --color-primary: #c4704b;
-  --color-background: #fafaf8;
+  --color-primary: #c4704b;    /* fuente: DESIGN_TOKENS_LIGHT.primary */
+  --color-background: #fafaf8; /* fuente: DESIGN_TOKENS_LIGHT.background */
   --radius: 0.625rem;
 }
 ```
+
+> **SSoT:** Los valores de color deben coincidir con `DESIGN_TOKENS_LIGHT` en `@epde/shared/constants/design-tokens.ts`.
+> Al cambiar un color: actualizar primero `design-tokens.ts`, luego propagar a `globals.css` (web) y `global.css` (mobile).
+> Un test en `apps/mobile` verifica la sincronizacion de los valores clave.
 
 ### Spacing & Radius
 
@@ -736,10 +748,10 @@ const form = useForm<MyInput>({
 
 PostgreSQL 16, ORM Prisma 6, Docker Compose para desarrollo.
 
-### Modelo de Datos (14 entidades)
+### Modelo de Datos (15 modelos)
 
 ```
-User ─1:N─ Property ─1:1─ MaintenancePlan ─1:N─ Task
+User ─1:N─ Property ─1:1─ MaintenancePlan ─1:N─ Task ─1:N─ TaskAuditLog
   │                │                                │
   │                ├─1:N─ BudgetRequest ─1:N─ BudgetLineItem
   │                │         └─1:1─ BudgetResponse
@@ -751,7 +763,11 @@ User ─1:N─ Property ─1:1─ MaintenancePlan ─1:N─ Task
   └─1:N─ Notification
 
 Category ─1:N─ Task
+CategoryTemplate ─1:N─ TaskTemplate
 ```
+
+**Nota:** `TaskAuditLog` registra el historial de cambios de cada tarea (before/after snapshot).
+`CategoryTemplate`/`TaskTemplate` son plantillas de configuracion inicial — no estan en el diagrama principal.
 
 ### Enums (11)
 
@@ -759,7 +775,23 @@ Category ─1:N─ Task
 
 ### Soft Delete
 
-Modelos con `deletedAt: DateTime?`: User, Property, Task, Category, BudgetRequest, ServiceRequest. Condicion: `!('deletedAt' in ...)` para chequear presencia de clave.
+Modelos con `deletedAt: DateTime?`: User, Property, Task, Category, BudgetRequest, ServiceRequest.
+La extension Prisma en `PrismaService` aplica `deletedAt: null` automaticamente via `hasDeletedAtKey()` (inspecciona nivel raiz + `AND/OR/NOT` recursivamente).
+
+**Scope de soft delete — por que los demas modelos NO lo tienen:**
+
+| Modelo sin soft delete | Razon |
+| ---------------------- | ----- |
+| `MaintenancePlan`      | Ciclo de vida ligado a Property — si la property se elimina, el plan no tiene sentido independiente |
+| `Notification`         | Efimeras por naturaleza — marcar leida/no-leida es suficiente; borrado fisico no tiene impacto |
+| `TaskLog`              | Audit trail inmutable — nunca debe eliminarse; restrict delete del User que lo creo |
+| `TaskNote`             | Notas de historial — restrict delete; perder notas seria un bug de UX |
+| `TaskAuditLog`         | Audit trail de cambios de campo — inmutable por diseno |
+| `BudgetLineItem`       | Cascade delete con BudgetRequest — si el presupuesto se elimina, los items tambien |
+| `BudgetResponse`       | Cascade delete con BudgetRequest |
+| `ServiceRequestPhoto`  | Cascade delete con ServiceRequest |
+| `CategoryTemplate`     | Templates de configuracion — sin soft delete, administradas por ADMIN |
+| `TaskTemplate`         | Templates de configuracion — sin soft delete |
 
 ### Tipos Decimal
 

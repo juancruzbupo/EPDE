@@ -18,7 +18,9 @@ function getDevApiUrl(): string {
   return 'http://localhost:3001/api/v1';
 }
 
-const API_BASE_URL = __DEV__ ? getDevApiUrl() : 'https://api.epde.com.ar/api/v1';
+const API_BASE_URL = __DEV__
+  ? getDevApiUrl()
+  : (process.env.EXPO_PUBLIC_API_URL ?? 'https://api.epde.com.ar/api/v1');
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,

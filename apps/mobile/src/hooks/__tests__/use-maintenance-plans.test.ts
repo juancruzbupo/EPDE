@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
-import { QUERY_KEYS } from '@epde/shared';
+import { QUERY_KEYS } from '@/lib/query-keys';
 import {
   usePlans,
   useAllTasks,

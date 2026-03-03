@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Prisma } from '@prisma/client';
 import type { ZodObject, ZodRawShape } from 'zod';
-import { PrismaService, SOFT_DELETABLE_MODELS } from './prisma.service';
+import { PrismaService, SOFT_DELETABLE_MODELS, hasDeletedAtKey } from './prisma.service';
 import { createPropertySchema, createTaskSchema, createBudgetRequestSchema } from '@epde/shared';
 
 describe('PrismaService', () => {
@@ -83,6 +83,33 @@ describe('PrismaService soft-delete consistency', () => {
     for (const modelName of SOFT_DELETABLE_MODELS) {
       expect(modelsWithDeletedAt.has(modelName)).toBe(true);
     }
+  });
+});
+
+describe('hasDeletedAtKey – nested edge cases', () => {
+  it('returns true when deletedAt is at root level', () => {
+    expect(hasDeletedAtKey({ deletedAt: null })).toBe(true);
+    expect(hasDeletedAtKey({ deletedAt: { not: null } })).toBe(true);
+  });
+
+  it('returns false for empty where', () => {
+    expect(hasDeletedAtKey({})).toBe(false);
+  });
+
+  it('returns true when deletedAt is inside AND array', () => {
+    expect(hasDeletedAtKey({ AND: [{ deletedAt: null }, { status: 'ACTIVE' }] })).toBe(true);
+  });
+
+  it('returns true when deletedAt is inside OR array', () => {
+    expect(hasDeletedAtKey({ OR: [{ deletedAt: null }] })).toBe(true);
+  });
+
+  it('returns true when deletedAt is inside NOT object', () => {
+    expect(hasDeletedAtKey({ NOT: { deletedAt: { not: null } } })).toBe(true);
+  });
+
+  it('returns false when no deletedAt exists in nested operators', () => {
+    expect(hasDeletedAtKey({ AND: [{ status: 'ACTIVE' }], OR: [{ name: 'x' }], NOT: { role: 'ADMIN' } })).toBe(false);
   });
 });
 

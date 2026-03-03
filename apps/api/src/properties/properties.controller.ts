@@ -19,6 +19,7 @@ export class PropertiesController {
   constructor(private readonly propertiesService: PropertiesService) {}
 
   @Get()
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async listProperties(
     @Query(new ZodValidationPipe(propertyFiltersSchema)) filters: PropertyFiltersInput,
     @CurrentUser() user: { id: string; role: string },
@@ -27,6 +28,7 @@ export class PropertiesController {
   }
 
   @Get(':id')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async getProperty(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: { id: string; role: string }) {
     const data = await this.propertiesService.getProperty(id, user);
     return { data };
@@ -43,6 +45,7 @@ export class PropertiesController {
   }
 
   @Patch(':id')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async updateProperty(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updatePropertySchema)) dto: UpdatePropertyInput,

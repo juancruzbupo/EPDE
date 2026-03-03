@@ -27,6 +27,9 @@
 15. **Tokens del design system** — Usar `text-destructive` (no `text-red-600`), `bg-destructive/10` (no `bg-red-50`), `bg-background` (no `bg-white`). Los style-maps importan variantes de Badge desde `@epde/shared/constants/badge-variants`
 16. **`ParseUUIDPipe` en todos los path params de ID** — Todos los endpoints con `:id`, `:taskId`, `:categoryId`, etc. usan `@Param('id', ParseUUIDPipe) id: string` (como clase, sin `new`). Retorna HTTP 400 ante UUIDs inválidos en lugar de propagar un error Prisma (HTTP 500). Nunca omitir el pipe en path params de entidad.
 17. **`maxPages` en infinite queries** — Todo `useInfiniteQuery` (web y mobile) DEBE incluir `maxPages: 10` para acotar memoria. Sin este limite, listas infinitas acumulan paginas indefinidamente
+18. **Ownership Pattern en endpoints CLIENT** — Todo endpoint CLIENT-accessible DEBE filtrar por `userId` en la capa de service. Para listados: `where.property = { userId: user.id }`. Para getById: verificar `resource.userId === user.id` o `resource.property.userId === user.id` y lanzar `ForbiddenException` si no coincide. `BaseRepository.findById()` es owner-agnostic por diseno — la verificacion es responsabilidad del service
+19. **Rutas URL en ingles** — Las rutas URL de la web usan ingles: `/maintenance-plans`, `/tasks`, `/budgets`, `/properties`. Los display strings (PageHeader, sidebar labels, breadcrumbs) van en espanol. NUNCA mezclar: si la ruta es `/tasks`, el breadcrumb es "Tareas"
+20. **`@Roles()` en todos los endpoints autenticados** — Todo endpoint no-`@Public()` DEBE tener `@Roles(UserRole.ADMIN)`, `@Roles(UserRole.CLIENT, UserRole.ADMIN)`, o `@Roles(UserRole.CLIENT)` explicito. El RolesGuard deniega por defecto si no hay decorator — esto es intencional para prevenir escalation of privilege silencioso
 
 ### NUNCA
 
@@ -45,6 +48,8 @@
 13. **NUNCA crear `<Label>` sin `htmlFor` vinculado a un `id`** — Accesibilidad de formularios
 14. **NUNCA usar `useInfiniteQuery` sin `maxPages`** — Acotar siempre a `maxPages: 10`
 15. **NUNCA usar debounce inline** — Usar el hook `useDebounce(value, delay)` de `@/hooks/use-debounce`
+16. **NUNCA dejar un endpoint sin `@Roles()` ni `@Public()`** — RolesGuard deniega por defecto. Un endpoint sin decorator retorna 403 para cualquier usuario autenticado
+17. **NUNCA exponer `QUERY_KEYS` en `@epde/shared`** — Son constantes frontend-only. Importar desde `@/lib/query-keys` en web y mobile respectivamente
 
 ---
 
@@ -382,7 +387,7 @@ export class BudgetsController {
 Tres guards globales via `APP_GUARD` en `app.module.ts`:
 
 1. **JwtAuthGuard** — Valida JWT. Salta `@Public()`. Verifica blacklist de JTI en Redis
-2. **RolesGuard** — Verifica `user.role`. Sin `@Roles()` = permite todos
+2. **RolesGuard** — Verifica `user.role` contra `@Roles()`. **Sin `@Roles()` = deniega (403)** — deny by default. Todo endpoint autenticado requiere `@Roles()` explicito o `@Public()`
 3. **ThrottlerGuard** — Rate limiting. Salta `@SkipThrottle()`
 
 Rate limits actuales:

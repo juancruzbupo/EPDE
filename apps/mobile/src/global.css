@@ -23,5 +23,8 @@
   --color-input: #e8ddd3;
   --color-ring: #c4704b;
   --color-success: #6b9b7a;
+  --color-success-foreground: #ffffff;
+  --color-warning: #d4a843;
+  --color-warning-foreground: #ffffff;
   --radius: 0.625rem;
 }

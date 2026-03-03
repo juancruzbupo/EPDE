@@ -13,6 +13,10 @@ import { PrismaService } from '../prisma/prisma.service';
  * It imports MaintenancePlansRepository (from maintenance-plans/) because TaskLifecycleService
  * needs to verify plan existence and property ownership for authorization checks.
  * MaintenancePlansModule imports this module to access TaskLifecycleService and TaskNotesService.
+ *
+ * Note: MaintenancePlansRepository is also provided by MaintenancePlansModule — dual instantiation
+ * is safe because the repository is stateless (all state lives in PrismaService). Using forwardRef
+ * to share a single instance was considered but adds coupling risk for no functional benefit.
  */
 @Module({
   providers: [

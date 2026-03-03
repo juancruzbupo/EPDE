@@ -25,6 +25,7 @@ export class BudgetsController {
   constructor(private readonly budgetsService: BudgetsService) {}
 
   @Get()
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async listBudgets(
     @Query(new ZodValidationPipe(budgetFiltersSchema)) filters: BudgetFiltersInput,
     @CurrentUser() user: { id: string; role: string },
@@ -33,6 +34,7 @@ export class BudgetsController {
   }
 
   @Get(':id')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async getBudget(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: { id: string; role: string }) {
     const data = await this.budgetsService.getBudget(id, user);
     return { data };
@@ -60,6 +62,7 @@ export class BudgetsController {
   }
 
   @Patch(':id/status')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async updateStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updateBudgetStatusSchema)) dto: UpdateBudgetStatusInput,

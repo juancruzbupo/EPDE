@@ -13,6 +13,7 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Get()
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async findAll() {
     const data = await this.categoriesService.findAll();
     return { data };

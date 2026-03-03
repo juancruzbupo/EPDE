@@ -1,4 +1,3 @@
-export { QUERY_KEYS } from './query-keys';
 export * from './badge-variants';
 export * from './design-tokens';
 

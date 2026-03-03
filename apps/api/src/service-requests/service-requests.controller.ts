@@ -23,6 +23,7 @@ export class ServiceRequestsController {
   constructor(private readonly serviceRequestsService: ServiceRequestsService) {}
 
   @Get()
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async listRequests(
     @Query(new ZodValidationPipe(serviceRequestFiltersSchema)) filters: ServiceRequestFiltersInput,
     @CurrentUser() user: { id: string; role: string },
@@ -31,6 +32,7 @@ export class ServiceRequestsController {
   }
 
   @Get(':id')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async getRequest(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: { id: string; role: string }) {
     const data = await this.serviceRequestsService.getRequest(id, user);
     return { data };

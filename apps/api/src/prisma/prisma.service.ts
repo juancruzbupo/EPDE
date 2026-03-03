@@ -6,7 +6,7 @@ import { PrismaClient, Prisma } from '@prisma/client';
  * including inside AND, OR, and NOT logical operators.
  * Coverage: root-level, AND[], OR[], NOT (object or array).
  */
-function hasDeletedAtKey(where: Record<string, unknown>): boolean {
+export function hasDeletedAtKey(where: Record<string, unknown>): boolean {
   if ('deletedAt' in where) return true;
 
   for (const key of ['AND', 'OR', 'NOT']) {
