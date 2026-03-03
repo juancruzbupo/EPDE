@@ -6,7 +6,7 @@
 | --------------------------- | -------------------------------------------------- |
 | Nombre                      | EPDE — Estudio Profesional de Diagnostico Edilicio |
 | Tipografia principal        | DM Sans (Google Fonts)                             |
-| Tipografia headings landing | Playfair Display (Google Fonts)                    |
+| Tipografia headings landing | DM Serif Display (Google Fonts)                    |
 
 ## Colores
 
@@ -34,7 +34,7 @@ El proyecto usa Tailwind CSS 4 con `@theme inline` en `globals.css`. Los tokens 
 @import 'tailwindcss';
 
 @theme inline {
-  --font-heading: 'Playfair Display', serif;
+  --font-heading: var(--font-dm-serif), serif;
   --radius-sm: calc(var(--radius) - 4px);
   /* ... radius tokens ... */
   --color-background: var(--background);
@@ -72,7 +72,7 @@ El proyecto usa Tailwind CSS 4 con `@theme inline` en `globals.css`. Los tokens 
 ### Tipografia
 
 - **Body**: `DM Sans` — aplicado via `body { font-family }` en globals.css
-- **Headings (landing/auth)**: `Playfair Display` — clase utilitaria `font-heading` generada por `--font-heading` en `@theme inline`
+- **Headings (landing/auth)**: `DM Serif Display` — clase utilitaria `font-heading` generada por `--font-heading` en `@theme inline`. Cargada via `next/font/google` con variable `--font-dm-serif`
 
 ```tsx
 // Uso de font-heading
@@ -87,8 +87,8 @@ Sistema unificado de tipografia aplicado en web y mobile. Define combinaciones d
 
 | Clase             | Font                  | Size | Line Height | Weight |
 | ----------------- | --------------------- | ---- | ----------- | ------ |
-| `type-display-lg` | `var(--font-heading)` | 28px | 34px        | 700    |
-| `type-display-sm` | `var(--font-heading)` | 22px | 28px        | 700    |
+| `type-display-lg` | `var(--font-heading)` | 28px | 34px        | 400    |
+| `type-display-sm` | `var(--font-heading)` | 22px | 28px        | 400    |
 | `type-title-lg`   | inherit               | 18px | 24px        | 700    |
 | `type-title-md`   | inherit               | 16px | 22px        | 700    |
 | `type-title-sm`   | inherit               | 14px | 20px        | 700    |
@@ -119,21 +119,21 @@ import { TYPE } from '@/lib/fonts';
 <Text style={[TYPE.numberLg, { color }]}>{percent}</Text>
 ```
 
-| Token       | Font Family             | Size | Line Height |
-| ----------- | ----------------------- | ---- | ----------- |
-| `displayLg` | PlayfairDisplay_700Bold | 28px | 34px        |
-| `displaySm` | PlayfairDisplay_700Bold | 22px | 28px        |
-| `titleLg`   | DMSans_700Bold          | 18px | 24px        |
-| `titleMd`   | DMSans_700Bold          | 16px | 22px        |
-| `titleSm`   | DMSans_700Bold          | 14px | 20px        |
-| `bodyLg`    | DMSans_400Regular       | 16px | 22px        |
-| `bodyMd`    | DMSans_400Regular       | 14px | 20px        |
-| `bodySm`    | DMSans_400Regular       | 12px | 16px        |
-| `labelLg`   | DMSans_500Medium        | 14px | 20px        |
-| `labelMd`   | DMSans_500Medium        | 12px | 16px        |
-| `labelSm`   | DMSans_500Medium        | 11px | 14px        |
-| `numberLg`  | DMSans_700Bold          | 24px | 30px        |
-| `numberMd`  | DMSans_700Bold          | 18px | 24px        |
+| Token       | Font Family               | Size | Line Height |
+| ----------- | ------------------------- | ---- | ----------- |
+| `displayLg` | DMSerifDisplay_400Regular | 28px | 34px        |
+| `displaySm` | DMSerifDisplay_400Regular | 22px | 28px        |
+| `titleLg`   | DMSans_700Bold            | 18px | 24px        |
+| `titleMd`   | DMSans_700Bold            | 16px | 22px        |
+| `titleSm`   | DMSans_700Bold            | 14px | 20px        |
+| `bodyLg`    | DMSans_400Regular         | 16px | 22px        |
+| `bodyMd`    | DMSans_400Regular         | 14px | 20px        |
+| `bodySm`    | DMSans_400Regular         | 12px | 16px        |
+| `labelLg`   | DMSans_500Medium          | 14px | 20px        |
+| `labelMd`   | DMSans_500Medium          | 12px | 16px        |
+| `labelSm`   | DMSans_500Medium          | 11px | 14px        |
+| `numberLg`  | DMSans_700Bold            | 24px | 30px        |
+| `numberMd`  | DMSans_700Bold            | 18px | 24px        |
 
 **Nota:** En mobile, las clases NativeWind de tamano (`text-xs`, `text-sm`, `text-base`, etc.) se eliminaron porque el `fontSize` viene del TYPE. Solo se mantienen clases de color (`text-foreground`, `text-muted-foreground`, etc.).
 
@@ -268,6 +268,90 @@ export const myColumns: ColumnDef<MyType>[] = [
     cell: ({ row }) => <Badge variant="secondary">{STATUS_LABELS[row.original.status]}</Badge>,
   },
 ];
+```
+
+## Landing Page
+
+Pagina publica de presentacion del servicio EPDE. Archivo: `apps/web/src/components/landing/landing-page.tsx`.
+
+### Estructura (7 secciones + header + footer)
+
+| Seccion           | ID / Posicion | Contenido                                                                                    |
+| ----------------- | ------------- | -------------------------------------------------------------------------------------------- |
+| **Header**        | Fixed top     | Logo "EPDE" (`font-heading`) + boton CTA (Dashboard si autenticado, Login si no)             |
+| **Hero**          | Primera       | Subtitulo institucional + headline principal + CTA "Agendá tu diagnóstico" + link a #agendar |
+| **Problema**      | Segunda       | 3 cards: Desgaste silencioso, Improvisacion constante, Sin historial                         |
+| **Cómo funciona** | Tercera       | 3 pasos numerados con icono Lucide: Diagnostico → Plan → Seguimiento                         |
+| **Diferencial**   | Cuarta        | 4 filas comparativas (Minus vs Check): malo → bueno                                          |
+| **Qué incluye**   | Quinta        | 6 items con checkmark: evaluacion, prioridades, plan, carga digital, historial, acceso       |
+| **Lanzamiento**   | `#agendar`    | CTA principal con WhatsApp link — cupos limitados                                            |
+| **CTA Final**     | Septima       | Fondo `bg-foreground` invertido + CTA secundario a WhatsApp                                  |
+| **Footer**        | Ultima        | Logo + copyright + tagline                                                                   |
+
+### Animaciones
+
+Usa Framer Motion con variants de `lib/motion.ts`. Todas respetan `prefers-reduced-motion`:
+
+```tsx
+const { shouldAnimate } = useMotionPreference();
+
+const motionProps = shouldAnimate
+  ? { initial: 'hidden', whileInView: 'visible', viewport: { once: true, margin: '-60px' } }
+  : {};
+
+// Cada seccion usa staggerContainer + staggerItem/fadeIn/fadeInUp
+<motion.div variants={staggerContainer} {...motionProps}>
+  <motion.h2 variants={fadeInUp}>...</motion.h2>
+  {items.map(item => <motion.div key={...} variants={staggerItem}>...</motion.div>)}
+</motion.div>
+```
+
+### CTA y WhatsApp
+
+El CTA principal redirige a WhatsApp con mensaje pre-armado:
+
+```typescript
+const WHATSAPP_URL = 'https://wa.me/5493001234567?text=Hola%2C%20quiero%20agendar%20...';
+```
+
+### Clases tipograficas usadas
+
+La landing usa exclusivamente las clases `type-*` y `font-heading` del design system:
+
+- `font-heading` — headline principal, numeros de pasos, logo, titulos de seccion
+- `type-label-md` — subtitulos de seccion (uppercase, tracking-widest)
+- `type-body-lg` / `type-body-md` / `type-body-sm` — parrafos y descripciones
+- `type-title-sm` — titulos de cards
+
+### Tokens de color
+
+Solo usa tokens semanticos de Tailwind, sin colores hardcodeados:
+
+| Token                        | Uso en landing                       |
+| ---------------------------- | ------------------------------------ |
+| `text-primary`               | Logo, subtitulos, iconos, checkmarks |
+| `text-foreground`            | Titulos principales                  |
+| `text-muted-foreground`      | Parrafos, descripciones              |
+| `bg-muted/30`, `bg-muted/40` | Fondos alternados de seccion         |
+| `bg-foreground`              | Seccion CTA final (invertida)        |
+| `text-background`            | Texto sobre seccion invertida        |
+| `border-primary/20`          | Bordes de cards destacados           |
+| `bg-primary/[0.03]`          | Fondo sutil de cards positivos       |
+| `border-border`              | Bordes neutros                       |
+
+### Metadata (SEO)
+
+Definida en `apps/web/src/app/page.tsx` como Server Component:
+
+```typescript
+export const metadata: Metadata = {
+  title: 'EPDE — Diagnóstico y Mantenimiento Preventivo Profesional para Viviendas',
+  description: 'Servicio profesional de diagnóstico arquitectónico...',
+  openGraph: {
+    title: 'EPDE — La nueva forma profesional de cuidar tu casa',
+    type: 'website',
+  },
+};
 ```
 
 ## Layout
@@ -459,7 +543,7 @@ La app mobile replica el design system web usando **NativeWind 5** (Tailwind CSS
 ### Tipografia Mobile
 
 - **Body**: DM Sans (`@expo-google-fonts/dm-sans`) — Regular, Medium, Bold
-- **Headings**: Playfair Display (`@expo-google-fonts/playfair-display`) — Bold
+- **Headings**: DM Serif Display (`@expo-google-fonts/dm-serif-display`) — Regular (400)
 - Cargadas via `expo-font` en el root layout
 
 ### Componentes Mobile

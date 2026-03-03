@@ -385,7 +385,7 @@ Coverage actual: API ~15% (3 suites e2e), Web 0%, Shared 0%. El dashboard mezcla
 #### Frontend Polish
 
 - [x] **6.8 — Centralizar fontFamily en Tailwind config**
-  - Definido `--font-heading: 'Playfair Display', serif` en `@theme inline` (Tailwind v4)
+  - Definido `--font-heading: var(--font-dm-serif), serif` en `@theme inline` (Tailwind v4). Fuente migrada de Playfair Display a DM Serif Display
   - Reemplazados 4 inline `style={{ fontFamily }}` por `className="font-heading"`
   - Archivos: `globals.css`, `login/page.tsx`, `set-password/page.tsx`, `sidebar.tsx`, `header.tsx`
 

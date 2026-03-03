@@ -922,7 +922,7 @@ apiClient.interceptors.response.use(null, async (error) => {
 ```typescript
 // NativeWind classes + font styles
 <ScrollView className="bg-background flex-1" contentContainerStyle={{ padding: 16 }}>
-  <Text style={{ fontFamily: 'PlayfairDisplay_700Bold' }} className="text-foreground text-2xl mb-4">
+  <Text style={fonts.heading} className="text-foreground text-2xl mb-4">
     Titulo
   </Text>
   <View className="border-border bg-card rounded-xl border p-4">
@@ -933,7 +933,7 @@ apiClient.interceptors.response.use(null, async (error) => {
 </ScrollView>
 ```
 
-**Fonts:** Heading = `PlayfairDisplay_700Bold`, Body = `DMSans_400Regular`/`500Medium`/`700Bold`
+**Fonts:** Heading = `DMSerifDisplay_400Regular` (via `fonts.heading` from `@/lib/fonts`), Body = `DMSans_400Regular`/`500Medium`/`700Bold`
 
 ### 5.4 Modal Pattern (con upload)
 

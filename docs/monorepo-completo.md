@@ -534,7 +534,7 @@ Casos de uso: token rotation (families), token blacklist (JTIs), distributed loc
 | ------------ | -------------------------------------------------- |
 | Nombre       | EPDE — Estudio Profesional de Diagnostico Edilicio |
 | Body font    | DM Sans (Google Fonts)                             |
-| Heading font | Playfair Display (Google Fonts, serif)             |
+| Heading font | DM Serif Display (Google Fonts, serif)             |
 | Idioma UI    | Espanol (Argentina)                                |
 | Iconos       | Lucide React (web) / Emojis (mobile tabs)          |
 
@@ -574,7 +574,7 @@ Casos de uso: token rotation (families), token blacklist (JTIs), distributed loc
 ```css
 @theme inline {
   --color-primary: var(--primary);
-  --font-heading: 'Playfair Display', serif;
+  --font-heading: var(--font-dm-serif), serif;
   --radius-sm: calc(var(--radius) - 4px);
 }
 

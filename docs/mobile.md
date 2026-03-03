@@ -19,7 +19,7 @@ App nativa para clientes (rol `CLIENT`) construida con Expo + React Native. Repl
 | Animaciones    | react-native-reanimated                        | 4.1     |
 | Gestos         | react-native-gesture-handler                   | 2.28    |
 | Haptics        | expo-haptics                                   | 15      |
-| Tipografia     | @expo-google-fonts (DM Sans, Playfair Display) | -       |
+| Tipografia     | @expo-google-fonts (DM Sans, DM Serif Display) | -       |
 | Shared         | @epde/shared (workspace)                       | -       |
 
 ## Estructura de Archivos
