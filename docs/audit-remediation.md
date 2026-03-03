@@ -959,6 +959,34 @@ pnpm build && pnpm lint  # Todo green (0 errores)
 
 ---
 
+## Fase 16 — Hardening Auditorías 4ª–6ª ronda
+
+> **Prioridad:** Alta
+> **Dependencias:** Fase 14 completada (puede ejecutarse en paralelo con Fase 15)
+> **Issues que resuelve:** AuthAuditLog DB persistence, task auth bypass, completeTask status guard, watchdog anti-pattern, query optimization
+
+### 16.1 — Seguridad
+
+- [x] **C1+C2 — `assertTaskAccess()` en `MaintenancePlansService`** — `getTaskDetail`, `getTaskLogs`, `getTaskNotes` y `addTaskNote` ahora verifican ownership via `assertTaskAccess()`. Un CLIENT no puede acceder a tareas de otros propietarios (antes los parámetros `_user` eran ignorados — auth bypass silencioso)
+
+### 16.2 — Correctness
+
+- [x] **M1 — `completeTask` status guard** — `COMPLETABLE_STATUSES = ['PENDING', 'UPCOMING', 'OVERDUE']`. Lanza `BadRequestException` si la tarea está en un estado no completable (ej: ya `COMPLETED`). Archivo: `task-lifecycle.service.ts`
+- [x] **B1 — Watchdog recursive `setTimeout`** — Reemplaza `setInterval` en `DistributedLockService` para evitar invocaciones concurrentes del watchdog cuando Redis es lento. Archivo: `distributed-lock.service.ts`
+
+### 16.3 — Persistencia y Performance
+
+- [x] **M4 — `AuthAuditLog` DB persistence** — `AuthAuditService` ahora persiste todos los eventos en la tabla `AuthAuditLog` via fire-and-forget (`void promise.catch(log)`). Un fallo de DB nunca bloquea el flujo de auth. Migración: `20260303010202_add_auth_audit_log`. Archivo: `auth-audit.service.ts`
+- [x] **M1 (perf) — Eliminar subquery en budgets y service-requests** — `where.property = { userId }` (subquery implícita via JOIN) reemplazado por `where.requestedBy = userId`, activando el índice compuesto `@@index([requestedBy, status])` ya existente. Archivos: `budgets.repository.ts`, `service-requests.repository.ts`
+
+### Verificación
+
+```bash
+pnpm typecheck && pnpm lint && pnpm test  # 538 tests passing
+```
+
+---
+
 ## Resumen de progreso (final)
 
 | Fase | Descripcion               | Estado           | Tareas |
@@ -976,8 +1004,12 @@ pnpm build && pnpm lint  # Todo green (0 errores)
 | 11   | Remediacion ronda 10      | `[x] Completado` | 54     |
 | 12   | Auditoria UI/UX a11y      | `[x] Completado` | 30     |
 | 13   | Consistencia frontend     | `[x] Completado` | 18     |
+| 15   | Auditoria staff-level     | `[ ] Pendiente`  | 11     |
+| 16   | Hardening auditorias 4-6  | `[x] Completado` | 5      |
 
-**Progreso total: 226 / 226 tareas** (+ 6 diferidas con justificacion + 4 roadmap items)
+**Progreso total: 231 / 242 tareas** (+ 6 diferidas con justificacion + 4 roadmap items; 11 en Fase 15 pendientes)
+
+**Tests totales: 538** (281 API + 187 Shared + 46 Web + 24 Mobile)
 
 ---
 

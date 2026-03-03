@@ -2,7 +2,7 @@
 
 > **Este documento es la referencia autoritativa para cualquier AI que trabaje en el proyecto.**
 > Seguir estos patrones al pie de la letra garantiza consistencia y calidad.
-> Ultima actualizacion: Febrero 2026.
+> Ultima actualizacion: Marzo 2026.
 
 ---
 
@@ -260,7 +260,7 @@ export class BudgetsService {
   constructor(
     private readonly repository: BudgetsRepository, // datos
     private readonly propertiesRepository: PropertiesRepository, // cross-module
-    private readonly eventEmitter: EventEmitter2, // eventos async
+    private readonly notificationsHandler: NotificationsHandlerService, // fire-and-forget
   ) {}
 
   async listBudgets(filters: BudgetFiltersInput, user: CurrentUserPayload) {
@@ -290,10 +290,10 @@ export class BudgetsService {
 
 **Reglas del service:**
 
-- Inyectar SOLO repositorios y servicios auxiliares (EventEmitter, EmailQueueService, NotificationQueueService)
-- Verificar permisos: CLIENT solo accede a sus recursos via `property.userId`
+- Inyectar SOLO repositorios y servicios auxiliares (NotificationsHandlerService, EmailQueueService)
+- Verificar permisos: CLIENT solo accede a sus recursos via ownership checks
 - Lanzar excepciones NestJS: `NotFoundException`, `ForbiddenException`, `BadRequestException`
-- Emitir eventos para operaciones async: `this.eventEmitter.emit('budget.created', payload)` — los listeners enqueue en BullMQ (notificaciones y emails)
+- Disparar notificaciones/emails con inyeccion directa fire-and-forget: `void this.notificationsHandler.handleBudgetCreated({ ... })` — EventEmitter2 fue eliminado (Fase 15)
 
 ### 3.4 Controller Pattern
 

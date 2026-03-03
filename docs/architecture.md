@@ -294,8 +294,9 @@ Login → LocalStrategy (email+password) → JWT access + refresh tokens
 
 **Auth Audit Logging:**
 
-- `AuthAuditService` registra eventos de auth en formato JSON estructurado (pino)
+- `AuthAuditService` registra eventos en formato JSON estructurado (pino) **y los persiste de forma fire-and-forget en la tabla `AuthAuditLog` (PostgreSQL)**. La persistencia usa `void promise.catch(log)` — un fallo de DB nunca bloquea el flujo de auth
 - Eventos: `login` (userId, email, clientType, ip), `logout` (userId, jti), `login_failed` (email, reason, ip), `password_set` (userId), `token_reuse_attack` (family, userId)
+- Modelo `AuthAuditLog`: `userId` nullable (logins fallidos no tienen userId), `metadata Json` para datos específicos del evento. Índices en `(userId, createdAt)` y `(event, createdAt)`
 - Inyectado en `AuthService` y `TokenService`
 
 **Otros:**
