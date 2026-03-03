@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import { apiClient } from '../api-client';
+import { validateUpload } from '@epde/shared';
 
 export async function uploadFile(uri: string, folder: string): Promise<string> {
   const formData = new FormData();
@@ -7,11 +8,14 @@ export async function uploadFile(uri: string, folder: string): Promise<string> {
   if (Platform.OS === 'web') {
     const response = await fetch(uri);
     const blob = await response.blob();
+    const error = validateUpload(blob.type, blob.size);
+    if (error) throw new Error(error.message);
     formData.append('file', blob, 'photo.jpg');
   } else {
     const filename = uri.split('/').pop() ?? 'photo.jpg';
     const match = /\.(\w+)$/.exec(filename);
     const type = match ? `image/${match[1]}` : 'image/jpeg';
+    // Native: file size unknown before upload — API validates server-side
     formData.append('file', { uri, name: filename, type } as unknown as Blob);
   }
 

@@ -4,12 +4,11 @@ import { ClientsService } from './clients.service';
 import { ClientsRepository } from './clients.repository';
 import { AuthModule } from '../auth/auth.module';
 import { EmailModule } from '../email/email.module';
-import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
   imports: [EmailModule, AuthModule],
   controllers: [ClientsController],
-  providers: [ClientsService, ClientsRepository, PrismaService],
+  providers: [ClientsService, ClientsRepository],
   exports: [ClientsService],
 })
 export class ClientsModule {}

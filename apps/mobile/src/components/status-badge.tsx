@@ -26,7 +26,7 @@ const variantStyles: Record<BadgeVariant, { bg: string; text: string }> = {
   secondary: { bg: 'bg-secondary', text: 'text-secondary-foreground' },
   destructive: { bg: 'bg-destructive', text: 'text-destructive-foreground' },
   outline: { bg: 'border-border bg-transparent border', text: 'text-foreground' },
-  success: { bg: 'bg-green-100', text: 'text-green-800' },
+  success: { bg: 'bg-success/15', text: 'text-success' },
 };
 
 export function StatusBadge({ label, variant = 'default' }: StatusBadgeProps) {

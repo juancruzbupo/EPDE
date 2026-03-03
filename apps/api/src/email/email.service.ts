@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
+import { DESIGN_TOKENS_LIGHT } from '@epde/shared';
 
 const BUDGET_STATUS_LABELS: Record<string, string> = {
   APPROVED: 'aprobado',
@@ -39,9 +40,9 @@ export class EmailService {
   private wrapEmailHtml(content: string): string {
     return `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #C4704B;">EPDE</h2>
+        <h2 style="color: ${DESIGN_TOKENS_LIGHT.primary};">EPDE</h2>
         ${content}
-        <hr style="border: none; border-top: 1px solid #E8DDD3; margin: 20px 0;" />
+        <hr style="border: none; border-top: 1px solid ${DESIGN_TOKENS_LIGHT.border}; margin: 20px 0;" />
         <p style="color: #999; font-size: 12px;">EPDE - Estudio Profesional de Diagnóstico Edilicio</p>
       </div>
     `;
@@ -50,7 +51,7 @@ export class EmailService {
   private ctaButton(href: string, text: string): string {
     return `
       <p style="text-align: center; margin: 30px 0;">
-        <a href="${escapeHtml(href)}" style="background-color: #C4704B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+        <a href="${escapeHtml(href)}" style="background-color: ${DESIGN_TOKENS_LIGHT.primary}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
           ${escapeHtml(text)}
         </a>
       </p>
@@ -115,7 +116,7 @@ export class EmailService {
       : `Recordatorio: ${taskName} vence pronto`;
 
     const statusText = isOverdue
-      ? `<p style="color: #dc2626; font-weight: bold;">Esta tarea está vencida desde el ${formattedDate}.</p>`
+      ? `<p style="color: ${DESIGN_TOKENS_LIGHT.destructive}; font-weight: bold;">Esta tarea está vencida desde el ${formattedDate}.</p>`
       : `<p>Esta tarea vence el <strong>${formattedDate}</strong>.</p>`;
 
     await this.resend.emails.send({
@@ -173,7 +174,7 @@ export class EmailService {
       html: this.wrapEmailHtml(`
         <p>Hola ${safeName},</p>
         <p>Tu presupuesto <strong>"${safeBudgetTitle}"</strong> fue cotizado por un monto total de:</p>
-        <p style="font-size: 24px; font-weight: bold; text-align: center; color: #C4704B; margin: 20px 0;">${formattedAmount}</p>
+        <p style="font-size: 24px; font-weight: bold; text-align: center; color: ${DESIGN_TOKENS_LIGHT.primary}; margin: 20px 0;">${formattedAmount}</p>
         <p>Ingresá a la plataforma para revisar el detalle y aprobarlo o rechazarlo.</p>
         ${this.ctaButton(`${this.frontendUrl}/budgets/${encodeURIComponent(budgetId)}`, 'Ver presupuesto')}
       `),

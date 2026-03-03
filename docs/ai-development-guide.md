@@ -30,10 +30,13 @@
 18. **Ownership Pattern en endpoints CLIENT** — Todo endpoint CLIENT-accessible DEBE filtrar por `userId` en la capa de service. Para listados: `where.property = { userId: user.id }`. Para getById: verificar `resource.userId === user.id` o `resource.property.userId === user.id` y lanzar `ForbiddenException` si no coincide. `BaseRepository.findById()` es owner-agnostic por diseno — la verificacion es responsabilidad del service
 19. **Rutas URL en ingles** — Las rutas URL de la web usan ingles: `/maintenance-plans`, `/tasks`, `/budgets`, `/properties`. Los display strings (PageHeader, sidebar labels, breadcrumbs) van en espanol. NUNCA mezclar: si la ruta es `/tasks`, el breadcrumb es "Tareas"
 20. **`@Roles()` en todos los endpoints autenticados** — Todo endpoint no-`@Public()` DEBE tener `@Roles(UserRole.ADMIN)`, `@Roles(UserRole.CLIENT, UserRole.ADMIN)`, o `@Roles(UserRole.CLIENT)` explicito. El RolesGuard deniega por defecto si no hay decorator — esto es intencional para prevenir escalation of privilege silencioso
+21. **`PrismaModule` global provee `PrismaService`** — NUNCA registrar `PrismaService` en `providers[]` de modulos individuales. `PrismaModule` es `@Global()` y se importa una sola vez en `AppModule`. Cada modulo recibe la misma instancia via DI
+22. **Badge variants usan tokens semanticos** — La variante `success` usa `bg-success/15 text-success` (web) y `bg-success/15 text-success` (mobile). NUNCA usar colores raw como `bg-green-100 text-green-800`
+23. **Upload validation client-side obligatoria** — Usar `validateUpload(mimeType, sizeBytes)` de `@epde/shared` antes de enviar al API. Web y mobile deben validar MIME type y tamano
 
 ### NUNCA
 
-1. **NUNCA inyectar `PrismaService` en un service** — Solo repositorios acceden a datos
+1. **NUNCA inyectar `PrismaService` en un service** — Solo repositorios acceden a datos. Tampoco registrar `PrismaService` en `providers[]` de modulos — viene del `PrismaModule` global
 2. **NUNCA usar `localStorage` para tokens** — Web usa cookies HttpOnly, mobile nativo usa SecureStore, mobile web usa sessionStorage
 3. **NUNCA usar class-validator o class-transformer** — Eliminados del proyecto
 4. **NUNCA usar magic strings para roles/status** — Importar de `@epde/shared`

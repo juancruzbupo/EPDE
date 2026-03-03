@@ -3,7 +3,7 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from './prisma/prisma.service';
+import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from './config/config.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
@@ -64,6 +64,7 @@ import { MetricsInterceptor } from './metrics/metrics.interceptor';
         };
       },
     }),
+    PrismaModule,
     RedisModule,
     HealthModule,
     MetricsModule,
@@ -84,7 +85,6 @@ import { MetricsInterceptor } from './metrics/metrics.interceptor';
   ],
   controllers: [],
   providers: [
-    PrismaService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },

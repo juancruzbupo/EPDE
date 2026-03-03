@@ -6,7 +6,7 @@ import { TaskSafetyService } from './task-safety.service';
 import { TasksRepository } from '../tasks/tasks.repository';
 import { NotificationsRepository } from '../notifications/notifications.repository';
 import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
-import { PrismaService } from '../prisma/prisma.service';
+
 import { NotificationsModule } from '../notifications/notifications.module';
 import { EmailModule } from '../email/email.module';
 import { RedisModule } from '../redis/redis.module';
@@ -20,7 +20,6 @@ import { RedisModule } from '../redis/redis.module';
     TasksRepository,
     NotificationsRepository,
     UserLookupRepository,
-    PrismaService,
   ],
 })
 export class SchedulerModule {}

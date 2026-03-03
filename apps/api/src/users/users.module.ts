@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersRepository } from './users.repository';
-import { PrismaService } from '../prisma/prisma.service';
 
 /**
  * UsersModule — full CRUD for the User entity.
@@ -14,7 +13,7 @@ import { PrismaService } from '../prisma/prisma.service';
  * subsystems to fetch admin IDs or email metadata without pulling in the full UsersModule.
  */
 @Module({
-  providers: [UsersService, UsersRepository, PrismaService],
+  providers: [UsersService, UsersRepository],
   exports: [UsersService],
 })
 export class UsersModule {}

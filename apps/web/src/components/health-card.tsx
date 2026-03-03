@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { AnimatedNumber } from '@/components/ui/animated-number';
 import { useMotionPreference, MOTION_DURATION } from '@/lib/motion';
+import { DESIGN_TOKENS_LIGHT } from '@epde/shared';
 
 interface HealthCardProps {
   totalTasks: number;
@@ -17,21 +18,36 @@ function getHealthInfo(total: number, overdue: number) {
       percent: 100,
       label: 'Sin tareas',
       colorClass: 'text-muted-foreground',
-      barColor: '#4a4542',
+      barColor: DESIGN_TOKENS_LIGHT.mutedForeground,
     };
   const percent = Math.round(((total - overdue) / total) * 100);
   if (percent > 90)
-    return { percent, label: 'Excelente', colorClass: 'text-green-600', barColor: '#6b9b7a' };
+    return {
+      percent,
+      label: 'Excelente',
+      colorClass: 'text-success',
+      barColor: DESIGN_TOKENS_LIGHT.success,
+    };
   if (percent > 70)
-    return { percent, label: 'Bueno', colorClass: 'text-primary', barColor: '#c4704b' };
+    return {
+      percent,
+      label: 'Bueno',
+      colorClass: 'text-primary',
+      barColor: DESIGN_TOKENS_LIGHT.primary,
+    };
   if (percent > 50)
     return {
       percent,
       label: 'Necesita atencion',
-      colorClass: 'text-yellow-600',
-      barColor: '#d4a843',
+      colorClass: 'text-warning',
+      barColor: DESIGN_TOKENS_LIGHT.warning,
     };
-  return { percent, label: 'Critico', colorClass: 'text-destructive', barColor: '#c45b4b' };
+  return {
+    percent,
+    label: 'Critico',
+    colorClass: 'text-destructive',
+    barColor: DESIGN_TOKENS_LIGHT.destructive,
+  };
 }
 
 export function HealthCard({ totalTasks, completedTasks, overdueTasks }: HealthCardProps) {
