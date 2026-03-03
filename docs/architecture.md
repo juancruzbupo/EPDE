@@ -498,3 +498,15 @@ Modulo global `RedisModule` (`redis/redis.module.ts`) con dos servicios:
 - Si el volumen excede la capacidad de un solo worker → agregar workers adicionales
 - Para procesamiento pesado (reportes PDF, facturacion) → crear queues separadas con prioridades
 - Para dead-letter queues → configurar `removeOnFail: false` y monitorear jobs fallidos
+
+### Repository Placement
+
+Repositories live in the folder of the **domain owner** that controls the entity's lifecycle:
+
+- `users/users.repository.ts` — Users own their own lifecycle
+- `properties/properties.repository.ts` — Properties are standalone features
+- `maintenance-plans/tasks.repository.ts` — Tasks are domain children of MaintenancePlans (no independent lifecycle)
+- `maintenance-plans/task-logs.repository.ts` — TaskLogs are always in context of a task
+- `maintenance-plans/task-notes.repository.ts` — TaskNotes are always in context of a task
+
+**Rule**: If entity X is always created/deleted in the context of entity Y, X's repository lives in Y's module folder.

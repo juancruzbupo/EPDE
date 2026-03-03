@@ -1,14 +1,16 @@
-/**
- * TasksRepository lives inside the `maintenance-plans/` module rather than `common/repositories/`
- * because Tasks are domain-children of MaintenancePlan: they cannot exist independently and
- * their business logic (reorder, complete-and-reschedule) is tightly coupled to the plan lifecycle.
- * Only MaintenancePlansModule and the Scheduler consume this repository.
- */
 import { Injectable } from '@nestjs/common';
 import { Task, TaskStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { BaseRepository } from '../common/repositories/base.repository';
+import { TASKS_MAX_TAKE } from '@epde/shared';
 import { addDays } from 'date-fns';
+
+/**
+ * TasksRepository lives in maintenance-plans/ because tasks are a domain child of MaintenancePlans.
+ * Tasks have no independent lifecycle outside a MaintenancePlan — they are always created,
+ * queried, and deleted in the context of a plan.
+ * If tasks ever become a standalone feature with their own lifecycle, move to apps/api/src/tasks/.
+ */
 
 @Injectable()
 export class TasksRepository extends BaseRepository<Task, 'task'> {
@@ -17,8 +19,8 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
   }
 
   async findAllForList(userId?: string, status?: string, take = 200) {
-    // Cap at 500 to prevent runaway queries. Default 200 covers any realistic single-user portfolio.
-    const safeTake = Math.min(take, 500);
+    // Cap at TASKS_MAX_TAKE to prevent runaway queries. Default 200 covers any realistic single-user portfolio.
+    const safeTake = Math.min(take, TASKS_MAX_TAKE);
     return this.model.findMany({
       where: {
         deletedAt: null,

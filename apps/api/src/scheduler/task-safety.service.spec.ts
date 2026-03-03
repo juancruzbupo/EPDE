@@ -64,5 +64,59 @@ describe('TaskSafetyService', () => {
         'PENDING',
       );
     });
+
+    it('should skip task without nextDueDate', async () => {
+      const taskWithoutDueDate = {
+        id: 'task-no-date',
+        recurrenceMonths: 12,
+        recurrenceType: 'ANNUAL',
+        nextDueDate: null,
+      };
+      mockTasksRepository.findStaleCompleted.mockResolvedValueOnce([taskWithoutDueDate]);
+      mockLockService.withLock.mockImplementation(async (_key, _ttl, fn) => {
+        await fn({ lockLost: false });
+      });
+
+      await service.safetySweepCompletedTasks();
+
+      // updateDueDateAndStatus should NOT be called since nextDueDate is null
+      expect(mockTasksRepository.updateDueDateAndStatus).not.toHaveBeenCalled();
+    });
+
+    it('should continue processing other tasks when one fails', async () => {
+      const task1 = {
+        id: 'task-fail',
+        recurrenceMonths: 12,
+        recurrenceType: 'ANNUAL',
+        nextDueDate: new Date('2025-01-01'),
+      };
+      const task2 = {
+        id: 'task-success',
+        recurrenceMonths: 12,
+        recurrenceType: 'ANNUAL',
+        nextDueDate: new Date('2025-01-01'),
+      };
+
+      mockTasksRepository.findStaleCompleted.mockResolvedValueOnce([task1, task2]);
+      mockLockService.withLock.mockImplementation(async (_key, _ttl, fn) => {
+        await fn({ lockLost: false });
+      });
+
+      // First call rejects, second resolves
+      mockTasksRepository.updateDueDateAndStatus
+        .mockRejectedValueOnce(new Error('DB error'))
+        .mockResolvedValueOnce(undefined);
+
+      await service.safetySweepCompletedTasks();
+
+      // Both tasks should have been attempted
+      expect(mockTasksRepository.updateDueDateAndStatus).toHaveBeenCalledTimes(2);
+      // Second task should have been processed despite first failure
+      expect(mockTasksRepository.updateDueDateAndStatus).toHaveBeenCalledWith(
+        'task-success',
+        expect.any(Date),
+        'PENDING',
+      );
+    });
   });
 });

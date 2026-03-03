@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from './prisma.service';
+import { Prisma } from '@prisma/client';
+import { PrismaService, SOFT_DELETABLE_MODELS } from './prisma.service';
 
 describe('PrismaService', () => {
   let service: PrismaService;
@@ -49,5 +50,36 @@ describe('PrismaService', () => {
       expect(extended.property).toBeDefined();
       expect(extended.task).toBeDefined();
     });
+  });
+});
+
+describe('PrismaService soft-delete consistency', () => {
+  it('should include all models with deletedAt field in SOFT_DELETABLE_MODELS', () => {
+    const modelsWithDeletedAt = Prisma.dmmf.datamodel.models
+      .filter((model) => model.fields.some((f) => f.name === 'deletedAt'))
+      .map((model) => {
+        // Convert PascalCase model name to camelCase for Prisma client access
+        const name = model.name;
+        return name.charAt(0).toLowerCase() + name.slice(1);
+      });
+
+    for (const modelName of modelsWithDeletedAt) {
+      expect(SOFT_DELETABLE_MODELS).toContain(modelName);
+    }
+  });
+
+  it('should not include models without deletedAt in SOFT_DELETABLE_MODELS', () => {
+    const modelsWithDeletedAt = new Set(
+      Prisma.dmmf.datamodel.models
+        .filter((model) => model.fields.some((f) => f.name === 'deletedAt'))
+        .map((model) => {
+          const name = model.name;
+          return name.charAt(0).toLowerCase() + name.slice(1);
+        }),
+    );
+
+    for (const modelName of SOFT_DELETABLE_MODELS) {
+      expect(modelsWithDeletedAt.has(modelName)).toBe(true);
+    }
   });
 });

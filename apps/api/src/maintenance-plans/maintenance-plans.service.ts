@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { MaintenancePlansRepository } from './maintenance-plans.repository';
 import { TasksRepository } from './tasks.repository';
-import { TaskLogsRepository } from './task-logs.repository';
-import { TaskNotesRepository } from './task-notes.repository';
+import { TaskLifecycleService } from './task-lifecycle.service';
+import { TaskNotesService } from './task-notes.service';
 import type {
   UpdatePlanInput,
   CreateTaskInput,
@@ -11,34 +11,16 @@ import type {
   CompleteTaskInput,
   CreateTaskNoteInput,
 } from '@epde/shared';
-import { recurrenceTypeToMonths, getNextDueDate, UserRole } from '@epde/shared';
-import type { Task } from '@prisma/client';
+import { UserRole } from '@epde/shared';
 
 @Injectable()
 export class MaintenancePlansService {
   constructor(
     private readonly plansRepository: MaintenancePlansRepository,
     private readonly tasksRepository: TasksRepository,
-    private readonly taskLogsRepository: TaskLogsRepository,
-    private readonly taskNotesRepository: TaskNotesRepository,
+    private readonly taskLifecycleService: TaskLifecycleService,
+    private readonly taskNotesService: TaskNotesService,
   ) {}
-
-  private async assertTaskAccess(
-    taskId: string,
-    user?: { id: string; role: string },
-  ): Promise<Task> {
-    const task = await this.tasksRepository.findById(taskId);
-    if (!task) throw new NotFoundException('Tarea no encontrada');
-
-    if (user?.role === UserRole.CLIENT) {
-      const plan = await this.plansRepository.findWithProperty(task.maintenancePlanId);
-      if (plan?.property?.userId !== user.id) {
-        throw new ForbiddenException('No tenés acceso a esta tarea');
-      }
-    }
-
-    return task;
-  }
 
   async listPlans(currentUser?: { id: string; role: string }) {
     const userId = currentUser?.role === UserRole.CLIENT ? currentUser.id : undefined;
@@ -74,122 +56,49 @@ export class MaintenancePlansService {
     return this.plansRepository.update(id, { ...dto, ...(updatedBy && { updatedBy }) });
   }
 
-  async addTask(
-    planId: string,
-    dto: Omit<CreateTaskInput, 'maintenancePlanId'>,
-    createdBy?: string,
-  ) {
-    const plan = await this.plansRepository.findById(planId);
-    if (!plan) {
-      throw new NotFoundException('Plan de mantenimiento no encontrado');
-    }
-
-    const maxOrder = await this.tasksRepository.getMaxOrder(planId);
-
-    return this.tasksRepository.create(
-      {
-        maintenancePlan: { connect: { id: planId } },
-        category: { connect: { id: dto.categoryId } },
-        name: dto.name,
-        description: dto.description,
-        priority: dto.priority ?? 'MEDIUM',
-        recurrenceType: dto.recurrenceType ?? 'ANNUAL',
-        recurrenceMonths:
-          dto.recurrenceType === 'CUSTOM'
-            ? dto.recurrenceMonths
-            : (recurrenceTypeToMonths(dto.recurrenceType ?? 'ANNUAL') ?? 12),
-        nextDueDate: dto.nextDueDate,
-        order: maxOrder + 1,
-        status: 'PENDING',
-        createdBy,
-      },
-      { category: true },
-    );
+  addTask(planId: string, dto: Omit<CreateTaskInput, 'maintenancePlanId'>, updatedBy?: string) {
+    return this.taskLifecycleService.addTask(planId, dto, updatedBy);
   }
 
-  async updateTask(taskId: string, dto: UpdateTaskInput, updatedBy?: string) {
-    const task = await this.tasksRepository.findById(taskId);
-    if (!task) {
-      throw new NotFoundException('Tarea no encontrada');
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data: any = { ...dto, ...(updatedBy && { updatedBy }) };
-    if (dto.categoryId) {
-      data.category = { connect: { id: dto.categoryId } };
-      delete data.categoryId;
-    }
-
-    return this.tasksRepository.update(taskId, data, { category: true });
+  updateTask(taskId: string, dto: UpdateTaskInput, updatedBy?: string) {
+    return this.taskLifecycleService.updateTask(taskId, dto, updatedBy);
   }
 
-  async removeTask(taskId: string) {
-    const task = await this.tasksRepository.findById(taskId);
-    if (!task) {
-      throw new NotFoundException('Tarea no encontrada');
-    }
-
-    await this.tasksRepository.softDelete(taskId);
-    return { message: 'Tarea eliminada' };
+  removeTask(taskId: string) {
+    return this.taskLifecycleService.removeTask(taskId);
   }
 
-  async reorderTasks(planId: string, dto: ReorderTasksInput) {
-    const plan = await this.plansRepository.findById(planId);
-    if (!plan) {
-      throw new NotFoundException('Plan de mantenimiento no encontrado');
-    }
-
-    await this.tasksRepository.reorderBatch(dto.tasks);
-
-    return this.tasksRepository.findByPlanId(planId);
+  reorderTasks(planId: string, dto: ReorderTasksInput) {
+    return this.taskLifecycleService.reorderTasks(planId, dto);
   }
 
-  async getTaskDetail(taskId: string, user?: { id: string; role: string }) {
-    await this.assertTaskAccess(taskId, user);
-    const task = await this.tasksRepository.findWithDetails(taskId);
-
-    if (!task) {
-      throw new NotFoundException('Tarea no encontrada');
-    }
-
-    return task;
-  }
-
-  async completeTask(
+  completeTask(
     taskId: string,
     userId: string,
     dto: CompleteTaskInput,
     user?: { id: string; role: string },
   ) {
-    const task = await this.assertTaskAccess(taskId, user);
-
-    let newDueDate: Date | null = null;
-    if (task.recurrenceType !== 'ON_DETECTION' && task.nextDueDate) {
-      const recurrenceMonths =
-        task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType) ?? 12;
-      newDueDate = getNextDueDate(task.nextDueDate, recurrenceMonths);
-    }
-
-    return this.tasksRepository.completeAndReschedule(taskId, userId, dto, newDueDate);
+    return this.taskLifecycleService.completeTask(taskId, userId, dto, user);
   }
 
-  async getTaskLogs(taskId: string, user?: { id: string; role: string }) {
-    await this.assertTaskAccess(taskId, user);
-    return this.taskLogsRepository.findByTaskId(taskId);
+  getTaskDetail(taskId: string, _user?: { id: string; role: string }) {
+    return this.taskNotesService.getTaskDetail(taskId);
   }
 
-  async addTaskNote(
+  getTaskLogs(taskId: string, _user?: { id: string; role: string }) {
+    return this.taskNotesService.getTaskLogs(taskId);
+  }
+
+  getTaskNotes(taskId: string, _user?: { id: string; role: string }) {
+    return this.taskNotesService.getTaskNotes(taskId);
+  }
+
+  addTaskNote(
     taskId: string,
     userId: string,
     dto: CreateTaskNoteInput,
-    user?: { id: string; role: string },
+    _user?: { id: string; role: string },
   ) {
-    await this.assertTaskAccess(taskId, user);
-    return this.taskNotesRepository.createForTask(taskId, userId, dto.content);
-  }
-
-  async getTaskNotes(taskId: string, user?: { id: string; role: string }) {
-    await this.assertTaskAccess(taskId, user);
-    return this.taskNotesRepository.findByTaskId(taskId);
+    return this.taskNotesService.addTaskNote(taskId, userId, dto);
   }
 }

@@ -93,19 +93,15 @@ export class TaskReminderService {
         });
 
         emailPromises.push(
-          this.emailQueueService
-            .enqueueTaskReminder(
-              owner.email,
-              owner.name,
-              task.name,
-              property.address,
-              task.nextDueDate,
-              task.category.name,
-              isOverdue,
-            )
-            .catch((err) =>
-              this.logger.error(`Error enqueuing email de recordatorio: ${err.message}`),
-            ),
+          this.emailQueueService.enqueueTaskReminder(
+            owner.email,
+            owner.name,
+            task.name,
+            property.address,
+            task.nextDueDate,
+            task.category.name,
+            isOverdue,
+          ),
         );
 
         if (isOverdue) {
@@ -123,13 +119,20 @@ export class TaskReminderService {
 
       if (signal.lockLost) return;
 
-      const [notificationCount] = await Promise.all([
+      const [notificationCount, emailResults] = await Promise.all([
         this.notificationsService.createNotifications(notifications),
         Promise.allSettled(emailPromises),
       ]);
 
+      const failedEmails = emailResults.filter((r) => r.status === 'rejected');
+      if (failedEmails.length > 0) {
+        this.logger.error(
+          `${failedEmails.length}/${emailResults.length} email(s) failed to enqueue`,
+        );
+      }
+
       this.logger.log(
-        `Reminders complete: ${notificationCount} notifications, ${emailPromises.length} emails sent`,
+        `Reminders complete: ${notificationCount} notifications, ${emailPromises.length - failedEmails.length} emails enqueued, ${failedEmails.length} failed`,
       );
     });
   }

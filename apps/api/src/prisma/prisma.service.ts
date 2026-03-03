@@ -39,6 +39,7 @@ function softDeleteExtension() {
   return Prisma.defineExtension({
     name: 'softDelete',
     query: {
+      // Keep in sync with SOFT_DELETABLE_MODELS
       user: softDeleteHandlers(),
       property: softDeleteHandlers(),
       task: softDeleteHandlers(),
@@ -124,6 +125,16 @@ function softDeleteHandlers() {
   };
 }
 
+export const SOFT_DELETABLE_MODELS = [
+  'user',
+  'property',
+  'task',
+  'category',
+  'budgetRequest',
+  'serviceRequest',
+] as const;
+export type SoftDeletableModel = (typeof SOFT_DELETABLE_MODELS)[number];
+
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PrismaService.name);
@@ -153,9 +164,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
    * Soft-delete a record by setting deletedAt to now.
    * Use this instead of prisma.model.delete() for soft-deletable models.
    */
-  async softDeleteRecord<
-    T extends 'user' | 'property' | 'task' | 'category' | 'budgetRequest' | 'serviceRequest',
-  >(model: T, where: { id: string }) {
+  async softDeleteRecord<T extends SoftDeletableModel>(model: T, where: { id: string }) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (this[model] as any).update({
       where,

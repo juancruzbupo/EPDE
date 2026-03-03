@@ -13,6 +13,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import {
@@ -27,31 +28,41 @@ import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
 
-const IS_PRODUCTION = process.env.NODE_ENV === 'production';
-
 const ACCESS_COOKIE_NAME = 'access_token';
-const ACCESS_COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: IS_PRODUCTION,
-  sameSite: 'strict' as const,
-  path: '/',
-  maxAge: 15 * 60 * 1000, // 15 minutes — must match JWT_EXPIRATION
-};
-
 const REFRESH_COOKIE_NAME = 'refresh_token';
-const REFRESH_COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: IS_PRODUCTION,
-  sameSite: 'strict' as const,
-  path: '/api/v1/auth',
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-};
 
 @ApiTags('Auth')
 @ApiBearerAuth()
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
+
+  private get isProduction(): boolean {
+    return this.configService.get('NODE_ENV') === 'production';
+  }
+
+  private get accessCookieOptions() {
+    return {
+      httpOnly: true,
+      secure: this.isProduction,
+      sameSite: 'strict' as const,
+      path: '/',
+      maxAge: 15 * 60 * 1000, // 15 minutes — must match JWT_EXPIRATION
+    };
+  }
+
+  private get refreshCookieOptions() {
+    return {
+      httpOnly: true,
+      secure: this.isProduction,
+      sameSite: 'strict' as const,
+      path: '/api/v1/auth',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    };
+  }
 
   @Public()
   @UseGuards(AuthGuard('local'))
@@ -70,8 +81,8 @@ export class AuthController {
       ip: req.ip,
     });
 
-    res.cookie(ACCESS_COOKIE_NAME, result.accessToken, ACCESS_COOKIE_OPTIONS);
-    res.cookie(REFRESH_COOKIE_NAME, result.refreshToken, REFRESH_COOKIE_OPTIONS);
+    res.cookie(ACCESS_COOKIE_NAME, result.accessToken, this.accessCookieOptions);
+    res.cookie(REFRESH_COOKIE_NAME, result.refreshToken, this.refreshCookieOptions);
 
     if (isMobile) {
       return {
@@ -107,8 +118,8 @@ export class AuthController {
     }
 
     const result = await this.authService.refresh(refreshToken);
-    res.cookie(ACCESS_COOKIE_NAME, result.accessToken, ACCESS_COOKIE_OPTIONS);
-    res.cookie(REFRESH_COOKIE_NAME, result.refreshToken, REFRESH_COOKIE_OPTIONS);
+    res.cookie(ACCESS_COOKIE_NAME, result.accessToken, this.accessCookieOptions);
+    res.cookie(REFRESH_COOKIE_NAME, result.refreshToken, this.refreshCookieOptions);
 
     if (isMobile) {
       return {

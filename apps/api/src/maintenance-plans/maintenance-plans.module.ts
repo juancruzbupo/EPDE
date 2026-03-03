@@ -5,6 +5,9 @@ import { MaintenancePlansRepository } from './maintenance-plans.repository';
 import { TasksRepository } from './tasks.repository';
 import { TaskLogsRepository } from './task-logs.repository';
 import { TaskNotesRepository } from './task-notes.repository';
+import { TaskLifecycleService } from './task-lifecycle.service';
+import { TaskNotesService } from './task-notes.service';
+import { TaskAuditLogRepository } from './task-audit-log.repository';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
@@ -15,6 +18,9 @@ import { PrismaService } from '../prisma/prisma.service';
     TasksRepository,
     TaskLogsRepository,
     TaskNotesRepository,
+    TaskLifecycleService,
+    TaskNotesService,
+    TaskAuditLogRepository,
     PrismaService,
   ],
   exports: [MaintenancePlansService],

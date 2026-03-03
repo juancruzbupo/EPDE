@@ -159,6 +159,7 @@ model User {
   properties      Property[]
   taskLogs        TaskLog[]
   taskNotes       TaskNote[]
+  taskAuditLogs   TaskAuditLog[]
   budgetRequests  BudgetRequest[]
   serviceRequests ServiceRequest[]
   notifications   Notification[]
@@ -252,6 +253,7 @@ model Task {
   category        Category        @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   taskLogs        TaskLog[]
   taskNotes       TaskNote[]
+  auditLogs       TaskAuditLog[]
 
   @@index([maintenancePlanId])
   @@index([maintenancePlanId, status])
@@ -296,6 +298,22 @@ model TaskNote {
 
   @@index([taskId])
   @@index([authorId])
+}
+
+model TaskAuditLog {
+  id        String   @id @default(uuid())
+  taskId    String
+  userId    String
+  action    String   @db.VarChar(50)
+  before    Json
+  after     Json
+  changedAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([taskId, changedAt])
+  @@index([userId, changedAt])
 }
 
 model BudgetRequest {

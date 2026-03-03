@@ -3,8 +3,8 @@ import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { MaintenancePlansService } from './maintenance-plans.service';
 import { MaintenancePlansRepository } from './maintenance-plans.repository';
 import { TasksRepository } from './tasks.repository';
-import { TaskLogsRepository } from './task-logs.repository';
-import { TaskNotesRepository } from './task-notes.repository';
+import { TaskLifecycleService } from './task-lifecycle.service';
+import { TaskNotesService } from './task-notes.service';
 import { UserRole } from '@epde/shared';
 
 describe('MaintenancePlansService', () => {
@@ -13,25 +13,24 @@ describe('MaintenancePlansService', () => {
     findById: jest.Mock;
     findWithProperty: jest.Mock;
     findWithFullDetails: jest.Mock;
+    findAll: jest.Mock;
     update: jest.Mock;
   };
   let tasksRepository: {
-    findById: jest.Mock;
-    findWithDetails: jest.Mock;
-    findByPlanId: jest.Mock;
-    create: jest.Mock;
-    update: jest.Mock;
-    softDelete: jest.Mock;
-    getMaxOrder: jest.Mock;
-    reorderBatch: jest.Mock;
-    completeAndReschedule: jest.Mock;
+    findAllForList: jest.Mock;
   };
-  let taskLogsRepository: {
-    findByTaskId: jest.Mock;
+  let taskLifecycleService: {
+    addTask: jest.Mock;
+    updateTask: jest.Mock;
+    removeTask: jest.Mock;
+    reorderTasks: jest.Mock;
+    completeTask: jest.Mock;
   };
-  let taskNotesRepository: {
-    findByTaskId: jest.Mock;
-    createForTask: jest.Mock;
+  let taskNotesService: {
+    getTaskDetail: jest.Mock;
+    getTaskLogs: jest.Mock;
+    getTaskNotes: jest.Mock;
+    addTaskNote: jest.Mock;
   };
 
   const clientUser = { id: 'client-1', role: UserRole.CLIENT };
@@ -42,28 +41,27 @@ describe('MaintenancePlansService', () => {
       findById: jest.fn(),
       findWithProperty: jest.fn(),
       findWithFullDetails: jest.fn(),
+      findAll: jest.fn(),
       update: jest.fn(),
     };
 
     tasksRepository = {
-      findById: jest.fn(),
-      findWithDetails: jest.fn(),
-      findByPlanId: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      softDelete: jest.fn(),
-      getMaxOrder: jest.fn(),
-      reorderBatch: jest.fn(),
-      completeAndReschedule: jest.fn(),
+      findAllForList: jest.fn(),
     };
 
-    taskLogsRepository = {
-      findByTaskId: jest.fn(),
+    taskLifecycleService = {
+      addTask: jest.fn(),
+      updateTask: jest.fn(),
+      removeTask: jest.fn(),
+      reorderTasks: jest.fn(),
+      completeTask: jest.fn(),
     };
 
-    taskNotesRepository = {
-      findByTaskId: jest.fn(),
-      createForTask: jest.fn(),
+    taskNotesService = {
+      getTaskDetail: jest.fn(),
+      getTaskLogs: jest.fn(),
+      getTaskNotes: jest.fn(),
+      addTaskNote: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -71,8 +69,8 @@ describe('MaintenancePlansService', () => {
         MaintenancePlansService,
         { provide: MaintenancePlansRepository, useValue: plansRepository },
         { provide: TasksRepository, useValue: tasksRepository },
-        { provide: TaskLogsRepository, useValue: taskLogsRepository },
-        { provide: TaskNotesRepository, useValue: taskNotesRepository },
+        { provide: TaskLifecycleService, useValue: taskLifecycleService },
+        { provide: TaskNotesService, useValue: taskNotesService },
       ],
     }).compile();
 
@@ -129,65 +127,21 @@ describe('MaintenancePlansService', () => {
   });
 
   describe('getTaskDetail', () => {
-    it('should return task with details for admin', async () => {
-      const task = {
+    it('should delegate to TaskNotesService', async () => {
+      const taskWithDetails = {
         id: 'task-1',
         maintenancePlanId: 'plan-1',
         name: 'Revisar techo',
-      };
-      const taskWithDetails = {
-        ...task,
         category: { id: 'cat-1', name: 'Techos' },
         taskLogs: [],
         taskNotes: [],
       };
-      tasksRepository.findById.mockResolvedValue(task);
-      tasksRepository.findWithDetails.mockResolvedValue(taskWithDetails);
+      taskNotesService.getTaskDetail.mockResolvedValue(taskWithDetails);
 
       const result = await service.getTaskDetail('task-1', adminUser);
 
       expect(result).toEqual(taskWithDetails);
-      expect(tasksRepository.findById).toHaveBeenCalledWith('task-1');
-      expect(tasksRepository.findWithDetails).toHaveBeenCalledWith('task-1');
-    });
-
-    it('should throw NotFoundException when task not found in assertTaskAccess', async () => {
-      tasksRepository.findById.mockResolvedValue(null);
-
-      await expect(service.getTaskDetail('nonexistent', adminUser)).rejects.toThrow(
-        NotFoundException,
-      );
-    });
-
-    it('should throw ForbiddenException when client accesses another users task', async () => {
-      const task = { id: 'task-1', maintenancePlanId: 'plan-1' };
-      tasksRepository.findById.mockResolvedValue(task);
-      plansRepository.findWithProperty.mockResolvedValue({
-        id: 'plan-1',
-        property: { userId: 'other-user' },
-      });
-
-      await expect(service.getTaskDetail('task-1', clientUser)).rejects.toThrow(ForbiddenException);
-    });
-
-    it('should allow client to access own task', async () => {
-      const task = { id: 'task-1', maintenancePlanId: 'plan-1' };
-      const taskWithDetails = {
-        ...task,
-        category: { id: 'cat-1', name: 'Techos' },
-        taskLogs: [],
-        taskNotes: [],
-      };
-      tasksRepository.findById.mockResolvedValue(task);
-      plansRepository.findWithProperty.mockResolvedValue({
-        id: 'plan-1',
-        property: { userId: clientUser.id },
-      });
-      tasksRepository.findWithDetails.mockResolvedValue(taskWithDetails);
-
-      const result = await service.getTaskDetail('task-1', clientUser);
-
-      expect(result).toEqual(taskWithDetails);
+      expect(taskNotesService.getTaskDetail).toHaveBeenCalledWith('task-1');
     });
   });
 
@@ -200,73 +154,27 @@ describe('MaintenancePlansService', () => {
       note: 'Todo en orden',
     };
 
-    it('should complete task and reschedule with new due date', async () => {
-      const task = {
-        id: 'task-1',
-        maintenancePlanId: 'plan-1',
-        recurrenceType: 'ANNUAL',
-        recurrenceMonths: 12,
-        nextDueDate: new Date('2026-03-01'),
-      };
-      tasksRepository.findById.mockResolvedValue(task);
-
+    it('should delegate to TaskLifecycleService', async () => {
       const completedResult = {
-        task: { ...task, status: 'PENDING', nextDueDate: new Date('2027-03-01') },
+        task: { id: 'task-1', status: 'PENDING' },
         log: { id: 'log-1', taskId: 'task-1' },
       };
-      tasksRepository.completeAndReschedule.mockResolvedValue(completedResult);
+      taskLifecycleService.completeTask.mockResolvedValue(completedResult);
 
       const result = await service.completeTask('task-1', 'user-1', dto, adminUser);
 
       expect(result).toEqual(completedResult);
-      expect(tasksRepository.completeAndReschedule).toHaveBeenCalledWith(
+      expect(taskLifecycleService.completeTask).toHaveBeenCalledWith(
         'task-1',
         'user-1',
         dto,
-        expect.any(Date),
-      );
-    });
-
-    it('should pass null due date for ON_DETECTION tasks', async () => {
-      const task = {
-        id: 'task-1',
-        maintenancePlanId: 'plan-1',
-        recurrenceType: 'ON_DETECTION',
-        recurrenceMonths: null,
-        nextDueDate: null,
-      };
-      tasksRepository.findById.mockResolvedValue(task);
-
-      const completedResult = {
-        task: { ...task, status: 'PENDING' },
-        log: { id: 'log-1', taskId: 'task-1' },
-      };
-      tasksRepository.completeAndReschedule.mockResolvedValue(completedResult);
-
-      await service.completeTask('task-1', 'user-1', dto, adminUser);
-
-      expect(tasksRepository.completeAndReschedule).toHaveBeenCalledWith(
-        'task-1',
-        'user-1',
-        dto,
-        null,
-      );
-    });
-
-    it('should throw NotFoundException when task not found', async () => {
-      tasksRepository.findById.mockResolvedValue(null);
-
-      await expect(service.completeTask('nonexistent', 'user-1', dto, adminUser)).rejects.toThrow(
-        NotFoundException,
+        adminUser,
       );
     });
   });
 
   describe('addTaskNote', () => {
-    it('should create note for the task', async () => {
-      const task = { id: 'task-1', maintenancePlanId: 'plan-1' };
-      tasksRepository.findById.mockResolvedValue(task);
-
+    it('should delegate to TaskNotesService', async () => {
       const createdNote = {
         id: 'note-1',
         taskId: 'task-1',
@@ -274,7 +182,7 @@ describe('MaintenancePlansService', () => {
         content: 'Nota de prueba',
         author: { id: 'user-1', name: 'Admin' },
       };
-      taskNotesRepository.createForTask.mockResolvedValue(createdNote);
+      taskNotesService.addTaskNote.mockResolvedValue(createdNote);
 
       const result = await service.addTaskNote(
         'task-1',
@@ -284,19 +192,9 @@ describe('MaintenancePlansService', () => {
       );
 
       expect(result).toEqual(createdNote);
-      expect(taskNotesRepository.createForTask).toHaveBeenCalledWith(
-        'task-1',
-        'user-1',
-        'Nota de prueba',
-      );
-    });
-
-    it('should throw NotFoundException when task not found', async () => {
-      tasksRepository.findById.mockResolvedValue(null);
-
-      await expect(
-        service.addTaskNote('nonexistent', 'user-1', { content: 'Nota' }, adminUser),
-      ).rejects.toThrow(NotFoundException);
+      expect(taskNotesService.addTaskNote).toHaveBeenCalledWith('task-1', 'user-1', {
+        content: 'Nota de prueba',
+      });
     });
   });
 
@@ -312,58 +210,56 @@ describe('MaintenancePlansService', () => {
       nextDueDate: new Date('2026-06-01'),
     };
 
-    it('should create task with correct order', async () => {
-      plansRepository.findById.mockResolvedValue({ id: 'plan-1' });
-      tasksRepository.getMaxOrder.mockResolvedValue(2);
-
+    it('should delegate to TaskLifecycleService', async () => {
       const createdTask = {
         id: 'task-new',
         maintenancePlanId: 'plan-1',
         name: dto.name,
         order: 3,
       };
-      tasksRepository.create.mockResolvedValue(createdTask);
+      taskLifecycleService.addTask.mockResolvedValue(createdTask);
 
       const result = await service.addTask('plan-1', dto, 'admin-1');
 
       expect(result).toEqual(createdTask);
-      expect(tasksRepository.getMaxOrder).toHaveBeenCalledWith('plan-1');
-      expect(tasksRepository.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: dto.name,
-          order: 3,
-          status: 'PENDING',
-          createdBy: 'admin-1',
-        }),
-        { category: true },
-      );
-    });
-
-    it('should throw NotFoundException if plan not found', async () => {
-      plansRepository.findById.mockResolvedValue(null);
-
-      await expect(service.addTask('nonexistent', dto, 'admin-1')).rejects.toThrow(
-        NotFoundException,
-      );
-      expect(tasksRepository.create).not.toHaveBeenCalled();
+      expect(taskLifecycleService.addTask).toHaveBeenCalledWith('plan-1', dto, 'admin-1');
     });
   });
 
   describe('removeTask', () => {
-    it('should soft delete the task', async () => {
-      tasksRepository.findById.mockResolvedValue({ id: 'task-1' });
-      tasksRepository.softDelete.mockResolvedValue(undefined);
+    it('should delegate to TaskLifecycleService', async () => {
+      const deleteResult = { message: 'Tarea eliminada' };
+      taskLifecycleService.removeTask.mockResolvedValue(deleteResult);
 
       const result = await service.removeTask('task-1');
 
-      expect(result).toEqual({ message: 'Tarea eliminada' });
-      expect(tasksRepository.softDelete).toHaveBeenCalledWith('task-1');
+      expect(result).toEqual(deleteResult);
+      expect(taskLifecycleService.removeTask).toHaveBeenCalledWith('task-1');
+    });
+  });
+
+  describe('updatePlan', () => {
+    it('should update plan when found', async () => {
+      const existingPlan = { id: 'plan-1', name: 'Plan original', status: 'ACTIVE' };
+      const updatedPlan = { id: 'plan-1', name: 'Plan actualizado', status: 'ACTIVE' };
+      plansRepository.findById.mockResolvedValue(existingPlan);
+      plansRepository.update.mockResolvedValue(updatedPlan);
+
+      const result = await service.updatePlan('plan-1', { name: 'Plan actualizado' }, 'admin-1');
+
+      expect(result).toEqual(updatedPlan);
+      expect(plansRepository.update).toHaveBeenCalledWith(
+        'plan-1',
+        expect.objectContaining({ name: 'Plan actualizado', updatedBy: 'admin-1' }),
+      );
     });
 
-    it('should throw NotFoundException when task not found', async () => {
-      tasksRepository.findById.mockResolvedValue(null);
+    it('should throw NotFoundException when plan not found', async () => {
+      plansRepository.findById.mockResolvedValue(null);
 
-      await expect(service.removeTask('nonexistent')).rejects.toThrow(NotFoundException);
+      await expect(service.updatePlan('nonexistent', {}, 'admin-1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

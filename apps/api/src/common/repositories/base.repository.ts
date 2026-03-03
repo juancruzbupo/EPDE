@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService, SoftDeletableModel } from '../../prisma/prisma.service';
 import { PAGINATION_DEFAULT_TAKE, PAGINATION_MAX_TAKE } from '@epde/shared';
 
 /**
@@ -12,14 +12,17 @@ export type PrismaModelName = {
     : never;
 }[keyof PrismaClient];
 
-/** Union of model names that have a deletedAt field and support soft-delete via PrismaService.softDeleteRecord(). */
-export type SoftDeletableModel =
-  | 'user'
-  | 'property'
-  | 'task'
-  | 'category'
-  | 'budgetRequest'
-  | 'serviceRequest';
+// SoftDeletableModel is imported from prisma.service — keep in sync with SOFT_DELETABLE_MODELS
+export type { SoftDeletableModel };
+
+type PrismaQueryParams = {
+  where?: Record<string, unknown>;
+  skip?: number;
+  take?: number;
+  cursor?: Record<string, unknown>;
+  orderBy?: Record<string, unknown> | Record<string, unknown>[];
+  include?: Record<string, unknown>;
+};
 
 export interface FindManyParams {
   cursor?: string;
@@ -45,14 +48,17 @@ export abstract class BaseRepository<T, M extends PrismaModelName = PrismaModelN
 
   protected get model() {
     if (this.hasSoftDelete) {
+      // Dynamic access — Prisma typed client doesn't support string-keyed model access
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (this.prisma.softDelete as any)[this.modelName];
     }
+    // Dynamic access — Prisma typed client doesn't support string-keyed model access
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (this.prisma as any)[this.modelName];
   }
 
   protected get writeModel() {
+    // Dynamic access — Prisma typed client doesn't support string-keyed model access
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (this.prisma as any)[this.modelName];
   }
@@ -89,8 +95,7 @@ export abstract class BaseRepository<T, M extends PrismaModelName = PrismaModelN
     const orderBy = params.orderBy ?? { createdAt: 'desc' };
     const include = params.include;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const queryParams: any = {
+    const queryParams: PrismaQueryParams = {
       where,
       orderBy,
       take: take + 1,

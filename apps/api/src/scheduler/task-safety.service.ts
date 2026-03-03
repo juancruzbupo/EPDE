@@ -34,21 +34,43 @@ export class TaskSafetyService {
       if (signal.lockLost) return;
 
       const BATCH_SIZE = 50;
+      let totalSuccess = 0;
+      let totalFailed = 0;
       for (let i = 0; i < staleTasks.length; i += BATCH_SIZE) {
         if (signal.lockLost) return;
         const batch = staleTasks.slice(i, i + BATCH_SIZE);
-        await Promise.all(
+        const results = await Promise.allSettled(
           batch.map((task) => {
             const months =
               task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType) ?? 12;
-            if (!task.nextDueDate) return;
+            if (!task.nextDueDate) return Promise.resolve();
             const newDueDate = getNextDueDate(task.nextDueDate, months);
             return this.tasksRepository.updateDueDateAndStatus(task.id, newDueDate, 'PENDING');
           }),
         );
+        const failed = results.filter((r) => r.status === 'rejected');
+        if (failed.length > 0) {
+          this.logger.error(
+            `Safety sweep: ${failed.length}/${batch.length} tasks failed to update`,
+            {
+              failures: failed.map((r, i) => ({
+                taskId: batch[i]?.id,
+                reason: (r as PromiseRejectedResult).reason?.message,
+              })),
+            },
+          );
+        }
+        const successCount = results.filter((r) => r.status === 'fulfilled').length;
+        this.logger.log(
+          `Safety sweep batch done: ${successCount} updated, ${failed.length} failed`,
+        );
+        totalSuccess += successCount;
+        totalFailed += failed.length;
       }
 
-      this.logger.log(`Safety sweep: fixed ${staleTasks.length} stale task(s)`);
+      this.logger.log(
+        `Safety sweep complete: ${totalSuccess} fixed, ${totalFailed} failed out of ${staleTasks.length} stale task(s)`,
+      );
     });
   }
 }

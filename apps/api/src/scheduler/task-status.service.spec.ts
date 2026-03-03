@@ -64,5 +64,23 @@ describe('TaskStatusService', () => {
       await service.recalculateTaskStatuses();
       expect(mockTasksRepository.markOverdue).not.toHaveBeenCalled();
     });
+
+    it('should not update ON_DETECTION tasks (repository filters them out)', async () => {
+      // The repository already filters ON_DETECTION via recurrenceType: { not: 'ON_DETECTION' }
+      // Simulate that findStaleCompleted returns empty (all ON_DETECTION tasks were filtered)
+      mockTasksRepository.markOverdue.mockResolvedValue(0);
+      mockTasksRepository.markUpcoming.mockResolvedValue(0);
+      mockTasksRepository.resetUpcomingToPending.mockResolvedValue(0);
+      mockLockService.withLock.mockImplementation(async (_key, _ttl, fn) => {
+        await fn({ lockLost: false });
+      });
+
+      await service.recalculateTaskStatuses();
+
+      // All three methods should still be called (they handle the filtering internally)
+      expect(mockTasksRepository.markOverdue).toHaveBeenCalled();
+      expect(mockTasksRepository.markUpcoming).toHaveBeenCalled();
+      expect(mockTasksRepository.resetUpcomingToPending).toHaveBeenCalled();
+    });
   });
 });

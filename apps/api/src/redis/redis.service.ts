@@ -1,9 +1,9 @@
-import { Injectable, OnModuleDestroy, Logger } from '@nestjs/common';
+import { Injectable, OnModuleDestroy, OnModuleInit, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 
 @Injectable()
-export class RedisService implements OnModuleDestroy {
+export class RedisService implements OnModuleInit, OnModuleDestroy {
   private readonly client: Redis;
   private readonly logger = new Logger(RedisService.name);
   private _isConnected = false;
@@ -46,6 +46,23 @@ export class RedisService implements OnModuleDestroy {
       this._isConnected = false;
       this.logger.warn('Redis connection closed');
     });
+  }
+
+  async onModuleInit(): Promise<void> {
+    try {
+      await this.client.ping();
+      this.logger.log('Redis connection verified');
+    } catch (err) {
+      const isProd = this.configService.get<string>('NODE_ENV') === 'production';
+      if (isProd) {
+        throw new Error(
+          `Redis is unreachable in production — auth token rotation will not work: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+      this.logger.warn(
+        'Redis ping failed — auth token rotation will degrade gracefully in development',
+      );
+    }
   }
 
   async onModuleDestroy() {

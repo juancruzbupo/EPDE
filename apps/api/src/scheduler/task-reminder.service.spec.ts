@@ -69,5 +69,57 @@ describe('TaskReminderService', () => {
       // With lockLost=true and no tasks, the early-return path still skips createNotifications
       expect(mockNotificationsService.createNotifications).not.toHaveBeenCalled();
     });
+
+    it('ON_DETECTION tasks should not appear — findUpcomingWithOwners already filters them', async () => {
+      // The repository filters recurrenceType: { not: 'ON_DETECTION' }
+      // So if only ON_DETECTION tasks exist, both queries return empty
+      mockTasksRepository.findUpcomingWithOwners.mockResolvedValue([]);
+      mockTasksRepository.findOverdueWithOwners.mockResolvedValue([]);
+      mockLockService.withLock.mockImplementation(async (_key, _ttl, fn) => {
+        await fn({ lockLost: false });
+      });
+
+      await service.sendUpcomingTaskReminders();
+
+      expect(mockNotificationsService.createNotifications).not.toHaveBeenCalled();
+      expect(mockEmailQueueService.enqueueTaskReminder).not.toHaveBeenCalled();
+    });
+
+    it('should log error when email enqueue fails', async () => {
+      const loggerErrorSpy = jest
+        .spyOn(service['logger'], 'error')
+        .mockImplementation(() => undefined);
+
+      const upcomingTask = {
+        id: 'task-1',
+        name: 'Test Task',
+        nextDueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
+        recurrenceType: 'ANNUAL',
+        category: { name: 'Electricidad' },
+        maintenancePlan: {
+          property: {
+            address: '123 Test St',
+            user: { id: 'user-1', name: 'Owner', email: 'owner@test.com' },
+          },
+        },
+      };
+
+      mockTasksRepository.findUpcomingWithOwners.mockResolvedValue([upcomingTask]);
+      mockTasksRepository.findOverdueWithOwners.mockResolvedValue([]);
+      mockNotificationsRepository.findTodayReminderTaskIds.mockResolvedValue(new Set());
+      mockNotificationsService.createNotifications.mockResolvedValue(1);
+      mockEmailQueueService.enqueueTaskReminder.mockRejectedValue(new Error('Queue full'));
+      mockLockService.withLock.mockImplementation(async (_key, _ttl, fn) => {
+        await fn({ lockLost: false });
+      });
+
+      await service.sendUpcomingTaskReminders();
+
+      expect(loggerErrorSpy).toHaveBeenCalledWith(
+        expect.stringContaining('email(s) failed to enqueue'),
+      );
+
+      loggerErrorSpy.mockRestore();
+    });
   });
 });
