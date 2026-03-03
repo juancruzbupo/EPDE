@@ -30,7 +30,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await login(data.email, data.password);
-      router.push('/');
+      router.push('/dashboard');
     } catch {
       setError('Credenciales inválidas. Verificá tu email y contraseña.');
     } finally {

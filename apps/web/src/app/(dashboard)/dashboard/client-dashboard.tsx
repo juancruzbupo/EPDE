@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useClientDashboardStats, useClientUpcomingTasks } from '@/hooks/use-dashboard';
 import { staggerContainer, staggerItem, fadeInUp, useMotionPreference } from '@/lib/motion';
 import { PageHeader } from '@/components/page-header';
@@ -70,84 +70,81 @@ export function ClientDashboard({ userName }: { userName: string }) {
       ) : null}
 
       <Wrapper
+        key={statsLoading ? 'loading' : 'loaded'}
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
         {...(shouldAnimate
           ? { variants: staggerContainer, initial: 'hidden', animate: 'visible' }
           : {})}
       >
-        <AnimatePresence mode="wait">
-          {statsLoading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <Item key={`skel-${i}`} {...(shouldAnimate ? { variants: staggerItem } : {})}>
-                <Card>
-                  <CardContent className="p-6">
-                    <SkeletonShimmer className="h-20 w-full" />
-                  </CardContent>
-                </Card>
-              </Item>
-            ))
-          ) : statsError ? (
-            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
-              <div className="col-span-full flex flex-col items-center gap-2 py-8">
-                <AlertTriangle className="h-8 w-8 text-destructive" />
-                <p className="text-muted-foreground text-sm">
-                  No se pudieron cargar las estadísticas
-                </p>
-                <Button variant="outline" size="sm" onClick={() => void refetchStats()}>
-                  Reintentar
-                </Button>
-              </div>
+        {statsLoading ? (
+          Array.from({ length: 6 }).map((_, i) => (
+            <Item key={`skel-${i}`} {...(shouldAnimate ? { variants: staggerItem } : {})}>
+              <Card>
+                <CardContent className="p-6">
+                  <SkeletonShimmer className="h-20 w-full" />
+                </CardContent>
+              </Card>
             </Item>
-          ) : stats ? (
-            <>
-              <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
-                <StatCard
-                  title="Propiedades"
-                  value={<AnimatedNumber value={stats.totalProperties} />}
-                  icon={Home}
-                />
-              </Item>
-              <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
-                <StatCard
-                  title="Tareas Pendientes"
-                  value={<AnimatedNumber value={stats.pendingTasks} />}
-                  icon={Clock}
-                />
-              </Item>
-              <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
-                <StatCard
-                  title="Tareas Vencidas"
-                  value={<AnimatedNumber value={stats.overdueTasks} />}
-                  icon={AlertTriangle}
-                  className={
-                    stats.overdueTasks > 0 ? 'border-destructive/30 bg-destructive/10' : ''
-                  }
-                />
-              </Item>
-              <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
-                <StatCard
-                  title="Completadas este mes"
-                  value={<AnimatedNumber value={stats.completedThisMonth} />}
-                  icon={CheckCircle}
-                />
-              </Item>
-              <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
-                <StatCard
-                  title="Presupuestos"
-                  value={<AnimatedNumber value={stats.pendingBudgets} />}
-                  icon={FileText}
-                />
-              </Item>
-              <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
-                <StatCard
-                  title="Servicios Abiertos"
-                  value={<AnimatedNumber value={stats.openServices} />}
-                  icon={Wrench}
-                />
-              </Item>
-            </>
-          ) : null}
-        </AnimatePresence>
+          ))
+        ) : statsError ? (
+          <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+            <div className="col-span-full flex flex-col items-center gap-2 py-8">
+              <AlertTriangle className="text-destructive h-8 w-8" />
+              <p className="text-muted-foreground text-sm">
+                No se pudieron cargar las estadísticas
+              </p>
+              <Button variant="outline" size="sm" onClick={() => void refetchStats()}>
+                Reintentar
+              </Button>
+            </div>
+          </Item>
+        ) : stats ? (
+          <>
+            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+              <StatCard
+                title="Propiedades"
+                value={<AnimatedNumber value={stats.totalProperties} />}
+                icon={Home}
+              />
+            </Item>
+            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+              <StatCard
+                title="Tareas Pendientes"
+                value={<AnimatedNumber value={stats.pendingTasks} />}
+                icon={Clock}
+              />
+            </Item>
+            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+              <StatCard
+                title="Tareas Vencidas"
+                value={<AnimatedNumber value={stats.overdueTasks} />}
+                icon={AlertTriangle}
+                className={stats.overdueTasks > 0 ? 'border-destructive/30 bg-destructive/10' : ''}
+              />
+            </Item>
+            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+              <StatCard
+                title="Completadas este mes"
+                value={<AnimatedNumber value={stats.completedThisMonth} />}
+                icon={CheckCircle}
+              />
+            </Item>
+            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+              <StatCard
+                title="Presupuestos"
+                value={<AnimatedNumber value={stats.pendingBudgets} />}
+                icon={FileText}
+              />
+            </Item>
+            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+              <StatCard
+                title="Servicios Abiertos"
+                value={<AnimatedNumber value={stats.openServices} />}
+                icon={Wrench}
+              />
+            </Item>
+          </>
+        ) : null}
       </Wrapper>
 
       <motion.div
@@ -166,7 +163,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
               </div>
             ) : upcomingError ? (
               <div className="flex flex-col items-center gap-2 py-8">
-                <AlertTriangle className="h-8 w-8 text-destructive" />
+                <AlertTriangle className="text-destructive h-8 w-8" />
                 <p className="text-muted-foreground text-sm">No se pudieron cargar las tareas</p>
                 <Button variant="outline" size="sm" onClick={() => void refetchUpcoming()}>
                   Reintentar

@@ -41,7 +41,7 @@ describe('LoginPage', () => {
     expect(mockLogin).not.toHaveBeenCalled();
   });
 
-  it('calls login and redirects to / on success', async () => {
+  it('calls login and redirects to /dashboard on success', async () => {
     mockLogin.mockResolvedValueOnce(undefined);
     const user = userEvent.setup();
     render(<LoginPage />);
@@ -53,7 +53,7 @@ describe('LoginPage', () => {
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith('admin@epde.com', 'Password1');
     });
-    expect(mockPush).toHaveBeenCalledWith('/');
+    expect(mockPush).toHaveBeenCalledWith('/dashboard');
   });
 
   it('shows error message on login failure', async () => {

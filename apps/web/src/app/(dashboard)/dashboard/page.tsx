@@ -7,11 +7,14 @@ import { ClientDashboard } from './client-dashboard';
 
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
-  const isAdmin = user?.role === UserRole.ADMIN;
 
-  if (!isAdmin) {
-    return <ClientDashboard userName={user?.name ?? ''} />;
+  if (!user) {
+    return null;
   }
 
-  return <AdminDashboard />;
+  if (user.role === UserRole.ADMIN) {
+    return <AdminDashboard />;
+  }
+
+  return <ClientDashboard userName={user.name ?? ''} />;
 }
