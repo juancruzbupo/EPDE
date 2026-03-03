@@ -76,6 +76,10 @@ export class DistributedLockService {
    * The callback receives a signal object with a `lockLost` flag. Long-running
    * operations should check `signal.lockLost` before expensive steps and abort
    * early if the lock was lost.
+   *
+   * Lock acquisition is try-once (no retry) — correct for scheduled tasks:
+   * if another instance holds the lock, this instance skips the run gracefully.
+   * This is safe for single-instance AND multi-instance deployments.
    */
   async withLock<T>(
     key: string,

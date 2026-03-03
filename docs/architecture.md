@@ -393,7 +393,14 @@ apiClient.interceptors.response.use(
 );
 ```
 
-**Web (singleton refresh):** El interceptor usa un patron singleton para deduplicar refreshes concurrentes (mismo patron que mobile).
+**Paridad web / mobile (singleton refresh):**
+
+| Plataforma | Mecanismo de auth | Almacenamiento | Interceptor |
+|------------|-------------------|----------------|-------------|
+| Web        | Cookie HttpOnly `access_token` + `withCredentials: true` | Cookie segura (sin acceso JS) | Axios response interceptor — singleton que deduplica refreshes concurrentes |
+| Mobile     | Bearer token en header `Authorization` | Expo SecureStore | Axios response interceptor — mismo patron singleton |
+
+Ambas plataformas evitan **concurrent 401 storms**: si multiples requests fallan con 401 al mismo tiempo, solo se lanza un unico refresh; las demas peticiones esperan la misma promesa (via `let refreshPromise: Promise | null = null`).
 
 ### 14. Middleware (Next.js)
 

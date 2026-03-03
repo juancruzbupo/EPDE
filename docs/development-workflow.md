@@ -386,7 +386,7 @@ pnpm --filter @epde/mobile test              # Solo Mobile (jest-expo)
 - **Web**: Vitest + jsdom + @testing-library/react — hooks y componentes
 - **Mobile**: jest-expo + @testing-library/react-native — componentes. Mock manual de `react-native-reanimated` en `__mocks__/react-native-reanimated.js` (v4.x requiere worklets nativos incluso en el mock oficial)
 
-Total: 447 tests (201 API + 187 Shared + 35 Web + 24 Mobile)
+Total: 505 tests (248 API + 187 Shared + 46 Web + 24 Mobile)
 
 ### Tests E2E
 
