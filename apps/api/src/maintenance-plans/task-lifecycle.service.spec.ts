@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, ForbiddenException } from '@nestjs/common';
+import { NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { TaskLifecycleService } from './task-lifecycle.service';
 import { TasksRepository } from './tasks.repository';
 import { MaintenancePlansRepository } from './maintenance-plans.repository';
@@ -147,6 +147,7 @@ describe('TaskLifecycleService', () => {
       };
       const task = {
         id: taskId,
+        status: 'PENDING',
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         nextDueDate: new Date('2025-01-01'),
@@ -185,6 +186,7 @@ describe('TaskLifecycleService', () => {
       };
       const task = {
         id: taskId,
+        status: 'OVERDUE',
         recurrenceType: 'ON_DETECTION',
         recurrenceMonths: null,
         nextDueDate: null,
@@ -203,6 +205,24 @@ describe('TaskLifecycleService', () => {
         null,
       );
     });
+
+    it('should throw BadRequestException when task is not in a completable status', async () => {
+      const task = {
+        id: 'task-1',
+        status: 'COMPLETED',
+        maintenancePlanId: 'plan-1',
+        recurrenceType: 'ANNUAL',
+        nextDueDate: new Date(),
+        recurrenceMonths: 12,
+      };
+      mockTasksRepository.findById.mockResolvedValue(task);
+
+      await expect(
+        service.completeTask('task-1', 'user-1', {} as never, { id: 'user-1', role: 'ADMIN' }),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(mockTasksRepository.completeAndReschedule).not.toHaveBeenCalled();
+    });
   });
 
   describe('assertTaskAccess (via completeTask)', () => {
@@ -210,6 +230,7 @@ describe('TaskLifecycleService', () => {
       const taskId = 'task-1';
       const task = {
         id: taskId,
+        status: 'PENDING',
         maintenancePlanId: 'plan-1',
         recurrenceType: 'ANNUAL',
         nextDueDate: new Date(),

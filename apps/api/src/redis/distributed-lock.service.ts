@@ -94,27 +94,35 @@ export class DistributedLockService {
 
     const signal = { lockLost: false };
 
-    // Watchdog: extend lock at half the TTL interval
+    // Watchdog: extend lock at half the TTL interval.
+    // Uses recursive setTimeout instead of setInterval to prevent concurrent invocations
+    // if Redis takes longer than the watchdog interval to respond.
     const watchdogInterval = Math.max(Math.floor((ttlSeconds * 1000) / 2), 5000);
-    const watchdog = setInterval(async () => {
-      try {
-        const extended = await this.extendLock(key, owner, ttlSeconds);
-        if (!extended) {
+    let watchdogTimer: ReturnType<typeof setTimeout>;
+
+    const scheduleWatchdog = () => {
+      watchdogTimer = setTimeout(async () => {
+        try {
+          const extended = await this.extendLock(key, owner, ttlSeconds);
+          if (!extended) {
+            signal.lockLost = true;
+            this.logger.error(`Lock "${key}" lost during execution`);
+            return; // Lock is gone — do not reschedule
+          }
+          scheduleWatchdog(); // Reschedule only after successful extension
+        } catch (error) {
           signal.lockLost = true;
-          clearInterval(watchdog);
-          this.logger.error(`Lock "${key}" lost during execution`);
+          this.logger.error(`Lock "${key}" watchdog error: ${(error as Error).message}`);
         }
-      } catch (error) {
-        signal.lockLost = true;
-        clearInterval(watchdog);
-        this.logger.error(`Lock "${key}" watchdog error: ${(error as Error).message}`);
-      }
-    }, watchdogInterval);
+      }, watchdogInterval);
+    };
+
+    scheduleWatchdog();
 
     try {
       return await fn(signal);
     } finally {
-      clearInterval(watchdog);
+      clearTimeout(watchdogTimer!);
       if (!signal.lockLost) {
         await this.releaseLock(key, owner);
       }

@@ -18,6 +18,7 @@ describe('MaintenancePlansService', () => {
   };
   let tasksRepository: {
     findAllForList: jest.Mock;
+    findById: jest.Mock;
   };
   let taskLifecycleService: {
     addTask: jest.Mock;
@@ -47,6 +48,7 @@ describe('MaintenancePlansService', () => {
 
     tasksRepository = {
       findAllForList: jest.fn(),
+      findById: jest.fn(),
     };
 
     taskLifecycleService = {
@@ -127,7 +129,10 @@ describe('MaintenancePlansService', () => {
   });
 
   describe('getTaskDetail', () => {
-    it('should delegate to TaskNotesService', async () => {
+    const taskStub = { id: 'task-1', maintenancePlanId: 'plan-1', status: 'PENDING' };
+
+    it('should delegate to TaskNotesService when ADMIN accesses any task', async () => {
+      tasksRepository.findById.mockResolvedValue(taskStub);
       const taskWithDetails = {
         id: 'task-1',
         maintenancePlanId: 'plan-1',
@@ -142,6 +147,34 @@ describe('MaintenancePlansService', () => {
 
       expect(result).toEqual(taskWithDetails);
       expect(taskNotesService.getTaskDetail).toHaveBeenCalledWith('task-1');
+      // ADMIN skips ownership check
+      expect(plansRepository.findWithProperty).not.toHaveBeenCalled();
+    });
+
+    it('should return task detail when CLIENT owns the property', async () => {
+      tasksRepository.findById.mockResolvedValue(taskStub);
+      plansRepository.findWithProperty.mockResolvedValue({ property: { userId: clientUser.id } });
+      taskNotesService.getTaskDetail.mockResolvedValue(taskStub);
+
+      const result = await service.getTaskDetail('task-1', clientUser);
+
+      expect(result).toEqual(taskStub);
+    });
+
+    it('should throw ForbiddenException when CLIENT accesses a task from another user', async () => {
+      tasksRepository.findById.mockResolvedValue(taskStub);
+      plansRepository.findWithProperty.mockResolvedValue({ property: { userId: 'other-user' } });
+
+      await expect(service.getTaskDetail('task-1', clientUser)).rejects.toThrow(ForbiddenException);
+      expect(taskNotesService.getTaskDetail).not.toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException when task does not exist', async () => {
+      tasksRepository.findById.mockResolvedValue(null);
+
+      await expect(service.getTaskDetail('non-existent', clientUser)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -174,7 +207,10 @@ describe('MaintenancePlansService', () => {
   });
 
   describe('addTaskNote', () => {
-    it('should delegate to TaskNotesService', async () => {
+    const taskStub = { id: 'task-1', maintenancePlanId: 'plan-1', status: 'PENDING' };
+
+    it('should delegate to TaskNotesService when ADMIN adds a note', async () => {
+      tasksRepository.findById.mockResolvedValue(taskStub);
       const createdNote = {
         id: 'note-1',
         taskId: 'task-1',
@@ -195,6 +231,17 @@ describe('MaintenancePlansService', () => {
       expect(taskNotesService.addTaskNote).toHaveBeenCalledWith('task-1', 'user-1', {
         content: 'Nota de prueba',
       });
+    });
+
+    it('should throw ForbiddenException when CLIENT adds note to another user task', async () => {
+      tasksRepository.findById.mockResolvedValue(taskStub);
+      plansRepository.findWithProperty.mockResolvedValue({ property: { userId: 'other-user' } });
+
+      await expect(
+        service.addTaskNote('task-1', clientUser.id, { content: 'Nota' }, clientUser),
+      ).rejects.toThrow(ForbiddenException);
+
+      expect(taskNotesService.addTaskNote).not.toHaveBeenCalled();
     });
   });
 

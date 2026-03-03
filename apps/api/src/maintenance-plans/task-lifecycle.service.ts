@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { TasksRepository } from './tasks.repository';
 import { MaintenancePlansRepository } from './maintenance-plans.repository';
 import { TaskAuditLogRepository } from './task-audit-log.repository';
@@ -127,6 +127,13 @@ export class TaskLifecycleService {
     user?: { id: string; role: string },
   ) {
     const task = await this.assertTaskAccess(taskId, user);
+
+    const COMPLETABLE_STATUSES = ['PENDING', 'UPCOMING', 'OVERDUE'];
+    if (!COMPLETABLE_STATUSES.includes(task.status)) {
+      throw new BadRequestException(
+        `La tarea no está en un estado completable (estado actual: ${task.status})`,
+      );
+    }
 
     let newDueDate: Date | null = null;
     if (task.recurrenceType !== 'ON_DETECTION' && task.nextDueDate) {

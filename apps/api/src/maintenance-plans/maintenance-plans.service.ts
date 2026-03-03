@@ -81,24 +81,43 @@ export class MaintenancePlansService {
     return this.taskLifecycleService.completeTask(taskId, userId, dto, user);
   }
 
-  getTaskDetail(taskId: string, _user?: { id: string; role: string }) {
+  async getTaskDetail(taskId: string, user?: { id: string; role: string }) {
+    await this.assertTaskAccess(taskId, user);
     return this.taskNotesService.getTaskDetail(taskId);
   }
 
-  getTaskLogs(taskId: string, _user?: { id: string; role: string }) {
+  async getTaskLogs(taskId: string, user?: { id: string; role: string }) {
+    await this.assertTaskAccess(taskId, user);
     return this.taskNotesService.getTaskLogs(taskId);
   }
 
-  getTaskNotes(taskId: string, _user?: { id: string; role: string }) {
+  async getTaskNotes(taskId: string, user?: { id: string; role: string }) {
+    await this.assertTaskAccess(taskId, user);
     return this.taskNotesService.getTaskNotes(taskId);
   }
 
-  addTaskNote(
+  async addTaskNote(
     taskId: string,
     userId: string,
     dto: CreateTaskNoteInput,
-    _user?: { id: string; role: string },
+    user?: { id: string; role: string },
   ) {
+    await this.assertTaskAccess(taskId, user);
     return this.taskNotesService.addTaskNote(taskId, userId, dto);
+  }
+
+  private async assertTaskAccess(
+    taskId: string,
+    user?: { id: string; role: string },
+  ): Promise<void> {
+    const task = await this.tasksRepository.findById(taskId);
+    if (!task) throw new NotFoundException('Tarea no encontrada');
+
+    if (user?.role === UserRole.CLIENT) {
+      const plan = await this.plansRepository.findWithProperty(task.maintenancePlanId);
+      if (plan?.property?.userId !== user.id) {
+        throw new ForbiddenException('No tenés acceso a esta tarea');
+      }
+    }
   }
 }
