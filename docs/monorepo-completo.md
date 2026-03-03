@@ -69,7 +69,7 @@ epde/
 │   │   │   ├── redis/                # RedisModule (global) + DistributedLockService
 │   │   │   ├── health/              # HealthModule (@nestjs/terminus, DB + Redis)
 │   │   │   ├── metrics/             # MetricsModule (OpenTelemetry, Prometheus :9464)
-│   │   │   ├── prisma/               # PrismaService + soft-delete extension
+│   │   │   ├── prisma/               # PrismaModule (@Global) + PrismaService + soft-delete extension
 │   │   │   ├── common/
 │   │   │   │   ├── decorators/       # @Public, @Roles, @CurrentUser
 │   │   │   │   ├── guards/           # JwtAuth, Roles, Throttler
@@ -181,7 +181,7 @@ epde/
 │       │   │   │                      # (QUERY_KEYS centralizado aquí — SSoT para web y mobile)
 │       │   │   ├── badge-variants.ts # Variantes de Badge compartidas web/mobile
 │       │   │   └── design-tokens.ts  # DESIGN_TOKENS_LIGHT + DESIGN_TOKENS_DARK (SSoT paleta)
-│       │   └── utils/                # Date/string helpers, getErrorMessage
+│       │   └── utils/                # Date/string helpers, getErrorMessage, validateUpload
 │       ├── tsup.config.ts            # Dual ESM(.js) + CJS(.cjs) build
 │       ├── vitest.config.ts          # Unit tests
 │       ├── tsconfig.json
@@ -315,7 +315,8 @@ export class BaseRepository<T, M extends PrismaModelName = PrismaModelName> {
 }
 ```
 
-- **Servicios NO inyectan PrismaService** — solo los repositorios acceden a datos
+- **Servicios NO inyectan PrismaService** — solo los repositorios acceden a datos (excepcion: `AuthAuditService` — fire-and-forget logger)
+- `PrismaModule` es `@Global()` — se importa una sola vez en `AppModule` y queda disponible para todos los modulos sin necesidad de registrar `PrismaService` en cada `providers[]`
 - Paginacion cursor-based: `{ data, nextCursor, hasMore, total }`
 - `take` clampeado entre 1 y `MAX_PAGE_SIZE` (100) para prevenir queries sin limite
 
@@ -344,13 +345,14 @@ feature/
 
 **Excepciones documentadas:**
 
-| Modulo      | Excepcion                                          | Razon                                                                                                                                  |
-| ----------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `users`     | Sin controller                                     | CRUD de usuarios expuesto via `clients/` — no tiene endpoints directos                                                                 |
-| `upload`    | Sin repository                                     | Solo interactua con Cloudflare R2, no persiste en DB                                                                                   |
-| `scheduler` | Sin controller ni repository                       | Solo cron jobs — sin endpoints REST ni acceso a datos propios                                                                          |
-| `email`     | Sin controller ni repository                       | Servicio auxiliar de envio — invocado por `notifications/`                                                                             |
-| `dashboard` | Repository standalone (no extiende BaseRepository) | Queries de agregacion multi-modelo (JOINs entre User, Task, Budget, ServiceRequest) que no encajan en el patron CRUD de un solo modelo |
+| Modulo      | Excepcion                                                           | Razon                                                                                                                                                                                     |
+| ----------- | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `users`     | Sin controller                                                      | CRUD de usuarios expuesto via `clients/` — no tiene endpoints directos                                                                                                                    |
+| `upload`    | Sin repository                                                      | Solo interactua con Cloudflare R2, no persiste en DB                                                                                                                                      |
+| `scheduler` | Sin controller ni repository                                        | Solo cron jobs — sin endpoints REST ni acceso a datos propios                                                                                                                             |
+| `email`     | Sin controller ni repository                                        | Servicio auxiliar de envio — invocado por `notifications/`                                                                                                                                |
+| `dashboard` | Repository standalone (no extiende BaseRepository)                  | Queries de agregacion multi-modelo (JOINs entre User, Task, Budget, ServiceRequest) que no encajan en el patron CRUD de un solo modelo                                                    |
+| `tasks`     | Modulo separado importa `MaintenancePlansModule` via `forwardRef()` | Extraccion de `TaskLifecycleService` + `TaskNotesService` del modulo `maintenance-plans/`. `forwardRef()` resuelve la dependencia circular entre `TasksModule` ↔ `MaintenancePlansModule` |
 
 ### P4: Guard Composition
 
@@ -436,7 +438,8 @@ Cliente → POST /upload (multipart/form-data) → { url }
 ```
 
 **Acceso:** Restringido a `ADMIN` via `@Roles(UserRole.ADMIN)`.
-**Validacion:** MIME whitelist (jpeg, png, webp, gif, pdf), magic bytes verification (`file-type`), `Content-Disposition: attachment`, max 10 MB, folder validado via Zod schema (`uploadBodySchema`) con `ZodValidationPipe`.
+**Validacion server-side:** MIME whitelist (jpeg, png, webp, gif, pdf), magic bytes verification (`file-type`), `Content-Disposition: attachment`, max 10 MB, folder validado via Zod schema (`uploadBodySchema`) con `ZodValidationPipe`.
+**Validacion client-side:** `validateUpload()` de `@epde/shared` valida MIME type y tamano antes del upload (web y mobile web). Mobile nativo no puede obtener el tamano del archivo antes de subir — se valida solo server-side.
 
 ### P11: Cron Jobs (Distributed Lock)
 
@@ -599,6 +602,15 @@ Casos de uso: token rotation (families), token blacklist (JTIs), distributed loc
 > Al cambiar un color: actualizar primero `design-tokens.ts`, luego propagar a `globals.css` (web) y `global.css` (mobile).
 > Un test en `apps/mobile` verifica la sincronizacion de los valores clave.
 
+**Consumidores de `DESIGN_TOKENS_LIGHT` en JS** (no pueden usar CSS custom properties):
+
+| Consumidor                    | Archivo                                   | Uso                                                                                       |
+| ----------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------- |
+| HealthCard progress bar       | `apps/web/src/components/health-card.tsx` | Framer Motion `backgroundColor` (mutedForeground, success, primary, warning, destructive) |
+| Email templates (HTML inline) | `apps/api/src/email/email.service.ts`     | Colores en template strings HTML (primary, border, destructive)                           |
+
+NUNCA usar hex literals en estos archivos — importar siempre desde `DESIGN_TOKENS_LIGHT`.
+
 ### Spacing & Radius
 
 | Token       | Valor                |
@@ -695,6 +707,8 @@ Centralizados en `lib/style-maps.ts` (web) y `components/status-badge.tsx` (mobi
 | `clientStatusVariant`  | Clientes     | INVITED, ACTIVE, INACTIVE                                     |
 
 Los mapas de variantes para Badge (`taskStatusVariant`, `budgetStatusVariant`, `serviceStatusVariant`, etc.) se importan desde `@epde/shared/constants/badge-variants` como SSoT compartido entre web y mobile. El Badge web incluye variante `success` para estados terminales positivos (COMPLETED, APPROVED, RESOLVED).
+
+**Tokens semanticos en badges:** La variante `success` usa `bg-success/15 text-success border-success/20` (web) y `bg-success/15 text-success` (mobile). NUNCA usar `bg-green-*` / `text-green-*` directamente — siempre tokens semanticos (`success`, `warning`, `destructive`).
 
 ### Accesibilidad (Web)
 
@@ -867,11 +881,18 @@ Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `
 ### GitHub Actions CI
 
 ```yaml
-Jobs: lint → typecheck → build → test → test:e2e → coverage (web + API)
+Jobs: lint → typecheck → build → test → test:e2e → coverage (web + API + Shared)
 Enforcement (PRs): service modificado sin spec → fail
 Services: PostgreSQL 16 Alpine, Redis 7 Alpine
 Triggers: push a main/develop, PRs a main/develop
 ```
+
+**Coverage thresholds:**
+
+| Package | Statements | Branches | Functions | Lines |
+| ------- | ---------- | -------- | --------- | ----- |
+| API     | 75         | 60       | 65        | 75    |
+| Shared  | 80         | 65       | 75        | 80    |
 
 ### GitHub Actions CD
 
@@ -968,7 +989,7 @@ pnpm dev:mobile       # Expo dev server
 pnpm build            # Build completo
 pnpm lint             # ESLint
 pnpm typecheck        # TypeScript check
-pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo)
+pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo) — ~588 tests total
 
 # Tests E2E (requiere DB + Redis)
 pnpm --filter @epde/api test:e2e

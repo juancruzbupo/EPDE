@@ -257,6 +257,8 @@ apps/api/src/<feature>/
 
 **Excepciones:** No todos los modulos requieren las 4 piezas. Ver tabla de excepciones en `docs/architecture.md`. Ejemplos: `users` (sin controller), `upload` (sin repository), `email` (sin controller ni repository). **CI enforce:** Si modificas un `*.service.ts`, DEBE existir su `*.service.spec.ts`.
 
+**Dependencia circular `TasksModule` ↔ `MaintenancePlansModule`:** `TasksModule` importa `MaintenancePlansModule` via `forwardRef(() => MaintenancePlansModule)` y viceversa. `MaintenancePlansModule` exporta `MaintenancePlansRepository`. NUNCA registrar `MaintenancePlansRepository` directamente en `TasksModule.providers[]` — importar el modulo via `forwardRef`.
+
 ### 3.2 Repository Pattern
 
 ```typescript
