@@ -102,7 +102,7 @@ export class AuthController {
   }
 
   @Public()
-  @Throttle({ medium: { limit: 15, ttl: 60000 } })
+  @Throttle({ medium: { limit: 5, ttl: 60000 } })
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(

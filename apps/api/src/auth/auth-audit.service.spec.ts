@@ -1,20 +1,29 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Logger } from '@nestjs/common';
 import { AuthAuditService } from './auth-audit.service';
+import { PrismaService } from '../prisma/prisma.service';
+
+const mockPrisma = {
+  authAuditLog: { create: jest.fn().mockResolvedValue({}) },
+};
 
 describe('AuthAuditService', () => {
-  let service: AuthAuditService;
-  let logSpy: jest.SpyInstance;
-  let warnSpy: jest.SpyInstance;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let service: any;
 
   beforeEach(async () => {
+    mockPrisma.authAuditLog.create.mockReset().mockResolvedValue({});
+
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AuthAuditService],
+      providers: [
+        AuthAuditService,
+        { provide: PrismaService, useValue: mockPrisma },
+      ],
     }).compile();
 
     service = module.get<AuthAuditService>(AuthAuditService);
-    logSpy = jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
-    warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
+    jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
   });
 
   afterEach(() => {
@@ -22,6 +31,7 @@ describe('AuthAuditService', () => {
   });
 
   it('should log login event with userId, email, clientType and ip', () => {
+    const logSpy = jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
     service.logLogin('user-1', 'test@test.com', 'web', '127.0.0.1');
 
     expect(logSpy).toHaveBeenCalledWith(
@@ -30,6 +40,7 @@ describe('AuthAuditService', () => {
   });
 
   it('should log logout event with userId and jti', () => {
+    const logSpy = jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
     service.logLogout('user-1', 'jti-123');
 
     expect(logSpy).toHaveBeenCalledWith(
@@ -38,6 +49,7 @@ describe('AuthAuditService', () => {
   });
 
   it('should warn on failed login with email, reason and ip', () => {
+    const warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
     service.logFailedLogin('test@test.com', 'wrong_password', '127.0.0.1');
 
     expect(warnSpy).toHaveBeenCalledWith(
@@ -46,10 +58,31 @@ describe('AuthAuditService', () => {
   });
 
   it('should warn on token reuse with family and userId', () => {
+    const warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
     service.logTokenReuse('family-abc', 'user-1');
 
     expect(warnSpy).toHaveBeenCalledWith(
       expect.objectContaining({ event: 'token_reuse_attack', family: 'family-abc', userId: 'user-1' }),
     );
+  });
+
+  it('should call prisma.authAuditLog.create fire-and-forget (returns void, not a Promise)', () => {
+    const result = service.logLogin('user-1', 'test@test.com', 'web', '127.0.0.1');
+
+    expect(result).toBeUndefined();
+    expect(mockPrisma.authAuditLog.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ event: 'login', userId: 'user-1' }) }),
+    );
+  });
+
+  it('should not propagate prisma errors — audit failure must never block auth', async () => {
+    mockPrisma.authAuditLog.create.mockRejectedValue(new Error('DB down'));
+    const errorSpy = jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+
+    expect(() => service.logLogin('user-1', 'test@test.com', 'web', '127.0.0.1')).not.toThrow();
+
+    await Promise.resolve();
+
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to persist auth audit'));
   });
 });

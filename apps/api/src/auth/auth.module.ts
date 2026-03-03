@@ -9,6 +9,7 @@ import { AuthAuditService } from './auth-audit.service';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersModule } from '../users/users.module';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { UsersModule } from '../users/users.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, TokenService, AuthAuditService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, TokenService, AuthAuditService, LocalStrategy, JwtStrategy, PrismaService],
   exports: [AuthService, TokenService, JwtModule],
 })
 export class AuthModule {}

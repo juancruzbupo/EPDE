@@ -57,7 +57,7 @@ const MODEL_TO_SCHEMA_FILE = {
  * Models that are intentionally schema-less in @epde/shared.
  * These are internal/derived models that are never validated from user input.
  */
-const SCHEMA_EXEMPT_MODELS = new Set(['Notification', 'TaskAuditLog']);
+const SCHEMA_EXEMPT_MODELS = new Set(['Notification', 'TaskAuditLog', 'AuthAuditLog']);
 
 // ---------------------------------------------------------------------------
 // 3. Check each model

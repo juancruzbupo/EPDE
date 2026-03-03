@@ -163,6 +163,7 @@ model User {
   budgetRequests  BudgetRequest[]
   serviceRequests ServiceRequest[]
   notifications   Notification[]
+  authAuditLogs   AuthAuditLog[]
 
   @@index([email])
   @@index([role, deletedAt])
@@ -453,4 +454,20 @@ model TaskTemplate {
 
   @@index([categoryId])
   @@index([categoryId, displayOrder])
+}
+
+model AuthAuditLog {
+  id         String   @id @default(uuid())
+  event      String   @db.VarChar(50)
+  userId     String?
+  email      String?
+  ip         String?
+  clientType String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([event, createdAt])
 }
