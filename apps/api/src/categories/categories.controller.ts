@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CategoriesService } from './categories.service';
@@ -30,7 +30,7 @@ export class CategoriesController {
   @Patch(':id')
   @Roles(UserRole.ADMIN)
   async updateCategory(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updateCategorySchema)) dto: UpdateCategoryInput,
   ) {
     const data = await this.categoriesService.updateCategory(id, dto);
@@ -39,7 +39,7 @@ export class CategoriesController {
 
   @Delete(':id')
   @Roles(UserRole.ADMIN)
-  async deleteCategory(@Param('id') id: string) {
+  async deleteCategory(@Param('id', ParseUUIDPipe) id: string) {
     return this.categoriesService.deleteCategory(id);
   }
 }

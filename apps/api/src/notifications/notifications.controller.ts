@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, Query } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Query, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { NotificationsService } from './notifications.service';
@@ -27,7 +27,7 @@ export class NotificationsController {
   }
 
   @Patch(':id/read')
-  async markAsRead(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+  async markAsRead(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: { id: string }) {
     const data = await this.notificationsService.markAsRead(id, user.id);
     return { data };
   }

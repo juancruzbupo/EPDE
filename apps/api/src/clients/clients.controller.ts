@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, Query } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, Query, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { ClientsService } from './clients.service';
@@ -26,7 +26,7 @@ export class ClientsController {
   }
 
   @Get(':id')
-  async getClient(@Param('id') id: string) {
+  async getClient(@Param('id', ParseUUIDPipe) id: string) {
     const data = await this.clientsService.getClient(id);
     return { data };
   }
@@ -39,7 +39,7 @@ export class ClientsController {
 
   @Patch(':id')
   async updateClient(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updateClientSchema)) dto: UpdateClientInput,
   ) {
     const data = await this.clientsService.updateClient(id, dto);
@@ -47,7 +47,7 @@ export class ClientsController {
   }
 
   @Delete(':id')
-  async deleteClient(@Param('id') id: string) {
+  async deleteClient(@Param('id', ParseUUIDPipe) id: string) {
     return this.clientsService.deleteClient(id);
   }
 }

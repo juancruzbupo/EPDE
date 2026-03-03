@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Put, Param, Body, Query } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Put, Param, Body, Query, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -67,7 +67,7 @@ export class MaintenancePlansController {
   }
 
   @Get(':id')
-  async getPlan(@Param('id') id: string, @CurrentUser() user: { id: string; role: string }) {
+  async getPlan(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: { id: string; role: string }) {
     const data = await this.plansService.getPlan(id, user);
     return { data };
   }
@@ -75,7 +75,7 @@ export class MaintenancePlansController {
   @Patch(':id')
   @Roles(UserRole.ADMIN)
   async updatePlan(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updatePlanSchema)) dto: UpdatePlanInput,
     @CurrentUser() user: { id: string },
   ) {
@@ -86,7 +86,7 @@ export class MaintenancePlansController {
   @Post(':id/tasks')
   @Roles(UserRole.ADMIN)
   async addTask(
-    @Param('id') planId: string,
+    @Param('id', ParseUUIDPipe) planId: string,
     @Body(new ZodValidationPipe(createTaskBodySchema)) dto: CreateTaskBody,
     @CurrentUser() user: { id: string },
   ) {
@@ -97,7 +97,7 @@ export class MaintenancePlansController {
   @Patch(':id/tasks/:taskId')
   @Roles(UserRole.ADMIN)
   async updateTask(
-    @Param('taskId') taskId: string,
+    @Param('taskId', ParseUUIDPipe) taskId: string,
     @Body(new ZodValidationPipe(updateTaskWithRecurrenceSchema)) dto: UpdateTaskInput,
     @CurrentUser() user: { id: string },
   ) {
@@ -107,14 +107,14 @@ export class MaintenancePlansController {
 
   @Delete(':id/tasks/:taskId')
   @Roles(UserRole.ADMIN)
-  async removeTask(@Param('taskId') taskId: string) {
+  async removeTask(@Param('taskId', ParseUUIDPipe) taskId: string) {
     return this.taskLifecycle.removeTask(taskId);
   }
 
   @Put(':id/tasks/reorder')
   @Roles(UserRole.ADMIN)
   async reorderTasks(
-    @Param('id') planId: string,
+    @Param('id', ParseUUIDPipe) planId: string,
     @Body(new ZodValidationPipe(reorderTasksSchema)) dto: ReorderTasksInput,
   ) {
     const data = await this.taskLifecycle.reorderTasks(planId, dto);
@@ -123,7 +123,7 @@ export class MaintenancePlansController {
 
   @Get(':id/tasks/:taskId')
   async getTaskDetail(
-    @Param('taskId') taskId: string,
+    @Param('taskId', ParseUUIDPipe) taskId: string,
     @CurrentUser() user: { id: string; role: string },
   ) {
     await this.taskLifecycle.verifyTaskAccess(taskId, user);
@@ -133,7 +133,7 @@ export class MaintenancePlansController {
 
   @Post(':id/tasks/:taskId/complete')
   async completeTask(
-    @Param('taskId') taskId: string,
+    @Param('taskId', ParseUUIDPipe) taskId: string,
     @Body(new ZodValidationPipe(completeTaskSchema)) dto: CompleteTaskInput,
     @CurrentUser() user: { id: string; role: string },
   ) {
@@ -143,7 +143,7 @@ export class MaintenancePlansController {
 
   @Get(':id/tasks/:taskId/logs')
   async getTaskLogs(
-    @Param('taskId') taskId: string,
+    @Param('taskId', ParseUUIDPipe) taskId: string,
     @CurrentUser() user: { id: string; role: string },
   ) {
     await this.taskLifecycle.verifyTaskAccess(taskId, user);
@@ -153,7 +153,7 @@ export class MaintenancePlansController {
 
   @Post(':id/tasks/:taskId/notes')
   async addTaskNote(
-    @Param('taskId') taskId: string,
+    @Param('taskId', ParseUUIDPipe) taskId: string,
     @Body(new ZodValidationPipe(createTaskNoteSchema)) dto: CreateTaskNoteInput,
     @CurrentUser() user: { id: string; role: string },
   ) {
@@ -164,7 +164,7 @@ export class MaintenancePlansController {
 
   @Get(':id/tasks/:taskId/notes')
   async getTaskNotes(
-    @Param('taskId') taskId: string,
+    @Param('taskId', ParseUUIDPipe) taskId: string,
     @CurrentUser() user: { id: string; role: string },
   ) {
     await this.taskLifecycle.verifyTaskAccess(taskId, user);

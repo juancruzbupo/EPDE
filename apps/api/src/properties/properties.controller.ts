@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, Query } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, Query, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -27,7 +27,7 @@ export class PropertiesController {
   }
 
   @Get(':id')
-  async getProperty(@Param('id') id: string, @CurrentUser() user: { id: string; role: string }) {
+  async getProperty(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: { id: string; role: string }) {
     const data = await this.propertiesService.getProperty(id, user);
     return { data };
   }
@@ -44,7 +44,7 @@ export class PropertiesController {
 
   @Patch(':id')
   async updateProperty(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updatePropertySchema)) dto: UpdatePropertyInput,
     @CurrentUser() user: { id: string; role: string },
   ) {
@@ -54,7 +54,7 @@ export class PropertiesController {
 
   @Delete(':id')
   @Roles(UserRole.ADMIN)
-  async deleteProperty(@Param('id') id: string, @CurrentUser() user: { id: string; role: string }) {
+  async deleteProperty(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: { id: string; role: string }) {
     return this.propertiesService.deleteProperty(id, user);
   }
 }

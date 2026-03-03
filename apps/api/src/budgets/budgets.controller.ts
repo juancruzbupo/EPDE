@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Param, Body, Query } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Body, Query, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -33,7 +33,7 @@ export class BudgetsController {
   }
 
   @Get(':id')
-  async getBudget(@Param('id') id: string, @CurrentUser() user: { id: string; role: string }) {
+  async getBudget(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: { id: string; role: string }) {
     const data = await this.budgetsService.getBudget(id, user);
     return { data };
   }
@@ -51,7 +51,7 @@ export class BudgetsController {
   @Post(':id/respond')
   @Roles(UserRole.ADMIN)
   async respondToBudget(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(respondBudgetSchema)) dto: RespondBudgetInput,
     @CurrentUser() user: { id: string },
   ) {
@@ -61,7 +61,7 @@ export class BudgetsController {
 
   @Patch(':id/status')
   async updateStatus(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updateBudgetStatusSchema)) dto: UpdateBudgetStatusInput,
     @CurrentUser() user: { id: string; role: string },
   ) {
