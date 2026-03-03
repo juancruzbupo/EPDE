@@ -57,7 +57,7 @@ export class ServiceRequestsRepository extends BaseRepository<ServiceRequest, 's
     if (params.status) where.status = params.status;
     if (params.urgency) where.urgency = params.urgency;
     if (params.propertyId) where.propertyId = params.propertyId;
-    if (params.userId) where.property = { userId: params.userId };
+    if (params.userId) where.requestedBy = params.userId;
 
     const findParams: FindManyParams = {
       cursor: params.cursor,

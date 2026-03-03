@@ -51,7 +51,7 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
     }
 
     if (params.userId) {
-      where.property = { userId: params.userId };
+      where.requestedBy = params.userId;
     }
 
     const findParams: FindManyParams = {
