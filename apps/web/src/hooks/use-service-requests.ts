@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getErrorMessage } from '@/lib/errors';
-import { QUERY_KEYS } from '@/lib/query-keys';
+import { QUERY_KEYS } from '@epde/shared';
 import type { ServiceRequestPublic } from '@epde/shared';
 import {
   getServiceRequests,

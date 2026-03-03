@@ -36,15 +36,15 @@ export const priorityColors: Record<string, string> = {
 };
 
 export const taskTypeColors: Record<string, string> = {
-  INSPECTION: 'bg-blue-100 text-blue-700',
-  CLEANING: 'bg-cyan-100 text-cyan-700',
-  TEST: 'bg-indigo-100 text-indigo-700',
-  TREATMENT: 'bg-purple-100 text-purple-700',
-  SEALING: 'bg-amber-100 text-amber-700',
-  LUBRICATION: 'bg-lime-100 text-lime-700',
-  ADJUSTMENT: 'bg-slate-100 text-slate-700',
-  MEASUREMENT: 'bg-teal-100 text-teal-700',
-  EVALUATION: 'bg-violet-100 text-violet-700',
+  INSPECTION: 'bg-task-inspection/15 text-task-inspection',
+  CLEANING: 'bg-task-cleaning/15 text-task-cleaning',
+  TEST: 'bg-task-test/15 text-task-test',
+  TREATMENT: 'bg-task-treatment/15 text-task-treatment',
+  SEALING: 'bg-task-sealing/15 text-task-sealing',
+  LUBRICATION: 'bg-task-lubrication/15 text-task-lubrication',
+  ADJUSTMENT: 'bg-task-adjustment/15 text-task-adjustment',
+  MEASUREMENT: 'bg-task-measurement/15 text-task-measurement',
+  EVALUATION: 'bg-task-evaluation/15 text-task-evaluation',
 };
 
 export const professionalReqColors: Record<string, string> = {

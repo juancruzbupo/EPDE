@@ -3,6 +3,7 @@
 // CSRF protection: auth cookies use SameSite=strict (set by API),
 // which prevents cross-site request forgery in modern browsers.
 import axios from 'axios';
+import { attachRefreshInterceptor } from '@epde/shared';
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1',
@@ -10,15 +11,17 @@ const apiClient = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Singleton refresh to avoid concurrent refresh calls
-let isRefreshing = false;
-let refreshPromise: Promise<boolean> | null = null;
-
-async function doRefresh(): Promise<boolean> {
-  try {
-    await apiClient.post('/auth/refresh');
-    return true;
-  } catch {
+attachRefreshInterceptor({
+  client: apiClient,
+  doRefresh: async () => {
+    try {
+      await apiClient.post('/auth/refresh');
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  onRefreshFail: () => {
     if (
       typeof window !== 'undefined' &&
       !window.location.pathname.startsWith('/login') &&
@@ -27,42 +30,7 @@ async function doRefresh(): Promise<boolean> {
     ) {
       window.location.href = '/login';
     }
-    return false;
-  }
-}
-
-// Response interceptor: handle 401 with singleton token refresh
-apiClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      !originalRequest.url?.includes('/auth/login') &&
-      !originalRequest.url?.includes('/auth/refresh')
-    ) {
-      originalRequest._retry = true;
-
-      if (!isRefreshing) {
-        isRefreshing = true;
-        refreshPromise = doRefresh().finally(() => {
-          isRefreshing = false;
-          refreshPromise = null;
-        });
-      }
-
-      const success = await refreshPromise;
-      if (success) {
-        return apiClient(originalRequest);
-      }
-
-      return Promise.reject(error);
-    }
-
-    return Promise.reject(error);
   },
-);
+});
 
 export { apiClient };

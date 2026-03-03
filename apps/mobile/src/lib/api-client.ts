@@ -1,9 +1,9 @@
 import axios from 'axios';
-import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import type { InternalAxiosRequestConfig } from 'axios';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { tokenService } from './token-service';
-import { CLIENT_TYPE_HEADER, CLIENT_TYPES } from '@epde/shared';
+import { CLIENT_TYPE_HEADER, CLIENT_TYPES, attachRefreshInterceptor } from '@epde/shared';
 
 function getDevApiUrl(): string {
   // On web, localhost works fine
@@ -48,86 +48,43 @@ apiClient.interceptors.request.use(async (config: InternalAxiosRequestConfig) =>
   return config;
 });
 
-// Singleton refresh to avoid concurrent refresh calls
-let isRefreshing = false;
-let refreshPromise: Promise<boolean> | null = null;
+attachRefreshInterceptor({
+  client: apiClient,
+  doRefresh: async () => {
+    try {
+      const refreshToken = await tokenService.getRefreshToken();
+      if (!refreshToken) return false;
 
-async function doRefresh(): Promise<boolean> {
-  try {
-    const refreshToken = await tokenService.getRefreshToken();
-    if (!refreshToken) return false;
-
-    const { data } = await axios.post(
-      `${API_BASE_URL}/auth/refresh`,
-      { refreshToken },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          [CLIENT_TYPE_HEADER]: CLIENT_TYPES.MOBILE,
+      const { data } = await axios.post(
+        `${API_BASE_URL}/auth/refresh`,
+        { refreshToken },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            [CLIENT_TYPE_HEADER]: CLIENT_TYPES.MOBILE,
+          },
         },
-      },
-    );
+      );
 
-    if (!data?.data?.accessToken || !data?.data?.refreshToken) {
+      if (!data?.data?.accessToken || !data?.data?.refreshToken) {
+        await tokenService.clearTokens();
+        return false;
+      }
+
+      await tokenService.setTokens(data.data.accessToken, data.data.refreshToken);
+      return true;
+    } catch {
       await tokenService.clearTokens();
       return false;
     }
-
-    await tokenService.setTokens(data.data.accessToken, data.data.refreshToken);
-    return true;
-  } catch {
-    await tokenService.clearTokens();
-    return false;
-  }
-}
-
-// Response interceptor: handle 401 with auto-refresh
-apiClient.interceptors.response.use(
-  (response) => response,
-  async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
-      _retry?: boolean;
-    };
-
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      !originalRequest.url?.includes('/auth/login') &&
-      !originalRequest.url?.includes('/auth/refresh')
-    ) {
-      originalRequest._retry = true;
-
-      if (!isRefreshing) {
-        isRefreshing = true;
-        try {
-          refreshPromise = doRefresh().finally(() => {
-            isRefreshing = false;
-            refreshPromise = null;
-          });
-        } catch {
-          isRefreshing = false;
-          refreshPromise = null;
-        }
-      }
-
-      if (!refreshPromise) {
-        return Promise.reject(error);
-      }
-
-      const success = await refreshPromise;
-      if (success) {
-        const newToken = await tokenService.getAccessToken();
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
-        return apiClient(originalRequest);
-      }
-
-      // Refresh failed — signal logout to UI via dynamic import to avoid circular deps
-      const { useAuthStore } = await import('../stores/auth-store');
-      await useAuthStore.getState().logout();
-
-      return Promise.reject(error);
-    }
-
-    return Promise.reject(error);
   },
-);
+  onRefreshFail: async () => {
+    // Signal logout to UI via dynamic import to avoid circular deps
+    const { useAuthStore } = await import('../stores/auth-store');
+    await useAuthStore.getState().logout();
+  },
+  onRetry: async (config) => {
+    const newToken = await tokenService.getAccessToken();
+    config.headers.Authorization = `Bearer ${newToken}`;
+  },
+});

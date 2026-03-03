@@ -10,7 +10,7 @@ import {
   updateTaskTemplate,
   deleteTaskTemplate,
 } from '@/lib/api/category-templates';
-import { QUERY_KEYS } from '@/lib/query-keys';
+import { QUERY_KEYS } from '@epde/shared';
 import type {
   CreateCategoryTemplateInput,
   UpdateCategoryTemplateInput,

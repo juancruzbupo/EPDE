@@ -13,7 +13,7 @@ export default defineConfig({
     outputFile: process.env.CI ? { junit: './test-results/junit.xml' } : undefined,
     coverage: {
       provider: 'v8',
-      thresholds: { statements: 30, branches: 20, functions: 30, lines: 30 },
+      thresholds: { statements: 50, branches: 35, functions: 50, lines: 50 },
     },
   },
   resolve: {

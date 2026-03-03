@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { QUERY_KEYS } from '@/lib/query-keys';
+import { QUERY_KEYS } from '@epde/shared';
 import type { UpdatePropertyInput, PropertyPublic } from '@epde/shared';
 import { getErrorMessage } from '@/lib/errors';
 import {

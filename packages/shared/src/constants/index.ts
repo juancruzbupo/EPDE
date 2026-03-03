@@ -165,3 +165,21 @@ export const CATEGORY_DEFAULTS = [
 export const CLIENT_TYPE_HEADER = 'x-client-type' as const;
 export const CLIENT_TYPES = { MOBILE: 'mobile', WEB: 'web' } as const;
 export type ClientType = (typeof CLIENT_TYPES)[keyof typeof CLIENT_TYPES];
+
+// ─── Query Keys (frontend SSoT) ────────────────────────
+
+export const QUERY_KEYS = {
+  budgets: 'budgets',
+  dashboard: 'dashboard',
+  clients: 'clients',
+  properties: 'properties',
+  serviceRequests: 'service-requests',
+  notifications: 'notifications',
+  plans: 'plans',
+  categories: 'categories',
+  categoryTemplates: 'category-templates',
+  taskTemplates: 'task-templates',
+  taskDetail: 'task-detail',
+  taskLogs: 'task-logs',
+  taskNotes: 'task-notes',
+} as const;

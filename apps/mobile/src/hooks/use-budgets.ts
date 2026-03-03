@@ -8,8 +8,7 @@ import {
   type BudgetFilters,
 } from '@/lib/api/budgets';
 import type { BudgetRequestPublic, BudgetStatus } from '@epde/shared/types';
-import { getErrorMessage } from '@epde/shared';
-import { QUERY_KEYS } from '@/lib/query-keys';
+import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 
 export function useBudgets(filters: Omit<BudgetFilters, 'cursor'> = {}) {
   return useInfiniteQuery({

@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { QUERY_KEYS } from '@/lib/query-keys';
+import { QUERY_KEYS } from '@epde/shared';
 import { getProperties, getProperty, type PropertyFilters } from '@/lib/api/properties';
 
 export function useProperties(filters: Omit<PropertyFilters, 'cursor'> = {}) {

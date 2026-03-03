@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { QUERY_KEYS } from '@/lib/query-keys';
+import { QUERY_KEYS } from '@epde/shared';
 import { getErrorMessage } from '@/lib/errors';
 import {
   getNotifications,
@@ -26,7 +26,7 @@ export function useUnreadCount() {
       const res = await getUnreadCount(signal);
       return res.data.count;
     },
-    refetchInterval: 30000,
+    refetchInterval: 30_000,
   });
 }
 

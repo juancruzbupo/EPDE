@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
-import { QUERY_KEYS } from '@/lib/query-keys';
+import { QUERY_KEYS } from '@epde/shared';
 import {
   usePlans,
   useAllTasks,
@@ -173,10 +173,7 @@ describe('useCompleteTask', () => {
 
     config.onError(new Error('fail'), variables, { previousPlan });
 
-    expect(mockSetQueryData).toHaveBeenCalledWith(
-      [QUERY_KEYS.plans, 'plan-1'],
-      previousPlan,
-    );
+    expect(mockSetQueryData).toHaveBeenCalledWith([QUERY_KEYS.plans, 'plan-1'], previousPlan);
     expect(Alert.alert).toHaveBeenCalled();
   });
 

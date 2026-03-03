@@ -12,8 +12,7 @@ import {
 } from '@/lib/api/maintenance-plans';
 import type { PlanPublic, TaskNotePublic } from '@epde/shared/types';
 import type { CompleteTaskInput } from '@epde/shared/schemas';
-import { getErrorMessage } from '@epde/shared';
-import { QUERY_KEYS } from '@/lib/query-keys';
+import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useAuthStore } from '@/stores/auth-store';
 
 export function usePlans() {

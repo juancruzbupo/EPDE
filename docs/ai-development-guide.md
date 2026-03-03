@@ -49,7 +49,7 @@
 14. **NUNCA usar `useInfiniteQuery` sin `maxPages`** — Acotar siempre a `maxPages: 10`
 15. **NUNCA usar debounce inline** — Usar el hook `useDebounce(value, delay)` de `@/hooks/use-debounce`
 16. **NUNCA dejar un endpoint sin `@Roles()` ni `@Public()`** — RolesGuard deniega por defecto. Un endpoint sin decorator retorna 403 para cualquier usuario autenticado
-17. **NUNCA exponer `QUERY_KEYS` en `@epde/shared`** — Son constantes frontend-only. Importar desde `@/lib/query-keys` en web y mobile respectivamente
+17. **`QUERY_KEYS` es SSoT en `@epde/shared`** — Importar siempre desde `@epde/shared`, nunca redefinir localmente
 
 ---
 
@@ -172,10 +172,10 @@ export const PAGINATION_DEFAULT_TAKE = 20;
 export const PAGINATION_MAX_TAKE = 100;
 ```
 
-Query keys son **frontend-only** — definidos localmente en cada app:
+Query keys centralizados en `@epde/shared` (SSoT para web y mobile):
 
 ```typescript
-// apps/web/src/lib/query-keys.ts  (y apps/mobile/src/lib/query-keys.ts)
+// packages/shared/src/constants/index.ts
 export const QUERY_KEYS = {
   budgets: 'budgets',
   dashboard: 'dashboard',
@@ -184,9 +184,14 @@ export const QUERY_KEYS = {
   serviceRequests: 'service-requests',
   notifications: 'notifications',
   plans: 'plans',
-  // ...
+  categories: 'categories',
+  categoryTemplates: 'category-templates',
+  taskTemplates: 'task-templates',
+  taskDetail: 'task-detail',
+  taskLogs: 'task-logs',
+  taskNotes: 'task-notes',
 } as const;
-// NUNCA exportar desde @epde/shared — no son constantes de dominio
+// Import: import { QUERY_KEYS } from '@epde/shared';
 ```
 
 Badge variants compartidas entre web y mobile:
@@ -425,10 +430,16 @@ Tres guards globales via `APP_GUARD` en `app.module.ts`:
 
 Rate limits actuales:
 
-- Global: 10 req/seg (short), 60 req/10seg (medium)
-- Login: 5 req/min
-- Set-password: 3 req/hora
-- Refresh: 30 req/min
+| Tier          | Límite                      | Endpoints                 |
+| ------------- | --------------------------- | ------------------------- |
+| Global short  | 5 req/1s                    | Todos (default)           |
+| Global medium | 30 req/10s                  | Todos (default)           |
+| Login         | 5 req/min                   | `POST /auth/login`        |
+| Refresh       | 5 req/min                   | `POST /auth/refresh`      |
+| Set-password  | 3 req/hora + 1 req/5s burst | `POST /auth/set-password` |
+| Upload        | 3 req/s burst + 20 req/min  | `POST /upload`            |
+
+> Regla: Todo endpoint nuevo hereda throttle global. Solo override con `@Throttle()` y justificación documentada.
 
 ### 3.6 Auth Flow
 
@@ -540,21 +551,24 @@ describe('BudgetsService', () => {
 
 ### 4.1 Hook Pattern
 
+**QUERY_KEYS** es SSoT en `@epde/shared` — nunca crear query keys locales. Import siempre: `import { QUERY_KEYS } from '@epde/shared'`.
+
+**staleTime policy**: Dashboard hooks usan `staleTime: 2 * 60 * 1000` (2 min). El resto usa el default de React Query (0).
+
 ```typescript
-// apps/web/src/hooks/use-budgets.ts
+// apps/web/src/hooks/use-budgets.ts — Hook template
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 
-import { getErrorMessage } from '@epde/shared';
-import { QUERY_KEYS } from '@/lib/query-keys';
-
-// Listado con infinite query
+// Listado con infinite query (DEBE tener maxPages: 10)
 export function useBudgets(filters: BudgetFilters) {
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.budgets, filters],
     queryFn: ({ pageParam, signal }) => getBudgets({ ...filters, cursor: pageParam }, signal),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
+    maxPages: 10,
   });
 }
 
@@ -567,7 +581,7 @@ export function useBudget(id: string) {
   });
 }
 
-// Mutation con invalidacion + toasts
+// Mutation con invalidacion + toasts (web: toast, mobile: Alert.alert)
 export function useCreateBudgetRequest() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -888,9 +902,11 @@ En la screen: `onEndReached={() => hasNextPage && fetchNextPage()}` con `onEndRe
 
 ```typescript
 // apps/mobile/src/lib/api-client.ts
+import { CLIENT_TYPE_HEADER, CLIENT_TYPES, attachRefreshInterceptor } from '@epde/shared';
+
 const apiClient = axios.create({
   baseURL: getApiBaseUrl(),
-  headers: { 'X-Client-Type': 'mobile' },
+  headers: { [CLIENT_TYPE_HEADER]: CLIENT_TYPES.MOBILE },
 });
 
 // Request interceptor: adjunta Bearer token desde SecureStore
@@ -900,22 +916,23 @@ apiClient.interceptors.request.use(async (config) => {
   return config;
 });
 
-// Response interceptor: singleton refresh en 401
-let refreshPromise: Promise<void> | null = null;
-apiClient.interceptors.response.use(null, async (error) => {
-  if (error.response?.status === 401 && !error.config._retry) {
-    error.config._retry = true;
-    if (!refreshPromise) {
-      refreshPromise = refreshTokens().finally(() => {
-        refreshPromise = null;
-      });
-    }
-    await refreshPromise;
-    return apiClient(error.config);
-  }
-  return Promise.reject(error);
+// Singleton refresh via shared factory
+attachRefreshInterceptor({
+  client: apiClient,
+  doRefresh: async () => {
+    /* refresh token logic */
+  },
+  onRefreshFail: async () => {
+    useAuthStore.getState().logout();
+  },
+  onRetry: async (config) => {
+    const newToken = await tokenService.getAccessToken();
+    config.headers.Authorization = `Bearer ${newToken}`;
+  },
 });
 ```
+
+> **`attachRefreshInterceptor`** (de `@epde/shared`) centraliza el patron singleton refresh usado en web y mobile. Acepta `doRefresh`, `onRefreshFail`, y opcionalmente `onRetry` (para mobile, que necesita actualizar el header Authorization).
 
 ### 5.3 Screen Pattern
 

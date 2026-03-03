@@ -198,7 +198,7 @@ export async function getMyFeatures(params?) {
 // hooks/use-my-feature.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getErrorMessage } from '@epde/shared';
-import { QUERY_KEYS } from '@/lib/query-keys'; // frontend-only, no importar desde @epde/shared
+import { QUERY_KEYS } from '@epde/shared'; // SSoT centralizado
 
 export function useMyFeatures(filters?) {
   return useQuery({
@@ -290,7 +290,7 @@ O si `pnpm dev` esta corriendo, tsup watch lo detecta automaticamente.
 
 ```typescript
 import { createBudgetRequestSchema } from '@epde/shared'; // schemas
-import { BUDGET_STATUS_LABELS } from '@epde/shared'; // constants (QUERY_KEYS is frontend-only: @/lib/query-keys)
+import { BUDGET_STATUS_LABELS, QUERY_KEYS } from '@epde/shared'; // constants + query keys
 import { BUDGET_STATUS_VARIANT } from '@epde/shared'; // badge variants
 import type { BudgetRequest, BudgetStatus } from '@epde/shared'; // types
 import { formatRelativeDate, isOverdue, getErrorMessage } from '@epde/shared'; // utils
@@ -387,7 +387,7 @@ pnpm --filter @epde/mobile test              # Solo Mobile (jest-expo)
 - **Web**: Vitest + jsdom + @testing-library/react — hooks y componentes
 - **Mobile**: jest-expo + @testing-library/react-native — componentes. Mock manual de `react-native-reanimated` en `__mocks__/react-native-reanimated.js` (v4.x requiere worklets nativos incluso en el mock oficial)
 
-Total: ~560 tests (309 API + 187 Shared + ~30 Web + 35 Mobile)
+Total: ~588 tests (315 API unit + 187 Shared + 51 Web + 35 Mobile). E2E: clients (8) + category-templates (9) + otros existentes.
 
 ### Tests E2E
 

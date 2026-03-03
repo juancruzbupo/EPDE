@@ -23,14 +23,15 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
+    // Immediately clear local state to prevent in-flight requests with stale auth
+    queryClient.cancelQueries();
+    queryClient.clear();
+    set({ user: null, isAuthenticated: false });
+
     try {
       await authApi.logout();
     } catch {
-      // API may fail — continue with local cleanup
-    } finally {
-      queryClient.cancelQueries();
-      queryClient.clear();
-      set({ user: null, isAuthenticated: false });
+      // API may fail — local cleanup already done
     }
   },
 

@@ -189,17 +189,17 @@ import { priorityColors, taskStatusVariant, budgetStatusVariant } from '@/lib/st
 
 **Maps disponibles:**
 
-| Export                  | Entidad      | Descripcion                               |
-| ----------------------- | ------------ | ----------------------------------------- |
-| `priorityColors`        | Tareas       | Clases bg+text por prioridad (LOW→URGENT) |
-| `taskStatusVariant`     | Tareas       | Badge variant por estado                  |
-| `budgetStatusVariant`   | Presupuestos | Badge variant por estado                  |
-| `budgetStatusClassName` | Presupuestos | Clases extra para APPROVED/COMPLETED      |
-| `urgencyVariant`        | Solicitudes  | Badge variant por urgencia                |
-| `serviceStatusVariant`  | Solicitudes  | Badge variant por estado de solicitud     |
-| `clientStatusVariant`   | Clientes     | Badge variant por estado                  |
-| `taskTypeColors`        | Templates    | Clases bg+text por tipo de tarea          |
-| `professionalReqColors` | Templates    | Clases bg+text por req. profesional       |
+| Export                  | Entidad      | Descripcion                                                    |
+| ----------------------- | ------------ | -------------------------------------------------------------- |
+| `priorityColors`        | Tareas       | Clases bg+text por prioridad (LOW→URGENT)                      |
+| `taskStatusVariant`     | Tareas       | Badge variant por estado                                       |
+| `budgetStatusVariant`   | Presupuestos | Badge variant por estado                                       |
+| `budgetStatusClassName` | Presupuestos | Clases extra para APPROVED/COMPLETED                           |
+| `urgencyVariant`        | Solicitudes  | Badge variant por urgencia                                     |
+| `serviceStatusVariant`  | Solicitudes  | Badge variant por estado de solicitud                          |
+| `clientStatusVariant`   | Clientes     | Badge variant por estado                                       |
+| `taskTypeColors`        | Templates    | CSS variable tokens (`bg-task-*/15 text-task-*`) con dark mode |
+| `professionalReqColors` | Templates    | Clases bg+text por req. profesional                            |
 
 ## Componentes UI (shadcn/ui)
 

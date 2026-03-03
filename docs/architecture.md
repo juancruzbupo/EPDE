@@ -350,7 +350,7 @@ Dependencias: `TasksRepository`, `NotificationsRepository`, `UsersRepository`, `
 
 - Cada entidad tiene hooks en `/hooks/use-<entity>.ts`
 - Pattern: `useQuery` para lectura, `useMutation` para escritura
-- `queryKey` convention: `QUERY_KEYS` definidos localmente en cada frontend (`@/lib/query-keys` en web y mobile). No se exportan desde `@epde/shared` — son constantes frontend-only (ej: `[QUERY_KEYS.budgets, filters]`)
+- `queryKey` convention: `QUERY_KEYS` centralizado en `@epde/shared`, importado en web y mobile (ej: `[QUERY_KEYS.budgets, filters]`)
 - Invalidacion especifica en `onSuccess` de mutations (sub-keys de dashboard: `['dashboard', 'stats']`, `['dashboard', 'activity']`, etc. en vez de invalidar todo `['dashboard']`)
 - `queryClient` singleton exportable (`lib/query-client.ts`) — usado tanto por el QueryProvider como por el auth store (para `queryClient.clear()` en logout)
 - Paginacion cursor-based con `hasMore` + "Cargar mas"
@@ -373,33 +373,35 @@ Dependencias: `TasksRepository`, `NotificationsRepository`, `UsersRepository`, `
 - **DataTable:** Row click para navegacion, titulo como `<Link>`, menu 3-dot solo para acciones destructivas
 - **Dashboard:** Activity list con icon circles en bordered cards, stat cards con styling condicional para overdue (`border-destructive/30 bg-destructive/10`)
 
-### 13. API Client (Axios)
+### 13. API Client (Axios + `attachRefreshInterceptor`)
 
 ```typescript
-// lib/api/client.ts
+// lib/api-client.ts (web)
+import { attachRefreshInterceptor } from '@epde/shared';
+
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true, // cookies
 });
 
-// Interceptor de refresh
-apiClient.interceptors.response.use(
-  (res) => res,
-  async (error) => {
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      await refreshToken();
-      return apiClient(originalRequest);
-    }
+attachRefreshInterceptor({
+  client: apiClient,
+  doRefresh: async () => {
+    await apiClient.post('/auth/refresh');
+    return true;
   },
-);
+  onRefreshFail: () => {
+    window.location.href = '/login';
+  },
+});
 ```
 
-**Paridad web / mobile (singleton refresh):**
+**Paridad web / mobile (singleton refresh via `attachRefreshInterceptor` de `@epde/shared`):**
 
-| Plataforma | Mecanismo de auth                                        | Almacenamiento                | Interceptor                                                                 |
-| ---------- | -------------------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------- |
-| Web        | Cookie HttpOnly `access_token` + `withCredentials: true` | Cookie segura (sin acceso JS) | Axios response interceptor — singleton que deduplica refreshes concurrentes |
-| Mobile     | Bearer token en header `Authorization`                   | Expo SecureStore              | Axios response interceptor — mismo patron singleton                         |
+| Plataforma | Mecanismo de auth                                        | Almacenamiento                | Interceptor                                                       |
+| ---------- | -------------------------------------------------------- | ----------------------------- | ----------------------------------------------------------------- |
+| Web        | Cookie HttpOnly `access_token` + `withCredentials: true` | Cookie segura (sin acceso JS) | `attachRefreshInterceptor({ doRefresh, onRefreshFail })`          |
+| Mobile     | Bearer token en header `Authorization`                   | Expo SecureStore              | `attachRefreshInterceptor({ doRefresh, onRefreshFail, onRetry })` |
 
 Ambas plataformas evitan **concurrent 401 storms**: si multiples requests fallan con 401 al mismo tiempo, solo se lanza un unico refresh; las demas peticiones esperan la misma promesa (via `let refreshPromise: Promise | null = null`).
 

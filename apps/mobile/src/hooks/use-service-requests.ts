@@ -6,8 +6,7 @@ import {
   createServiceRequest,
   type ServiceRequestFilters,
 } from '@/lib/api/service-requests';
-import { getErrorMessage } from '@epde/shared';
-import { QUERY_KEYS } from '@/lib/query-keys';
+import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 
 export function useServiceRequests(filters: Omit<ServiceRequestFilters, 'cursor'> = {}) {
   return useInfiniteQuery({

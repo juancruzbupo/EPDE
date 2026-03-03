@@ -6,8 +6,7 @@ import {
   markAsRead,
   markAllAsRead,
 } from '@/lib/api/notifications';
-import { getErrorMessage } from '@epde/shared';
-import { QUERY_KEYS } from '@/lib/query-keys';
+import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 
 export function useNotifications() {
   return useInfiniteQuery({

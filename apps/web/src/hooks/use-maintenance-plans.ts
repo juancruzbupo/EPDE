@@ -17,7 +17,7 @@ import {
   addTaskNote,
 } from '@/lib/api/maintenance-plans';
 import type { PlanPublic, TaskNotePublic, UpdateTaskDto } from '@/lib/api/maintenance-plans';
-import { QUERY_KEYS } from '@/lib/query-keys';
+import { QUERY_KEYS } from '@epde/shared';
 import type { CompleteTaskInput } from '@epde/shared';
 import { useAuthStore } from '@/stores/auth-store';
 

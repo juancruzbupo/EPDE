@@ -178,7 +178,7 @@ epde/
 │       │   │   └── service-request.ts
 │       │   ├── constants/
 │       │   │   ├── index.ts          # Labels en espanol, defaults, mappings
-│       │   │   │                      # (QUERY_KEYS removido — ahora local en web/mobile @/lib/query-keys.ts)
+│       │   │   │                      # (QUERY_KEYS centralizado aquí — SSoT para web y mobile)
 │       │   │   ├── badge-variants.ts # Variantes de Badge compartidas web/mobile
 │       │   │   └── design-tokens.ts  # DESIGN_TOKENS_LIGHT + DESIGN_TOKENS_DARK (SSoT paleta)
 │       │   └── utils/                # Date/string helpers, getErrorMessage
@@ -459,7 +459,7 @@ Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en depl
 
 - Hooks por entidad: `use-properties`, `use-budgets`, `use-notifications`, etc.
 - `useQuery` para lectura, `useMutation` para escritura
-- Query keys locales: `QUERY_KEYS` definidos en `@/lib/query-keys` (frontend-only, no en `@epde/shared`). Ej: `[QUERY_KEYS.budgets, filters]`
+- Query keys centralizados: `QUERY_KEYS` importados desde `@epde/shared`. Ej: `[QUERY_KEYS.budgets, filters]`
 - Invalidacion automatica en `onSuccess`
 - Web: paginacion cursor-based con "Cargar mas"
 - Mobile: `useInfiniteQuery` con scroll infinito
