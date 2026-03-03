@@ -9,7 +9,7 @@ import { fadeIn, fadeInUp, staggerContainer, staggerItem, useMotionPreference } 
 import { cn } from '@/lib/utils';
 
 const WHATSAPP_URL =
-  'https://wa.me/5493001234567?text=Hola%20Noelia%2C%20quiero%20informaci%C3%B3n%20sobre%20el%20diagn%C3%B3stico%20profesional%20personalizado%20para%20mi%20vivienda.';
+  'https://wa.me/5493001234567?text=Hola%20Noelia%2C%20quiero%20coordinar%20el%20diagn%C3%B3stico.';
 
 const steps = [
   {
@@ -102,13 +102,16 @@ export function LandingPage() {
             variants={fadeIn}
             className="type-body-lg text-muted-foreground mx-auto mt-6 max-w-2xl"
           >
-            Diagnóstico arquitectónico y plan preventivo con seguimiento digital.
+            Diagnóstico arquitectónico y plan preventivo con seguimiento digital estructurado.
             <br />
             Orden, criterio y previsión para cuidar lo que construiste.
           </motion.p>
-          <motion.p variants={fadeIn} className="type-body-sm text-muted-foreground/70 mt-3 italic">
+          <motion.p variants={fadeIn} className="type-body-sm text-muted-foreground/60 mt-3 italic">
             Servicio profesional a cargo de{' '}
             <span className="text-foreground/80 font-medium">Noelia E. Yuskowich</span>, arquitecta.
+          </motion.p>
+          <motion.p variants={fadeIn} className="type-body-sm text-muted-foreground/60 mt-2">
+            Dormí tranquilo sabiendo que tu casa tiene método.
           </motion.p>
           <motion.div variants={fadeIn} className="bg-border mx-auto mt-6 h-px w-16" />
           <motion.div
@@ -277,15 +280,6 @@ export function LandingPage() {
             <p className="type-body-md text-muted-foreground">
               El diagnóstico es el primer paso. A partir de ahí, tu vivienda tiene sistema.
             </p>
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:text-primary/80 type-body-md mt-4 inline-flex items-center gap-1.5 transition-colors"
-            >
-              <ArrowRight className="h-3.5 w-3.5" />
-              Coordinar diagnóstico
-            </a>
           </motion.div>
         </motion.div>
       </section>
@@ -417,7 +411,7 @@ export function LandingPage() {
           <motion.div variants={fadeIn} className="mt-8">
             <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
               <Button size="lg" variant="secondary" className="gap-2">
-                Coordinar evaluación inicial
+                Coordinar evaluación profesional
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </a>
