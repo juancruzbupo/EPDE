@@ -274,19 +274,22 @@ export const myColumns: ColumnDef<MyType>[] = [
 
 Pagina publica de presentacion del servicio EPDE. Archivo: `apps/web/src/components/landing/landing-page.tsx`.
 
-### Estructura (7 secciones + header + footer)
+### Estructura (9 secciones + header + footer + mobile sticky)
 
-| Seccion           | ID / Posicion | Contenido                                                                                    |
-| ----------------- | ------------- | -------------------------------------------------------------------------------------------- |
-| **Header**        | Fixed top     | Logo "EPDE" (`font-heading`) + boton CTA (Dashboard si autenticado, Login si no)             |
-| **Hero**          | Primera       | Subtitulo institucional + headline principal + CTA "Agendá tu diagnóstico" + link a #agendar |
-| **Problema**      | Segunda       | 3 cards: Desgaste silencioso, Improvisacion constante, Sin historial                         |
-| **Cómo funciona** | Tercera       | 3 pasos numerados con icono Lucide: Diagnostico → Plan → Seguimiento                         |
-| **Diferencial**   | Cuarta        | 4 filas comparativas (Minus vs Check): malo → bueno                                          |
-| **Qué incluye**   | Quinta        | 6 items con checkmark: evaluacion, prioridades, plan, carga digital, historial, acceso       |
-| **Lanzamiento**   | `#agendar`    | CTA principal con WhatsApp link — cupos limitados                                            |
-| **CTA Final**     | Septima       | Fondo `bg-foreground` invertido + CTA secundario a WhatsApp                                  |
-| **Footer**        | Ultima        | Logo + copyright + tagline                                                                   |
+| Seccion                     | ID / Posicion | Contenido                                                                                     |
+| --------------------------- | ------------- | --------------------------------------------------------------------------------------------- |
+| **Header**                  | Fixed top     | Logo "EPDE" (`font-heading`) + boton ghost (Dashboard si autenticado, Login si no)            |
+| **Hero**                    | Primera       | "Tu vivienda, bajo control profesional." + CTAs "Agendar diagnóstico" / "Más información"     |
+| **Problema**                | Segunda       | Bloque emocional: improvisación, reacción, desgaste                                           |
+| **Cómo funciona**           | Tercera       | 3 pasos numerados con icono Lucide: Diagnóstico → Plan → Seguimiento preventivo               |
+| **Quién está detrás**       | Cuarta        | Bio Arq. Noelia E. Yuskowich en primera persona con icono User                                |
+| **Qué incluye**             | Quinta        | 6 items con checkmark: evaluación, prioridades, plan, carga digital, historial, acceso        |
+| **Después del diagnóstico** | Sexta         | Explica autonomía post-diagnóstico: plan propio o presupuestos opcionales                     |
+| **Para quién es**           | Séptima       | 4 items con Check/X: propietarios unifamiliares, previsión, valor a largo plazo, no urgencias |
+| **Lanzamiento**             | `#agendar`    | 10 cupos disponibles + CTA "Reservar diagnóstico" (link WhatsApp)                             |
+| **CTA Final**               | Novena        | Fondo `bg-foreground` invertido + "Coordinar evaluación profesional"                          |
+| **Footer**                  | Última        | Logo + "por Arq. Noelia E. Yuskowich" + copyright + tagline                                   |
+| **Mobile Sticky CTA**       | Fixed bottom  | `md:hidden` — botón full-width "Agendar diagnóstico" (link WhatsApp)                          |
 
 ### Animaciones
 
@@ -345,10 +348,11 @@ Definida en `apps/web/src/app/page.tsx` como Server Component:
 
 ```typescript
 export const metadata: Metadata = {
-  title: 'EPDE — Diagnóstico y Mantenimiento Preventivo Profesional para Viviendas',
-  description: 'Servicio profesional de diagnóstico arquitectónico...',
+  title: 'EPDE — Diagnóstico Arquitectónico y Mantenimiento Preventivo para Viviendas',
+  description: 'Servicio profesional de diagnóstico arquitectónico por Arq. Noelia E. Yuskowich...',
+  keywords: ['diagnóstico arquitectónico', 'mantenimiento preventivo vivienda', ...],
   openGraph: {
-    title: 'EPDE — La nueva forma profesional de cuidar tu casa',
+    title: 'EPDE — Protegé el valor de tu vivienda con planificación arquitectónica moderna',
     type: 'website',
   },
 };
