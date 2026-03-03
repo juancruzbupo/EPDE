@@ -17,6 +17,19 @@ export default [
     },
   },
   {
+    // Enforce repository pattern: services must not import PrismaService directly
+    files: ['src/**/*.service.ts'],
+    ignores: ['src/prisma/**'],
+    rules: {
+      'no-restricted-imports': ['error', {
+        patterns: [{
+          group: ['../prisma/prisma.service', '../../prisma/prisma.service', '../../../prisma/prisma.service'],
+          message: 'Services must not inject PrismaService directly. Use a Repository instead. If justified, add an eslint-disable comment with rationale.',
+        }],
+      }],
+    },
+  },
+  {
     ignores: ['dist/', 'prisma/', 'test/', 'jest-e2e.config.ts', 'jest.config.js', 'prisma.config.ts'],
   },
 ];

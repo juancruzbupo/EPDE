@@ -33,6 +33,8 @@ export const DESIGN_TOKENS_LIGHT = {
   successForeground: '#ffffff',
   warning: '#d4a843',
   warningForeground: '#ffffff',
+  caution: '#f59e0b',
+  cautionForeground: '#78350f',
 } as const;
 
 /** Dark mode palette (web only — React Native uses light mode) */
@@ -58,6 +60,8 @@ export const DESIGN_TOKENS_DARK = {
   successForeground: '#ffffff',
   warning: '#d4a843',
   warningForeground: '#ffffff',
+  caution: '#fbbf24',
+  cautionForeground: '#fef3c7',
 } as const;
 
 export type DesignTokens = typeof DESIGN_TOKENS_LIGHT;

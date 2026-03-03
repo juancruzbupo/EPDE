@@ -26,5 +26,7 @@
   --color-success-foreground: #ffffff;
   --color-warning: #d4a843;
   --color-warning-foreground: #ffffff;
+  --color-caution: #f59e0b;
+  --color-caution-foreground: #78350f;
   --radius: 0.625rem;
 }

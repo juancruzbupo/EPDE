@@ -2,7 +2,17 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Prisma } from '@prisma/client';
 import type { ZodObject, ZodRawShape } from 'zod';
 import { PrismaService, SOFT_DELETABLE_MODELS, hasDeletedAtKey } from './prisma.service';
-import { createPropertySchema, createTaskSchema, createBudgetRequestSchema } from '@epde/shared';
+import {
+  createPropertySchema,
+  createTaskSchema,
+  createBudgetRequestSchema,
+  createServiceRequestSchema,
+  createCategorySchema,
+  createClientSchema,
+  createCategoryTemplateSchema,
+  createTaskTemplateSchema,
+  createTaskNoteSchema,
+} from '@epde/shared';
 
 describe('PrismaService', () => {
   let service: PrismaService;
@@ -109,7 +119,9 @@ describe('hasDeletedAtKey – nested edge cases', () => {
   });
 
   it('returns false when no deletedAt exists in nested operators', () => {
-    expect(hasDeletedAtKey({ AND: [{ status: 'ACTIVE' }], OR: [{ name: 'x' }], NOT: { role: 'ADMIN' } })).toBe(false);
+    expect(
+      hasDeletedAtKey({ AND: [{ status: 'ACTIVE' }], OR: [{ name: 'x' }], NOT: { role: 'ADMIN' } }),
+    ).toBe(false);
   });
 });
 
@@ -121,23 +133,35 @@ describe('Zod-Prisma schema consistency', () => {
    */
   // Auto/server-set fields that are never included in client create schemas
   const AUTO_FIELDS = new Set([
-    'id', 'createdAt', 'updatedAt', 'deletedAt',
-    'status',   // defaulted server-side
-    'order',    // defaulted server-side
+    'id',
+    'createdAt',
+    'updatedAt',
+    'deletedAt',
+    'status', // defaulted server-side
+    'order', // defaulted server-side
     'requestedBy', // set from authenticated user context (JWT)
-    'updatedBy',   // set from authenticated user context (JWT)
-    'version',     // optimistic concurrency control — managed by Prisma
+    'updatedBy', // set from authenticated user context (JWT)
+    'version', // optimistic concurrency control — managed by Prisma
   ]);
+
+  // Per-model fields set by server context (not by client input)
+  const MODEL_SERVER_FIELDS: Record<string, string[]> = {
+    TaskTemplate: ['categoryId'], // set from URL param by controller (FK to Category)
+    TaskNote: ['taskId', 'authorId', 'authorName'], // set from service context
+    User: ['role', 'passwordHash'], // role set by admin, passwordHash via set-password flow
+  };
 
   /** Returns the required non-auto scalar field names for a Prisma model. */
   function requiredScalarFields(modelName: string): string[] {
     const model = Prisma.dmmf.datamodel.models.find((m) => m.name === modelName);
     if (!model) return [];
+    const serverFields = new Set(MODEL_SERVER_FIELDS[modelName] ?? []);
     return model.fields
       .filter(
         (f) =>
           f.isRequired &&
           !AUTO_FIELDS.has(f.name) &&
+          !serverFields.has(f.name) &&
           !f.relationName && // exclude virtual relation fields
           f.kind === 'scalar',
       )
@@ -168,6 +192,54 @@ describe('Zod-Prisma schema consistency', () => {
   it('createBudgetRequestSchema covers all required BudgetRequest scalar fields', () => {
     const fields = requiredScalarFields('BudgetRequest');
     const keys = zodKeys(createBudgetRequestSchema);
+    for (const field of fields) {
+      expect(keys).toContain(field);
+    }
+  });
+
+  it('createServiceRequestSchema covers all required ServiceRequest scalar fields', () => {
+    const fields = requiredScalarFields('ServiceRequest');
+    const keys = zodKeys(createServiceRequestSchema);
+    for (const field of fields) {
+      expect(keys).toContain(field);
+    }
+  });
+
+  it('createCategorySchema covers all required Category scalar fields', () => {
+    const fields = requiredScalarFields('Category');
+    const keys = zodKeys(createCategorySchema);
+    for (const field of fields) {
+      expect(keys).toContain(field);
+    }
+  });
+
+  it('createClientSchema covers all required User scalar fields (excluding server-set)', () => {
+    const fields = requiredScalarFields('User');
+    const keys = zodKeys(createClientSchema);
+    for (const field of fields) {
+      expect(keys).toContain(field);
+    }
+  });
+
+  it('createCategoryTemplateSchema covers all required CategoryTemplate scalar fields', () => {
+    const fields = requiredScalarFields('CategoryTemplate');
+    const keys = zodKeys(createCategoryTemplateSchema);
+    for (const field of fields) {
+      expect(keys).toContain(field);
+    }
+  });
+
+  it('createTaskTemplateSchema covers all required TaskTemplate scalar fields', () => {
+    const fields = requiredScalarFields('TaskTemplate');
+    const keys = zodKeys(createTaskTemplateSchema);
+    for (const field of fields) {
+      expect(keys).toContain(field);
+    }
+  });
+
+  it('createTaskNoteSchema covers all required TaskNote scalar fields', () => {
+    const fields = requiredScalarFields('TaskNote');
+    const keys = zodKeys(createTaskNoteSchema);
     for (const field of fields) {
       expect(keys).toContain(field);
     }

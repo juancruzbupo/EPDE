@@ -199,6 +199,37 @@ export const PLAN_STATUS_VARIANT = { DRAFT: 'secondary', ACTIVE: 'default', ARCH
 // + SERVICE_STATUS_VARIANT, URGENCY_VARIANT, PRIORITY_VARIANT, CLIENT_STATUS_VARIANT
 ```
 
+### 2.5 Design Tokens vs CSS Variables
+
+`@epde/shared` exporta dos formatos de colores desde `constants/design-tokens.ts`:
+
+| Export                                       | Formato                           | Uso                                                                                |
+| -------------------------------------------- | --------------------------------- | ---------------------------------------------------------------------------------- |
+| `DESIGN_TOKENS_LIGHT` / `DESIGN_TOKENS_DARK` | `{ primary: '#c4704b', ... }`     | **Mobile** — valores directos hex para React Native `StyleSheet` y `colors.ts`     |
+| `CSS_VARIABLES_LIGHT` / `CSS_VARIABLES_DARK` | `{ '--primary': '#c4704b', ... }` | **Web** — mapeo `--kebab-case: valor` para inyectar en `:root {}` de `globals.css` |
+
+Los `CSS_VARIABLES_*` se derivan **automaticamente** de `DESIGN_TOKENS_*` via la funcion `toCSSVar()`. Al agregar un nuevo color, agregarlo en `DESIGN_TOKENS_LIGHT`/`DARK` — la propagacion a CSS variables es automatica.
+
+### 2.6 staleTime Policy (React Query)
+
+Regla para cuándo aplicar `staleTime` en hooks de React Query:
+
+| Tipo de hook            | staleTime               | Razón                                                       |
+| ----------------------- | ----------------------- | ----------------------------------------------------------- |
+| Dashboard hooks         | `2 * 60 * 1000` (2 min) | Datos cambian infrecuentemente, usuario navega tabs seguido |
+| Listados con paginación | default (0)             | Siempre fresh al navegar — cambios frecuentes por CRUD      |
+| Detail views            | default (0)             | Siempre fresh — dato individual puede cambiar entre vistas  |
+
+Aplicar en **web y mobile** por igual. Si un hook tiene `staleTime` en web, su equivalente mobile DEBE tenerlo también.
+
+### 2.7 Limitaciones Conocidas
+
+**BaseRepository `create`/`update` sin type-checking end-to-end:**
+Los metodos `create(data: unknown)` y `update(id, data: unknown)` no tienen generics constrainidos al schema Zod. La validacion ocurre en el controller (via `ZodValidationPipe`), por lo que un service podría pasar data malformada sin error de TypeScript. Riesgo bajo dado que Zod es el gate de entrada obligatorio.
+
+**Mobile API URL resuelta en build time:**
+`EXPO_PUBLIC_API_URL` se resuelve en build time via `babel-plugin-transform-inline-environment-variables`. Cambiar la URL de produccion requiere un nuevo build + OTA update o store release. Para migraciones de dominio, considerar Expo Updates (OTA) como canal de actualizacion rapida. Largo plazo: evaluar remote config (Firebase Remote Config).
+
 ---
 
 ## 3. API (`@epde/api`) — NestJS
