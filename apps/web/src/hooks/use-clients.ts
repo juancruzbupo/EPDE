@@ -36,7 +36,10 @@ export function useCreateClient() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createClient,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.clients] }),
+    onSuccess: () => {
+      toast.success('Cliente creado');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.clients] });
+    },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al crear cliente'));
     },
@@ -48,7 +51,10 @@ export function useUpdateClient() {
   return useMutation({
     mutationFn: ({ id, ...dto }: { id: string; name?: string; phone?: string; status?: string }) =>
       updateClient(id, dto),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.clients] }),
+    onSuccess: () => {
+      toast.success('Cliente actualizado');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.clients] });
+    },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al actualizar cliente'));
     },
@@ -72,7 +78,10 @@ export function useDeleteClient() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteClient,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.clients] }),
+    onSuccess: () => {
+      toast.success('Cliente eliminado');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.clients] });
+    },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al eliminar cliente'));
     },

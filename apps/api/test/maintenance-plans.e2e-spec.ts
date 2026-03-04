@@ -2,9 +2,9 @@ import { INestApplication } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
 import request from 'supertest';
-import { PrismaService } from '../prisma/prisma.service';
-import { createTestApp, cleanDatabase } from '../test/setup';
-import { seedTestData, TestData } from '../test/seed-test-data';
+import { PrismaService } from '../src/prisma/prisma.service';
+import { createTestApp, cleanDatabase } from '../src/test/setup';
+import { seedTestData, TestData } from '../src/test/seed-test-data';
 
 describe('MaintenancePlansController (e2e)', () => {
   let app: INestApplication;
@@ -240,9 +240,7 @@ describe('MaintenancePlansController (e2e)', () => {
 
     it('should return 404 for non-existent task', async () => {
       const res = await request(app.getHttpServer())
-        .get(
-          `/api/v1/maintenance-plans/${planId}/tasks/00000000-0000-0000-0000-000000000000`,
-        )
+        .get(`/api/v1/maintenance-plans/${planId}/tasks/00000000-0000-0000-0000-000000000000`)
         .set('Authorization', `Bearer ${adminToken}`);
 
       expect(res.status).toBe(404);
@@ -289,9 +287,7 @@ describe('MaintenancePlansController (e2e)', () => {
       });
 
       const res = await request(app.getHttpServer())
-        .post(
-          `/api/v1/maintenance-plans/${planId}/tasks/${completedTask.id}/complete`,
-        )
+        .post(`/api/v1/maintenance-plans/${planId}/tasks/${completedTask.id}/complete`)
         .set('Authorization', `Bearer ${adminToken}`)
         .send(completeDto);
 
@@ -315,9 +311,7 @@ describe('MaintenancePlansController (e2e)', () => {
       });
 
       const res = await request(app.getHttpServer())
-        .post(
-          `/api/v1/maintenance-plans/${otherPlanId}/tasks/${otherTask.id}/complete`,
-        )
+        .post(`/api/v1/maintenance-plans/${otherPlanId}/tasks/${otherTask.id}/complete`)
         .set('Authorization', `Bearer ${clientToken}`)
         .send(completeDto);
 
@@ -415,9 +409,7 @@ describe('MaintenancePlansController (e2e)', () => {
       });
 
       const res = await request(app.getHttpServer())
-        .post(
-          `/api/v1/maintenance-plans/${otherPlanId}/tasks/${otherTask.id}/notes`,
-        )
+        .post(`/api/v1/maintenance-plans/${otherPlanId}/tasks/${otherTask.id}/notes`)
         .set('Authorization', `Bearer ${clientToken}`)
         .send({ content: 'Intento no autorizado' });
 

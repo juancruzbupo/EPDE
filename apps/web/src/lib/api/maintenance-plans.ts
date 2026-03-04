@@ -1,4 +1,5 @@
 import { createMaintenancePlanQueries } from '@epde/shared/api';
+import type { PlanListItem, TaskListItem } from '@epde/shared';
 import { apiClient } from '../api-client';
 
 export interface UpdateTaskDto {
@@ -18,35 +19,13 @@ export type {
   TaskLogPublic,
   TaskNotePublic,
   PlanPublic,
+  PlanListItem,
+  TaskListItem,
 } from '@epde/shared';
 
 const queries = createMaintenancePlanQueries(apiClient);
 export const { getPlan, getTaskDetail, getTaskLogs, getTaskNotes, completeTask, addTaskNote } =
   queries;
-
-export interface PlanListItem {
-  id: string;
-  name: string;
-  status: string;
-  createdAt: string;
-  property: { id: string; address: string; city: string; userId: string };
-  _count: { tasks: number };
-}
-
-export interface TaskListItem {
-  id: string;
-  name: string;
-  status: string;
-  priority: string;
-  nextDueDate: string | null;
-  recurrenceType: string;
-  category: { id: string; name: string; icon: string | null };
-  maintenancePlan: {
-    id: string;
-    name: string;
-    property: { id: string; address: string; city: string };
-  };
-}
 
 export async function getPlans(): Promise<{ data: PlanListItem[] }> {
   const { data } = await apiClient.get('/maintenance-plans');

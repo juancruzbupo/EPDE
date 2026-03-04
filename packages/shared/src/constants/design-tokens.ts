@@ -30,11 +30,11 @@ export const DESIGN_TOKENS_LIGHT = {
   ring: '#c4704b',
   // Semantic status colors
   success: '#6b9b7a',
-  successForeground: '#ffffff',
-  warning: '#d4a843',
-  warningForeground: '#ffffff',
-  caution: '#f59e0b',
-  cautionForeground: '#78350f',
+  successForeground: '#1a1715',
+  warning: '#c4a030',
+  warningForeground: '#1a1715',
+  caution: '#c47030',
+  cautionForeground: '#fafaf8',
 } as const;
 
 /** Dark mode palette (web only — React Native uses light mode) */

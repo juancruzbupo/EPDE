@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { FilterSelect } from '@/components/filter-select';
 import { CheckCircle, ClipboardList } from 'lucide-react';
 import {
+  TaskStatus,
   TASK_PRIORITY_LABELS,
   RECURRENCE_TYPE_LABELS,
   TASK_STATUS_LABELS,
@@ -70,7 +71,9 @@ export function PlanViewer({ planId }: PlanViewerProps) {
 
   const tasks = plan.tasks ?? [];
   const canComplete = (status: string) =>
-    status === 'PENDING' || status === 'UPCOMING' || status === 'OVERDUE';
+    status === TaskStatus.PENDING ||
+    status === TaskStatus.UPCOMING ||
+    status === TaskStatus.OVERDUE;
 
   return (
     <>

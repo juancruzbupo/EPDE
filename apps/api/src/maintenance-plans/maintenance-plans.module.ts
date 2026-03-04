@@ -1,13 +1,13 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MaintenancePlansController } from './maintenance-plans.controller';
 import { MaintenancePlansService } from './maintenance-plans.service';
-import { MaintenancePlansRepository } from './maintenance-plans.repository';
+import { PlanDataModule } from './plan-data.module';
 import { TasksModule } from '../tasks/tasks.module';
 
 @Module({
-  imports: [forwardRef(() => TasksModule)],
+  imports: [PlanDataModule, TasksModule],
   controllers: [MaintenancePlansController],
-  providers: [MaintenancePlansService, MaintenancePlansRepository],
-  exports: [MaintenancePlansService, MaintenancePlansRepository],
+  providers: [MaintenancePlansService],
+  exports: [MaintenancePlansService, PlanDataModule],
 })
 export class MaintenancePlansModule {}

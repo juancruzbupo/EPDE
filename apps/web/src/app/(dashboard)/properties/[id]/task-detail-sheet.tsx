@@ -6,7 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CheckCircle, Calendar, RotateCcw } from 'lucide-react';
-import { TASK_PRIORITY_LABELS, RECURRENCE_TYPE_LABELS, TASK_STATUS_LABELS } from '@epde/shared';
+import {
+  TaskStatus,
+  TASK_PRIORITY_LABELS,
+  RECURRENCE_TYPE_LABELS,
+  TASK_STATUS_LABELS,
+} from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { TaskLogTimeline } from './task-log-timeline';
@@ -32,7 +37,9 @@ export function TaskDetailSheet({
   if (!task) return null;
 
   const canComplete =
-    task.status === 'PENDING' || task.status === 'UPCOMING' || task.status === 'OVERDUE';
+    task.status === TaskStatus.PENDING ||
+    task.status === TaskStatus.UPCOMING ||
+    task.status === TaskStatus.OVERDUE;
   const isOverdue = task.nextDueDate ? new Date(task.nextDueDate) < new Date() : false;
 
   return (

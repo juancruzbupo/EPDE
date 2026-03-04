@@ -408,7 +408,13 @@ pnpm --filter @epde/api test:e2e
 
 GitHub Actions ejecuta en orden: lint → typecheck → build → **schema drift check** (falla el build si hay drift) → test → test:e2e → frontend coverage check. Los services PostgreSQL 16 y Redis 7 se levantan como containers en CI.
 
-**Umbrales de coverage API (jest):** `statements: 50, branches: 35, functions: 45, lines: 50`
+**Umbrales de coverage:**
+
+| Package | Statements | Branches | Functions | Lines |
+| ------- | ---------- | -------- | --------- | ----- |
+| API     | 75         | 60       | 65        | 75    |
+| Web     | 50         | 35       | 50        | 50    |
+| Mobile  | 35         | 20       | 35        | 35    |
 
 ### CD
 

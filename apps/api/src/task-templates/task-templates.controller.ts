@@ -15,6 +15,11 @@ import type {
 } from '@epde/shared';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 
+/**
+ * Empty @Controller() prefix is intentional — routes span two resource paths:
+ * `category-templates/:categoryId/tasks` (POST, PATCH reorder) and
+ * `task-templates/:id` (PATCH, DELETE). A single prefix would be incorrect.
+ */
 @ApiTags('Task Templates')
 @ApiBearerAuth()
 @Roles(UserRole.ADMIN)

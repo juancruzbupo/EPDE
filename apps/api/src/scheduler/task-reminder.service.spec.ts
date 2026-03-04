@@ -3,8 +3,7 @@ import { TaskReminderService } from './task-reminder.service';
 import { TasksRepository } from '../tasks/tasks.repository';
 import { NotificationsRepository } from '../notifications/notifications.repository';
 import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
-import { NotificationsService } from '../notifications/notifications.service';
-import { EmailQueueService } from '../email/email-queue.service';
+import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { DistributedLockService } from '../redis/distributed-lock.service';
 
 const mockTasksRepository = {
@@ -15,12 +14,17 @@ const mockNotificationsRepository = {
   findTodayReminderTaskIds: jest.fn().mockResolvedValue(new Set()),
 };
 const mockUsersRepository = { findAdminIds: jest.fn().mockResolvedValue([]) };
-const mockNotificationsService = { createNotifications: jest.fn().mockResolvedValue(0) };
-const mockEmailQueueService = { enqueueTaskReminder: jest.fn().mockResolvedValue(undefined) };
+const mockNotificationsHandler = {
+  handleTaskReminders: jest.fn().mockResolvedValue({ notificationCount: 0, failedEmails: 0 }),
+};
 const mockLockService = {
-  withLock: jest.fn().mockImplementation(async (_key, _ttl, fn) => {
-    await fn({ lockLost: false });
-  }),
+  withLock: jest
+    .fn()
+    .mockImplementation(
+      async (_key: string, _ttl: number, fn: (signal: { lockLost: boolean }) => Promise<void>) => {
+        await fn({ lockLost: false });
+      },
+    ),
 };
 
 describe('TaskReminderService', () => {
@@ -33,8 +37,7 @@ describe('TaskReminderService', () => {
         { provide: TasksRepository, useValue: mockTasksRepository },
         { provide: NotificationsRepository, useValue: mockNotificationsRepository },
         { provide: UserLookupRepository, useValue: mockUsersRepository },
-        { provide: NotificationsService, useValue: mockNotificationsService },
-        { provide: EmailQueueService, useValue: mockEmailQueueService },
+        { provide: NotificationsHandlerService, useValue: mockNotificationsHandler },
         { provide: DistributedLockService, useValue: mockLockService },
       ],
     }).compile();
@@ -51,49 +54,59 @@ describe('TaskReminderService', () => {
     it('should exit early when no tasks to remind', async () => {
       mockTasksRepository.findUpcomingWithOwners.mockResolvedValue([]);
       mockTasksRepository.findOverdueWithOwners.mockResolvedValue([]);
-      mockLockService.withLock.mockImplementation(async (_key, _ttl, fn) => {
-        await fn({ lockLost: false });
-      });
+      mockLockService.withLock.mockImplementation(
+        async (
+          _key: string,
+          _ttl: number,
+          fn: (signal: { lockLost: boolean }) => Promise<void>,
+        ) => {
+          await fn({ lockLost: false });
+        },
+      );
 
       await service.sendUpcomingTaskReminders();
-      expect(mockNotificationsService.createNotifications).not.toHaveBeenCalled();
+      expect(mockNotificationsHandler.handleTaskReminders).not.toHaveBeenCalled();
     });
 
     it('should skip creating notifications if lock is lost after fetch', async () => {
       mockTasksRepository.findUpcomingWithOwners.mockResolvedValue([]);
       mockTasksRepository.findOverdueWithOwners.mockResolvedValue([]);
-      mockLockService.withLock.mockImplementationOnce(async (_key, _ttl, fn) => {
-        await fn({ lockLost: true });
-      });
+      mockLockService.withLock.mockImplementationOnce(
+        async (
+          _key: string,
+          _ttl: number,
+          fn: (signal: { lockLost: boolean }) => Promise<void>,
+        ) => {
+          await fn({ lockLost: true });
+        },
+      );
       await service.sendUpcomingTaskReminders();
-      // With lockLost=true and no tasks, the early-return path still skips createNotifications
-      expect(mockNotificationsService.createNotifications).not.toHaveBeenCalled();
+      expect(mockNotificationsHandler.handleTaskReminders).not.toHaveBeenCalled();
     });
 
     it('ON_DETECTION tasks should not appear — findUpcomingWithOwners already filters them', async () => {
-      // The repository filters recurrenceType: { not: 'ON_DETECTION' }
-      // So if only ON_DETECTION tasks exist, both queries return empty
       mockTasksRepository.findUpcomingWithOwners.mockResolvedValue([]);
       mockTasksRepository.findOverdueWithOwners.mockResolvedValue([]);
-      mockLockService.withLock.mockImplementation(async (_key, _ttl, fn) => {
-        await fn({ lockLost: false });
-      });
+      mockLockService.withLock.mockImplementation(
+        async (
+          _key: string,
+          _ttl: number,
+          fn: (signal: { lockLost: boolean }) => Promise<void>,
+        ) => {
+          await fn({ lockLost: false });
+        },
+      );
 
       await service.sendUpcomingTaskReminders();
 
-      expect(mockNotificationsService.createNotifications).not.toHaveBeenCalled();
-      expect(mockEmailQueueService.enqueueTaskReminder).not.toHaveBeenCalled();
+      expect(mockNotificationsHandler.handleTaskReminders).not.toHaveBeenCalled();
     });
 
-    it('should log error when email enqueue fails', async () => {
-      const loggerErrorSpy = jest
-        .spyOn(service['logger'], 'error')
-        .mockImplementation(() => undefined);
-
+    it('should delegate to NotificationsHandlerService when tasks exist', async () => {
       const upcomingTask = {
         id: 'task-1',
         name: 'Test Task',
-        nextDueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
+        nextDueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
         recurrenceType: 'ANNUAL',
         category: { name: 'Electricidad' },
         maintenancePlan: {
@@ -107,19 +120,30 @@ describe('TaskReminderService', () => {
       mockTasksRepository.findUpcomingWithOwners.mockResolvedValue([upcomingTask]);
       mockTasksRepository.findOverdueWithOwners.mockResolvedValue([]);
       mockNotificationsRepository.findTodayReminderTaskIds.mockResolvedValue(new Set());
-      mockNotificationsService.createNotifications.mockResolvedValue(1);
-      mockEmailQueueService.enqueueTaskReminder.mockRejectedValue(new Error('Queue full'));
-      mockLockService.withLock.mockImplementation(async (_key, _ttl, fn) => {
-        await fn({ lockLost: false });
+      mockNotificationsHandler.handleTaskReminders.mockResolvedValue({
+        notificationCount: 1,
+        failedEmails: 0,
       });
+      mockLockService.withLock.mockImplementation(
+        async (
+          _key: string,
+          _ttl: number,
+          fn: (signal: { lockLost: boolean }) => Promise<void>,
+        ) => {
+          await fn({ lockLost: false });
+        },
+      );
 
       await service.sendUpcomingTaskReminders();
 
-      expect(loggerErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining('email(s) failed to enqueue'),
-      );
-
-      loggerErrorSpy.mockRestore();
+      expect(mockNotificationsHandler.handleTaskReminders).toHaveBeenCalledWith({
+        notifications: expect.arrayContaining([
+          expect.objectContaining({ userId: 'user-1', type: 'TASK_REMINDER' }),
+        ]),
+        emails: expect.arrayContaining([
+          expect.objectContaining({ to: 'owner@test.com', taskName: 'Test Task' }),
+        ]),
+      });
     });
   });
 });

@@ -20,7 +20,10 @@ export function useCreateCategory() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createCategory,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.categories] }),
+    onSuccess: () => {
+      toast.success('Categoría creada');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.categories] });
+    },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al crear categoría'));
     },
@@ -40,7 +43,10 @@ export function useUpdateCategory() {
       icon?: string;
       order?: number;
     }) => updateCategory(id, dto),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.categories] }),
+    onSuccess: () => {
+      toast.success('Categoría actualizada');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.categories] });
+    },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al actualizar categoría'));
     },
@@ -51,7 +57,10 @@ export function useDeleteCategory() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteCategory,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.categories] }),
+    onSuccess: () => {
+      toast.success('Categoría eliminada');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.categories] });
+    },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al eliminar categoría'));
     },

@@ -345,22 +345,22 @@ feature/
 
 **Excepciones documentadas:**
 
-| Modulo      | Excepcion                                                           | Razon                                                                                                                                                                                     |
-| ----------- | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `users`     | Sin controller                                                      | CRUD de usuarios expuesto via `clients/` — no tiene endpoints directos                                                                                                                    |
-| `upload`    | Sin repository                                                      | Solo interactua con Cloudflare R2, no persiste en DB                                                                                                                                      |
-| `scheduler` | Sin controller ni repository                                        | Solo cron jobs — sin endpoints REST ni acceso a datos propios                                                                                                                             |
-| `email`     | Sin controller ni repository                                        | Servicio auxiliar de envio — invocado por `notifications/`                                                                                                                                |
-| `dashboard` | Repository standalone (no extiende BaseRepository)                  | Queries de agregacion multi-modelo (JOINs entre User, Task, Budget, ServiceRequest) que no encajan en el patron CRUD de un solo modelo                                                    |
-| `tasks`     | Modulo separado importa `MaintenancePlansModule` via `forwardRef()` | Extraccion de `TaskLifecycleService` + `TaskNotesService` del modulo `maintenance-plans/`. `forwardRef()` resuelve la dependencia circular entre `TasksModule` ↔ `MaintenancePlansModule` |
+| Modulo      | Excepcion                                                                      | Razon                                                                                                                                                        |
+| ----------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `users`     | Sin controller                                                                 | CRUD de usuarios expuesto via `clients/` — no tiene endpoints directos                                                                                       |
+| `upload`    | Sin repository                                                                 | Solo interactua con Cloudflare R2, no persiste en DB                                                                                                         |
+| `scheduler` | Sin controller ni repository                                                   | Solo cron jobs — sin endpoints REST ni acceso a datos propios                                                                                                |
+| `email`     | Sin controller ni repository                                                   | Servicio auxiliar de envio — invocado por `notifications/`                                                                                                   |
+| `dashboard` | Repository standalone (no extiende BaseRepository)                             | Queries de agregacion multi-modelo (JOINs entre User, Task, Budget, ServiceRequest) que no encajan en el patron CRUD de un solo modelo                       |
+| `tasks`     | Modulo separado importa `PlanDataModule` (provee `MaintenancePlansRepository`) | Extraccion de `TaskLifecycleService` + `TaskNotesService` del modulo `maintenance-plans/`. `PlanDataModule` rompe la dependencia circular sin `forwardRef()` |
 
 ### P4: Guard Composition
 
 Tres guards globales en orden via `APP_GUARD`:
 
-1. **JwtAuthGuard** — Valida JWT. Salta `@Public()` endpoints
-2. **RolesGuard** — Primero verifica `@Public()` (permite sin auth). Luego verifica `user.role` contra `@Roles()`. **Sin `@Roles()` ni `@Public()` = deniega (403)** — deny-by-default para prevenir escalation of privilege. Todo endpoint autenticado requiere `@Roles()` explicito
-3. **ThrottlerGuard** — Rate limiting (10/s corto, 60/10s medio, 5/min login, 3/hora + 1/5s burst set-password)
+1. **ThrottlerGuard** — Rate limiting (5/s corto, 30/10s medio, 5/min login/refresh, 3/s + 20/min upload, 3/hora + 1/5s burst set-password)
+2. **JwtAuthGuard** — Valida JWT. Salta `@Public()` endpoints
+3. **RolesGuard** — Primero verifica `@Public()` (permite sin auth). Luego verifica `user.role` contra `@Roles()`. **Sin `@Roles()` ni `@Public()` = deniega (403)** — deny-by-default para prevenir escalation of privilege. Todo endpoint autenticado requiere `@Roles()` explicito
 
 ### P5: Decorators Personalizados
 
@@ -841,12 +841,12 @@ Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `
 
 ### Configuracion
 
-| Atributo   | Valor                                              |
-| ---------- | -------------------------------------------------- |
-| Base URL   | `http://localhost:3001/api/v1`                     |
-| Swagger    | `http://localhost:3001/api/docs`                   |
-| Auth       | JWT cookies (web) / Bearer (mobile)                |
-| Rate limit | 10/s, 60/10s, 5/min (login), 3/hora (set-password) |
+| Atributo   | Valor                                                                           |
+| ---------- | ------------------------------------------------------------------------------- |
+| Base URL   | `http://localhost:3001/api/v1`                                                  |
+| Swagger    | `http://localhost:3001/api/docs`                                                |
+| Auth       | JWT cookies (web) / Bearer (mobile)                                             |
+| Rate limit | 5/s, 30/10s, 5/min (login, refresh), 3/s+20/min (upload), 3/hora (set-password) |
 
 ### Endpoints (17 grupos)
 
@@ -893,6 +893,8 @@ Triggers: push a main/develop, PRs a main/develop
 | ------- | ---------- | -------- | --------- | ----- |
 | API     | 75         | 60       | 65        | 75    |
 | Shared  | 80         | 65       | 75        | 80    |
+| Web     | 50         | 35       | 50        | 50    |
+| Mobile  | 35         | 20       | 35        | 35    |
 
 ### GitHub Actions CD
 

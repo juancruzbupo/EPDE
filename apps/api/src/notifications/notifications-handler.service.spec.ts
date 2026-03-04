@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotificationsHandlerService } from './notifications-handler.service';
 import { NotificationQueueService } from './notification-queue.service';
+import { NotificationsService } from './notifications.service';
 import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
 import { EmailQueueService } from '../email/email-queue.service';
 
@@ -17,6 +18,11 @@ const mockUserLookup = {
 const mockEmailQueue = {
   enqueueBudgetQuoted: jest.fn().mockResolvedValue(undefined),
   enqueueBudgetStatus: jest.fn().mockResolvedValue(undefined),
+  enqueueTaskReminder: jest.fn().mockResolvedValue(undefined),
+};
+
+const mockNotificationsService = {
+  createNotifications: jest.fn().mockResolvedValue(0),
 };
 
 describe('NotificationsHandlerService', () => {
@@ -27,6 +33,7 @@ describe('NotificationsHandlerService', () => {
       providers: [
         NotificationsHandlerService,
         { provide: NotificationQueueService, useValue: mockNotificationQueue },
+        { provide: NotificationsService, useValue: mockNotificationsService },
         { provide: UserLookupRepository, useValue: mockUserLookup },
         { provide: EmailQueueService, useValue: mockEmailQueue },
       ],
@@ -102,9 +109,7 @@ describe('NotificationsHandlerService', () => {
       });
 
       expect(mockNotificationQueue.enqueueBatch).toHaveBeenCalledWith(
-        expect.arrayContaining([
-          expect.objectContaining({ userId: 'admin-1' }),
-        ]),
+        expect.arrayContaining([expect.objectContaining({ userId: 'admin-1' })]),
       );
     });
 

@@ -3,8 +3,7 @@ import { Cron } from '@nestjs/schedule';
 import { TasksRepository } from '../tasks/tasks.repository';
 import { NotificationsRepository } from '../notifications/notifications.repository';
 import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
-import { NotificationsService } from '../notifications/notifications.service';
-import { EmailQueueService } from '../email/email-queue.service';
+import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { DistributedLockService } from '../redis/distributed-lock.service';
 
 @Injectable()
@@ -15,8 +14,7 @@ export class TaskReminderService {
     private readonly tasksRepository: TasksRepository,
     private readonly notificationsRepository: NotificationsRepository,
     private readonly usersRepository: UserLookupRepository,
-    private readonly notificationsService: NotificationsService,
-    private readonly emailQueueService: EmailQueueService,
+    private readonly notificationsHandler: NotificationsHandlerService,
     private readonly lockService: DistributedLockService,
   ) {}
 
@@ -66,7 +64,15 @@ export class TaskReminderService {
         message: string;
         data: Record<string, unknown>;
       }> = [];
-      const emailPromises: Promise<void>[] = [];
+      const emails: Array<{
+        to: string;
+        name: string;
+        taskName: string;
+        propertyAddress: string;
+        dueDate: Date;
+        categoryName: string;
+        isOverdue: boolean;
+      }> = [];
 
       for (const task of allTasks) {
         if (alreadyRemindedTaskIds.has(task.id)) continue;
@@ -92,17 +98,15 @@ export class TaskReminderService {
           data: { taskId: task.id, propertyAddress: property.address },
         });
 
-        emailPromises.push(
-          this.emailQueueService.enqueueTaskReminder(
-            owner.email,
-            owner.name,
-            task.name,
-            property.address,
-            task.nextDueDate,
-            task.category.name,
-            isOverdue,
-          ),
-        );
+        emails.push({
+          to: owner.email,
+          name: owner.name,
+          taskName: task.name,
+          propertyAddress: property.address,
+          dueDate: task.nextDueDate,
+          categoryName: task.category.name,
+          isOverdue,
+        });
 
         if (isOverdue) {
           for (const adminId of adminIds) {
@@ -119,20 +123,13 @@ export class TaskReminderService {
 
       if (signal.lockLost) return;
 
-      const [notificationCount, emailResults] = await Promise.all([
-        this.notificationsService.createNotifications(notifications),
-        Promise.allSettled(emailPromises),
-      ]);
-
-      const failedEmails = emailResults.filter((r) => r.status === 'rejected');
-      if (failedEmails.length > 0) {
-        this.logger.error(
-          `${failedEmails.length}/${emailResults.length} email(s) failed to enqueue`,
-        );
-      }
+      const result = await this.notificationsHandler.handleTaskReminders({
+        notifications,
+        emails,
+      });
 
       this.logger.log(
-        `Reminders complete: ${notificationCount} notifications, ${emailPromises.length - failedEmails.length} emails enqueued, ${failedEmails.length} failed`,
+        `Reminders complete: ${result.notificationCount} notifications, ${emails.length - result.failedEmails} emails enqueued, ${result.failedEmails} failed`,
       );
     });
   }

@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CheckSquare, MapPin, Calendar } from 'lucide-react';
 import {
+  TaskStatus,
   TASK_STATUS_LABELS,
   TASK_STATUS_VARIANT,
   TASK_PRIORITY_LABELS,
@@ -19,10 +20,10 @@ import {
 
 const statusOptions = [
   { value: 'all', label: 'Todos los estados' },
-  { value: 'OVERDUE', label: 'Vencidas' },
-  { value: 'UPCOMING', label: 'Próximas' },
-  { value: 'PENDING', label: 'Pendientes' },
-  { value: 'COMPLETED', label: 'Completadas' },
+  { value: TaskStatus.OVERDUE, label: 'Vencidas' },
+  { value: TaskStatus.UPCOMING, label: 'Próximas' },
+  { value: TaskStatus.PENDING, label: 'Pendientes' },
+  { value: TaskStatus.COMPLETED, label: 'Completadas' },
 ];
 
 function TaskRow({

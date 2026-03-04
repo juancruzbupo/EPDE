@@ -1,23 +1,19 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TasksRepository } from './tasks.repository';
 import { TaskLogsRepository } from './task-logs.repository';
 import { TaskNotesRepository } from './task-notes.repository';
 import { TaskAuditLogRepository } from './task-audit-log.repository';
 import { TaskLifecycleService } from './task-lifecycle.service';
 import { TaskNotesService } from './task-notes.service';
-import { MaintenancePlansModule } from '../maintenance-plans/maintenance-plans.module';
+import { PlanDataModule } from '../maintenance-plans/plan-data.module';
 
 /**
  * TasksModule owns the full task lifecycle: repositories, services, and audit logging.
- * It imports MaintenancePlansModule (via forwardRef to break circular dependency) because
- * TaskLifecycleService needs MaintenancePlansRepository for plan existence and property
- * ownership verification.
- *
- * MaintenancePlansModule imports TasksModule to access TaskLifecycleService and TaskNotesService.
- * MaintenancePlansModule exports MaintenancePlansRepository so a single instance is shared.
+ * It imports PlanDataModule (not MaintenancePlansModule) to get MaintenancePlansRepository
+ * without creating a circular dependency.
  */
 @Module({
-  imports: [forwardRef(() => MaintenancePlansModule)],
+  imports: [PlanDataModule],
   providers: [
     TasksRepository,
     TaskLogsRepository,

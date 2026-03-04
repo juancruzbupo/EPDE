@@ -35,7 +35,10 @@ export function useCreateProperty() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createProperty,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] }),
+    onSuccess: () => {
+      toast.success('Propiedad creada');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
+    },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al crear propiedad'));
     },
@@ -46,7 +49,10 @@ export function useUpdateProperty() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, ...dto }: { id: string } & UpdatePropertyInput) => updateProperty(id, dto),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] }),
+    onSuccess: () => {
+      toast.success('Propiedad actualizada');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
+    },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al actualizar propiedad'));
     },
@@ -57,7 +63,10 @@ export function useDeleteProperty() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteProperty,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] }),
+    onSuccess: () => {
+      toast.success('Propiedad eliminada');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
+    },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al eliminar propiedad'));
     },

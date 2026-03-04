@@ -3,8 +3,13 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { BudgetRequest, Prisma } from '@prisma/client';
+import {
+  BudgetNotPendingError,
+  BudgetVersionConflictError,
+} from '../common/exceptions/domain.exceptions';
 import { BudgetsRepository } from './budgets.repository';
 import { PropertiesRepository } from '../properties/properties.repository';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
@@ -108,18 +113,29 @@ export class BudgetsService {
       new Prisma.Decimal(0),
     );
 
-    const result = await this.budgetsRepository.respondToBudget(
-      id,
-      budget.version ?? 0,
-      dto.lineItems,
-      {
-        totalAmount: totalAmount.toNumber(),
-        estimatedDays: dto.estimatedDays,
-        notes: dto.notes,
-        validUntil: dto.validUntil ? new Date(dto.validUntil) : null,
-        updatedBy: userId,
-      },
-    );
+    let result: BudgetRequest;
+    try {
+      result = await this.budgetsRepository.respondToBudget(
+        id,
+        budget.version ?? 0,
+        dto.lineItems,
+        {
+          totalAmount: totalAmount.toNumber(),
+          estimatedDays: dto.estimatedDays,
+          notes: dto.notes,
+          validUntil: dto.validUntil ? new Date(dto.validUntil) : null,
+          updatedBy: userId,
+        },
+      );
+    } catch (error) {
+      if (error instanceof BudgetNotPendingError) {
+        throw new BadRequestException(error.message);
+      }
+      if (error instanceof BudgetVersionConflictError) {
+        throw new ConflictException(error.message);
+      }
+      throw error;
+    }
 
     void this.notificationsHandler.handleBudgetQuoted({
       budgetId: id,

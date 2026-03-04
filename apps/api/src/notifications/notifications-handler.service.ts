@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
 import { NotificationQueueService } from './notification-queue.service';
+import { NotificationsService } from './notifications.service';
 import { EmailQueueService } from '../email/email-queue.service';
 
 /**
@@ -28,6 +29,7 @@ export class NotificationsHandlerService {
 
   constructor(
     private readonly notificationQueueService: NotificationQueueService,
+    private readonly notificationsService: NotificationsService,
     private readonly usersRepository: UserLookupRepository,
     private readonly emailQueueService: EmailQueueService,
   ) {}
@@ -202,6 +204,62 @@ export class NotificationsHandlerService {
         `Error handling service.statusChanged for ${payload.serviceRequestId}: ${(error as Error).message}`,
         (error as Error).stack,
       );
+    }
+  }
+
+  /**
+   * Bulk task reminder handler — used by TaskReminderService (scheduler).
+   * Uses direct DB writes (NotificationsService) instead of BullMQ queue
+   * for efficiency when processing hundreds of reminders at once.
+   */
+  async handleTaskReminders(payload: {
+    notifications: Array<{
+      userId: string;
+      type: 'TASK_REMINDER';
+      title: string;
+      message: string;
+      data: Record<string, unknown>;
+    }>;
+    emails: Array<{
+      to: string;
+      name: string;
+      taskName: string;
+      propertyAddress: string;
+      dueDate: Date;
+      categoryName: string;
+      isOverdue: boolean;
+    }>;
+  }): Promise<{ notificationCount: number; failedEmails: number }> {
+    try {
+      const [notificationCount, emailResults] = await Promise.all([
+        this.notificationsService.createNotifications(payload.notifications),
+        Promise.allSettled(
+          payload.emails.map((e) =>
+            this.emailQueueService.enqueueTaskReminder(
+              e.to,
+              e.name,
+              e.taskName,
+              e.propertyAddress,
+              e.dueDate,
+              e.categoryName,
+              e.isOverdue,
+            ),
+          ),
+        ),
+      ]);
+      const failedEmails = emailResults.filter((r) => r.status === 'rejected').length;
+      if (failedEmails > 0) {
+        this.logger.error(
+          `${failedEmails}/${emailResults.length} reminder email(s) failed to enqueue`,
+        );
+      }
+      return { notificationCount, failedEmails };
+    } catch (error) {
+      this.logger.error(
+        `Error handling task reminders: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      return { notificationCount: 0, failedEmails: payload.emails.length };
     }
   }
 }

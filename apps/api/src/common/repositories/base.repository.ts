@@ -41,7 +41,12 @@ export interface PaginatedResult<T> {
   total: number;
 }
 
-export abstract class BaseRepository<T, M extends PrismaModelName = PrismaModelName> {
+export abstract class BaseRepository<
+  T,
+  M extends PrismaModelName = PrismaModelName,
+  TCreateInput = unknown,
+  TUpdateInput = unknown,
+> {
   constructor(
     protected readonly prisma: PrismaService,
     protected readonly modelName: M,
@@ -133,11 +138,11 @@ export abstract class BaseRepository<T, M extends PrismaModelName = PrismaModelN
     return { data, nextCursor, hasMore, total };
   }
 
-  async create(data: unknown, include?: Record<string, unknown>): Promise<T> {
+  async create(data: TCreateInput, include?: Record<string, unknown>): Promise<T> {
     return this.writeModel.create({ data, ...(include && { include }) });
   }
 
-  async update(id: string, data: unknown, include?: Record<string, unknown>): Promise<T> {
+  async update(id: string, data: TUpdateInput, include?: Record<string, unknown>): Promise<T> {
     return this.writeModel.update({ where: { id }, data, ...(include && { include }) });
   }
 

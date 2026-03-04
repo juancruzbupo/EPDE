@@ -17,3 +17,29 @@ export type PlanPublic = Serialized<MaintenancePlan> & {
     user?: UserBriefWithEmail;
   };
 };
+
+/** Lightweight plan shape returned by list endpoints. */
+export interface PlanListItem {
+  id: string;
+  name: string;
+  status: string;
+  createdAt: string;
+  property: { id: string; address: string; city: string; userId: string };
+  _count: { tasks: number };
+}
+
+/** Lightweight task shape returned by list endpoints. */
+export interface TaskListItem {
+  id: string;
+  name: string;
+  status: string;
+  priority: string;
+  nextDueDate: string | null;
+  recurrenceType: string;
+  category: { id: string; name: string; icon: string | null };
+  maintenancePlan: {
+    id: string;
+    name: string;
+    property: { id: string; address: string; city: string };
+  };
+}

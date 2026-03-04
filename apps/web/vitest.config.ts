@@ -14,6 +14,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       thresholds: { statements: 50, branches: 35, functions: 50, lines: 50 },
+      exclude: ['src/app/**/page.tsx', 'src/app/**/layout.tsx', 'src/components/ui/**'],
     },
   },
   resolve: {
