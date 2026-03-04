@@ -474,7 +474,9 @@ Patron compartido entre web y mobile:
 ```typescript
 const apiClient = axios.create({
   baseURL: API_URL,
+  timeout: 15_000,
   withCredentials: true, // Web: cookies | Mobile: Bearer token
+  headers: { [CLIENT_TYPE_HEADER]: CLIENT_TYPES.WEB }, // o CLIENT_TYPES.MOBILE
 });
 
 // Interceptor de refresh en 401
@@ -600,7 +602,7 @@ Casos de uso: token rotation (families), token blacklist (JTIs), distributed loc
 
 > **SSoT:** Los valores de color deben coincidir con `DESIGN_TOKENS_LIGHT` en `@epde/shared/constants/design-tokens.ts`.
 > Al cambiar un color: actualizar primero `design-tokens.ts`, luego propagar a `globals.css` (web) y `global.css` (mobile).
-> Un test en `apps/mobile` verifica la sincronizacion de los valores clave.
+> Tests de sincronización en `apps/web/src/lib/__tests__/css-tokens.test.ts` y `apps/mobile/src/lib/__tests__/css-tokens.test.ts` verifican que no haya drift.
 
 **Consumidores de `DESIGN_TOKENS_LIGHT` en JS** (no pueden usar CSS custom properties):
 

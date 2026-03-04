@@ -232,8 +232,8 @@ Aplicar en **web y mobile** por igual. Si un hook tiene `staleTime` en web, su e
 
 ### 2.7 Limitaciones Conocidas
 
-**BaseRepository `create`/`update` sin type-checking end-to-end:**
-Los metodos `create(data: unknown)` y `update(id, data: unknown)` no tienen generics constrainidos al schema Zod. La validacion ocurre en el controller (via `ZodValidationPipe`), por lo que un service podría pasar data malformada sin error de TypeScript. Riesgo bajo dado que Zod es el gate de entrada obligatorio.
+**BaseRepository `create`/`update` con generics opcionales:**
+`BaseRepository<T, M, TCreateInput = unknown, TUpdateInput = unknown>` acepta generics para tipar `create()` y `update()`. Ejemplo: `BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequest', Prisma.BudgetRequestCreateInput, Prisma.BudgetRequestUpdateInput>`. Si no se especifican, defaults a `unknown` (retrocompatible). La validación Zod sigue siendo el gate de entrada obligatorio en el controller.
 
 **Mobile API URL resuelta en build time:**
 `EXPO_PUBLIC_API_URL` se resuelve en build time via `babel-plugin-transform-inline-environment-variables`. Cambiar la URL de produccion requiere un nuevo build + OTA update o store release. Para migraciones de dominio, considerar Expo Updates (OTA) como canal de actualizacion rapida. Largo plazo: evaluar remote config (Firebase Remote Config).
@@ -340,6 +340,7 @@ export class BudgetsService {
 - Inyectar SOLO repositorios y servicios auxiliares (NotificationsHandlerService, EmailQueueService)
 - Verificar permisos: CLIENT solo accede a sus recursos via ownership checks
 - Lanzar excepciones NestJS: `NotFoundException`, `ForbiddenException`, `BadRequestException`
+- Si el service atrapa excepciones de dominio del repository, mapearlas a HTTP: `BudgetNotPendingError → BadRequestException`, `BudgetVersionConflictError → ConflictException`
 - Disparar notificaciones/emails con inyeccion directa fire-and-forget: `void this.notificationsHandler.handleBudgetCreated({ ... })` — EventEmitter2 fue eliminado (Fase 15)
 
 ### 3.3b Extension Point: NotificationsHandlerService
@@ -382,6 +383,29 @@ class BudgetsService {
 1. Agregar `handleXxxYyy(payload): Promise<void>` en `NotificationsHandlerService`
 2. Llamar `void this.notificationsHandler.handleXxxYyy(...)` después del DB write
 3. El método maneja su propio try/catch — el caller nunca necesita try/catch
+
+**Excepción — operaciones bulk del scheduler:**
+`handleTaskReminders()` retorna `{ notificationCount, failedEmails }` (no void) porque el scheduler necesita logear resultados. Usa `NotificationsService.createNotifications()` directo (bulk DB insert) + `Promise.allSettled` para emails.
+
+### 3.3c Domain Exceptions
+
+Los repositories lanzan excepciones de dominio (no HTTP) definidas en `apps/api/src/common/exceptions/domain.exceptions.ts`. El service las atrapa y mapea a HTTP:
+
+```typescript
+// Repository — lanza excepción de dominio
+if (budget.status !== 'PENDING') throw new BudgetNotPendingError();
+
+// Service — mapea a HTTP
+try {
+  result = await this.budgetsRepository.respondToBudget(...);
+} catch (error) {
+  if (error instanceof BudgetNotPendingError) throw new BadRequestException(error.message);
+  if (error instanceof BudgetVersionConflictError) throw new ConflictException(error.message);
+  throw error;
+}
+```
+
+**Regla:** los repositories NUNCA importan `@nestjs/common` exceptions. Solo lanzan `Error` subclasses de dominio.
 
 ### 3.4 Controller Pattern
 
