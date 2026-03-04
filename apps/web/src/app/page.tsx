@@ -2,21 +2,23 @@ import type { Metadata } from 'next';
 import { LandingPage } from '@/components/landing/landing-page';
 
 export const metadata: Metadata = {
-  title: 'EPDE — Diagnóstico Arquitectónico y Mantenimiento Preventivo para Viviendas',
+  title: 'EPDE — Mantenimiento Preventivo para Viviendas | Arq. Noelia E. Yuskowich',
   description:
-    'Servicio profesional de diagnóstico arquitectónico por Arq. Noelia E. Yuskowich. Planificación preventiva personalizada para viviendas unifamiliares con sistema digital de seguimiento.',
+    'Diagnóstico arquitectónico profesional y plan de mantenimiento preventivo con seguimiento digital. Detectamos problemas antes de que sean urgencias. Cupos limitados.',
   keywords: [
-    'diagnóstico arquitectónico',
     'mantenimiento preventivo vivienda',
-    'planificación arquitectónica',
+    'diagnóstico arquitectónico',
     'patologías edilicias',
     'mantenimiento preventivo casa',
     'diagnóstico edilicio',
+    'inspección de vivienda',
+    'plan de mantenimiento casa',
+    'prevención humedades',
   ],
   openGraph: {
-    title: 'EPDE — Protegé el valor de tu vivienda con planificación arquitectónica moderna',
+    title: 'EPDE — Detectamos problemas en tu vivienda antes de que sean urgencias',
     description:
-      'Diagnóstico arquitectónico personalizado por Arq. Noelia E. Yuskowich + plan de mantenimiento preventivo con seguimiento digital.',
+      'Diagnóstico arquitectónico profesional + plan preventivo personalizado + seguimiento digital. Por Arq. Noelia E. Yuskowich.',
     type: 'website',
   },
 };
