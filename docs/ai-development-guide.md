@@ -207,16 +207,17 @@ export const PLAN_STATUS_VARIANT = { DRAFT: 'secondary', ACTIVE: 'default', ARCH
 // + SERVICE_STATUS_VARIANT, URGENCY_VARIANT, PRIORITY_VARIANT, CLIENT_STATUS_VARIANT
 ```
 
-### 2.5 Design Tokens vs CSS Variables
+### 2.5 Design Tokens — SSoT
 
-`@epde/shared` exporta dos formatos de colores desde `constants/design-tokens.ts`:
+`@epde/shared` exporta `DESIGN_TOKENS_LIGHT` y `DESIGN_TOKENS_DARK` desde `constants/design-tokens.ts`. Estos son la fuente de verdad para todos los colores de la marca.
 
-| Export                                       | Formato                           | Uso                                                                                |
-| -------------------------------------------- | --------------------------------- | ---------------------------------------------------------------------------------- |
-| `DESIGN_TOKENS_LIGHT` / `DESIGN_TOKENS_DARK` | `{ primary: '#c4704b', ... }`     | **Mobile** — valores directos hex para React Native `StyleSheet` y `colors.ts`     |
-| `CSS_VARIABLES_LIGHT` / `CSS_VARIABLES_DARK` | `{ '--primary': '#c4704b', ... }` | **Web** — mapeo `--kebab-case: valor` para inyectar en `:root {}` de `globals.css` |
+Al agregar o cambiar un color:
 
-Los `CSS_VARIABLES_*` se derivan **automaticamente** de `DESIGN_TOKENS_*` via la funcion `toCSSVar()`. Al agregar un nuevo color, agregarlo en `DESIGN_TOKENS_LIGHT`/`DARK` — la propagacion a CSS variables es automatica.
+1. Actualizar `DESIGN_TOKENS_LIGHT` / `DESIGN_TOKENS_DARK` en shared
+2. Propagar manualmente a `apps/web/src/app/globals.css` (`:root` y `.dark`)
+3. Propagar manualmente a `apps/mobile/src/global.css` (`@theme inline`)
+
+Los tests `css-tokens.test.ts` en web y mobile verifican tanto la **existencia** como los **valores** de cada token contra `DESIGN_TOKENS_LIGHT`/`DARK`.
 
 ### 2.6 staleTime Policy (React Query)
 

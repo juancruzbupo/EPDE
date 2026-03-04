@@ -704,4 +704,4 @@ import { colors } from '@/lib/colors'; // re-exports DESIGN_TOKENS_LIGHT de @epd
 <View style={{ backgroundColor: '#C4704B' }} />
 ```
 
-**Fuente de verdad de tokens:** `packages/shared/src/constants/design-tokens.ts` exporta `DESIGN_TOKENS_LIGHT` y `DESIGN_TOKENS_DARK`. Cuando se modifica un color, se actualiza ahi primero y luego se propaga manualmente a `apps/web/src/app/globals.css` y `apps/mobile/src/app/global.css` (que usan CSS custom properties).
+**Fuente de verdad de tokens:** `packages/shared/src/constants/design-tokens.ts` exporta `DESIGN_TOKENS_LIGHT` y `DESIGN_TOKENS_DARK`. Cuando se modifica un color, se actualiza ahí primero y luego se propaga manualmente a `apps/web/src/app/globals.css` y `apps/mobile/src/global.css`. Los tests `css-tokens.test.ts` (web y mobile) verifican tanto la existencia como los **valores** de cada token contra `DESIGN_TOKENS_LIGHT`/`DARK`, detectando drift automáticamente.

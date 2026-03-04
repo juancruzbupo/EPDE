@@ -6,7 +6,7 @@
 
 @theme inline {
   --color-primary: #c4704b;
-  --color-primary-foreground: #ffffff;
+  --color-primary-foreground: #fafaf8;
   --color-secondary: #e8ddd3;
   --color-secondary-foreground: #2e2a27;
   --color-background: #fafaf8;
@@ -23,10 +23,20 @@
   --color-input: #e8ddd3;
   --color-ring: #c4704b;
   --color-success: #6b9b7a;
-  --color-success-foreground: #ffffff;
-  --color-warning: #d4a843;
-  --color-warning-foreground: #ffffff;
-  --color-caution: #f59e0b;
-  --color-caution-foreground: #78350f;
+  --color-success-foreground: #1a1715;
+  --color-warning: #c4a030;
+  --color-warning-foreground: #1a1715;
+  --color-caution: #c47030;
+  --color-caution-foreground: #fafaf8;
+  /* Task type color tokens */
+  --color-task-inspection: #3b82f6;
+  --color-task-cleaning: #06b6d4;
+  --color-task-test: #6366f1;
+  --color-task-treatment: #a855f7;
+  --color-task-sealing: #f59e0b;
+  --color-task-lubrication: #84cc16;
+  --color-task-adjustment: #64748b;
+  --color-task-measurement: #14b8a6;
+  --color-task-evaluation: #8b5cf6;
   --radius: 0.625rem;
 }
