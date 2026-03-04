@@ -274,22 +274,39 @@ export const myColumns: ColumnDef<MyType>[] = [
 
 Pagina publica de presentacion del servicio EPDE. Archivo: `apps/web/src/components/landing/landing-page.tsx`.
 
-### Estructura (9 secciones + header + footer + mobile sticky)
+### Estructura (12 secciones + header + footer + mobile sticky)
 
-| Seccion                     | ID / Posicion | Contenido                                                                                     |
-| --------------------------- | ------------- | --------------------------------------------------------------------------------------------- |
-| **Header**                  | Fixed top     | Logo "EPDE" (`font-heading`) + boton ghost (Dashboard si autenticado, Login si no)            |
-| **Hero**                    | Primera       | "Tu vivienda, bajo control profesional." + CTAs "Agendar diagnóstico" / "Más información"     |
-| **Problema**                | Segunda       | Bloque emocional: improvisación, reacción, desgaste                                           |
-| **Cómo funciona**           | Tercera       | 3 pasos numerados con icono Lucide: Diagnóstico → Plan → Seguimiento preventivo               |
-| **Quién está detrás**       | Cuarta        | Bio Arq. Noelia E. Yuskowich en primera persona con icono User                                |
-| **Qué incluye**             | Quinta        | 6 items con checkmark: evaluación, prioridades, plan, carga digital, historial, acceso        |
-| **Después del diagnóstico** | Sexta         | Explica autonomía post-diagnóstico: plan propio o presupuestos opcionales                     |
-| **Para quién es**           | Séptima       | 4 items con Check/X: propietarios unifamiliares, previsión, valor a largo plazo, no urgencias |
-| **Lanzamiento**             | `#agendar`    | 10 cupos disponibles + CTA "Reservar diagnóstico" (link WhatsApp)                             |
-| **CTA Final**               | Novena        | Fondo `bg-foreground` invertido + "Coordinar evaluación profesional"                          |
-| **Footer**                  | Última        | Logo + "por Arq. Noelia E. Yuskowich" + copyright + tagline                                   |
-| **Mobile Sticky CTA**       | Fixed bottom  | `md:hidden` — botón full-width "Agendar diagnóstico" (link WhatsApp)                          |
+| Seccion                      | ID / Posicion    | Contenido                                                                                              |
+| ---------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------ |
+| **Header**                   | Fixed top        | Logo "EPDE" (`font-heading`) + boton ghost (Dashboard si autenticado, Login si no)                     |
+| **1. Hero**                  | Primera          | "Tu vivienda merece planificación profesional." + CTA "Quiero evaluar mi vivienda" (WhatsApp)          |
+| **2. Problema**              | Segunda          | "Postergar no es ahorrar. Es acumular riesgo." + 3 ProblemCards (filtraciones, instalaciones, fisuras) |
+| **3. Cómo funciona**         | `#como-funciona` | 3 pasos numerados: Evaluación → Diagnóstico → Seguimiento digital                                      |
+| **4. Así se ve el sistema**  | Cuarta           | Screenshots reales web + mobile desde `public/images/` (demo-web.png, demo-mobile.jpg)                 |
+| **5. Caso real**             | Quinta           | Caso ilustrativo: contexto → problemas detectados → resultado preventivo ($2.800.000+ ahorro)          |
+| **6. Comparativa de costos** | Sexta            | 3 CostComparison cards con precios reales de Paraná + multiplicadores + disclaimer legal               |
+| **7. Qué incluye**           | Séptima          | 8 IconTextItem (DELIVERABLES): evaluación, informe, plan, plataforma, recordatorios, etc.              |
+| **8. Inversión**             | `#inversion`     | 3 PRICING tiers por superficie (compacta/estándar/ampliada) + CTA "Consultar disponibilidad"           |
+| **9. ¿Es para vos?**         | Novena           | 4 TARGET_PROFILES + anti-perfiles ("no es para goteras puntuales ni alquileres temporarios")           |
+| **10. Autoridad**            | Décima           | Bio Arq. Noelia E. Yuskowich + CREDENTIALS + validación social ("propietarios reales en Paraná")       |
+| **11. Lanzamiento**          | `#agendar`       | 10 cupos + LAUNCH_BENEFITS (valor preferencial, revisión anual, acceso prioritario, contacto directo)  |
+| **12. CTA Final**            | Última           | Fondo `bg-foreground` invertido + "Quiero coordinar mi diagnóstico" (WhatsApp)                         |
+| **Footer**                   | Post-secciones   | Logo + "por Arq. Noelia E. Yuskowich" + copyright + tagline                                            |
+| **Mobile Sticky CTA**        | Fixed bottom     | `md:hidden` — botón full-width "Evaluar mi vivienda" (WhatsApp)                                        |
+
+### Data Constants
+
+| Constante          | Tipo               | Cantidad | Descripción                                                              |
+| ------------------ | ------------------ | -------- | ------------------------------------------------------------------------ |
+| `PROBLEMS`         | `ProblemCard[]`    | 3        | Filtraciones, instalaciones, fisuras (icon + title + desc + consequence) |
+| `STEPS`            | `Step[]`           | 3        | Evaluación, diagnóstico, seguimiento (number + icon + title + desc)      |
+| `CASE_STUDY`       | object             | 1        | Contexto, problema, resultado, ahorro estimado                           |
+| `COST_COMPARISONS` | `CostComparison[]` | 3        | Precios Paraná: preventivo vs emergencia + multiplicador                 |
+| `DELIVERABLES`     | `IconTextItem[]`   | 8        | Qué incluye el servicio (icon + text)                                    |
+| `PRICING`          | array              | 3        | Tiers por superficie: compacta, estándar, ampliada                       |
+| `TARGET_PROFILES`  | `string[]`         | 4        | Perfiles de propietarios ideales                                         |
+| `CREDENTIALS`      | `IconTextItem[]`   | 4        | Credenciales de la arquitecta                                            |
+| `LAUNCH_BENEFITS`  | `string[]`         | 4        | Beneficios de la etapa de lanzamiento                                    |
 
 ### Animaciones
 
