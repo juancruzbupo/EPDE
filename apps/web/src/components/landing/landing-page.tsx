@@ -75,13 +75,14 @@ const PROBLEMS: ProblemCard[] = [
     title: 'Filtraciones y humedades',
     description:
       'Sin revisión periódica, avanzan detrás de paredes y bajo pisos sin señales visibles.',
-    consequence: 'Lo que era una corrección menor se convierte en intervención completa.',
+    consequence: 'Lo que era un ajuste puntual termina comprometiendo el valor de tu propiedad.',
   },
   {
     icon: Zap,
     title: 'Instalaciones sin supervisión',
     description: 'Cañerías, cables y conexiones envejecen sin que nadie lo controle.',
-    consequence: 'Los problemas aparecen cuando ya requieren intervención mayor.',
+    consequence:
+      'El ahorro preventivo se pierde: lo que costaba poco ahora requiere obra completa.',
   },
   {
     icon: Thermometer,
@@ -276,8 +277,8 @@ export function LandingPage() {
             variants={fadeIn}
             className="type-body-lg text-muted-foreground mx-auto mt-10 max-w-2xl text-center"
           >
-            La diferencia entre una intervención menor y una obra mayor es, casi siempre,{' '}
-            <span className="text-foreground font-medium">haber actuado a tiempo.</span>
+            La diferencia entre preservar tu vivienda y enfrentar una reparación mayor es, casi
+            siempre, <span className="text-foreground font-medium">haber actuado a tiempo.</span>
           </motion.p>
         </motion.div>
       </section>
@@ -285,15 +286,9 @@ export function LandingPage() {
       {/* ==================== 3. Problemas detectados ==================== */}
       <section className="py-20 md:py-28">
         <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-3xl px-4">
-          <motion.p
-            variants={fadeIn}
-            className="type-label-md text-primary tracking-widest uppercase"
-          >
-            Qué detectamos
-          </motion.p>
           <motion.h2
             variants={fadeInUp}
-            className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
+            className="font-heading text-foreground text-3xl tracking-tight sm:text-4xl"
           >
             Problemas que detectamos antes de que se conviertan en reparaciones costosas
           </motion.h2>
@@ -469,17 +464,6 @@ export function LandingPage() {
               </p>
             </div>
           </motion.div>
-
-          <motion.p
-            variants={fadeIn}
-            className="type-body-xs text-muted-foreground/60 mx-auto mt-6 max-w-2xl text-center"
-          >
-            Los valores mencionados son estimaciones de mercado orientativas para trabajos de
-            mantenimiento y reparación en viviendas unifamiliares. Actualizados a marzo 2026. Las
-            referencias se basan en costos promedio de materiales y mano de obra del sector de la
-            construcción. Referencias: cámaras de la construcción, portales de costos de obra y
-            presupuestos técnicos del sector.
-          </motion.p>
         </motion.div>
       </section>
 
@@ -698,7 +682,7 @@ export function LandingPage() {
             <div className="mt-8 text-center">
               <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
                 <Button size="lg" className="gap-2">
-                  Coordinar diagnóstico
+                  Coordinar mi diagnóstico
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </a>
