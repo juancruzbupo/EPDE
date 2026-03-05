@@ -34,7 +34,6 @@ import {
   staggerItem,
   useMotionPreference,
 } from '@/lib/motion';
-import { cn } from '@/lib/utils';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -66,14 +65,6 @@ interface Step {
   description: string;
 }
 
-interface CostComparison {
-  icon: LucideIcon;
-  pathology: string;
-  preventive: string;
-  emergency: string;
-  multiplier: string;
-}
-
 // ---------------------------------------------------------------------------
 // Data
 // ---------------------------------------------------------------------------
@@ -100,6 +91,14 @@ const PROBLEMS: ProblemCard[] = [
   },
 ];
 
+const DETECTED_PROBLEMS: IconTextItem[] = [
+  { icon: Droplets, text: 'Humedades ocultas en muros y cubiertas' },
+  { icon: Home, text: 'Fisuras estructurales' },
+  { icon: Wrench, text: 'Impermeabilizaciones deterioradas' },
+  { icon: Zap, text: 'Instalaciones que nunca fueron revisadas' },
+  { icon: Search, text: 'Desgaste en cubiertas, sellados y desagües' },
+];
+
 const STEPS: Step[] = [
   {
     number: '01',
@@ -123,40 +122,6 @@ const STEPS: Step[] = [
   },
 ];
 
-const CASE_STUDY = {
-  context:
-    'Vivienda unifamiliar de 15 años en zona suburbana. Los propietarios no detectaban ningún problema visible.',
-  problem:
-    'El diagnóstico reveló: humedad ascendente en muro medianero (no visible por revestimiento), fisuras activas en losa de terraza y cañería de gas con pérdida micro en conexión de cocina.',
-  result:
-    'Todas las intervenciones se resolvieron de forma preventiva, antes de que generaran daños mayores. Costo total de las correcciones: una fracción de lo que hubiera costado la reparación de emergencia.',
-  savings: 'Ahorro estimado: $2.800.000+',
-};
-
-const COST_COMPARISONS: CostComparison[] = [
-  {
-    icon: Droplets,
-    pathology: 'Filtraciones en techos',
-    preventive: '$150.000 – $400.000',
-    emergency: '$2.500.000 – $6.000.000',
-    multiplier: '8x – 15x',
-  },
-  {
-    icon: Thermometer,
-    pathology: 'Humedad de cimientos',
-    preventive: '$300.000 – $800.000',
-    emergency: '$3.500.000 – $9.000.000',
-    multiplier: '8x – 12x',
-  },
-  {
-    icon: Zap,
-    pathology: 'Fallas eléctricas',
-    preventive: '$80.000 – $180.000',
-    emergency: '$1.200.000 – $3.500.000',
-    multiplier: '10x – 20x',
-  },
-];
-
 const DELIVERABLES: IconTextItem[] = [
   { icon: Search, text: 'Evaluación técnica presencial de la vivienda' },
   { icon: FileText, text: 'Informe de diagnóstico con hallazgos y prioridades' },
@@ -168,28 +133,12 @@ const DELIVERABLES: IconTextItem[] = [
   { icon: Wrench, text: 'Recomendaciones de proveedores y presupuestos orientativos' },
 ];
 
-const PRICING = [
-  {
-    label: 'Vivienda compacta',
-    range: 'Hasta 70 m²',
-    price: 'AR$ 240.000',
-    note: 'Ideal para departamentos o viviendas pequeñas.',
-    featured: false,
-  },
-  {
-    label: 'Vivienda estándar',
-    range: '70 a 140 m²',
-    price: 'AR$ 290.000',
-    note: 'La mayoría de las viviendas unifamiliares se encuentran en este rango.',
-    featured: true,
-  },
-  {
-    label: 'Vivienda ampliada',
-    range: 'Más de 140 m²',
-    price: 'Desde AR$ 350.000',
-    note: 'Evaluación personalizada según complejidad.',
-    featured: false,
-  },
+const INVESTMENT_FEATURES = [
+  'Evaluación técnica presencial completa',
+  'Informe de diagnóstico con hallazgos y prioridades',
+  'Plan de mantenimiento preventivo personalizado',
+  'Carga en plataforma digital con seguimiento',
+  'Revisión anual incluida en etapa de lanzamiento',
 ];
 
 const TARGET_PROFILES = [
@@ -204,13 +153,6 @@ const CREDENTIALS: IconTextItem[] = [
   { icon: Search, text: 'Especialista en patologías edilicias' },
   { icon: Home, text: 'Foco en viviendas unifamiliares' },
   { icon: ClipboardList, text: 'Cada diagnóstico realizado personalmente' },
-];
-
-const LAUNCH_BENEFITS = [
-  'Valor preferencial de lanzamiento',
-  'Revisión anual incluida sin cargo adicional',
-  'Acceso prioritario a nuevas funcionalidades',
-  'Comunicación directa con la arquitecta',
 ];
 
 // ---------------------------------------------------------------------------
@@ -257,27 +199,27 @@ export function LandingPage() {
             variants={fadeInUp}
             className="font-heading text-foreground text-4xl leading-[1.1] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
           >
-            Tu vivienda merece algo más que mantenimiento.
+            Detectamos problemas en tu vivienda
             <br />
-            <span className="text-primary">Merece planificación profesional.</span>
+            <span className="text-primary">antes de que se conviertan en urgencias.</span>
           </motion.h1>
 
           <motion.p
             variants={fadeIn}
             className="type-body-lg text-muted-foreground mx-auto mt-6 max-w-2xl"
           >
-            Sistema de diagnóstico y mantenimiento preventivo con criterio arquitectónico y
-            seguimiento digital real.
+            Diagnóstico arquitectónico profesional, plan de mantenimiento preventivo y seguimiento
+            digital para proteger tu vivienda a largo plazo.
           </motion.p>
 
           <motion.p variants={fadeIn} className="type-body-md text-muted-foreground/50 mt-3 italic">
-            Porque lo que no se planifica, se deteriora.
+            Arquitectura aplicada al cuidado del hogar.
           </motion.p>
 
           <motion.div variants={fadeIn} className="mt-10 flex justify-center">
             <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
               <Button size="lg" className="gap-2">
-                Quiero evaluar mi vivienda
+                Evaluar mi vivienda
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </a>
@@ -340,8 +282,54 @@ export function LandingPage() {
         </motion.div>
       </section>
 
-      {/* ==================== 3. Cómo funciona ==================== */}
-      <section id="como-funciona" className="py-20 md:py-28">
+      {/* ==================== 3. Problemas detectados ==================== */}
+      <section className="py-20 md:py-28">
+        <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-3xl px-4">
+          <motion.p
+            variants={fadeIn}
+            className="type-label-md text-primary tracking-widest uppercase"
+          >
+            Qué detectamos
+          </motion.p>
+          <motion.h2
+            variants={fadeInUp}
+            className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
+          >
+            Problemas que detectamos antes de que se conviertan en reparaciones costosas
+          </motion.h2>
+
+          <motion.div
+            variants={fadeIn}
+            className="border-border bg-card mt-10 rounded-xl border p-6 sm:p-8"
+          >
+            <div className="space-y-4">
+              {DETECTED_PROBLEMS.map((item) => (
+                <motion.div
+                  key={item.text}
+                  variants={staggerItem}
+                  className="flex items-center gap-3"
+                >
+                  <div className="bg-primary/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+                    <item.icon className="text-primary h-4 w-4" strokeWidth={1.5} />
+                  </div>
+                  <span className="type-body-lg text-foreground">{item.text}</span>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.p
+            variants={fadeIn}
+            className="type-body-lg text-muted-foreground mx-auto mt-8 max-w-2xl text-center"
+          >
+            Pequeños problemas que con el tiempo pueden transformarse en reparaciones costosas si no
+            se detectan a tiempo.
+          </motion.p>
+        </motion.div>
+      </section>
+
+      {/* ==================== 4. Cómo funciona ==================== */}
+      <section id="como-funciona" className="bg-muted/30 py-20 md:py-28">
         <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-5xl px-4">
           <div className="text-center">
             <motion.p
@@ -377,8 +365,8 @@ export function LandingPage() {
         </motion.div>
       </section>
 
-      {/* ==================== 4. Así se ve el sistema ==================== */}
-      <section className="bg-muted/30 py-20 md:py-28">
+      {/* ==================== 5. Sistema digital ==================== */}
+      <section className="py-20 md:py-28">
         <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-4xl px-4">
           <div className="text-center">
             <motion.p
@@ -433,295 +421,70 @@ export function LandingPage() {
         </motion.div>
       </section>
 
-      {/* ==================== 5. Caso real ==================== */}
-      <section className="py-20 md:py-28">
+      {/* ==================== 6. Ejemplo real ==================== */}
+      <section className="bg-muted/30 py-20 md:py-28">
         <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-3xl px-4">
           <motion.p
             variants={fadeIn}
             className="type-label-md text-primary tracking-widest uppercase"
           >
-            Caso ilustrativo
+            Ejemplo real
           </motion.p>
           <motion.h2
             variants={fadeInUp}
             className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
           >
-            Un diagnóstico. Tres problemas resueltos.
+            Detectar a tiempo puede evitar reparaciones mayores.
           </motion.h2>
 
-          <motion.div
-            variants={fadeInUp}
-            className="border-border bg-card mt-10 overflow-hidden rounded-xl border"
-          >
-            <div className="border-l-primary/30 border-l-4 p-6 sm:p-8">
-              <p className="type-label-md text-primary tracking-wide uppercase">Contexto</p>
-              <p className="type-body-lg text-foreground mt-2">{CASE_STUDY.context}</p>
-            </div>
-            <div className="bg-border h-px" />
-            <div className="border-l-destructive/50 border-l-4 p-6 sm:p-8">
-              <p className="type-label-md text-destructive tracking-wide uppercase">
-                Problemas detectados
-              </p>
-              <p className="type-body-lg text-foreground mt-2">{CASE_STUDY.problem}</p>
-            </div>
-            <div className="bg-border h-px" />
-            <div className="border-l-success border-l-4 p-6 sm:p-8">
+          <motion.p variants={fadeIn} className="type-body-lg text-muted-foreground mt-6 max-w-2xl">
+            Durante un diagnóstico arquitectónico se detectó una filtración en cubierta que aún no
+            era visible desde el interior de la vivienda.
+          </motion.p>
+
+          <motion.div variants={fadeInUp} className="mt-10 grid gap-6 sm:grid-cols-2">
+            {/* Detección temprana */}
+            <div className="border-success/30 bg-success/[0.03] rounded-xl border-2 p-6">
               <p className="type-label-md text-success tracking-wide uppercase">
-                Resultado preventivo
+                Detección temprana
               </p>
-              <p className="type-body-lg text-foreground mt-2">{CASE_STUDY.result}</p>
-              <p className="type-title-md text-success mt-3">{CASE_STUDY.savings}</p>
+              <p className="type-body-lg text-foreground mt-3">
+                Reparación localizada de impermeabilización.
+              </p>
+              <p className="type-body-sm text-muted-foreground mt-2">
+                Intervención menor sobre el sector afectado, sin necesidad de obra.
+              </p>
+            </div>
+
+            {/* Si el problema avanzaba */}
+            <div className="border-destructive/30 bg-destructive/[0.03] rounded-xl border-2 p-6">
+              <p className="type-label-md text-destructive tracking-wide uppercase">
+                Si el problema avanzaba
+              </p>
+              <p className="type-body-lg text-foreground mt-3">
+                Posible reemplazo parcial o total de cubierta.
+              </p>
+              <p className="type-body-sm text-muted-foreground mt-2">
+                Intervención mayor con obra, afectando estructura y terminaciones interiores.
+              </p>
             </div>
           </motion.div>
 
           <motion.p
             variants={fadeIn}
-            className="type-body-sm text-muted-foreground/60 mt-4 text-center italic"
+            className="type-body-xs text-muted-foreground/60 mx-auto mt-6 max-w-2xl text-center"
           >
-            Caso ilustrativo basado en situaciones reales. No representa un cliente específico.
+            Los valores mencionados son estimaciones de mercado orientativas para trabajos de
+            mantenimiento y reparación en viviendas unifamiliares. Actualizados a marzo 2026. Las
+            referencias se basan en costos promedio de materiales y mano de obra del sector de la
+            construcción. Referencias: cámaras de la construcción, portales de costos de obra y
+            presupuestos técnicos del sector.
           </motion.p>
         </motion.div>
       </section>
 
-      {/* ==================== 6. Comparación económica ==================== */}
-      <section className="bg-muted/30 py-20 md:py-28">
-        <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-5xl px-4">
-          <div className="text-center">
-            <motion.p
-              variants={fadeIn}
-              className="type-label-md text-primary tracking-widest uppercase"
-            >
-              Comparativa de costos
-            </motion.p>
-            <motion.h2
-              variants={fadeInUp}
-              className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
-            >
-              Prevención vs. emergencia:
-              <br />
-              <span className="text-muted-foreground">los números en Paraná.</span>
-            </motion.h2>
-            <motion.p
-              variants={fadeIn}
-              className="type-body-lg text-muted-foreground mx-auto mt-4 max-w-2xl"
-            >
-              Costos reales de las tres patologías más frecuentes en viviendas unifamiliares de la
-              región. La diferencia entre actuar a tiempo y esperar se mide en millones.
-            </motion.p>
-          </div>
-
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {COST_COMPARISONS.map((item) => (
-              <motion.div
-                key={item.pathology}
-                variants={staggerItem}
-                className="border-border bg-card overflow-hidden rounded-xl border"
-              >
-                <div className="p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-lg">
-                      <item.icon className="text-foreground/60 h-5 w-5" strokeWidth={1.5} />
-                    </div>
-                    <h3 className="type-title-md text-foreground">{item.pathology}</h3>
-                  </div>
-
-                  <div className="mt-5 space-y-3">
-                    <div className="bg-success/5 rounded-lg p-3">
-                      <p className="type-body-sm text-success font-medium tracking-wide uppercase">
-                        Prevención
-                      </p>
-                      <p className="text-foreground mt-1 text-lg font-bold">{item.preventive}</p>
-                    </div>
-                    <div className="bg-destructive/5 rounded-lg p-3">
-                      <p className="type-body-sm text-destructive font-medium tracking-wide uppercase">
-                        Emergencia
-                      </p>
-                      <p className="text-foreground mt-1 text-lg font-bold">{item.emergency}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-muted/50 border-border border-t px-6 py-3 text-center">
-                  <p className="type-body-sm text-muted-foreground">
-                    Reparar tarde cuesta{' '}
-                    <span className="text-foreground font-bold">{item.multiplier}</span> más
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          <motion.p
-            variants={fadeIn}
-            className="type-body-xs text-muted-foreground/60 mx-auto mt-8 max-w-3xl text-center"
-          >
-            Valores expresados en Pesos Argentinos, actualizados a marzo 2026. Los montos son
-            ilustrativos basados en costos medios de construcción en la región de Entre Ríos y
-            relevamientos propios de EPDE. El ahorro real se determinará tras el diagnóstico
-            presencial profesional.
-          </motion.p>
-        </motion.div>
-      </section>
-
-      {/* ==================== 7. Qué incluye ==================== */}
+      {/* ==================== 7. Quién está detrás ==================== */}
       <section className="py-20 md:py-28">
-        <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-3xl px-4">
-          <motion.p
-            variants={fadeIn}
-            className="type-label-md text-primary tracking-widest uppercase"
-          >
-            Qué incluye
-          </motion.p>
-          <motion.h2
-            variants={fadeInUp}
-            className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
-          >
-            Todo lo que necesitás
-            <br />
-            <span className="text-muted-foreground">en un solo servicio.</span>
-          </motion.h2>
-
-          <motion.div
-            variants={fadeIn}
-            className="border-border bg-card mt-10 rounded-xl border p-6 sm:p-8"
-          >
-            <div className="grid gap-4 sm:grid-cols-2">
-              {DELIVERABLES.map((item) => (
-                <motion.div
-                  key={item.text}
-                  variants={staggerItem}
-                  className="flex items-start gap-3"
-                >
-                  <div className="bg-primary/10 mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                    <item.icon className="text-primary h-3.5 w-3.5" strokeWidth={1.5} />
-                  </div>
-                  <span className="type-body-lg text-foreground">{item.text}</span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          <motion.p
-            variants={fadeIn}
-            className="type-body-md text-foreground/70 mt-6 text-center italic"
-          >
-            Desde el día uno, tu vivienda deja de estar librada al azar.
-          </motion.p>
-        </motion.div>
-      </section>
-
-      {/* ==================== 8. Inversión ==================== */}
-      <section id="inversion" className="bg-muted/30 py-20 md:py-28">
-        <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-5xl px-4">
-          <div className="mx-auto max-w-2xl text-center">
-            <motion.p
-              variants={fadeIn}
-              className="type-label-md text-primary tracking-widest uppercase"
-            >
-              Inversión según superficie
-            </motion.p>
-            <motion.h2
-              variants={fadeInUp}
-              className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
-            >
-              Sistema profesional adaptado a cada vivienda
-            </motion.h2>
-            <motion.p variants={fadeIn} className="type-body-lg text-muted-foreground mt-4">
-              El alcance del diagnóstico varía según los metros cuadrados y la complejidad técnica
-              de la vivienda. Por eso trabajamos con tramos definidos.
-            </motion.p>
-          </div>
-
-          <div className="mt-14 grid gap-8 md:grid-cols-3">
-            {PRICING.map((tier) => (
-              <motion.div
-                key={tier.label}
-                variants={staggerItem}
-                className={cn(
-                  'rounded-2xl p-8 text-center',
-                  tier.featured
-                    ? 'border-primary bg-primary/[0.03] border-2 shadow-sm'
-                    : 'border-border bg-card border',
-                )}
-              >
-                <p
-                  className={cn(
-                    'type-body-sm tracking-wide uppercase',
-                    tier.featured ? 'text-primary' : 'text-muted-foreground',
-                  )}
-                >
-                  {tier.label}
-                </p>
-                <p className="text-muted-foreground mt-1 text-sm">{tier.range}</p>
-                <h3
-                  className={cn(
-                    'font-heading text-foreground mt-6',
-                    tier.featured ? 'text-5xl' : 'text-4xl',
-                  )}
-                >
-                  {tier.price}
-                </h3>
-                <p className="type-body-sm text-muted-foreground mt-4">{tier.note}</p>
-              </motion.div>
-            ))}
-          </div>
-
-          <motion.div variants={fadeIn} className="mx-auto mt-12 max-w-xl text-center">
-            <p className="type-body-md text-foreground/80">
-              Etapa fundacional limitada a 10 viviendas unifamiliares en Paraná. Una vez completados
-              los cupos, los valores se actualizarán.
-            </p>
-            <p className="type-body-sm text-muted-foreground mt-4">
-              ¿No estás seguro de los metros de tu vivienda? Te ayudamos a estimarlo en la consulta
-              inicial.
-            </p>
-          </motion.div>
-
-          <motion.div variants={fadeIn} className="mt-10 text-center">
-            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
-              <Button size="lg" className="gap-2">
-                Consultar disponibilidad
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </a>
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* ==================== 9. ¿Es para vos? ==================== */}
-      <section className="py-20 md:py-28">
-        <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-3xl px-4">
-          <motion.h2
-            variants={fadeInUp}
-            className="font-heading text-foreground text-3xl tracking-tight sm:text-4xl"
-          >
-            Este servicio es para propietarios que:
-          </motion.h2>
-
-          <div className="mt-8 space-y-4">
-            {TARGET_PROFILES.map((profile) => (
-              <motion.div key={profile} variants={staggerItem} className="flex items-center gap-3">
-                <div className="bg-primary/10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                  <Check className="text-primary h-3.5 w-3.5" />
-                </div>
-                <span className="type-body-lg text-foreground">{profile}</span>
-              </motion.div>
-            ))}
-          </div>
-
-          <motion.p variants={fadeIn} className="type-body-md text-foreground mt-6 font-medium">
-            Personas que entienden que prevenir es una decisión inteligente.
-          </motion.p>
-
-          <motion.p variants={fadeIn} className="type-body-md text-muted-foreground mt-4">
-            No es para resolver una gotera puntual ni para casas en alquiler temporario. Es un
-            sistema de prevención para quienes cuidan su patrimonio con visión de largo plazo.
-          </motion.p>
-        </motion.div>
-      </section>
-
-      {/* ==================== 10. Autoridad ==================== */}
-      <section className="bg-muted/30 py-20 md:py-28">
         <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-3xl px-4">
           <motion.p
             variants={fadeIn}
@@ -749,10 +512,20 @@ export function LandingPage() {
             </motion.div>
 
             <motion.div variants={slideInRight} className="space-y-4">
-              <p className="type-body-lg text-foreground">
-                Soy <span className="font-medium">Noelia E. Yuskowich</span>, arquitecta. Creé EPDE
-                porque no existía un sistema profesional de prevención para viviendas unifamiliares.
-              </p>
+              <div>
+                <p className="type-body-lg text-foreground">
+                  Soy <span className="font-medium">Noelia E. Yuskowich</span>, arquitecta. Creé
+                  EPDE porque no existía un sistema profesional de prevención para viviendas
+                  unifamiliares.
+                </p>
+                <div className="text-muted-foreground mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                  <span className="type-body-sm">Arquitecta</span>
+                  <span className="type-body-sm text-border">|</span>
+                  <span className="type-body-sm">Diagnóstico edilicio</span>
+                  <span className="type-body-sm text-border">|</span>
+                  <span className="type-body-sm">Evaluación de patologías constructivas</span>
+                </div>
+              </div>
               <p className="type-body-md text-muted-foreground">
                 Durante años vi cómo pequeños problemas se convertían en intervenciones mayores por
                 falta de planificación. EPDE nace para cambiar eso.
@@ -784,50 +557,157 @@ export function LandingPage() {
         </motion.div>
       </section>
 
-      {/* ==================== 11. Lanzamiento ==================== */}
-      <section id="agendar" className="py-20 md:py-28">
+      {/* ==================== 8. Qué incluye el diagnóstico ==================== */}
+      <section className="bg-muted/30 py-20 md:py-28">
         <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-3xl px-4">
+          <motion.p
+            variants={fadeIn}
+            className="type-label-md text-primary tracking-widest uppercase"
+          >
+            Qué incluye el diagnóstico
+          </motion.p>
+          <motion.h2
+            variants={fadeInUp}
+            className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
+          >
+            Todo en un mismo proceso.
+          </motion.h2>
+
+          <motion.div
+            variants={fadeIn}
+            className="border-border bg-card mt-10 rounded-xl border p-6 sm:p-8"
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              {DELIVERABLES.map((item) => (
+                <motion.div
+                  key={item.text}
+                  variants={staggerItem}
+                  className="flex items-start gap-3"
+                >
+                  <div className="bg-primary/10 mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                    <item.icon className="text-primary h-3.5 w-3.5" strokeWidth={1.5} />
+                  </div>
+                  <span className="type-body-lg text-foreground">{item.text}</span>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.p
+            variants={fadeIn}
+            className="type-body-md text-foreground/70 mt-6 text-center italic"
+          >
+            Desde el día uno, tu vivienda deja de estar librada al azar.
+          </motion.p>
+        </motion.div>
+      </section>
+
+      {/* ==================== 9. Para quién es ==================== */}
+      <section className="py-20 md:py-28">
+        <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-3xl px-4">
+          <motion.h2
+            variants={fadeInUp}
+            className="font-heading text-foreground text-3xl tracking-tight sm:text-4xl"
+          >
+            Para quiénes es este servicio
+          </motion.h2>
+
+          <div className="mt-8 space-y-4">
+            {TARGET_PROFILES.map((profile) => (
+              <motion.div key={profile} variants={staggerItem} className="flex items-center gap-3">
+                <div className="bg-primary/10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                  <Check className="text-primary h-3.5 w-3.5" />
+                </div>
+                <span className="type-body-lg text-foreground">{profile}</span>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.p variants={fadeIn} className="type-body-md text-foreground mt-6 font-medium">
+            Personas que entienden que prevenir es una decisión inteligente.
+          </motion.p>
+
+          <motion.p variants={fadeIn} className="type-body-md text-muted-foreground mt-4">
+            No es para resolver una gotera puntual ni para casas en alquiler temporario. Es un
+            sistema de prevención para quienes cuidan su patrimonio con visión de largo plazo.
+          </motion.p>
+        </motion.div>
+      </section>
+
+      {/* ==================== 10. Inversión ==================== */}
+      <section id="inversion" className="bg-muted/30 py-20 md:py-28">
+        <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-3xl px-4">
+          <div className="text-center">
+            <motion.p
+              variants={fadeIn}
+              className="type-label-md text-primary tracking-widest uppercase"
+            >
+              Inversión
+            </motion.p>
+            <motion.h2
+              variants={fadeInUp}
+              className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
+            >
+              El valor se adapta a cada vivienda.
+            </motion.h2>
+          </div>
+
+          <motion.div
+            variants={fadeIn}
+            className="type-body-lg text-muted-foreground mx-auto mt-6 max-w-2xl space-y-4 text-center"
+          >
+            <p>
+              La mayoría de los propietarios descubre los problemas cuando ya se transformaron en
+              reparaciones importantes.
+            </p>
+            <p>Un diagnóstico preventivo permite detectarlos antes de que escalen.</p>
+          </motion.div>
+
+          <motion.p
+            variants={fadeIn}
+            className="type-body-md text-muted-foreground mx-auto mt-2 max-w-2xl text-center"
+          >
+            El alcance del diagnóstico depende de la superficie y complejidad técnica de la
+            vivienda. Por eso el valor se determina de forma personalizada.
+          </motion.p>
+
           <motion.div
             variants={fadeInUp}
-            className="border-primary/20 bg-primary/[0.02] rounded-xl border-2 p-8 sm:p-12"
+            className="border-primary/20 bg-primary/[0.03] mt-10 rounded-2xl border-2 p-8 sm:p-12"
           >
-            <div className="text-center">
-              <p className="type-label-md text-primary tracking-widest uppercase">
-                Etapa de lanzamiento
-              </p>
-              <h2 className="font-heading text-foreground mt-4 text-3xl sm:text-4xl">
-                Etapa de lanzamiento.
-                <br />
-                <span className="text-muted-foreground">
-                  Diez propietarios iniciarán primero este sistema profesional.
-                </span>
-              </h2>
-              <p className="type-body-lg text-muted-foreground mx-auto mt-4 max-w-lg">
-                Acceder ahora significa valor preferencial y acompañamiento directo. Una vez
-                completados los cupos, el valor se actualiza y la disponibilidad pasa a lista de
-                espera.
-              </p>
-            </div>
-
-            <div className="mx-auto mt-8 max-w-sm space-y-3">
-              {LAUNCH_BENEFITS.map((benefit) => (
-                <div key={benefit} className="flex items-center gap-3">
+            <div className="space-y-3">
+              {INVESTMENT_FEATURES.map((feature) => (
+                <div key={feature} className="flex items-center gap-3">
                   <div className="bg-primary/10 flex h-5 w-5 shrink-0 items-center justify-center rounded-full">
                     <Check className="text-primary h-3 w-3" />
                   </div>
-                  <span className="type-body-md text-foreground">{benefit}</span>
+                  <span className="type-body-lg text-foreground">{feature}</span>
                 </div>
               ))}
             </div>
 
-            <p className="type-body-sm text-muted-foreground/60 mt-8 text-center">
-              Consulta sin compromiso.
-            </p>
+            <div className="border-border mt-8 border-t pt-8 text-center">
+              <p className="type-body-md text-foreground/80">
+                Cupos de lanzamiento limitados para viviendas en Paraná.
+              </p>
+              <p className="type-body-sm text-muted-foreground mt-2">
+                Consultá sin compromiso. Te confirmamos disponibilidad y valor según tu vivienda.
+              </p>
+            </div>
+
+            <div className="mt-8 text-center">
+              <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+                <Button size="lg" className="gap-2">
+                  Coordinar diagnóstico
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </a>
+            </div>
           </motion.div>
         </motion.div>
       </section>
 
-      {/* ==================== 12. CTA Final ==================== */}
+      {/* ==================== 11. CTA Final ==================== */}
       <section className="bg-foreground py-20 md:py-28">
         <motion.div
           variants={staggerContainer}
@@ -851,7 +731,7 @@ export function LandingPage() {
             <p>Seguimiento digital.</p>
           </motion.div>
           <motion.p variants={fadeIn} className="type-body-lg text-background/80 mt-4 font-medium">
-            Todo empieza con una decisión.
+            Todo empieza con una consulta.
           </motion.p>
           <motion.div variants={fadeIn} className="mt-8">
             <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
