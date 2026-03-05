@@ -1,10 +1,10 @@
 # Actualización de Costos — Landing EPDE
 
-## Dónde están los datos en el código
+## Estado actual
 
-**Archivo:** `apps/web/src/components/landing/landing-page.tsx`
-**Constante:** `COST_COMPARISONS` (línea ~139)
-**Disclaimer:** buscar "actualizados a" y cambiar la fecha
+> **Nota:** La sección de comparativa de costos y la constante `COST_COMPARISONS` fueron eliminadas de la landing page en la refactorización CRO (marzo 2026). Este documento se conserva como referencia para una futura reintroducción de datos de costos.
+
+**Archivo original:** `apps/web/src/components/landing/landing-page.tsx`
 
 ```ts
 const COST_COMPARISONS: CostComparison[] = [

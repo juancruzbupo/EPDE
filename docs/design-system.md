@@ -274,39 +274,36 @@ export const myColumns: ColumnDef<MyType>[] = [
 
 Pagina publica de presentacion del servicio EPDE. Archivo: `apps/web/src/components/landing/landing-page.tsx`.
 
-### Estructura (12 secciones + header + footer + mobile sticky)
+### Estructura (11 secciones + header + footer + mobile sticky)
 
-| Seccion                      | ID / Posicion    | Contenido                                                                                              |
-| ---------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------ |
-| **Header**                   | Fixed top        | Logo "EPDE" (`font-heading`) + boton ghost (Dashboard si autenticado, Login si no)                     |
-| **1. Hero**                  | Primera          | "Tu vivienda merece planificación profesional." + CTA "Quiero evaluar mi vivienda" (WhatsApp)          |
-| **2. Problema**              | Segunda          | "Postergar no es ahorrar. Es acumular riesgo." + 3 ProblemCards (filtraciones, instalaciones, fisuras) |
-| **3. Cómo funciona**         | `#como-funciona` | 3 pasos numerados: Evaluación → Diagnóstico → Seguimiento digital                                      |
-| **4. Así se ve el sistema**  | Cuarta           | Screenshots reales web + mobile desde `public/images/` (demo-web.png, demo-mobile.jpg)                 |
-| **5. Caso real**             | Quinta           | Caso ilustrativo: contexto → problemas detectados → resultado preventivo ($2.800.000+ ahorro)          |
-| **6. Comparativa de costos** | Sexta            | 3 CostComparison cards con precios reales de Paraná + multiplicadores + disclaimer legal               |
-| **7. Qué incluye**           | Séptima          | 8 IconTextItem (DELIVERABLES): evaluación, informe, plan, plataforma, recordatorios, etc.              |
-| **8. Inversión**             | `#inversion`     | 3 PRICING tiers por superficie (compacta/estándar/ampliada) + CTA "Consultar disponibilidad"           |
-| **9. ¿Es para vos?**         | Novena           | 4 TARGET_PROFILES + anti-perfiles ("no es para goteras puntuales ni alquileres temporarios")           |
-| **10. Autoridad**            | Décima           | Bio Arq. Noelia E. Yuskowich + CREDENTIALS + validación social ("propietarios reales en Paraná")       |
-| **11. Lanzamiento**          | `#agendar`       | 10 cupos + LAUNCH_BENEFITS (valor preferencial, revisión anual, acceso prioritario, contacto directo)  |
-| **12. CTA Final**            | Última           | Fondo `bg-foreground` invertido + "Quiero coordinar mi diagnóstico" (WhatsApp)                         |
-| **Footer**                   | Post-secciones   | Logo + "por Arq. Noelia E. Yuskowich" + copyright + tagline                                            |
-| **Mobile Sticky CTA**        | Fixed bottom     | `md:hidden` — botón full-width "Evaluar mi vivienda" (WhatsApp)                                        |
+| Seccion                           | ID / Posicion    | Contenido                                                                                                             |
+| --------------------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **Header**                        | Fixed top        | Logo "EPDE" (`font-heading`) + boton ghost (Dashboard si autenticado, Login si no)                                    |
+| **1. Hero**                       | Primera          | "Detectamos problemas en tu vivienda antes de que se conviertan en urgencias." + CTA "Evaluar mi vivienda" (WhatsApp) |
+| **2. Problema**                   | Segunda          | "El problema no es el paso del tiempo. Es no tener sistema." + 3 ProblemCards                                         |
+| **3. Problemas detectados**       | Tercera          | 5 DETECTED_PROBLEMS en card (humedades, fisuras, impermeabilización, instalaciones, cubiertas)                        |
+| **4. Cómo funciona**              | `#como-funciona` | 3 pasos numerados: Evaluación → Diagnóstico → Seguimiento digital                                                     |
+| **5. Sistema digital**            | Quinta           | Screenshots reales web + mobile desde `public/images/` (demo-web.png, demo-mobile.jpg)                                |
+| **6. Ejemplo real**               | Sexta            | Comparación detección temprana (verde) vs avance del problema (rojo) — caso filtración en cubierta                    |
+| **7. Quién está detrás**          | Séptima          | Bio Arq. Noelia E. Yuskowich + especialidades + CREDENTIALS + cita personal                                           |
+| **8. Qué incluye el diagnóstico** | Octava           | 8 IconTextItem (DELIVERABLES): evaluación, informe, plan, plataforma, recordatorios, etc.                             |
+| **9. Para quién es**              | Novena           | 4 TARGET_PROFILES + anti-perfiles ("no es para goteras puntuales ni alquileres temporarios")                          |
+| **10. Inversión**                 | `#inversion`     | Card única sin precios fijos + INVESTMENT_FEATURES (5) + cupos de lanzamiento + CTA "Coordinar mi diagnóstico"        |
+| **11. CTA Final**                 | Última           | Fondo `bg-foreground` invertido + "Quiero coordinar mi diagnóstico" (WhatsApp)                                        |
+| **Footer**                        | Post-secciones   | Logo + "por Arq. Noelia E. Yuskowich" + copyright + tagline                                                           |
+| **Mobile Sticky CTA**             | Fixed bottom     | `md:hidden` — botón full-width "Evaluar mi vivienda" (WhatsApp)                                                       |
 
 ### Data Constants
 
-| Constante          | Tipo               | Cantidad | Descripción                                                              |
-| ------------------ | ------------------ | -------- | ------------------------------------------------------------------------ |
-| `PROBLEMS`         | `ProblemCard[]`    | 3        | Filtraciones, instalaciones, fisuras (icon + title + desc + consequence) |
-| `STEPS`            | `Step[]`           | 3        | Evaluación, diagnóstico, seguimiento (number + icon + title + desc)      |
-| `CASE_STUDY`       | object             | 1        | Contexto, problema, resultado, ahorro estimado                           |
-| `COST_COMPARISONS` | `CostComparison[]` | 3        | Precios Paraná: preventivo vs emergencia + multiplicador                 |
-| `DELIVERABLES`     | `IconTextItem[]`   | 8        | Qué incluye el servicio (icon + text)                                    |
-| `PRICING`          | array              | 3        | Tiers por superficie: compacta, estándar, ampliada                       |
-| `TARGET_PROFILES`  | `string[]`         | 4        | Perfiles de propietarios ideales                                         |
-| `CREDENTIALS`      | `IconTextItem[]`   | 4        | Credenciales de la arquitecta                                            |
-| `LAUNCH_BENEFITS`  | `string[]`         | 4        | Beneficios de la etapa de lanzamiento                                    |
+| Constante             | Tipo             | Cantidad | Descripción                                                                |
+| --------------------- | ---------------- | -------- | -------------------------------------------------------------------------- |
+| `PROBLEMS`            | `ProblemCard[]`  | 3        | Filtraciones, instalaciones, fisuras (icon + title + desc + consequence)   |
+| `DETECTED_PROBLEMS`   | `IconTextItem[]` | 5        | Problemas detectables: humedades, fisuras, impermeabilización, etc.        |
+| `STEPS`               | `Step[]`         | 3        | Evaluación, diagnóstico, seguimiento (number + icon + title + desc)        |
+| `DELIVERABLES`        | `IconTextItem[]` | 8        | Qué incluye el servicio (icon + text)                                      |
+| `INVESTMENT_FEATURES` | `string[]`       | 5        | Qué incluye la inversión (evaluación, informe, plan, plataforma, revisión) |
+| `TARGET_PROFILES`     | `string[]`       | 4        | Perfiles de propietarios ideales                                           |
+| `CREDENTIALS`         | `IconTextItem[]` | 4        | Credenciales de la arquitecta                                              |
 
 ### Animaciones
 
@@ -328,10 +325,18 @@ const motionProps = shouldAnimate
 
 ### CTA y WhatsApp
 
-El CTA principal redirige a WhatsApp con mensaje pre-armado:
+3 CTAs estratégicos + mobile sticky, todos apuntan a WhatsApp con mensaje pre-armado:
+
+| Ubicación     | Texto                             | Variante                  |
+| ------------- | --------------------------------- | ------------------------- |
+| Hero          | "Evaluar mi vivienda"             | `default` + `size="lg"`   |
+| Inversión     | "Coordinar mi diagnóstico"        | `default` + `size="lg"`   |
+| CTA Final     | "Quiero coordinar mi diagnóstico" | `secondary` + `size="lg"` |
+| Mobile sticky | "Evaluar mi vivienda"             | `default` + `size="sm"`   |
 
 ```typescript
-const WHATSAPP_URL = 'https://wa.me/5493001234567?text=Hola%2C%20quiero%20agendar%20...';
+const WHATSAPP_URL =
+  'https://wa.me/5493001234567?text=Hola%20Noelia%2C%20quiero%20coordinar%20el%20diagn%C3%B3stico.';
 ```
 
 ### Clases tipograficas usadas
@@ -347,17 +352,21 @@ La landing usa exclusivamente las clases `type-*` y `font-heading` del design sy
 
 Solo usa tokens semanticos de Tailwind, sin colores hardcodeados:
 
-| Token                        | Uso en landing                       |
-| ---------------------------- | ------------------------------------ |
-| `text-primary`               | Logo, subtitulos, iconos, checkmarks |
-| `text-foreground`            | Titulos principales                  |
-| `text-muted-foreground`      | Parrafos, descripciones              |
-| `bg-muted/30`, `bg-muted/40` | Fondos alternados de seccion         |
-| `bg-foreground`              | Seccion CTA final (invertida)        |
-| `text-background`            | Texto sobre seccion invertida        |
-| `border-primary/20`          | Bordes de cards destacados           |
-| `bg-primary/[0.03]`          | Fondo sutil de cards positivos       |
-| `border-border`              | Bordes neutros                       |
+| Token                   | Uso en landing                                      |
+| ----------------------- | --------------------------------------------------- |
+| `text-primary`          | Logo, subtitulos, iconos, checkmarks, labels        |
+| `text-foreground`       | Titulos principales                                 |
+| `text-muted-foreground` | Parrafos, descripciones                             |
+| `bg-muted/30`           | Fondos alternados de seccion                        |
+| `bg-foreground`         | Seccion CTA final (invertida)                       |
+| `text-background`       | Texto sobre seccion invertida                       |
+| `border-primary/20`     | Bordes de card Inversión                            |
+| `bg-primary/[0.03]`     | Fondo sutil de card Inversión                       |
+| `border-success/30`     | Borde card "Detección temprana" (ejemplo real)      |
+| `bg-success/[0.03]`     | Fondo card "Detección temprana"                     |
+| `border-destructive/30` | Borde card "Si el problema avanzaba" (ejemplo real) |
+| `bg-destructive/[0.03]` | Fondo card "Si el problema avanzaba"                |
+| `border-border`         | Bordes neutros                                      |
 
 ### Metadata (SEO)
 

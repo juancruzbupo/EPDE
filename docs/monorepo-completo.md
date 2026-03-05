@@ -109,7 +109,7 @@ epde/
 │   │   │   │   ├── ui/               # 18 componentes shadcn/ui
 │   │   │   │   ├── data-table/       # DataTable wrapper (TanStack Table)
 │   │   │   │   ├── layout/           # Header, Sidebar
-│   │   │   │   └── landing/          # landing-page.tsx (12 secciones, screenshots, costos, pricing)
+│   │   │   │   └── landing/          # landing-page.tsx (11 secciones, screenshots, inversión sin precios fijos)
 │   │   │   ├── hooks/                # React Query hooks por entidad
 │   │   │   ├── lib/
 │   │   │   │   ├── api-client.ts     # Axios + 401 refresh interceptor
