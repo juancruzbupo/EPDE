@@ -7,7 +7,7 @@ import { PropertyTypeBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { TYPE } from '@/lib/fonts';
-import type { PropertyPublic } from '@epde/shared/types';
+import type { PropertyPublic } from '@epde/shared';
 
 const PropertyCard = memo(function PropertyCard({ property }: { property: PropertyPublic }) {
   const router = useRouter();

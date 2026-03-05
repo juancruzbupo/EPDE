@@ -190,7 +190,7 @@ export async function getMyFeatures(params?) {
 }
 ```
 
-**Nota:** Los tipos publicos de la API se definen en `@epde/shared/types`, no como interfaces locales en cada archivo.
+**Nota:** Los tipos publicos de la API se definen en `@epde/shared` (barrel), no como interfaces locales en cada archivo.
 
 ### 3. React Query hooks
 
@@ -295,9 +295,9 @@ import { BUDGET_STATUS_VARIANT } from '@epde/shared'; // badge variants
 import type { BudgetRequest, BudgetStatus } from '@epde/shared'; // types
 import { formatRelativeDate, isOverdue, getErrorMessage } from '@epde/shared'; // utils
 
-// O imports especificos por path
-import { createBudgetRequestSchema } from '@epde/shared/schemas';
-import type { BudgetRequest } from '@epde/shared/types';
+// NUNCA usar sub-paths — siempre barrel import
+// import { createBudgetRequestSchema } from '@epde/shared/schemas'; // ❌
+// import type { BudgetRequest } from '@epde/shared/types';          // ❌
 ```
 
 ### Notas

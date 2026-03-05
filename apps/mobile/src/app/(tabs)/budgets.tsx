@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { CreateBudgetModal } from '@/components/create-budget-modal';
 import { TYPE } from '@/lib/fonts';
-import type { BudgetRequestPublic } from '@epde/shared/types';
+import type { BudgetRequestPublic } from '@epde/shared';
 
 const FILTERS = [
   { key: undefined, label: 'Todos' },

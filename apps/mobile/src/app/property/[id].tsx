@@ -20,7 +20,7 @@ import { useAnimatedEntry } from '@/lib/animations';
 import { TYPE } from '@/lib/fonts';
 import { colors } from '@/lib/colors';
 import { defaultScreenOptions } from '@/lib/screen-options';
-import type { TaskPublic } from '@epde/shared/types';
+import type { TaskPublic } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 

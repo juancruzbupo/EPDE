@@ -13,6 +13,7 @@ import type {
   CreateServiceRequestInput,
   UpdateServiceStatusInput,
   ServiceRequestFiltersInput,
+  CurrentUser as CurrentUserPayload,
 } from '@epde/shared';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 
@@ -26,14 +27,17 @@ export class ServiceRequestsController {
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async listRequests(
     @Query(new ZodValidationPipe(serviceRequestFiltersSchema)) filters: ServiceRequestFiltersInput,
-    @CurrentUser() user: { id: string; role: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     return this.serviceRequestsService.listRequests(filters, user);
   }
 
   @Get(':id')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
-  async getRequest(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: { id: string; role: string }) {
+  async getRequest(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
     const data = await this.serviceRequestsService.getRequest(id, user);
     return { data };
   }
@@ -42,7 +46,7 @@ export class ServiceRequestsController {
   @Roles(UserRole.CLIENT)
   async createRequest(
     @Body(new ZodValidationPipe(createServiceRequestSchema)) dto: CreateServiceRequestInput,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.serviceRequestsService.createRequest(dto, user.id);
     return { data, message: 'Solicitud de servicio creada' };
@@ -53,7 +57,7 @@ export class ServiceRequestsController {
   async updateStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updateServiceStatusSchema)) dto: UpdateServiceStatusInput,
-    @CurrentUser() user: { id: string; role: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.serviceRequestsService.updateStatus(id, dto, user);
     return { data };

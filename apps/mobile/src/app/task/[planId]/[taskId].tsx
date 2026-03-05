@@ -24,7 +24,7 @@ import { CollapsibleSection } from '@/components/collapsible-section';
 import { TYPE } from '@/lib/fonts';
 import { colors } from '@/lib/colors';
 import { defaultScreenOptions } from '@/lib/screen-options';
-import type { TaskLogPublic, TaskNotePublic } from '@epde/shared/types';
+import type { TaskLogPublic, TaskNotePublic } from '@epde/shared';
 
 const recurrenceLabels: Record<string, string> = {
   MONTHLY: 'Mensual',

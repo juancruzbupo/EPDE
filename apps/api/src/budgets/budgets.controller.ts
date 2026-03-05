@@ -15,6 +15,7 @@ import type {
   RespondBudgetInput,
   UpdateBudgetStatusInput,
   BudgetFiltersInput,
+  CurrentUser as CurrentUserPayload,
 } from '@epde/shared';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 
@@ -28,14 +29,14 @@ export class BudgetsController {
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async listBudgets(
     @Query(new ZodValidationPipe(budgetFiltersSchema)) filters: BudgetFiltersInput,
-    @CurrentUser() user: { id: string; role: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     return this.budgetsService.listBudgets(filters, user);
   }
 
   @Get(':id')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
-  async getBudget(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: { id: string; role: string }) {
+  async getBudget(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: CurrentUserPayload) {
     const data = await this.budgetsService.getBudget(id, user);
     return { data };
   }
@@ -44,7 +45,7 @@ export class BudgetsController {
   @Roles(UserRole.CLIENT)
   async createBudgetRequest(
     @Body(new ZodValidationPipe(createBudgetRequestSchema)) dto: CreateBudgetRequestInput,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.budgetsService.createBudgetRequest(dto, user.id);
     return { data, message: 'Presupuesto solicitado' };
@@ -55,7 +56,7 @@ export class BudgetsController {
   async respondToBudget(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(respondBudgetSchema)) dto: RespondBudgetInput,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.budgetsService.respondToBudget(id, dto, user.id);
     return { data, message: 'Presupuesto cotizado' };
@@ -66,7 +67,7 @@ export class BudgetsController {
   async updateStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updateBudgetStatusSchema)) dto: UpdateBudgetStatusInput,
-    @CurrentUser() user: { id: string; role: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.budgetsService.updateStatus(id, dto, user);
     return { data };

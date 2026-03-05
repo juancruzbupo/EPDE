@@ -1,6 +1,6 @@
 import { apiClient } from './api-client';
 import { tokenService } from './token-service';
-import type { MobileAuthResponse, UserPublic } from '@epde/shared/types';
+import type { MobileAuthResponse, UserPublic } from '@epde/shared';
 
 export async function login(email: string, password: string): Promise<UserPublic> {
   const { data } = await apiClient.post('/auth/login', { email, password });

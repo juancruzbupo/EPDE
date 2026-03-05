@@ -1,5 +1,17 @@
 import { z } from 'zod';
-import { PLAN_STATUS_VALUES } from '../types/enums';
+import { PLAN_STATUS_VALUES, TASK_STATUS_VALUES } from '../types/enums';
+import { TASKS_MAX_TAKE } from '../constants';
+
+// ─── List Tasks Query ──────────────────────────────────
+
+export const listTasksQuerySchema = z.object({
+  status: z.enum(TASK_STATUS_VALUES).optional(),
+  take: z.coerce.number().int().min(1).max(TASKS_MAX_TAKE).default(200),
+});
+
+export type ListTasksQueryInput = z.infer<typeof listTasksQuerySchema>;
+
+// ─── Update Plan ───────────────────────────────────────
 
 export const updatePlanSchema = z.object({
   name: z

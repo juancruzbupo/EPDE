@@ -7,8 +7,7 @@ import {
   completeTask,
   addTaskNote,
 } from '@/lib/api/maintenance-plans';
-import type { PlanPublic, TaskNotePublic } from '@epde/shared/types';
-import type { CompleteTaskInput } from '@epde/shared/schemas';
+import type { PlanPublic, TaskNotePublic, CompleteTaskInput } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useAuthStore } from '@/stores/auth-store';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';

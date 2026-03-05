@@ -34,6 +34,9 @@
 22. **Badge variants usan tokens semanticos** — La variante `success` usa `bg-success/15 text-success` (web) y `bg-success/15 text-success` (mobile). NUNCA usar colores raw como `bg-green-100 text-green-800`
 23. **Upload validation client-side obligatoria** — Usar `validateUpload(mimeType, sizeBytes)` de `@epde/shared` antes de enviar al API. Web y mobile deben validar MIME type y tamano
 24. **Dialogs/Sheets co-located con pages** — Componentes dialog/sheet que solo se usan en una pagina van en el directorio de esa pagina. Solo mover a `components/` si se reutiliza en 2+ paginas
+25. **`CurrentUser` type centralizado** — Usar `import type { CurrentUser as CurrentUserPayload } from '@epde/shared'` en controllers. NUNCA tipar `@CurrentUser() user` con objetos inline como `{ id: string; role: string }`. El alias `CurrentUserPayload` evita conflicto con el decorator `@CurrentUser()`
+26. **Barrel import de `@epde/shared`** — Importar SIEMPRE desde `@epde/shared` (barrel). NUNCA usar sub-paths como `@epde/shared/types`, `@epde/shared/schemas`, `@epde/shared/constants`. El barrel re-exporta todo
+27. **Zod validation para Query params** — Endpoints con `@Query()` DEBEN usar `@Query(new ZodValidationPipe(schema))` con schema Zod definido en `@epde/shared`. NUNCA validar query params con regex manual o `DefaultValuePipe` + `ParseIntPipe`
 
 ### NUNCA
 
@@ -41,7 +44,7 @@
 2. **NUNCA usar `localStorage` para tokens** — Web usa cookies HttpOnly, mobile nativo usa SecureStore, mobile web usa sessionStorage
 3. **NUNCA usar class-validator o class-transformer** — Eliminados del proyecto
 4. **NUNCA usar magic strings para roles/status** — Importar de `@epde/shared`
-5. **NUNCA crear interfaces duplicadas en frontend** — Importar de `@epde/shared/types`
+5. **NUNCA crear interfaces duplicadas en frontend** — Importar de `@epde/shared` (barrel)
 6. **NUNCA hacer `queryClient.invalidateQueries({ queryKey: ['dashboard'] })` sin sub-key**
 7. **NUNCA hacer fallback silencioso en validaciones** — Lanzar excepcion si input es invalido
 8. **NUNCA loguear tokens o passwords en plaintext**
@@ -55,6 +58,8 @@
 16. **NUNCA dejar un endpoint sin `@Roles()` ni `@Public()`** — RolesGuard deniega por defecto. Un endpoint sin decorator retorna 403 para cualquier usuario autenticado
 17. **`QUERY_KEYS` es SSoT en `@epde/shared`** — Importar siempre desde `@epde/shared`, nunca redefinir localmente
 18. **NUNCA crear hooks monoliticos con 10+ exports** — Dividir por dominio (queries vs mutations, plan-level vs task-level). Usar barrel re-export en el archivo original para no romper imports existentes
+19. **NUNCA importar desde sub-paths de `@epde/shared`** — No usar `@epde/shared/types`, `@epde/shared/schemas`, etc. Usar siempre el barrel `@epde/shared`
+20. **NUNCA tipar `@CurrentUser()` con objetos inline** — Usar `CurrentUserPayload` de `@epde/shared` (alias de `CurrentUser`)
 
 ---
 
@@ -689,8 +694,7 @@ export function useCreateBudgetRequest() {
 ```typescript
 // apps/web/src/lib/api/budgets.ts
 import { apiClient } from '../api-client';
-import type { PaginatedResponse } from '@epde/shared/types'; // NUNCA redefinir tipos
-import type { BudgetRequestPublic } from '@epde/shared/types';
+import type { PaginatedResponse, BudgetRequestPublic } from '@epde/shared';
 
 export async function getBudgets(params?: Record<string, unknown>, signal?: AbortSignal) {
   const { data } = await apiClient.get<PaginatedResponse<BudgetRequestPublic>>('/budgets', {
@@ -729,7 +733,7 @@ Las factories viven en `packages/shared/src/api/` y encapsulan rutas + tipos. We
 
 **Reglas:**
 
-- Tipos de respuesta importados de `@epde/shared/types`
+- Tipos de respuesta importados de `@epde/shared`
 - `signal` para soporte de abort/cancellation
 - Retornar `data` directamente (no `AxiosResponse`)
 - Preferir shared factory (`createXxxQueries`) sobre funciones standalone
@@ -1170,7 +1174,7 @@ pnpm test       # Todos los tests pasan
 | Anti-patron                                                          | Correcto                                                                           |
 | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | `this.prisma.user.findMany()` en un service                          | `this.usersRepository.findMany()`                                                  |
-| `interface MyType { ... }` en `lib/api/*.ts`                         | `import type { MyType } from '@epde/shared/types'`                                 |
+| `interface MyType { ... }` en `lib/api/*.ts`                         | `import type { MyType } from '@epde/shared'`                                       |
 | `if (user.role === 'ADMIN')`                                         | `if (user.role === UserRole.ADMIN)`                                                |
 | `@Body() dto: CreateUserDto` (class-validator)                       | `@UsePipes(new ZodValidationPipe(schema)) @Body() data: Input`                     |
 | `localStorage.setItem('token', ...)`                                 | Cookies HttpOnly (web) / SecureStore (mobile nativo) / sessionStorage (mobile web) |

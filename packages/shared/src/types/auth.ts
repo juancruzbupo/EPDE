@@ -30,6 +30,18 @@ export interface JwtPayload {
   sub: string;
   email: string;
   role: UserRole;
+  jti: string;
+  family?: string;
   iat?: number;
+  exp?: number;
+}
+
+/** Shape returned by JwtStrategy.validate() — set on req.user for all authenticated requests. */
+export interface CurrentUser {
+  id: string;
+  email: string;
+  role: UserRole;
+  jti: string;
+  family?: string;
   exp?: number;
 }

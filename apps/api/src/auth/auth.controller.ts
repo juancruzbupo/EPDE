@@ -24,7 +24,12 @@ import {
   CLIENT_TYPES,
   UserRole,
 } from '@epde/shared';
-import type { LoginInput, SetPasswordInput, RefreshInput } from '@epde/shared';
+import type {
+  LoginInput,
+  SetPasswordInput,
+  RefreshInput,
+  CurrentUser as CurrentUserPayload,
+} from '@epde/shared';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
@@ -76,7 +81,7 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const user = req.user as { id: string; email: string; role: string };
+    const user = req.user as CurrentUserPayload;
     const isMobile = req.headers[CLIENT_TYPE_HEADER] === CLIENT_TYPES.MOBILE;
     const result = await this.authService.login(user, {
       clientType: isMobile ? 'mobile' : 'web',
@@ -138,10 +143,7 @@ export class AuthController {
   @Post('logout')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
-  async logout(
-    @CurrentUser() user: { id: string; jti?: string; family?: string; exp?: number },
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async logout(@CurrentUser() user: CurrentUserPayload, @Res({ passthrough: true }) res: Response) {
     const ttlSeconds = user.exp ? Math.max(0, user.exp - Math.floor(Date.now() / 1000)) : 0;
     await this.authService.logout(user.id, user.jti, user.family, ttlSeconds);
 

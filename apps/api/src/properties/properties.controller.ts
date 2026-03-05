@@ -19,7 +19,12 @@ import {
   propertyFiltersSchema,
   UserRole,
 } from '@epde/shared';
-import type { CreatePropertyInput, UpdatePropertyInput, PropertyFiltersInput } from '@epde/shared';
+import type {
+  CreatePropertyInput,
+  UpdatePropertyInput,
+  PropertyFiltersInput,
+  CurrentUser as CurrentUserPayload,
+} from '@epde/shared';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 
 @ApiTags('Propiedades')
@@ -32,7 +37,7 @@ export class PropertiesController {
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async listProperties(
     @Query(new ZodValidationPipe(propertyFiltersSchema)) filters: PropertyFiltersInput,
-    @CurrentUser() user: { id: string; role: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     return this.propertiesService.listProperties(filters, user);
   }
@@ -41,7 +46,7 @@ export class PropertiesController {
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async getProperty(
     @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: { id: string; role: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.propertiesService.getProperty(id, user);
     return { data };
@@ -51,7 +56,7 @@ export class PropertiesController {
   @Roles(UserRole.ADMIN)
   async createProperty(
     @Body(new ZodValidationPipe(createPropertySchema)) dto: CreatePropertyInput,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.propertiesService.createProperty(dto, user.id);
     return { data, message: 'Propiedad creada' };
@@ -62,7 +67,7 @@ export class PropertiesController {
   async updateProperty(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updatePropertySchema)) dto: UpdatePropertyInput,
-    @CurrentUser() user: { id: string; role: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.propertiesService.updateProperty(id, dto, user);
     return { data };
@@ -72,7 +77,7 @@ export class PropertiesController {
   @Roles(UserRole.ADMIN)
   async deleteProperty(
     @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: { id: string; role: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.propertiesService.deleteProperty(id, user);
     return { data, message: 'Propiedad eliminada' };

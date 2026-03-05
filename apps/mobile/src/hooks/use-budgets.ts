@@ -7,8 +7,8 @@ import {
   updateBudgetStatus,
   type BudgetFilters,
 } from '@/lib/api/budgets';
-import type { BudgetRequestPublic, BudgetStatus } from '@epde/shared/types';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import type { BudgetRequestPublic, BudgetStatus } from '@epde/shared';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
 
 export function useBudgets(filters: Omit<BudgetFilters, 'cursor'> = {}) {

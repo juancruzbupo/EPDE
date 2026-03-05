@@ -68,7 +68,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="planes"
+          name="maintenance-plans"
           options={{
             title: 'Planes',
             tabBarIcon: ({ color, focused }) => (
@@ -77,7 +77,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="tareas"
+          name="tasks"
           options={{
             title: 'Tareas',
             tabBarIcon: ({ color, focused }) => (

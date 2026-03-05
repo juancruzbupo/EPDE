@@ -12,7 +12,7 @@ import { PriorityBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { TYPE } from '@/lib/fonts';
-import type { UpcomingTask } from '@epde/shared/types';
+import type { UpcomingTask } from '@epde/shared';
 
 const TaskCard = memo(function TaskCard({ task, index }: { task: UpcomingTask; index: number }) {
   const router = useRouter();

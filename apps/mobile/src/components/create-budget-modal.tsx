@@ -17,12 +17,11 @@ import { haptics } from '@/lib/haptics';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createBudgetRequestSchema } from '@epde/shared';
-import type { CreateBudgetRequestInput } from '@epde/shared';
+import type { CreateBudgetRequestInput, PropertyPublic } from '@epde/shared';
 import { useCreateBudgetRequest } from '@/hooks/use-budgets';
 import { useProperties } from '@/hooks/use-properties';
 import { TYPE } from '@/lib/fonts';
 import { colors } from '@/lib/colors';
-import type { PropertyPublic } from '@epde/shared/types';
 
 interface CreateBudgetModalProps {
   visible: boolean;

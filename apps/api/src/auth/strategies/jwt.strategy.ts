@@ -4,14 +4,9 @@ import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { TokenService } from '../token.service';
+import type { JwtPayload as SharedJwtPayload } from '@epde/shared';
 
-interface JwtPayload {
-  sub: string;
-  email: string;
-  role: string;
-  jti: string;
-  family?: string;
-  exp?: number;
+interface JwtPayload extends SharedJwtPayload {
   purpose?: string;
 }
 

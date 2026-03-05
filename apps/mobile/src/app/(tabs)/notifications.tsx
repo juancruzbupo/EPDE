@@ -15,7 +15,7 @@ import { ErrorState } from '@/components/error-state';
 import { haptics } from '@/lib/haptics';
 import { TYPE } from '@/lib/fonts';
 import { colors } from '@/lib/colors';
-import type { NotificationPublic } from '@epde/shared/types';
+import type { NotificationPublic } from '@epde/shared';
 
 const NOTIF_TYPE_ICONS: Record<string, string> = {
   TASK_REMINDER: '\u{1F552}',

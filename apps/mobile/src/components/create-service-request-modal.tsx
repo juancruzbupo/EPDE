@@ -20,13 +20,12 @@ import { haptics } from '@/lib/haptics';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createServiceRequestSchema } from '@epde/shared';
-import type { CreateServiceRequestInput } from '@epde/shared';
+import type { CreateServiceRequestInput, PropertyPublic } from '@epde/shared';
 import { useCreateServiceRequest } from '@/hooks/use-service-requests';
 import { useProperties } from '@/hooks/use-properties';
 import { useUploadFile } from '@/hooks/use-upload';
 import { TYPE } from '@/lib/fonts';
 import { colors } from '@/lib/colors';
-import type { PropertyPublic } from '@epde/shared/types';
 
 const URGENCY_OPTIONS = [
   { key: 'LOW', label: 'Baja' },

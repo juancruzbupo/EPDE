@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { UserPublic } from '@epde/shared/types';
+import type { UserPublic } from '@epde/shared';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as authApi from '@/lib/auth';
 import { tokenService } from '@/lib/token-service';

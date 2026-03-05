@@ -4,6 +4,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { DashboardService } from './dashboard.service';
 import { UserRole } from '@epde/shared';
+import type { CurrentUser as CurrentUserPayload } from '@epde/shared';
 
 @ApiTags('Dashboard')
 @ApiBearerAuth()
@@ -27,14 +28,14 @@ export class DashboardController {
 
   @Get('client-stats')
   @Roles(UserRole.CLIENT)
-  async getClientStats(@CurrentUser() user: { id: string }) {
+  async getClientStats(@CurrentUser() user: CurrentUserPayload) {
     const data = await this.dashboardService.getClientStats(user.id);
     return { data };
   }
 
   @Get('client-upcoming')
   @Roles(UserRole.CLIENT)
-  async getClientUpcoming(@CurrentUser() user: { id: string }) {
+  async getClientUpcoming(@CurrentUser() user: CurrentUserPayload) {
     const data = await this.dashboardService.getClientUpcomingTasks(user.id);
     return { data };
   }

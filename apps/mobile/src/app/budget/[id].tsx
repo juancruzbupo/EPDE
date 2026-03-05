@@ -12,7 +12,7 @@ import { ErrorState } from '@/components/error-state';
 import { TYPE } from '@/lib/fonts';
 import { colors } from '@/lib/colors';
 import { defaultScreenOptions } from '@/lib/screen-options';
-import type { BudgetLineItemPublic } from '@epde/shared/types';
+import type { BudgetLineItemPublic } from '@epde/shared';
 
 function formatAmount(amount: number | string): string {
   return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(

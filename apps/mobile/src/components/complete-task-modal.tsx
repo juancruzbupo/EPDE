@@ -25,14 +25,14 @@ import {
   CONDITION_FOUND_LABELS,
   TASK_EXECUTOR_LABELS,
   ACTION_TAKEN_LABELS,
-} from '@epde/shared/constants';
+} from '@epde/shared';
 import type {
   TaskPublic,
   TaskResult,
   ConditionFound,
   TaskExecutor,
   ActionTaken,
-} from '@epde/shared/types';
+} from '@epde/shared';
 
 interface CompleteTaskModalProps {
   visible: boolean;

@@ -11,7 +11,7 @@ import { ErrorState } from '@/components/error-state';
 import { CreateServiceRequestModal } from '@/components/create-service-request-modal';
 import { TYPE } from '@/lib/fonts';
 import { defaultScreenOptions } from '@/lib/screen-options';
-import type { ServiceRequestPublic } from '@epde/shared/types';
+import type { ServiceRequestPublic } from '@epde/shared';
 
 const STATUS_FILTERS = [
   { key: undefined, label: 'Todos' },

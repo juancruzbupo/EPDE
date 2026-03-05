@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Patch, Delete, Put, Param, Body, Query, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Put,
+  Param,
+  Body,
+  Query,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -12,6 +23,7 @@ import {
   reorderTasksSchema,
   completeTaskSchema,
   createTaskNoteSchema,
+  listTasksQuerySchema,
   UserRole,
 } from '@epde/shared';
 import type {
@@ -20,6 +32,8 @@ import type {
   ReorderTasksInput,
   CompleteTaskInput,
   CreateTaskNoteInput,
+  ListTasksQueryInput,
+  CurrentUser as CurrentUserPayload,
 } from '@epde/shared';
 import type { z } from 'zod';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
@@ -49,7 +63,7 @@ export class MaintenancePlansController {
 
   @Get()
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
-  async listPlans(@CurrentUser() user: { id: string; role: string }) {
+  async listPlans(@CurrentUser() user: CurrentUserPayload) {
     const data = await this.plansService.listPlans(user);
     return { data };
   }
@@ -57,20 +71,17 @@ export class MaintenancePlansController {
   @Get('tasks')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async listAllTasks(
-    @CurrentUser() user: { id: string; role: string },
-    @Query('status') status?: string,
-    @Query('take') take?: string,
+    @CurrentUser() user: CurrentUserPayload,
+    @Query(new ZodValidationPipe(listTasksQuerySchema)) query: ListTasksQueryInput,
   ) {
     const userId = user.role === UserRole.CLIENT ? user.id : undefined;
-    // Guard against NaN — Number('abc') is NaN which breaks Prisma
-    const parsedTake = take !== undefined && /^\d+$/.test(take) ? Number(take) : undefined;
-    const data = await this.taskLifecycle.listAllTasks(userId, status, parsedTake);
+    const data = await this.taskLifecycle.listAllTasks(userId, query.status, query.take);
     return { data };
   }
 
   @Get(':id')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
-  async getPlan(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: { id: string; role: string }) {
+  async getPlan(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: CurrentUserPayload) {
     const data = await this.plansService.getPlan(id, user);
     return { data };
   }
@@ -80,7 +91,7 @@ export class MaintenancePlansController {
   async updatePlan(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updatePlanSchema)) dto: UpdatePlanInput,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.plansService.updatePlan(id, dto, user.id);
     return { data };
@@ -91,7 +102,7 @@ export class MaintenancePlansController {
   async addTask(
     @Param('id', ParseUUIDPipe) planId: string,
     @Body(new ZodValidationPipe(createTaskBodySchema)) dto: CreateTaskBody,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.taskLifecycle.addTask(planId, dto, user.id);
     return { data, message: 'Tarea agregada' };
@@ -102,7 +113,7 @@ export class MaintenancePlansController {
   async updateTask(
     @Param('taskId', ParseUUIDPipe) taskId: string,
     @Body(new ZodValidationPipe(updateTaskWithRecurrenceSchema)) dto: UpdateTaskInput,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.taskLifecycle.updateTask(taskId, dto, user.id);
     return { data };
@@ -128,7 +139,7 @@ export class MaintenancePlansController {
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async getTaskDetail(
     @Param('taskId', ParseUUIDPipe) taskId: string,
-    @CurrentUser() user: { id: string; role: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     await this.taskLifecycle.verifyTaskAccess(taskId, user);
     const data = await this.taskNotes.getTaskDetail(taskId);
@@ -140,7 +151,7 @@ export class MaintenancePlansController {
   async completeTask(
     @Param('taskId', ParseUUIDPipe) taskId: string,
     @Body(new ZodValidationPipe(completeTaskSchema)) dto: CompleteTaskInput,
-    @CurrentUser() user: { id: string; role: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.taskLifecycle.completeTask(taskId, user.id, dto, user);
     return { data, message: 'Tarea completada' };
@@ -150,7 +161,7 @@ export class MaintenancePlansController {
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async getTaskLogs(
     @Param('taskId', ParseUUIDPipe) taskId: string,
-    @CurrentUser() user: { id: string; role: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     await this.taskLifecycle.verifyTaskAccess(taskId, user);
     const data = await this.taskNotes.getTaskLogs(taskId);
@@ -162,7 +173,7 @@ export class MaintenancePlansController {
   async addTaskNote(
     @Param('taskId', ParseUUIDPipe) taskId: string,
     @Body(new ZodValidationPipe(createTaskNoteSchema)) dto: CreateTaskNoteInput,
-    @CurrentUser() user: { id: string; role: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     await this.taskLifecycle.verifyTaskAccess(taskId, user);
     const data = await this.taskNotes.addTaskNote(taskId, user.id, dto);
@@ -173,7 +184,7 @@ export class MaintenancePlansController {
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async getTaskNotes(
     @Param('taskId', ParseUUIDPipe) taskId: string,
-    @CurrentUser() user: { id: string; role: string },
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     await this.taskLifecycle.verifyTaskAccess(taskId, user);
     const data = await this.taskNotes.getTaskNotes(taskId);
