@@ -47,7 +47,8 @@ epde/
 │   │   ├── src/
 │   │   │   ├── main.ts               # Bootstrap (Helmet, CORS, Swagger, Cookies)
 │   │   │   ├── instrument.ts         # OpenTelemetry + Sentry instrumentation
-│   │   │   ├── app.module.ts         # Root module (imports todos los features + logging pino)
+│   │   │   ├── app.module.ts         # Root module (imports CoreModule + 13 feature modules)
+│   │   │   ├── core/                # CoreModule (@Global) — agrupa infra: Sentry, Config, Throttler, Logger, BullMQ, Prisma, Redis, Health, Metrics
 │   │   │   ├── auth/                 # JWT + Local strategy + Token Rotation (Redis)
 │   │   │   │   ├── token.service.ts # Token pairs, rotation, blacklist, reuse detection
 │   │   │   │   ├── auth-audit.service.ts # Structured auth event logging
@@ -318,7 +319,7 @@ export class BaseRepository<T, M extends PrismaModelName = PrismaModelName> {
 ```
 
 - **Servicios NO inyectan PrismaService** — solo los repositorios acceden a datos (excepcion: `AuthAuditService` — fire-and-forget logger)
-- `PrismaModule` es `@Global()` — se importa una sola vez en `AppModule` y queda disponible para todos los modulos sin necesidad de registrar `PrismaService` en cada `providers[]`
+- `PrismaModule` es `@Global()` — se importa una sola vez en `CoreModule` y queda disponible para todos los modulos sin necesidad de registrar `PrismaService` en cada `providers[]`
 - Paginacion cursor-based: `{ data, nextCursor, hasMore, total }`
 - `take` clampeado entre 1 y `MAX_PAGE_SIZE` (100) para prevenir queries sin limite
 
@@ -999,7 +1000,7 @@ pnpm dev:mobile       # Expo dev server
 pnpm build            # Build completo
 pnpm lint             # ESLint
 pnpm typecheck        # TypeScript check
-pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo) — ~620 tests total
+pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo) — ~664 tests total
 
 # Tests E2E (requiere DB + Redis)
 pnpm --filter @epde/api test:e2e

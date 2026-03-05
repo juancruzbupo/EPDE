@@ -153,7 +153,7 @@ export type CreateMyFeatureInput = z.infer<typeof createMyFeatureSchema>;
 
 ```typescript
 @Module({
-  imports: [PrismaModule],
+  // PrismaModule es @Global() via CoreModule — no necesita import explicito
   providers: [MyFeatureService, MyFeatureRepository],
   controllers: [MyFeatureController],
 })
@@ -387,7 +387,7 @@ pnpm --filter @epde/mobile test              # Solo Mobile (jest-expo)
 - **Web**: Vitest + jsdom + @testing-library/react — hooks y componentes
 - **Mobile**: jest-expo + @testing-library/react-native — componentes. Mock manual de `react-native-reanimated` en `__mocks__/react-native-reanimated.js` (v4.x requiere worklets nativos incluso en el mock oficial)
 
-Total: ~659 tests (293 API unit + 197 Shared + 93 Web + 76 Mobile). E2E: clients (8) + category-templates (9) + maintenance-plans (20) + otros existentes.
+Total: ~664 tests (293 API unit + 197 Shared + 93 Web + 81 Mobile). E2E: clients (8) + category-templates (9) + maintenance-plans (20) + otros existentes.
 
 ### Tests E2E
 

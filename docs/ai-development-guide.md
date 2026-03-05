@@ -30,13 +30,14 @@
 18. **Ownership Pattern en endpoints CLIENT** — Todo endpoint CLIENT-accessible DEBE filtrar por `userId` en la capa de service. Para listados: `where.property = { userId: user.id }`. Para getById: verificar `resource.userId === user.id` o `resource.property.userId === user.id` y lanzar `ForbiddenException` si no coincide. `BaseRepository.findById()` es owner-agnostic por diseno — la verificacion es responsabilidad del service
 19. **Rutas URL en ingles** — Las rutas URL de la web usan ingles: `/maintenance-plans`, `/tasks`, `/budgets`, `/properties`. Los display strings (PageHeader, sidebar labels, breadcrumbs) van en espanol. NUNCA mezclar: si la ruta es `/tasks`, el breadcrumb es "Tareas"
 20. **`@Roles()` en todos los endpoints autenticados** — Todo endpoint no-`@Public()` DEBE tener `@Roles(UserRole.ADMIN)`, `@Roles(UserRole.CLIENT, UserRole.ADMIN)`, o `@Roles(UserRole.CLIENT)` explicito. El RolesGuard deniega por defecto si no hay decorator — esto es intencional para prevenir escalation of privilege silencioso
-21. **`PrismaModule` global provee `PrismaService`** — NUNCA registrar `PrismaService` en `providers[]` de modulos individuales. `PrismaModule` es `@Global()` y se importa una sola vez en `AppModule`. Cada modulo recibe la misma instancia via DI
+21. **`PrismaModule` global provee `PrismaService`** — NUNCA registrar `PrismaService` en `providers[]` de modulos individuales. `PrismaModule` es `@Global()` y se importa una sola vez en `CoreModule`. Cada modulo recibe la misma instancia via DI
 22. **Badge variants usan tokens semanticos** — La variante `success` usa `bg-success/15 text-success` (web) y `bg-success/15 text-success` (mobile). NUNCA usar colores raw como `bg-green-100 text-green-800`
 23. **Upload validation client-side obligatoria** — Usar `validateUpload(mimeType, sizeBytes)` de `@epde/shared` antes de enviar al API. Web y mobile deben validar MIME type y tamano
 24. **Dialogs/Sheets co-located con pages** — Componentes dialog/sheet que solo se usan en una pagina van en el directorio de esa pagina. Solo mover a `components/` si se reutiliza en 2+ paginas
 25. **`CurrentUser` type centralizado** — Usar `import type { CurrentUser as CurrentUserPayload } from '@epde/shared'` en controllers. NUNCA tipar `@CurrentUser() user` con objetos inline como `{ id: string; role: string }`. El alias `CurrentUserPayload` evita conflicto con el decorator `@CurrentUser()`
 26. **Barrel import de `@epde/shared`** — Importar SIEMPRE desde `@epde/shared` (barrel). NUNCA usar sub-paths como `@epde/shared/types`, `@epde/shared/schemas`, `@epde/shared/constants`. El barrel re-exporta todo
 27. **Zod validation para Query params** — Endpoints con `@Query()` DEBEN usar `@Query(new ZodValidationPipe(schema))` con schema Zod definido en `@epde/shared`. NUNCA validar query params con regex manual o `DefaultValuePipe` + `ParseIntPipe`
+28. **Certificate pinning pre-produccion mobile** — Antes de release mobile a produccion, implementar certificate pinning con `react-native-ssl-pinning`. Ver TODO [PRE-RELEASE] en `apps/mobile/src/lib/api-client.ts:34-40`
 
 ### NUNCA
 
@@ -253,6 +254,8 @@ Regla para cuándo aplicar `staleTime` en hooks de React Query:
 
 Aplicar en **web y mobile** por igual. Si un hook tiene `staleTime` en web, su equivalente mobile DEBE tenerlo también.
 
+**Nota:** Web y mobile definen `staleTime: 2 * 60_000` como global default en el QueryClient. Hooks individuales PUEDEN overridear el global si necesitan datos mas frescos (ej. `staleTime: 0` para detail views con edicion frecuente). El global es el floor, no un lock.
+
 ### 2.7 Limitaciones Conocidas
 
 **BaseRepository `create`/`update` con generics opcionales:**
@@ -280,7 +283,7 @@ apps/api/src/<feature>/
 
 **Excepciones:** No todos los modulos requieren las 4 piezas. Ver tabla de excepciones en `docs/architecture.md`. Ejemplos: `users` (sin controller), `upload` (sin repository), `email` (sin controller ni repository). **CI enforce:** Si modificas un `*.service.ts`, DEBE existir su `*.service.spec.ts`.
 
-**Dependencia circular `TasksModule` ↔ `MaintenancePlansModule`:** `TasksModule` importa `MaintenancePlansModule` via `forwardRef(() => MaintenancePlansModule)` y viceversa. `MaintenancePlansModule` exporta `MaintenancePlansRepository`. NUNCA registrar `MaintenancePlansRepository` directamente en `TasksModule.providers[]` — importar el modulo via `forwardRef`.
+**Dependencia circular `TasksModule` ↔ `MaintenancePlansModule`:** Resuelta via `PlanDataModule` (data-only module que provee `MaintenancePlansRepository`). `TasksModule` importa `PlanDataModule` (no `MaintenancePlansModule`). `MaintenancePlansModule` importa `PlanDataModule` + `TasksModule`. No se usa `forwardRef` — el `PlanDataModule` rompe el ciclo limpiamente.
 
 ### 3.2 Repository Pattern
 
@@ -289,7 +292,7 @@ apps/api/src/<feature>/
 @Injectable()
 export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequest'> {
   constructor(prisma: PrismaService) {
-    super(prisma, 'budgetRequest', false); // false = sin soft-delete
+    super(prisma, 'budgetRequest', true); // true = con soft-delete
   }
 
   // Override findMany con include personalizado
@@ -524,7 +527,7 @@ async delete(@Param('id', ParseUUIDPipe) id: string) {
 
 ### 3.5 Guard Composition
 
-Tres guards globales via `APP_GUARD` en `app.module.ts`:
+Tres guards globales via `APP_GUARD` en `app.module.ts` (los guards se registran en AppModule; la config de ThrottlerModule/LoggerModule/BullMQ vive en `CoreModule`):
 
 1. **JwtAuthGuard** — Valida JWT. Salta `@Public()`. Verifica blacklist de JTI en Redis
 2. **RolesGuard** — Verifica `user.role` contra `@Roles()`. **Sin `@Roles()` = deniega (403)** — deny by default. Todo endpoint autenticado requiere `@Roles()` explicito o `@Public()`
@@ -1122,6 +1125,34 @@ export const tokenService = {
   hasTokens: async () => (await getItem('epde_access_token')) !== null,
 };
 ```
+
+### 5.7 Mobile Query Configuration
+
+El QueryClient de mobile difiere de web para soportar uso offline durante inspecciones de campo:
+
+| Config        | Web                    | Mobile                          | Razon                                    |
+| ------------- | ---------------------- | ------------------------------- | ---------------------------------------- |
+| `staleTime`   | 2 min (global default) | 2 min (global default)          | Alineado entre plataformas               |
+| `gcTime`      | 5 min (default TQ)     | 24h (`24 * 60 * 60_000`)        | Datos disponibles offline entre sesiones |
+| `networkMode` | `online` (default TQ)  | `offlineFirst`                  | Queries corren desde cache sin conexion  |
+| Persister     | Ninguno                | AsyncStorage (key versionada)   | Datos sobreviven cierre de app           |
+| Online sync   | N/A                    | `NetInfo.addEventListener`      | Detecta reconexion → refetch automatico  |
+| Logout        | `queryClient.clear()`  | `AsyncStorage.multiRemove(...)` | Limpia cache persistido + in-memory      |
+
+**Persister key:** `epde-query-cache-v{APP_VERSION}` — al actualizar la app, las keys viejas se limpian automaticamente via `AsyncStorage.getAllKeys()` + `multiRemove()`.
+
+**Archivos:** `apps/mobile/src/lib/query-client.ts` (QueryClient + NetInfo sync), `apps/mobile/src/lib/query-persister.ts` (AsyncStorage persister).
+
+### 5.8 Test Runners por Workspace
+
+| Workspace         | Runner           | Mock syntax                 | Config             |
+| ----------------- | ---------------- | --------------------------- | ------------------ |
+| `apps/api`        | Jest + ts-jest   | `jest.mock()` / `jest.fn()` | `jest.config.js`   |
+| `apps/web`        | Vitest + jsdom   | `vi.mock()` / `vi.fn()`     | `vitest.config.ts` |
+| `apps/mobile`     | Jest + jest-expo | `jest.mock()` / `jest.fn()` | `jest.config.js`   |
+| `packages/shared` | Vitest           | `vi.mock()` / `vi.fn()`     | `vitest.config.ts` |
+
+> NUNCA usar `jest.fn()` en web/shared tests ni `vi.fn()` en mobile/API tests. Los test runners no son intercambiables.
 
 ---
 

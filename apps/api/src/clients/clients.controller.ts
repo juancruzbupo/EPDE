@@ -24,11 +24,11 @@ import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 @ApiTags('Clientes')
 @ApiBearerAuth()
 @Controller('clients')
-@Roles(UserRole.ADMIN)
 export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}
 
   @Get()
+  @Roles(UserRole.ADMIN)
   async listClients(
     @Query(new ZodValidationPipe(clientFiltersSchema)) filters: ClientFiltersInput,
   ) {
@@ -36,18 +36,21 @@ export class ClientsController {
   }
 
   @Get(':id')
+  @Roles(UserRole.ADMIN)
   async getClient(@Param('id', ParseUUIDPipe) id: string) {
     const data = await this.clientsService.getClient(id);
     return { data };
   }
 
   @Post()
+  @Roles(UserRole.ADMIN)
   async createClient(@Body(new ZodValidationPipe(createClientSchema)) dto: CreateClientInput) {
     const data = await this.clientsService.createClient(dto);
     return { data, message: 'Cliente creado e invitación enviada' };
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMIN)
   async updateClient(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updateClientSchema)) dto: UpdateClientInput,
@@ -57,6 +60,7 @@ export class ClientsController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN)
   async deleteClient(@Param('id', ParseUUIDPipe) id: string) {
     const data = await this.clientsService.deleteClient(id);
     return { data, message: 'Cliente eliminado' };

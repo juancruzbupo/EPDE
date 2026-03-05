@@ -14,6 +14,7 @@ epde/
         clients/      # Gestion de clientes (ADMIN only)
         common/       # Guards, decorators, filters, repositories
         config/       # Validacion de env con Zod
+        core/         # CoreModule (@Global) — agrupa infra: Sentry, Config, Throttler, Logger, BullMQ, Prisma, Redis, Health, Metrics
         scheduler/    # Scheduler (task status cron + distributed lock)
         dashboard/    # Estadisticas agregadas
         email/        # Servicio de emails (Resend)
