@@ -177,10 +177,12 @@ epde/
 │       │   │   ├── category.ts       # Category filters schema
 │       │   │   └── service-request.ts
 │       │   ├── constants/
-│       │   │   ├── index.ts          # Labels en espanol, defaults, mappings
-│       │   │   │                      # (QUERY_KEYS centralizado aquí — SSoT para web y mobile)
-│       │   │   ├── badge-variants.ts # Variantes de Badge compartidas web/mobile
-│       │   │   └── design-tokens.ts  # DESIGN_TOKENS_LIGHT + DESIGN_TOKENS_DARK (SSoT paleta)
+│       │   │   ├── index.ts          # Labels en espanol (con satisfies), defaults, QUERY_KEYS (SSoT)
+│       │   │   ├── badge-variants.ts # Variantes de Badge compartidas web/mobile (con satisfies)
+│       │   │   └── design-tokens.ts  # DESIGN_TOKENS_LIGHT/DARK + TASK_TYPE_TOKENS_LIGHT/DARK (SSoT paleta)
+│       │   ├── api/                  # 9 API query factories (budgets, categories, category-templates,
+│       │   │                          #   clients, dashboard, maintenance-plans, notifications, properties,
+│       │   │                          #   service-requests). Patron: createXxxQueries(apiClient)
 │       │   └── utils/                # Date/string helpers, getErrorMessage, validateUpload
 │       ├── tsup.config.ts            # Dual ESM(.js) + CJS(.cjs) build
 │       ├── vitest.config.ts          # Unit tests
@@ -606,12 +608,15 @@ Casos de uso: token rotation (families), token blacklist (JTIs), distributed loc
 
 **Consumidores de `DESIGN_TOKENS_LIGHT` en JS** (no pueden usar CSS custom properties):
 
-| Consumidor                    | Archivo                                   | Uso                                                                                       |
-| ----------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------- |
-| HealthCard progress bar       | `apps/web/src/components/health-card.tsx` | Framer Motion `backgroundColor` (mutedForeground, success, primary, warning, destructive) |
-| Email templates (HTML inline) | `apps/api/src/email/email.service.ts`     | Colores en template strings HTML (primary, border, destructive)                           |
+| Consumidor                    | Archivo                               | Uso                                                             |
+| ----------------------------- | ------------------------------------- | --------------------------------------------------------------- |
+| Email templates (HTML inline) | `apps/api/src/email/email.service.ts` | Colores en template strings HTML (primary, border, destructive) |
+
+> Nota: `HealthCard` (web) migró a CSS `var()` — ya NO consume `DESIGN_TOKENS_LIGHT` en JS.
 
 NUNCA usar hex literals en estos archivos — importar siempre desde `DESIGN_TOKENS_LIGHT`.
+
+`design-tokens.ts` también exporta `TASK_TYPE_TOKENS_LIGHT` y `TASK_TYPE_TOKENS_DARK` (9 tokens: inspection, cleaning, test, treatment, sealing, lubrication, adjustment, measurement, evaluation). Estos mapean a CSS custom properties (`--task-inspection`, etc.) verificadas por los tests de drift.
 
 ### Spacing & Radius
 
@@ -993,7 +998,7 @@ pnpm dev:mobile       # Expo dev server
 pnpm build            # Build completo
 pnpm lint             # ESLint
 pnpm typecheck        # TypeScript check
-pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo) — ~633 tests total
+pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo) — ~636 tests total
 
 # Tests E2E (requiere DB + Redis)
 pnpm --filter @epde/api test:e2e

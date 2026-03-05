@@ -65,3 +65,31 @@ export const DESIGN_TOKENS_DARK = {
 } as const;
 
 export type DesignTokens = typeof DESIGN_TOKENS_LIGHT;
+
+/** Task-type color tokens — light mode */
+export const TASK_TYPE_TOKENS_LIGHT = {
+  inspection: '#3b82f6',
+  cleaning: '#06b6d4',
+  test: '#6366f1',
+  treatment: '#a855f7',
+  sealing: '#f59e0b',
+  lubrication: '#84cc16',
+  adjustment: '#64748b',
+  measurement: '#14b8a6',
+  evaluation: '#8b5cf6',
+} as const;
+
+/** Task-type color tokens — dark mode */
+export const TASK_TYPE_TOKENS_DARK = {
+  inspection: '#60a5fa',
+  cleaning: '#22d3ee',
+  test: '#818cf8',
+  treatment: '#c084fc',
+  sealing: '#fbbf24',
+  lubrication: '#a3e635',
+  adjustment: '#94a3b8',
+  measurement: '#2dd4bf',
+  evaluation: '#a78bfa',
+} as const;
+
+export type TaskTypeTokens = typeof TASK_TYPE_TOKENS_LIGHT;

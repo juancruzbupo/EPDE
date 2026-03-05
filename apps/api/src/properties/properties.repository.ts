@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Property, PropertyType } from '@prisma/client';
+import { Property, PropertyType, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   BaseRepository,
@@ -21,8 +21,7 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
     city?: string;
     type?: PropertyType;
   }): Promise<PaginatedResult<Property>> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = {};
+    const where: Prisma.PropertyWhereInput = {};
 
     if (params.userId) {
       where.userId = params.userId;

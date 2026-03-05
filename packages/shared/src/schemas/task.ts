@@ -1,31 +1,9 @@
 import { z } from 'zod';
-
-const RECURRENCE_TYPES = [
-  'MONTHLY',
-  'QUARTERLY',
-  'BIANNUAL',
-  'ANNUAL',
-  'CUSTOM',
-  'ON_DETECTION',
-] as const;
-
-const TASK_TYPES = [
-  'INSPECTION',
-  'CLEANING',
-  'TEST',
-  'TREATMENT',
-  'SEALING',
-  'LUBRICATION',
-  'ADJUSTMENT',
-  'MEASUREMENT',
-  'EVALUATION',
-] as const;
-
-const PROFESSIONAL_REQUIREMENTS = [
-  'OWNER_CAN_DO',
-  'PROFESSIONAL_RECOMMENDED',
-  'PROFESSIONAL_REQUIRED',
-] as const;
+import {
+  TASK_TYPE_VALUES,
+  RECURRENCE_TYPE_VALUES,
+  PROFESSIONAL_REQUIREMENT_VALUES,
+} from '../types/enums';
 
 function customRecurrenceRefine(
   data: { recurrenceType?: string; recurrenceMonths?: number; nextDueDate?: Date | null },
@@ -56,11 +34,11 @@ export const createTaskSchema = z.object({
     .max(200, 'El nombre no puede superar 200 caracteres'),
   description: z.string().max(2000, 'La descripción no puede superar 2000 caracteres').optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).default('MEDIUM'),
-  recurrenceType: z.enum(RECURRENCE_TYPES).default('ANNUAL'),
+  recurrenceType: z.enum(RECURRENCE_TYPE_VALUES).default('ANNUAL'),
   recurrenceMonths: z.coerce.number().int().min(1).max(120).optional(),
   nextDueDate: z.coerce.date().optional(),
-  taskType: z.enum(TASK_TYPES).default('INSPECTION'),
-  professionalRequirement: z.enum(PROFESSIONAL_REQUIREMENTS).default('OWNER_CAN_DO'),
+  taskType: z.enum(TASK_TYPE_VALUES).default('INSPECTION'),
+  professionalRequirement: z.enum(PROFESSIONAL_REQUIREMENT_VALUES).default('OWNER_CAN_DO'),
   technicalDescription: z.string().max(1000).optional(),
   estimatedDurationMinutes: z.coerce.number().int().min(1).optional(),
 });
@@ -78,12 +56,12 @@ export const updateTaskSchema = z.object({
     .optional(),
   description: z.string().max(2000, 'La descripción no puede superar 2000 caracteres').optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
-  recurrenceType: z.enum(RECURRENCE_TYPES).optional(),
+  recurrenceType: z.enum(RECURRENCE_TYPE_VALUES).optional(),
   recurrenceMonths: z.coerce.number().int().min(1).max(120).optional(),
   nextDueDate: z.coerce.date().optional().nullable(),
   status: z.enum(['PENDING', 'UPCOMING', 'OVERDUE', 'COMPLETED']).optional(),
-  taskType: z.enum(TASK_TYPES).optional(),
-  professionalRequirement: z.enum(PROFESSIONAL_REQUIREMENTS).optional(),
+  taskType: z.enum(TASK_TYPE_VALUES).optional(),
+  professionalRequirement: z.enum(PROFESSIONAL_REQUIREMENT_VALUES).optional(),
   technicalDescription: z.string().max(1000).optional().nullable(),
   estimatedDurationMinutes: z.coerce.number().int().min(1).optional().nullable(),
 });

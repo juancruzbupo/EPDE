@@ -217,7 +217,7 @@ export default function BudgetDetailScreen() {
             <Pressable
               onPress={handleApprove}
               disabled={updateStatus.isPending}
-              className="flex-1 items-center rounded-xl bg-green-600 py-3"
+              className="bg-success flex-1 items-center rounded-xl py-3"
             >
               <Text style={TYPE.titleMd} className="text-white">
                 Aprobar

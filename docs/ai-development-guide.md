@@ -114,6 +114,14 @@ export const BudgetStatus = {
   COMPLETED: 'COMPLETED',
 } as const;
 export type BudgetStatus = (typeof BudgetStatus)[keyof typeof BudgetStatus];
+
+// Enum value arrays — SSoT para z.enum() en schemas (evita duplicar Object.values localmente)
+export const TASK_TYPE_VALUES = Object.values(TaskType) as [string, ...string[]];
+export const RECURRENCE_TYPE_VALUES = Object.values(RecurrenceType) as [string, ...string[]];
+export const PROFESSIONAL_REQUIREMENT_VALUES = Object.values(ProfessionalRequirement) as [
+  string,
+  ...string[],
+];
 ```
 
 ### 2.3 Entity Types
@@ -167,8 +175,8 @@ export const BUDGET_STATUS_LABELS: Record<string, string> = {
   REJECTED: 'Rechazado',
   IN_PROGRESS: 'En Progreso',
   COMPLETED: 'Completado',
-};
-// Equivalente para: TASK_STATUS_LABELS, TASK_PRIORITY_LABELS, SERVICE_STATUS_LABELS, etc.
+} satisfies Record<BudgetStatus, string>;
+// Los 16 label maps + 7 badge variant maps usan `satisfies Record<EnumType, string>` para exhaustividad
 
 export const BCRYPT_SALT_ROUNDS = 12;
 export const PAGINATION_DEFAULT_TAKE = 20;
@@ -209,15 +217,18 @@ export const PLAN_STATUS_VARIANT = { DRAFT: 'secondary', ACTIVE: 'default', ARCH
 
 ### 2.5 Design Tokens — SSoT
 
-`@epde/shared` exporta `DESIGN_TOKENS_LIGHT` y `DESIGN_TOKENS_DARK` desde `constants/design-tokens.ts`. Estos son la fuente de verdad para todos los colores de la marca.
+`@epde/shared` exporta desde `constants/design-tokens.ts`:
+
+- `DESIGN_TOKENS_LIGHT` / `DESIGN_TOKENS_DARK` — colores de marca (SSoT)
+- `TASK_TYPE_TOKENS_LIGHT` / `TASK_TYPE_TOKENS_DARK` — 9 colores de tipo de tarea (inspection, cleaning, test, treatment, sealing, lubrication, adjustment, measurement, evaluation)
 
 Al agregar o cambiar un color:
 
-1. Actualizar `DESIGN_TOKENS_LIGHT` / `DESIGN_TOKENS_DARK` en shared
+1. Actualizar el token correspondiente en shared (`DESIGN_TOKENS_*` o `TASK_TYPE_TOKENS_*`)
 2. Propagar manualmente a `apps/web/src/app/globals.css` (`:root` y `.dark`)
 3. Propagar manualmente a `apps/mobile/src/global.css` (`@theme inline`)
 
-Los tests `css-tokens.test.ts` en web y mobile verifican tanto la **existencia** como los **valores** de cada token contra `DESIGN_TOKENS_LIGHT`/`DARK`.
+Los tests `css-tokens.test.ts` en web y mobile verifican tanto la **existencia** como los **valores** de cada token contra `DESIGN_TOKENS_LIGHT`/`DARK` y `TASK_TYPE_TOKENS_LIGHT`/`DARK`.
 
 ### 2.6 staleTime Policy (React Query)
 
@@ -656,11 +667,28 @@ export async function createBudgetRequest(input: CreateBudgetRequestInput) {
 }
 ```
 
+**Patrón preferido — Shared API factory** (9 entidades ya migradas):
+
+```typescript
+// apps/web/src/lib/api/clients.ts (usa factory compartida)
+import { createClientQueries } from '@epde/shared/api';
+import { apiClient } from '../api-client';
+
+export type { ClientPublic } from '@epde/shared';
+export type { ClientFilters } from '@epde/shared/api';
+
+const queries = createClientQueries(apiClient);
+export const { getClients, getClient, createClient, updateClient, deleteClient } = queries;
+```
+
+Las factories viven en `packages/shared/src/api/` y encapsulan rutas + tipos. Web y mobile consumen la misma factory con su propio `apiClient`.
+
 **Reglas:**
 
 - Tipos de respuesta importados de `@epde/shared/types`
 - `signal` para soporte de abort/cancellation
 - Retornar `data` directamente (no `AxiosResponse`)
+- Preferir shared factory (`createXxxQueries`) sobre funciones standalone
 
 ### 4.3 Page Pattern
 
@@ -1052,13 +1080,14 @@ export const tokenService = {
 9. **API: Controller** — Decorators, ZodValidationPipe por endpoint
 10. **API: Module** — Imports, providers, controllers. Registrar en `app.module.ts`
 11. **API: Tests** — `*.service.spec.ts` con mocks
-12. **Web: API functions** — `lib/api/<entity>.ts` con tipos de shared
-13. **Web: Hooks** — `hooks/use-<entity>.ts` con `getErrorMessage` de `@epde/shared` + toasts + `QUERY_KEYS`
-14. **Web: Page** — `app/(dashboard)/<entity>/page.tsx` + `columns.tsx`
-15. **Web: Detail** — `app/(dashboard)/<entity>/[id]/page.tsx`
-16. **Web: Dialog** — Dialog de creacion/edicion con RHF + Zod
-17. **Web: Sidebar** — Agregar item de navegacion
-18. **Mobile (si aplica):** Hook, API, screen, detalle
+12. **Shared: API factory** — `packages/shared/src/api/<entity>.ts` con `createXxxQueries(apiClient)`, exportar en `api/index.ts`
+13. **Web: API functions** — `lib/api/<entity>.ts` consume la factory compartida
+14. **Web: Hooks** — `hooks/use-<entity>.ts` con `getErrorMessage` de `@epde/shared` + toasts + `QUERY_KEYS`
+15. **Web: Page** — `app/(dashboard)/<entity>/page.tsx` + `columns.tsx`
+16. **Web: Detail** — `app/(dashboard)/<entity>/[id]/page.tsx`
+17. **Web: Dialog** — Dialog de creacion/edicion con RHF + Zod
+18. **Web: Sidebar** — Agregar item de navegacion
+19. **Mobile (si aplica):** Hook, API, screen, detalle
 
 ### 6.2 Nuevo Endpoint (en entidad existente)
 
@@ -1124,3 +1153,7 @@ pnpm test       # Todos los tests pasan
 | `@Param('id') id: string` sin pipe en path params de entidad         | `@Param('id', ParseUUIDPipe) id: string`                                           |
 | `useInfiniteQuery({...})` sin `maxPages`                             | `useInfiniteQuery({ ..., maxPages: 10 })`                                          |
 | `const [debounced, setDebounced] = useState` con `useEffect` inline  | `const debouncedSearch = useDebounce(search, 300)`                                 |
+| `Record<string, string>` sin `satisfies` en label/variant maps       | `Record<string, string> = { ... } satisfies Record<EnumType, string>`              |
+| `Object.values(TaskType) as [string, ...string[]]` local en schema   | `TASK_TYPE_VALUES` de `@epde/shared` (SSoT en `enums.ts`)                          |
+| Funciones API standalone con `apiClient.get()` por entidad           | `createXxxQueries(apiClient)` factory de `@epde/shared/api`                        |
+| `DESIGN_TOKENS_LIGHT.success` en inline style (sin dark mode)        | CSS `var(--success)` (resuelve por tema automáticamente)                           |

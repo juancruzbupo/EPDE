@@ -2,6 +2,8 @@ import type { AxiosInstance } from 'axios';
 import type {
   ApiResponse,
   PlanPublic,
+  PlanListItem,
+  TaskListItem,
   TaskDetailPublic,
   TaskLogPublic,
   TaskNotePublic,
@@ -10,6 +12,19 @@ import type { CompleteTaskInput } from '../schemas/task-log';
 
 export function createMaintenancePlanQueries(apiClient: AxiosInstance) {
   return {
+    async getPlans(signal?: AbortSignal): Promise<{ data: PlanListItem[] }> {
+      const { data } = await apiClient.get('/maintenance-plans', { signal });
+      return data;
+    },
+
+    async getAllTasks(status?: string, signal?: AbortSignal): Promise<{ data: TaskListItem[] }> {
+      const { data } = await apiClient.get('/maintenance-plans/tasks', {
+        params: status && status !== 'all' ? { status } : {},
+        signal,
+      });
+      return data;
+    },
+
     async getPlan(id: string, signal?: AbortSignal): Promise<ApiResponse<PlanPublic>> {
       const { data } = await apiClient.get(`/maintenance-plans/${id}`, { signal });
       return data;

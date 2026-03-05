@@ -4,3 +4,6 @@ export { createPropertyQueries, type PropertyFilters } from './properties';
 export { createServiceRequestQueries, type ServiceRequestFilters } from './service-requests';
 export { createMaintenancePlanQueries } from './maintenance-plans';
 export { createDashboardQueries } from './dashboard';
+export { createClientQueries, type ClientFilters } from './clients';
+export { createCategoryQueries } from './categories';
+export { createCategoryTemplateQueries } from './category-templates';

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ServiceRequest, ServiceUrgency } from '@prisma/client';
+import { ServiceRequest, ServiceUrgency, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   BaseRepository,
@@ -51,11 +51,10 @@ export class ServiceRequestsRepository extends BaseRepository<ServiceRequest, 's
     propertyId?: string;
     userId?: string;
   }): Promise<PaginatedResult<ServiceRequest>> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = {};
+    const where: Prisma.ServiceRequestWhereInput = {};
 
-    if (params.status) where.status = params.status;
-    if (params.urgency) where.urgency = params.urgency;
+    if (params.status) where.status = params.status as Prisma.EnumServiceStatusFilter;
+    if (params.urgency) where.urgency = params.urgency as Prisma.EnumServiceUrgencyFilter;
     if (params.propertyId) where.propertyId = params.propertyId;
     if (params.userId) where.requestedBy = params.userId;
 

@@ -154,3 +154,12 @@ export const ActionTaken = {
   NO_ACTION: 'NO_ACTION',
 } as const;
 export type ActionTaken = (typeof ActionTaken)[keyof typeof ActionTaken];
+
+// ─── Enum Value Arrays (for Zod schemas) ─────────────────
+
+export const TASK_TYPE_VALUES = Object.values(TaskType) as [string, ...string[]];
+export const RECURRENCE_TYPE_VALUES = Object.values(RecurrenceType) as [string, ...string[]];
+export const PROFESSIONAL_REQUIREMENT_VALUES = Object.values(ProfessionalRequirement) as [
+  string,
+  ...string[],
+];

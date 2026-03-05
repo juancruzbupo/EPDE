@@ -100,7 +100,7 @@ function TaskRowSkeleton() {
   );
 }
 
-export default function TareasPage() {
+export default function TasksPage() {
   const router = useRouter();
   const [status, setStatus] = useState('all');
   const { data: tasks, isLoading } = useAllTasks(status === 'all' ? undefined : status);

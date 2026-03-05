@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { User, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   BaseRepository,
@@ -28,11 +28,10 @@ export class ClientsRepository extends BaseRepository<User, 'user'> {
     search?: string;
     status?: string;
   }): Promise<PaginatedResult<User>> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = { role: UserRole.CLIENT };
+    const where: Prisma.UserWhereInput = { role: UserRole.CLIENT };
 
     if (params.status) {
-      where.status = params.status;
+      where.status = params.status as Prisma.EnumUserStatusFilter;
     }
 
     if (params.search) {

@@ -1,7 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { describe, it, expect } from 'vitest';
-import { DESIGN_TOKENS_LIGHT, DESIGN_TOKENS_DARK } from '@epde/shared';
+import {
+  DESIGN_TOKENS_LIGHT,
+  DESIGN_TOKENS_DARK,
+  TASK_TYPE_TOKENS_LIGHT,
+  TASK_TYPE_TOKENS_DARK,
+} from '@epde/shared';
 
 /**
  * Verify that the web globals.css defines a --color-* variable for every key
@@ -71,6 +76,40 @@ describe('Web CSS token sync', () => {
       const cssKey = toKebab(key);
       const actual = darkValues.get(cssKey);
       if (actual && actual !== expected) {
+        mismatches.push(`--${cssKey}: expected "${expected}", got "${actual}"`);
+      }
+    }
+
+    expect(mismatches).toEqual([]);
+  });
+
+  it(':root task-type values should match TASK_TYPE_TOKENS_LIGHT', () => {
+    const rootValues = extractSectionValues(/:root\s*\{([^}]+)\}/s);
+    const mismatches: string[] = [];
+
+    for (const [key, expected] of Object.entries(TASK_TYPE_TOKENS_LIGHT)) {
+      const cssKey = `task-${key}`;
+      const actual = rootValues.get(cssKey);
+      if (!actual) {
+        mismatches.push(`--${cssKey}: missing in :root`);
+      } else if (actual !== expected) {
+        mismatches.push(`--${cssKey}: expected "${expected}", got "${actual}"`);
+      }
+    }
+
+    expect(mismatches).toEqual([]);
+  });
+
+  it('.dark task-type values should match TASK_TYPE_TOKENS_DARK', () => {
+    const darkValues = extractSectionValues(/\.dark\s*\{([^}]+)\}/s);
+    const mismatches: string[] = [];
+
+    for (const [key, expected] of Object.entries(TASK_TYPE_TOKENS_DARK)) {
+      const cssKey = `task-${key}`;
+      const actual = darkValues.get(cssKey);
+      if (!actual) {
+        mismatches.push(`--${cssKey}: missing in .dark`);
+      } else if (actual !== expected) {
         mismatches.push(`--${cssKey}: expected "${expected}", got "${actual}"`);
       }
     }

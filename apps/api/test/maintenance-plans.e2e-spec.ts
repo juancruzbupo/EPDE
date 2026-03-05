@@ -31,7 +31,8 @@ describe('MaintenancePlansController (e2e)', () => {
     await cleanDatabase(prisma);
     testData = await seedTestData(prisma);
 
-    // Generate tokens directly (no HTTP login — avoids ThrottlerGuard APP_GUARD 5/60s limit)
+    // Generate tokens via JwtService.sign() directly (not helpers.getToken()) because
+    // TokenService requires Redis. JwtService.sign() is synchronous and sufficient for auth.
     adminToken = jwtService.sign({
       sub: testData.admin.id,
       email: testData.admin.email,

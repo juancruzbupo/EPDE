@@ -51,18 +51,12 @@ export default function LoginScreen() {
         <Text style={fonts.heading} className="text-primary mb-2 text-center text-4xl">
           EPDE
         </Text>
-        <Text
-          style={{ fontFamily: 'DMSans_400Regular' }}
-          className="text-muted-foreground mb-10 text-center text-base"
-        >
+        <Text style={fonts.regular} className="text-muted-foreground mb-10 text-center text-base">
           Ingresá a tu cuenta
         </Text>
 
         <View className="bg-card border-border rounded-xl border p-6">
-          <Text
-            style={{ fontFamily: 'DMSans_500Medium' }}
-            className="text-foreground mb-1.5 text-sm"
-          >
+          <Text style={fonts.medium} className="text-foreground mb-1.5 text-sm">
             Email
           </Text>
           <Controller
@@ -71,7 +65,7 @@ export default function LoginScreen() {
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3 text-base"
-                style={{ fontFamily: 'DMSans_400Regular' }}
+                style={fonts.regular}
                 placeholder="tu@email.com"
                 placeholderTextColor={colors.mutedForeground}
                 keyboardType="email-address"
@@ -87,10 +81,7 @@ export default function LoginScreen() {
             <Text className="text-destructive mb-2 text-xs">{errors.email.message}</Text>
           )}
 
-          <Text
-            style={{ fontFamily: 'DMSans_500Medium' }}
-            className="text-foreground mt-3 mb-1.5 text-sm"
-          >
+          <Text style={fonts.medium} className="text-foreground mt-3 mb-1.5 text-sm">
             Contraseña
           </Text>
           <Controller
@@ -99,7 +90,7 @@ export default function LoginScreen() {
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3 text-base"
-                style={{ fontFamily: 'DMSans_400Regular' }}
+                style={fonts.regular}
                 placeholder="••••••"
                 placeholderTextColor={colors.mutedForeground}
                 secureTextEntry
@@ -124,10 +115,7 @@ export default function LoginScreen() {
             {isLoading ? (
               <ActivityIndicator color={colors.primaryForeground} />
             ) : (
-              <Text
-                style={{ fontFamily: 'DMSans_700Bold' }}
-                className="text-primary-foreground text-base"
-              >
+              <Text style={fonts.bold} className="text-primary-foreground text-base">
                 Ingresar
               </Text>
             )}

@@ -38,7 +38,7 @@ function TaskCard({ task, planId }: { task: TaskPublic; planId: string }) {
 
   const statusDotColor =
     task.status === 'COMPLETED'
-      ? 'bg-green-500'
+      ? 'bg-success'
       : task.status === 'OVERDUE'
         ? 'bg-destructive'
         : task.status === 'UPCOMING'

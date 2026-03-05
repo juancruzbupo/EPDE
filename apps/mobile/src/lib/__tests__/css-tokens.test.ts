@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { DESIGN_TOKENS_LIGHT } from '@epde/shared';
+import { DESIGN_TOKENS_LIGHT, TASK_TYPE_TOKENS_LIGHT } from '@epde/shared';
 
 /**
  * Verify that the mobile global.css defines a --color-* variable for every key
@@ -54,6 +54,23 @@ describe('Mobile CSS token sync', () => {
       const cssKey = toKebab(key);
       const actual = themeValues.get(cssKey);
       if (actual && actual !== expected) {
+        mismatches.push(`--color-${cssKey}: expected "${expected}", got "${actual}"`);
+      }
+    }
+
+    expect(mismatches).toEqual([]);
+  });
+
+  it('--color-task-* values should match TASK_TYPE_TOKENS_LIGHT', () => {
+    const themeValues = extractThemeValues();
+    const mismatches: string[] = [];
+
+    for (const [key, expected] of Object.entries(TASK_TYPE_TOKENS_LIGHT)) {
+      const cssKey = `task-${key}`;
+      const actual = themeValues.get(cssKey);
+      if (!actual) {
+        mismatches.push(`--color-${cssKey}: missing`);
+      } else if (actual !== expected) {
         mismatches.push(`--color-${cssKey}: expected "${expected}", got "${actual}"`);
       }
     }

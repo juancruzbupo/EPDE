@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth-store';
 import {
   LayoutDashboard,
@@ -33,16 +32,13 @@ const navItems = [
 
 export function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname();
-  const queryClient = useQueryClient();
   const { user, logout } = useAuthStore();
 
   const handleLogout = async () => {
     try {
-      queryClient.cancelQueries();
-      queryClient.clear();
       await logout();
     } catch {
-      // Logout API may fail — local cleanup already done
+      // Logout API may fail — local cleanup already done by auth store
     }
   };
 

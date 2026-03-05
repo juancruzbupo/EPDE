@@ -43,11 +43,10 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
     propertyId?: string;
     userId?: string;
   }): Promise<PaginatedResult<BudgetRequest>> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = {};
+    const where: Prisma.BudgetRequestWhereInput = {};
 
     if (params.status) {
-      where.status = params.status;
+      where.status = params.status as Prisma.EnumBudgetStatusFilter;
     }
 
     if (params.propertyId) {
