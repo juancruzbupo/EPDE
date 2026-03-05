@@ -182,4 +182,11 @@ export const QUERY_KEYS = {
   taskDetail: 'task-detail',
   taskLogs: 'task-logs',
   taskNotes: 'task-notes',
+  // Dashboard sub-keys
+  dashboardStats: 'stats',
+  dashboardActivity: 'activity',
+  dashboardClientStats: 'client-stats',
+  dashboardClientUpcoming: 'client-upcoming',
+  // Notifications sub-keys
+  notificationsUnreadCount: 'unread-count',
 } as const;

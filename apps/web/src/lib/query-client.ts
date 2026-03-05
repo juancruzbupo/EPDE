@@ -3,7 +3,7 @@ import { QueryClient } from '@tanstack/react-query';
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // staleTime: per-hook (dashboard 2min, rest default 0 = always fresh on mount)
+      staleTime: 2 * 60_000, // 2 min — avoid refetch on every mount (aligned with mobile)
       retry: 1,
     },
   },

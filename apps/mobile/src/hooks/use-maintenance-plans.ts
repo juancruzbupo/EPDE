@@ -104,8 +104,13 @@ export function useCompleteTask() {
 
     onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'client-stats'] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'client-upcoming'] });
+      // Mobile: only client dashboard (mobile is client-only)
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientStats],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientUpcoming],
+      });
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.taskLogs, variables.planId, variables.taskId],
       });

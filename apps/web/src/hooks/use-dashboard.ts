@@ -9,7 +9,7 @@ import {
 
 export function useDashboardStats() {
   return useQuery({
-    queryKey: [QUERY_KEYS.dashboard, 'stats'],
+    queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardStats],
     queryFn: ({ signal }) => getDashboardStats(signal).then((r) => r.data),
     staleTime: 2 * 60 * 1000,
   });
@@ -17,7 +17,7 @@ export function useDashboardStats() {
 
 export function useDashboardActivity() {
   return useQuery({
-    queryKey: [QUERY_KEYS.dashboard, 'activity'],
+    queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardActivity],
     queryFn: ({ signal }) => getDashboardActivity(signal).then((r) => r.data),
     staleTime: 2 * 60 * 1000,
   });
@@ -25,7 +25,7 @@ export function useDashboardActivity() {
 
 export function useClientDashboardStats() {
   return useQuery({
-    queryKey: [QUERY_KEYS.dashboard, 'client-stats'],
+    queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientStats],
     queryFn: ({ signal }) => getClientDashboardStats(signal).then((r) => r.data),
     staleTime: 2 * 60 * 1000,
   });
@@ -33,7 +33,7 @@ export function useClientDashboardStats() {
 
 export function useClientUpcomingTasks() {
   return useQuery({
-    queryKey: [QUERY_KEYS.dashboard, 'client-upcoming'],
+    queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientUpcoming],
     queryFn: ({ signal }) => getClientUpcomingTasks(signal).then((r) => r.data),
     staleTime: 2 * 60 * 1000,
   });

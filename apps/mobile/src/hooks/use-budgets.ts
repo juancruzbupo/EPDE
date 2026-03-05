@@ -35,7 +35,9 @@ export function useCreateBudgetRequest() {
     mutationFn: createBudgetRequest,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'client-stats'] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientStats],
+      });
     },
     onError: (err) => {
       Alert.alert('Error', getErrorMessage(err, 'Error al crear presupuesto'));
@@ -71,7 +73,9 @@ export function useUpdateBudgetStatus() {
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'client-stats'] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientStats],
+      });
     },
   });
 }

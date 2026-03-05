@@ -179,9 +179,16 @@ export function useCompleteTask() {
     onSettled: (_data, error, variables) => {
       if (!error) toast.success('Tarea completada');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'stats'] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'activity'] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'client-upcoming'] });
+      // Web: invalidate admin + client dashboard (both roles share codebase)
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardStats],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardActivity],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientUpcoming],
+      });
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.taskLogs, variables.planId, variables.taskId],
       });

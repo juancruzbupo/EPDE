@@ -34,7 +34,9 @@ export function useCreateServiceRequest() {
     mutationFn: createServiceRequest,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'client-stats'] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientStats],
+      });
     },
     onError: (err) => {
       Alert.alert('Error', getErrorMessage(err, 'Error al crear solicitud'));

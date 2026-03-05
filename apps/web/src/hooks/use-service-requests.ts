@@ -38,8 +38,12 @@ export function useCreateServiceRequest() {
     onSuccess: () => {
       toast.success('Solicitud creada');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'stats'] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'activity'] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardStats],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardActivity],
+      });
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al crear solicitud'));
@@ -54,8 +58,12 @@ export function useUpdateServiceStatus() {
     onSuccess: () => {
       toast.success('Estado actualizado');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'stats'] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, 'activity'] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardStats],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardActivity],
+      });
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al actualizar estado'));

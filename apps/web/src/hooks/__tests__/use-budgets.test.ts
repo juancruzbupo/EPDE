@@ -121,10 +121,10 @@ describe('useCreateBudgetRequest', () => {
 
     expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey: [QUERY_KEYS.budgets] });
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
-      queryKey: [QUERY_KEYS.dashboard, 'stats'],
+      queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardStats],
     });
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
-      queryKey: [QUERY_KEYS.dashboard, 'activity'],
+      queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardActivity],
     });
   });
 
@@ -200,10 +200,10 @@ describe('useUpdateBudgetStatus', () => {
 
     expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey: [QUERY_KEYS.budgets] });
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
-      queryKey: [QUERY_KEYS.dashboard, 'stats'],
+      queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardStats],
     });
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
-      queryKey: [QUERY_KEYS.dashboard, 'activity'],
+      queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardActivity],
     });
     expect(toast.success).toHaveBeenCalledWith('Estado actualizado');
   });

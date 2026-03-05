@@ -154,7 +154,7 @@ describe('useCompleteTask', () => {
       queryKey: [QUERY_KEYS.plans, 'plan-1'],
     });
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
-      queryKey: [QUERY_KEYS.dashboard, 'client-stats'],
+      queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientStats],
     });
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
       queryKey: [QUERY_KEYS.taskLogs, 'plan-1', 'task-1'],

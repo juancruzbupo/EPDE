@@ -20,7 +20,7 @@ export function useNotifications() {
 
 export function useUnreadCount() {
   return useQuery({
-    queryKey: [QUERY_KEYS.notifications, 'unread-count'],
+    queryKey: [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
     queryFn: ({ signal }) => getUnreadCount(signal).then((r) => r.data.count),
     refetchInterval: 30_000,
   });
@@ -33,20 +33,26 @@ export function useMarkAsRead() {
     mutationFn: (id: string) => markAsRead(id),
 
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: [QUERY_KEYS.notifications, 'unread-count'] });
+      await queryClient.cancelQueries({
+        queryKey: [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
+      });
       const previousCount = queryClient.getQueryData<number>([
         QUERY_KEYS.notifications,
         'unread-count',
       ]);
-      queryClient.setQueryData<number>([QUERY_KEYS.notifications, 'unread-count'], (old) =>
-        old && old > 0 ? old - 1 : 0,
+      queryClient.setQueryData<number>(
+        [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
+        (old) => (old && old > 0 ? old - 1 : 0),
       );
       return { previousCount };
     },
 
     onError: (_err, _id, context) => {
       if (context?.previousCount !== undefined) {
-        queryClient.setQueryData([QUERY_KEYS.notifications, 'unread-count'], context.previousCount);
+        queryClient.setQueryData(
+          [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
+          context.previousCount,
+        );
       }
       Alert.alert('Error', getErrorMessage(_err, 'Error al marcar notificación'));
     },
@@ -64,18 +70,26 @@ export function useMarkAllAsRead() {
     mutationFn: markAllAsRead,
 
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: [QUERY_KEYS.notifications, 'unread-count'] });
+      await queryClient.cancelQueries({
+        queryKey: [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
+      });
       const previousCount = queryClient.getQueryData<number>([
         QUERY_KEYS.notifications,
         'unread-count',
       ]);
-      queryClient.setQueryData<number>([QUERY_KEYS.notifications, 'unread-count'], () => 0);
+      queryClient.setQueryData<number>(
+        [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
+        () => 0,
+      );
       return { previousCount };
     },
 
     onError: (_err, _vars, context) => {
       if (context?.previousCount !== undefined) {
-        queryClient.setQueryData([QUERY_KEYS.notifications, 'unread-count'], context.previousCount);
+        queryClient.setQueryData(
+          [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
+          context.previousCount,
+        );
       }
       Alert.alert('Error', getErrorMessage(_err, 'Error al marcar notificaciones'));
     },
