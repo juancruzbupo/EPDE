@@ -56,6 +56,6 @@ export async function removeTask(planId: string, taskId: string) {
 }
 
 export async function reorderTasks(planId: string, tasks: { id: string; order: number }[]) {
-  const { data } = await apiClient.put(`/maintenance-plans/${planId}/tasks/reorder`, { tasks });
+  const { data } = await apiClient.patch(`/maintenance-plans/${planId}/tasks/reorder`, { tasks });
   return data;
 }

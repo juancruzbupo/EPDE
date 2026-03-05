@@ -10,6 +10,7 @@ import {
   BudgetNotPendingError,
   BudgetVersionConflictError,
   InvalidBudgetTransitionError,
+  BudgetAccessDeniedError,
 } from '../common/exceptions/domain.exceptions';
 import { BudgetsRepository } from './budgets.repository';
 import { PropertiesRepository } from '../properties/properties.repository';
@@ -165,6 +166,9 @@ export class BudgetsService {
       if (error instanceof InvalidBudgetTransitionError) {
         throw new BadRequestException(error.message);
       }
+      if (error instanceof BudgetAccessDeniedError) {
+        throw new ForbiddenException(error.message);
+      }
       throw error;
     }
 
@@ -216,11 +220,11 @@ export class BudgetsService {
 
     const match = allowed.find((a) => a.status.includes(next) && a.role === user.role);
     if (!match) {
-      throw new ForbiddenException('No tenés permisos para esta transición de estado');
+      throw new BudgetAccessDeniedError('role');
     }
 
     if (user.role === UserRole.CLIENT && budget.property?.userId !== user.id) {
-      throw new ForbiddenException('No tenés acceso a este presupuesto');
+      throw new BudgetAccessDeniedError('ownership');
     }
   }
 }

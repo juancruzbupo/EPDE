@@ -7,14 +7,14 @@ import { QUERY_KEYS } from '@epde/shared';
 export function usePlans() {
   return useQuery({
     queryKey: [QUERY_KEYS.plans, 'list'],
-    queryFn: () => getPlans().then((r) => r.data),
+    queryFn: ({ signal }) => getPlans(signal).then((r) => r.data),
   });
 }
 
 export function useAllTasks(status?: string) {
   return useQuery({
     queryKey: [QUERY_KEYS.plans, 'tasks', status ?? 'all'],
-    queryFn: () => getAllTasks(status).then((r) => r.data),
+    queryFn: ({ signal }) => getAllTasks(status, signal).then((r) => r.data),
   });
 }
 

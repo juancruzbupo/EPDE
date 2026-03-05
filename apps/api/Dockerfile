@@ -1,5 +1,5 @@
 FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@10.6.1 --activate
 
 # --- Install dependencies ---
 FROM base AS deps
@@ -25,7 +25,7 @@ FROM node:22-alpine AS runner
 WORKDIR /app
 RUN addgroup -g 1001 -S epde && adduser -S epde -u 1001
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@10.6.1 --activate
 
 COPY --from=builder /app/apps/api/dist ./dist
 COPY --from=builder /app/apps/api/node_modules ./node_modules

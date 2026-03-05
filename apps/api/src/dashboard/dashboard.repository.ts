@@ -20,8 +20,8 @@ export class DashboardRepository {
         this.prisma.softDelete.task.count({
           where: { nextDueDate: { lt: new Date() }, status: { not: 'COMPLETED' } },
         }),
-        this.prisma.budgetRequest.count({ where: { status: 'PENDING' } }),
-        this.prisma.serviceRequest.count({
+        this.prisma.softDelete.budgetRequest.count({ where: { status: 'PENDING' } }),
+        this.prisma.softDelete.serviceRequest.count({
           where: { status: { in: ['OPEN', 'IN_REVIEW'] } },
         }),
       ]);
@@ -49,12 +49,12 @@ export class DashboardRepository {
           take: 5,
           select: { id: true, name: true, updatedAt: true },
         }),
-        this.prisma.budgetRequest.findMany({
+        this.prisma.softDelete.budgetRequest.findMany({
           orderBy: { createdAt: 'desc' },
           take: 5,
           select: { id: true, title: true, createdAt: true },
         }),
-        this.prisma.serviceRequest.findMany({
+        this.prisma.softDelete.serviceRequest.findMany({
           orderBy: { createdAt: 'desc' },
           take: 5,
           select: { id: true, title: true, createdAt: true },
@@ -119,13 +119,13 @@ export class DashboardRepository {
 
   async getClientBudgetAndServiceCounts(propertyIds: string[]) {
     const [pendingBudgets, openServices] = await Promise.all([
-      this.prisma.budgetRequest.count({
+      this.prisma.softDelete.budgetRequest.count({
         where: {
           propertyId: { in: propertyIds },
           status: { in: ['PENDING', 'QUOTED'] },
         },
       }),
-      this.prisma.serviceRequest.count({
+      this.prisma.softDelete.serviceRequest.count({
         where: {
           propertyId: { in: propertyIds },
           status: { in: ['OPEN', 'IN_REVIEW', 'IN_PROGRESS'] },

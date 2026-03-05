@@ -4,7 +4,6 @@ import {
   Post,
   Patch,
   Delete,
-  Put,
   Param,
   Body,
   Query,
@@ -125,7 +124,7 @@ export class MaintenancePlansController {
     return this.taskLifecycle.removeTask(taskId);
   }
 
-  @Put(':id/tasks/reorder')
+  @Patch(':id/tasks/reorder')
   @Roles(UserRole.ADMIN)
   async reorderTasks(
     @Param('id', ParseUUIDPipe) planId: string,

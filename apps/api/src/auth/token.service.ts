@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { RedisService } from '../redis/redis.service';
 import { AuthAuditService } from './auth-audit.service';
+import { MetricsService } from '../metrics/metrics.service';
 
 interface TokenPair {
   accessToken: string;
@@ -55,6 +56,7 @@ export class TokenService {
     private readonly configService: ConfigService,
     private readonly redisService: RedisService,
     private readonly authAudit: AuthAuditService,
+    private readonly metricsService: MetricsService,
   ) {}
 
   /**
@@ -121,16 +123,19 @@ export class TokenService {
     }
 
     if (result === 0) {
+      this.metricsService.recordTokenRotation('expired');
       throw new UnauthorizedException('Sesión expirada');
     }
 
     if (result === -1) {
+      this.metricsService.recordTokenRotation('reuse_attack');
       this.logger.warn(`Token reuse attack detected for user ${sub}, family ${family}`);
       this.authAudit.logTokenReuse(family, sub);
       await this.revokeFamily(family);
       throw new UnauthorizedException('Token reutilizado — sesión revocada');
     }
 
+    this.metricsService.recordTokenRotation('success');
     const user = { id: sub, email, role };
     const accessToken = this.createAccessToken(user, family);
     const newRefreshToken = this.createRefreshToken(user, family, newGeneration);

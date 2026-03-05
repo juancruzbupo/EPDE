@@ -31,7 +31,8 @@ export class BudgetsController {
     @Query(new ZodValidationPipe(budgetFiltersSchema)) filters: BudgetFiltersInput,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    return this.budgetsService.listBudgets(filters, user);
+    const data = await this.budgetsService.listBudgets(filters, user);
+    return { data };
   }
 
   @Get(':id')

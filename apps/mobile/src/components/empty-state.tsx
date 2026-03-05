@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { View, Text } from 'react-native';
-import { fonts } from '@/lib/fonts';
+import { TYPE } from '@/lib/fonts';
 
 interface EmptyStateProps {
   title: string;
@@ -10,10 +10,10 @@ interface EmptyStateProps {
 export const EmptyState = memo(function EmptyState({ title, message }: EmptyStateProps) {
   return (
     <View className="flex-1 items-center justify-center p-8">
-      <Text style={fonts.bold} className="text-foreground mb-2 text-lg">
+      <Text style={TYPE.titleLg} className="text-foreground mb-2">
         {title}
       </Text>
-      <Text style={fonts.regular} className="text-muted-foreground text-center text-sm">
+      <Text style={TYPE.bodyMd} className="text-muted-foreground text-center">
         {message}
       </Text>
     </View>

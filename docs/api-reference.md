@@ -205,7 +205,7 @@ Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
 | GET    | `/maintenance-plans/:id/tasks/:taskId/logs`     | Si   | Ambos | Historial de tarea  |
 | GET    | `/maintenance-plans/:id/tasks/:taskId/notes`    | Si   | Ambos | Notas de tarea      |
 | POST   | `/maintenance-plans/:id/tasks/:taskId/notes`    | Si   | Ambos | Agregar nota        |
-| PUT    | `/maintenance-plans/:id/tasks/reorder`          | Si   | ADMIN | Reordenar tareas    |
+| PATCH  | `/maintenance-plans/:id/tasks/reorder`          | Si   | ADMIN | Reordenar tareas    |
 
 **Nota:** Los planes se crean automaticamente al crear una propiedad (no hay endpoint `POST /maintenance-plans` independiente).
 

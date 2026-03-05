@@ -44,3 +44,14 @@ export class UserAlreadyHasPasswordError extends Error {
     super('El usuario ya tiene contraseña configurada');
   }
 }
+
+export class BudgetAccessDeniedError extends Error {
+  readonly name = 'BudgetAccessDeniedError';
+  constructor(reason: 'role' | 'ownership') {
+    super(
+      reason === 'role'
+        ? 'No tenés permisos para esta transición de estado'
+        : 'No tenés acceso a este presupuesto',
+    );
+  }
+}

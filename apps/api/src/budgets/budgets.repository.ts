@@ -33,7 +33,7 @@ const BUDGET_DETAIL_INCLUDE = {
 @Injectable()
 export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequest'> {
   constructor(prisma: PrismaService) {
-    super(prisma, 'budgetRequest', false);
+    super(prisma, 'budgetRequest', true);
   }
 
   async findBudgets(params: {

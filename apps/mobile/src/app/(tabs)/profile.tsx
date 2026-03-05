@@ -1,6 +1,6 @@
 import { View, Text, Pressable, Alert, ScrollView } from 'react-native';
 import { useAuthStore } from '@/stores/auth-store';
-import { fonts } from '@/lib/fonts';
+import { TYPE } from '@/lib/fonts';
 
 export default function ProfileScreen() {
   const user = useAuthStore((s) => s.user);
@@ -19,7 +19,7 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView className="bg-background flex-1" contentContainerStyle={{ padding: 16 }}>
-      <Text style={fonts.heading} className="text-foreground mb-6 text-2xl">
+      <Text style={TYPE.displaySm} className="text-foreground mb-6">
         Mi Perfil
       </Text>
 
@@ -29,36 +29,36 @@ export default function ProfileScreen() {
           <View className="bg-primary/10 mb-3 h-20 w-20 items-center justify-center rounded-full">
             <Text style={{ fontSize: 32 }}>{'\u{1F464}'}</Text>
           </View>
-          <Text style={fonts.bold} className="text-foreground text-lg">
+          <Text style={TYPE.titleLg} className="text-foreground">
             {user?.name ?? 'Usuario'}
           </Text>
-          <Text style={fonts.regular} className="text-muted-foreground text-sm">
+          <Text style={TYPE.bodyMd} className="text-muted-foreground">
             {user?.email ?? ''}
           </Text>
         </View>
 
         <View className="border-border gap-3 border-t pt-3">
           <View className="flex-row justify-between">
-            <Text style={fonts.regular} className="text-muted-foreground text-sm">
+            <Text style={TYPE.bodyMd} className="text-muted-foreground">
               Nombre
             </Text>
-            <Text style={fonts.medium} className="text-foreground text-sm">
+            <Text style={TYPE.labelLg} className="text-foreground">
               {user?.name ?? '-'}
             </Text>
           </View>
           <View className="flex-row justify-between">
-            <Text style={fonts.regular} className="text-muted-foreground text-sm">
+            <Text style={TYPE.bodyMd} className="text-muted-foreground">
               Email
             </Text>
-            <Text style={fonts.medium} className="text-foreground text-sm">
+            <Text style={TYPE.labelLg} className="text-foreground">
               {user?.email ?? '-'}
             </Text>
           </View>
           <View className="flex-row justify-between">
-            <Text style={fonts.regular} className="text-muted-foreground text-sm">
+            <Text style={TYPE.bodyMd} className="text-muted-foreground">
               Telefono
             </Text>
-            <Text style={fonts.medium} className="text-foreground text-sm">
+            <Text style={TYPE.labelLg} className="text-foreground">
               {user?.phone ?? 'No registrado'}
             </Text>
           </View>
@@ -67,23 +67,23 @@ export default function ProfileScreen() {
 
       {/* App info */}
       <View className="border-border bg-card mb-6 rounded-xl border p-4">
-        <Text style={fonts.bold} className="text-foreground mb-2 text-sm">
+        <Text style={TYPE.titleSm} className="text-foreground mb-2">
           Informacion de la App
         </Text>
         <View className="gap-2">
           <View className="flex-row justify-between">
-            <Text style={fonts.regular} className="text-muted-foreground text-sm">
+            <Text style={TYPE.bodyMd} className="text-muted-foreground">
               Version
             </Text>
-            <Text style={fonts.medium} className="text-foreground text-sm">
+            <Text style={TYPE.labelLg} className="text-foreground">
               1.0.0
             </Text>
           </View>
           <View className="flex-row justify-between">
-            <Text style={fonts.regular} className="text-muted-foreground text-sm">
+            <Text style={TYPE.bodyMd} className="text-muted-foreground">
               Plataforma
             </Text>
-            <Text style={fonts.medium} className="text-foreground text-sm">
+            <Text style={TYPE.labelLg} className="text-foreground">
               EPDE Mobile
             </Text>
           </View>
@@ -92,7 +92,7 @@ export default function ProfileScreen() {
 
       {/* Logout button */}
       <Pressable onPress={handleLogout} className="bg-destructive items-center rounded-xl py-3">
-        <Text style={fonts.bold} className="text-destructive-foreground text-base">
+        <Text style={TYPE.titleMd} className="text-destructive-foreground">
           Cerrar Sesion
         </Text>
       </Pressable>

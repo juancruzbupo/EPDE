@@ -38,8 +38,8 @@ apps/mobile/
         _layout.tsx                   # Configuracion de tabs
         index.tsx                     # Dashboard (Mi Panel)
         properties.tsx                # Mis Propiedades
-        planes.tsx                    # Planes de mantenimiento
-        tareas.tsx                    # Tareas (todas las propiedades)
+        maintenance-plans.tsx          # Planes de mantenimiento
+        tasks.tsx                     # Tareas (todas las propiedades)
         budgets.tsx                   # Presupuestos
         notifications.tsx             # Centro de notificaciones
         profile.tsx                   # Perfil de usuario
@@ -119,15 +119,15 @@ Wraps: `GestureHandlerRootView` → `ErrorBoundary` → `PersistQueryClientProvi
 
 ### Tabs (7 pantallas)
 
-| Tab          | Ruta             | Icono | Descripcion                        |
-| ------------ | ---------------- | ----- | ---------------------------------- |
-| Inicio       | `/(tabs)`        | 🏠    | Dashboard con stats y tareas       |
-| Propiedades  | `/properties`    | 🏘️    | Lista de propiedades               |
-| Planes       | `/planes`        | 📅    | Planes de mantenimiento            |
-| Tareas       | `/tareas`        | ✅    | Todas las tareas (todas las props) |
-| Presupuestos | `/budgets`       | 📋    | Lista de presupuestos              |
-| Avisos       | `/notifications` | 📢    | Centro de notificaciones           |
-| Perfil       | `/profile`       | 👤    | Info de usuario + logout           |
+| Tab          | Ruta                 | Icono | Descripcion                        |
+| ------------ | -------------------- | ----- | ---------------------------------- |
+| Inicio       | `/(tabs)`            | 🏠    | Dashboard con stats y tareas       |
+| Propiedades  | `/properties`        | 🏘️    | Lista de propiedades               |
+| Planes       | `/maintenance-plans` | 📅    | Planes de mantenimiento            |
+| Tareas       | `/tasks`             | ✅    | Todas las tareas (todas las props) |
+| Presupuestos | `/budgets`           | 📋    | Lista de presupuestos              |
+| Avisos       | `/notifications`     | 📢    | Centro de notificaciones           |
+| Perfil       | `/profile`           | 👤    | Info de usuario + logout           |
 
 La tab de Avisos muestra un **badge con conteo de no leidas** (auto-refresh cada 30s).
 

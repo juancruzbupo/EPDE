@@ -19,7 +19,12 @@ export class NotificationsController {
     @CurrentUser() user: CurrentUserPayload,
     @Query(new ZodValidationPipe(cursorPaginationSchema)) query: CursorPaginationInput,
   ) {
-    return this.notificationsService.getNotifications(user.id, query.cursor, query.take);
+    const data = await this.notificationsService.getNotifications(
+      user.id,
+      query.cursor,
+      query.take,
+    );
+    return { data };
   }
 
   @Get('unread-count')

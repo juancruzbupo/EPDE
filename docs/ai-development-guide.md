@@ -438,6 +438,7 @@ try {
 | `TaskNotCompletableError`          | `task-lifecycle.service.ts` | BadRequest   |
 | `InvalidBudgetTransitionError`     | `budgets.service.ts`        | BadRequest   |
 | `UserAlreadyHasPasswordError`      | `auth.service.ts`           | BadRequest   |
+| `BudgetAccessDeniedError`          | `budgets.service.ts`        | Forbidden    |
 
 **Regla:** los repositories NUNCA importan `@nestjs/common` exceptions. Solo lanzan `Error` subclasses de dominio.
 
@@ -452,23 +453,34 @@ export class BudgetsController {
   constructor(private readonly service: BudgetsService) {}
 
   @Get()
-  @UsePipes(new ZodValidationPipe(budgetFiltersSchema))
-  list(@Query() filters: BudgetFiltersInput, @CurrentUser() user: CurrentUserPayload) {
-    return this.service.listBudgets(filters, user);
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  async list(
+    @Query(new ZodValidationPipe(budgetFiltersSchema)) filters: BudgetFiltersInput,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    const data = await this.service.listBudgets(filters, user);
+    return { data };
   }
 
   @Post()
   @Roles(UserRole.CLIENT)
-  @UsePipes(new ZodValidationPipe(createBudgetRequestSchema))
-  create(@Body() data: CreateBudgetRequestInput, @CurrentUser() user: CurrentUserPayload) {
-    return this.service.createBudgetRequest(data, user);
+  async create(
+    @Body(new ZodValidationPipe(createBudgetRequestSchema)) data: CreateBudgetRequestInput,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    const result = await this.service.createBudgetRequest(data, user.id);
+    return { data: result, message: 'Presupuesto solicitado' };
   }
 
   @Post(':id/respond')
   @Roles(UserRole.ADMIN)
-  @UsePipes(new ZodValidationPipe(respondBudgetSchema))
-  respond(@Param('id') id: string, @Body() data: RespondBudgetInput, @CurrentUser() user) {
-    return this.service.respondToBudget(id, data, user);
+  async respond(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body(new ZodValidationPipe(respondBudgetSchema)) data: RespondBudgetInput,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    const result = await this.service.respondToBudget(id, data, user.id);
+    return { data: result, message: 'Presupuesto cotizado' };
   }
 }
 ```

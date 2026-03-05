@@ -5,6 +5,7 @@ import { ServiceUnavailableException, UnauthorizedException } from '@nestjs/comm
 import { TokenService } from './token.service';
 import { RedisService } from '../redis/redis.service';
 import { AuthAuditService } from './auth-audit.service';
+import { MetricsService } from '../metrics/metrics.service';
 
 const mockRedisService = {
   setex: jest.fn(),
@@ -30,6 +31,10 @@ const mockAuthAudit = {
   logTokenReuse: jest.fn(),
 };
 
+const mockMetricsService = {
+  recordTokenRotation: jest.fn(),
+};
+
 const TEST_USER = { id: 'user-1', email: 'test@test.com', role: 'CLIENT' };
 
 const REFRESH_PAYLOAD = {
@@ -52,6 +57,7 @@ describe('TokenService', () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: RedisService, useValue: mockRedisService },
         { provide: AuthAuditService, useValue: mockAuthAudit },
+        { provide: MetricsService, useValue: mockMetricsService },
       ],
     }).compile();
 
@@ -126,7 +132,9 @@ describe('TokenService', () => {
       mockJwtService.verify.mockReturnValue(REFRESH_PAYLOAD);
       mockRedisService.eval.mockResolvedValue(-1);
 
-      await expect(service.rotateRefreshToken('reused-token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.rotateRefreshToken('reused-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
       expect(mockAuthAudit.logTokenReuse).toHaveBeenCalledWith('family-abc', 'user-1');
       expect(mockRedisService.del).toHaveBeenCalledWith('rt:family-abc');
     });

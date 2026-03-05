@@ -19,8 +19,7 @@ export class MaintenancePlansService {
     }
 
     if (currentUser?.role === UserRole.CLIENT) {
-      const planWithProperty = plan as { property?: { userId?: string } | null };
-      if (planWithProperty.property?.userId !== currentUser.id) {
+      if (plan.property?.userId !== currentUser.id) {
         throw new ForbiddenException('No tenés acceso a este plan');
       }
     }

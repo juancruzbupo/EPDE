@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import cookieParser from 'cookie-parser';
 import { AppModule } from '../app.module';
@@ -15,7 +15,9 @@ export async function createTestApp(): Promise<INestApplication> {
 
   const app = moduleRef.createNestApplication();
 
-  app.setGlobalPrefix('api/v1');
+  // Mirror main.ts: prefix + URI versioning (same mechanism as production)
+  app.setGlobalPrefix('api');
+  app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
 
   app.use(cookieParser());
 
