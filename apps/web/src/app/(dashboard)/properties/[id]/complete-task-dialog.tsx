@@ -214,7 +214,7 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
             <Label>Foto (opcional)</Label>
             {preview ? (
               <div className="relative inline-block">
-                {}
+                {/* User-uploaded blob URL — next/image doesn't support blob: protocol */}
                 <img
                   src={preview}
                   alt="Vista previa de foto para completar tarea"

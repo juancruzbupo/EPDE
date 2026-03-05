@@ -90,7 +90,7 @@ export function TaskLogTimeline({ planId, taskId }: TaskLogTimelineProps) {
 
             {log.photoUrl && (
               <div className="pt-1">
-                {}
+                {/* User-uploaded photo — unknown dimensions */}
                 <img
                   src={log.photoUrl}
                   alt="Foto de completado"

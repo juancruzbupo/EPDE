@@ -1,3 +1,4 @@
+/* global require, module */
 // Manual mock for react-native-reanimated
 // Needed because the official mock.js in v4.x imports react-native-worklets (native) at init time
 const React = require('react');

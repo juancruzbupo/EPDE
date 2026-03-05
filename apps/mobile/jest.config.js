@@ -1,3 +1,4 @@
+/* global module */
 module.exports = {
   preset: 'jest-expo',
   setupFiles: ['./src/test-setup.ts'],
