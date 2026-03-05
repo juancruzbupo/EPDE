@@ -1,28 +1,16 @@
 import { z } from 'zod';
+import {
+  TASK_RESULT_VALUES,
+  CONDITION_FOUND_VALUES,
+  TASK_EXECUTOR_VALUES,
+  ACTION_TAKEN_VALUES,
+} from '../types/enums';
 
 export const completeTaskSchema = z.object({
-  result: z.enum([
-    'OK',
-    'OK_WITH_OBSERVATIONS',
-    'NEEDS_ATTENTION',
-    'NEEDS_REPAIR',
-    'NEEDS_URGENT_REPAIR',
-    'NOT_APPLICABLE',
-  ]),
-  conditionFound: z.enum(['EXCELLENT', 'GOOD', 'FAIR', 'POOR', 'CRITICAL']),
-  executor: z.enum(['OWNER', 'HIRED_PROFESSIONAL', 'EPDE_PROFESSIONAL']),
-  actionTaken: z.enum([
-    'INSPECTION_ONLY',
-    'CLEANING',
-    'MINOR_REPAIR',
-    'MAJOR_REPAIR',
-    'REPLACEMENT',
-    'TREATMENT',
-    'SEALING',
-    'ADJUSTMENT',
-    'FULL_SERVICE',
-    'NO_ACTION',
-  ]),
+  result: z.enum(TASK_RESULT_VALUES),
+  conditionFound: z.enum(CONDITION_FOUND_VALUES),
+  executor: z.enum(TASK_EXECUTOR_VALUES),
+  actionTaken: z.enum(ACTION_TAKEN_VALUES),
   completedAt: z.coerce.date().optional(),
   cost: z.coerce.number().min(0, 'El costo debe ser positivo').optional(),
   note: z.string().max(500, 'Máximo 500 caracteres').optional(),

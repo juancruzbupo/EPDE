@@ -3,6 +3,7 @@ import {
   TASK_TYPE_VALUES,
   RECURRENCE_TYPE_VALUES,
   PROFESSIONAL_REQUIREMENT_VALUES,
+  TASK_PRIORITY_VALUES,
 } from '../types/enums';
 
 export const createCategoryTemplateSchema = z.object({
@@ -21,7 +22,7 @@ export const createTaskTemplateSchema = z.object({
   taskType: z.enum(TASK_TYPE_VALUES),
   professionalRequirement: z.enum(PROFESSIONAL_REQUIREMENT_VALUES).default('OWNER_CAN_DO'),
   technicalDescription: z.string().max(1000).optional(),
-  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).default('MEDIUM'),
+  priority: z.enum(TASK_PRIORITY_VALUES).default('MEDIUM'),
   recurrenceType: z.enum(RECURRENCE_TYPE_VALUES),
   recurrenceMonths: z.coerce.number().int().min(1).max(120).default(12),
   estimatedDurationMinutes: z.coerce.number().int().min(1).optional(),

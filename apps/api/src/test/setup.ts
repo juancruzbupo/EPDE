@@ -31,6 +31,7 @@ export async function cleanDatabase(prisma: PrismaService): Promise<void> {
   const tableNames = [
     'Notification',
     'TaskNote',
+    'TaskAuditLog',
     'TaskLog',
     'Task',
     'MaintenancePlan',

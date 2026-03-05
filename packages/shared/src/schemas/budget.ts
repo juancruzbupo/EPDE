@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { BUDGET_STATUS_VALUES } from '../types/enums';
 
 // ─── Create Budget Request ──────────────────────────────
 
@@ -50,9 +51,7 @@ export type UpdateBudgetStatusInput = z.infer<typeof updateBudgetStatusSchema>;
 // ─── Budget Filters ─────────────────────────────────────
 
 export const budgetFiltersSchema = z.object({
-  status: z
-    .enum(['PENDING', 'QUOTED', 'APPROVED', 'REJECTED', 'IN_PROGRESS', 'COMPLETED'])
-    .optional(),
+  status: z.enum(BUDGET_STATUS_VALUES).optional(),
   propertyId: z.string().uuid().optional(),
   cursor: z.string().uuid().optional(),
   take: z.coerce.number().int().min(1).max(100).default(20),

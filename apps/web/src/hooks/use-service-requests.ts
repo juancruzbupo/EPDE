@@ -2,6 +2,7 @@ import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tansta
 import { toast } from 'sonner';
 import { getErrorMessage } from '@/lib/errors';
 import { QUERY_KEYS } from '@epde/shared';
+import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 import type { ServiceRequestPublic } from '@epde/shared';
 import {
   getServiceRequests,
@@ -38,12 +39,7 @@ export function useCreateServiceRequest() {
     onSuccess: () => {
       toast.success('Solicitud creada');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardStats],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardActivity],
-      });
+      invalidateDashboard(queryClient);
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al crear solicitud'));
@@ -58,12 +54,7 @@ export function useUpdateServiceStatus() {
     onSuccess: () => {
       toast.success('Estado actualizado');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardStats],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardActivity],
-      });
+      invalidateDashboard(queryClient);
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al actualizar estado'));

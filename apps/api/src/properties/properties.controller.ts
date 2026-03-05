@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, Query, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  Query,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -29,7 +39,10 @@ export class PropertiesController {
 
   @Get(':id')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
-  async getProperty(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: { id: string; role: string }) {
+  async getProperty(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: { id: string; role: string },
+  ) {
     const data = await this.propertiesService.getProperty(id, user);
     return { data };
   }
@@ -57,7 +70,11 @@ export class PropertiesController {
 
   @Delete(':id')
   @Roles(UserRole.ADMIN)
-  async deleteProperty(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: { id: string; role: string }) {
-    return this.propertiesService.deleteProperty(id, user);
+  async deleteProperty(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: { id: string; role: string },
+  ) {
+    const data = await this.propertiesService.deleteProperty(id, user);
+    return { data, message: 'Propiedad eliminada' };
   }
 }

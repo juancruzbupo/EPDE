@@ -16,10 +16,11 @@ import {
   getTaskNotes,
   addTaskNote,
 } from '@/lib/api/maintenance-plans';
-import type { PlanPublic, TaskNotePublic, UpdateTaskDto } from '@/lib/api/maintenance-plans';
+import type { PlanPublic, TaskNotePublic } from '@/lib/api/maintenance-plans';
 import { QUERY_KEYS } from '@epde/shared';
 import type { CompleteTaskInput } from '@epde/shared';
 import { useAuthStore } from '@/stores/auth-store';
+import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 
 export function usePlans() {
   return useQuery({
@@ -85,7 +86,15 @@ export function useUpdateTask() {
     }: {
       planId: string;
       taskId: string;
-    } & UpdateTaskDto) => updateTask(planId, taskId, dto),
+      categoryId?: string;
+      name?: string;
+      description?: string;
+      priority?: string;
+      recurrenceType?: string;
+      recurrenceMonths?: number;
+      nextDueDate?: string;
+      status?: string;
+    }) => updateTask(planId, taskId, dto),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] }),
     onError: (err) => toast.error(getErrorMessage(err, 'Error al actualizar tarea')),
   });
@@ -179,16 +188,7 @@ export function useCompleteTask() {
     onSettled: (_data, error, variables) => {
       if (!error) toast.success('Tarea completada');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
-      // Web: invalidate admin + client dashboard (both roles share codebase)
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardStats],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardActivity],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientUpcoming],
-      });
+      invalidateDashboard(queryClient);
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.taskLogs, variables.planId, variables.taskId],
       });
@@ -201,7 +201,6 @@ export function useCompleteTask() {
 
 export function useAddTaskNote() {
   const queryClient = useQueryClient();
-  const user = useAuthStore.getState().user;
 
   return useMutation({
     mutationFn: ({
@@ -215,6 +214,8 @@ export function useAddTaskNote() {
     }) => addTaskNote(planId, taskId, { content }),
 
     onMutate: async (variables) => {
+      const user = useAuthStore.getState().user;
+
       await queryClient.cancelQueries({
         queryKey: [QUERY_KEYS.taskNotes, variables.planId, variables.taskId],
       });

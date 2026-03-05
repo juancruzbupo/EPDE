@@ -157,9 +157,45 @@ export type ActionTaken = (typeof ActionTaken)[keyof typeof ActionTaken];
 
 // ─── Enum Value Arrays (for Zod schemas) ─────────────────
 
-export const TASK_TYPE_VALUES = Object.values(TaskType) as [string, ...string[]];
-export const RECURRENCE_TYPE_VALUES = Object.values(RecurrenceType) as [string, ...string[]];
-export const PROFESSIONAL_REQUIREMENT_VALUES = Object.values(ProfessionalRequirement) as [
-  string,
-  ...string[],
+export const TASK_TYPE_VALUES = Object.values(TaskType) as [TaskType, ...TaskType[]];
+export const RECURRENCE_TYPE_VALUES = Object.values(RecurrenceType) as [
+  RecurrenceType,
+  ...RecurrenceType[],
 ];
+export const PROFESSIONAL_REQUIREMENT_VALUES = Object.values(ProfessionalRequirement) as [
+  ProfessionalRequirement,
+  ...ProfessionalRequirement[],
+];
+export const TASK_PRIORITY_VALUES = Object.values(TaskPriority) as [
+  TaskPriority,
+  ...TaskPriority[],
+];
+export const TASK_STATUS_VALUES = Object.values(TaskStatus) as [TaskStatus, ...TaskStatus[]];
+export const PROPERTY_TYPE_VALUES = Object.values(PropertyType) as [
+  PropertyType,
+  ...PropertyType[],
+];
+export const USER_STATUS_VALUES = Object.values(UserStatus) as [UserStatus, ...UserStatus[]];
+export const PLAN_STATUS_VALUES = Object.values(PlanStatus) as [PlanStatus, ...PlanStatus[]];
+export const SERVICE_URGENCY_VALUES = Object.values(ServiceUrgency) as [
+  ServiceUrgency,
+  ...ServiceUrgency[],
+];
+export const BUDGET_STATUS_VALUES = Object.values(BudgetStatus) as [
+  BudgetStatus,
+  ...BudgetStatus[],
+];
+export const SERVICE_STATUS_VALUES = Object.values(ServiceStatus) as [
+  ServiceStatus,
+  ...ServiceStatus[],
+];
+export const TASK_RESULT_VALUES = Object.values(TaskResult) as [TaskResult, ...TaskResult[]];
+export const CONDITION_FOUND_VALUES = Object.values(ConditionFound) as [
+  ConditionFound,
+  ...ConditionFound[],
+];
+export const TASK_EXECUTOR_VALUES = Object.values(TaskExecutor) as [
+  TaskExecutor,
+  ...TaskExecutor[],
+];
+export const ACTION_TAKEN_VALUES = Object.values(ActionTaken) as [ActionTaken, ...ActionTaken[]];

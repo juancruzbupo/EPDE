@@ -14,6 +14,7 @@ import type { PlanPublic, TaskNotePublic } from '@epde/shared/types';
 import type { CompleteTaskInput } from '@epde/shared/schemas';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useAuthStore } from '@/stores/auth-store';
+import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
 
 export function usePlans() {
   return useQuery({
@@ -104,13 +105,7 @@ export function useCompleteTask() {
 
     onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
-      // Mobile: only client dashboard (mobile is client-only)
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientStats],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientUpcoming],
-      });
+      invalidateClientDashboard(queryClient);
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.taskLogs, variables.planId, variables.taskId],
       });
@@ -123,7 +118,6 @@ export function useCompleteTask() {
 
 export function useAddTaskNote() {
   const queryClient = useQueryClient();
-  const user = useAuthStore.getState().user;
 
   return useMutation({
     mutationFn: ({
@@ -137,6 +131,8 @@ export function useAddTaskNote() {
     }) => addTaskNote(planId, taskId, { content }),
 
     onMutate: async (variables) => {
+      const user = useAuthStore.getState().user;
+
       await queryClient.cancelQueries({
         queryKey: [QUERY_KEYS.taskNotes, variables.planId, variables.taskId],
       });

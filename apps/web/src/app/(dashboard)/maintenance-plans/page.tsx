@@ -8,7 +8,7 @@ import { PageTransition } from '@/components/ui/page-transition';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClipboardList, Home, ListChecks } from 'lucide-react';
-import { PLAN_STATUS_LABELS, PLAN_STATUS_VARIANT } from '@epde/shared';
+import { PLAN_STATUS_LABELS, PLAN_STATUS_VARIANT, PlanStatus } from '@epde/shared';
 import { formatRelativeDate } from '@epde/shared';
 
 function PlanCard({
@@ -76,9 +76,9 @@ export default function PlanesPage() {
   const grouped = useMemo(() => {
     if (!plans) return { active: [], draft: [], archived: [] };
     return {
-      active: plans.filter((p) => p.status === 'ACTIVE'),
-      draft: plans.filter((p) => p.status === 'DRAFT'),
-      archived: plans.filter((p) => p.status === 'ARCHIVED'),
+      active: plans.filter((p) => p.status === PlanStatus.ACTIVE),
+      draft: plans.filter((p) => p.status === PlanStatus.DRAFT),
+      archived: plans.filter((p) => p.status === PlanStatus.ARCHIVED),
     };
   }, [plans]);
 

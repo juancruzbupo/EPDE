@@ -21,7 +21,7 @@ export function useNotifications() {
 
 export function useUnreadCount() {
   return useQuery({
-    queryKey: [QUERY_KEYS.notifications, 'unread-count'],
+    queryKey: [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
     queryFn: async ({ signal }) => {
       const res = await getUnreadCount(signal);
       return res.data.count;
@@ -35,17 +35,28 @@ export function useMarkAsRead() {
   return useMutation({
     mutationFn: markAsRead,
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: [QUERY_KEYS.notifications, 'unread-count'] });
-      const prev = queryClient.getQueryData<number>([QUERY_KEYS.notifications, 'unread-count']);
+      await queryClient.cancelQueries({
+        queryKey: [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
+      });
+      const prev = queryClient.getQueryData<number>([
+        QUERY_KEYS.notifications,
+        QUERY_KEYS.notificationsUnreadCount,
+      ]);
       if (prev !== undefined) {
-        queryClient.setQueryData([QUERY_KEYS.notifications, 'unread-count'], Math.max(0, prev - 1));
+        queryClient.setQueryData(
+          [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
+          Math.max(0, prev - 1),
+        );
       }
       return { prev };
     },
     onError: (_err, _id, context) => {
       toast.error(getErrorMessage(_err, 'Error al marcar notificación'));
       if (context?.prev !== undefined) {
-        queryClient.setQueryData([QUERY_KEYS.notifications, 'unread-count'], context.prev);
+        queryClient.setQueryData(
+          [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
+          context.prev,
+        );
       }
     },
     onSettled: () => {
@@ -59,15 +70,23 @@ export function useMarkAllAsRead() {
   return useMutation({
     mutationFn: markAllAsRead,
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: [QUERY_KEYS.notifications, 'unread-count'] });
-      const prev = queryClient.getQueryData<number>([QUERY_KEYS.notifications, 'unread-count']);
-      queryClient.setQueryData([QUERY_KEYS.notifications, 'unread-count'], 0);
+      await queryClient.cancelQueries({
+        queryKey: [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
+      });
+      const prev = queryClient.getQueryData<number>([
+        QUERY_KEYS.notifications,
+        QUERY_KEYS.notificationsUnreadCount,
+      ]);
+      queryClient.setQueryData([QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount], 0);
       return { prev };
     },
     onError: (_err, _vars, context) => {
       toast.error(getErrorMessage(_err, 'Error al marcar notificaciones'));
       if (context?.prev !== undefined) {
-        queryClient.setQueryData([QUERY_KEYS.notifications, 'unread-count'], context.prev);
+        queryClient.setQueryData(
+          [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
+          context.prev,
+        );
       }
     },
     onSettled: () => {

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SERVICE_URGENCY_VALUES, SERVICE_STATUS_VALUES } from '../types/enums';
 
 // ─── Create Service Request ─────────────────────────────
 
@@ -12,7 +13,7 @@ export const createServiceRequestSchema = z.object({
     .string()
     .min(10, 'La descripción debe tener al menos 10 caracteres')
     .max(2000, 'La descripción no puede superar 2000 caracteres'),
-  urgency: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).default('MEDIUM'),
+  urgency: z.enum(SERVICE_URGENCY_VALUES).default('MEDIUM'),
   photoUrls: z.array(z.string().url('URL de foto inválida')).max(5, 'Máximo 5 fotos').optional(),
 });
 
@@ -31,8 +32,8 @@ export type UpdateServiceStatusInput = z.infer<typeof updateServiceStatusSchema>
 // ─── Service Request Filters ────────────────────────────
 
 export const serviceRequestFiltersSchema = z.object({
-  status: z.enum(['OPEN', 'IN_REVIEW', 'IN_PROGRESS', 'RESOLVED', 'CLOSED']).optional(),
-  urgency: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
+  status: z.enum(SERVICE_STATUS_VALUES).optional(),
+  urgency: z.enum(SERVICE_URGENCY_VALUES).optional(),
   propertyId: z.string().uuid().optional(),
   cursor: z.string().uuid().optional(),
   take: z.coerce.number().int().min(1).max(100).default(20),

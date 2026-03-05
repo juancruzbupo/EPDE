@@ -38,7 +38,7 @@ export function useMarkAsRead() {
       });
       const previousCount = queryClient.getQueryData<number>([
         QUERY_KEYS.notifications,
-        'unread-count',
+        QUERY_KEYS.notificationsUnreadCount,
       ]);
       queryClient.setQueryData<number>(
         [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
@@ -75,7 +75,7 @@ export function useMarkAllAsRead() {
       });
       const previousCount = queryClient.getQueryData<number>([
         QUERY_KEYS.notifications,
-        'unread-count',
+        QUERY_KEYS.notificationsUnreadCount,
       ]);
       queryClient.setQueryData<number>(
         [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],

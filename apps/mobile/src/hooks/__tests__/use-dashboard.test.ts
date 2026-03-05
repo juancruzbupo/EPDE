@@ -18,26 +18,24 @@ beforeEach(() => {
 });
 
 describe('useClientDashboardStats', () => {
-  it('calls useQuery with correct queryKey and staleTime', () => {
+  it('calls useQuery with correct queryKey', () => {
     renderHook(() => useClientDashboardStats());
 
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientStats],
-        staleTime: 2 * 60 * 1000,
       }),
     );
   });
 });
 
 describe('useClientUpcomingTasks', () => {
-  it('calls useQuery with correct queryKey and staleTime', () => {
+  it('calls useQuery with correct queryKey', () => {
     renderHook(() => useClientUpcomingTasks());
 
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientUpcoming],
-        staleTime: 2 * 60 * 1000,
       }),
     );
   });

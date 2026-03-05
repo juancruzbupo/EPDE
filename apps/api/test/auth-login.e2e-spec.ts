@@ -1,8 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { PrismaService } from '../prisma/prisma.service';
-import { createTestApp, cleanDatabase } from '../test/setup';
-import { seedTestData, TestData } from '../test/seed-test-data';
+import { PrismaService } from '../src/prisma/prisma.service';
+import { createTestApp, cleanDatabase } from '../src/test/setup';
+import { seedTestData, TestData } from '../src/test/seed-test-data';
 
 const MOBILE = { 'x-client-type': 'mobile' };
 

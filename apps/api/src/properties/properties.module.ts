@@ -6,6 +6,6 @@ import { PropertiesRepository } from './properties.repository';
 @Module({
   controllers: [PropertiesController],
   providers: [PropertiesService, PropertiesRepository],
-  exports: [PropertiesService],
+  exports: [PropertiesService, PropertiesRepository],
 })
 export class PropertiesModule {}

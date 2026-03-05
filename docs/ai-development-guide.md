@@ -116,11 +116,15 @@ export const BudgetStatus = {
 export type BudgetStatus = (typeof BudgetStatus)[keyof typeof BudgetStatus];
 
 // Enum value arrays — SSoT para z.enum() en schemas (evita duplicar Object.values localmente)
-export const TASK_TYPE_VALUES = Object.values(TaskType) as [string, ...string[]];
-export const RECURRENCE_TYPE_VALUES = Object.values(RecurrenceType) as [string, ...string[]];
+// IMPORTANTE: Usar el tipo enum real (no string) para que z.infer<> preserve la unión
+export const TASK_TYPE_VALUES = Object.values(TaskType) as [TaskType, ...TaskType[]];
+export const RECURRENCE_TYPE_VALUES = Object.values(RecurrenceType) as [
+  RecurrenceType,
+  ...RecurrenceType[],
+];
 export const PROFESSIONAL_REQUIREMENT_VALUES = Object.values(ProfessionalRequirement) as [
-  string,
-  ...string[],
+  ProfessionalRequirement,
+  ...ProfessionalRequirement[],
 ];
 ```
 
@@ -147,8 +151,8 @@ type SerializedValue<T> = T extends Date
       : T;
 export type Serialized<T> = { [K in keyof T]: SerializedValue<T[K]> };
 
-// Public types — excluyen campos sensibles
-export type UserPublic = Omit<User, 'passwordHash'>;
+// Public types — excluyen campos sensibles + serializan Date→string
+export type UserPublic = Serialized<Omit<User, 'passwordHash'>>;
 
 // Brief types — para relaciones anidadas en listados
 export interface UserBrief {
@@ -456,10 +460,37 @@ export class BudgetsController {
 - `@ApiTags('Nombre')` — Swagger grouping
 - `@ApiBearerAuth()` — indica auth requerida
 - `@UsePipes(new ZodValidationPipe(schema))` — validacion Zod en cada endpoint
-- `@Roles(UserRole.ADMIN)` — si requiere rol especifico
+- `@Roles(UserRole.ADMIN)` — si requiere rol especifico (tipado `UserRole[]`, no `string[]`)
 - `@Public()` — si no requiere auth (login, health, set-password)
 - `@Throttle({ medium: { limit: N, ttl: M } })` — rate limit custom por endpoint
 - `@CurrentUser()` — extrae usuario del JWT
+
+### 3.4b API Response Envelope
+
+Todas las respuestas siguen esta convención:
+
+| Operación                 | Forma de respuesta                                |
+| ------------------------- | ------------------------------------------------- |
+| **List** (con paginación) | `PaginatedResult<T>` directo (sin wrapper `data`) |
+| **Detail** (GET /:id)     | `{ data: T }`                                     |
+| **Create** (POST)         | `{ data: T, message: string }`                    |
+| **Update** (PATCH)        | `{ data: T }`                                     |
+| **Delete** (DELETE)       | `{ data: T, message: string }`                    |
+
+```typescript
+// ✅ Correcto
+@Delete(':id')
+async delete(@Param('id', ParseUUIDPipe) id: string) {
+  const data = await this.service.delete(id);
+  return { data, message: 'Recurso eliminado' };
+}
+
+// ❌ Incorrecto — retorno crudo sin wrapper
+@Delete(':id')
+async delete(@Param('id', ParseUUIDPipe) id: string) {
+  return this.service.delete(id);
+}
+```
 
 ### 3.5 Guard Composition
 

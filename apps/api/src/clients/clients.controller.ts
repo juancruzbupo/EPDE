@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, Query, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  Query,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { ClientsService } from './clients.service';
@@ -48,6 +58,7 @@ export class ClientsController {
 
   @Delete(':id')
   async deleteClient(@Param('id', ParseUUIDPipe) id: string) {
-    return this.clientsService.deleteClient(id);
+    const data = await this.clientsService.deleteClient(id);
+    return { data, message: 'Cliente eliminado' };
   }
 }

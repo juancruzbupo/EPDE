@@ -12,8 +12,8 @@ onlineManager.setEventListener((setOnline) => {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 2 * 60 * 1000, // 2 minutes
-      gcTime: 24 * 60 * 60 * 1000, // 24 hours — offline support
+      staleTime: 2 * 60_000, // 2 minutes
+      gcTime: 24 * 60 * 60_000, // 24 hours — offline support
       retry: 1,
       refetchOnReconnect: true,
       networkMode: 'offlineFirst',

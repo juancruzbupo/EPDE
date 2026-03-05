@@ -9,6 +9,7 @@ import {
 } from '@/lib/api/budgets';
 import type { BudgetRequestPublic, BudgetStatus } from '@epde/shared/types';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
 
 export function useBudgets(filters: Omit<BudgetFilters, 'cursor'> = {}) {
   return useInfiniteQuery({
@@ -35,9 +36,7 @@ export function useCreateBudgetRequest() {
     mutationFn: createBudgetRequest,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientStats],
-      });
+      invalidateClientDashboard(queryClient);
     },
     onError: (err) => {
       Alert.alert('Error', getErrorMessage(err, 'Error al crear presupuesto'));
@@ -73,9 +72,7 @@ export function useUpdateBudgetStatus() {
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientStats],
-      });
+      invalidateClientDashboard(queryClient);
     },
   });
 }

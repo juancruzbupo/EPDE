@@ -33,6 +33,12 @@ import { EmailModule } from '../email/email.module';
     NotificationQueueProcessor,
     UserLookupRepository,
   ],
-  exports: [NotificationsService, NotificationQueueService, NotificationsHandlerService],
+  exports: [
+    NotificationsService,
+    NotificationQueueService,
+    NotificationsHandlerService,
+    NotificationsRepository,
+    UserLookupRepository,
+  ],
 })
 export class NotificationsModule {}

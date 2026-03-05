@@ -7,6 +7,7 @@ import {
   type ServiceRequestFilters,
 } from '@/lib/api/service-requests';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
 
 export function useServiceRequests(filters: Omit<ServiceRequestFilters, 'cursor'> = {}) {
   return useInfiniteQuery({
@@ -34,9 +35,7 @@ export function useCreateServiceRequest() {
     mutationFn: createServiceRequest,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientStats],
-      });
+      invalidateClientDashboard(queryClient);
     },
     onError: (err) => {
       Alert.alert('Error', getErrorMessage(err, 'Error al crear solicitud'));
