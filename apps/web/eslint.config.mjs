@@ -1,3 +1,6 @@
+// NOTE: QUERY_KEYS centralization and maxPages enforcement are handled via
+// code review + ai-development-guide rules #14, #17 (AST-based ESLint
+// selectors are too fragile for these patterns).
 import { FlatCompat } from '@eslint/eslintrc';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';

@@ -463,6 +463,7 @@ Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en depl
 **TanStack React Query** (server state):
 
 - Hooks por entidad: `use-properties`, `use-budgets`, `use-notifications`, etc.
+- Hooks grandes (10+ exports) se dividen por dominio: `use-plans.ts` (queries) + `use-task-operations.ts` (mutations). El archivo original (`use-maintenance-plans.ts`) queda como barrel re-export
 - `useQuery` para lectura, `useMutation` para escritura
 - Query keys centralizados: `QUERY_KEYS` importados desde `@epde/shared`. Ej: `[QUERY_KEYS.budgets, filters]`
 - Invalidacion automatica en `onSuccess`

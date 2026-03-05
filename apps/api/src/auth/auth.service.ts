@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { UserAlreadyHasPasswordError } from '../common/exceptions/domain.exceptions';
 import { UsersService } from '../users/users.service';
 import { TokenService } from './token.service';
 import { AuthAuditService } from './auth-audit.service';
@@ -73,7 +74,7 @@ export class AuthService {
       const user = await this.usersService.findById(payload.sub);
 
       if (user.status !== 'INVITED') {
-        throw new BadRequestException('El usuario ya tiene contraseña configurada');
+        throw new UserAlreadyHasPasswordError();
       }
 
       const hash = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
@@ -87,7 +88,9 @@ export class AuthService {
 
       return { message: 'Contraseña configurada correctamente' };
     } catch (error) {
-      if (error instanceof BadRequestException) throw error;
+      if (error instanceof UserAlreadyHasPasswordError) {
+        throw new BadRequestException(error.message);
+      }
       throw new UnauthorizedException('Token inválido o expirado');
     }
   }

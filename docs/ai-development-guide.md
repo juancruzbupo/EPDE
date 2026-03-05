@@ -33,6 +33,7 @@
 21. **`PrismaModule` global provee `PrismaService`** — NUNCA registrar `PrismaService` en `providers[]` de modulos individuales. `PrismaModule` es `@Global()` y se importa una sola vez en `AppModule`. Cada modulo recibe la misma instancia via DI
 22. **Badge variants usan tokens semanticos** — La variante `success` usa `bg-success/15 text-success` (web) y `bg-success/15 text-success` (mobile). NUNCA usar colores raw como `bg-green-100 text-green-800`
 23. **Upload validation client-side obligatoria** — Usar `validateUpload(mimeType, sizeBytes)` de `@epde/shared` antes de enviar al API. Web y mobile deben validar MIME type y tamano
+24. **Dialogs/Sheets co-located con pages** — Componentes dialog/sheet que solo se usan en una pagina van en el directorio de esa pagina. Solo mover a `components/` si se reutiliza en 2+ paginas
 
 ### NUNCA
 
@@ -53,6 +54,7 @@
 15. **NUNCA usar debounce inline** — Usar el hook `useDebounce(value, delay)` de `@/hooks/use-debounce`
 16. **NUNCA dejar un endpoint sin `@Roles()` ni `@Public()`** — RolesGuard deniega por defecto. Un endpoint sin decorator retorna 403 para cualquier usuario autenticado
 17. **`QUERY_KEYS` es SSoT en `@epde/shared`** — Importar siempre desde `@epde/shared`, nunca redefinir localmente
+18. **NUNCA crear hooks monoliticos con 10+ exports** — Dividir por dominio (queries vs mutations, plan-level vs task-level). Usar barrel re-export en el archivo original para no romper imports existentes
 
 ---
 
@@ -405,10 +407,10 @@ class BudgetsService {
 
 ### 3.3c Domain Exceptions
 
-Los repositories lanzan excepciones de dominio (no HTTP) definidas en `apps/api/src/common/exceptions/domain.exceptions.ts`. El service las atrapa y mapea a HTTP:
+Los repositories y services lanzan excepciones de dominio (no HTTP) definidas en `apps/api/src/common/exceptions/domain.exceptions.ts`. El service las atrapa y mapea a HTTP:
 
 ```typescript
-// Repository — lanza excepción de dominio
+// Dominio — lanza excepción framework-agnostic
 if (budget.status !== 'PENDING') throw new BudgetNotPendingError();
 
 // Service — mapea a HTTP
@@ -420,6 +422,17 @@ try {
   throw error;
 }
 ```
+
+**Excepciones existentes:**
+
+| Exception                          | Usada en                    | HTTP mapping |
+| ---------------------------------- | --------------------------- | ------------ |
+| `BudgetNotPendingError`            | `budgets.service.ts`        | BadRequest   |
+| `BudgetVersionConflictError`       | `budgets.service.ts`        | Conflict     |
+| `CategoryHasReferencingTasksError` | `categories.service.ts`     | BadRequest   |
+| `TaskNotCompletableError`          | `task-lifecycle.service.ts` | BadRequest   |
+| `InvalidBudgetTransitionError`     | `budgets.service.ts`        | BadRequest   |
+| `UserAlreadyHasPasswordError`      | `auth.service.ts`           | BadRequest   |
 
 **Regla:** los repositories NUNCA importan `@nestjs/common` exceptions. Solo lanzan `Error` subclasses de dominio.
 

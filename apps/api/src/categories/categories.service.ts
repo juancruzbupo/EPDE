@@ -4,6 +4,7 @@ import {
   ConflictException,
   BadRequestException,
 } from '@nestjs/common';
+import { CategoryHasReferencingTasksError } from '../common/exceptions/domain.exceptions';
 import { CategoriesRepository } from './categories.repository';
 import type { CreateCategoryInput, UpdateCategoryInput } from '@epde/shared';
 
@@ -53,14 +54,19 @@ export class CategoriesService {
       throw new NotFoundException('Categoría no encontrada');
     }
 
-    const hasRefs = await this.categoriesRepository.hasReferencingTasks(id);
-    if (hasRefs) {
-      throw new BadRequestException(
-        'No se puede eliminar una categoría que tiene tareas asociadas',
-      );
-    }
+    try {
+      const hasRefs = await this.categoriesRepository.hasReferencingTasks(id);
+      if (hasRefs) {
+        throw new CategoryHasReferencingTasksError();
+      }
 
-    await this.categoriesRepository.hardDelete(id);
-    return { message: 'Categoría eliminada' };
+      await this.categoriesRepository.hardDelete(id);
+      return { message: 'Categoría eliminada' };
+    } catch (error) {
+      if (error instanceof CategoryHasReferencingTasksError) {
+        throw new BadRequestException(error.message);
+      }
+      throw error;
+    }
   }
 }

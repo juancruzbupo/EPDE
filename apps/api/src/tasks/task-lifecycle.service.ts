@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
+import { TaskNotCompletableError } from '../common/exceptions/domain.exceptions';
 import { TasksRepository } from './tasks.repository';
 import { MaintenancePlansRepository } from '../maintenance-plans/maintenance-plans.repository';
 import { TaskAuditLogRepository } from './task-audit-log.repository';
@@ -134,20 +140,25 @@ export class TaskLifecycleService {
   ) {
     const task = await this.verifyTaskAccess(taskId, user);
 
-    const COMPLETABLE_STATUSES = ['PENDING', 'UPCOMING', 'OVERDUE'];
-    if (!COMPLETABLE_STATUSES.includes(task.status)) {
-      throw new BadRequestException(
-        `La tarea no está en un estado completable (estado actual: ${task.status})`,
-      );
-    }
+    try {
+      const COMPLETABLE_STATUSES = ['PENDING', 'UPCOMING', 'OVERDUE'];
+      if (!COMPLETABLE_STATUSES.includes(task.status)) {
+        throw new TaskNotCompletableError(task.status);
+      }
 
-    let newDueDate: Date | null = null;
-    if (task.recurrenceType !== 'ON_DETECTION' && task.nextDueDate) {
-      const recurrenceMonths =
-        task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType) ?? 12;
-      newDueDate = getNextDueDate(task.nextDueDate, recurrenceMonths);
-    }
+      let newDueDate: Date | null = null;
+      if (task.recurrenceType !== 'ON_DETECTION' && task.nextDueDate) {
+        const recurrenceMonths =
+          task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType) ?? 12;
+        newDueDate = getNextDueDate(task.nextDueDate, recurrenceMonths);
+      }
 
-    return this.tasksRepository.completeAndReschedule(taskId, userId, dto, newDueDate);
+      return this.tasksRepository.completeAndReschedule(taskId, userId, dto, newDueDate);
+    } catch (error) {
+      if (error instanceof TaskNotCompletableError) {
+        throw new BadRequestException(error.message);
+      }
+      throw error;
+    }
   }
 }

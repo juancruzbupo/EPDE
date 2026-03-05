@@ -9,6 +9,7 @@ import { BudgetRequest, Prisma } from '@prisma/client';
 import {
   BudgetNotPendingError,
   BudgetVersionConflictError,
+  InvalidBudgetTransitionError,
 } from '../common/exceptions/domain.exceptions';
 import { BudgetsRepository } from './budgets.repository';
 import { PropertiesRepository } from '../properties/properties.repository';
@@ -153,12 +154,19 @@ export class BudgetsService {
       throw new NotFoundException('Presupuesto no encontrado');
     }
 
-    this.validateStatusTransition(
-      budget.status,
-      dto.status,
-      currentUser,
-      budget as BudgetRequest & { property?: { userId: string } | null },
-    );
+    try {
+      this.validateStatusTransition(
+        budget.status,
+        dto.status,
+        currentUser,
+        budget as BudgetRequest & { property?: { userId: string } | null },
+      );
+    } catch (error) {
+      if (error instanceof InvalidBudgetTransitionError) {
+        throw new BadRequestException(error.message);
+      }
+      throw error;
+    }
 
     const updated = await this.budgetsRepository.update(
       id,
@@ -203,7 +211,7 @@ export class BudgetsService {
 
     const allowed = allowedTransitions[current];
     if (!allowed) {
-      throw new BadRequestException(`No se puede cambiar el estado desde ${current}`);
+      throw new InvalidBudgetTransitionError(current);
     }
 
     const match = allowed.find((a) => a.status.includes(next) && a.role === user.role);

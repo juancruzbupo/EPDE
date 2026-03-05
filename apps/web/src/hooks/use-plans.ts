@@ -1,0 +1,59 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { getErrorMessage } from '@/lib/errors';
+import { getPlan, getPlans, getAllTasks, updatePlan, addTask } from '@/lib/api/maintenance-plans';
+import { QUERY_KEYS } from '@epde/shared';
+
+export function usePlans() {
+  return useQuery({
+    queryKey: [QUERY_KEYS.plans, 'list'],
+    queryFn: () => getPlans().then((r) => r.data),
+  });
+}
+
+export function useAllTasks(status?: string) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.plans, 'tasks', status ?? 'all'],
+    queryFn: () => getAllTasks(status).then((r) => r.data),
+  });
+}
+
+export function usePlan(id: string) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.plans, id],
+    queryFn: ({ signal }) => getPlan(id, signal).then((r) => r.data),
+    enabled: !!id,
+  });
+}
+
+export function useUpdatePlan() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...dto }: { id: string; name?: string; status?: string }) =>
+      updatePlan(id, dto),
+    onSuccess: (_data, vars) =>
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, vars.id] }),
+    onError: (err) => toast.error(getErrorMessage(err, 'Error al actualizar plan')),
+  });
+}
+
+export function useAddTask() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      planId,
+      ...dto
+    }: {
+      planId: string;
+      categoryId: string;
+      name: string;
+      description?: string;
+      priority?: string;
+      recurrenceType?: string;
+      recurrenceMonths?: number;
+      nextDueDate?: string;
+    }) => addTask(planId, dto),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] }),
+    onError: (err) => toast.error(getErrorMessage(err, 'Error al agregar tarea')),
+  });
+}
