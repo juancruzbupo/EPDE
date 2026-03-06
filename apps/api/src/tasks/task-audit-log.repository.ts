@@ -2,6 +2,11 @@ import { Injectable } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
+/**
+ * Standalone repository — does not extend BaseRepository because audit logs
+ * are append-only (no pagination, soft-delete, or update needed). Injects
+ * PrismaService directly for simple create/findMany operations on TaskAuditLog.
+ */
 @Injectable()
 export class TaskAuditLogRepository {
   constructor(private readonly prisma: PrismaService) {}

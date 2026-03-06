@@ -152,7 +152,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
       >
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle className="text-lg">Proximas Tareas</CardTitle>
+            <CardTitle className="text-lg">Próximas Tareas</CardTitle>
           </CardHeader>
           <CardContent>
             {upcomingLoading ? (
@@ -208,7 +208,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
                                         addSuffix: true,
                                         locale: es,
                                       })
-                                    : 'Segun deteccion'}
+                                    : 'Según detección'}
                                 </span>
                               </div>
                             </div>
@@ -223,7 +223,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
             ) : (
               <div className="flex flex-col items-center gap-2 py-8">
                 <CheckCircle className="text-muted-foreground/50 h-8 w-8" />
-                <p className="text-muted-foreground text-sm">No tenes tareas proximas</p>
+                <p className="text-muted-foreground text-sm">No tenés tareas próximas</p>
               </div>
             )}
           </CardContent>

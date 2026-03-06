@@ -89,10 +89,13 @@ export class TaskLifecycleService {
     );
   }
 
-  async updateTask(taskId: string, dto: UpdateTaskInput, updatedBy?: string) {
+  async updateTask(planId: string, taskId: string, dto: UpdateTaskInput, updatedBy?: string) {
     const task = await this.tasksRepository.findById(taskId);
     if (!task) {
       throw new NotFoundException('Tarea no encontrada');
+    }
+    if (task.maintenancePlanId !== planId) {
+      throw new NotFoundException('Tarea no encontrada en este plan');
     }
 
     const before = { ...task }; // snapshot antes del update
@@ -115,10 +118,13 @@ export class TaskLifecycleService {
     return updated;
   }
 
-  async removeTask(taskId: string) {
+  async removeTask(planId: string, taskId: string) {
     const task = await this.tasksRepository.findById(taskId);
     if (!task) {
       throw new NotFoundException('Tarea no encontrada');
+    }
+    if (task.maintenancePlanId !== planId) {
+      throw new NotFoundException('Tarea no encontrada en este plan');
     }
 
     await this.tasksRepository.softDelete(taskId);

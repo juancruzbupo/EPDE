@@ -40,6 +40,7 @@
 28. **Certificate pinning pre-produccion mobile** — Antes de release mobile a produccion, implementar certificate pinning con `react-native-ssl-pinning`. Ver TODO [PRE-RELEASE] en `apps/mobile/src/lib/api-client.ts:34-40`
 29. **Error state en paginas con queries** — Toda pagina que use `useQuery`/`useInfiniteQuery` DEBE destructurar `isError` y `refetch`, y mostrar UI de error con `AlertTriangle` + boton "Reintentar". Patron: `client-dashboard.tsx`. NUNCA dejar que un query falle silenciosamente mostrando loading infinito
 30. **`@ApiTags` en espanol** — Todos los controllers usan `@ApiTags('Nombre en Español')` para consistencia en Swagger. Ejemplos: `Autenticación`, `Panel`, `Carga de Archivos`, `Plantillas de Tareas`
+31. **Validar ownership en rutas anidadas** — Rutas tipo `PATCH :id/tasks/:taskId` DEBEN extraer ambos params y validar que el recurso hijo pertenece al padre. Ejemplo: `if (task.maintenancePlanId !== planId) throw new NotFoundException()`. NUNCA ignorar el `:id` padre en la logica del service
 
 ### NUNCA
 

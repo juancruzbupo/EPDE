@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { TasksRepository } from '../tasks/tasks.repository';
 import { DistributedLockService } from '../redis/distributed-lock.service';
+import { MetricsService } from '../metrics/metrics.service';
 import { getNextDueDate, recurrenceTypeToMonths } from '@epde/shared';
 
 @Injectable()
@@ -11,6 +12,7 @@ export class TaskSafetyService {
   constructor(
     private readonly tasksRepository: TasksRepository,
     private readonly lockService: DistributedLockService,
+    private readonly metricsService: MetricsService,
   ) {}
 
   /**
@@ -21,6 +23,7 @@ export class TaskSafetyService {
    */
   @Cron('10 9 * * *', { name: 'task-safety-sweep' })
   async safetySweepCompletedTasks(): Promise<void> {
+    const start = Date.now();
     await this.lockService.withLock('cron:task-safety-sweep', 300, async (signal) => {
       this.logger.log('Starting safety sweep for completed tasks...');
 
@@ -72,5 +75,6 @@ export class TaskSafetyService {
         `Safety sweep complete: ${totalSuccess} fixed, ${totalFailed} failed out of ${staleTasks.length} stale task(s)`,
       );
     });
+    this.metricsService.recordCronExecution('task-safety-sweep', Date.now() - start);
   }
 }

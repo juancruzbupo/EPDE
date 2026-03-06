@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TaskSafetyService } from './task-safety.service';
 import { TasksRepository } from '../tasks/tasks.repository';
 import { DistributedLockService } from '../redis/distributed-lock.service';
+import { MetricsService } from '../metrics/metrics.service';
 
 const mockTasksRepository = {
   findStaleCompleted: jest.fn().mockResolvedValue([]),
@@ -14,6 +15,10 @@ const mockLockService = {
   }),
 };
 
+const mockMetricsService = {
+  recordCronExecution: jest.fn(),
+};
+
 describe('TaskSafetyService', () => {
   let service: TaskSafetyService;
 
@@ -23,6 +28,7 @@ describe('TaskSafetyService', () => {
         TaskSafetyService,
         { provide: TasksRepository, useValue: mockTasksRepository },
         { provide: DistributedLockService, useValue: mockLockService },
+        { provide: MetricsService, useValue: mockMetricsService },
       ],
     }).compile();
 

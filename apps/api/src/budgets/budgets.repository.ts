@@ -71,6 +71,15 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
     return this.findById(id, BUDGET_DETAIL_INCLUDE);
   }
 
+  /**
+   * Responds to a budget request within a transaction.
+   *
+   * Domain exceptions (BudgetNotPendingError, BudgetVersionConflictError) are
+   * thrown inside the transaction intentionally — TOCTOU safety requires the
+   * status/version check to be atomic with the write operations. The service
+   * layer performs a fast-fail pre-check, but the authoritative validation
+   * lives here to prevent race conditions.
+   */
   async respondToBudget(
     id: string,
     expectedVersion: number,

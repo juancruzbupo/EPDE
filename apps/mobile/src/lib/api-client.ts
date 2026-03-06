@@ -28,7 +28,7 @@ export const apiClient = axios.create({
     'Content-Type': 'application/json',
     [CLIENT_TYPE_HEADER]: CLIENT_TYPES.MOBILE,
   },
-  timeout: 15000,
+  timeout: 15_000,
 });
 
 // TODO [PRE-RELEASE]: Certificate pinning

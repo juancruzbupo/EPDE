@@ -106,6 +106,10 @@ export class BudgetsService {
     if (!budget) {
       throw new NotFoundException('Presupuesto no encontrado');
     }
+    // Fast-fail: reject early if not PENDING (repo re-checks atomically inside transaction)
+    if (budget.status !== 'PENDING') {
+      throw new BadRequestException(new BudgetNotPendingError().message);
+    }
 
     const totalAmount = dto.lineItems.reduce(
       (sum, item) =>

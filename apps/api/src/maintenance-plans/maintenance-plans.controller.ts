@@ -110,18 +110,22 @@ export class MaintenancePlansController {
   @Patch(':id/tasks/:taskId')
   @Roles(UserRole.ADMIN)
   async updateTask(
+    @Param('id', ParseUUIDPipe) planId: string,
     @Param('taskId', ParseUUIDPipe) taskId: string,
     @Body(new ZodValidationPipe(updateTaskWithRecurrenceSchema)) dto: UpdateTaskInput,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const data = await this.taskLifecycle.updateTask(taskId, dto, user.id);
+    const data = await this.taskLifecycle.updateTask(planId, taskId, dto, user.id);
     return { data };
   }
 
   @Delete(':id/tasks/:taskId')
   @Roles(UserRole.ADMIN)
-  async removeTask(@Param('taskId', ParseUUIDPipe) taskId: string) {
-    return this.taskLifecycle.removeTask(taskId);
+  async removeTask(
+    @Param('id', ParseUUIDPipe) planId: string,
+    @Param('taskId', ParseUUIDPipe) taskId: string,
+  ) {
+    return this.taskLifecycle.removeTask(planId, taskId);
   }
 
   @Patch(':id/tasks/reorder')

@@ -5,6 +5,7 @@ import { NotificationsRepository } from '../notifications/notifications.reposito
 import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { DistributedLockService } from '../redis/distributed-lock.service';
+import { MetricsService } from '../metrics/metrics.service';
 
 @Injectable()
 export class TaskReminderService {
@@ -16,6 +17,7 @@ export class TaskReminderService {
     private readonly usersRepository: UserLookupRepository,
     private readonly notificationsHandler: NotificationsHandlerService,
     private readonly lockService: DistributedLockService,
+    private readonly metricsService: MetricsService,
   ) {}
 
   /**
@@ -30,6 +32,7 @@ export class TaskReminderService {
    */
   @Cron('5 9 * * *', { name: 'task-upcoming-reminders' })
   async sendUpcomingTaskReminders(): Promise<void> {
+    const start = Date.now();
     await this.lockService.withLock('cron:task-upcoming-reminders', 300, async (signal) => {
       this.logger.log('Starting upcoming task reminders...');
 
@@ -132,5 +135,6 @@ export class TaskReminderService {
         `Reminders complete: ${result.notificationCount} notifications, ${emails.length - result.failedEmails} emails enqueued, ${result.failedEmails} failed`,
       );
     });
+    this.metricsService.recordCronExecution('task-upcoming-reminders', Date.now() - start);
   }
 }

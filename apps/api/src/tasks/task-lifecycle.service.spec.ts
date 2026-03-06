@@ -90,15 +90,16 @@ describe('TaskLifecycleService', () => {
 
   describe('updateTask', () => {
     it('should update task data', async () => {
+      const planId = 'plan-1';
       const taskId = 'task-1';
       const dto = { name: 'Updated name' } as never;
-      const existingTask = { id: taskId, name: 'Old name' };
+      const existingTask = { id: taskId, name: 'Old name', maintenancePlanId: planId };
       const updatedTask = { id: taskId, name: 'Updated name' };
 
       mockTasksRepository.findById.mockResolvedValue(existingTask);
       mockTasksRepository.update.mockResolvedValue(updatedTask);
 
-      const result = await service.updateTask(taskId, dto, 'user-1');
+      const result = await service.updateTask(planId, taskId, dto, 'user-1');
 
       expect(mockTasksRepository.findById).toHaveBeenCalledWith(taskId);
       expect(mockTasksRepository.update).toHaveBeenCalled();
@@ -108,7 +109,16 @@ describe('TaskLifecycleService', () => {
     it('should throw NotFoundException when task does not exist', async () => {
       mockTasksRepository.findById.mockResolvedValue(null);
 
-      await expect(service.updateTask('non-existent', {} as never, 'user-1')).rejects.toThrow(
+      await expect(
+        service.updateTask('plan-1', 'non-existent', {} as never, 'user-1'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw NotFoundException when task does not belong to plan', async () => {
+      const existingTask = { id: 'task-1', maintenancePlanId: 'other-plan' };
+      mockTasksRepository.findById.mockResolvedValue(existingTask);
+
+      await expect(service.updateTask('plan-1', 'task-1', {} as never, 'user-1')).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -116,13 +126,14 @@ describe('TaskLifecycleService', () => {
 
   describe('removeTask', () => {
     it('should soft delete task', async () => {
+      const planId = 'plan-1';
       const taskId = 'task-1';
-      const existingTask = { id: taskId };
+      const existingTask = { id: taskId, maintenancePlanId: planId };
 
       mockTasksRepository.findById.mockResolvedValue(existingTask);
       mockTasksRepository.softDelete.mockResolvedValue(existingTask);
 
-      const result = await service.removeTask(taskId);
+      const result = await service.removeTask(planId, taskId);
 
       expect(mockTasksRepository.softDelete).toHaveBeenCalledWith(taskId);
       expect(result).toEqual({ message: 'Tarea eliminada' });
@@ -131,7 +142,14 @@ describe('TaskLifecycleService', () => {
     it('should throw NotFoundException when task does not exist', async () => {
       mockTasksRepository.findById.mockResolvedValue(null);
 
-      await expect(service.removeTask('non-existent')).rejects.toThrow(NotFoundException);
+      await expect(service.removeTask('plan-1', 'non-existent')).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw NotFoundException when task does not belong to plan', async () => {
+      const existingTask = { id: 'task-1', maintenancePlanId: 'other-plan' };
+      mockTasksRepository.findById.mockResolvedValue(existingTask);
+
+      await expect(service.removeTask('plan-1', 'task-1')).rejects.toThrow(NotFoundException);
     });
   });
 

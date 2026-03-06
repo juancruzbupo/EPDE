@@ -5,6 +5,7 @@ import { NotificationsRepository } from '../notifications/notifications.reposito
 import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { DistributedLockService } from '../redis/distributed-lock.service';
+import { MetricsService } from '../metrics/metrics.service';
 
 const mockTasksRepository = {
   findUpcomingWithOwners: jest.fn().mockResolvedValue([]),
@@ -26,6 +27,9 @@ const mockLockService = {
       },
     ),
 };
+const mockMetricsService = {
+  recordCronExecution: jest.fn(),
+};
 
 describe('TaskReminderService', () => {
   let service: TaskReminderService;
@@ -39,6 +43,7 @@ describe('TaskReminderService', () => {
         { provide: UserLookupRepository, useValue: mockUsersRepository },
         { provide: NotificationsHandlerService, useValue: mockNotificationsHandler },
         { provide: DistributedLockService, useValue: mockLockService },
+        { provide: MetricsService, useValue: mockMetricsService },
       ],
     }).compile();
 

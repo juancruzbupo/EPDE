@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { TasksRepository } from '../tasks/tasks.repository';
 import { DistributedLockService } from '../redis/distributed-lock.service';
+import { MetricsService } from '../metrics/metrics.service';
 
 @Injectable()
 export class TaskStatusService {
@@ -10,6 +11,7 @@ export class TaskStatusService {
   constructor(
     private readonly tasksRepository: TasksRepository,
     private readonly lockService: DistributedLockService,
+    private readonly metricsService: MetricsService,
   ) {}
 
   /**
@@ -21,6 +23,7 @@ export class TaskStatusService {
    */
   @Cron('0 9 * * *', { name: 'task-status-recalculation' })
   async recalculateTaskStatuses(): Promise<void> {
+    const start = Date.now();
     await this.lockService.withLock('cron:task-status-recalculation', 300, async (signal) => {
       this.logger.log('Starting daily task status recalculation...');
 
@@ -37,5 +40,6 @@ export class TaskStatusService {
           `${upcomingCount} upcoming, ${resetCount} reset to pending`,
       );
     });
+    this.metricsService.recordCronExecution('task-status-recalculation', Date.now() - start);
   }
 }
