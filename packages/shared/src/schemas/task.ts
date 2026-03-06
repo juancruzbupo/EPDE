@@ -18,7 +18,11 @@ function customRecurrenceRefine(
       path: ['recurrenceMonths'],
     });
   }
-  if (data.recurrenceType !== 'ON_DETECTION' && !data.nextDueDate) {
+  if (
+    data.recurrenceType !== undefined &&
+    data.recurrenceType !== 'ON_DETECTION' &&
+    !data.nextDueDate
+  ) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: 'nextDueDate es requerido excepto para tareas ON_DETECTION',

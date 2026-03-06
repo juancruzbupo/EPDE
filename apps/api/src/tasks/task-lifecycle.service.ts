@@ -94,12 +94,13 @@ export class TaskLifecycleService {
 
     const before = { ...task }; // snapshot antes del update
 
+    const { categoryId, ...taskFields } = dto;
     const data: UpdateTaskData = {
-      ...(dto as Omit<UpdateTaskInput, 'categoryId'>),
+      ...taskFields,
       ...(updatedBy && { updatedBy }),
     };
-    if (dto.categoryId) {
-      data.category = { connect: { id: dto.categoryId } };
+    if (categoryId) {
+      data.category = { connect: { id: categoryId } };
     }
 
     const updated = await this.tasksRepository.update(taskId, data, { category: true });

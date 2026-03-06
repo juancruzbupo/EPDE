@@ -61,6 +61,14 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
       setValue('description', task.description ?? '');
       setValue('priority', task.priority as TaskFormValues['priority']);
       setValue('recurrenceType', task.recurrenceType as TaskFormValues['recurrenceType']);
+      setValue('taskType', task.taskType as TaskFormValues['taskType']);
+      setValue(
+        'professionalRequirement',
+        task.professionalRequirement as TaskFormValues['professionalRequirement'],
+      );
+      if (task.technicalDescription) setValue('technicalDescription', task.technicalDescription);
+      if (task.estimatedDurationMinutes)
+        setValue('estimatedDurationMinutes', task.estimatedDurationMinutes);
       if (task.recurrenceMonths) setValue('recurrenceMonths', task.recurrenceMonths);
       if (task.nextDueDate) setValue('nextDueDate', new Date(task.nextDueDate));
     } else {

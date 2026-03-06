@@ -29,8 +29,7 @@ export class ServiceRequestsController {
     @Query(new ZodValidationPipe(serviceRequestFiltersSchema)) filters: ServiceRequestFiltersInput,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const data = await this.serviceRequestsService.listRequests(filters, user);
-    return { data };
+    return this.serviceRequestsService.listRequests(filters, user);
   }
 
   @Get(':id')
