@@ -61,6 +61,8 @@
 18. **NUNCA crear hooks monoliticos con 10+ exports** — Dividir por dominio (queries vs mutations, plan-level vs task-level). Usar barrel re-export en el archivo original para no romper imports existentes
 19. **NUNCA importar desde sub-paths de `@epde/shared`** — No usar `@epde/shared/types`, `@epde/shared/schemas`, etc. Usar siempre el barrel `@epde/shared`
 20. **NUNCA tipar `@CurrentUser()` con objetos inline** — Usar `CurrentUserPayload` de `@epde/shared` (alias de `CurrentUser`)
+21. **NUNCA envolver `PaginatedResult` en `{ data }`** — Los endpoints de listado paginado retornan `return this.service.listXxx(...)` directo. Solo endpoints de detalle/mutacion usan `return { data }`. Envolver produce doble envelope `{ data: { data: [...], nextCursor } }` que rompe `useInfiniteQuery`
+22. **NUNCA usar `as Omit<Type, 'field'>` para excluir campos de un DTO** — El type cast NO elimina la propiedad en runtime. Usar destructuring: `const { field, ...rest } = dto`. Ejemplo: `categoryId` en un update DTO debe destructurarse antes de spread a Prisma, o se genera conflicto FK + relation connect
 
 ---
 
@@ -461,8 +463,7 @@ export class BudgetsController {
     @Query(new ZodValidationPipe(budgetFiltersSchema)) filters: BudgetFiltersInput,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const data = await this.service.listBudgets(filters, user);
-    return { data };
+    return this.service.listBudgets(filters, user); // PaginatedResult directo, sin { data }
   }
 
   @Post()
