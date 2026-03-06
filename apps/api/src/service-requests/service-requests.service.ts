@@ -10,12 +10,10 @@ import type {
   CreateServiceRequestInput,
   UpdateServiceStatusInput,
   ServiceRequestFiltersInput,
+  CurrentUser,
 } from '@epde/shared';
 
-interface CurrentUser {
-  id: string;
-  role: string;
-}
+type ServiceUser = Pick<CurrentUser, 'id' | 'role'>;
 
 @Injectable()
 export class ServiceRequestsService {
@@ -25,7 +23,7 @@ export class ServiceRequestsService {
     private readonly notificationsHandler: NotificationsHandlerService,
   ) {}
 
-  async listRequests(filters: ServiceRequestFiltersInput, currentUser: CurrentUser) {
+  async listRequests(filters: ServiceRequestFiltersInput, currentUser: ServiceUser) {
     return this.serviceRequestsRepository.findRequests({
       cursor: filters.cursor,
       take: filters.take,
@@ -36,7 +34,7 @@ export class ServiceRequestsService {
     });
   }
 
-  async getRequest(id: string, currentUser: CurrentUser) {
+  async getRequest(id: string, currentUser: ServiceUser) {
     const request = await this.serviceRequestsRepository.findByIdWithDetails(id);
     if (!request) {
       throw new NotFoundException('Solicitud de servicio no encontrada');
@@ -81,7 +79,7 @@ export class ServiceRequestsService {
     return result;
   }
 
-  async updateStatus(id: string, dto: UpdateServiceStatusInput, currentUser: CurrentUser) {
+  async updateStatus(id: string, dto: UpdateServiceStatusInput, currentUser: ServiceUser) {
     const request = await this.serviceRequestsRepository.findByIdWithDetails(id);
     if (!request) {
       throw new NotFoundException('Solicitud de servicio no encontrada');
@@ -117,7 +115,7 @@ export class ServiceRequestsService {
     return updated;
   }
 
-  private assertAccess(request: ServiceRequestWithDetails, currentUser: CurrentUser): void {
+  private assertAccess(request: ServiceRequestWithDetails, currentUser: ServiceUser): void {
     if (currentUser.role === UserRole.CLIENT && request.property?.userId !== currentUser.id) {
       throw new ForbiddenException('No tenés acceso a esta solicitud');
     }

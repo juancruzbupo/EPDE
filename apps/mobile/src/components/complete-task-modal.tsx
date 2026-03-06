@@ -16,7 +16,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSlideIn } from '@/lib/animations';
 import { haptics } from '@/lib/haptics';
-import { useCompleteTask } from '@/hooks/use-maintenance-plans';
+import { useCompleteTask } from '@/hooks/use-task-operations';
 import { useUploadFile } from '@/hooks/use-upload';
 import { TYPE } from '@/lib/fonts';
 import { colors } from '@/lib/colors';

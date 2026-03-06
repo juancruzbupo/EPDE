@@ -11,7 +11,7 @@ import {
   TASK_EXECUTOR_LABELS,
   ACTION_TAKEN_LABELS,
 } from '@epde/shared';
-import { useCompleteTask } from '@/hooks/use-maintenance-plans';
+import { useCompleteTask } from '@/hooks/use-task-operations';
 import { useUploadFile } from '@/hooks/use-upload';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';

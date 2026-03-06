@@ -2,13 +2,8 @@ import { renderHook } from '@testing-library/react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
 import { QUERY_KEYS } from '@epde/shared';
-import {
-  usePlans,
-  useAllTasks,
-  usePlan,
-  useCompleteTask,
-  useAddTaskNote,
-} from '../use-maintenance-plans';
+import { usePlans, useAllTasks, usePlan } from '../use-plans';
+import { useCompleteTask, useAddTaskNote } from '../use-task-operations';
 
 // ---------------------------------------------------------------------------
 // Mocks

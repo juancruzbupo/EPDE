@@ -260,7 +260,7 @@ describe('ServiceRequestsService', () => {
 
   describe('updateStatus', () => {
     const updateDto = { status: 'IN_PROGRESS' as const };
-    const adminUser = { id: 'admin-1', role: 'ADMIN' };
+    const adminUser = { id: 'admin-1', role: UserRole.ADMIN };
 
     it('should update status and call notification handler', async () => {
       serviceRequestsRepo.findByIdWithDetails.mockResolvedValue(mockServiceRequest);

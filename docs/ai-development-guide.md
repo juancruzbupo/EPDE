@@ -58,7 +58,7 @@
 15. **NUNCA usar debounce inline** — Usar el hook `useDebounce(value, delay)` de `@/hooks/use-debounce`
 16. **NUNCA dejar un endpoint sin `@Roles()` ni `@Public()`** — RolesGuard deniega por defecto. Un endpoint sin decorator retorna 403 para cualquier usuario autenticado
 17. **`QUERY_KEYS` es SSoT en `@epde/shared`** — Importar siempre desde `@epde/shared`, nunca redefinir localmente
-18. **NUNCA crear hooks monoliticos con 10+ exports** — Dividir por dominio (queries vs mutations, plan-level vs task-level). Usar barrel re-export en el archivo original para no romper imports existentes
+18. **NUNCA crear hooks monoliticos con 10+ exports** — Dividir por dominio (queries vs mutations, plan-level vs task-level). Los importers usan los archivos split directamente; NO crear barrel re-exports
 19. **NUNCA importar desde sub-paths de `@epde/shared`** — No usar `@epde/shared/types`, `@epde/shared/schemas`, etc. Usar siempre el barrel `@epde/shared`
 20. **NUNCA tipar `@CurrentUser()` con objetos inline** — Usar `CurrentUserPayload` de `@epde/shared` (alias de `CurrentUser`)
 21. **NUNCA envolver `PaginatedResult` en `{ data }`** — Los endpoints de listado paginado retornan `return this.service.listXxx(...)` directo. Solo endpoints de detalle/mutacion usan `return { data }`. Envolver produce doble envelope `{ data: { data: [...], nextCursor } }` que rompe `useInfiniteQuery`
@@ -509,20 +509,20 @@ Todas las respuestas siguen esta convención:
 | **Detail** (GET /:id)     | `{ data: T }`                                     |
 | **Create** (POST)         | `{ data: T, message: string }`                    |
 | **Update** (PATCH)        | `{ data: T }`                                     |
-| **Delete** (DELETE)       | `{ data: T, message: string }`                    |
+| **Delete** (DELETE)       | `{ message: string }`                             |
 
 ```typescript
-// ✅ Correcto
+// ✅ Correcto — el service retorna { message } directamente
+@Delete(':id')
+async delete(@Param('id', ParseUUIDPipe) id: string) {
+  return this.service.delete(id);
+}
+
+// ❌ Incorrecto — doble envelope (controller wrapping service result)
 @Delete(':id')
 async delete(@Param('id', ParseUUIDPipe) id: string) {
   const data = await this.service.delete(id);
   return { data, message: 'Recurso eliminado' };
-}
-
-// ❌ Incorrecto — retorno crudo sin wrapper
-@Delete(':id')
-async delete(@Param('id', ParseUUIDPipe) id: string) {
-  return this.service.delete(id);
 }
 ```
 

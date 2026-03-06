@@ -15,7 +15,7 @@ import {
   useTaskLogs,
   useTaskNotes,
   useAddTaskNote,
-} from '@/hooks/use-maintenance-plans';
+} from '@/hooks/use-task-operations';
 import { TaskStatusBadge, PriorityBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';

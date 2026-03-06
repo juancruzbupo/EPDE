@@ -2,29 +2,21 @@
 
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { usePlans } from '@/hooks/use-maintenance-plans';
+import { usePlans } from '@/hooks/use-plans';
 import { PageHeader } from '@/components/page-header';
 import { PageTransition } from '@/components/ui/page-transition';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClipboardList, Home, ListChecks } from 'lucide-react';
-import { PLAN_STATUS_LABELS, PLAN_STATUS_VARIANT, PlanStatus } from '@epde/shared';
-import { formatRelativeDate } from '@epde/shared';
+import {
+  PLAN_STATUS_LABELS,
+  PLAN_STATUS_VARIANT,
+  PlanStatus,
+  formatRelativeDate,
+} from '@epde/shared';
+import type { PlanListItem } from '@epde/shared';
 
-function PlanCard({
-  plan,
-  onClick,
-}: {
-  plan: {
-    id: string;
-    name: string;
-    status: PlanStatus;
-    createdAt: string;
-    property: { id: string; address: string; city: string };
-    _count: { tasks: number };
-  };
-  onClick: () => void;
-}) {
+function PlanCard({ plan, onClick }: { plan: PlanListItem; onClick: () => void }) {
   return (
     <button
       onClick={onClick}

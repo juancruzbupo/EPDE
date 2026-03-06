@@ -21,12 +21,10 @@ import type {
   RespondBudgetInput,
   UpdateBudgetStatusInput,
   BudgetFiltersInput,
+  CurrentUser,
 } from '@epde/shared';
 
-interface CurrentUser {
-  id: string;
-  role: string;
-}
+type ServiceUser = Pick<CurrentUser, 'id' | 'role'>;
 
 @Injectable()
 export class BudgetsService {
@@ -36,7 +34,7 @@ export class BudgetsService {
     private readonly notificationsHandler: NotificationsHandlerService,
   ) {}
 
-  async listBudgets(filters: BudgetFiltersInput, currentUser: CurrentUser) {
+  async listBudgets(filters: BudgetFiltersInput, currentUser: ServiceUser) {
     return this.budgetsRepository.findBudgets({
       cursor: filters.cursor,
       take: filters.take,
@@ -46,7 +44,7 @@ export class BudgetsService {
     });
   }
 
-  async getBudget(id: string, currentUser: CurrentUser) {
+  async getBudget(id: string, currentUser: ServiceUser) {
     const budget = await this.budgetsRepository.findByIdWithDetails(id);
     if (!budget) {
       throw new NotFoundException('Presupuesto no encontrado');
@@ -149,7 +147,7 @@ export class BudgetsService {
     return result;
   }
 
-  async updateStatus(id: string, dto: UpdateBudgetStatusInput, currentUser: CurrentUser) {
+  async updateStatus(id: string, dto: UpdateBudgetStatusInput, currentUser: ServiceUser) {
     const budget = await this.budgetsRepository.findByIdWithDetails(id);
     if (!budget) {
       throw new NotFoundException('Presupuesto no encontrado');
@@ -204,7 +202,7 @@ export class BudgetsService {
   private validateStatusTransition(
     current: string,
     next: string,
-    user: CurrentUser,
+    user: ServiceUser,
     budget: { property?: { userId: string } | null },
   ) {
     const allowedTransitions: Record<string, { status: string[]; role: string }[]> = {

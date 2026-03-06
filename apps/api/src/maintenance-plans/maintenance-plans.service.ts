@@ -1,18 +1,20 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { MaintenancePlansRepository } from './maintenance-plans.repository';
-import type { UpdatePlanInput } from '@epde/shared';
+import type { UpdatePlanInput, CurrentUser } from '@epde/shared';
 import { UserRole } from '@epde/shared';
+
+type ServiceUser = Pick<CurrentUser, 'id' | 'role'>;
 
 @Injectable()
 export class MaintenancePlansService {
   constructor(private readonly plansRepository: MaintenancePlansRepository) {}
 
-  async listPlans(currentUser?: { id: string; role: string }) {
+  async listPlans(currentUser?: ServiceUser) {
     const userId = currentUser?.role === UserRole.CLIENT ? currentUser.id : undefined;
     return this.plansRepository.findAll(userId);
   }
 
-  async getPlan(id: string, currentUser?: { id: string; role: string }) {
+  async getPlan(id: string, currentUser?: ServiceUser) {
     const plan = await this.plansRepository.findWithFullDetails(id);
     if (!plan) {
       throw new NotFoundException('Plan de mantenimiento no encontrado');

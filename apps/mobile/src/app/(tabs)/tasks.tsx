@@ -3,7 +3,7 @@ import { View, Text, FlatList, RefreshControl, Pressable, ScrollView } from 'rea
 import { useRouter } from 'expo-router';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useAllTasks } from '@/hooks/use-maintenance-plans';
+import { useAllTasks } from '@/hooks/use-plans';
 import { AnimatedListItem } from '@/components/animated-list-item';
 import { TaskStatusBadge, PriorityBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';

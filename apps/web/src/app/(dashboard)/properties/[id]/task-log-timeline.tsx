@@ -1,6 +1,6 @@
 'use client';
 
-import { useTaskLogs } from '@/hooks/use-maintenance-plans';
+import { useTaskLogs } from '@/hooks/use-task-operations';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import {

@@ -62,7 +62,6 @@ export class ClientsController {
   @Delete(':id')
   @Roles(UserRole.ADMIN)
   async deleteClient(@Param('id', ParseUUIDPipe) id: string) {
-    const data = await this.clientsService.deleteClient(id);
-    return { data, message: 'Cliente eliminado' };
+    return this.clientsService.deleteClient(id);
   }
 }

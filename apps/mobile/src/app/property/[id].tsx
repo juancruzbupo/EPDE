@@ -10,7 +10,7 @@ import {
 import Animated from 'react-native-reanimated';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useProperty } from '@/hooks/use-properties';
-import { usePlan } from '@/hooks/use-maintenance-plans';
+import { usePlan } from '@/hooks/use-plans';
 import { AnimatedListItem } from '@/components/animated-list-item';
 import { SwipeableRow } from '@/components/swipeable-row';
 import { CompleteTaskModal } from '@/components/complete-task-modal';

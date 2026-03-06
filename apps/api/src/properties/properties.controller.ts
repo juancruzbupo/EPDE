@@ -79,7 +79,6 @@ export class PropertiesController {
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const data = await this.propertiesService.deleteProperty(id, user);
-    return { data, message: 'Propiedad eliminada' };
+    return this.propertiesService.deleteProperty(id, user);
   }
 }

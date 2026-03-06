@@ -7,6 +7,10 @@ import { UserRole } from '@epde/shared';
  * Standalone repository — does not extend BaseRepository because dashboard
  * queries span multiple models with custom aggregations and joins that don't
  * fit the single-model CRUD pattern of BaseRepository.
+ *
+ * Uses `this.prisma.softDelete.{model}` directly (not BaseRepository) for
+ * cross-model aggregations. If the soft-delete mechanism changes, this file
+ * must be updated alongside BaseRepository.
  */
 @Injectable()
 export class DashboardRepository {

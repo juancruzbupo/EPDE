@@ -1,18 +1,20 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PropertiesRepository } from './properties.repository';
 import { UserRole } from '@epde/shared';
-import type { CreatePropertyInput, UpdatePropertyInput, PropertyFiltersInput } from '@epde/shared';
+import type {
+  CreatePropertyInput,
+  UpdatePropertyInput,
+  PropertyFiltersInput,
+  CurrentUser,
+} from '@epde/shared';
 
-interface CurrentUser {
-  id: string;
-  role: string;
-}
+type ServiceUser = Pick<CurrentUser, 'id' | 'role'>;
 
 @Injectable()
 export class PropertiesService {
   constructor(private readonly propertiesRepository: PropertiesRepository) {}
 
-  async listProperties(filters: PropertyFiltersInput, currentUser: CurrentUser) {
+  async listProperties(filters: PropertyFiltersInput, currentUser: ServiceUser) {
     const userId = currentUser.role === UserRole.CLIENT ? currentUser.id : filters.userId;
 
     return this.propertiesRepository.findProperties({
@@ -25,7 +27,7 @@ export class PropertiesService {
     });
   }
 
-  async getProperty(id: string, currentUser: CurrentUser) {
+  async getProperty(id: string, currentUser: ServiceUser) {
     const property = await this.propertiesRepository.findWithPlan(id);
     if (!property) {
       throw new NotFoundException('Propiedad no encontrada');
@@ -50,7 +52,7 @@ export class PropertiesService {
     });
   }
 
-  async updateProperty(id: string, dto: UpdatePropertyInput, currentUser: CurrentUser) {
+  async updateProperty(id: string, dto: UpdatePropertyInput, currentUser: ServiceUser) {
     const property = await this.propertiesRepository.findById(id);
     if (!property) {
       throw new NotFoundException('Propiedad no encontrada');
@@ -63,7 +65,7 @@ export class PropertiesService {
     return this.propertiesRepository.update(id, { ...dto, updatedBy: currentUser.id });
   }
 
-  async deleteProperty(id: string, currentUser: CurrentUser) {
+  async deleteProperty(id: string, currentUser: ServiceUser) {
     const property = await this.propertiesRepository.findById(id);
     if (!property) {
       throw new NotFoundException('Propiedad no encontrada');

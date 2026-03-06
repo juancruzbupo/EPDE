@@ -73,7 +73,8 @@ apps/mobile/
       use-budgets.ts                 # CRUD presupuestos + status
       use-notifications.ts           # Notificaciones + unread count
       use-service-requests.ts        # CRUD solicitudes
-      use-maintenance-plans.ts       # Plan + tareas + logs + notas
+      use-plans.ts                   # Plan queries + tareas list
+      use-task-operations.ts         # Task detail, logs, notas, mutations
       use-upload.ts                  # Upload de archivos
     lib/
       api-client.ts                  # Axios instance + interceptors

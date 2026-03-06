@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTaskNotes, useAddTaskNote } from '@/hooks/use-maintenance-plans';
+import { useTaskNotes, useAddTaskNote } from '@/hooks/use-task-operations';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';

@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
 import { View, Text, RefreshControl, Pressable, SectionList } from 'react-native';
 import { useRouter } from 'expo-router';
-import { usePlans } from '@/hooks/use-maintenance-plans';
+import { usePlans } from '@/hooks/use-plans';
 import { AnimatedListItem } from '@/components/animated-list-item';
 import { PlanStatusBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';

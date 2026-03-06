@@ -13,8 +13,11 @@ import type {
   UpdateTaskInput,
   ReorderTasksInput,
   CompleteTaskInput,
+  CurrentUser,
 } from '@epde/shared';
 import { recurrenceTypeToMonths, getNextDueDate, UserRole } from '@epde/shared';
+
+type ServiceUser = Pick<CurrentUser, 'id' | 'role'>;
 import type { Task } from '@prisma/client';
 
 type UpdateTaskData = Omit<UpdateTaskInput, 'categoryId'> & {
@@ -35,7 +38,7 @@ export class TaskLifecycleService {
    * ADMINs always pass. CLIENTs must own the property the task belongs to.
    * Throws NotFoundException if task doesn't exist, ForbiddenException if access denied.
    */
-  async verifyTaskAccess(taskId: string, user?: { id: string; role: string }): Promise<Task> {
+  async verifyTaskAccess(taskId: string, user?: ServiceUser): Promise<Task> {
     const task = await this.tasksRepository.findById(taskId);
     if (!task) throw new NotFoundException('Tarea no encontrada');
 
@@ -133,12 +136,7 @@ export class TaskLifecycleService {
     return this.tasksRepository.findByPlanId(planId);
   }
 
-  async completeTask(
-    taskId: string,
-    userId: string,
-    dto: CompleteTaskInput,
-    user?: { id: string; role: string },
-  ) {
+  async completeTask(taskId: string, userId: string, dto: CompleteTaskInput, user?: ServiceUser) {
     const task = await this.verifyTaskAccess(taskId, user);
 
     try {

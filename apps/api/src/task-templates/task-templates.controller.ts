@@ -22,7 +22,7 @@ import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
  */
 @ApiTags('Task Templates')
 @ApiBearerAuth()
-@Roles(UserRole.ADMIN)
+@Roles(UserRole.ADMIN) // Class-level: all task template operations are ADMIN-only
 @Controller()
 export class TaskTemplatesController {
   constructor(private readonly service: TaskTemplatesService) {}

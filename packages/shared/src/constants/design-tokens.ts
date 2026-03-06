@@ -2,11 +2,12 @@
  * EPDE Design Tokens — Single Source of Truth for brand colors.
  *
  * These values are consumed by:
- *   - `apps/mobile/src/lib/colors.ts`       (React Native, JS-only APIs)
- *   - `apps/web/src/app/globals.css`         (CSS custom properties — keep in sync manually)
- *   - `apps/mobile/src/app/global.css`       (Expo DOM, keep in sync manually)
+ *   - `apps/mobile/src/lib/colors.ts`       (React Native — imports these tokens directly)
+ *   - `apps/web/src/app/globals.css`         (CSS custom properties — synced via css-tokens.test.ts)
+ *   - `apps/mobile/src/app/global.css`       (Expo DOM — synced via css-tokens.test.ts)
  *
  * When updating a color, update it here first, then propagate to CSS files.
+ * The `css-tokens.test.ts` suite will catch any drift between JS tokens and CSS variables.
  */
 
 /** Light mode (default) palette */

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { usePlan, useRemoveTask, useReorderTasks } from '@/hooks/use-maintenance-plans';
+import { usePlan } from '@/hooks/use-plans';
+import { useRemoveTask, useReorderTasks } from '@/hooks/use-task-operations';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

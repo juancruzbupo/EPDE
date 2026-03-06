@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAllTasks } from '@/hooks/use-maintenance-plans';
+import { useAllTasks } from '@/hooks/use-plans';
 import { PageHeader } from '@/components/page-header';
 import { PageTransition } from '@/components/ui/page-transition';
 import { FilterSelect } from '@/components/filter-select';
@@ -11,13 +11,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { CheckSquare, MapPin, Calendar } from 'lucide-react';
 import {
   TaskStatus,
-  TaskPriority,
   TASK_STATUS_LABELS,
   TASK_STATUS_VARIANT,
   TASK_PRIORITY_LABELS,
   PRIORITY_VARIANT,
   formatRelativeDate,
 } from '@epde/shared';
+import type { TaskListItem } from '@epde/shared';
 
 const statusOptions = [
   { value: 'all', label: 'Todos los estados' },
@@ -27,26 +27,7 @@ const statusOptions = [
   { value: TaskStatus.COMPLETED, label: 'Completadas' },
 ];
 
-function TaskRow({
-  task,
-  onClick,
-}: {
-  task: {
-    id: string;
-    name: string;
-    status: TaskStatus;
-    priority: TaskPriority;
-    nextDueDate: string | null;
-    recurrenceType: string;
-    category: { id: string; name: string; icon: string | null };
-    maintenancePlan: {
-      id: string;
-      name: string;
-      property: { id: string; address: string; city: string };
-    };
-  };
-  onClick: () => void;
-}) {
+function TaskRow({ task, onClick }: { task: TaskListItem; onClick: () => void }) {
   return (
     <button
       onClick={onClick}

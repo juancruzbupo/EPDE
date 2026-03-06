@@ -7,6 +7,11 @@ import { TokenService } from './token.service';
 import { AuthAuditService } from './auth-audit.service';
 import { BCRYPT_SALT_ROUNDS } from '@epde/shared';
 
+interface LoginMeta {
+  clientType?: string;
+  ip?: string;
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -31,10 +36,7 @@ export class AuthService {
     return user;
   }
 
-  async login(
-    user: { id: string; email: string; role: string },
-    meta?: { clientType?: string; ip?: string },
-  ) {
+  async login(user: { id: string; email: string; role: string }, meta?: LoginMeta) {
     const { accessToken, refreshToken } = await this.tokenService.generateTokenPair(user);
 
     const fullUser = await this.usersService.findById(user.id);
