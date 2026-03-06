@@ -34,21 +34,21 @@ export const JWT_REFRESH_EXPIRATION = '7d';
 
 // ─── Enum Labels (Spanish) ──────────────────────────────
 
-export const TASK_STATUS_LABELS: Record<string, string> = {
+export const TASK_STATUS_LABELS = {
   PENDING: 'Pendiente',
   UPCOMING: 'Próxima',
   OVERDUE: 'Vencida',
   COMPLETED: 'Completada',
 } satisfies Record<TaskStatus, string>;
 
-export const TASK_PRIORITY_LABELS: Record<string, string> = {
+export const TASK_PRIORITY_LABELS = {
   LOW: 'Baja',
   MEDIUM: 'Media',
   HIGH: 'Alta',
   URGENT: 'Urgente',
 } satisfies Record<TaskPriority, string>;
 
-export const BUDGET_STATUS_LABELS: Record<string, string> = {
+export const BUDGET_STATUS_LABELS = {
   PENDING: 'Pendiente',
   QUOTED: 'Cotizado',
   APPROVED: 'Aprobado',
@@ -57,7 +57,7 @@ export const BUDGET_STATUS_LABELS: Record<string, string> = {
   COMPLETED: 'Completado',
 } satisfies Record<BudgetStatus, string>;
 
-export const SERVICE_STATUS_LABELS: Record<string, string> = {
+export const SERVICE_STATUS_LABELS = {
   OPEN: 'Abierto',
   IN_REVIEW: 'En Revisión',
   IN_PROGRESS: 'En Progreso',
@@ -65,7 +65,7 @@ export const SERVICE_STATUS_LABELS: Record<string, string> = {
   CLOSED: 'Cerrado',
 } satisfies Record<ServiceStatus, string>;
 
-export const PROPERTY_TYPE_LABELS: Record<string, string> = {
+export const PROPERTY_TYPE_LABELS = {
   HOUSE: 'Casa',
   APARTMENT: 'Departamento',
   DUPLEX: 'Dúplex',
@@ -73,7 +73,7 @@ export const PROPERTY_TYPE_LABELS: Record<string, string> = {
   OTHER: 'Otro',
 } satisfies Record<PropertyType, string>;
 
-export const RECURRENCE_TYPE_LABELS: Record<string, string> = {
+export const RECURRENCE_TYPE_LABELS = {
   MONTHLY: 'Mensual',
   QUARTERLY: 'Trimestral',
   BIANNUAL: 'Semestral',
@@ -82,26 +82,26 @@ export const RECURRENCE_TYPE_LABELS: Record<string, string> = {
   ON_DETECTION: 'Según detección',
 } satisfies Record<RecurrenceType, string>;
 
-export const USER_STATUS_LABELS: Record<string, string> = {
+export const USER_STATUS_LABELS = {
   INVITED: 'Invitado',
   ACTIVE: 'Activo',
   INACTIVE: 'Inactivo',
 } satisfies Record<UserStatus, string>;
 
-export const PLAN_STATUS_LABELS: Record<string, string> = {
+export const PLAN_STATUS_LABELS = {
   DRAFT: 'Borrador',
   ACTIVE: 'Activo',
   ARCHIVED: 'Archivado',
 } satisfies Record<PlanStatus, string>;
 
-export const SERVICE_URGENCY_LABELS: Record<string, string> = {
+export const SERVICE_URGENCY_LABELS = {
   LOW: 'Baja',
   MEDIUM: 'Media',
   HIGH: 'Alta',
   URGENT: 'Urgente',
 } satisfies Record<ServiceUrgency, string>;
 
-export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
+export const NOTIFICATION_TYPE_LABELS = {
   TASK_REMINDER: 'Recordatorio',
   BUDGET_UPDATE: 'Presupuesto',
   SERVICE_UPDATE: 'Servicio',
@@ -110,7 +110,7 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
 
 // ─── Nomenclated Task Labels ─────────────────────────────
 
-export const TASK_TYPE_LABELS: Record<string, string> = {
+export const TASK_TYPE_LABELS = {
   INSPECTION: 'Inspección',
   CLEANING: 'Limpieza',
   TEST: 'Prueba/Ensayo',
@@ -122,13 +122,13 @@ export const TASK_TYPE_LABELS: Record<string, string> = {
   EVALUATION: 'Evaluación',
 } satisfies Record<TaskType, string>;
 
-export const PROFESSIONAL_REQUIREMENT_LABELS: Record<string, string> = {
+export const PROFESSIONAL_REQUIREMENT_LABELS = {
   OWNER_CAN_DO: 'Propietario puede',
   PROFESSIONAL_RECOMMENDED: 'Profesional recomendado',
   PROFESSIONAL_REQUIRED: 'Profesional obligatorio',
 } satisfies Record<ProfessionalRequirement, string>;
 
-export const TASK_RESULT_LABELS: Record<string, string> = {
+export const TASK_RESULT_LABELS = {
   OK: 'Todo en orden',
   OK_WITH_OBSERVATIONS: 'En orden con observaciones',
   NEEDS_ATTENTION: 'Requiere atención',
@@ -137,7 +137,7 @@ export const TASK_RESULT_LABELS: Record<string, string> = {
   NOT_APPLICABLE: 'No aplica',
 } satisfies Record<TaskResult, string>;
 
-export const CONDITION_FOUND_LABELS: Record<string, string> = {
+export const CONDITION_FOUND_LABELS = {
   EXCELLENT: 'Excelente',
   GOOD: 'Bueno',
   FAIR: 'Aceptable',
@@ -145,13 +145,13 @@ export const CONDITION_FOUND_LABELS: Record<string, string> = {
   CRITICAL: 'Crítico',
 } satisfies Record<ConditionFound, string>;
 
-export const TASK_EXECUTOR_LABELS: Record<string, string> = {
+export const TASK_EXECUTOR_LABELS = {
   OWNER: 'Yo (propietario)',
   HIRED_PROFESSIONAL: 'Profesional contratado',
   EPDE_PROFESSIONAL: 'Profesional EPDE',
 } satisfies Record<TaskExecutor, string>;
 
-export const ACTION_TAKEN_LABELS: Record<string, string> = {
+export const ACTION_TAKEN_LABELS = {
   INSPECTION_ONLY: 'Solo inspección',
   CLEANING: 'Limpieza',
   MINOR_REPAIR: 'Reparación menor',

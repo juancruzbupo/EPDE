@@ -1,5 +1,5 @@
 import type { BaseEntity } from '../index';
-import type { PlanStatus } from '../enums';
+import type { PlanStatus, TaskStatus, TaskPriority, RecurrenceType } from '../enums';
 import type { Serialized, PropertyBrief, UserBriefWithEmail } from './common';
 import type { TaskPublic } from './task';
 
@@ -22,7 +22,7 @@ export type PlanPublic = Serialized<MaintenancePlan> & {
 export interface PlanListItem {
   id: string;
   name: string;
-  status: string;
+  status: PlanStatus;
   createdAt: string;
   property: { id: string; address: string; city: string; userId: string };
   _count: { tasks: number };
@@ -32,10 +32,10 @@ export interface PlanListItem {
 export interface TaskListItem {
   id: string;
   name: string;
-  status: string;
-  priority: string;
+  status: TaskStatus;
+  priority: TaskPriority;
   nextDueDate: string | null;
-  recurrenceType: string;
+  recurrenceType: RecurrenceType;
   category: { id: string; name: string; icon: string | null };
   maintenancePlan: {
     id: string;

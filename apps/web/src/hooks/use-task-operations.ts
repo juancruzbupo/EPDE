@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { getErrorMessage } from '@/lib/errors';
+import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import type { CompleteTaskInput } from '@epde/shared';
 import {
   updateTask,
   removeTask,
@@ -12,8 +13,6 @@ import {
   addTaskNote,
 } from '@/lib/api/maintenance-plans';
 import type { PlanPublic, TaskNotePublic } from '@/lib/api/maintenance-plans';
-import { QUERY_KEYS } from '@epde/shared';
-import type { CompleteTaskInput } from '@epde/shared';
 import { useAuthStore } from '@/stores/auth-store';
 import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 

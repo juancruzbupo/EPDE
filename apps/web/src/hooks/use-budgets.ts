@@ -1,9 +1,8 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { getErrorMessage } from '@/lib/errors';
-import { QUERY_KEYS } from '@epde/shared';
-import { invalidateDashboard } from '@/lib/invalidate-dashboard';
+import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import type { BudgetRequestPublic } from '@epde/shared';
+import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 import {
   getBudgets,
   getBudget,
@@ -13,7 +12,7 @@ import {
   type BudgetFilters,
 } from '@/lib/api/budgets';
 
-export function useBudgets(filters: BudgetFilters) {
+export function useBudgets(filters: Omit<BudgetFilters, 'cursor'>) {
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.budgets, filters],
     queryFn: ({ pageParam, signal }) => getBudgets({ ...filters, cursor: pageParam }, signal),

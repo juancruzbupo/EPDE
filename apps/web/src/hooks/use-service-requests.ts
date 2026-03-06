@@ -1,9 +1,8 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { getErrorMessage } from '@/lib/errors';
-import { QUERY_KEYS } from '@epde/shared';
-import { invalidateDashboard } from '@/lib/invalidate-dashboard';
+import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import type { ServiceRequestPublic } from '@epde/shared';
+import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 import {
   getServiceRequests,
   getServiceRequest,
@@ -12,7 +11,7 @@ import {
   type ServiceRequestFilters,
 } from '@/lib/api/service-requests';
 
-export function useServiceRequests(filters: ServiceRequestFilters) {
+export function useServiceRequests(filters: Omit<ServiceRequestFilters, 'cursor'>) {
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.serviceRequests, filters],
     queryFn: ({ pageParam, signal }) =>

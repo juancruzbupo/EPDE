@@ -2,9 +2,9 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createClientSchema, type CreateClientInput } from '@epde/shared/schemas';
+import { createClientSchema, type CreateClientInput } from '@epde/shared';
 import { useCreateClient } from '@/hooks/use-clients';
-import { getErrorMessage } from '@/lib/errors';
+import { getErrorMessage } from '@epde/shared';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

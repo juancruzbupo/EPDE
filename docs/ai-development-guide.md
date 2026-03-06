@@ -735,11 +735,10 @@ export async function createBudgetRequest(input: CreateBudgetRequestInput) {
 
 ```typescript
 // apps/web/src/lib/api/clients.ts (usa factory compartida)
-import { createClientQueries } from '@epde/shared/api';
+import { createClientQueries } from '@epde/shared';
 import { apiClient } from '../api-client';
 
-export type { ClientPublic } from '@epde/shared';
-export type { ClientFilters } from '@epde/shared/api';
+export type { ClientPublic, ClientFilters } from '@epde/shared';
 
 const queries = createClientQueries(apiClient);
 export const { getClients, getClient, createClient, updateClient, deleteClient } = queries;
@@ -1215,37 +1214,37 @@ pnpm test       # Todos los tests pasan
 
 ## 7. Anti-Patrones
 
-| Anti-patron                                                          | Correcto                                                                           |
-| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `this.prisma.user.findMany()` en un service                          | `this.usersRepository.findMany()`                                                  |
-| `interface MyType { ... }` en `lib/api/*.ts`                         | `import type { MyType } from '@epde/shared'`                                       |
-| `if (user.role === 'ADMIN')`                                         | `if (user.role === UserRole.ADMIN)`                                                |
-| `@Body() dto: CreateUserDto` (class-validator)                       | `@UsePipes(new ZodValidationPipe(schema)) @Body() data: Input`                     |
-| `localStorage.setItem('token', ...)`                                 | Cookies HttpOnly (web) / SecureStore (mobile nativo) / sessionStorage (mobile web) |
-| `queryClient.invalidateQueries({ queryKey: ['dashboard'] })`         | `queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] })`              |
-| `const sanitized = valid ? folder : 'default'` (fallback silencioso) | `throw new BadRequestException('Folder invalido')`                                 |
-| `console.log(token)`                                                 | No loguear tokens                                                                  |
-| `Float` en Prisma para montos                                        | `Decimal(14,2)`                                                                    |
-| `onError` ausente en `useMutation`                                   | `onError: (err) => toast.error(getErrorMessage(err, 'fallback'))`                  |
-| `set-password` sin verificar `purpose` claim                         | `if (payload.purpose !== 'invite') throw Unauthorized`                             |
-| Logout: API call primero, luego limpiar estado                       | Limpiar estado local PRIMERO, luego API call                                       |
-| `useQueryClient()` duplicado (store + componente)                    | `queryClient` singleton desde `lib/query-client.ts`                                |
-| `TypeScript enum`                                                    | `const obj as const` + `type Union`                                                |
-| `import { something } from '../../../shared'`                        | `import { something } from '@epde/shared'`                                         |
-| `<button><Trash2 /></button>` (icon-only sin label)                  | `<button aria-label="Eliminar"><Trash2 /></button>`                                |
-| `<Label>Nombre</Label><Input />` (sin vincular)                      | `<Label htmlFor="name">Nombre</Label><Input id="name" />`                          |
-| `<div onClick={fn}>` (clickeable sin teclado)                        | `<div role="button" tabIndex={0} onClick={fn} onKeyDown={handleEnterSpace}>`       |
-| `<span className="text-red-600">Error</span>`                        | `<span className="text-destructive">Error</span>`                                  |
-| `<div className="bg-white">`                                         | `<div className="bg-background">`                                                  |
-| `<dl>` plano sin fondo ni iconos                                     | `bg-muted/40 rounded-lg p-4` + iconos Lucide en `<dt>`                             |
-| Skeleton generico (`h-8 w-48` + `h-64 w-full`)                       | Skeleton estructurado que refleja layout real (PageHeader + Card + grid)           |
-| `<p>Recurso no encontrado</p>` (texto plano)                         | Icon centrado `h-10 w-10` + texto + boton "Volver"                                 |
-| Boton "Ver" en columna de tabla                                      | `onRowClick` en DataTable + titulo como `<Link>`                                   |
-| Activity list con `<li>` planos                                      | Items con icon circle (`bg-muted rounded-full p-2`) + border card                  |
-| `@Param('id') id: string` sin pipe en path params de entidad         | `@Param('id', ParseUUIDPipe) id: string`                                           |
-| `useInfiniteQuery({...})` sin `maxPages`                             | `useInfiniteQuery({ ..., maxPages: 10 })`                                          |
-| `const [debounced, setDebounced] = useState` con `useEffect` inline  | `const debouncedSearch = useDebounce(search, 300)`                                 |
-| `Record<string, string>` sin `satisfies` en label/variant maps       | `Record<string, string> = { ... } satisfies Record<EnumType, string>`              |
-| `Object.values(TaskType) as [string, ...string[]]` local en schema   | `TASK_TYPE_VALUES` de `@epde/shared` (SSoT en `enums.ts`)                          |
-| Funciones API standalone con `apiClient.get()` por entidad           | `createXxxQueries(apiClient)` factory de `@epde/shared/api`                        |
-| `DESIGN_TOKENS_LIGHT.success` en inline style (sin dark mode)        | CSS `var(--success)` (resuelve por tema automáticamente)                           |
+| Anti-patron                                                          | Correcto                                                                            |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `this.prisma.user.findMany()` en un service                          | `this.usersRepository.findMany()`                                                   |
+| `interface MyType { ... }` en `lib/api/*.ts`                         | `import type { MyType } from '@epde/shared'`                                        |
+| `if (user.role === 'ADMIN')`                                         | `if (user.role === UserRole.ADMIN)`                                                 |
+| `@Body() dto: CreateUserDto` (class-validator)                       | `@UsePipes(new ZodValidationPipe(schema)) @Body() data: Input`                      |
+| `localStorage.setItem('token', ...)`                                 | Cookies HttpOnly (web) / SecureStore (mobile nativo) / sessionStorage (mobile web)  |
+| `queryClient.invalidateQueries({ queryKey: ['dashboard'] })`         | `queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] })`               |
+| `const sanitized = valid ? folder : 'default'` (fallback silencioso) | `throw new BadRequestException('Folder invalido')`                                  |
+| `console.log(token)`                                                 | No loguear tokens                                                                   |
+| `Float` en Prisma para montos                                        | `Decimal(14,2)`                                                                     |
+| `onError` ausente en `useMutation`                                   | `onError: (err) => toast.error(getErrorMessage(err, 'fallback'))`                   |
+| `set-password` sin verificar `purpose` claim                         | `if (payload.purpose !== 'invite') throw Unauthorized`                              |
+| Logout: API call primero, luego limpiar estado                       | Limpiar estado local PRIMERO, luego API call                                        |
+| `useQueryClient()` duplicado (store + componente)                    | `queryClient` singleton desde `lib/query-client.ts`                                 |
+| `TypeScript enum`                                                    | `const obj as const` + `type Union`                                                 |
+| `import { something } from '../../../shared'`                        | `import { something } from '@epde/shared'`                                          |
+| `<button><Trash2 /></button>` (icon-only sin label)                  | `<button aria-label="Eliminar"><Trash2 /></button>`                                 |
+| `<Label>Nombre</Label><Input />` (sin vincular)                      | `<Label htmlFor="name">Nombre</Label><Input id="name" />`                           |
+| `<div onClick={fn}>` (clickeable sin teclado)                        | `<div role="button" tabIndex={0} onClick={fn} onKeyDown={handleEnterSpace}>`        |
+| `<span className="text-red-600">Error</span>`                        | `<span className="text-destructive">Error</span>`                                   |
+| `<div className="bg-white">`                                         | `<div className="bg-background">`                                                   |
+| `<dl>` plano sin fondo ni iconos                                     | `bg-muted/40 rounded-lg p-4` + iconos Lucide en `<dt>`                              |
+| Skeleton generico (`h-8 w-48` + `h-64 w-full`)                       | Skeleton estructurado que refleja layout real (PageHeader + Card + grid)            |
+| `<p>Recurso no encontrado</p>` (texto plano)                         | Icon centrado `h-10 w-10` + texto + boton "Volver"                                  |
+| Boton "Ver" en columna de tabla                                      | `onRowClick` en DataTable + titulo como `<Link>`                                    |
+| Activity list con `<li>` planos                                      | Items con icon circle (`bg-muted rounded-full p-2`) + border card                   |
+| `@Param('id') id: string` sin pipe en path params de entidad         | `@Param('id', ParseUUIDPipe) id: string`                                            |
+| `useInfiniteQuery({...})` sin `maxPages`                             | `useInfiniteQuery({ ..., maxPages: 10 })`                                           |
+| `const [debounced, setDebounced] = useState` con `useEffect` inline  | `const debouncedSearch = useDebounce(search, 300)`                                  |
+| `Record<string, string>` anotación explícita en label/variant maps   | Solo `satisfies Record<EnumType, string>` (sin anotación, para preservar narrowing) |
+| `Object.values(TaskType) as [string, ...string[]]` local en schema   | `TASK_TYPE_VALUES` de `@epde/shared` (SSoT en `enums.ts`)                           |
+| Funciones API standalone con `apiClient.get()` por entidad           | `createXxxQueries(apiClient)` factory de `@epde/shared`                             |
+| `DESIGN_TOKENS_LIGHT.success` en inline style (sin dark mode)        | CSS `var(--success)` (resuelve por tema automáticamente)                            |

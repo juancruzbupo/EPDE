@@ -1,8 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { getErrorMessage } from '@/lib/errors';
+import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { getPlan, getPlans, getAllTasks, updatePlan, addTask } from '@/lib/api/maintenance-plans';
-import { QUERY_KEYS } from '@epde/shared';
 
 export function usePlans() {
   return useQuery({

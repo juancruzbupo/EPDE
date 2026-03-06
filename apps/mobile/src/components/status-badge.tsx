@@ -15,7 +15,16 @@ import {
   URGENCY_VARIANT,
   PLAN_STATUS_VARIANT,
 } from '@epde/shared';
-import type { BadgeVariant } from '@epde/shared';
+import type {
+  BadgeVariant,
+  TaskStatus,
+  TaskPriority,
+  PropertyType,
+  BudgetStatus,
+  ServiceStatus,
+  ServiceUrgency,
+  PlanStatus,
+} from '@epde/shared';
 
 interface StatusBadgeProps {
   label: string;
@@ -42,42 +51,42 @@ export function StatusBadge({ label, variant = 'default' }: StatusBadgeProps) {
   );
 }
 
-export function TaskStatusBadge({ status }: { status: string }) {
+export function TaskStatusBadge({ status }: { status: TaskStatus }) {
   const label = TASK_STATUS_LABELS[status] ?? status;
   const variant = TASK_STATUS_VARIANT[status] ?? 'outline';
   return <StatusBadge label={label} variant={variant} />;
 }
 
-export function PriorityBadge({ priority }: { priority: string }) {
+export function PriorityBadge({ priority }: { priority: TaskPriority }) {
   const label = TASK_PRIORITY_LABELS[priority] ?? priority;
   const variant = PRIORITY_VARIANT[priority] ?? 'outline';
   return <StatusBadge label={label} variant={variant} />;
 }
 
-export function PropertyTypeBadge({ type }: { type: string }) {
+export function PropertyTypeBadge({ type }: { type: PropertyType }) {
   const label = PROPERTY_TYPE_LABELS[type] ?? type;
   return <StatusBadge label={label} variant="secondary" />;
 }
 
-export function BudgetStatusBadge({ status }: { status: string }) {
+export function BudgetStatusBadge({ status }: { status: BudgetStatus }) {
   const label = BUDGET_STATUS_LABELS[status] ?? status;
   const variant = BUDGET_STATUS_VARIANT[status] ?? 'outline';
   return <StatusBadge label={label} variant={variant} />;
 }
 
-export function ServiceStatusBadge({ status }: { status: string }) {
+export function ServiceStatusBadge({ status }: { status: ServiceStatus }) {
   const label = SERVICE_STATUS_LABELS[status] ?? status;
   const variant = SERVICE_STATUS_VARIANT[status] ?? 'outline';
   return <StatusBadge label={label} variant={variant} />;
 }
 
-export function UrgencyBadge({ urgency }: { urgency: string }) {
+export function UrgencyBadge({ urgency }: { urgency: ServiceUrgency }) {
   const label = SERVICE_URGENCY_LABELS[urgency] ?? urgency;
   const variant = URGENCY_VARIANT[urgency] ?? 'outline';
   return <StatusBadge label={label} variant={variant} />;
 }
 
-export function PlanStatusBadge({ status }: { status: string }) {
+export function PlanStatusBadge({ status }: { status: PlanStatus }) {
   const label = PLAN_STATUS_LABELS[status] ?? status;
   const variant = PLAN_STATUS_VARIANT[status] ?? 'outline';
   return <StatusBadge label={label} variant={variant} />;

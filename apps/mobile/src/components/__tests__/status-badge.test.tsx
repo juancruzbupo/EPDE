@@ -38,7 +38,8 @@ describe('TaskStatusBadge', () => {
   });
 
   it('falls back to raw status for unknown values', () => {
-    render(<TaskStatusBadge status="UNKNOWN" />);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    render(<TaskStatusBadge status={'UNKNOWN' as any} />);
     expect(screen.getByText('UNKNOWN')).toBeTruthy();
   });
 });

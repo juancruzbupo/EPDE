@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { QUERY_KEYS } from '@epde/shared';
-import { getErrorMessage } from '@/lib/errors';
+import { QUERY_KEYS, getErrorMessage } from '@epde/shared';
 import {
   getCategories,
   createCategory,

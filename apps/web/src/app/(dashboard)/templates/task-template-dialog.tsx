@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createTaskTemplateSchema, type CreateTaskTemplateInput } from '@epde/shared/schemas';
+import { createTaskTemplateSchema, type CreateTaskTemplateInput } from '@epde/shared';
 import {
   TASK_TYPE_LABELS,
   PROFESSIONAL_REQUIREMENT_LABELS,

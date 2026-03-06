@@ -1,6 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { getErrorMessage } from '@/lib/errors';
+import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import type {
+  CreateCategoryTemplateInput,
+  UpdateCategoryTemplateInput,
+  CreateTaskTemplateInput,
+  UpdateTaskTemplateInput,
+} from '@epde/shared';
 import {
   getCategoryTemplates,
   createCategoryTemplate,
@@ -10,13 +16,6 @@ import {
   updateTaskTemplate,
   deleteTaskTemplate,
 } from '@/lib/api/category-templates';
-import { QUERY_KEYS } from '@epde/shared';
-import type {
-  CreateCategoryTemplateInput,
-  UpdateCategoryTemplateInput,
-  CreateTaskTemplateInput,
-  UpdateTaskTemplateInput,
-} from '@epde/shared';
 
 const QUERY_KEY = [QUERY_KEYS.categoryTemplates];
 

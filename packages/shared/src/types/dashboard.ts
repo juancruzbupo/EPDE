@@ -1,3 +1,5 @@
+import type { TaskPriority, TaskStatus } from './enums';
+
 export interface DashboardStats {
   totalClients: number;
   totalProperties: number;
@@ -20,8 +22,8 @@ export interface UpcomingTask {
   id: string;
   name: string;
   nextDueDate: string;
-  priority: string;
-  status: string;
+  priority: TaskPriority;
+  status: TaskStatus;
   propertyAddress: string;
   propertyId: string;
   categoryName: string;
@@ -37,6 +39,6 @@ export interface ActivityItem {
     | 'budget_requested'
     | 'service_requested';
   description: string;
-  timestamp: Date;
+  timestamp: string;
   metadata?: Record<string, unknown>;
 }

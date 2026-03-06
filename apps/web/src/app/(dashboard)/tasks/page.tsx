@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { CheckSquare, MapPin, Calendar } from 'lucide-react';
 import {
   TaskStatus,
+  TaskPriority,
   TASK_STATUS_LABELS,
   TASK_STATUS_VARIANT,
   TASK_PRIORITY_LABELS,
@@ -33,8 +34,8 @@ function TaskRow({
   task: {
     id: string;
     name: string;
-    status: string;
-    priority: string;
+    status: TaskStatus;
+    priority: TaskPriority;
     nextDueDate: string | null;
     recurrenceType: string;
     category: { id: string; name: string; icon: string | null };
@@ -134,7 +135,7 @@ export default function TasksPage() {
           <p className="text-muted-foreground/70 mt-1 max-w-sm text-sm">
             {status === 'all'
               ? 'No hay tareas registradas todavía.'
-              : `No hay tareas con estado "${TASK_STATUS_LABELS[status] ?? status}".`}
+              : `No hay tareas con estado "${TASK_STATUS_LABELS[status as TaskStatus] ?? status}".`}
           </p>
         </div>
       ) : (

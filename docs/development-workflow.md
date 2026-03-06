@@ -306,7 +306,7 @@ import { formatRelativeDate, isOverdue, getErrorMessage } from '@epde/shared'; /
 - En modo dev, `tsup --watch` rebuilda automaticamente
 - **Siempre rebuildar shared** si cambiaron schemas y no esta en modo watch
 - El API (NestJS) consume como CommonJS, el Web (Next.js) como ESM
-- El sub-path `@epde/shared/seed` exporta `TEMPLATE_SEED_DATA` (datos de seed separados del bundle principal). NestJS no resuelve sub-paths de package.json exports (moduleResolution: "node"), por lo que `seed.ts` usa `import type` del source (borrado en runtime) + `require()` del dist CJS
+- El sub-path `@epde/shared/seed` es la **única excepción** a la regla de barrel imports. Exporta `TEMPLATE_SEED_DATA` (datos de seed separados del bundle principal). NestJS no resuelve sub-paths de package.json exports (moduleResolution: "node"), por lo que `seed.ts` usa `import type` del source (borrado en runtime) + `require()` del dist CJS. Todos los demás imports deben usar `@epde/shared` (barrel)
 
 ## Git y Commits
 

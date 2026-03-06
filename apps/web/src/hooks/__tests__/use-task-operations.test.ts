@@ -21,9 +21,10 @@ vi.mock('sonner', () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
 
-vi.mock('@/lib/errors', () => ({
-  getErrorMessage: vi.fn((_err: unknown, fallback: string) => fallback),
-}));
+vi.mock('@epde/shared', async (importOriginal) => {
+  const actual = await importOriginal();
+  return { ...actual, getErrorMessage: vi.fn((_err: unknown, fallback: string) => fallback) };
+});
 
 vi.mock('@/lib/api/maintenance-plans', () => ({
   updateTask: vi.fn(),

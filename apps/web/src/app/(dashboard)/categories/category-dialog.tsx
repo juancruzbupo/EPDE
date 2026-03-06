@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createCategorySchema, type CreateCategoryInput } from '@epde/shared/schemas';
+import { createCategorySchema, type CreateCategoryInput } from '@epde/shared';
 import { useCreateCategory, useUpdateCategory } from '@/hooks/use-categories';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';

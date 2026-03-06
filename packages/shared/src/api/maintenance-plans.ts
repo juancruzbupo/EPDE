@@ -63,7 +63,11 @@ export function createMaintenancePlanQueries(apiClient: AxiosInstance) {
       return data;
     },
 
-    async completeTask(planId: string, taskId: string, dto: CompleteTaskInput) {
+    async completeTask(
+      planId: string,
+      taskId: string,
+      dto: CompleteTaskInput,
+    ): Promise<ApiResponse<TaskLogPublic>> {
       const { data } = await apiClient.post(
         `/maintenance-plans/${planId}/tasks/${taskId}/complete`,
         dto,
@@ -71,7 +75,11 @@ export function createMaintenancePlanQueries(apiClient: AxiosInstance) {
       return data;
     },
 
-    async addTaskNote(planId: string, taskId: string, dto: { content: string }) {
+    async addTaskNote(
+      planId: string,
+      taskId: string,
+      dto: { content: string },
+    ): Promise<ApiResponse<TaskNotePublic>> {
       const { data } = await apiClient.post(
         `/maintenance-plans/${planId}/tasks/${taskId}/notes`,
         dto,

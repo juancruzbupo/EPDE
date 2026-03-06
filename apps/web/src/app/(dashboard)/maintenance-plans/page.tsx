@@ -18,7 +18,7 @@ function PlanCard({
   plan: {
     id: string;
     name: string;
-    status: string;
+    status: PlanStatus;
     createdAt: string;
     property: { id: string; address: string; city: string };
     _count: { tasks: number };

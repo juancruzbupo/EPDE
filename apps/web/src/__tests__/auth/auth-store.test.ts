@@ -1,4 +1,4 @@
-import type { UserPublic } from '@epde/shared/types';
+import type { UserPublic } from '@epde/shared';
 
 vi.mock('@/lib/auth', () => ({
   login: vi.fn(),

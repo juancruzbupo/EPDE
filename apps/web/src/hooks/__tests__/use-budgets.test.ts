@@ -1,8 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { QUERY_KEYS } from '@epde/shared';
-import { getErrorMessage } from '@/lib/errors';
+import { QUERY_KEYS, getErrorMessage } from '@epde/shared';
 import {
   useBudgets,
   useBudget,
@@ -22,9 +21,10 @@ vi.mock('sonner', () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
 
-vi.mock('@/lib/errors', () => ({
-  getErrorMessage: vi.fn((err: unknown, fallback: string) => fallback),
-}));
+vi.mock('@epde/shared', async (importOriginal) => {
+  const actual = await importOriginal();
+  return { ...actual, getErrorMessage: vi.fn((_err: unknown, fallback: string) => fallback) };
+});
 
 vi.mock('@/lib/api/budgets', () => ({
   getBudgets: vi.fn(),

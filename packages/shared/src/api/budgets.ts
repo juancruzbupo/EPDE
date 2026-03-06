@@ -23,12 +23,19 @@ export function createBudgetQueries(apiClient: AxiosInstance) {
       return data;
     },
 
-    async createBudgetRequest(dto: { propertyId: string; title: string; description?: string }) {
+    async createBudgetRequest(dto: {
+      propertyId: string;
+      title: string;
+      description?: string;
+    }): Promise<ApiResponse<BudgetRequestPublic>> {
       const { data } = await apiClient.post('/budgets', dto);
       return data;
     },
 
-    async updateBudgetStatus(id: string, status: string) {
+    async updateBudgetStatus(
+      id: string,
+      status: string,
+    ): Promise<ApiResponse<BudgetRequestPublic>> {
       const { data } = await apiClient.patch(`/budgets/${id}/status`, { status });
       return data;
     },
@@ -41,7 +48,7 @@ export function createBudgetQueries(apiClient: AxiosInstance) {
         notes?: string;
         validUntil?: string;
       },
-    ) {
+    ): Promise<ApiResponse<BudgetRequestPublic>> {
       const { data } = await apiClient.post(`/budgets/${id}/respond`, dto);
       return data;
     },

@@ -1,8 +1,7 @@
-import { createServiceRequestQueries } from '@epde/shared/api';
+import { createServiceRequestQueries } from '@epde/shared';
 import { apiClient } from '../api-client';
 
-export type { ServiceRequestFilters } from '@epde/shared/api';
-export type { ServiceRequestPublic } from '@epde/shared';
+export type { ServiceRequestFilters, ServiceRequestPublic } from '@epde/shared';
 
 const queries = createServiceRequestQueries(apiClient);
 export const { getServiceRequests, getServiceRequest, createServiceRequest } = queries;

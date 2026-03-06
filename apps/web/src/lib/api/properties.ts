@@ -1,9 +1,8 @@
-import { createPropertyQueries } from '@epde/shared/api';
-import { apiClient } from '../api-client';
+import { createPropertyQueries } from '@epde/shared';
 import type { UpdatePropertyInput } from '@epde/shared';
+import { apiClient } from '../api-client';
 
-export type { PropertyFilters } from '@epde/shared/api';
-export type { PropertyPublic } from '@epde/shared';
+export type { PropertyFilters, PropertyPublic } from '@epde/shared';
 
 const queries = createPropertyQueries(apiClient);
 export const { getProperties, getProperty } = queries;

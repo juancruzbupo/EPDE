@@ -33,7 +33,7 @@ export function createServiceRequestQueries(apiClient: AxiosInstance) {
       description: string;
       urgency?: string;
       photoUrls?: string[];
-    }) {
+    }): Promise<ApiResponse<ServiceRequestPublic>> {
       const { data } = await apiClient.post('/service-requests', dto);
       return data;
     },

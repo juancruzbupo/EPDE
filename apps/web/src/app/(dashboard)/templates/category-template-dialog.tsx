@@ -3,8 +3,8 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createCategoryTemplateSchema } from '@epde/shared/schemas';
-import type { CreateCategoryTemplateInput } from '@epde/shared/schemas';
+import { createCategoryTemplateSchema } from '@epde/shared';
+import type { CreateCategoryTemplateInput } from '@epde/shared';
 import {
   useCreateCategoryTemplate,
   useUpdateCategoryTemplate,

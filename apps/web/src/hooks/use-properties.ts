@@ -1,8 +1,7 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { QUERY_KEYS } from '@epde/shared';
+import { QUERY_KEYS, getErrorMessage } from '@epde/shared';
 import type { UpdatePropertyInput, PropertyPublic } from '@epde/shared';
-import { getErrorMessage } from '@/lib/errors';
 import {
   getProperties,
   getProperty,
@@ -12,7 +11,7 @@ import {
   type PropertyFilters,
 } from '@/lib/api/properties';
 
-export function useProperties(filters: PropertyFilters) {
+export function useProperties(filters: Omit<PropertyFilters, 'cursor'>) {
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.properties, filters],
     queryFn: ({ pageParam, signal }) => getProperties({ ...filters, cursor: pageParam }, signal),

@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, FileText, Home, User, AlertTriangle, Calendar, AlignLeft } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { SERVICE_URGENCY_LABELS, SERVICE_STATUS_LABELS } from '@epde/shared';
+import { SERVICE_URGENCY_LABELS, SERVICE_STATUS_LABELS, ServiceStatus } from '@epde/shared';
 import type { ServiceRequestPublic } from '@epde/shared';
 import Link from 'next/link';
 import { urgencyVariant, serviceStatusVariant } from '@/lib/style-maps';
@@ -186,7 +186,7 @@ export function ServiceRequestDetail({ id, isAdmin, initialData }: ServiceReques
         open={!!statusConfirm}
         onOpenChange={() => setStatusConfirm(null)}
         title="Cambiar estado"
-        description={`¿Estás seguro de que queres cambiar el estado a "${statusConfirm ? (SERVICE_STATUS_LABELS[statusConfirm] ?? statusConfirm) : ''}"?`}
+        description={`¿Estás seguro de que queres cambiar el estado a "${statusConfirm ? (SERVICE_STATUS_LABELS[statusConfirm as ServiceStatus] ?? statusConfirm) : ''}"?`}
         variant="default"
         onConfirm={() => {
           if (statusConfirm) {

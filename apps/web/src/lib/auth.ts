@@ -1,5 +1,5 @@
 import { apiClient } from './api-client';
-import type { AuthResponse, UserPublic } from '@epde/shared/types';
+import type { AuthResponse, UserPublic } from '@epde/shared';
 
 export async function login(email: string, password: string): Promise<AuthResponse> {
   const { data } = await apiClient.post('/auth/login', { email, password });

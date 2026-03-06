@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { TYPE } from '@/lib/fonts';
 import { TASK_STATUS_LABELS } from '@epde/shared';
+import type { TaskStatus } from '@epde/shared';
 import type { TaskListItem } from '@/lib/api/maintenance-plans';
 
 const FILTERS = [
@@ -117,7 +118,7 @@ export default function TareasScreen() {
               title="Sin tareas"
               message={
                 statusFilter
-                  ? `No hay tareas "${TASK_STATUS_LABELS[statusFilter] ?? statusFilter}".`
+                  ? `No hay tareas "${TASK_STATUS_LABELS[statusFilter as TaskStatus] ?? statusFilter}".`
                   : 'No hay tareas registradas todavía.'
               }
             />
