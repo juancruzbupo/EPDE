@@ -27,7 +27,7 @@ import type {
 } from '@epde/shared';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 
-@ApiTags('Category Templates')
+@ApiTags('Plantillas de Categorías')
 @ApiBearerAuth()
 @Roles(UserRole.ADMIN)
 @Controller('category-templates')

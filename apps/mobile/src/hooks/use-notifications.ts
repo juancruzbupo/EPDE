@@ -21,7 +21,10 @@ export function useNotifications() {
 export function useUnreadCount() {
   return useQuery({
     queryKey: [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
-    queryFn: ({ signal }) => getUnreadCount(signal).then((r) => r.data.count),
+    queryFn: async ({ signal }) => {
+      const res = await getUnreadCount(signal);
+      return res.data.count;
+    },
     refetchInterval: 30_000,
   });
 }

@@ -35,7 +35,7 @@ const uploadBodySchema = z.object({
   }),
 });
 
-@ApiTags('Upload')
+@ApiTags('Carga de Archivos')
 @ApiBearerAuth()
 @Roles(UserRole.ADMIN)
 @Controller('upload')

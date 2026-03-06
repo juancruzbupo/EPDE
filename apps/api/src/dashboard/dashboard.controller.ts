@@ -6,7 +6,7 @@ import { DashboardService } from './dashboard.service';
 import { UserRole } from '@epde/shared';
 import type { CurrentUser as CurrentUserPayload } from '@epde/shared';
 
-@ApiTags('Dashboard')
+@ApiTags('Panel')
 @ApiBearerAuth()
 @Controller('dashboard')
 export class DashboardController {

@@ -38,6 +38,8 @@
 26. **Barrel import de `@epde/shared`** — Importar SIEMPRE desde `@epde/shared` (barrel). NUNCA usar sub-paths como `@epde/shared/types`, `@epde/shared/schemas`, `@epde/shared/constants`. El barrel re-exporta todo
 27. **Zod validation para Query params** — Endpoints con `@Query()` DEBEN usar `@Query(new ZodValidationPipe(schema))` con schema Zod definido en `@epde/shared`. NUNCA validar query params con regex manual o `DefaultValuePipe` + `ParseIntPipe`
 28. **Certificate pinning pre-produccion mobile** — Antes de release mobile a produccion, implementar certificate pinning con `react-native-ssl-pinning`. Ver TODO [PRE-RELEASE] en `apps/mobile/src/lib/api-client.ts:34-40`
+29. **Error state en paginas con queries** — Toda pagina que use `useQuery`/`useInfiniteQuery` DEBE destructurar `isError` y `refetch`, y mostrar UI de error con `AlertTriangle` + boton "Reintentar". Patron: `client-dashboard.tsx`. NUNCA dejar que un query falle silenciosamente mostrando loading infinito
+30. **`@ApiTags` en espanol** — Todos los controllers usan `@ApiTags('Nombre en Español')` para consistencia en Swagger. Ejemplos: `Autenticación`, `Panel`, `Carga de Archivos`, `Plantillas de Tareas`
 
 ### NUNCA
 

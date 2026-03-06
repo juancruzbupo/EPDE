@@ -8,7 +8,8 @@ import { PageTransition } from '@/components/ui/page-transition';
 import { FilterSelect } from '@/components/filter-select';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CheckSquare, MapPin, Calendar } from 'lucide-react';
+import { AlertTriangle, CheckSquare, MapPin, Calendar } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   TaskStatus,
   TASK_STATUS_LABELS,
@@ -85,7 +86,12 @@ function TaskRowSkeleton() {
 export default function TasksPage() {
   const router = useRouter();
   const [status, setStatus] = useState('all');
-  const { data: tasks, isLoading } = useAllTasks(status === 'all' ? undefined : status);
+  const {
+    data: tasks,
+    isLoading,
+    isError,
+    refetch,
+  } = useAllTasks(status === 'all' ? undefined : status);
 
   return (
     <PageTransition>
@@ -108,6 +114,14 @@ export default function TasksPage() {
           {Array.from({ length: 6 }).map((_, i) => (
             <TaskRowSkeleton key={i} />
           ))}
+        </div>
+      ) : isError ? (
+        <div className="flex flex-col items-center justify-center gap-2 py-24">
+          <AlertTriangle className="text-destructive h-8 w-8" />
+          <p className="text-muted-foreground text-sm">No se pudieron cargar las tareas</p>
+          <Button variant="outline" size="sm" onClick={() => void refetch()}>
+            Reintentar
+          </Button>
         </div>
       ) : !tasks || tasks.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">

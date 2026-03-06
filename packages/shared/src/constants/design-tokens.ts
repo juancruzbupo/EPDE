@@ -94,3 +94,23 @@ export const TASK_TYPE_TOKENS_DARK = {
 } as const;
 
 export type TaskTypeTokens = typeof TASK_TYPE_TOKENS_LIGHT;
+
+/** Chart color tokens — light mode */
+export const CHART_TOKENS_LIGHT = {
+  chart1: '#c4704b',
+  chart2: '#6b9b7a',
+  chart3: '#5b8ec4',
+  chart4: '#d4a843',
+  chart5: '#d4956f',
+} as const;
+
+/** Chart color tokens — dark mode */
+export const CHART_TOKENS_DARK = {
+  chart1: '#d4956f',
+  chart2: '#6b9b7a',
+  chart3: '#5b8ec4',
+  chart4: '#d4a843',
+  chart5: '#c4704b',
+} as const;
+
+export type ChartTokens = typeof CHART_TOKENS_LIGHT;

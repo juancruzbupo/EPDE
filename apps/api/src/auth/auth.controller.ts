@@ -38,7 +38,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 const ACCESS_COOKIE_NAME = 'access_token';
 const REFRESH_COOKIE_NAME = 'refresh_token';
 
-@ApiTags('Auth')
+@ApiTags('Autenticación')
 @ApiBearerAuth()
 @Controller('auth')
 export class AuthController {

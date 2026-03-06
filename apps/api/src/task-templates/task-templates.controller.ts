@@ -20,7 +20,7 @@ import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
  * `category-templates/:categoryId/tasks` (POST, PATCH reorder) and
  * `task-templates/:id` (PATCH, DELETE). A single prefix would be incorrect.
  */
-@ApiTags('Task Templates')
+@ApiTags('Plantillas de Tareas')
 @ApiBearerAuth()
 @Roles(UserRole.ADMIN) // Class-level: all task template operations are ADMIN-only
 @Controller()

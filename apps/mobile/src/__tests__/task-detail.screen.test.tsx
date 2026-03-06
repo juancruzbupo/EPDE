@@ -25,10 +25,10 @@ const mockUseTaskNotes = jest.fn();
 const mockUseAddTaskNote = jest.fn();
 
 jest.mock('@/hooks/use-task-operations', () => ({
-  useTaskDetail: (...args) => mockUseTaskDetail(...args),
-  useTaskLogs: (...args) => mockUseTaskLogs(...args),
-  useTaskNotes: (...args) => mockUseTaskNotes(...args),
-  useAddTaskNote: (...args) => mockUseAddTaskNote(...args),
+  useTaskDetail: () => mockUseTaskDetail(),
+  useTaskLogs: () => mockUseTaskLogs(),
+  useTaskNotes: () => mockUseTaskNotes(),
+  useAddTaskNote: () => mockUseAddTaskNote(),
 }));
 
 jest.mock('@/components/complete-task-modal', () => ({

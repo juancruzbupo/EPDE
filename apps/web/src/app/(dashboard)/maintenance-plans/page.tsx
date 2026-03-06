@@ -7,7 +7,8 @@ import { PageHeader } from '@/components/page-header';
 import { PageTransition } from '@/components/ui/page-transition';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ClipboardList, Home, ListChecks } from 'lucide-react';
+import { AlertTriangle, ClipboardList, Home, ListChecks } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   PLAN_STATUS_LABELS,
   PLAN_STATUS_VARIANT,
@@ -63,7 +64,7 @@ function PlanCardSkeleton() {
 
 export default function PlanesPage() {
   const router = useRouter();
-  const { data: plans, isLoading } = usePlans();
+  const { data: plans, isLoading, isError, refetch } = usePlans();
 
   const grouped = useMemo(() => {
     if (!plans) return { active: [], draft: [], archived: [] };
@@ -86,6 +87,14 @@ export default function PlanesPage() {
           {Array.from({ length: 4 }).map((_, i) => (
             <PlanCardSkeleton key={i} />
           ))}
+        </div>
+      ) : isError ? (
+        <div className="flex flex-col items-center justify-center gap-2 py-24">
+          <AlertTriangle className="text-destructive h-8 w-8" />
+          <p className="text-muted-foreground text-sm">No se pudieron cargar los planes</p>
+          <Button variant="outline" size="sm" onClick={() => void refetch()}>
+            Reintentar
+          </Button>
         </div>
       ) : !plans || plans.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">

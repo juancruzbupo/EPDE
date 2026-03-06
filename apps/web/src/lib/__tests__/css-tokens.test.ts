@@ -6,6 +6,8 @@ import {
   DESIGN_TOKENS_DARK,
   TASK_TYPE_TOKENS_LIGHT,
   TASK_TYPE_TOKENS_DARK,
+  CHART_TOKENS_LIGHT,
+  CHART_TOKENS_DARK,
 } from '@epde/shared';
 
 /**
@@ -106,6 +108,45 @@ describe('Web CSS token sync', () => {
 
     for (const [key, expected] of Object.entries(TASK_TYPE_TOKENS_DARK)) {
       const cssKey = `task-${key}`;
+      const actual = darkValues.get(cssKey);
+      if (!actual) {
+        mismatches.push(`--${cssKey}: missing in .dark`);
+      } else if (actual !== expected) {
+        mismatches.push(`--${cssKey}: expected "${expected}", got "${actual}"`);
+      }
+    }
+
+    expect(mismatches).toEqual([]);
+  });
+
+  /** Convert chart token key (e.g. "chart1") to CSS var name (e.g. "chart-1"). */
+  function toChartCssKey(key: string): string {
+    return key.replace(/(\d)/, '-$1');
+  }
+
+  it(':root chart values should match CHART_TOKENS_LIGHT', () => {
+    const rootValues = extractSectionValues(/:root\s*\{([^}]+)\}/s);
+    const mismatches: string[] = [];
+
+    for (const [key, expected] of Object.entries(CHART_TOKENS_LIGHT)) {
+      const cssKey = toChartCssKey(key);
+      const actual = rootValues.get(cssKey);
+      if (!actual) {
+        mismatches.push(`--${cssKey}: missing in :root`);
+      } else if (actual !== expected) {
+        mismatches.push(`--${cssKey}: expected "${expected}", got "${actual}"`);
+      }
+    }
+
+    expect(mismatches).toEqual([]);
+  });
+
+  it('.dark chart values should match CHART_TOKENS_DARK', () => {
+    const darkValues = extractSectionValues(/\.dark\s*\{([^}]+)\}/s);
+    const mismatches: string[] = [];
+
+    for (const [key, expected] of Object.entries(CHART_TOKENS_DARK)) {
+      const cssKey = toChartCssKey(key);
       const actual = darkValues.get(cssKey);
       if (!actual) {
         mismatches.push(`--${cssKey}: missing in .dark`);

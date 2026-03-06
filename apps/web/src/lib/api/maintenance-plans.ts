@@ -45,7 +45,24 @@ export async function addTask(
   return data;
 }
 
-export async function updateTask(planId: string, taskId: string, dto: Record<string, unknown>) {
+export async function updateTask(
+  planId: string,
+  taskId: string,
+  dto: {
+    categoryId?: string;
+    name?: string;
+    description?: string;
+    priority?: string;
+    recurrenceType?: string;
+    recurrenceMonths?: number;
+    nextDueDate?: string;
+    status?: string;
+    taskType?: string;
+    professionalRequirement?: string;
+    technicalDescription?: string | null;
+    estimatedDurationMinutes?: number | null;
+  },
+) {
   const { data } = await apiClient.patch(`/maintenance-plans/${planId}/tasks/${taskId}`, dto);
   return data;
 }
