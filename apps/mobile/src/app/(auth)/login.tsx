@@ -14,7 +14,7 @@ import { loginSchema } from '@epde/shared';
 import type { LoginInput } from '@epde/shared';
 import { useAuthStore } from '@/stores/auth-store';
 import { colors } from '@/lib/colors';
-import { fonts } from '@/lib/fonts';
+import { TYPE } from '@/lib/fonts';
 
 export default function LoginScreen() {
   const login = useAuthStore((s) => s.login);
@@ -48,15 +48,15 @@ export default function LoginScreen() {
       className="bg-background flex-1"
     >
       <View className="flex-1 justify-center px-6">
-        <Text style={fonts.heading} className="text-primary mb-2 text-center text-4xl">
+        <Text style={TYPE.displayLg} className="text-primary mb-2 text-center">
           EPDE
         </Text>
-        <Text style={fonts.regular} className="text-muted-foreground mb-10 text-center text-base">
+        <Text style={TYPE.bodyLg} className="text-muted-foreground mb-10 text-center">
           Ingresá a tu cuenta
         </Text>
 
         <View className="bg-card border-border rounded-xl border p-6">
-          <Text style={fonts.medium} className="text-foreground mb-1.5 text-sm">
+          <Text style={TYPE.labelLg} className="text-foreground mb-1.5">
             Email
           </Text>
           <Controller
@@ -64,8 +64,8 @@ export default function LoginScreen() {
             name="email"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3 text-base"
-                style={fonts.regular}
+                className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3"
+                style={TYPE.bodyLg}
                 placeholder="tu@email.com"
                 placeholderTextColor={colors.mutedForeground}
                 keyboardType="email-address"
@@ -81,7 +81,7 @@ export default function LoginScreen() {
             <Text className="text-destructive mb-2 text-xs">{errors.email.message}</Text>
           )}
 
-          <Text style={fonts.medium} className="text-foreground mt-3 mb-1.5 text-sm">
+          <Text style={TYPE.labelLg} className="text-foreground mt-3 mb-1.5">
             Contraseña
           </Text>
           <Controller
@@ -89,8 +89,8 @@ export default function LoginScreen() {
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3 text-base"
-                style={fonts.regular}
+                className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3"
+                style={TYPE.bodyLg}
                 placeholder="••••••"
                 placeholderTextColor={colors.mutedForeground}
                 secureTextEntry
@@ -115,7 +115,7 @@ export default function LoginScreen() {
             {isLoading ? (
               <ActivityIndicator color={colors.primaryForeground} />
             ) : (
-              <Text style={fonts.bold} className="text-primary-foreground text-base">
+              <Text style={TYPE.titleMd} className="text-primary-foreground">
                 Ingresar
               </Text>
             )}

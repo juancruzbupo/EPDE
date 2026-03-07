@@ -27,8 +27,9 @@ import {
   PROFESSIONAL_REQUIREMENT_LABELS,
   TASK_PRIORITY_LABELS,
   RECURRENCE_TYPE_LABELS,
+  PRIORITY_VARIANT,
 } from '@epde/shared';
-import { priorityColors, taskTypeColors, professionalReqColors } from '@/lib/style-maps';
+import { taskTypeColors, professionalReqColors } from '@/lib/style-maps';
 import { CategoryTemplateDialog } from './category-template-dialog';
 import { TaskTemplateDialog } from './task-template-dialog';
 import type { CategoryTemplate, TaskTemplate } from '@epde/shared';
@@ -186,11 +187,12 @@ export default function TemplatesPage() {
                               </span>
                             </TableCell>
                             <TableCell>
-                              <span
-                                className={`rounded px-1.5 py-0.5 text-xs ${priorityColors[task.priority] ?? ''}`}
+                              <Badge
+                                variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'}
+                                className="text-xs"
                               >
                                 {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
-                              </span>
+                              </Badge>
                             </TableCell>
                             <TableCell className="text-muted-foreground text-sm">
                               {RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}

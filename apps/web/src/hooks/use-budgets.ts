@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
-import type { BudgetRequestPublic } from '@epde/shared';
+import type { BudgetRequestPublic, BudgetStatus } from '@epde/shared';
 import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 import {
   getBudgets,
@@ -72,7 +72,8 @@ export function useRespondToBudget() {
 export function useUpdateBudgetStatus() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) => updateBudgetStatus(id, status),
+    mutationFn: ({ id, status }: { id: string; status: BudgetStatus }) =>
+      updateBudgetStatus(id, status),
     onSuccess: () => {
       toast.success('Estado actualizado');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });

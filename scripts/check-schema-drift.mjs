@@ -4,8 +4,7 @@
  *
  * Compares Prisma model names against @epde/shared Zod schema files.
  * Exits with code 1 and lists any Prisma models that lack a corresponding
- * schema file, so CI can catch drift early (continue-on-error: true in CI
- * so it is advisory rather than blocking).
+ * schema file, so CI catches drift as a hard failure.
  *
  * Run: node scripts/check-schema-drift.mjs
  */

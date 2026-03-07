@@ -62,7 +62,7 @@ function PlanCardSkeleton() {
   );
 }
 
-export default function PlanesPage() {
+export default function MaintenancePlansPage() {
   const router = useRouter();
   const { data: plans, isLoading, isError, refetch } = usePlans();
 

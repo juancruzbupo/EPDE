@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
-import type { CompleteTaskInput } from '@epde/shared';
+import { getErrorMessage, QUERY_KEYS, TaskStatus } from '@epde/shared';
+import type { CompleteTaskInput, TaskPriority, RecurrenceType } from '@epde/shared';
 import {
   updateTask,
   removeTask,
@@ -29,11 +29,11 @@ export function useUpdateTask() {
       categoryId?: string;
       name?: string;
       description?: string;
-      priority?: string;
-      recurrenceType?: string;
+      priority?: TaskPriority;
+      recurrenceType?: RecurrenceType;
       recurrenceMonths?: number;
       nextDueDate?: string;
-      status?: string;
+      status?: TaskStatus;
     }) => updateTask(planId, taskId, dto),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] }),
     onError: (err) => toast.error(getErrorMessage(err, 'Error al actualizar tarea')),
@@ -110,7 +110,7 @@ export function useCompleteTask() {
         return {
           ...old,
           tasks: old.tasks.map((t) =>
-            t.id === variables.taskId ? { ...t, status: 'COMPLETED' } : t,
+            t.id === variables.taskId ? { ...t, status: TaskStatus.COMPLETED } : t,
           ),
         };
       });

@@ -14,9 +14,10 @@ import {
   RECURRENCE_TYPE_LABELS,
   TASK_STATUS_LABELS,
   PLAN_STATUS_LABELS,
+  PRIORITY_VARIANT,
 } from '@epde/shared';
 import { TaskDialog } from './task-dialog';
-import { priorityColors, taskStatusVariant } from '@/lib/style-maps';
+import { taskStatusVariant } from '@/lib/style-maps';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
 
 interface PlanEditorProps {
@@ -130,11 +131,12 @@ export function PlanEditor({ planId }: PlanEditorProps) {
                   </div>
                   <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
                     <Badge variant="outline">{task.category.name}</Badge>
-                    <span
-                      className={`rounded px-1.5 py-0.5 text-xs ${priorityColors[task.priority] ?? ''}`}
+                    <Badge
+                      variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'}
+                      className="text-xs"
                     >
                       {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
-                    </span>
+                    </Badge>
                     <span className="text-muted-foreground">
                       {RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}
                     </span>

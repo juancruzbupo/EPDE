@@ -7,6 +7,7 @@ import {
   completeTask,
   addTaskNote,
 } from '@/lib/api/maintenance-plans';
+import { TaskStatus } from '@epde/shared';
 import type { PlanPublic, TaskNotePublic, CompleteTaskInput } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useAuthStore } from '@/stores/auth-store';
@@ -62,7 +63,7 @@ export function useCompleteTask() {
         return {
           ...old,
           tasks: old.tasks.map((t) =>
-            t.id === variables.taskId ? { ...t, status: 'COMPLETED' } : t,
+            t.id === variables.taskId ? { ...t, status: TaskStatus.COMPLETED } : t,
           ),
         };
       });

@@ -15,7 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { setPassword } from '@/lib/auth';
 import { colors } from '@/lib/colors';
-import { fonts } from '@/lib/fonts';
+import { TYPE } from '@/lib/fonts';
 
 const schema = z
   .object({
@@ -75,15 +75,15 @@ export default function SetPasswordScreen() {
         contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
         className="px-6"
       >
-        <Text style={fonts.heading} className="text-primary mb-2 text-center text-3xl">
+        <Text style={TYPE.displayLg} className="text-primary mb-2 text-center">
           Configurar Contraseña
         </Text>
-        <Text style={fonts.regular} className="text-muted-foreground mb-10 text-center text-base">
+        <Text style={TYPE.bodyLg} className="text-muted-foreground mb-10 text-center">
           Creá tu contraseña para acceder a EPDE
         </Text>
 
         <View className="bg-card border-border rounded-xl border p-6">
-          <Text style={fonts.medium} className="text-foreground mb-1.5 text-sm">
+          <Text style={TYPE.labelLg} className="text-foreground mb-1.5">
             Nueva Contraseña
           </Text>
           <Controller
@@ -91,8 +91,8 @@ export default function SetPasswordScreen() {
             name="newPassword"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3 text-base"
-                style={fonts.regular}
+                className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3"
+                style={TYPE.bodyLg}
                 placeholder="••••••••"
                 placeholderTextColor={colors.mutedForeground}
                 secureTextEntry
@@ -106,7 +106,7 @@ export default function SetPasswordScreen() {
             <Text className="text-destructive mb-2 text-xs">{errors.newPassword.message}</Text>
           )}
 
-          <Text style={fonts.medium} className="text-foreground mt-3 mb-1.5 text-sm">
+          <Text style={TYPE.labelLg} className="text-foreground mt-3 mb-1.5">
             Confirmar Contraseña
           </Text>
           <Controller
@@ -114,8 +114,8 @@ export default function SetPasswordScreen() {
             name="confirmPassword"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3 text-base"
-                style={fonts.regular}
+                className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3"
+                style={TYPE.bodyLg}
                 placeholder="••••••••"
                 placeholderTextColor={colors.mutedForeground}
                 secureTextEntry
@@ -140,7 +140,7 @@ export default function SetPasswordScreen() {
             {isLoading ? (
               <ActivityIndicator color={colors.primaryForeground} />
             ) : (
-              <Text style={fonts.bold} className="text-primary-foreground text-base">
+              <Text style={TYPE.titleMd} className="text-primary-foreground">
                 Configurar Contraseña
               </Text>
             )}

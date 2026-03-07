@@ -28,13 +28,6 @@ export {
 
 // ─── Color class maps (platform-specific, not shared) ───
 
-export const priorityColors: Record<string, string> = {
-  LOW: 'bg-success/15 text-success',
-  MEDIUM: 'bg-warning/15 text-warning',
-  HIGH: 'bg-caution/15 text-caution',
-  URGENT: 'bg-destructive/15 text-destructive',
-};
-
 export const taskTypeColors: Record<string, string> = {
   INSPECTION: 'bg-task-inspection/15 text-task-inspection',
   CLEANING: 'bg-task-cleaning/15 text-task-cleaning',

@@ -23,8 +23,7 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { TASK_PRIORITY_LABELS } from '@epde/shared';
-import { priorityColors } from '@/lib/style-maps';
+import { TASK_PRIORITY_LABELS, PRIORITY_VARIANT } from '@epde/shared';
 
 export function ClientDashboard({ userName }: { userName: string }) {
   const {
@@ -193,11 +192,12 @@ export function ClientDashboard({ userName }: { userName: string }) {
                                 <Badge variant="outline" className="text-xs">
                                   {task.categoryName}
                                 </Badge>
-                                <span
-                                  className={`rounded px-1.5 py-0.5 text-xs ${priorityColors[task.priority] ?? ''}`}
+                                <Badge
+                                  variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'}
+                                  className="text-xs"
                                 >
                                   {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
-                                </span>
+                                </Badge>
                               </div>
                               <div className="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
                                 <span>{task.propertyAddress}</span>

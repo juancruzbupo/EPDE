@@ -11,12 +11,13 @@ import {
   TASK_PRIORITY_LABELS,
   RECURRENCE_TYPE_LABELS,
   TASK_STATUS_LABELS,
+  PRIORITY_VARIANT,
 } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { TaskLogTimeline } from './task-log-timeline';
 import { TaskNotes } from './task-notes';
-import { priorityColors, taskStatusVariant } from '@/lib/style-maps';
+import { taskStatusVariant } from '@/lib/style-maps';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
 
 interface TaskDetailSheetProps {
@@ -52,9 +53,9 @@ export function TaskDetailSheet({
               {TASK_STATUS_LABELS[task.status] ?? task.status}
             </Badge>
             <Badge variant="outline">{task.category.name}</Badge>
-            <span className={`rounded px-2 py-0.5 text-xs ${priorityColors[task.priority] ?? ''}`}>
+            <Badge variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'} className="text-xs">
               {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
-            </span>
+            </Badge>
           </div>
         </SheetHeader>
 

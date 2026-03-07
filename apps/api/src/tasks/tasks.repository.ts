@@ -16,7 +16,6 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
     const safeTake = Math.min(take, TASKS_MAX_TAKE);
     return this.model.findMany({
       where: {
-        deletedAt: null,
         ...(status && status !== 'all' ? { status: status as TaskStatus } : {}),
         ...(userId ? { maintenancePlan: { property: { userId } } } : {}),
       },

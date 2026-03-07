@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native';
-import { fonts } from '@/lib/fonts';
+import { TYPE } from '@/lib/fonts';
 import {
   TASK_STATUS_LABELS,
   TASK_PRIORITY_LABELS,
@@ -44,7 +44,7 @@ export function StatusBadge({ label, variant = 'default' }: StatusBadgeProps) {
 
   return (
     <View className={`rounded-full px-2.5 py-0.5 ${styles.bg}`}>
-      <Text style={fonts.medium} className={`text-xs ${styles.text}`}>
+      <Text style={TYPE.labelMd} className={styles.text}>
         {label}
       </Text>
     </View>

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import type { TaskPriority, RecurrenceType } from '@epde/shared';
 import { getPlan, getPlans, getAllTasks, updatePlan, addTask } from '@/lib/api/maintenance-plans';
 
 export function usePlans() {
@@ -47,8 +48,8 @@ export function useAddTask() {
       categoryId: string;
       name: string;
       description?: string;
-      priority?: string;
-      recurrenceType?: string;
+      priority?: TaskPriority;
+      recurrenceType?: RecurrenceType;
       recurrenceMonths?: number;
       nextDueDate?: string;
     }) => addTask(planId, dto),
