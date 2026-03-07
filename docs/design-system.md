@@ -161,7 +161,7 @@ import { TYPE } from '@/lib/fonts';
 
 ## Style Maps Centralizados
 
-Las variantes de Badge se importan directamente desde `@epde/shared` (SSoT). Color maps locales (`taskTypeColors`, `professionalReqColors`) se mantienen en `lib/style-maps.ts`. **No duplicar** en cada componente.
+Las variantes de Badge se importan directamente desde `@epde/shared` (SSoT). Color maps locales (`TASK_TYPE_COLORS`, `PROFESSIONAL_REQ_COLORS`) se mantienen en `lib/style-maps.ts`. **No duplicar** en cada componente.
 
 ```typescript
 // Variantes de Badge — desde @epde/shared
@@ -178,26 +178,23 @@ import { TASK_STATUS_VARIANT, PRIORITY_VARIANT, BUDGET_STATUS_VARIANT } from '@e
 
 ```typescript
 // Color maps locales — desde style-maps.ts (CSS token classes)
-import { taskTypeColors } from '@/lib/style-maps';
+import { TASK_TYPE_COLORS } from '@/lib/style-maps';
 
-<span className={taskTypeColors[task.taskType]}>
+<span className={TASK_TYPE_COLORS[task.taskType]}>
   {TASK_TYPE_LABELS[task.taskType]}
 </span>
 ```
 
 **Maps disponibles:**
 
-| Export                  | Entidad      | Descripcion                                                    |
-| ----------------------- | ------------ | -------------------------------------------------------------- |
-| `priorityColors`        | Tareas       | Clases bg+text por prioridad (LOW→URGENT)                      |
-| `taskStatusVariant`     | Tareas       | Badge variant por estado                                       |
-| `budgetStatusVariant`   | Presupuestos | Badge variant por estado                                       |
-| `budgetStatusClassName` | Presupuestos | Clases extra para APPROVED/COMPLETED                           |
-| `urgencyVariant`        | Solicitudes  | Badge variant por urgencia                                     |
-| `serviceStatusVariant`  | Solicitudes  | Badge variant por estado de solicitud                          |
-| `clientStatusVariant`   | Clientes     | Badge variant por estado                                       |
-| `taskTypeColors`        | Templates    | CSS variable tokens (`bg-task-*/15 text-task-*`) con dark mode |
-| `professionalReqColors` | Templates    | Clases bg+text por req. profesional                            |
+Badge variants (desde `@epde/shared`): `TASK_STATUS_VARIANT`, `BUDGET_STATUS_VARIANT`, `SERVICE_STATUS_VARIANT`, `URGENCY_VARIANT`, `PRIORITY_VARIANT`, `CLIENT_STATUS_VARIANT`, `PLAN_STATUS_VARIANT`.
+
+Color maps locales (desde `lib/style-maps.ts`):
+
+| Export                    | Entidad   | Descripcion                                                    |
+| ------------------------- | --------- | -------------------------------------------------------------- |
+| `TASK_TYPE_COLORS`        | Templates | CSS variable tokens (`bg-task-*/15 text-task-*`) con dark mode |
+| `PROFESSIONAL_REQ_COLORS` | Templates | Clases bg+text por req. profesional                            |
 
 ## Componentes UI (shadcn/ui)
 

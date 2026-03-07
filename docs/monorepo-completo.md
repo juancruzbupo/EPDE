@@ -715,7 +715,7 @@ Las variantes de Badge se importan directamente desde `@epde/shared` (SSoT web +
 | `SERVICE_STATUS_VARIANT` | Solicitudes  | OPEN, IN_REVIEW, IN_PROGRESS, RESOLVED, CLOSED |
 | `CLIENT_STATUS_VARIANT`  | Clientes     | INVITED, ACTIVE, INACTIVE                      |
 
-Color maps locales en `lib/style-maps.ts` (web): `taskTypeColors` (CSS tokens) y `professionalReqColors`. El Badge web incluye variante `success` para estados terminales positivos (COMPLETED, APPROVED, RESOLVED).
+Color maps locales en `lib/style-maps.ts` (web): `TASK_TYPE_COLORS` (CSS tokens) y `PROFESSIONAL_REQ_COLORS`. El Badge web incluye variante `success` para estados terminales positivos (COMPLETED, APPROVED, RESOLVED).
 
 **Tokens semanticos en badges:** La variante `success` usa `bg-success/15 text-success border-success/20` (web) y `bg-success/15 text-success` (mobile). NUNCA usar `bg-green-*` / `text-green-*` directamente — siempre tokens semanticos (`success`, `warning`, `destructive`).
 

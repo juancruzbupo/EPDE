@@ -9,7 +9,6 @@ import { StatCard } from '@/components/stat-card';
 import { HealthCard } from '@/components/health-card';
 import { AnimatedNumber } from '@/components/ui/animated-number';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -21,6 +20,7 @@ import {
   CheckCircle,
   ChevronRight,
 } from 'lucide-react';
+import { ErrorState } from '@/components/error-state';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { TASK_PRIORITY_LABELS, PRIORITY_VARIANT } from '@epde/shared';
@@ -87,15 +87,11 @@ export function ClientDashboard({ userName }: { userName: string }) {
           ))
         ) : statsError ? (
           <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
-            <div className="col-span-full flex flex-col items-center gap-2 py-8">
-              <AlertTriangle className="text-destructive h-8 w-8" />
-              <p className="text-muted-foreground text-sm">
-                No se pudieron cargar las estadísticas
-              </p>
-              <Button variant="outline" size="sm" onClick={() => void refetchStats()}>
-                Reintentar
-              </Button>
-            </div>
+            <ErrorState
+              message="No se pudieron cargar las estadísticas"
+              onRetry={refetchStats}
+              className="col-span-full"
+            />
           </Item>
         ) : stats ? (
           <>
@@ -161,13 +157,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
                 ))}
               </div>
             ) : upcomingError ? (
-              <div className="flex flex-col items-center gap-2 py-8">
-                <AlertTriangle className="text-destructive h-8 w-8" />
-                <p className="text-muted-foreground text-sm">No se pudieron cargar las tareas</p>
-                <Button variant="outline" size="sm" onClick={() => void refetchUpcoming()}>
-                  Reintentar
-                </Button>
-              </div>
+              <ErrorState message="No se pudieron cargar las tareas" onRetry={refetchUpcoming} />
             ) : upcoming && upcoming.length > 0 ? (
               <Wrapper
                 {...(shouldAnimate

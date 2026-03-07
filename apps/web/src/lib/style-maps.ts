@@ -7,7 +7,7 @@ import type { TaskType, ProfessionalRequirement } from '@epde/shared';
 
 // ─── Color class maps (platform-specific, not shared) ───
 
-export const taskTypeColors: Record<TaskType, string> = {
+export const TASK_TYPE_COLORS: Record<TaskType, string> = {
   INSPECTION: 'bg-task-inspection/15 text-task-inspection',
   CLEANING: 'bg-task-cleaning/15 text-task-cleaning',
   TEST: 'bg-task-test/15 text-task-test',
@@ -19,7 +19,7 @@ export const taskTypeColors: Record<TaskType, string> = {
   EVALUATION: 'bg-task-evaluation/15 text-task-evaluation',
 };
 
-export const professionalReqColors: Record<ProfessionalRequirement, string> = {
+export const PROFESSIONAL_REQ_COLORS: Record<ProfessionalRequirement, string> = {
   OWNER_CAN_DO: 'bg-success/15 text-success',
   PROFESSIONAL_RECOMMENDED: 'bg-warning/15 text-warning',
   PROFESSIONAL_REQUIRED: 'bg-destructive/15 text-destructive',

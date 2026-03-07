@@ -8,6 +8,10 @@
  *
  * When updating a color, update it here first, then propagate to CSS files.
  * The `css-tokens.test.ts` suite will catch any drift between JS tokens and CSS variables.
+ *
+ * Note: `sidebar-*` and `popover-*` CSS tokens in globals.css are web-only "app chrome"
+ * variables managed by shadcn/ui. They are NOT part of the shared brand palette and
+ * intentionally omitted from these token objects.
  */
 
 /** Light mode (default) palette */

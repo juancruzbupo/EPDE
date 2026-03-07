@@ -7,8 +7,8 @@ import { PageHeader } from '@/components/page-header';
 import { PageTransition } from '@/components/ui/page-transition';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertTriangle, ClipboardList, Home, ListChecks } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ClipboardList, Home, ListChecks } from 'lucide-react';
+import { ErrorState } from '@/components/error-state';
 import {
   PLAN_STATUS_LABELS,
   PLAN_STATUS_VARIANT,
@@ -89,13 +89,11 @@ export default function MaintenancePlansPage() {
           ))}
         </div>
       ) : isError ? (
-        <div className="flex flex-col items-center justify-center gap-2 py-24">
-          <AlertTriangle className="text-destructive h-8 w-8" />
-          <p className="text-muted-foreground text-sm">No se pudieron cargar los planes</p>
-          <Button variant="outline" size="sm" onClick={() => void refetch()}>
-            Reintentar
-          </Button>
-        </div>
+        <ErrorState
+          message="No se pudieron cargar los planes"
+          onRetry={refetch}
+          className="justify-center py-24"
+        />
       ) : !plans || plans.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <ClipboardList className="text-muted-foreground/40 mb-4 h-12 w-12" />

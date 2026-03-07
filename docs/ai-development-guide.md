@@ -38,12 +38,13 @@
 26. **Barrel import de `@epde/shared`** — Importar SIEMPRE desde `@epde/shared` (barrel). NUNCA usar sub-paths como `@epde/shared/types`, `@epde/shared/schemas`, `@epde/shared/constants`. El barrel re-exporta todo
 27. **Zod validation para Query params** — Endpoints con `@Query()` DEBEN usar `@Query(new ZodValidationPipe(schema))` con schema Zod definido en `@epde/shared`. NUNCA validar query params con regex manual o `DefaultValuePipe` + `ParseIntPipe`
 28. **Certificate pinning pre-produccion mobile** — Antes de release mobile a produccion, implementar certificate pinning con `react-native-ssl-pinning`. Ver TODO [PRE-RELEASE] en `apps/mobile/src/lib/api-client.ts:34-40`
-29. **Error state en paginas con queries** — Toda pagina que use `useQuery`/`useInfiniteQuery` DEBE destructurar `isError` y `refetch`, y mostrar UI de error con `AlertTriangle` + boton "Reintentar". Patron: `client-dashboard.tsx`. NUNCA dejar que un query falle silenciosamente mostrando loading infinito
+29. **Error state en paginas con queries** — Toda pagina que use `useQuery`/`useInfiniteQuery` DEBE destructurar `isError` y `refetch`, y usar `<ErrorState message="..." onRetry={refetch} />` de `@/components/error-state`. Para full-page: agregar `className="justify-center py-24"`. Para inline (dashboard cards): agregar `className="col-span-full"` si es necesario. NUNCA duplicar markup de AlertTriangle+Button inline
 30. **`@ApiTags` en espanol** — Todos los controllers usan `@ApiTags('Nombre en Español')` para consistencia en Swagger. Ejemplos: `Autenticación`, `Panel`, `Carga de Archivos`, `Plantillas de Tareas`
 31. **Validar ownership en rutas anidadas** — Rutas tipo `PATCH :id/tasks/:taskId` DEBEN extraer ambos params y validar que el recurso hijo pertenece al padre. Ejemplo: `if (task.maintenancePlanId !== planId) throw new NotFoundException()`. NUNCA ignorar el `:id` padre en la logica del service
 32. **Tipografia: `type-*` en landing, Tailwind text en dashboard** — Las secciones de landing usan clases `type-display`, `type-heading`, `type-body`, `type-caption` definidas en `globals.css`. El dashboard y paginas autenticadas usan `text-sm`, `text-base`, `text-lg` de Tailwind directamente. NUNCA mezclar sistemas
 33. **List pages siguen patron de properties** — Toda pagina de listado paginado sigue el patron de `app/(dashboard)/properties/page.tsx`: `useInfiniteQuery` + `maxPages: 10` + skeleton loading + error state + empty state + infinite scroll trigger. Copiar estructura como baseline
 34. **Filter interfaces reflejan Zod schemas** — Los tipos de filtros en frontend (`PropertyFilters`, `BudgetFilters`, etc.) DEBEN ser subconjuntos de los schemas Zod de `@epde/shared`. Si el schema agrega un campo, el filtro debe reflejarlo. Evitar drift manual entre tipos de filtro locales y schemas compartidos
+35. **Import ordering** — Orden de imports en archivos TS/TSX: (1) React/framework (`react`, `next/*`, `@nestjs/*`), (2) external packages (`lucide-react`, `framer-motion`, `date-fns`), (3) `@epde/shared`, (4) `@/` local imports (components, hooks, lib), (5) `type` imports al final de cada grupo. Separar grupos con linea en blanco
 
 ### NUNCA
 
@@ -844,8 +845,8 @@ Color maps locales (CSS tokens para task types) se mantienen en `lib/style-maps.
 
 ```typescript
 // apps/web/src/lib/style-maps.ts — solo color maps, NO badge variants
-export const taskTypeColors: Record<TaskType, string> = { ... };
-export const professionalReqColors: Record<ProfessionalRequirement, string> = { ... };
+export const TASK_TYPE_COLORS: Record<TaskType, string> = { ... };
+export const PROFESSIONAL_REQ_COLORS: Record<ProfessionalRequirement, string> = { ... };
 ```
 
 **Regla:** NUNCA definir colores por estado inline en componentes. Badge variants desde `@epde/shared`, color maps desde `style-maps.ts`.

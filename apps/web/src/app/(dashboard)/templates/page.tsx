@@ -29,7 +29,7 @@ import {
   RECURRENCE_TYPE_LABELS,
   PRIORITY_VARIANT,
 } from '@epde/shared';
-import { taskTypeColors, professionalReqColors } from '@/lib/style-maps';
+import { TASK_TYPE_COLORS, PROFESSIONAL_REQ_COLORS } from '@/lib/style-maps';
 import { CategoryTemplateDialog } from './category-template-dialog';
 import { TaskTemplateDialog } from './task-template-dialog';
 import type { CategoryTemplate, TaskTemplate } from '@epde/shared';
@@ -173,14 +173,14 @@ export default function TemplatesPage() {
                             <TableCell className="font-medium">{task.name}</TableCell>
                             <TableCell>
                               <span
-                                className={`rounded px-1.5 py-0.5 text-xs ${taskTypeColors[task.taskType] ?? ''}`}
+                                className={`rounded px-1.5 py-0.5 text-xs ${TASK_TYPE_COLORS[task.taskType] ?? ''}`}
                               >
                                 {TASK_TYPE_LABELS[task.taskType] ?? task.taskType}
                               </span>
                             </TableCell>
                             <TableCell>
                               <span
-                                className={`rounded px-1.5 py-0.5 text-xs ${professionalReqColors[task.professionalRequirement] ?? ''}`}
+                                className={`rounded px-1.5 py-0.5 text-xs ${PROFESSIONAL_REQ_COLORS[task.professionalRequirement] ?? ''}`}
                               >
                                 {PROFESSIONAL_REQUIREMENT_LABELS[task.professionalRequirement] ??
                                   task.professionalRequirement}

@@ -8,8 +8,8 @@ import { PageTransition } from '@/components/ui/page-transition';
 import { FilterSelect } from '@/components/filter-select';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertTriangle, CheckSquare, MapPin, Calendar } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { CheckSquare, MapPin, Calendar } from 'lucide-react';
+import { ErrorState } from '@/components/error-state';
 import {
   TaskStatus,
   TASK_STATUS_LABELS,
@@ -116,13 +116,11 @@ export default function TasksPage() {
           ))}
         </div>
       ) : isError ? (
-        <div className="flex flex-col items-center justify-center gap-2 py-24">
-          <AlertTriangle className="text-destructive h-8 w-8" />
-          <p className="text-muted-foreground text-sm">No se pudieron cargar las tareas</p>
-          <Button variant="outline" size="sm" onClick={() => void refetch()}>
-            Reintentar
-          </Button>
-        </div>
+        <ErrorState
+          message="No se pudieron cargar las tareas"
+          onRetry={refetch}
+          className="justify-center py-24"
+        />
       ) : !tasks || tasks.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <CheckSquare className="text-muted-foreground/40 mb-4 h-12 w-12" />
