@@ -20,6 +20,10 @@ export type PlanWithFullDetails = Prisma.MaintenancePlanGetPayload<{
 
 @Injectable()
 export class MaintenancePlansRepository extends BaseRepository<MaintenancePlan, 'maintenancePlan'> {
+  /**
+   * hasSoftDelete: false — MaintenancePlan has no `deletedAt` field in Prisma schema.
+   * Lifecycle is managed via PlanStatus (DRAFT → ACTIVE → ARCHIVED) instead of soft-delete.
+   */
   constructor(prisma: PrismaService) {
     super(prisma, 'maintenancePlan', false);
   }

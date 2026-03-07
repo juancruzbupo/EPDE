@@ -39,6 +39,7 @@ export class NotificationsController {
     return { data };
   }
 
+  /** Collection-level bulk action — marks ALL unread notifications as read. */
   @Patch('read-all')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async markAllAsRead(@CurrentUser() user: CurrentUserPayload) {
