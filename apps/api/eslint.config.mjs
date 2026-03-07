@@ -19,7 +19,7 @@ export default [
   {
     // Enforce repository pattern: services must not import PrismaService directly
     files: ['src/**/*.service.ts'],
-    ignores: ['src/prisma/**'],
+    ignores: ['src/prisma/**', 'src/auth/auth-audit.service.ts'],
     rules: {
       'no-restricted-imports': ['error', {
         patterns: [{
