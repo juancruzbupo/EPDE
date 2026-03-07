@@ -37,7 +37,7 @@ const PlanCard = memo(function PlanCard({ plan }: { plan: PlanListItem }) {
 
 const STATUS_ORDER = ['ACTIVE', 'DRAFT', 'ARCHIVED'] as const;
 
-export default function PlanesScreen() {
+export default function MaintenancePlansScreen() {
   const { data: plans, isLoading, error, refetch } = usePlans();
 
   if (error && !plans) {

@@ -1,5 +1,5 @@
 import type { BaseEntity, SoftDeletable } from '../index';
-import type { PropertyType } from '../enums';
+import type { PropertyType, PlanStatus } from '../enums';
 import type { Serialized, UserBriefWithEmail } from './common';
 
 export interface Property extends BaseEntity, SoftDeletable {
@@ -16,5 +16,5 @@ export interface Property extends BaseEntity, SoftDeletable {
 
 export type PropertyPublic = Serialized<Omit<Property, 'deletedAt'>> & {
   user?: UserBriefWithEmail;
-  maintenancePlan?: { id: string; name: string; status: string } | null;
+  maintenancePlan?: { id: string; name: string; status: PlanStatus } | null;
 };

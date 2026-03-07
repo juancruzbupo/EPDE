@@ -10,6 +10,7 @@ import { FilterSelect } from '@/components/filter-select';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { BUDGET_STATUS_LABELS, UserRole } from '@epde/shared';
+import type { BudgetStatus } from '@epde/shared';
 import { PageTransition } from '@/components/ui/page-transition';
 import { budgetColumns } from './columns';
 import { CreateBudgetDialog } from './create-budget-dialog';
@@ -28,7 +29,7 @@ export default function BudgetsPage() {
 
   const filters = useMemo(
     () => ({
-      status: status === 'all' ? undefined : status,
+      status: status === 'all' ? undefined : (status as BudgetStatus),
     }),
     [status],
   );

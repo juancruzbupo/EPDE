@@ -10,10 +10,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Trash2 } from 'lucide-react';
-import { USER_STATUS_LABELS } from '@epde/shared';
+import { USER_STATUS_LABELS, CLIENT_STATUS_VARIANT } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { clientStatusVariant } from '@/lib/style-maps';
 import type { ClientPublic } from '@/lib/api/clients';
 import Link from 'next/link';
 
@@ -42,7 +41,7 @@ export function clientColumns({
       accessorKey: 'status',
       header: 'Estado',
       cell: ({ row }) => (
-        <Badge variant={clientStatusVariant[row.original.status] ?? 'outline'}>
+        <Badge variant={CLIENT_STATUS_VARIANT[row.original.status] ?? 'outline'}>
           {USER_STATUS_LABELS[row.original.status] ?? row.original.status}
         </Badge>
       ),

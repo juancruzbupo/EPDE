@@ -48,7 +48,8 @@ export function useUpdateBudgetStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) => updateBudgetStatus(id, status),
+    mutationFn: ({ id, status }: { id: string; status: BudgetStatus }) =>
+      updateBudgetStatus(id, status),
 
     onMutate: async (variables) => {
       await queryClient.cancelQueries({ queryKey: [QUERY_KEYS.budgets, variables.id] });
@@ -58,7 +59,7 @@ export function useUpdateBudgetStatus() {
       ]);
       queryClient.setQueryData<BudgetRequestPublic>([QUERY_KEYS.budgets, variables.id], (old) => {
         if (!old) return old;
-        return { ...old, status: variables.status as BudgetStatus };
+        return { ...old, status: variables.status };
       });
       return { previous };
     },

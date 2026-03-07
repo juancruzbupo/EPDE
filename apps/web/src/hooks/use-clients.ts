@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
-import type { ClientPublic } from '@epde/shared';
+import type { ClientPublic, UserStatus } from '@epde/shared';
 import { useDebounce } from './use-debounce';
 import {
   getClients,
@@ -48,8 +48,15 @@ export function useCreateClient() {
 export function useUpdateClient() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...dto }: { id: string; name?: string; phone?: string; status?: string }) =>
-      updateClient(id, dto),
+    mutationFn: ({
+      id,
+      ...dto
+    }: {
+      id: string;
+      name?: string;
+      phone?: string;
+      status?: UserStatus;
+    }) => updateClient(id, dto),
     onSuccess: () => {
       toast.success('Cliente actualizado');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.clients] });

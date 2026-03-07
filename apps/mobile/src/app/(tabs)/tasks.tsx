@@ -54,8 +54,8 @@ const TaskCard = memo(function TaskCard({ task }: { task: TaskListItem }) {
   );
 });
 
-export default function TareasScreen() {
-  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
+export default function TasksScreen() {
+  const [statusFilter, setStatusFilter] = useState<TaskStatus | undefined>(undefined);
 
   const { data: tasks, isLoading, error, refetch } = useAllTasks(statusFilter);
 

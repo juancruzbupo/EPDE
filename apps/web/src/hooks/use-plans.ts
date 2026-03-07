@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
-import type { TaskPriority, RecurrenceType } from '@epde/shared';
+import type { TaskPriority, RecurrenceType, PlanStatus, TaskStatus } from '@epde/shared';
 import { getPlan, getPlans, getAllTasks, updatePlan, addTask } from '@/lib/api/maintenance-plans';
 
 export function usePlans() {
@@ -11,7 +11,7 @@ export function usePlans() {
   });
 }
 
-export function useAllTasks(status?: string) {
+export function useAllTasks(status?: TaskStatus) {
   return useQuery({
     queryKey: [QUERY_KEYS.plans, 'tasks', status ?? 'all'],
     queryFn: ({ signal }) => getAllTasks(status, signal).then((r) => r.data),
@@ -29,7 +29,7 @@ export function usePlan(id: string) {
 export function useUpdatePlan() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...dto }: { id: string; name?: string; status?: string }) =>
+    mutationFn: ({ id, ...dto }: { id: string; name?: string; status?: PlanStatus }) =>
       updatePlan(id, dto),
     onSuccess: (_data, vars) =>
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, vars.id] }),

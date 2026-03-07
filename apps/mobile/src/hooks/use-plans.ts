@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getPlan, getPlans, getAllTasks } from '@/lib/api/maintenance-plans';
 import { QUERY_KEYS } from '@epde/shared';
+import type { TaskStatus } from '@epde/shared';
 
 export function usePlans() {
   return useQuery({
@@ -9,7 +10,7 @@ export function usePlans() {
   });
 }
 
-export function useAllTasks(status?: string) {
+export function useAllTasks(status?: TaskStatus) {
   return useQuery({
     queryKey: [QUERY_KEYS.plans, 'tasks', status ?? 'all'],
     queryFn: ({ signal }) => getAllTasks(status, signal).then((r) => r.data),

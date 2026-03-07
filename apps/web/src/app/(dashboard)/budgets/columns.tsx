@@ -2,10 +2,9 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
-import { BUDGET_STATUS_LABELS } from '@epde/shared';
+import { BUDGET_STATUS_LABELS, BUDGET_STATUS_VARIANT } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { budgetStatusVariant } from '@/lib/style-maps';
 import type { BudgetRequestPublic } from '@/lib/api/budgets';
 import Link from 'next/link';
 
@@ -37,7 +36,7 @@ export const budgetColumns: ColumnDef<BudgetRequestPublic>[] = [
     cell: ({ row }) => {
       const status = row.original.status;
       return (
-        <Badge variant={budgetStatusVariant[status] ?? 'outline'}>
+        <Badge variant={BUDGET_STATUS_VARIANT[status] ?? 'outline'}>
           {BUDGET_STATUS_LABELS[status] ?? status}
         </Badge>
       );

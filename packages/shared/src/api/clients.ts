@@ -1,9 +1,10 @@
 import type { AxiosInstance } from 'axios';
 import type { PaginatedResponse, ApiResponse, ClientPublic } from '../types';
+import type { UserStatus } from '../types/enums';
 
 export interface ClientFilters {
   search?: string;
-  status?: string;
+  status?: UserStatus;
   cursor?: string;
   take?: number;
 }
@@ -34,7 +35,7 @@ export function createClientQueries(apiClient: AxiosInstance) {
 
     async updateClient(
       id: string,
-      dto: { name?: string; phone?: string; status?: string },
+      dto: { name?: string; phone?: string; status?: UserStatus },
     ): Promise<ApiResponse<ClientPublic>> {
       const { data } = await apiClient.patch(`/clients/${id}`, dto);
       return data;

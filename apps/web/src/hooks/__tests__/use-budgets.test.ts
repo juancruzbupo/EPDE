@@ -44,7 +44,7 @@ describe('useBudgets', () => {
   });
 
   it('should call useInfiniteQuery with correct queryKey', () => {
-    const filters = { status: 'PENDING' };
+    const filters = { status: 'PENDING' as const };
     renderHook(() => useBudgets(filters));
 
     expect(useInfiniteQuery).toHaveBeenCalledWith(

@@ -10,6 +10,7 @@ import { FilterSelect } from '@/components/filter-select';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { SERVICE_STATUS_LABELS, SERVICE_URGENCY_LABELS, UserRole } from '@epde/shared';
+import type { ServiceStatus, ServiceUrgency } from '@epde/shared';
 import { PageTransition } from '@/components/ui/page-transition';
 import { serviceRequestColumns } from './columns';
 import { CreateServiceDialog } from './create-service-dialog';
@@ -34,8 +35,8 @@ export default function ServiceRequestsPage() {
 
   const filters = useMemo(
     () => ({
-      status: status === 'all' ? undefined : status,
-      urgency: urgency === 'all' ? undefined : urgency,
+      status: status === 'all' ? undefined : (status as ServiceStatus),
+      urgency: urgency === 'all' ? undefined : (urgency as ServiceUrgency),
     }),
     [status, urgency],
   );

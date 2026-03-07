@@ -12,12 +12,12 @@ import {
   RECURRENCE_TYPE_LABELS,
   TASK_STATUS_LABELS,
   PRIORITY_VARIANT,
+  TASK_STATUS_VARIANT,
 } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { TaskLogTimeline } from './task-log-timeline';
 import { TaskNotes } from './task-notes';
-import { taskStatusVariant } from '@/lib/style-maps';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
 
 interface TaskDetailSheetProps {
@@ -49,7 +49,7 @@ export function TaskDetailSheet({
         <SheetHeader className="px-6 pb-4">
           <SheetTitle className="text-lg leading-tight">{task.name}</SheetTitle>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <Badge variant={taskStatusVariant[task.status] ?? 'outline'}>
+            <Badge variant={TASK_STATUS_VARIANT[task.status] ?? 'outline'}>
               {TASK_STATUS_LABELS[task.status] ?? task.status}
             </Badge>
             <Badge variant="outline">{task.category.name}</Badge>

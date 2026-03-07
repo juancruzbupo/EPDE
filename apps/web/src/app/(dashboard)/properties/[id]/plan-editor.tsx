@@ -15,9 +15,9 @@ import {
   TASK_STATUS_LABELS,
   PLAN_STATUS_LABELS,
   PRIORITY_VARIANT,
+  TASK_STATUS_VARIANT,
 } from '@epde/shared';
 import { TaskDialog } from './task-dialog';
-import { taskStatusVariant } from '@/lib/style-maps';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
 
 interface PlanEditorProps {
@@ -123,7 +123,7 @@ export function PlanEditor({ planId }: PlanEditorProps) {
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{task.name}</span>
                     <Badge
-                      variant={taskStatusVariant[task.status] ?? 'outline'}
+                      variant={TASK_STATUS_VARIANT[task.status] ?? 'outline'}
                       className="text-xs"
                     >
                       {TASK_STATUS_LABELS[task.status] ?? task.status}

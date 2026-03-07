@@ -1,8 +1,9 @@
 import type { AxiosInstance } from 'axios';
 import type { PaginatedResponse, ApiResponse, BudgetRequestPublic } from '../types';
+import type { BudgetStatus } from '../types/enums';
 
 export interface BudgetFilters {
-  status?: string;
+  status?: BudgetStatus;
   propertyId?: string;
   cursor?: string;
   take?: number;
@@ -34,7 +35,7 @@ export function createBudgetQueries(apiClient: AxiosInstance) {
 
     async updateBudgetStatus(
       id: string,
-      status: string,
+      status: BudgetStatus,
     ): Promise<ApiResponse<BudgetRequestPublic>> {
       const { data } = await apiClient.patch(`/budgets/${id}/status`, { status });
       return data;

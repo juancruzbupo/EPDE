@@ -59,7 +59,7 @@ beforeEach(() => {
 
 describe('useBudgets', () => {
   it('calls useInfiniteQuery with correct queryKey and maxPages', () => {
-    const filters = { status: 'PENDING' };
+    const filters = { status: 'PENDING' as const };
     renderHook(() => useBudgets(filters));
 
     expect(useInfiniteQuery).toHaveBeenCalledWith(

@@ -26,13 +26,12 @@ import {
   CalendarCheck,
   StickyNote,
 } from 'lucide-react';
-import { BUDGET_STATUS_LABELS } from '@epde/shared';
+import { BUDGET_STATUS_LABELS, BUDGET_STATUS_VARIANT } from '@epde/shared';
 import type { BudgetRequestPublic } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import Link from 'next/link';
 import { RespondBudgetDialog } from './respond-budget-dialog';
-import { budgetStatusVariant } from '@/lib/style-maps';
 
 const formatCurrency = (value: string | number) =>
   new Intl.NumberFormat('es-AR', {
@@ -105,7 +104,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg">Información del presupuesto</CardTitle>
-          <Badge variant={budgetStatusVariant[budget.status] ?? 'outline'}>
+          <Badge variant={BUDGET_STATUS_VARIANT[budget.status] ?? 'outline'}>
             {BUDGET_STATUS_LABELS[budget.status] ?? budget.status}
           </Badge>
         </CardHeader>

@@ -1,9 +1,10 @@
 import type { AxiosInstance } from 'axios';
 import type { PaginatedResponse, ApiResponse, ServiceRequestPublic } from '../types';
+import type { ServiceStatus, ServiceUrgency } from '../types/enums';
 
 export interface ServiceRequestFilters {
-  status?: string;
-  urgency?: string;
+  status?: ServiceStatus;
+  urgency?: ServiceUrgency;
   propertyId?: string;
   cursor?: string;
   take?: number;
@@ -31,7 +32,7 @@ export function createServiceRequestQueries(apiClient: AxiosInstance) {
       propertyId: string;
       title: string;
       description: string;
-      urgency?: string;
+      urgency?: ServiceUrgency;
       photoUrls?: string[];
     }): Promise<ApiResponse<ServiceRequestPublic>> {
       const { data } = await apiClient.post('/service-requests', dto);

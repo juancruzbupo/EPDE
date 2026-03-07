@@ -8,6 +8,7 @@ import type {
   TaskLogPublic,
   TaskNotePublic,
 } from '../types';
+import type { TaskStatus } from '../types/enums';
 import type { CompleteTaskInput } from '../schemas/task-log';
 
 export function createMaintenancePlanQueries(apiClient: AxiosInstance) {
@@ -17,9 +18,12 @@ export function createMaintenancePlanQueries(apiClient: AxiosInstance) {
       return data;
     },
 
-    async getAllTasks(status?: string, signal?: AbortSignal): Promise<{ data: TaskListItem[] }> {
+    async getAllTasks(
+      status?: TaskStatus,
+      signal?: AbortSignal,
+    ): Promise<{ data: TaskListItem[] }> {
       const { data } = await apiClient.get('/maintenance-plans/tasks', {
-        params: status && status !== 'all' ? { status } : {},
+        params: status ? { status } : {},
         signal,
       });
       return data;

@@ -11,7 +11,7 @@ import { ErrorState } from '@/components/error-state';
 import { CreateServiceRequestModal } from '@/components/create-service-request-modal';
 import { TYPE } from '@/lib/fonts';
 import { defaultScreenOptions } from '@/lib/screen-options';
-import type { ServiceRequestPublic } from '@epde/shared';
+import type { ServiceRequestPublic, ServiceStatus } from '@epde/shared';
 
 const STATUS_FILTERS = [
   { key: undefined, label: 'Todos' },
@@ -54,7 +54,7 @@ const ServiceRequestCard = memo(function ServiceRequestCard({
 });
 
 export default function ServiceRequestsScreen() {
-  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<ServiceStatus | undefined>(undefined);
   const [createModalVisible, setCreateModalVisible] = useState(false);
 
   const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =

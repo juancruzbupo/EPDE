@@ -12,6 +12,7 @@ import { FilterSelect } from '@/components/filter-select';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { PROPERTY_TYPE_LABELS, UserRole } from '@epde/shared';
+import type { PropertyType } from '@epde/shared';
 import { PageTransition } from '@/components/ui/page-transition';
 import { propertyColumns } from './columns';
 import { CreatePropertyDialog } from './create-property-dialog';
@@ -35,7 +36,7 @@ export default function PropertiesPage() {
   const filters = useMemo(
     () => ({
       search: debouncedSearch || undefined,
-      type: type === 'all' ? undefined : type,
+      type: type === 'all' ? undefined : (type as PropertyType),
     }),
     [debouncedSearch, type],
   );

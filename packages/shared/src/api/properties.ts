@@ -1,10 +1,11 @@
 import type { AxiosInstance } from 'axios';
 import type { PaginatedResponse, ApiResponse, PropertyPublic } from '../types';
+import type { PropertyType } from '../types/enums';
 
 export interface PropertyFilters {
   search?: string;
   city?: string;
-  type?: string;
+  type?: PropertyType;
   userId?: string;
   cursor?: string;
   take?: number;

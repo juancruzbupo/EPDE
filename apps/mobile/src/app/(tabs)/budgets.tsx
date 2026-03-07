@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { CreateBudgetModal } from '@/components/create-budget-modal';
 import { TYPE } from '@/lib/fonts';
-import type { BudgetRequestPublic } from '@epde/shared';
+import type { BudgetRequestPublic, BudgetStatus } from '@epde/shared';
 
 const FILTERS = [
   { key: undefined, label: 'Todos' },
@@ -64,7 +64,7 @@ const BudgetCard = memo(function BudgetCard({ budget }: { budget: BudgetRequestP
 });
 
 export default function BudgetsScreen() {
-  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<BudgetStatus | undefined>(undefined);
   const [createModalVisible, setCreateModalVisible] = useState(false);
 
   const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =

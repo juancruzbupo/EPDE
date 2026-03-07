@@ -7,10 +7,9 @@ import { TasksModule } from '../tasks/tasks.module';
 
 import { NotificationsModule } from '../notifications/notifications.module';
 import { EmailModule } from '../email/email.module';
-import { RedisModule } from '../redis/redis.module';
 
 @Module({
-  imports: [ScheduleModule.forRoot(), NotificationsModule, EmailModule, RedisModule, TasksModule],
+  imports: [ScheduleModule.forRoot(), NotificationsModule, EmailModule, TasksModule],
   providers: [TaskStatusService, TaskReminderService, TaskSafetyService],
 })
 export class SchedulerModule {}

@@ -11,19 +11,24 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, FileText, Home, User, AlertTriangle, Calendar, AlignLeft } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { SERVICE_URGENCY_LABELS, SERVICE_STATUS_LABELS, ServiceStatus } from '@epde/shared';
+import {
+  SERVICE_URGENCY_LABELS,
+  SERVICE_STATUS_LABELS,
+  ServiceStatus,
+  URGENCY_VARIANT,
+  SERVICE_STATUS_VARIANT,
+} from '@epde/shared';
 import type { ServiceRequestPublic } from '@epde/shared';
 import Link from 'next/link';
-import { urgencyVariant, serviceStatusVariant } from '@/lib/style-maps';
 
-const STATUS_TRANSITIONS: Record<string, string> = {
+const STATUS_TRANSITIONS: Partial<Record<ServiceStatus, ServiceStatus>> = {
   OPEN: 'IN_REVIEW',
   IN_REVIEW: 'IN_PROGRESS',
   IN_PROGRESS: 'RESOLVED',
   RESOLVED: 'CLOSED',
 };
 
-const TRANSITION_LABELS: Record<string, string> = {
+const TRANSITION_LABELS: Partial<Record<ServiceStatus, string>> = {
   IN_REVIEW: 'Pasar a En Revision',
   IN_PROGRESS: 'Pasar a En Progreso',
   RESOLVED: 'Marcar como Resuelto',
@@ -40,7 +45,7 @@ export function ServiceRequestDetail({ id, isAdmin, initialData }: ServiceReques
   const { data } = useServiceRequest(id, { initialData });
   const updateStatus = useUpdateServiceStatus();
 
-  const [statusConfirm, setStatusConfirm] = useState<string | null>(null);
+  const [statusConfirm, setStatusConfirm] = useState<ServiceStatus | null>(null);
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
 
   const request = data;
@@ -68,7 +73,7 @@ export function ServiceRequestDetail({ id, isAdmin, initialData }: ServiceReques
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Información de la solicitud</CardTitle>
-            <Badge variant={serviceStatusVariant[request.status] ?? 'secondary'}>
+            <Badge variant={SERVICE_STATUS_VARIANT[request.status] ?? 'secondary'}>
               {SERVICE_STATUS_LABELS[request.status] ?? request.status}
             </Badge>
           </CardHeader>
@@ -104,7 +109,7 @@ export function ServiceRequestDetail({ id, isAdmin, initialData }: ServiceReques
                     Urgencia
                   </dt>
                   <dd>
-                    <Badge variant={urgencyVariant[request.urgency] ?? 'outline'}>
+                    <Badge variant={URGENCY_VARIANT[request.urgency] ?? 'outline'}>
                       {SERVICE_URGENCY_LABELS[request.urgency] ?? request.urgency}
                     </Badge>
                   </dd>
@@ -186,7 +191,7 @@ export function ServiceRequestDetail({ id, isAdmin, initialData }: ServiceReques
         open={!!statusConfirm}
         onOpenChange={() => setStatusConfirm(null)}
         title="Cambiar estado"
-        description={`¿Estás seguro de que queres cambiar el estado a "${statusConfirm ? (SERVICE_STATUS_LABELS[statusConfirm as ServiceStatus] ?? statusConfirm) : ''}"?`}
+        description={`¿Estás seguro de que queres cambiar el estado a "${statusConfirm ? (SERVICE_STATUS_LABELS[statusConfirm] ?? statusConfirm) : ''}"?`}
         variant="default"
         onConfirm={() => {
           if (statusConfirm) {

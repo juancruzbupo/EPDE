@@ -1,10 +1,3 @@
-export const fonts = {
-  regular: { fontFamily: 'DMSans_400Regular' },
-  medium: { fontFamily: 'DMSans_500Medium' },
-  bold: { fontFamily: 'DMSans_700Bold' },
-  heading: { fontFamily: 'DMSerifDisplay_400Regular' },
-} as const;
-
 export const TYPE = {
   // Headings (DM Serif Display)
   displayLg: { fontFamily: 'DMSerifDisplay_400Regular', fontSize: 28, lineHeight: 34 },

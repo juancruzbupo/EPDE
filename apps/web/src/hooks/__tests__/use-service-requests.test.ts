@@ -54,8 +54,8 @@ beforeEach(() => {
 
 describe('useServiceRequests', () => {
   it('calls useInfiniteQuery with correct queryKey and maxPages', () => {
-    const filters = { status: 'OPEN' };
-    renderHook(() => useServiceRequests(filters as never));
+    const filters = { status: 'OPEN' as const };
+    renderHook(() => useServiceRequests(filters));
 
     expect(useInfiniteQuery).toHaveBeenCalledWith(
       expect.objectContaining({

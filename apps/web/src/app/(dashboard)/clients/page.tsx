@@ -12,6 +12,7 @@ import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { USER_STATUS_LABELS } from '@epde/shared';
+import type { UserStatus } from '@epde/shared';
 import { PageTransition } from '@/components/ui/page-transition';
 import { clientColumns } from './columns';
 import { InviteClientDialog } from './invite-client-dialog';
@@ -34,7 +35,7 @@ export default function ClientsPage() {
   const filters = useMemo(
     () => ({
       search: debouncedSearch || undefined,
-      status: status === 'all' ? undefined : status,
+      status: status === 'all' ? undefined : (status as UserStatus),
     }),
     [debouncedSearch, status],
   );

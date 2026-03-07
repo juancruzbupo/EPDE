@@ -1,10 +1,11 @@
 import { colors } from './colors';
+import { TYPE } from './fonts';
 
 /** Shared screen options for expo-router Stack headers */
 export const defaultScreenOptions = {
   headerStyle: { backgroundColor: colors.background },
   headerTintColor: colors.foreground,
-  headerTitleStyle: { fontFamily: 'DMSans_700Bold' },
+  headerTitleStyle: { fontFamily: TYPE.titleLg.fontFamily },
 } as const;
 
 /** Shared tab bar screen options */
@@ -16,5 +17,5 @@ export const defaultTabBarOptions = {
   },
   tabBarActiveTintColor: colors.primary,
   tabBarInactiveTintColor: colors.mutedForeground,
-  tabBarLabelStyle: { fontFamily: 'DMSans_500Medium', fontSize: 12 },
+  tabBarLabelStyle: { fontFamily: TYPE.labelMd.fontFamily, fontSize: TYPE.labelMd.fontSize },
 } as const;

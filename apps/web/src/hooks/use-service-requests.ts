@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
-import type { ServiceRequestPublic } from '@epde/shared';
+import type { ServiceRequestPublic, ServiceStatus } from '@epde/shared';
 import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 import {
   getServiceRequests,
@@ -49,7 +49,8 @@ export function useCreateServiceRequest() {
 export function useUpdateServiceStatus() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) => updateServiceStatus(id, status),
+    mutationFn: ({ id, status }: { id: string; status: ServiceStatus }) =>
+      updateServiceStatus(id, status),
     onSuccess: () => {
       toast.success('Estado actualizado');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });

@@ -10,6 +10,6 @@ module.exports = {
     '^react-native-reanimated$': '<rootDir>/__mocks__/react-native-reanimated.js',
   },
   coverageThreshold: {
-    global: { statements: 45, branches: 28, functions: 38, lines: 45 },
+    global: { statements: 50, branches: 32, functions: 40, lines: 50 },
   },
 };

@@ -85,7 +85,7 @@ function TaskRowSkeleton() {
 
 export default function TasksPage() {
   const router = useRouter();
-  const [status, setStatus] = useState('all');
+  const [status, setStatus] = useState<TaskStatus | 'all'>('all');
   const {
     data: tasks,
     isLoading,
@@ -103,7 +103,7 @@ export default function TasksPage() {
       <div className="mb-4">
         <FilterSelect
           value={status}
-          onChange={setStatus}
+          onChange={(v) => setStatus(v as TaskStatus | 'all')}
           options={statusOptions}
           placeholder="Estado"
         />
