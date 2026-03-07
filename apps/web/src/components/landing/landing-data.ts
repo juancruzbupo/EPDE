@@ -137,11 +137,11 @@ export const DELIVERABLES: IconTextItem[] = [
 ];
 
 export const INVESTMENT_FEATURES = [
-  'Evaluación técnica presencial completa',
-  'Informe de diagnóstico con hallazgos y prioridades',
-  'Plan de mantenimiento preventivo personalizado',
+  'Inspección técnica completa de la vivienda',
+  'Registro fotográfico de hallazgos',
+  'Informe técnico con diagnóstico y prioridades',
+  'Recomendaciones de mantenimiento preventivo',
   'Carga en plataforma digital con seguimiento',
-  'Revisión anual incluida en etapa de lanzamiento',
 ];
 
 export const TARGET_PROFILES = [
@@ -233,9 +233,9 @@ export interface PriceTier {
 }
 
 export const PRICE_TIERS: PriceTier[] = [
-  { label: 'Casas hasta 80 m²', range: 'desde $150.000' },
-  { label: 'Casas entre 80 y 150 m²', range: 'desde $250.000' },
-  { label: 'Casas mayores a 150 m²', range: 'presupuesto personalizado' },
+  { label: 'Hasta 60 m²', range: 'desde $150.000' },
+  { label: '60 a 120 m²', range: 'desde $250.000' },
+  { label: '120 a 200 m²', range: 'presupuesto personalizado' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -243,7 +243,7 @@ export const PRICE_TIERS: PriceTier[] = [
 // ---------------------------------------------------------------------------
 
 export const COST_DISCLAIMER =
-  'Valores estimados basados en precios promedio de reparaciones en Argentina. Fuentes: presupuestos de profesionales del rubro, portales de construcción (Home Solution, CYPE Argentina) y precios de mercado local de Paraná. Los valores pueden variar según cada caso.';
+  'Los costos de reparación mencionados son estimaciones basadas en valores de mercado publicados por empresas constructoras, portales del sector (Home Solution, CYPE Argentina) y referencias de costos de obra en Argentina. Valores aproximados actualizados a marzo 2026. Los valores pueden variar según cada caso.';
 
 export const PRICE_DISCLAIMER =
   'El valor depende del tamaño de la vivienda y del estado general del mantenimiento. Los valores son orientativos y se confirman tras la consulta inicial.';

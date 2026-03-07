@@ -91,7 +91,7 @@ const envSchema = baseSchema.superRefine((data, ctx) => {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: [name],
-          message: `${name} es requerido cuando otras variables R2_* estan configuradas`,
+          message: `${name} is required when other R2_* variables are configured`,
         });
       }
     }

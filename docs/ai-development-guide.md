@@ -41,6 +41,9 @@
 29. **Error state en paginas con queries** — Toda pagina que use `useQuery`/`useInfiniteQuery` DEBE destructurar `isError` y `refetch`, y mostrar UI de error con `AlertTriangle` + boton "Reintentar". Patron: `client-dashboard.tsx`. NUNCA dejar que un query falle silenciosamente mostrando loading infinito
 30. **`@ApiTags` en espanol** — Todos los controllers usan `@ApiTags('Nombre en Español')` para consistencia en Swagger. Ejemplos: `Autenticación`, `Panel`, `Carga de Archivos`, `Plantillas de Tareas`
 31. **Validar ownership en rutas anidadas** — Rutas tipo `PATCH :id/tasks/:taskId` DEBEN extraer ambos params y validar que el recurso hijo pertenece al padre. Ejemplo: `if (task.maintenancePlanId !== planId) throw new NotFoundException()`. NUNCA ignorar el `:id` padre en la logica del service
+32. **Tipografia: `type-*` en landing, Tailwind text en dashboard** — Las secciones de landing usan clases `type-display`, `type-heading`, `type-body`, `type-caption` definidas en `globals.css`. El dashboard y paginas autenticadas usan `text-sm`, `text-base`, `text-lg` de Tailwind directamente. NUNCA mezclar sistemas
+33. **List pages siguen patron de properties** — Toda pagina de listado paginado sigue el patron de `app/(dashboard)/properties/page.tsx`: `useInfiniteQuery` + `maxPages: 10` + skeleton loading + error state + empty state + infinite scroll trigger. Copiar estructura como baseline
+34. **Filter interfaces reflejan Zod schemas** — Los tipos de filtros en frontend (`PropertyFilters`, `BudgetFilters`, etc.) DEBEN ser subconjuntos de los schemas Zod de `@epde/shared`. Si el schema agrega un campo, el filtro debe reflejarlo. Evitar drift manual entre tipos de filtro locales y schemas compartidos
 
 ### NUNCA
 

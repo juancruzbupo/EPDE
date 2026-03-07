@@ -164,7 +164,7 @@ describe('CategoryTemplatesService', () => {
 
       const result = await service.remove('cat-1');
 
-      expect(result).toEqual({ message: 'Categoría template eliminada' });
+      expect(result).toEqual({ data: null, message: 'Categoría template eliminada' });
       expect(repository.hardDelete).toHaveBeenCalledWith('cat-1');
     });
 

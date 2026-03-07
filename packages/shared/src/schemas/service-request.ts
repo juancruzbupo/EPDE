@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SERVICE_URGENCY_VALUES, SERVICE_STATUS_VALUES } from '../types/enums';
+import { ServiceStatus, SERVICE_URGENCY_VALUES, SERVICE_STATUS_VALUES } from '../types/enums';
 
 // ─── Create Service Request ─────────────────────────────
 
@@ -22,9 +22,17 @@ export type CreateServiceRequestInput = z.input<typeof createServiceRequestSchem
 // ─── Update Service Status ──────────────────────────────
 
 export const updateServiceStatusSchema = z.object({
-  status: z.enum(['IN_REVIEW', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'], {
-    message: 'Estado inválido',
-  }),
+  status: z.enum(
+    [
+      ServiceStatus.IN_REVIEW,
+      ServiceStatus.IN_PROGRESS,
+      ServiceStatus.RESOLVED,
+      ServiceStatus.CLOSED,
+    ],
+    {
+      message: 'Estado inválido',
+    },
+  ),
 });
 
 export type UpdateServiceStatusInput = z.infer<typeof updateServiceStatusSchema>;

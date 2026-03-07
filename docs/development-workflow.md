@@ -387,7 +387,7 @@ pnpm --filter @epde/mobile test              # Solo Mobile (jest-expo)
 - **Web**: Vitest + jsdom + @testing-library/react — hooks y componentes
 - **Mobile**: jest-expo + @testing-library/react-native — componentes. Mock manual de `react-native-reanimated` en `__mocks__/react-native-reanimated.js` (v4.x requiere worklets nativos incluso en el mock oficial)
 
-Total: ~649 tests (295 API unit + 197 Shared + 86 Web + 71 Mobile). E2E: clients (8) + category-templates (9) + maintenance-plans (20) + otros existentes.
+Total: ~678 tests (295 API unit + 197 Shared + 115 Web + 71 Mobile). E2E: clients (8) + category-templates (9) + maintenance-plans (20) + otros existentes.
 
 ### Tests E2E
 
@@ -423,6 +423,7 @@ Web excluye de coverage: `src/app/**/page.tsx`, `src/app/**/layout.tsx`, `src/co
 Deploy automatico via GitHub Actions:
 
 - **Produccion** (`cd.yml`): trigger en push a `main`
+  - CI checks: lint + typecheck + build + test + E2E (postgres + redis services)
   - API → Railway (`railway up --service epde-api`) con migraciones Prisma previas
   - **Smoke test post-deploy**: 5 reintentos de health check con 15s backoff. Falla el workflow si no responde 200
   - Web → Vercel (`vercel deploy --prebuilt --prod`)

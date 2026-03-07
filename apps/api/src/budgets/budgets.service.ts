@@ -21,10 +21,8 @@ import type {
   RespondBudgetInput,
   UpdateBudgetStatusInput,
   BudgetFiltersInput,
-  CurrentUser,
+  ServiceUser,
 } from '@epde/shared';
-
-type ServiceUser = Pick<CurrentUser, 'id' | 'role'>;
 
 @Injectable()
 export class BudgetsService {

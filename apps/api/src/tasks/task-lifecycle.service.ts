@@ -13,11 +13,9 @@ import type {
   UpdateTaskInput,
   ReorderTasksInput,
   CompleteTaskInput,
-  CurrentUser,
+  ServiceUser,
 } from '@epde/shared';
 import { recurrenceTypeToMonths, getNextDueDate, UserRole } from '@epde/shared';
-
-type ServiceUser = Pick<CurrentUser, 'id' | 'role'>;
 import type { Task } from '@prisma/client';
 
 type UpdateTaskData = Omit<UpdateTaskInput, 'categoryId'> & {
@@ -128,7 +126,7 @@ export class TaskLifecycleService {
     }
 
     await this.tasksRepository.softDelete(taskId);
-    return { message: 'Tarea eliminada' };
+    return { data: null, message: 'Tarea eliminada' };
   }
 
   async reorderTasks(planId: string, dto: ReorderTasksInput) {

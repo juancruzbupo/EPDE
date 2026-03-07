@@ -30,7 +30,7 @@ export class TaskTemplatesService {
     const template = await this.repository.findById(id);
     if (!template) throw new NotFoundException('Tarea template no encontrada');
     await this.repository.hardDelete(id);
-    return { message: 'Tarea template eliminada' };
+    return { data: null, message: 'Tarea template eliminada' };
   }
 
   async reorder(categoryId: string, ids: string[]) {

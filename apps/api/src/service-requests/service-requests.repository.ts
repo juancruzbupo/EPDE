@@ -40,7 +40,7 @@ export type ServiceRequestWithDetails = ServiceRequest & {
 @Injectable()
 export class ServiceRequestsRepository extends BaseRepository<ServiceRequest, 'serviceRequest'> {
   constructor(prisma: PrismaService) {
-    super(prisma, 'serviceRequest', false);
+    super(prisma, 'serviceRequest', true);
   }
 
   async findRequests(params: {

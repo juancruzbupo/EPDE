@@ -1,9 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { MaintenancePlansRepository } from './maintenance-plans.repository';
-import type { UpdatePlanInput, CurrentUser } from '@epde/shared';
+import type { UpdatePlanInput, ServiceUser } from '@epde/shared';
 import { UserRole } from '@epde/shared';
-
-type ServiceUser = Pick<CurrentUser, 'id' | 'role'>;
 
 @Injectable()
 export class MaintenancePlansService {

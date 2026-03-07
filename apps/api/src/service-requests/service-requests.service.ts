@@ -10,10 +10,8 @@ import type {
   CreateServiceRequestInput,
   UpdateServiceStatusInput,
   ServiceRequestFiltersInput,
-  CurrentUser,
+  ServiceUser,
 } from '@epde/shared';
-
-type ServiceUser = Pick<CurrentUser, 'id' | 'role'>;
 
 @Injectable()
 export class ServiceRequestsService {

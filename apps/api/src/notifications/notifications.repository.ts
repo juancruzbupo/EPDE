@@ -36,14 +36,14 @@ export class NotificationsRepository extends BaseRepository<Notification, 'notif
   }
 
   async markAsRead(id: string, userId: string): Promise<Notification> {
-    return this.prisma.notification.update({
+    return this.writeModel.update({
       where: { id, userId },
       data: { read: true },
     });
   }
 
   async markAllAsRead(userId: string): Promise<number> {
-    const result = await this.prisma.notification.updateMany({
+    const result = await this.writeModel.updateMany({
       where: { userId, read: false },
       data: { read: true },
     });
@@ -60,7 +60,7 @@ export class NotificationsRepository extends BaseRepository<Notification, 'notif
     }[],
   ): Promise<number> {
     if (notifications.length === 0) return 0;
-    const result = await this.prisma.notification.createMany({
+    const result = await this.writeModel.createMany({
       data: notifications.map((n) => ({
         userId: n.userId,
         type: n.type,
@@ -76,7 +76,7 @@ export class NotificationsRepository extends BaseRepository<Notification, 'notif
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
-    const existing = await this.prisma.notification.findMany({
+    const existing = await this.writeModel.findMany({
       where: {
         type: 'TASK_REMINDER',
         createdAt: { gte: todayStart },
@@ -86,8 +86,8 @@ export class NotificationsRepository extends BaseRepository<Notification, 'notif
 
     return new Set(
       existing
-        .filter((n) => isTaskReminderData(n.data))
-        .map((n) => (n.data as { taskId: string }).taskId),
+        .filter((n: { data: unknown }) => isTaskReminderData(n.data))
+        .map((n: { data: unknown }) => (n.data as { taskId: string }).taskId),
     );
   }
 }

@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { QUERY_KEYS, getErrorMessage } from '@epde/shared';
+import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 import type { UpdatePropertyInput, PropertyPublic } from '@epde/shared';
 import {
   getProperties,
@@ -37,6 +38,7 @@ export function useCreateProperty() {
     onSuccess: () => {
       toast.success('Propiedad creada');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
+      invalidateDashboard(queryClient);
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al crear propiedad'));
@@ -65,6 +67,7 @@ export function useDeleteProperty() {
     onSuccess: () => {
       toast.success('Propiedad eliminada');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
+      invalidateDashboard(queryClient);
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al eliminar propiedad'));

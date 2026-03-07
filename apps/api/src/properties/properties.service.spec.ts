@@ -232,7 +232,7 @@ describe('PropertiesService', () => {
 
       expect(repository.findById).toHaveBeenCalledWith('prop-1');
       expect(repository.softDelete).toHaveBeenCalledWith('prop-1');
-      expect(result).toEqual({ message: 'Propiedad eliminada' });
+      expect(result).toEqual({ data: null, message: 'Propiedad eliminada' });
     });
 
     it('should soft delete property when CLIENT is the owner', async () => {
@@ -242,7 +242,7 @@ describe('PropertiesService', () => {
       const result = await service.deleteProperty('prop-1', clientUser);
 
       expect(repository.softDelete).toHaveBeenCalledWith('prop-1');
-      expect(result).toEqual({ message: 'Propiedad eliminada' });
+      expect(result).toEqual({ data: null, message: 'Propiedad eliminada' });
     });
 
     it('should throw NotFoundException when property not found', async () => {

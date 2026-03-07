@@ -136,7 +136,7 @@ describe('TaskLifecycleService', () => {
       const result = await service.removeTask(planId, taskId);
 
       expect(mockTasksRepository.softDelete).toHaveBeenCalledWith(taskId);
-      expect(result).toEqual({ message: 'Tarea eliminada' });
+      expect(result).toEqual({ data: null, message: 'Tarea eliminada' });
     });
 
     it('should throw NotFoundException when task does not exist', async () => {

@@ -45,3 +45,6 @@ export interface CurrentUser {
   family?: string;
   exp?: number;
 }
+
+/** Minimal user context needed by domain services (id + role). */
+export type ServiceUser = Pick<CurrentUser, 'id' | 'role'>;

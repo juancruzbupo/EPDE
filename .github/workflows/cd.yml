@@ -12,6 +12,38 @@ jobs:
   ci:
     name: CI checks
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: epde_test
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5433/epde_test
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: test-secret-for-ci-must-be-at-least-32-chars-long
+      NODE_ENV: test
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,8 +72,14 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Push schema to test database
+        run: pnpm --filter @epde/api exec prisma db push --skip-generate
+
       - name: Test
         run: pnpm test
+
+      - name: E2E tests
+        run: pnpm --filter @epde/api test:e2e
 
   deploy-api:
     name: Deploy API

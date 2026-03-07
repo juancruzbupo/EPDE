@@ -1,4 +1,12 @@
 import { createMaintenancePlanQueries } from '@epde/shared';
+import type {
+  TaskPriority,
+  RecurrenceType,
+  TaskStatus,
+  TaskType,
+  ProfessionalRequirement,
+  PlanStatus,
+} from '@epde/shared';
 import { apiClient } from '../api-client';
 
 export type {
@@ -24,7 +32,7 @@ export const {
 } = queries;
 
 // Admin-only
-export async function updatePlan(id: string, dto: { name?: string; status?: string }) {
+export async function updatePlan(id: string, dto: { name?: string; status?: PlanStatus }) {
   const { data } = await apiClient.patch(`/maintenance-plans/${id}`, dto);
   return data;
 }
@@ -35,8 +43,8 @@ export async function addTask(
     categoryId: string;
     name: string;
     description?: string;
-    priority?: string;
-    recurrenceType?: string;
+    priority?: TaskPriority;
+    recurrenceType?: RecurrenceType;
     recurrenceMonths?: number;
     nextDueDate?: string;
   },
@@ -52,13 +60,13 @@ export async function updateTask(
     categoryId?: string;
     name?: string;
     description?: string;
-    priority?: string;
-    recurrenceType?: string;
+    priority?: TaskPriority;
+    recurrenceType?: RecurrenceType;
     recurrenceMonths?: number;
     nextDueDate?: string;
-    status?: string;
-    taskType?: string;
-    professionalRequirement?: string;
+    status?: TaskStatus;
+    taskType?: TaskType;
+    professionalRequirement?: ProfessionalRequirement;
     technicalDescription?: string | null;
     estimatedDurationMinutes?: number | null;
   },

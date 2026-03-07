@@ -101,7 +101,7 @@ describe('TaskTemplatesService', () => {
 
       const result = await service.remove('task-1');
 
-      expect(result).toEqual({ message: 'Tarea template eliminada' });
+      expect(result).toEqual({ data: null, message: 'Tarea template eliminada' });
       expect(repository.hardDelete).toHaveBeenCalledWith('task-1');
     });
 

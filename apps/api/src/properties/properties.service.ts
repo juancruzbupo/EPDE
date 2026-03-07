@@ -5,10 +5,8 @@ import type {
   CreatePropertyInput,
   UpdatePropertyInput,
   PropertyFiltersInput,
-  CurrentUser,
+  ServiceUser,
 } from '@epde/shared';
-
-type ServiceUser = Pick<CurrentUser, 'id' | 'role'>;
 
 @Injectable()
 export class PropertiesService {
@@ -76,6 +74,6 @@ export class PropertiesService {
     }
 
     await this.propertiesRepository.softDelete(id);
-    return { message: 'Propiedad eliminada' };
+    return { data: null, message: 'Propiedad eliminada' };
   }
 }

@@ -217,7 +217,7 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
   }
 
   async updateDueDateAndStatus(taskId: string, nextDueDate: Date, status: TaskStatus) {
-    return this.prisma.task.update({
+    return this.writeModel.update({
       where: { id: taskId },
       data: { nextDueDate, status },
     });
