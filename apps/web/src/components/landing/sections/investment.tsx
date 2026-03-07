@@ -1,14 +1,20 @@
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { fadeIn, fadeInUp, staggerContainer } from '@/lib/motion';
+import { fadeIn, fadeInUp, staggerContainer, staggerItem } from '@/lib/motion';
 import type { SectionProps } from '../landing-data';
-import { Check, INVESTMENT_FEATURES, WHATSAPP_URL } from '../landing-data';
+import {
+  Check,
+  INVESTMENT_FEATURES,
+  PRICE_TIERS,
+  PRICE_DISCLAIMER,
+  WHATSAPP_URL,
+} from '../landing-data';
 
 export function InvestmentSection({ motionProps }: SectionProps) {
   return (
     <section id="inversion" className="bg-muted/30 py-20 md:py-28">
-      <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-3xl px-4">
+      <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-4xl px-4">
         <div className="text-center">
           <motion.p
             variants={fadeIn}
@@ -20,33 +26,38 @@ export function InvestmentSection({ motionProps }: SectionProps) {
             variants={fadeInUp}
             className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
           >
-            El valor se adapta a cada vivienda.
+            ¿Cuánto cuesta un diagnóstico preventivo?
           </motion.h2>
+          <motion.p
+            variants={fadeIn}
+            className="type-body-lg text-muted-foreground mx-auto mt-4 max-w-2xl"
+          >
+            El valor depende de la superficie y complejidad técnica de tu vivienda.
+          </motion.p>
         </div>
 
-        <motion.div
-          variants={fadeIn}
-          className="type-body-lg text-muted-foreground mx-auto mt-6 max-w-2xl space-y-4 text-center"
-        >
-          <p>
-            La mayoría de los propietarios descubre los problemas cuando ya se transformaron en
-            reparaciones importantes.
-          </p>
-          <p>Un diagnóstico preventivo permite detectarlos antes de que escalen.</p>
-        </motion.div>
+        {/* Price tiers */}
+        <div className="mt-10 grid gap-6 md:grid-cols-3">
+          {PRICE_TIERS.map((tier) => (
+            <motion.div
+              key={tier.label}
+              variants={staggerItem}
+              className="border-border bg-card rounded-xl border p-6 text-center"
+            >
+              <h3 className="type-title-md text-foreground">{tier.label}</h3>
+              <p className="type-body-lg text-primary mt-3 font-semibold">{tier.range}</p>
+            </motion.div>
+          ))}
+        </div>
 
-        <motion.p
-          variants={fadeIn}
-          className="type-body-md text-muted-foreground mx-auto mt-2 max-w-2xl text-center"
-        >
-          El alcance del diagnóstico depende de la superficie y complejidad técnica de la vivienda.
-          Por eso el valor se determina de forma personalizada.
-        </motion.p>
-
+        {/* Features card */}
         <motion.div
           variants={fadeInUp}
           className="border-primary/20 bg-primary/[0.03] mt-10 rounded-2xl border-2 p-8 sm:p-12"
         >
+          <p className="type-title-md text-foreground mb-6 text-center">
+            Qué incluye el diagnóstico
+          </p>
           <div className="space-y-3">
             {INVESTMENT_FEATURES.map((feature) => (
               <div key={feature} className="flex items-center gap-3">
@@ -58,24 +69,22 @@ export function InvestmentSection({ motionProps }: SectionProps) {
             ))}
           </div>
 
-          <div className="border-border mt-8 border-t pt-8 text-center">
-            <p className="type-body-md text-foreground/80">
-              Cupos de lanzamiento limitados para viviendas en Paraná.
-            </p>
-            <p className="type-body-sm text-muted-foreground mt-2">
-              Consultá sin compromiso. Te confirmamos disponibilidad y valor según tu vivienda.
-            </p>
-          </div>
-
           <div className="mt-8 text-center">
             <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
               <Button size="lg" className="gap-2">
-                Coordinar mi diagnóstico
+                Solicitar diagnóstico
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </a>
           </div>
         </motion.div>
+
+        <motion.p
+          variants={fadeIn}
+          className="type-body-sm text-muted-foreground/70 mx-auto mt-8 max-w-3xl text-center"
+        >
+          {PRICE_DISCLAIMER}
+        </motion.p>
       </motion.div>
     </section>
   );

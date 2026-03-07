@@ -14,6 +14,8 @@ import {
   Wrench,
   FileText,
   Check,
+  AlertTriangle,
+  Shield,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -61,6 +63,8 @@ export {
   Home,
   Wrench,
   Award,
+  AlertTriangle,
+  Shield,
 };
 
 // ---------------------------------------------------------------------------
@@ -153,3 +157,93 @@ export const CREDENTIALS: IconTextItem[] = [
   { icon: Home, text: 'Foco en viviendas unifamiliares' },
   { icon: ClipboardList, text: 'Cada diagnóstico realizado personalmente' },
 ];
+
+// ---------------------------------------------------------------------------
+// Repair costs (source: docs/actualizacion-costos.md)
+// ---------------------------------------------------------------------------
+
+export interface RepairCost {
+  icon: LucideIcon;
+  problem: string;
+  consequence: string;
+  repairRange: string;
+}
+
+export const REPAIR_COSTS: RepairCost[] = [
+  {
+    icon: Droplets,
+    problem: 'Filtración en techo',
+    consequence:
+      'Si no se detecta a tiempo puede generar humedad estructural, daño en cielorraso y moho.',
+    repairRange: '$2.500.000 – $6.000.000',
+  },
+  {
+    icon: Home,
+    problem: 'Humedad de cimientos',
+    consequence: 'Deterioro de revoques, daño estructural y pérdida de valor de la propiedad.',
+    repairRange: '$3.500.000 – $9.000.000',
+  },
+  {
+    icon: Zap,
+    problem: 'Falla eléctrica sin diagnóstico',
+    consequence: 'Recableado parcial, daños en paredes y riesgo de incendio.',
+    repairRange: '$1.200.000 – $3.500.000',
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Cost comparison (preventive vs emergency)
+// ---------------------------------------------------------------------------
+
+export interface CostComparison {
+  pathology: string;
+  preventive: string;
+  emergency: string;
+  multiplier: string;
+}
+
+export const COST_COMPARISONS: CostComparison[] = [
+  {
+    pathology: 'Filtraciones en techos',
+    preventive: '$150.000 – $400.000',
+    emergency: '$2.500.000 – $6.000.000',
+    multiplier: '8x – 15x',
+  },
+  {
+    pathology: 'Humedad de cimientos',
+    preventive: '$300.000 – $800.000',
+    emergency: '$3.500.000 – $9.000.000',
+    multiplier: '8x – 12x',
+  },
+  {
+    pathology: 'Fallas eléctricas',
+    preventive: '$80.000 – $180.000',
+    emergency: '$1.200.000 – $3.500.000',
+    multiplier: '10x – 20x',
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Price tiers by m²
+// ---------------------------------------------------------------------------
+
+export interface PriceTier {
+  label: string;
+  range: string;
+}
+
+export const PRICE_TIERS: PriceTier[] = [
+  { label: 'Casas hasta 80 m²', range: 'desde $150.000' },
+  { label: 'Casas entre 80 y 150 m²', range: 'desde $250.000' },
+  { label: 'Casas mayores a 150 m²', range: 'presupuesto personalizado' },
+];
+
+// ---------------------------------------------------------------------------
+// Disclaimers
+// ---------------------------------------------------------------------------
+
+export const COST_DISCLAIMER =
+  'Valores estimados basados en precios promedio de reparaciones en Argentina. Fuentes: presupuestos de profesionales del rubro, portales de construcción (Home Solution, CYPE Argentina) y precios de mercado local de Paraná. Los valores pueden variar según cada caso.';
+
+export const PRICE_DISCLAIMER =
+  'El valor depende del tamaño de la vivienda y del estado general del mantenimiento. Los valores son orientativos y se confirman tras la consulta inicial.';

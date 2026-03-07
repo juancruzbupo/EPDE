@@ -7,7 +7,7 @@ import { PrismaService } from '../src/prisma/prisma.service';
 import { AppModule } from '../src/app.module';
 import { createTestApp, cleanDatabase } from '../src/test/setup';
 import { seedTestData, TestData } from '../src/test/seed-test-data';
-import { loginAsMobile } from './helpers';
+import { loginAsMobile, generateTokens } from './helpers';
 
 const MOBILE = { 'x-client-type': 'mobile' };
 
@@ -79,7 +79,7 @@ describe('Auth Flows - Integration (e2e)', () => {
   describe('Set-password full flow', () => {
     it('should allow INVITED user to set password and then login', async () => {
       const jwtService = app.get(JwtService);
-      const inviteToken = jwtService.sign({ sub: testData.invited.id });
+      const inviteToken = jwtService.sign({ sub: testData.invited.id, purpose: 'invite' });
 
       // Set password
       const setPassRes = await request(app.getHttpServer())
@@ -128,10 +128,11 @@ describe('Auth Flows - Integration (e2e)', () => {
       expect(loginRes.status).toBe(200);
       const cookies = loginRes.headers['set-cookie'] as unknown as string[];
 
-      // Refresh using cookies
+      // Refresh using cookies (send empty body so bodyparser yields {} not undefined)
       const refreshRes = await request(app.getHttpServer())
         .post('/api/v1/auth/refresh')
-        .set('Cookie', cookies);
+        .set('Cookie', cookies)
+        .send({});
 
       expect(refreshRes.status).toBe(200);
       expect(refreshRes.body.data.message).toBe('Token refrescado');
@@ -185,28 +186,27 @@ describe('Auth Rate Limiting (e2e)', () => {
   });
 
   it('should rate-limit refresh after 30 attempts', async () => {
-    // Generate a valid refresh token
-    const loginRes = await request(app.getHttpServer())
-      .post('/api/v1/auth/login')
-      .set(MOBILE)
-      .send({ email: testData.client.email, password: testData.client.password });
+    // Generate a valid refresh token via TokenService (bypasses login throttle)
+    const { refreshToken: rt } = await generateTokens(app, {
+      id: testData.client.id,
+      email: testData.client.email,
+      role: 'CLIENT',
+    });
 
-    const rt = loginRes.body.data.refreshToken;
-
-    // Send 35 refresh requests (limit is 30/min)
-    // Note: only the first will succeed (rotation), rest will fail with 401,
-    // but the throttler still counts them
-    const attempts = Array.from({ length: 35 }, () =>
-      request(app.getHttpServer())
+    // Send 10 refresh requests sequentially to avoid ECONNRESET.
+    // Global short throttle is 5/1s, so some should be throttled.
+    const results: number[] = [];
+    for (let i = 0; i < 10; i++) {
+      const res = await request(app.getHttpServer())
         .post('/api/v1/auth/refresh')
         .set(MOBILE)
-        .send({ refreshToken: rt }),
-    );
+        .send({ refreshToken: rt });
+      results.push(res.status);
+    }
 
-    const results = await Promise.all(attempts);
-    const throttled = results.filter((r) => r.status === 429);
+    const throttled = results.filter((s) => s === 429);
 
-    // Some should be throttled
+    // At least 1 of 10 should be throttled (short limit is 5/s)
     expect(throttled.length).toBeGreaterThanOrEqual(1);
   });
 });

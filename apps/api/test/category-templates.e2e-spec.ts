@@ -63,13 +63,14 @@ describe('CategoryTemplatesController (e2e)', () => {
 
   describe('POST /api/v1/category-templates', () => {
     it('should create a category template as admin', async () => {
+      const uniqueName = `Plomería-${Date.now()}`;
       const res = await request(app.getHttpServer())
         .post('/api/v1/category-templates')
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ name: 'Plomería', description: 'Tareas de plomería' });
+        .send({ name: uniqueName, description: 'Tareas de plomería' });
 
       expect(res.status).toBe(201);
-      expect(res.body.data.name).toBe('Plomería');
+      expect(res.body.data.name).toBe(uniqueName);
       expect(res.body.message).toBe('Categoría template creada');
     });
 
@@ -94,17 +95,19 @@ describe('CategoryTemplatesController (e2e)', () => {
 
   describe('PATCH /api/v1/category-templates/:id', () => {
     it('should update a category template as admin', async () => {
+      const uniqueName = `Original-${Date.now()}`;
       const template = await prisma.categoryTemplate.create({
-        data: { name: 'Original', displayOrder: 1 },
+        data: { name: uniqueName, displayOrder: 1 },
       });
 
+      const updatedName = `Actualizada-${Date.now()}`;
       const res = await request(app.getHttpServer())
         .patch(`/api/v1/category-templates/${template.id}`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ name: 'Actualizada' });
+        .send({ name: updatedName });
 
       expect(res.status).toBe(200);
-      expect(res.body.data.name).toBe('Actualizada');
+      expect(res.body.data.name).toBe(updatedName);
     });
 
     it('should return 400 for invalid UUID', async () => {

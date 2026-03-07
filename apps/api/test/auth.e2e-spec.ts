@@ -188,7 +188,7 @@ describe('Auth - Token Rotation (e2e)', () => {
     it('should allow INVITED user to set password', async () => {
       // Generate a valid invite token using the app's JwtService
       const jwtService = app.get(JwtService);
-      const inviteToken = jwtService.sign({ sub: testData.invited.id });
+      const inviteToken = jwtService.sign({ sub: testData.invited.id, purpose: 'invite' });
 
       // Set password
       const setPassRes = await request(app.getHttpServer())

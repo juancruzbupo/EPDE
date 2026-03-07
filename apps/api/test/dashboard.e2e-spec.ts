@@ -134,7 +134,7 @@ describe('DashboardController (e2e)', () => {
       const plan = await prisma.maintenancePlan.create({
         data: {
           propertyId: otherProperty.id,
-          title: 'Other Plan',
+          name: 'Other Plan',
           status: 'ACTIVE',
         },
       });
@@ -144,12 +144,13 @@ describe('DashboardController (e2e)', () => {
           maintenancePlanId: plan.id,
           categoryId: testData.category.id,
           name: 'Secret Task',
-          type: 'PREVENTIVE',
+          taskType: 'INSPECTION',
           priority: 'HIGH',
           professionalRequirement: 'PROFESSIONAL_REQUIRED',
           recurrenceType: 'ANNUAL',
           nextDueDate: new Date(Date.now() + 86400000), // tomorrow
           status: 'PENDING',
+          order: 0,
         },
       });
 

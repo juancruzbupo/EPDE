@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { fadeIn, fadeInUp, staggerContainer, staggerItem } from '@/lib/motion';
 import type { SectionProps } from '../landing-data';
-import { PROBLEMS, DETECTED_PROBLEMS } from '../landing-data';
+import { PROBLEMS, REPAIR_COSTS, COST_DISCLAIMER } from '../landing-data';
 
 export function ProblemsSection({ motionProps }: SectionProps) {
   return (
@@ -61,42 +61,47 @@ export function ProblemsSection({ motionProps }: SectionProps) {
         </motion.div>
       </section>
 
-      {/* Problemas detectados */}
+      {/* Costos de reparación si no se previene */}
       <section className="py-20 md:py-28">
-        <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-3xl px-4">
+        <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-4xl px-4">
           <motion.h2
             variants={fadeInUp}
             className="font-heading text-foreground text-3xl tracking-tight sm:text-4xl"
           >
-            Problemas que detectamos antes de que se conviertan en reparaciones costosas
+            ¿Cuánto cuesta no prevenir?
           </motion.h2>
+          <motion.p variants={fadeIn} className="type-body-lg text-muted-foreground mt-4 max-w-2xl">
+            Estos son los costos estimados de reparación cuando los problemas no se detectan a
+            tiempo.
+          </motion.p>
 
-          <motion.div
-            variants={fadeIn}
-            className="border-border bg-card mt-10 rounded-xl border p-6 sm:p-8"
-          >
-            <div className="space-y-4">
-              {DETECTED_PROBLEMS.map((item) => (
-                <motion.div
-                  key={item.text}
-                  variants={staggerItem}
-                  className="flex items-center gap-3"
-                >
-                  <div className="bg-primary/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
-                    <item.icon className="text-primary h-4 w-4" strokeWidth={1.5} />
-                  </div>
-                  <span className="type-body-lg text-foreground">{item.text}</span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {REPAIR_COSTS.map((item) => (
+              <motion.div
+                key={item.problem}
+                variants={staggerItem}
+                className="border-border bg-card rounded-xl border p-6"
+              >
+                <div className="bg-destructive/10 flex h-10 w-10 items-center justify-center rounded-lg">
+                  <item.icon className="text-destructive h-5 w-5" strokeWidth={1.5} />
+                </div>
+                <h3 className="type-title-md text-foreground mt-4">{item.problem}</h3>
+                <p className="type-body-md text-muted-foreground mt-2">{item.consequence}</p>
+                <div className="bg-destructive/5 mt-4 rounded-lg px-3 py-2">
+                  <p className="type-body-sm text-muted-foreground">
+                    Costo estimado de reparación:
+                  </p>
+                  <p className="type-body-lg text-destructive font-semibold">{item.repairRange}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
 
           <motion.p
             variants={fadeIn}
-            className="type-body-lg text-muted-foreground mx-auto mt-8 max-w-2xl text-center"
+            className="type-body-sm text-muted-foreground/70 mx-auto mt-8 max-w-3xl text-center"
           >
-            Pequeños problemas que con el tiempo pueden transformarse en reparaciones costosas si no
-            se detectan a tiempo.
+            {COST_DISCLAIMER}
           </motion.p>
         </motion.div>
       </section>

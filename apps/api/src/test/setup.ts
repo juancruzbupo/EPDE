@@ -1,16 +1,30 @@
 import { Test } from '@nestjs/testing';
 import { INestApplication, VersioningType } from '@nestjs/common';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerStorage } from '@nestjs/throttler';
 import cookieParser from 'cookie-parser';
 import { AppModule } from '../app.module';
 import { PrismaService } from '../prisma/prisma.service';
+
+/**
+ * No-op throttler storage: always reports 0 hits so the APP_GUARD
+ * ThrottlerGuard never blocks requests during tests.
+ * (.overrideGuard() does NOT work for guards registered via APP_GUARD)
+ */
+const NoOpThrottlerStorage = {
+  increment: async () => ({
+    totalHits: 0,
+    timeToExpire: 0,
+    isBlocked: false,
+    timeToBlockExpire: 0,
+  }),
+};
 
 export async function createTestApp(): Promise<INestApplication> {
   const moduleRef = await Test.createTestingModule({
     imports: [AppModule],
   })
-    .overrideGuard(ThrottlerGuard)
-    .useValue({ canActivate: () => true })
+    .overrideProvider(ThrottlerStorage)
+    .useValue(NoOpThrottlerStorage)
     .compile();
 
   const app = moduleRef.createNestApplication();

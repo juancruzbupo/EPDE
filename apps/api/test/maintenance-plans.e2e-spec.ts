@@ -197,8 +197,8 @@ describe('MaintenancePlansController (e2e)', () => {
         .get('/api/v1/maintenance-plans/tasks?take=abc')
         .set('Authorization', `Bearer ${adminToken}`);
 
-      // Should return 200 (defaults to TASKS_MAX_TAKE) rather than 500 (NaN)
-      expect(res.status).toBe(200);
+      // Zod coerce.number() on "abc" → NaN → fails .int() → 400
+      expect(res.status).toBe(400);
     });
   });
 

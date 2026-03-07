@@ -11,6 +11,8 @@ import { RealExampleSection } from './sections/real-example';
 import { CredentialsSection } from './sections/credentials';
 import { DeliverablesSection } from './sections/deliverables';
 import { TargetAudienceSection } from './sections/target-audience';
+import { CostComparisonSection } from './sections/cost-comparison';
+import { UrgencySection } from './sections/urgency';
 import { InvestmentSection } from './sections/investment';
 import { FinalCtaSection } from './sections/final-cta';
 import { Footer } from './sections/footer';
@@ -35,12 +37,14 @@ export function LandingPage() {
       <Header ctaHref={ctaHref} ctaLabel={ctaLabel} />
       <HeroSection motionProps={motionProps} />
       <ProblemsSection motionProps={motionProps} />
+      <CostComparisonSection motionProps={motionProps} />
       <HowItWorksSection motionProps={motionProps} />
       <DigitalSystemSection motionProps={motionProps} />
       <RealExampleSection motionProps={motionProps} />
       <CredentialsSection motionProps={motionProps} />
       <DeliverablesSection motionProps={motionProps} />
       <TargetAudienceSection motionProps={motionProps} />
+      <UrgencySection motionProps={motionProps} />
       <InvestmentSection motionProps={motionProps} />
       <FinalCtaSection motionProps={motionProps} />
       <Footer />

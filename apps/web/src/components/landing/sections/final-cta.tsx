@@ -21,21 +21,17 @@ export function FinalCtaSection({ motionProps }: SectionProps) {
           <br />
           Necesita un sistema.
         </motion.h2>
-        <motion.div
+        <motion.p
           variants={fadeIn}
-          className="type-body-lg text-background/60 mx-auto mt-6 max-w-md space-y-1"
+          className="type-body-lg text-background/70 mx-auto mt-6 max-w-lg"
         >
-          <p>Diagnóstico personalizado.</p>
-          <p>Plan preventivo.</p>
-          <p>Seguimiento digital.</p>
-        </motion.div>
-        <motion.p variants={fadeIn} className="type-body-lg text-background/80 mt-4 font-medium">
-          Todo empieza con una consulta.
+          Evaluamos el estado de tu vivienda y te indicamos qué mantenimiento necesita. Sin
+          compromiso.
         </motion.p>
         <motion.div variants={fadeIn} className="mt-8">
           <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
             <Button size="lg" variant="secondary" className="gap-2">
-              Quiero coordinar mi diagnóstico
+              Solicitar diagnóstico de mi casa
               <ArrowRight className="h-4 w-4" />
             </Button>
           </a>
