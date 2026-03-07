@@ -704,18 +704,18 @@ Skeletons estructurados que reflejan el layout real: PageHeader (titulo + descri
 
 ### Style Maps (Variantes de Badge)
 
-Centralizados en `lib/style-maps.ts` (web) y `components/status-badge.tsx` (mobile):
+Las variantes de Badge se importan directamente desde `@epde/shared` (SSoT web + mobile):
 
-| Map                    | Entidad      | Valores                                                       |
-| ---------------------- | ------------ | ------------------------------------------------------------- |
-| `taskStatusVariant`    | Tareas       | PENDING, UPCOMING, OVERDUE, COMPLETED                         |
-| `priorityColors`       | Tareas       | LOW (verde), MEDIUM (amarillo), HIGH (naranja), URGENT (rojo) |
-| `budgetStatusVariant`  | Presupuestos | 6 estados con colores                                         |
-| `urgencyVariant`       | Solicitudes  | LOW, MEDIUM, HIGH, URGENT                                     |
-| `serviceStatusVariant` | Solicitudes  | OPEN, IN_REVIEW, IN_PROGRESS, RESOLVED, CLOSED                |
-| `clientStatusVariant`  | Clientes     | INVITED, ACTIVE, INACTIVE                                     |
+| Constante                | Entidad      | Valores                                        |
+| ------------------------ | ------------ | ---------------------------------------------- |
+| `TASK_STATUS_VARIANT`    | Tareas       | PENDING, UPCOMING, OVERDUE, COMPLETED          |
+| `PRIORITY_VARIANT`       | Tareas       | LOW, MEDIUM, HIGH, URGENT                      |
+| `BUDGET_STATUS_VARIANT`  | Presupuestos | 6 estados con colores                          |
+| `URGENCY_VARIANT`        | Solicitudes  | LOW, MEDIUM, HIGH, URGENT                      |
+| `SERVICE_STATUS_VARIANT` | Solicitudes  | OPEN, IN_REVIEW, IN_PROGRESS, RESOLVED, CLOSED |
+| `CLIENT_STATUS_VARIANT`  | Clientes     | INVITED, ACTIVE, INACTIVE                      |
 
-Los mapas de variantes para Badge (`taskStatusVariant`, `budgetStatusVariant`, `serviceStatusVariant`, etc.) se importan desde `@epde/shared/constants/badge-variants` como SSoT compartido entre web y mobile. El Badge web incluye variante `success` para estados terminales positivos (COMPLETED, APPROVED, RESOLVED).
+Color maps locales en `lib/style-maps.ts` (web): `taskTypeColors` (CSS tokens) y `professionalReqColors`. El Badge web incluye variante `success` para estados terminales positivos (COMPLETED, APPROVED, RESOLVED).
 
 **Tokens semanticos en badges:** La variante `success` usa `bg-success/15 text-success border-success/20` (web) y `bg-success/15 text-success` (mobile). NUNCA usar `bg-green-*` / `text-green-*` directamente — siempre tokens semanticos (`success`, `warning`, `destructive`).
 

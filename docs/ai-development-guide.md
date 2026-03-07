@@ -828,20 +828,24 @@ export function CreatePropertyDialog() {
 
 ### 4.5 Style Maps
 
-Variantes de Badge centralizadas en `lib/style-maps.ts`:
+Las variantes de Badge se importan directamente desde `@epde/shared` (SSoT):
 
 ```typescript
-// apps/web/src/lib/style-maps.ts
-// Los mapas de variantes Badge se importan desde shared (SSoT web + mobile)
-import {
-  TASK_STATUS_VARIANT, BUDGET_STATUS_VARIANT, SERVICE_STATUS_VARIANT,
-  URGENCY_VARIANT, PRIORITY_VARIANT, CLIENT_STATUS_VARIANT
-} from '@epde/shared';
-export { TASK_STATUS_VARIANT as taskStatusVariant, BUDGET_STATUS_VARIANT as budgetStatusVariant, ... };
-// + priorityColors, taskTypeColors, professionalReqColors (color maps locales a web)
+// Variantes de Badge — importar directo de @epde/shared
+import { TASK_STATUS_VARIANT, BUDGET_STATUS_VARIANT, PRIORITY_VARIANT } from '@epde/shared';
+
+<Badge variant={TASK_STATUS_VARIANT[task.status]}>...</Badge>
 ```
 
-**Regla:** NUNCA definir colores por estado inline en componentes. Importar de `style-maps.ts`.
+Color maps locales (CSS tokens para task types) se mantienen en `lib/style-maps.ts`:
+
+```typescript
+// apps/web/src/lib/style-maps.ts — solo color maps, NO badge variants
+export const taskTypeColors: Record<TaskType, string> = { ... };
+export const professionalReqColors: Record<ProfessionalRequirement, string> = { ... };
+```
+
+**Regla:** NUNCA definir colores por estado inline en componentes. Badge variants desde `@epde/shared`, color maps desde `style-maps.ts`.
 
 ### 4.6 Auth (Web)
 
@@ -1063,11 +1067,11 @@ attachRefreshInterceptor({
 ```typescript
 // NativeWind classes + font styles
 <ScrollView className="bg-background flex-1" contentContainerStyle={{ padding: 16 }}>
-  <Text style={fonts.heading} className="text-foreground text-2xl mb-4">
+  <Text style={TYPE.displayLg} className="text-foreground mb-4">
     Titulo
   </Text>
   <View className="border-border bg-card rounded-xl border p-4">
-    <Text style={{ fontFamily: 'DMSans_400Regular' }} className="text-muted-foreground text-sm">
+    <Text style={TYPE.bodySm} className="text-muted-foreground">
       Label
     </Text>
   </View>

@@ -161,29 +161,27 @@ import { TYPE } from '@/lib/fonts';
 
 ## Style Maps Centralizados
 
-Los mapas de variantes y colores para Badges estan centralizados en `lib/style-maps.ts`. **No duplicar** en cada componente.
-
-Los mapas de variantes para Badge (`taskStatusVariant`, `budgetStatusVariant`, `serviceStatusVariant`, etc.) se importan desde `@epde/shared/constants/badge-variants` como SSoT compartido entre web y mobile. El Badge web incluye variante `success` para estados terminales positivos (COMPLETED, APPROVED, RESOLVED).
+Las variantes de Badge se importan directamente desde `@epde/shared` (SSoT). Color maps locales (`taskTypeColors`, `professionalReqColors`) se mantienen en `lib/style-maps.ts`. **No duplicar** en cada componente.
 
 ```typescript
-// Ejemplo: priorityColors (color maps locales a web)
-LOW: 'bg-green-100 text-green-700',
-MEDIUM: 'bg-yellow-100 text-yellow-700',
-HIGH: 'bg-orange-100 text-orange-700',
-URGENT: 'bg-red-100 text-red-700',
-```
+// Variantes de Badge — desde @epde/shared
+import { TASK_STATUS_VARIANT, PRIORITY_VARIANT, BUDGET_STATUS_VARIANT } from '@epde/shared';
 
-```typescript
-import { priorityColors, taskStatusVariant, budgetStatusVariant } from '@/lib/style-maps';
-
-// Uso en Badge
-<Badge variant={taskStatusVariant[task.status] ?? 'outline'}>
+<Badge variant={TASK_STATUS_VARIANT[task.status] ?? 'outline'}>
   {TASK_STATUS_LABELS[task.status]}
 </Badge>
 
-// Uso en span con clases de color
-<span className={priorityColors[task.priority] ?? ''}>
+<Badge variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'}>
   {TASK_PRIORITY_LABELS[task.priority]}
+</Badge>
+```
+
+```typescript
+// Color maps locales — desde style-maps.ts (CSS token classes)
+import { taskTypeColors } from '@/lib/style-maps';
+
+<span className={taskTypeColors[task.taskType]}>
+  {TASK_TYPE_LABELS[task.taskType]}
 </span>
 ```
 

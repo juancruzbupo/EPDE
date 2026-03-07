@@ -387,7 +387,7 @@ pnpm --filter @epde/mobile test              # Solo Mobile (jest-expo)
 - **Web**: Vitest + jsdom + @testing-library/react — hooks y componentes
 - **Mobile**: jest-expo + @testing-library/react-native — componentes. Mock manual de `react-native-reanimated` en `__mocks__/react-native-reanimated.js` (v4.x requiere worklets nativos incluso en el mock oficial)
 
-Total: ~675 tests (295 API unit + 197 Shared + 102 Web + 81 Mobile). E2E: clients (8) + category-templates (9) + maintenance-plans (20) + otros existentes.
+Total: ~649 tests (295 API unit + 197 Shared + 86 Web + 71 Mobile). E2E: clients (8) + category-templates (9) + maintenance-plans (20) + otros existentes.
 
 ### Tests E2E
 
@@ -414,7 +414,7 @@ GitHub Actions ejecuta en orden: lint → typecheck → build → **schema drift
 | ------- | ---------- | -------- | --------- | ----- |
 | API     | 75         | 60       | 65        | 75    |
 | Web     | 50         | 35       | 50        | 50    |
-| Mobile  | 45         | 28       | 38        | 45    |
+| Mobile  | 50         | 32       | 40        | 50    |
 
 Web excluye de coverage: `src/app/**/page.tsx`, `src/app/**/layout.tsx`, `src/components/ui/**` (pages son thin wrappers, ui es shadcn generado).
 
