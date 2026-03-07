@@ -54,6 +54,13 @@ export function DigitalSystemSection({ motionProps }: SectionProps) {
         >
           Cada vivienda cuenta con su panel de seguimiento, historial técnico y planificación anual.
         </motion.p>
+
+        <motion.p
+          variants={fadeIn}
+          className="type-body-lg text-foreground mx-auto mt-3 max-w-2xl text-center font-medium"
+        >
+          Todo el mantenimiento de tu vivienda organizado en un solo lugar.
+        </motion.p>
       </motion.div>
     </section>
   );

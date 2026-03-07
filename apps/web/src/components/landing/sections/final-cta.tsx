@@ -28,13 +28,23 @@ export function FinalCtaSection({ motionProps }: SectionProps) {
           Evaluamos el estado de tu vivienda y te indicamos qué mantenimiento necesita. Sin
           compromiso.
         </motion.p>
+        <motion.p
+          variants={fadeIn}
+          className="type-body-md text-background/50 mx-auto mt-4 max-w-lg"
+        >
+          El diagnóstico es realizado personalmente por la Arq. Noelia E. Yuskowich, especialista en
+          diagnóstico y mantenimiento preventivo de viviendas.
+        </motion.p>
         <motion.div variants={fadeIn} className="mt-8">
           <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
             <Button size="lg" variant="secondary" className="gap-2">
-              Solicitar diagnóstico de mi casa
+              Solicitar diagnóstico de mi vivienda
               <ArrowRight className="h-4 w-4" />
             </Button>
           </a>
+          <p className="type-body-sm text-background/40 mt-3">
+            Recibí una evaluación inicial del estado de tu casa.
+          </p>
         </motion.div>
       </motion.div>
     </section>

@@ -12,7 +12,7 @@ const URGENCY_POINTS = [
   },
   {
     icon: Shield,
-    title: 'Detectarlas a tiempo puede ahorrarte millones',
+    title: 'Detectarlas a tiempo puede evitar reparaciones mucho más costosas',
     description:
       'La diferencia entre una intervención preventiva de $150.000 y una reparación de emergencia de $5.000.000 es, simplemente, haberlo detectado antes.',
   },

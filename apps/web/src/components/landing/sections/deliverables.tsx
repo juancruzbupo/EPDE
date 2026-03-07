@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { fadeIn, fadeInUp, staggerContainer, staggerItem } from '@/lib/motion';
 import type { SectionProps } from '../landing-data';
-import { DELIVERABLES } from '../landing-data';
+import { DELIVERABLES, INSPECTION_AREAS, Check } from '../landing-data';
 
 export function DeliverablesSection({ motionProps }: SectionProps) {
   return (
@@ -32,6 +32,23 @@ export function DeliverablesSection({ motionProps }: SectionProps) {
                 </div>
                 <span className="type-body-lg text-foreground">{item.text}</span>
               </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        <motion.div
+          variants={fadeIn}
+          className="border-border bg-card mt-6 rounded-xl border p-6 sm:p-8"
+        >
+          <p className="type-title-md text-foreground mb-4">¿Qué se inspecciona?</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {INSPECTION_AREAS.map((area) => (
+              <div key={area} className="flex items-center gap-3">
+                <div className="bg-primary/10 flex h-5 w-5 shrink-0 items-center justify-center rounded-full">
+                  <Check className="text-primary h-3 w-3" />
+                </div>
+                <span className="type-body-md text-foreground">{area}</span>
+              </div>
             ))}
           </div>
         </motion.div>

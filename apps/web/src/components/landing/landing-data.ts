@@ -123,6 +123,13 @@ export const STEPS: Step[] = [
     description:
       'Tu plan se carga en EPDE con tareas programadas y recordatorios automáticos. Tu vivienda deja de depender de recordatorios mentales.',
   },
+  {
+    number: '04',
+    icon: Bell,
+    title: 'Seguimiento periódico',
+    description:
+      'Recordatorios automáticos, historial de intervenciones y acceso permanente desde web y mobile. Tu vivienda siempre bajo control.',
+  },
 ];
 
 export const DELIVERABLES: IconTextItem[] = [
@@ -149,6 +156,15 @@ export const TARGET_PROFILES = [
   'Prefieren planificar antes que reaccionar',
   'Buscan orden y previsión en el mantenimiento',
   'Valoran criterio profesional sobre soluciones improvisadas',
+];
+
+export const INSPECTION_AREAS = [
+  'Estado de techos y cubiertas',
+  'Filtraciones y humedad',
+  'Fisuras y grietas estructurales',
+  'Instalaciones sanitarias',
+  'Instalaciones eléctricas',
+  'Estado general de mantenimiento',
 ];
 
 export const CREDENTIALS: IconTextItem[] = [
@@ -243,7 +259,7 @@ export const PRICE_TIERS: PriceTier[] = [
 // ---------------------------------------------------------------------------
 
 export const COST_DISCLAIMER =
-  'Los costos de reparación mencionados son estimaciones basadas en valores de mercado publicados por empresas constructoras, portales del sector (Home Solution, CYPE Argentina) y referencias de costos de obra en Argentina. Valores aproximados actualizados a marzo 2026. Los valores pueden variar según cada caso.';
+  'Costos estimados en base a valores promedio de mercado en Paraná (materiales y mano de obra) actualizados a marzo 2026. Los valores pueden variar según cada caso.';
 
 export const PRICE_DISCLAIMER =
   'El valor depende del tamaño de la vivienda y del estado general del mantenimiento. Los valores son orientativos y se confirman tras la consulta inicial.';

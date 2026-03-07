@@ -99,7 +99,15 @@ export function ProblemsSection({ motionProps }: SectionProps) {
 
           <motion.p
             variants={fadeIn}
-            className="type-body-sm text-muted-foreground/70 mx-auto mt-8 max-w-3xl text-center"
+            className="type-body-md text-foreground/70 mx-auto mt-8 max-w-2xl text-center font-medium"
+          >
+            Detectar estos problemas a tiempo mediante mantenimiento preventivo puede reducir
+            significativamente el costo de la solución.
+          </motion.p>
+
+          <motion.p
+            variants={fadeIn}
+            className="type-body-sm text-muted-foreground/70 mx-auto mt-4 max-w-3xl text-center"
           >
             {COST_DISCLAIMER}
           </motion.p>
