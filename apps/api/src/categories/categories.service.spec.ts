@@ -139,7 +139,7 @@ describe('CategoriesService', () => {
 
       const result = await service.deleteCategory('cat-1');
 
-      expect(result).toEqual({ message: 'Categoría eliminada' });
+      expect(result).toEqual({ data: null, message: 'Categoría eliminada' });
       expect(repository.hardDelete).toHaveBeenCalledWith('cat-1');
     });
 

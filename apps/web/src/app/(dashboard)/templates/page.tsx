@@ -22,6 +22,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Plus, Pencil, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
 import { PageTransition } from '@/components/ui/page-transition';
+import { ErrorState } from '@/components/error-state';
 import {
   TASK_TYPE_LABELS,
   PROFESSIONAL_REQUIREMENT_LABELS,
@@ -35,7 +36,7 @@ import { TaskTemplateDialog } from './task-template-dialog';
 import type { CategoryTemplate, TaskTemplate } from '@epde/shared';
 
 export default function TemplatesPage() {
-  const { data: categories, isLoading } = useCategoryTemplates();
+  const { data: categories, isLoading, isError, refetch } = useCategoryTemplates();
   const deleteCategory = useDeleteCategoryTemplate();
   const deleteTask = useDeleteTaskTemplate();
 
@@ -87,6 +88,12 @@ export default function TemplatesPage() {
             </Card>
           ))}
         </div>
+      ) : isError ? (
+        <ErrorState
+          message="No se pudieron cargar las plantillas"
+          onRetry={refetch}
+          className="justify-center py-24"
+        />
       ) : categories && categories.length > 0 ? (
         <div className="space-y-4">
           {categories.map((cat) => {

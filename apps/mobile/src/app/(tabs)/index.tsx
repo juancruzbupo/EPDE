@@ -128,7 +128,7 @@ export default function DashboardScreen() {
         </Pressable>
 
         <Text style={TYPE.titleLg} className="text-foreground mb-3">
-          Proximas Tareas
+          Próximas Tareas
         </Text>
       </View>
     ),

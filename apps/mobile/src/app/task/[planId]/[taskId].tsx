@@ -24,16 +24,8 @@ import { CollapsibleSection } from '@/components/collapsible-section';
 import { TYPE } from '@/lib/fonts';
 import { colors } from '@/lib/colors';
 import { defaultScreenOptions } from '@/lib/screen-options';
+import { RECURRENCE_TYPE_LABELS } from '@epde/shared';
 import type { TaskLogPublic, TaskNotePublic } from '@epde/shared';
-
-const recurrenceLabels: Record<string, string> = {
-  MONTHLY: 'Mensual',
-  QUARTERLY: 'Trimestral',
-  BIANNUAL: 'Semestral',
-  ANNUAL: 'Anual',
-  CUSTOM: 'Personalizada',
-  ON_DETECTION: 'Según detección',
-};
 
 function LogItem({ log }: { log: TaskLogPublic }) {
   return (
@@ -171,7 +163,7 @@ export default function TaskDetailScreen() {
                 Recurrencia
               </Text>
               <Text style={TYPE.labelLg} className="text-foreground">
-                {recurrenceLabels[task.recurrenceType] ?? task.recurrenceType}
+                {RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}
                 {task.recurrenceMonths ? ` (${task.recurrenceMonths} meses)` : ''}
               </Text>
             </View>
@@ -233,6 +225,7 @@ export default function TaskDetailScreen() {
               placeholder="Agregar una nota..."
               placeholderTextColor={colors.mutedForeground}
               multiline
+              maxLength={2000}
               style={[TYPE.bodyMd, { minHeight: 40, textAlignVertical: 'top' }]}
               className="border-border bg-card text-foreground flex-1 rounded-xl border px-3 py-2"
             />

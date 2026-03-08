@@ -5,9 +5,11 @@ import { useTaskNotes, useAddTaskNote } from '@/hooks/use-task-operations';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ErrorState } from '@/components/error-state';
 import { Send, MessageSquare } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { createTaskNoteSchema } from '@epde/shared';
 
 interface TaskNotesProps {
   planId: string;
@@ -15,15 +17,16 @@ interface TaskNotesProps {
 }
 
 export function TaskNotes({ planId, taskId }: TaskNotesProps) {
-  const { data: notes, isLoading } = useTaskNotes(planId, taskId);
+  const { data: notes, isLoading, isError, refetch } = useTaskNotes(planId, taskId);
   const addNote = useAddTaskNote();
   const [content, setContent] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim()) return;
+    const result = createTaskNoteSchema.safeParse({ content: content.trim() });
+    if (!result.success) return;
     addNote.mutate(
-      { planId, taskId, content: content.trim() },
+      { planId, taskId, content: result.data.content },
       { onSuccess: () => setContent('') },
     );
   };
@@ -37,6 +40,7 @@ export function TaskNotes({ planId, taskId }: TaskNotesProps) {
           placeholder="Agregar una nota..."
           className="flex-1 resize-none"
           rows={2}
+          maxLength={2000}
         />
         <Button
           type="submit"
@@ -55,6 +59,12 @@ export function TaskNotes({ planId, taskId }: TaskNotesProps) {
             <Skeleton key={i} className="h-14 w-full rounded-lg" />
           ))}
         </div>
+      ) : isError ? (
+        <ErrorState
+          message="No se pudieron cargar las notas"
+          onRetry={refetch}
+          className="justify-center py-4"
+        />
       ) : notes && notes.length > 0 ? (
         <div className="space-y-3">
           {notes.map((note) => (

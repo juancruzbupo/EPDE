@@ -25,6 +25,10 @@ import {
   CONDITION_FOUND_LABELS,
   TASK_EXECUTOR_LABELS,
   ACTION_TAKEN_LABELS,
+  TASK_RESULT_VALUES,
+  CONDITION_FOUND_VALUES,
+  TASK_EXECUTOR_VALUES,
+  ACTION_TAKEN_VALUES,
 } from '@epde/shared';
 import type {
   TaskPublic,
@@ -83,29 +87,6 @@ function SelectorGroup<T extends string>({
     </View>
   );
 }
-
-const RESULTS: TaskResult[] = [
-  'OK',
-  'OK_WITH_OBSERVATIONS',
-  'NEEDS_ATTENTION',
-  'NEEDS_REPAIR',
-  'NEEDS_URGENT_REPAIR',
-  'NOT_APPLICABLE',
-];
-const CONDITIONS: ConditionFound[] = ['EXCELLENT', 'GOOD', 'FAIR', 'POOR', 'CRITICAL'];
-const EXECUTORS: TaskExecutor[] = ['OWNER', 'HIRED_PROFESSIONAL', 'EPDE_PROFESSIONAL'];
-const ACTIONS: ActionTaken[] = [
-  'INSPECTION_ONLY',
-  'CLEANING',
-  'MINOR_REPAIR',
-  'MAJOR_REPAIR',
-  'REPLACEMENT',
-  'TREATMENT',
-  'SEALING',
-  'ADJUSTMENT',
-  'FULL_SERVICE',
-  'NO_ACTION',
-];
 
 export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTaskModalProps) {
   const insets = useSafeAreaInsets();
@@ -301,7 +282,7 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
 
           <SelectorGroup
             label="Resultado *"
-            options={RESULTS}
+            options={TASK_RESULT_VALUES}
             labels={TASK_RESULT_LABELS}
             value={result}
             onChange={setResult}
@@ -309,7 +290,7 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
 
           <SelectorGroup
             label="Condición encontrada *"
-            options={CONDITIONS}
+            options={CONDITION_FOUND_VALUES}
             labels={CONDITION_FOUND_LABELS}
             value={conditionFound}
             onChange={setConditionFound}
@@ -317,7 +298,7 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
 
           <SelectorGroup
             label="Ejecutor *"
-            options={EXECUTORS}
+            options={TASK_EXECUTOR_VALUES}
             labels={TASK_EXECUTOR_LABELS}
             value={executor}
             onChange={setExecutor}
@@ -325,7 +306,7 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
 
           <SelectorGroup
             label="Acción realizada *"
-            options={ACTIONS}
+            options={ACTION_TAKEN_VALUES}
             labels={ACTION_TAKEN_LABELS}
             value={actionTaken}
             onChange={setActionTaken}

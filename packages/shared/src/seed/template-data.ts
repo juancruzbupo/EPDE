@@ -1,10 +1,17 @@
+import type {
+  TaskType,
+  ProfessionalRequirement,
+  TaskPriority,
+  RecurrenceType,
+} from '../types/enums';
+
 export interface TaskTemplateSeed {
   name: string;
-  taskType: string;
-  professionalRequirement: string;
+  taskType: TaskType;
+  professionalRequirement: ProfessionalRequirement;
   technicalDescription?: string;
-  priority: string;
-  recurrenceType: string;
+  priority: TaskPriority;
+  recurrenceType: RecurrenceType;
   recurrenceMonths: number;
   estimatedDurationMinutes?: number;
 }

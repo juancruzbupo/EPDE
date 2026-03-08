@@ -21,12 +21,12 @@ export function createNotificationQueries(apiClient: AxiosInstance) {
       return data;
     },
 
-    async markAsRead(id: string) {
+    async markAsRead(id: string): Promise<ApiResponse<NotificationPublic>> {
       const { data } = await apiClient.patch(`/notifications/${id}/read`);
       return data;
     },
 
-    async markAllAsRead() {
+    async markAllAsRead(): Promise<ApiResponse<{ count: number }>> {
       const { data } = await apiClient.patch('/notifications/read-all');
       return data;
     },

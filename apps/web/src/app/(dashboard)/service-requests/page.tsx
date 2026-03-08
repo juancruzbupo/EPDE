@@ -12,6 +12,7 @@ import { Plus } from 'lucide-react';
 import { SERVICE_STATUS_LABELS, SERVICE_URGENCY_LABELS, UserRole } from '@epde/shared';
 import type { ServiceStatus, ServiceUrgency } from '@epde/shared';
 import { PageTransition } from '@/components/ui/page-transition';
+import { ErrorState } from '@/components/error-state';
 import { serviceRequestColumns } from './columns';
 import { CreateServiceDialog } from './create-service-dialog';
 
@@ -41,7 +42,8 @@ export default function ServiceRequestsPage() {
     [status, urgency],
   );
 
-  const { data, isLoading, hasNextPage, fetchNextPage } = useServiceRequests(filters);
+  const { data, isLoading, isError, refetch, hasNextPage, fetchNextPage } =
+    useServiceRequests(filters);
 
   const allRequests = useMemo(() => data?.pages.flatMap((p) => p.data) ?? [], [data]);
   const total = data?.pages[0]?.total;
@@ -75,6 +77,14 @@ export default function ServiceRequestsPage() {
           placeholder="Urgencia"
         />
       </div>
+
+      {isError && (
+        <ErrorState
+          message="No se pudieron cargar las solicitudes"
+          onRetry={refetch}
+          className="justify-center py-24"
+        />
+      )}
 
       <DataTable
         columns={serviceRequestColumns}

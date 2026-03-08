@@ -26,7 +26,7 @@ import {
   CalendarCheck,
   StickyNote,
 } from 'lucide-react';
-import { BUDGET_STATUS_LABELS, BUDGET_STATUS_VARIANT } from '@epde/shared';
+import { BUDGET_STATUS_LABELS, BUDGET_STATUS_VARIANT, BudgetStatus } from '@epde/shared';
 import type { BudgetRequestPublic } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -39,9 +39,9 @@ const formatCurrency = (value: string | number) =>
     currency: 'ARS',
   }).format(Number(value));
 
-type ConfirmAction = 'APPROVED' | 'REJECTED' | 'IN_PROGRESS' | 'COMPLETED' | null;
+type ConfirmAction = BudgetStatus | null;
 
-const confirmMessages: Record<string, { title: string; description: string }> = {
+const confirmMessages: Partial<Record<BudgetStatus, { title: string; description: string }>> = {
   APPROVED: {
     title: 'Aprobar presupuesto',
     description: '¿Estás seguro de que queres aprobar este presupuesto?',

@@ -12,6 +12,7 @@ import { Plus } from 'lucide-react';
 import { BUDGET_STATUS_LABELS, UserRole } from '@epde/shared';
 import type { BudgetStatus } from '@epde/shared';
 import { PageTransition } from '@/components/ui/page-transition';
+import { ErrorState } from '@/components/error-state';
 import { budgetColumns } from './columns';
 import { CreateBudgetDialog } from './create-budget-dialog';
 import type { BudgetRequestPublic } from '@/lib/api/budgets';
@@ -34,7 +35,7 @@ export default function BudgetsPage() {
     [status],
   );
 
-  const { data, isLoading, hasNextPage, fetchNextPage } = useBudgets(filters);
+  const { data, isLoading, isError, refetch, hasNextPage, fetchNextPage } = useBudgets(filters);
 
   const allBudgets = useMemo(() => data?.pages.flatMap((p) => p.data) ?? [], [data]);
   const total = data?.pages[0]?.total;
@@ -62,6 +63,14 @@ export default function BudgetsPage() {
           placeholder="Estado"
         />
       </div>
+
+      {isError && (
+        <ErrorState
+          message="No se pudieron cargar los presupuestos"
+          onRetry={refetch}
+          className="justify-center py-24"
+        />
+      )}
 
       <DataTable
         columns={budgetColumns}

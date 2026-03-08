@@ -16,6 +16,7 @@ import { SwipeableRow } from '@/components/swipeable-row';
 import { CompleteTaskModal } from '@/components/complete-task-modal';
 import { TaskStatusBadge, PriorityBadge, PropertyTypeBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
+import { ErrorState } from '@/components/error-state';
 import { useAnimatedEntry } from '@/lib/animations';
 import { TYPE } from '@/lib/fonts';
 import { colors } from '@/lib/colors';
@@ -75,7 +76,12 @@ export default function PropertyDetailScreen() {
   const [completeTask, setCompleteTask] = useState<TaskPublic | null>(null);
 
   const infoCardStyle = useAnimatedEntry();
-  const { data: property, isLoading: propertyLoading, refetch: refetchProperty } = useProperty(id);
+  const {
+    data: property,
+    isLoading: propertyLoading,
+    error: propertyError,
+    refetch: refetchProperty,
+  } = useProperty(id);
   const planId = property?.maintenancePlan?.id;
   const { data: plan, isLoading: planLoading, refetch: refetchPlan } = usePlan(planId ?? '');
 
@@ -107,6 +113,17 @@ export default function PropertyDetailScreen() {
           options={{ headerShown: true, title: 'Propiedad', headerBackTitle: 'Volver' }}
         />
         <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (propertyError && !property) {
+    return (
+      <View className="bg-background flex-1">
+        <Stack.Screen
+          options={{ headerShown: true, title: 'Propiedad', headerBackTitle: 'Volver' }}
+        />
+        <ErrorState onRetry={refetchProperty} />
       </View>
     );
   }

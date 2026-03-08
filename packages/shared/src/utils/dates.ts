@@ -1,5 +1,6 @@
 import { formatDistanceToNow, addMonths, isWithinInterval, addDays, startOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
+import type { RecurrenceType } from '../types/enums';
 
 export function formatRelativeDate(date: Date): string {
   return formatDistanceToNow(date, { addSuffix: true, locale: es });
@@ -27,7 +28,7 @@ export function getNextDueDate(currentDate: Date, recurrenceMonths: number): Dat
  * ON_DETECTION and CUSTOM have no fixed recurrence — returns null.
  * Callers handle with `?? fallback` (e.g., `?? 12` in the safety sweep).
  */
-export function recurrenceTypeToMonths(type: string): number | null {
+export function recurrenceTypeToMonths(type: RecurrenceType | string): number | null {
   const map: Record<string, number> = {
     MONTHLY: 1,
     QUARTERLY: 3,

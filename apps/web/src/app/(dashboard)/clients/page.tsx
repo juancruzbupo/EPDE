@@ -14,6 +14,7 @@ import { Plus } from 'lucide-react';
 import { USER_STATUS_LABELS } from '@epde/shared';
 import type { UserStatus } from '@epde/shared';
 import { PageTransition } from '@/components/ui/page-transition';
+import { ErrorState } from '@/components/error-state';
 import { clientColumns } from './columns';
 import { InviteClientDialog } from './invite-client-dialog';
 
@@ -40,7 +41,7 @@ export default function ClientsPage() {
     [debouncedSearch, status],
   );
 
-  const { data, isLoading, hasNextPage, fetchNextPage } = useClients(filters);
+  const { data, isLoading, isError, refetch, hasNextPage, fetchNextPage } = useClients(filters);
 
   const allClients = useMemo(() => data?.pages.flatMap((p) => p.data) ?? [], [data]);
   const total = data?.pages[0]?.total;
@@ -71,6 +72,14 @@ export default function ClientsPage() {
           placeholder="Estado"
         />
       </div>
+
+      {isError && (
+        <ErrorState
+          message="No se pudieron cargar los clientes"
+          onRetry={refetch}
+          className="justify-center py-24"
+        />
+      )}
 
       <DataTable
         columns={clientColumns({ onDelete: setDeleteId })}

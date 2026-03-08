@@ -1,5 +1,13 @@
 import { memo, useState, useCallback } from 'react';
-import { View, Text, FlatList, RefreshControl, Pressable, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  RefreshControl,
+  Pressable,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -61,6 +69,14 @@ export default function TasksScreen() {
 
   if (error && !tasks) {
     return <ErrorState onRetry={refetch} />;
+  }
+
+  if (isLoading && !tasks) {
+    return (
+      <View className="bg-background flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   const onRefresh = useCallback(() => {

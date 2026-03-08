@@ -1,5 +1,5 @@
 import { memo, useCallback } from 'react';
-import { View, Text, FlatList, RefreshControl, Pressable } from 'react-native';
+import { View, Text, FlatList, RefreshControl, Pressable, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useProperties } from '@/hooks/use-properties';
 import { AnimatedListItem } from '@/components/animated-list-item';
@@ -50,6 +50,14 @@ export default function PropertiesScreen() {
 
   if (error && !data) {
     return <ErrorState onRetry={refetch} />;
+  }
+
+  if (isLoading && !data) {
+    return (
+      <View className="bg-background flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   const onRefresh = useCallback(() => {

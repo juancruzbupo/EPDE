@@ -1,5 +1,12 @@
 import { memo, useCallback } from 'react';
-import { View, Text, RefreshControl, Pressable, SectionList } from 'react-native';
+import {
+  View,
+  Text,
+  RefreshControl,
+  Pressable,
+  SectionList,
+  ActivityIndicator,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { usePlans } from '@/hooks/use-plans';
 import { AnimatedListItem } from '@/components/animated-list-item';
@@ -7,7 +14,7 @@ import { PlanStatusBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { TYPE } from '@/lib/fonts';
-import { PLAN_STATUS_LABELS } from '@epde/shared';
+import { PLAN_STATUS_LABELS, PlanStatus } from '@epde/shared';
 import type { PlanListItem } from '@/lib/api/maintenance-plans';
 
 const PlanCard = memo(function PlanCard({ plan }: { plan: PlanListItem }) {
@@ -35,13 +42,21 @@ const PlanCard = memo(function PlanCard({ plan }: { plan: PlanListItem }) {
   );
 });
 
-const STATUS_ORDER = ['ACTIVE', 'DRAFT', 'ARCHIVED'] as const;
+const STATUS_ORDER = [PlanStatus.ACTIVE, PlanStatus.DRAFT, PlanStatus.ARCHIVED] as const;
 
 export default function MaintenancePlansScreen() {
   const { data: plans, isLoading, error, refetch } = usePlans();
 
   if (error && !plans) {
     return <ErrorState onRetry={refetch} />;
+  }
+
+  if (isLoading && !plans) {
+    return (
+      <View className="bg-background flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   const onRefresh = useCallback(() => {

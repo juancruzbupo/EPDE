@@ -61,7 +61,7 @@ export class CategoriesService {
       }
 
       await this.categoriesRepository.hardDelete(id);
-      return { message: 'Categoría eliminada' };
+      return { data: null, message: 'Categoría eliminada' };
     } catch (error) {
       if (error instanceof CategoryHasReferencingTasksError) {
         throw new BadRequestException(error.message);

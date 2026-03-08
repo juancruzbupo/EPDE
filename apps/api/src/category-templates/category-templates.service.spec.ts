@@ -182,7 +182,7 @@ describe('CategoryTemplatesService', () => {
       const ids = ['cat-3', 'cat-1', 'cat-2'];
       const result = await service.reorder(ids);
 
-      expect(result).toEqual({ message: 'Orden actualizado' });
+      expect(result).toEqual({ data: null, message: 'Orden actualizado' });
       expect(repository.reorder).toHaveBeenCalledWith(ids);
     });
   });

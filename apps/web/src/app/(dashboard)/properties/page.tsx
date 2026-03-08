@@ -14,6 +14,7 @@ import { Plus } from 'lucide-react';
 import { PROPERTY_TYPE_LABELS, UserRole } from '@epde/shared';
 import type { PropertyType } from '@epde/shared';
 import { PageTransition } from '@/components/ui/page-transition';
+import { ErrorState } from '@/components/error-state';
 import { propertyColumns } from './columns';
 import { CreatePropertyDialog } from './create-property-dialog';
 
@@ -41,7 +42,7 @@ export default function PropertiesPage() {
     [debouncedSearch, type],
   );
 
-  const { data, isLoading, hasNextPage, fetchNextPage } = useProperties(filters);
+  const { data, isLoading, isError, refetch, hasNextPage, fetchNextPage } = useProperties(filters);
 
   const allProperties = useMemo(() => data?.pages.flatMap((p) => p.data) ?? [], [data]);
   const total = data?.pages[0]?.total;
@@ -69,6 +70,14 @@ export default function PropertiesPage() {
         />
         <FilterSelect value={type} onChange={setType} options={typeOptions} placeholder="Tipo" />
       </div>
+
+      {isError && (
+        <ErrorState
+          message="No se pudieron cargar las propiedades"
+          onRetry={refetch}
+          className="justify-center py-24"
+        />
+      )}
 
       <DataTable
         columns={propertyColumns({ isAdmin: !!isAdmin })}

@@ -122,7 +122,7 @@ describe('TaskTemplatesService', () => {
 
       const result = await service.reorder('cat-1', ids);
 
-      expect(result).toEqual({ message: 'Orden actualizado' });
+      expect(result).toEqual({ data: null, message: 'Orden actualizado' });
       expect(categoryTemplatesRepository.findById).toHaveBeenCalledWith('cat-1');
       expect(repository.reorder).toHaveBeenCalledWith('cat-1', ids);
     });

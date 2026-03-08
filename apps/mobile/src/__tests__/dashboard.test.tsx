@@ -121,7 +121,7 @@ describe('DashboardScreen', () => {
     expect(getAllByText('1').length).toBeGreaterThanOrEqual(1); // overdueTasks
 
     // Section heading
-    expect(getByText('Proximas Tareas')).toBeTruthy();
+    expect(getByText('Próximas Tareas')).toBeTruthy();
 
     // Task cards
     expect(getByText('Revisar caldera')).toBeTruthy();
@@ -138,7 +138,7 @@ describe('DashboardScreen', () => {
     const { getByText } = render(<DashboardScreen />);
 
     expect(getByText('Mi Panel')).toBeTruthy();
-    expect(getByText('Proximas Tareas')).toBeTruthy();
+    expect(getByText('Próximas Tareas')).toBeTruthy();
     expect(getByText('Sin tareas proximas')).toBeTruthy();
     expect(getByText('No hay tareas de mantenimiento programadas por ahora.')).toBeTruthy();
   });

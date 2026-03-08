@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { ErrorState } from '@/components/error-state';
 import { Plus, ChevronUp, ChevronDown, Trash2, Pencil } from 'lucide-react';
 import {
   TASK_PRIORITY_LABELS,
@@ -25,7 +26,7 @@ interface PlanEditorProps {
 }
 
 export function PlanEditor({ planId }: PlanEditorProps) {
-  const { data: plan, isLoading } = usePlan(planId);
+  const { data: plan, isLoading, isError, refetch } = usePlan(planId);
   const removeTask = useRemoveTask();
   const reorderTasks = useReorderTasks();
 
@@ -40,6 +41,16 @@ export function PlanEditor({ planId }: PlanEditorProps) {
           <Skeleton key={i} className="h-16 w-full" />
         ))}
       </div>
+    );
+  }
+
+  if (isError && !plan) {
+    return (
+      <ErrorState
+        message="No se pudo cargar el plan"
+        onRetry={refetch}
+        className="justify-center py-16"
+      />
     );
   }
 

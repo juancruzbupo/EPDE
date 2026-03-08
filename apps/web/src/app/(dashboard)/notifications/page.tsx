@@ -10,6 +10,7 @@ import { NOTIFICATION_TYPE_LABELS } from '@epde/shared';
 import type { NotificationType } from '@epde/shared';
 import { Bell, FileText, Wrench, Clock, CheckCheck } from 'lucide-react';
 import { PageTransition } from '@/components/ui/page-transition';
+import { ErrorState } from '@/components/error-state';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import type { NotificationPublic } from '@/lib/api/notifications';
@@ -22,7 +23,7 @@ const typeIcons: Record<NotificationType, typeof Bell> = {
 };
 
 export default function NotificationsPage() {
-  const { data, isLoading, hasNextPage, fetchNextPage } = useNotifications();
+  const { data, isLoading, isError, refetch, hasNextPage, fetchNextPage } = useNotifications();
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
 
@@ -57,6 +58,12 @@ export default function NotificationsPage() {
             <Skeleton key={i} className="h-20 w-full" />
           ))}
         </div>
+      ) : isError ? (
+        <ErrorState
+          message="No se pudieron cargar las notificaciones"
+          onRetry={refetch}
+          className="justify-center py-24"
+        />
       ) : allNotifications.length === 0 ? (
         <p className="text-muted-foreground py-12 text-center text-sm">No tenés notificaciones</p>
       ) : (

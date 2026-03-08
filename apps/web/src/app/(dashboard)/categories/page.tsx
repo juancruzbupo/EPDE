@@ -17,11 +17,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { PageTransition } from '@/components/ui/page-transition';
+import { ErrorState } from '@/components/error-state';
 import { CategoryDialog } from './category-dialog';
 import type { CategoryPublic } from '@/lib/api/categories';
 
 export default function CategoriesPage() {
-  const { data: categories, isLoading } = useCategories();
+  const { data: categories, isLoading, isError, refetch } = useCategories();
   const deleteCategory = useDeleteCategory();
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -69,6 +70,16 @@ export default function CategoriesPage() {
                     ))}
                   </TableRow>
                 ))
+              ) : isError ? (
+                <TableRow>
+                  <TableCell colSpan={5}>
+                    <ErrorState
+                      message="No se pudieron cargar las categorías"
+                      onRetry={refetch}
+                      className="justify-center py-8"
+                    />
+                  </TableCell>
+                </TableRow>
               ) : categories && categories.length > 0 ? (
                 categories.map((cat) => (
                   <TableRow key={cat.id}>

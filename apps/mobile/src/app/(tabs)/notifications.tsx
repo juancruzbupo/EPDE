@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { View, Text, FlatList, RefreshControl, Pressable } from 'react-native';
+import { View, Text, FlatList, RefreshControl, Pressable, ActivityIndicator } from 'react-native';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -15,16 +15,16 @@ import { ErrorState } from '@/components/error-state';
 import { haptics } from '@/lib/haptics';
 import { TYPE } from '@/lib/fonts';
 import { colors } from '@/lib/colors';
-import type { NotificationPublic } from '@epde/shared';
+import type { NotificationPublic, NotificationType } from '@epde/shared';
 
-const NOTIF_TYPE_ICONS: Record<string, string> = {
+const NOTIF_TYPE_ICONS: Record<NotificationType, string> = {
   TASK_REMINDER: '\u{1F552}',
   BUDGET_UPDATE: '\u{1F4CB}',
   SERVICE_UPDATE: '\u{1F527}',
   SYSTEM: '\u{1F514}',
 };
 
-const NOTIF_TYPE_LABELS: Record<string, string> = {
+const NOTIF_TYPE_LABELS: Record<NotificationType, string> = {
   TASK_REMINDER: 'Recordatorio',
   BUDGET_UPDATE: 'Presupuesto',
   SERVICE_UPDATE: 'Servicio',
@@ -90,6 +90,14 @@ export default function NotificationsScreen() {
 
   if (error && !data) {
     return <ErrorState onRetry={refetch} />;
+  }
+
+  if (isLoading && !data) {
+    return (
+      <View className="bg-background flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   const onRefresh = useCallback(() => {
@@ -161,7 +169,7 @@ export default function NotificationsScreen() {
                 className="bg-card border-border rounded-xl border px-3 py-1.5"
               >
                 <Text style={TYPE.labelMd} className="text-primary">
-                  Marcar todas como leidas
+                  Marcar todas como leídas
                 </Text>
               </Pressable>
             )}

@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FilterSelect } from '@/components/filter-select';
+import { ErrorState } from '@/components/error-state';
 import { CheckCircle, ClipboardList } from 'lucide-react';
 import {
   TaskStatus,
@@ -28,7 +29,7 @@ interface PlanViewerProps {
 }
 
 export function PlanViewer({ planId }: PlanViewerProps) {
-  const { data: plan, isLoading } = usePlan(planId);
+  const { data: plan, isLoading, isError, refetch } = usePlan(planId);
 
   const [selectedTask, setSelectedTask] = useState<TaskPublic | null>(null);
   const [completingTask, setCompletingTask] = useState<TaskPublic | null>(null);
@@ -65,6 +66,16 @@ export function PlanViewer({ planId }: PlanViewerProps) {
           ))}
         </CardContent>
       </Card>
+    );
+  }
+
+  if (isError && !plan) {
+    return (
+      <ErrorState
+        message="No se pudo cargar el plan"
+        onRetry={refetch}
+        className="justify-center py-16"
+      />
     );
   }
 

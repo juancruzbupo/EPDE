@@ -7,8 +7,8 @@ export interface CategoryTemplate {
   description: string | null;
   displayOrder: number;
   tasks: TaskTemplate[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface TaskTemplate {
@@ -23,6 +23,6 @@ export interface TaskTemplate {
   estimatedDurationMinutes: number | null;
   displayOrder: number;
   categoryId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
