@@ -291,7 +291,7 @@ Login → LocalStrategy (email+password) → JWT access + refresh tokens
 - Logout: blacklist access token JTI (TTL = tiempo restante) + revocar family + `queryClient.clear()` en frontend
 - `JwtStrategy.validate()` verifica que el JTI no este en blacklist y que el campo `purpose` (si presente) sea `'access'` antes de autenticar. Esto previene uso de tokens de invitacion como access tokens
 - Implementado en `auth/token.service.ts` (genera pares, rota, revoca, blacklist)
-- Cookies: `SameSite=strict`, `HttpOnly`, `Secure` (en produccion) — elimina necesidad de tokens CSRF
+- Cookies: `SameSite` configurable via `COOKIE_SAME_SITE` env var (`strict` por default, `none` para cross-domain), `HttpOnly`, `Secure` (en produccion o cuando `SameSite=none`) — elimina necesidad de tokens CSRF
 
 **Auth Audit Logging:**
 

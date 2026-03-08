@@ -424,8 +424,12 @@ Deploy automatico via GitHub Actions:
 
 - **Produccion** (`cd.yml`): trigger en push a `main`
   - CI checks: lint + typecheck + build + test + E2E (postgres + redis services)
-  - API → Railway (`railway up --service epde-api`) con migraciones Prisma previas
-  - **Smoke test post-deploy**: 5 reintentos de health check con 15s backoff. Falla el workflow si no responde 200
-  - Web → Vercel (`vercel deploy --prebuilt --prod`)
-- **Staging** (`cd-staging.yml`): trigger en push a `develop`
-  - Misma pipeline con secrets de staging
+  - API → Render (trigger via deploy hook URL). `docker-entrypoint.sh` ejecuta migraciones y seed condicional al iniciar
+  - Web → Vercel (`vercel deploy --prebuilt --prod`). `apps/web/vercel.json` configura build commands del monorepo
+- **Infraestructura actual (free tier):**
+  - Web: Vercel (Hobby) — auto-deploy en push
+  - API: Render (Free) — Docker con `apps/api/Dockerfile`
+  - PostgreSQL: Neon (Free)
+  - Redis: Upstash (Free, TLS `rediss://`)
+  - `COOKIE_SAME_SITE=none` (web y API en dominios diferentes)
+  - `NODE_ENV=staging` (evita validaciones estrictas de R2, Sentry)

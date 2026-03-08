@@ -211,20 +211,23 @@ redis-cli -u $REDIS_URL ping
 
 El deploy se ejecuta automaticamente via GitHub Actions (`cd.yml`) en push a `main`:
 
-1. CI job corre: lint → typecheck → build → test → frontend coverage check
+1. CI job corre: lint → typecheck → build → test → E2E → frontend coverage check
 2. Si CI pasa, deploy-api y deploy-web se ejecutan en paralelo
-3. **deploy-api (Railway)**:
-   - Instala Railway CLI
-   - Ejecuta migraciones Prisma (`prisma migrate deploy`)
-   - Despliega via `railway up --service epde-api --detach`
-   - Usa `apps/api/Dockerfile` (multi-stage build: base → deps → builder → runner)
-   - **Smoke test post-deploy:** 5 reintentos de health check (`GET /api/v1/health`) con 15s entre intentos. El workflow falla si la API no responde 200 despues de todos los reintentos
-   - Requiere secret `API_URL` con la URL base del API en produccion
+3. **deploy-api (Render)**:
+   - Trigger via deploy hook URL (`curl -X POST $RENDER_DEPLOY_HOOK_URL`)
+   - Render construye la imagen Docker con `apps/api/Dockerfile` (multi-stage: base → deps → builder → runner)
+   - `docker-entrypoint.sh` ejecuta migraciones Prisma (`prisma migrate deploy`) y seed condicional al iniciar
+   - Health check en `/api/v1/health` (configurado en `render.yaml`)
+   - `NODE_ENV=staging` (evita validaciones estrictas de R2, Sentry, etc.)
+   - `COOKIE_SAME_SITE=none` (web y API en dominios diferentes)
 4. **deploy-web (Vercel)**:
    - Instala Vercel CLI
    - `vercel pull` → `vercel build --prod` → `vercel deploy --prebuilt --prod`
+   - `vercel.json` en `apps/web/` configura build commands para el monorepo
 
 Secrets requeridos: ver [env-vars.md](./env-vars.md) seccion "GitHub Secrets".
+
+**Nota cold starts (Render free tier):** El servicio se duerme despues de 15 min de inactividad. Usar UptimeRobot (gratis) con ping cada 10 min a `https://epde-api.onrender.com/api/v1/health` para mantenerlo activo.
 
 ### GitHub Environment Protection Rules
 
@@ -260,9 +263,10 @@ NODE_ENV=production node apps/api/dist/main.js
 ```bash
 # Opcion 1: Revert y re-deploy automatico
 git revert HEAD && git push origin main
+# Render auto-deploya el nuevo commit
 
-# Opcion 2: Desplegar commit especifico via Railway
-railway up --service epde-api --detach --ref <commit-sha>
+# Opcion 2: Rollback manual en Render Dashboard
+# Render → Service → Deploys → click en deploy anterior → "Rollback to this deploy"
 ```
 
 #### Rollback de migracion Prisma
@@ -291,17 +295,13 @@ Hacer en **2 fases** para permitir rollback sin perdida de datos:
 1. **Fase 1 (deprecate):** Deploy nuevo codigo que NO usa la columna/tipo viejo, pero la columna sigue existiendo en DB. Verificar que todo funciona durante 24-48h.
 2. **Fase 2 (remove):** Crear migracion que elimina la columna. Si hay que revertir, solo se pierde la columna ya sin uso.
 
-#### Rollback rapido via Railway
+#### Rollback rapido via Render
 
-Railway mantiene el deployment anterior disponible:
+Render mantiene deployments anteriores disponibles:
 
-```bash
-# Ver deployments recientes
-railway deployments list --service epde-api
-
-# Revertir al deployment anterior
-railway rollback --service epde-api
-```
+1. Ir a Render Dashboard → Service → Deploys
+2. Buscar el deploy anterior exitoso
+3. Click "Rollback to this deploy"
 
 #### Procedimiento completo de rollback en produccion
 
@@ -402,15 +402,15 @@ El endpoint `/api/v1/health` esta excluido del auto-logging para evitar ruido.
 
 En produccion, los logs deben redirigirse a un servicio de agregacion para busqueda, alertas y retencion:
 
-1. **Railway**: Settings > Observability > Log Drain. Soporta Betterstack (Logtail), Datadog, Axiom, y custom HTTP endpoints.
+1. **Render**: Los logs se ven en el dashboard (Render → Service → Logs). Para forwarding externo, usar Render Log Streams (Betterstack, Datadog, etc.) disponible en planes pagos.
 2. **Formato de salida**: JSON estructurado (pino) — compatible con cualquier agregador sin parsing adicional.
 3. **Retencion recomendada**: 30 dias minimo en produccion, 7 dias en staging.
 
-Configurar el drain apuntando a la URL del servicio elegido y verificar con:
+Verificar que logs se generan correctamente:
 
 ```bash
-# Verificar que logs llegan al agregador
-curl -s https://api.epde.com.ar/api/v1/health && echo "Check aggregator for new log entry"
+# Verificar que el health endpoint responde y genera log
+curl -s https://epde-api.onrender.com/api/v1/health
 ```
 
 ### OpenTelemetry (OTEL)
