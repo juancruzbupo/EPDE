@@ -18,6 +18,7 @@ const baseSchema = z.object({
   R2_BUCKET_NAME: z.string().optional(),
   R2_PUBLIC_URL: z.string().optional(),
   REDIS_URL: z.string().default('redis://localhost:6379'),
+  COOKIE_SAME_SITE: z.enum(['strict', 'lax', 'none']).default('strict'),
   CORS_ORIGIN: z.string().optional(),
   SENTRY_DSN: z.string().url().optional(),
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().optional(),

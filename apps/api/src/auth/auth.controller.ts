@@ -51,11 +51,17 @@ export class AuthController {
     return this.configService.get('NODE_ENV') === 'production';
   }
 
+  private get cookieSameSite(): 'strict' | 'lax' | 'none' {
+    const value = this.configService.get<string>('COOKIE_SAME_SITE');
+    if (value === 'none' || value === 'lax') return value;
+    return 'strict';
+  }
+
   private get accessCookieOptions() {
     return {
       httpOnly: true,
-      secure: this.isProduction,
-      sameSite: 'strict' as const,
+      secure: this.isProduction || this.cookieSameSite === 'none',
+      sameSite: this.cookieSameSite,
       path: '/',
       maxAge: 15 * 60 * 1000, // 15 minutes — must match JWT_EXPIRATION
     };
@@ -64,8 +70,8 @@ export class AuthController {
   private get refreshCookieOptions() {
     return {
       httpOnly: true,
-      secure: this.isProduction,
-      sameSite: 'strict' as const,
+      secure: this.isProduction || this.cookieSameSite === 'none',
+      sameSite: this.cookieSameSite,
       path: '/api/v1/auth',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     };
@@ -147,8 +153,16 @@ export class AuthController {
     const ttlSeconds = user.exp ? Math.max(0, user.exp - Math.floor(Date.now() / 1000)) : 0;
     await this.authService.logout(user.id, user.jti, user.family, ttlSeconds);
 
-    res.clearCookie(ACCESS_COOKIE_NAME, { path: '/' });
-    res.clearCookie(REFRESH_COOKIE_NAME, { path: '/api/v1/auth' });
+    res.clearCookie(ACCESS_COOKIE_NAME, {
+      path: '/',
+      sameSite: this.cookieSameSite,
+      secure: this.isProduction || this.cookieSameSite === 'none',
+    });
+    res.clearCookie(REFRESH_COOKIE_NAME, {
+      path: '/api/v1/auth',
+      sameSite: this.cookieSameSite,
+      secure: this.isProduction || this.cookieSameSite === 'none',
+    });
     return { data: { message: 'Sesión cerrada' } };
   }
 

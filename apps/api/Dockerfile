@@ -17,6 +17,7 @@ COPY --from=deps /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=deps /app/packages/shared/node_modules ./packages/shared/node_modules
 COPY packages/shared/ packages/shared/
 COPY apps/api/ apps/api/
+COPY apps/api/docker-entrypoint.sh apps/api/docker-entrypoint.sh
 RUN pnpm --filter @epde/shared build
 RUN cd apps/api && npx prisma generate && pnpm build
 
@@ -36,10 +37,13 @@ COPY --from=builder /app/packages/shared/package.json ../packages/shared/
 
 RUN pnpm prune --prod
 
+COPY --from=builder /app/apps/api/docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x docker-entrypoint.sh
+
 USER epde
 EXPOSE 3001
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
+HEALTHCHECK --interval=30s --timeout=3s --start-period=30s \
   CMD node -e "require('http').get('http://localhost:3001/api/v1/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
 
-CMD ["node", "dist/main"]
+CMD ["./docker-entrypoint.sh"]
