@@ -61,6 +61,20 @@ describe('Mobile CSS token sync', () => {
     expect(mismatches).toEqual([]);
   });
 
+  it('should define a --color-task-* CSS variable for every TASK_TYPE_TOKENS_LIGHT key', () => {
+    const cssVars = extractCSSVarNames();
+    const missing: string[] = [];
+
+    for (const key of Object.keys(TASK_TYPE_TOKENS_LIGHT)) {
+      const expected = `task-${key}`;
+      if (!cssVars.has(expected)) {
+        missing.push(`--color-${expected}`);
+      }
+    }
+
+    expect(missing).toEqual([]);
+  });
+
   it('--color-task-* values should match TASK_TYPE_TOKENS_LIGHT', () => {
     const themeValues = extractThemeValues();
     const mismatches: string[] = [];

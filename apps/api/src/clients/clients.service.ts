@@ -14,12 +14,17 @@ export class ClientsService {
   ) {}
 
   async listClients(filters: ClientFiltersInput) {
-    return this.clientsRepository.findClients({
+    const result = await this.clientsRepository.findClients({
       cursor: filters.cursor,
       take: filters.take,
       search: filters.search,
       status: filters.status,
     });
+
+    return {
+      ...result,
+      data: result.data.map(({ passwordHash: _, ...client }) => client),
+    };
   }
 
   async getClient(id: string) {

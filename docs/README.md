@@ -37,7 +37,7 @@
 | Auth           | Passport JWT + Local + Token Rotation                | -         |
 | Email          | Resend                                               | -         |
 | Storage        | Cloudflare R2                                        | -         |
-| CI/CD          | GitHub Actions + Railway (API) + Vercel (Web)        | -         |
+| CI/CD          | GitHub Actions + Render (API) + Vercel (Web)         | -         |
 | Testing Web    | Vitest + Testing Library                             | -         |
 | Testing Mobile | Jest + jest-expo + Testing Library RN                | -         |
 | Monitoreo      | Sentry + OpenTelemetry (Prometheus)                  | -         |

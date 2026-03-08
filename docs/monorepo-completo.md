@@ -33,7 +33,7 @@ epde/
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml                    # GitHub Actions (lint, typecheck, build, e2e)
-│       ├── cd.yml                    # Deploy produccion (Railway + Vercel)
+│       ├── cd.yml                    # Deploy produccion (Render + Vercel)
 │       └── cd-staging.yml           # Deploy staging
 ├── .husky/
 │   ├── pre-commit                    # lint-staged
@@ -82,7 +82,7 @@ epde/
 │   │   ├── nest-cli.json
 │   │   ├── jest.config.js
 │   │   ├── jest-e2e.config.ts        # Config E2E tests
-│   │   ├── Dockerfile                # Multi-stage build (Railway deploy)
+│   │   ├── Dockerfile                # Multi-stage build (Render deploy)
 │   │   ├── tsconfig.json             # module: CommonJS, moduleResolution: node
 │   │   └── package.json
 │   │
@@ -198,7 +198,7 @@ epde/
 ├── pnpm-lock.yaml
 ├── tsconfig.json                     # Base: ESNext, strict
 ├── eslint.config.mjs                 # ESLint 9 flat config
-├── railway.json                      # Railway deploy config (API healthcheck)
+├── render.yaml                       # Render deploy config (staging)
 ├── .dockerignore                     # Docker build exclusions
 ├── .prettierrc                       # Prettier config
 ├── commitlint.config.js              # Conventional commits
@@ -473,37 +473,48 @@ Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en depl
 
 ### P13: API Client (Axios)
 
-Patron compartido entre web y mobile:
+**Web (proxy pattern):**
 
-```typescript
-const apiClient = axios.create({
-  baseURL: API_URL,
-  timeout: 15_000,
-  withCredentials: true, // Web: cookies | Mobile: Bearer token
-  headers: { [CLIENT_TYPE_HEADER]: CLIENT_TYPES.WEB }, // o CLIENT_TYPES.MOBILE
-});
+El browser nunca habla directo con el API. Next.js proxea las requests via `rewrites` en `next.config.ts`:
 
-// Interceptor de refresh en 401
-apiClient.interceptors.response.use(
-  (res) => res,
-  async (error) => {
-    if (401 && !_retry) {
-      await refreshToken();
-      return apiClient(originalRequest);
-    }
-  },
-);
+```
+Browser → /api/v1/* (Vercel, same origin) → API_PROXY_TARGET/api/v1/* (Render, server-to-server)
 ```
 
-Mobile agrega:
+```typescript
+// apps/web/src/lib/api-client.ts
+const apiClient = axios.create({
+  baseURL: '/api/v1', // Relative — same-origin via proxy
+  withCredentials: true, // Cookies HttpOnly (SameSite=strict)
+  timeout: 15_000,
+  headers: { [CLIENT_TYPE_HEADER]: CLIENT_TYPES.WEB },
+});
+```
+
+- `API_PROXY_TARGET` es server-side only (no `NEXT_PUBLIC_`). Default: `http://localhost:3001`
+- Server Components usan `API_PROXY_TARGET` directo para server-to-server fetches (`server-api.ts`)
+- `SameSite=strict` funciona porque todo es same-origin desde el browser
+
+**Mobile (Bearer token):**
+
+```typescript
+// apps/mobile/src/lib/api-client.ts
+const apiClient = axios.create({
+  baseURL: `${API_URL}/api/v1`, // Direct API URL
+  timeout: 15_000,
+  headers: { [CLIENT_TYPE_HEADER]: CLIENT_TYPES.MOBILE },
+});
+```
 
 - Header `X-Client-Type: mobile`
-- Singleton pattern para evitar refresh concurrentes
+- Tokens en `expo-secure-store` (nativo) / `sessionStorage` (web dev)
 - Auto-deteccion de IP para desarrollo nativo
 
-Web agrega:
+**Compartido (web + mobile):**
 
-- Singleton pattern para deduplicar refreshes concurrentes (como mobile)
+- `attachRefreshInterceptor()` de `@epde/shared` para refresh en 401
+- Singleton pattern para deduplicar refreshes concurrentes
+- `signal: AbortSignal` en todas las query functions para cancelacion
 
 ### P14: Route Protection
 
@@ -902,20 +913,21 @@ Triggers: push a main/develop, PRs a main/develop
 | ------- | ---------- | -------- | --------- | ----- |
 | API     | 75         | 60       | 65        | 75    |
 | Shared  | 80         | 65       | 75        | 80    |
-| Web     | 50         | 35       | 50        | 50    |
-| Mobile  | 35         | 20       | 35        | 35    |
+| Web     | 70         | 70       | 65        | 70    |
+| Mobile  | 60         | 40       | 50        | 60    |
 
 ### GitHub Actions CD
 
 Pipeline de deploy real:
 
 - **Produccion** (`cd.yml`): trigger en push a `main`
-  - `deploy-api`: Railway CLI → `prisma migrate deploy` → `railway up --service epde-api --detach`
+  - `deploy-api`: Render deploy hook (`curl -X POST $RENDER_DEPLOY_HOOK_URL`) — Render detecta el Dockerfile y deploya
   - `deploy-web`: Vercel CLI → `vercel pull` → `vercel build --prod` → `vercel deploy --prebuilt --prod`
 - **Staging** (`cd-staging.yml`): trigger en push a `develop`
-  - Misma pipeline con secrets de staging (`RAILWAY_TOKEN_STAGING`, `VERCEL_PROJECT_ID_STAGING`)
-- Usa `environment: production/staging` con secrets
-- Archivos de deploy: `apps/api/Dockerfile` (multi-stage), `railway.json` (healthcheck), `.dockerignore`
+  - `deploy-api`: Render deploy hook (`RENDER_DEPLOY_HOOK_URL_STAGING`)
+  - `deploy-web`: Vercel CLI con `VERCEL_PROJECT_ID_STAGING`
+- Usa `environment: production/staging` con secrets dedicados por environment
+- Archivos de deploy: `apps/api/Dockerfile` (multi-stage), `render.yaml` (staging config), `.dockerignore`
 
 ### Turborepo Pipeline
 
@@ -1000,7 +1012,7 @@ pnpm dev:mobile       # Expo dev server
 pnpm build            # Build completo
 pnpm lint             # ESLint
 pnpm typecheck        # TypeScript check
-pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo) — ~675 tests total
+pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo) — ~850 tests total
 
 # Tests E2E (requiere DB + Redis)
 pnpm --filter @epde/api test:e2e

@@ -45,6 +45,7 @@
 33. **List pages siguen patron de properties** — Toda pagina de listado paginado sigue el patron de `app/(dashboard)/properties/page.tsx`: `useInfiniteQuery` + `maxPages: 10` + skeleton loading + error state + empty state + infinite scroll trigger. Copiar estructura como baseline
 34. **Filter interfaces reflejan Zod schemas** — Los tipos de filtros en frontend (`PropertyFilters`, `BudgetFilters`, etc.) DEBEN ser subconjuntos de los schemas Zod de `@epde/shared`. Si el schema agrega un campo, el filtro debe reflejarlo. Evitar drift manual entre tipos de filtro locales y schemas compartidos
 35. **Import ordering** — Orden de imports en archivos TS/TSX: (1) React/framework (`react`, `next/*`, `@nestjs/*`), (2) external packages (`lucide-react`, `framer-motion`, `date-fns`), (3) `@epde/shared`, (4) `@/` local imports (components, hooks, lib), (5) `type` imports al final de cada grupo. Separar grupos con linea en blanco
+36. **Regla de excepciones** — Domain exceptions (`XxxError extends Error` en `common/exceptions/domain.exceptions.ts`) para logica transaccional dentro de try/catch que mapea a HTTP. HTTP exceptions directas (`NotFoundException`, `ForbiddenException`) para validaciones de existencia/ownership pre-operacion. Los repositories NUNCA importan `@nestjs/common`
 
 ### NUNCA
 

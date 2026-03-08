@@ -55,11 +55,23 @@ describe('ClientsService', () => {
   });
 
   describe('listClients', () => {
-    it('should return paginated clients', async () => {
+    it('should return paginated clients without passwordHash', async () => {
       const paginatedResult = {
         data: [
-          { id: 'c-1', name: 'Juan', email: 'juan@test.com', role: UserRole.CLIENT },
-          { id: 'c-2', name: 'Maria', email: 'maria@test.com', role: UserRole.CLIENT },
+          {
+            id: 'c-1',
+            name: 'Juan',
+            email: 'juan@test.com',
+            role: UserRole.CLIENT,
+            passwordHash: 'hash-1',
+          },
+          {
+            id: 'c-2',
+            name: 'Maria',
+            email: 'maria@test.com',
+            role: UserRole.CLIENT,
+            passwordHash: 'hash-2',
+          },
         ],
         nextCursor: null,
         hasMore: false,
@@ -70,7 +82,10 @@ describe('ClientsService', () => {
       const filters = { cursor: undefined, take: 10, search: undefined, status: undefined };
       const result = await service.listClients(filters);
 
-      expect(result).toEqual(paginatedResult);
+      expect(result.data).toHaveLength(2);
+      expect(result.data[0]).not.toHaveProperty('passwordHash');
+      expect(result.data[1]).not.toHaveProperty('passwordHash');
+      expect(result.data[0]).toMatchObject({ id: 'c-1', name: 'Juan' });
       expect(clientsRepository.findClients).toHaveBeenCalledWith({
         cursor: undefined,
         take: 10,
