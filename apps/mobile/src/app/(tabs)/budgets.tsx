@@ -18,6 +18,7 @@ import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { CreateBudgetModal } from '@/components/create-budget-modal';
 import { TYPE } from '@/lib/fonts';
+import { formatARS } from '@epde/shared';
 import type { BudgetRequestPublic, BudgetStatus } from '@epde/shared';
 
 const FILTERS = [
@@ -29,12 +30,6 @@ const FILTERS = [
   { key: 'IN_PROGRESS', label: 'En Progreso' },
   { key: 'COMPLETED', label: 'Completados' },
 ] as const;
-
-function formatAmount(amount: number | string): string {
-  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(
-    Number(amount),
-  );
-}
 
 const BudgetCard = memo(function BudgetCard({ budget }: { budget: BudgetRequestPublic }) {
   const router = useRouter();
@@ -56,7 +51,7 @@ const BudgetCard = memo(function BudgetCard({ budget }: { budget: BudgetRequestP
       <View className="flex-row items-center justify-between">
         {budget.response ? (
           <Text style={TYPE.titleSm} className="text-foreground">
-            {formatAmount(budget.response.totalAmount)}
+            {formatARS(budget.response.totalAmount)}
           </Text>
         ) : (
           <Text style={TYPE.bodySm} className="text-muted-foreground">

@@ -12,6 +12,40 @@ jobs:
   ci:
     name: CI checks
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: epde_test
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5433/epde_test
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: test-secret-for-ci-must-be-at-least-32-chars-long
+      NODE_ENV: test
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,8 +62,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Audit dependencies
+        run: pnpm audit --audit-level=high
+
       - name: Generate Prisma client
         run: pnpm db:generate
+
+      - name: Build
+        run: pnpm build
+
+      - name: Schema drift check
+        run: pnpm check:schema-drift
 
       - name: Lint
         run: pnpm lint
@@ -37,11 +80,14 @@ jobs:
       - name: Type check
         run: pnpm typecheck
 
-      - name: Build
-        run: pnpm build
+      - name: Push schema to test database
+        run: pnpm --filter @epde/api exec prisma db push --skip-generate
 
       - name: Test
         run: pnpm test
+
+      - name: E2E tests
+        run: pnpm --filter @epde/api test:e2e
 
   deploy-api-staging:
     name: Deploy API (Staging)
@@ -50,53 +96,8 @@ jobs:
     environment: staging
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Generate Prisma client
-        run: pnpm db:generate
-
-      - name: Install Railway CLI
-        run: npm i -g @railway/cli
-
-      - name: Run database migrations
-        run: pnpm --filter @epde/api exec prisma migrate deploy
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
-
-      - name: Deploy API to Railway (Staging)
-        run: railway up --service epde-api-staging --detach
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_STAGING }}
-
-      - name: Smoke test staging API
-        run: |
-          echo "Waiting 30s for stabilization..."
-          sleep 30
-          for i in 1 2 3 4 5; do
-            RESPONSE=$(curl -sf "${{ secrets.API_URL_STAGING }}/api/v1/health" 2>/dev/null || echo '{}')
-            STATUS=$(echo "$RESPONSE" | jq -r '.status // empty' 2>/dev/null || echo '')
-            if [ "$STATUS" = "ok" ]; then
-              echo "Staging health check passed (attempt $i): status=$STATUS"
-              exit 0
-            fi
-            echo "Attempt $i/5 failed: response=$RESPONSE, retrying in 15s..."
-            sleep 15
-          done
-          echo "Staging smoke test failed — consider rollback"
-          exit 1
+      - name: Trigger Render Deploy
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL_STAGING }}"
 
   deploy-web-staging:
     name: Deploy Web (Staging)

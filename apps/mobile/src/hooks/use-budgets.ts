@@ -37,6 +37,7 @@ export function useCreateBudgetRequest() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
       invalidateClientDashboard(queryClient);
+      Alert.alert('Éxito', 'Presupuesto creado correctamente');
     },
     onError: (err) => {
       Alert.alert('Error', getErrorMessage(err, 'Error al crear presupuesto'));

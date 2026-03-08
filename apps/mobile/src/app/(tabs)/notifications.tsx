@@ -15,6 +15,7 @@ import { ErrorState } from '@/components/error-state';
 import { haptics } from '@/lib/haptics';
 import { TYPE } from '@/lib/fonts';
 import { colors } from '@/lib/colors';
+import { NOTIFICATION_TYPE_LABELS } from '@epde/shared';
 import type { NotificationPublic, NotificationType } from '@epde/shared';
 
 const NOTIF_TYPE_ICONS: Record<NotificationType, string> = {
@@ -22,13 +23,6 @@ const NOTIF_TYPE_ICONS: Record<NotificationType, string> = {
   BUDGET_UPDATE: '\u{1F4CB}',
   SERVICE_UPDATE: '\u{1F527}',
   SYSTEM: '\u{1F514}',
-};
-
-const NOTIF_TYPE_LABELS: Record<NotificationType, string> = {
-  TASK_REMINDER: 'Recordatorio',
-  BUDGET_UPDATE: 'Presupuesto',
-  SERVICE_UPDATE: 'Servicio',
-  SYSTEM: 'Sistema',
 };
 
 function NotificationCard({
@@ -39,7 +33,7 @@ function NotificationCard({
   onPress: () => void;
 }) {
   const icon = NOTIF_TYPE_ICONS[notification.type] ?? '\u{1F514}';
-  const typeLabel = NOTIF_TYPE_LABELS[notification.type] ?? notification.type;
+  const typeLabel = NOTIFICATION_TYPE_LABELS[notification.type] ?? notification.type;
 
   return (
     <Pressable

@@ -36,6 +36,7 @@ export function useCreateServiceRequest() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
       invalidateClientDashboard(queryClient);
+      Alert.alert('Éxito', 'Solicitud creada correctamente');
     },
     onError: (err) => {
       Alert.alert('Error', getErrorMessage(err, 'Error al crear solicitud'));

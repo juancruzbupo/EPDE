@@ -15,7 +15,7 @@ import {
 import { BudgetsRepository } from './budgets.repository';
 import { PropertiesRepository } from '../properties/properties.repository';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
-import { UserRole } from '@epde/shared';
+import { UserRole, BudgetStatus } from '@epde/shared';
 import type {
   CreateBudgetRequestInput,
   RespondBudgetInput,
@@ -51,11 +51,18 @@ export class BudgetsService {
     const budgetWithRelations = budget as BudgetRequest & {
       property?: { userId?: string };
     };
-    if (
-      currentUser.role === UserRole.CLIENT &&
-      budgetWithRelations.property?.userId !== currentUser.id
-    ) {
-      throw new ForbiddenException('No tenés acceso a este presupuesto');
+    try {
+      if (
+        currentUser.role === UserRole.CLIENT &&
+        budgetWithRelations.property?.userId !== currentUser.id
+      ) {
+        throw new BudgetAccessDeniedError('ownership');
+      }
+    } catch (error) {
+      if (error instanceof BudgetAccessDeniedError) {
+        throw new ForbiddenException(error.message);
+      }
+      throw error;
     }
 
     return budget;
@@ -79,7 +86,7 @@ export class BudgetsService {
         createdBy: userId,
         title: dto.title,
         description: dto.description,
-        status: 'PENDING',
+        status: BudgetStatus.PENDING,
       },
       {
         property: { select: { id: true, address: true, city: true } },
@@ -104,11 +111,6 @@ export class BudgetsService {
     if (!budget) {
       throw new NotFoundException('Presupuesto no encontrado');
     }
-    // Fast-fail: reject early if not PENDING (repo re-checks atomically inside transaction)
-    if (budget.status !== 'PENDING') {
-      throw new BadRequestException(new BudgetNotPendingError().message);
-    }
-
     const totalAmount = dto.lineItems.reduce(
       (sum, item) =>
         sum.add(new Prisma.Decimal(item.quantity).mul(new Prisma.Decimal(item.unitPrice))),
@@ -117,6 +119,11 @@ export class BudgetsService {
 
     let result: BudgetRequest;
     try {
+      // Fast-fail: reject early if not PENDING (repo re-checks atomically inside transaction)
+      if (budget.status !== BudgetStatus.PENDING) {
+        throw new BudgetNotPendingError();
+      }
+
       result = await this.budgetsRepository.respondToBudget(
         id,
         budget.version ?? 0,

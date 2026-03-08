@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PAGINATION_MAX_TAKE, PAGINATION_DEFAULT_TAKE } from '../constants';
 
 export const createCategorySchema = z.object({
   name: z
@@ -28,7 +29,7 @@ export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
 export const categoryFiltersSchema = z.object({
   search: z.string().optional(),
   cursor: z.string().uuid().optional(),
-  take: z.coerce.number().int().min(1).max(100).default(20),
+  take: z.coerce.number().int().min(1).max(PAGINATION_MAX_TAKE).default(PAGINATION_DEFAULT_TAKE),
 });
 
 export type CategoryFilters = z.infer<typeof categoryFiltersSchema>;

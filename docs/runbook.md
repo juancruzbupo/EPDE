@@ -13,14 +13,17 @@
               │                     │
       ┌───────▼──────┐    ┌────────▼───────┐
       │   Next.js    │    │   Expo Mobile  │
-      │   (Web)      │    │   (iOS/Android)│
+      │   (Vercel)   │    │   (iOS/Android)│
       │   Port 3000  │    │                │
-      └───────┬──────┘    └────────┬───────┘
-              │                    │
+      │   /api/v1/*  │    └────────┬───────┘
+      │   (proxy)    │             │
+      └───────┬──────┘             │
+              │ rewrites           │
               └────────┬───────────┘
                        │
                ┌───────▼───────┐
                │   NestJS API  │
+               │   (Render)    │
                │   Port 3001   │
                │   /api/v1/*   │
                └──┬────┬───┬───┘
@@ -29,7 +32,7 @@
          │             │            │
    ┌─────▼─────┐ ┌────▼────┐ ┌────▼─────┐
    │ PostgreSQL │ │  Redis  │ │ R2 (S3)  │
-   │   5433     │ │  6379   │ │ Storage  │
+   │   (Neon)   │ │(Upstash)│ │ Storage  │
    └───────────┘ └─────────┘ └──────────┘
 ```
 
@@ -211,7 +214,7 @@ redis-cli -u $REDIS_URL ping
 
 El deploy se ejecuta automaticamente via GitHub Actions (`cd.yml`) en push a `main`:
 
-1. CI job corre: lint → typecheck → build → test → E2E → frontend coverage check
+1. CI job corre: audit → build → schema-drift → lint → typecheck → test → E2E
 2. Si CI pasa, deploy-api y deploy-web se ejecutan en paralelo
 3. **deploy-api (Render)**:
    - Trigger via deploy hook URL (`curl -X POST $RENDER_DEPLOY_HOOK_URL`)
@@ -219,11 +222,12 @@ El deploy se ejecuta automaticamente via GitHub Actions (`cd.yml`) en push a `ma
    - `docker-entrypoint.sh` ejecuta migraciones Prisma (`prisma migrate deploy`) y seed condicional al iniciar
    - Health check en `/api/v1/health` (configurado en `render.yaml`)
    - `NODE_ENV=staging` (evita validaciones estrictas de R2, Sentry, etc.)
-   - `COOKIE_SAME_SITE=none` (web y API en dominios diferentes)
+   - `COOKIE_SAME_SITE=strict` (con proxy de Next.js, todo es same-origin)
 4. **deploy-web (Vercel)**:
    - Instala Vercel CLI
    - `vercel pull` → `vercel build --prod` → `vercel deploy --prebuilt --prod`
    - `vercel.json` en `apps/web/` configura build commands para el monorepo
+   - Env var `API_PROXY_TARGET=https://epde.onrender.com` — Next.js proxea `/api/v1/*` al API
 
 Secrets requeridos: ver [env-vars.md](./env-vars.md) seccion "GitHub Secrets".
 
@@ -240,7 +244,7 @@ Esto previene deploys accidentales desde branches no autorizados y requiere apro
 
 ### Staging
 
-Se despliega automaticamente en push a `develop` (`cd-staging.yml`). Misma pipeline pero con secrets de staging (`RAILWAY_TOKEN_STAGING`, `DATABASE_URL_STAGING`, `VERCEL_PROJECT_ID_STAGING`).
+Se despliega automaticamente en push a `develop` (`cd-staging.yml`). Misma pipeline CI (con postgres/redis services, audit, schema-drift, E2E) pero con secrets de staging (`RENDER_DEPLOY_HOOK_URL_STAGING`, `VERCEL_PROJECT_ID_STAGING`).
 
 ### Deploy manual (API)
 

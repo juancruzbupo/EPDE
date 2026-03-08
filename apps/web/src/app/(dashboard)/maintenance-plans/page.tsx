@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClipboardList, Home, ListChecks } from 'lucide-react';
 import { ErrorState } from '@/components/error-state';
+import { EmptyState } from '@/components/empty-state';
 import {
   PLAN_STATUS_LABELS,
   PLAN_STATUS_VARIANT,
@@ -95,13 +96,11 @@ export default function MaintenancePlansPage() {
           className="justify-center py-24"
         />
       ) : !plans || plans.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <ClipboardList className="text-muted-foreground/40 mb-4 h-12 w-12" />
-          <h2 className="text-muted-foreground text-lg font-medium">Sin planes todavía</h2>
-          <p className="text-muted-foreground/70 mt-1 max-w-sm text-sm">
-            Los planes de mantenimiento se crean automáticamente al agregar una propiedad.
-          </p>
-        </div>
+        <EmptyState
+          icon={ClipboardList}
+          title="Sin planes todavía"
+          message="Los planes de mantenimiento se crean automáticamente al agregar una propiedad."
+        />
       ) : (
         <div className="space-y-6">
           {grouped.active.length > 0 && (

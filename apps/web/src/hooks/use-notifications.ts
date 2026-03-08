@@ -41,12 +41,10 @@ export function useMarkAsRead() {
         QUERY_KEYS.notifications,
         QUERY_KEYS.notificationsUnreadCount,
       ]);
-      if (prev !== undefined) {
-        queryClient.setQueryData(
-          [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
-          Math.max(0, prev - 1),
-        );
-      }
+      queryClient.setQueryData<number>(
+        [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
+        (old) => (old && old > 0 ? old - 1 : 0),
+      );
       return { prev };
     },
     onError: (_err, _id, context) => {

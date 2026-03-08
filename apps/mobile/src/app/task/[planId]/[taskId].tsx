@@ -24,7 +24,7 @@ import { CollapsibleSection } from '@/components/collapsible-section';
 import { TYPE } from '@/lib/fonts';
 import { colors } from '@/lib/colors';
 import { defaultScreenOptions } from '@/lib/screen-options';
-import { RECURRENCE_TYPE_LABELS } from '@epde/shared';
+import { RECURRENCE_TYPE_LABELS, TaskStatus } from '@epde/shared';
 import type { TaskLogPublic, TaskNotePublic } from '@epde/shared';
 
 function LogItem({ log }: { log: TaskLogPublic }) {
@@ -122,7 +122,7 @@ export default function TaskDetailScreen() {
     );
   }
 
-  const isCompleted = task.status === 'COMPLETED';
+  const isCompleted = task.status === TaskStatus.COMPLETED;
 
   return (
     <View className="bg-background flex-1">

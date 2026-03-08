@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { USER_STATUS_VALUES } from '../types/enums';
+import { PAGINATION_MAX_TAKE, PAGINATION_DEFAULT_TAKE } from '../constants';
 
 export const createClientSchema = z.object({
   email: z
@@ -34,7 +35,7 @@ export const clientFiltersSchema = z.object({
   search: z.string().optional(),
   status: z.enum(USER_STATUS_VALUES).optional(),
   cursor: z.string().uuid().optional(),
-  take: z.coerce.number().int().min(1).max(100).default(20),
+  take: z.coerce.number().int().min(1).max(PAGINATION_MAX_TAKE).default(PAGINATION_DEFAULT_TAKE),
 });
 
 export type ClientFiltersInput = z.infer<typeof clientFiltersSchema>;

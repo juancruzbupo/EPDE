@@ -347,7 +347,8 @@ Referencia completa en [env-vars.md](env-vars.md).
 
 ### Notas importantes
 
-- Variables `NEXT_PUBLIC_*` se resuelven en **build time** — reiniciar dev server despues de cambiar
+- `API_PROXY_TARGET` (server-side) se resuelve en **build time** para las rewrites de Next.js — reiniciar dev server despues de cambiar
+- Variables `NEXT_PUBLIC_*` (Sentry DSN) tambien se resuelven en build time
 - La app mobile auto-detecta la URL del API en desarrollo (no requiere `.env`)
 - En produccion, configurar `CORS_ORIGIN` para restringir origenes permitidos
 

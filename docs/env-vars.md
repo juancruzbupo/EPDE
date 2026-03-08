@@ -2,25 +2,25 @@
 
 ## API (`apps/api`)
 
-| Variable                      | Requerida | Default          | Descripcion                                                                                                                                                                            |
-| ----------------------------- | --------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`                | Si        | —                | Connection string de PostgreSQL. Formato: `postgresql://user:pass@host:port/db?schema=public`                                                                                          |
-| `JWT_SECRET`                  | Si        | —                | Clave secreta para firmar JWTs. Usar valor aleatorio de al menos 32 caracteres en produccion                                                                                           |
-| `JWT_EXPIRATION`              | No        | `15m`            | Tiempo de vida del access token (formato: `15m`, `1h`)                                                                                                                                 |
-| `JWT_REFRESH_EXPIRATION`      | No        | `7d`             | Tiempo de vida del refresh token family en Redis                                                                                                                                       |
-| `REDIS_URL`                   | Si        | —                | URL de conexion a Redis. Formato: `redis://host:port`                                                                                                                                  |
-| `PORT`                        | No        | `3001`           | Puerto donde escucha el API                                                                                                                                                            |
-| `NODE_ENV`                    | No        | `development`    | Entorno: `development`, `staging`, `production`                                                                                                                                        |
-| `CORS_ORIGIN`                 | **Prod**  | `localhost:3000` | Origenes permitidos, separados por coma. **Requerido en produccion** (falla si no esta seteado). Ejemplo: `https://app.epde.com.ar,https://admin.epde.com.ar`                          |
-| `COOKIE_SAME_SITE`            | No        | `strict`         | Politica SameSite de cookies: `strict`, `lax`, `none`. Usar `none` cuando web y API estan en dominios diferentes (ej: Vercel + Render). Con `none`, `Secure` se activa automaticamente |
-| `FRONTEND_URL`                | Si        | —                | URL base del frontend (usada en emails y links de invitacion)                                                                                                                          |
-| `RESEND_API_KEY`              | No        | —                | API key de Resend para envio de emails. Si no se configura, los emails se loguean como warnings                                                                                        |
-| `SENTRY_DSN`                  | No        | `""`             | DSN de Sentry. Si esta vacio, Sentry se desactiva                                                                                                                                      |
-| `R2_ACCESS_KEY_ID`            | Si        | —                | Access key de Cloudflare R2                                                                                                                                                            |
-| `R2_SECRET_ACCESS_KEY`        | Si        | —                | Secret key de Cloudflare R2                                                                                                                                                            |
-| `R2_BUCKET_NAME`              | No        | `epde`           | Nombre del bucket en R2                                                                                                                                                                |
-| `R2_PUBLIC_URL`               | Si        | —                | URL publica del bucket R2 para servir archivos                                                                                                                                         |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | No        | —                | Endpoint OTLP para OpenTelemetry traces. Si no se setea, OTel se desactiva. Ejemplo: `https://otel-collector:4318/v1/traces`                                                           |
+| Variable                      | Requerida | Default          | Descripcion                                                                                                                                                                               |
+| ----------------------------- | --------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                | Si        | —                | Connection string de PostgreSQL. Formato: `postgresql://user:pass@host:port/db?schema=public`                                                                                             |
+| `JWT_SECRET`                  | Si        | —                | Clave secreta para firmar JWTs. Usar valor aleatorio de al menos 32 caracteres en produccion                                                                                              |
+| `JWT_EXPIRATION`              | No        | `15m`            | Tiempo de vida del access token (formato: `15m`, `1h`)                                                                                                                                    |
+| `JWT_REFRESH_EXPIRATION`      | No        | `7d`             | Tiempo de vida del refresh token family en Redis                                                                                                                                          |
+| `REDIS_URL`                   | Si        | —                | URL de conexion a Redis. Formato: `redis://host:port`                                                                                                                                     |
+| `PORT`                        | No        | `3001`           | Puerto donde escucha el API                                                                                                                                                               |
+| `NODE_ENV`                    | No        | `development`    | Entorno: `development`, `staging`, `production`                                                                                                                                           |
+| `CORS_ORIGIN`                 | **Prod**  | `localhost:3000` | Origenes permitidos, separados por coma. **Requerido en produccion** (falla si no esta seteado). Ejemplo: `https://app.epde.com.ar,https://admin.epde.com.ar`                             |
+| `COOKIE_SAME_SITE`            | No        | `strict`         | Politica SameSite de cookies: `strict`, `lax`, `none`. Con el proxy de Next.js, usar `strict` (todo es same-origin). Solo usar `none` si web y API estan en dominios diferentes sin proxy |
+| `FRONTEND_URL`                | Si        | —                | URL base del frontend (usada en emails y links de invitacion)                                                                                                                             |
+| `RESEND_API_KEY`              | No        | —                | API key de Resend para envio de emails. Si no se configura, los emails se loguean como warnings                                                                                           |
+| `SENTRY_DSN`                  | No        | `""`             | DSN de Sentry. Si esta vacio, Sentry se desactiva                                                                                                                                         |
+| `R2_ACCESS_KEY_ID`            | Si        | —                | Access key de Cloudflare R2                                                                                                                                                               |
+| `R2_SECRET_ACCESS_KEY`        | Si        | —                | Secret key de Cloudflare R2                                                                                                                                                               |
+| `R2_BUCKET_NAME`              | No        | `epde`           | Nombre del bucket en R2                                                                                                                                                                   |
+| `R2_PUBLIC_URL`               | Si        | —                | URL publica del bucket R2 para servir archivos                                                                                                                                            |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | No        | —                | Endpoint OTLP para OpenTelemetry traces. Si no se setea, OTel se desactiva. Ejemplo: `https://otel-collector:4318/v1/traces`                                                              |
 
 ## Seed (`apps/api/prisma/seed.ts`)
 
@@ -44,11 +44,13 @@ Las credenciales de Docker Compose se parametrizan via variables de entorno con 
 
 ## Web (`apps/web`)
 
-| Variable                 | Requerida | Default       | Descripcion                                                               |
-| ------------------------ | --------- | ------------- | ------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_API_URL`    | Si        | —             | URL base del API (sin trailing slash). Ejemplo: `https://api.epde.com.ar` |
-| `NEXT_PUBLIC_SENTRY_DSN` | No        | `""`          | DSN de Sentry para el frontend web. Si esta vacio, Sentry se desactiva    |
-| `NODE_ENV`               | No        | `development` | Entorno de ejecucion                                                      |
+| Variable                 | Requerida | Default                 | Descripcion                                                                                                                            |
+| ------------------------ | --------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `API_PROXY_TARGET`       | **Prod**  | `http://localhost:3001` | Origen del API (sin `/api/v1`). Next.js proxea `/api/v1/*` via `rewrites`. Server-side only. Ejemplo prod: `https://epde.onrender.com` |
+| `NEXT_PUBLIC_SENTRY_DSN` | No        | `""`                    | DSN de Sentry para el frontend web. Si esta vacio, Sentry se desactiva                                                                 |
+| `NODE_ENV`               | No        | `development`           | Entorno de ejecucion                                                                                                                   |
+
+> **Proxy pattern:** El browser hace requests a `/api/v1/*` (mismo origen). Next.js los reescribe a `API_PROXY_TARGET/api/v1/*` via `rewrites` en `next.config.ts`. Esto elimina problemas cross-domain de cookies (SameSite, HttpOnly). Server Components usan `API_PROXY_TARGET` directamente para server-to-server fetches.
 
 ## Mobile (`apps/mobile`)
 
@@ -105,13 +107,11 @@ Configurar en GitHub → Settings → Environments → staging → Environment s
 | `VERCEL_ORG_ID`          | Mismo org ID (compartido)                    | vercel.com → Settings → General           |
 | `VERCEL_PROJECT_ID`      | ID del proyecto web en Vercel                | vercel.com → Project → Settings → General |
 
-### Variables (no secretas)
+### Staging secrets adicionales
 
-Configurar en GitHub → Settings → Variables → Actions (pueden ser por environment o repo-level):
-
-| Variable              | Descripcion                           | Ejemplo                   |
-| --------------------- | ------------------------------------- | ------------------------- |
-| `NEXT_PUBLIC_API_URL` | URL publica del API (por environment) | `https://api.epde.com.ar` |
+| Secret                           | Descripcion                                               | Donde obtenerlo                           |
+| -------------------------------- | --------------------------------------------------------- | ----------------------------------------- |
+| `RENDER_DEPLOY_HOOK_URL_STAGING` | URL del deploy hook de Render para staging (POST trigger) | Render → Service → Settings → Deploy Hook |
 
 ## Puertos utilizados
 

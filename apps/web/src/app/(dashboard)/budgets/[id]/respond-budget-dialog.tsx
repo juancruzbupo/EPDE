@@ -2,7 +2,7 @@
 
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { respondBudgetSchema, type RespondBudgetInput } from '@epde/shared';
+import { respondBudgetSchema, formatARS, type RespondBudgetInput } from '@epde/shared';
 import { useRespondToBudget } from '@/hooks/use-budgets';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -47,12 +47,6 @@ export function RespondBudgetDialog({ open, onOpenChange, budgetId }: RespondBud
       const price = Number(item.unitPrice) || 0;
       return sum + qty * price;
     }, 0) ?? 0;
-
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-    }).format(value);
 
   const onSubmit = (data: RespondBudgetInput) => {
     respondToBudget.mutate(
@@ -117,7 +111,7 @@ export function RespondBudgetDialog({ open, onOpenChange, budgetId }: RespondBud
                     />
                   </div>
                   <div className="text-muted-foreground flex h-9 items-center px-2 text-sm">
-                    {formatCurrency(subtotal)}
+                    {formatARS(subtotal)}
                   </div>
                   <Button
                     type="button"
@@ -148,7 +142,7 @@ export function RespondBudgetDialog({ open, onOpenChange, budgetId }: RespondBud
 
           {/* Total */}
           <div className="flex justify-end border-t pt-3">
-            <p className="text-lg font-semibold">Total: {formatCurrency(total)}</p>
+            <p className="text-lg font-semibold">Total: {formatARS(total)}</p>
           </div>
 
           {/* Extra fields */}

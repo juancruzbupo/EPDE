@@ -1,6 +1,9 @@
 import { cookies } from 'next/headers';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+// Server-side fetches go directly to the API (server-to-server, no proxy needed)
+const API_BASE = process.env.API_PROXY_TARGET
+  ? `${process.env.API_PROXY_TARGET}/api/v1`
+  : 'http://localhost:3001/api/v1';
 
 /**
  * Server-side fetch that forwards auth cookies to the API.

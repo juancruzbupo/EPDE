@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { PROPERTY_TYPE_VALUES } from '../types/enums';
+import { PROPERTY_TYPE_VALUES, PropertyType } from '../types/enums';
+import { PAGINATION_MAX_TAKE, PAGINATION_DEFAULT_TAKE } from '../constants';
 
 export const createPropertySchema = z.object({
   userId: z.string().uuid('ID de usuario inválido'),
@@ -13,7 +14,7 @@ export const createPropertySchema = z.object({
     .trim()
     .min(2, 'La ciudad debe tener al menos 2 caracteres')
     .max(200, 'La ciudad no puede superar 200 caracteres'),
-  type: z.enum(PROPERTY_TYPE_VALUES).default('HOUSE'),
+  type: z.enum(PROPERTY_TYPE_VALUES).default(PropertyType.HOUSE),
   yearBuilt: z.coerce.number().int().min(1800).max(2100).optional(),
   squareMeters: z.coerce.number().positive().optional(),
 });
@@ -46,7 +47,7 @@ export const propertyFiltersSchema = z.object({
   city: z.string().optional(),
   type: z.enum(PROPERTY_TYPE_VALUES).optional(),
   cursor: z.string().uuid().optional(),
-  take: z.coerce.number().int().min(1).max(100).default(20),
+  take: z.coerce.number().int().min(1).max(PAGINATION_MAX_TAKE).default(PAGINATION_DEFAULT_TAKE),
 });
 
 export type PropertyFiltersInput = z.infer<typeof propertyFiltersSchema>;

@@ -43,6 +43,8 @@ jobs:
       REDIS_URL: redis://localhost:6379
       JWT_SECRET: test-secret-for-ci-must-be-at-least-32-chars-long
       NODE_ENV: test
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
     steps:
       - name: Checkout
@@ -60,17 +62,23 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Audit dependencies
+        run: pnpm audit --audit-level=high
+
       - name: Generate Prisma client
         run: pnpm db:generate
+
+      - name: Build
+        run: pnpm build
+
+      - name: Schema drift check
+        run: pnpm check:schema-drift
 
       - name: Lint
         run: pnpm lint
 
       - name: Type check
         run: pnpm typecheck
-
-      - name: Build
-        run: pnpm build
 
       - name: Push schema to test database
         run: pnpm --filter @epde/api exec prisma db push --skip-generate

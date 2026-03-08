@@ -4,7 +4,10 @@ import {
   RECURRENCE_TYPE_VALUES,
   PROFESSIONAL_REQUIREMENT_VALUES,
   TASK_PRIORITY_VALUES,
+  ProfessionalRequirement,
+  TaskPriority,
 } from '../types/enums';
+import { PAGINATION_MAX_TAKE, PAGINATION_DEFAULT_TAKE } from '../constants';
 
 export const createCategoryTemplateSchema = z.object({
   name: z.string().min(2, 'Nombre debe tener al menos 2 caracteres').max(100),
@@ -20,9 +23,11 @@ export type UpdateCategoryTemplateInput = z.infer<typeof updateCategoryTemplateS
 export const createTaskTemplateSchema = z.object({
   name: z.string().min(3, 'Nombre debe tener al menos 3 caracteres').max(200),
   taskType: z.enum(TASK_TYPE_VALUES),
-  professionalRequirement: z.enum(PROFESSIONAL_REQUIREMENT_VALUES).default('OWNER_CAN_DO'),
+  professionalRequirement: z
+    .enum(PROFESSIONAL_REQUIREMENT_VALUES)
+    .default(ProfessionalRequirement.OWNER_CAN_DO),
   technicalDescription: z.string().max(1000).optional(),
-  priority: z.enum(TASK_PRIORITY_VALUES).default('MEDIUM'),
+  priority: z.enum(TASK_PRIORITY_VALUES).default(TaskPriority.MEDIUM),
   recurrenceType: z.enum(RECURRENCE_TYPE_VALUES),
   recurrenceMonths: z.coerce.number().int().min(1).max(120).default(12),
   estimatedDurationMinutes: z.coerce.number().int().min(1).optional(),
@@ -40,6 +45,6 @@ export type ReorderTemplatesInput = z.infer<typeof reorderTemplatesSchema>;
 
 export const categoryTemplateFiltersSchema = z.object({
   cursor: z.string().optional(),
-  take: z.coerce.number().int().min(1).max(100).default(20),
+  take: z.coerce.number().int().min(1).max(PAGINATION_MAX_TAKE).default(PAGINATION_DEFAULT_TAKE),
 });
 export type CategoryTemplateFiltersInput = z.infer<typeof categoryTemplateFiltersSchema>;

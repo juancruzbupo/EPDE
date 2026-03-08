@@ -10,6 +10,12 @@ export default [
     },
   },
   {
-    ignores: ['tsup.config.ts', 'vitest.config.ts', 'dist/', 'src/__tests__/'],
+    files: ['src/__tests__/**/*.ts'],
+    languageOptions: {
+      parserOptions: { projectService: false },
+    },
+  },
+  {
+    ignores: ['tsup.config.ts', 'vitest.config.ts', 'dist/'],
   },
 ];

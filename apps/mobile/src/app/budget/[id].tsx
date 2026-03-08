@@ -12,13 +12,8 @@ import { ErrorState } from '@/components/error-state';
 import { TYPE } from '@/lib/fonts';
 import { colors } from '@/lib/colors';
 import { defaultScreenOptions } from '@/lib/screen-options';
+import { BudgetStatus, formatARS } from '@epde/shared';
 import type { BudgetLineItemPublic } from '@epde/shared';
-
-function formatAmount(amount: number | string): string {
-  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(
-    Number(amount),
-  );
-}
 
 function LineItem({ item }: { item: BudgetLineItemPublic }) {
   return (
@@ -28,11 +23,11 @@ function LineItem({ item }: { item: BudgetLineItemPublic }) {
           {item.description}
         </Text>
         <Text style={TYPE.titleSm} className="text-foreground ml-2">
-          {formatAmount(item.subtotal)}
+          {formatARS(item.subtotal)}
         </Text>
       </View>
       <Text style={TYPE.bodySm} className="text-muted-foreground mt-1">
-        {item.quantity} x {formatAmount(item.unitPrice)}
+        {item.quantity} x {formatARS(item.unitPrice)}
       </Text>
     </View>
   );
@@ -46,23 +41,23 @@ export default function BudgetDetailScreen() {
 
   const handleApprove = () => {
     haptics.medium();
-    Alert.alert('Aprobar Presupuesto', 'Estas seguro de que quieres aprobar este presupuesto?', [
+    Alert.alert('Aprobar Presupuesto', '¿Estás seguro de que querés aprobar este presupuesto?', [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Aprobar',
-        onPress: () => updateStatus.mutate({ id, status: 'APPROVED' }),
+        onPress: () => updateStatus.mutate({ id, status: BudgetStatus.APPROVED }),
       },
     ]);
   };
 
   const handleReject = () => {
     haptics.medium();
-    Alert.alert('Rechazar Presupuesto', 'Estas seguro de que quieres rechazar este presupuesto?', [
+    Alert.alert('Rechazar Presupuesto', '¿Estás seguro de que querés rechazar este presupuesto?', [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Rechazar',
         style: 'destructive',
-        onPress: () => updateStatus.mutate({ id, status: 'REJECTED' }),
+        onPress: () => updateStatus.mutate({ id, status: BudgetStatus.REJECTED }),
       },
     ]);
   };
@@ -155,7 +150,7 @@ export default function BudgetDetailScreen() {
         {budget.response && (
           <>
             <Text style={TYPE.titleMd} className="text-foreground mb-2">
-              Cotizacion
+              Cotización
             </Text>
             <View className="border-border bg-card mb-4 rounded-xl border px-4">
               {budget.lineItems.map((item) => (
@@ -167,7 +162,7 @@ export default function BudgetDetailScreen() {
                     Total
                   </Text>
                   <Text style={TYPE.titleMd} className="text-primary">
-                    {formatAmount(budget.response.totalAmount)}
+                    {formatARS(budget.response.totalAmount)}
                   </Text>
                 </View>
               </View>
@@ -179,17 +174,17 @@ export default function BudgetDetailScreen() {
                 {budget.response.estimatedDays && (
                   <View className="flex-row justify-between">
                     <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                      Dias estimados
+                      Días estimados
                     </Text>
                     <Text style={TYPE.labelLg} className="text-foreground">
-                      {budget.response.estimatedDays} dias
+                      {budget.response.estimatedDays} días
                     </Text>
                   </View>
                 )}
                 {budget.response.validUntil && (
                   <View className="flex-row justify-between">
                     <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                      Valido hasta
+                      Válido hasta
                     </Text>
                     <Text style={TYPE.labelLg} className="text-foreground">
                       {format(new Date(budget.response.validUntil), 'd MMM yyyy', { locale: es })}
@@ -212,7 +207,7 @@ export default function BudgetDetailScreen() {
         )}
 
         {/* Action buttons for QUOTED status */}
-        {budget.status === 'QUOTED' && (
+        {budget.status === BudgetStatus.QUOTED && (
           <View className="mb-4 flex-row gap-3">
             <Pressable
               onPress={handleApprove}

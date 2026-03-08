@@ -291,7 +291,7 @@ Login → LocalStrategy (email+password) → JWT access + refresh tokens
 - Logout: blacklist access token JTI (TTL = tiempo restante) + revocar family + `queryClient.clear()` en frontend
 - `JwtStrategy.validate()` verifica que el JTI no este en blacklist y que el campo `purpose` (si presente) sea `'access'` antes de autenticar. Esto previene uso de tokens de invitacion como access tokens
 - Implementado en `auth/token.service.ts` (genera pares, rota, revoca, blacklist)
-- Cookies: `SameSite` configurable via `COOKIE_SAME_SITE` env var (`strict` por default, `none` para cross-domain), `HttpOnly`, `Secure` (en produccion o cuando `SameSite=none`) — elimina necesidad de tokens CSRF
+- Cookies: `SameSite` configurable via `COOKIE_SAME_SITE` env var (`strict` por default), `HttpOnly`, `Secure` (en produccion o cuando `SameSite=none`). Con el proxy de Next.js (`rewrites`), todo es same-origin desde el browser → `strict` funciona correctamente en produccion. Elimina necesidad de tokens CSRF
 
 **Auth Audit Logging:**
 
@@ -374,15 +374,16 @@ Dependencias: `TasksRepository`, `NotificationsRepository`, `UsersRepository`, `
 - **DataTable:** Row click para navegacion, titulo como `<Link>`, menu 3-dot solo para acciones destructivas
 - **Dashboard:** Activity list con icon circles en bordered cards, stat cards con styling condicional para overdue (`border-destructive/30 bg-destructive/10`)
 
-### 13. API Client (Axios + `attachRefreshInterceptor`)
+### 13. API Client (Axios + Next.js Proxy + `attachRefreshInterceptor`)
 
 ```typescript
 // lib/api-client.ts (web)
 import { attachRefreshInterceptor } from '@epde/shared';
 
+// Browser requests go through Next.js proxy (same origin → cookies work)
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  withCredentials: true, // cookies
+  baseURL: '/api/v1', // proxy rewrites to API_PROXY_TARGET
+  withCredentials: true, // cookies (same-origin via proxy)
 });
 
 attachRefreshInterceptor({
@@ -396,6 +397,18 @@ attachRefreshInterceptor({
   },
 });
 ```
+
+**Proxy pattern (Next.js rewrites):**
+
+```
+Browser → epde-web.vercel.app/api/v1/* → (Next.js proxy) → epde.onrender.com/api/v1/*
+                                       ← Set-Cookie en dominio de Vercel ←
+```
+
+- `next.config.ts` define `rewrites` que mapean `/api/v1/:path*` a `API_PROXY_TARGET/api/v1/:path*`
+- `API_PROXY_TARGET` es server-side only (no `NEXT_PUBLIC_`), default `http://localhost:3001`
+- Server Components usan `API_PROXY_TARGET` directamente (server-to-server, sin proxy) via `serverFetch()` en `lib/server-api.ts`
+- Las cookies se setean en el dominio de Vercel → `COOKIE_SAME_SITE=strict` funciona correctamente
 
 **Paridad web / mobile (singleton refresh via `attachRefreshInterceptor` de `@epde/shared`):**
 

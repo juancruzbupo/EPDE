@@ -114,8 +114,13 @@ describe('useMarkAsRead', () => {
     });
     expect(mockSetQueryData).toHaveBeenCalledWith(
       [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
-      4,
+      expect.any(Function),
     );
+    // Verify the functional updater produces correct values
+    const updater = mockSetQueryData.mock.calls[0][1] as (old: number | undefined) => number;
+    expect(updater(5)).toBe(4);
+    expect(updater(0)).toBe(0);
+    expect(updater(undefined)).toBe(0);
   });
 
   it('should rollback on error', () => {

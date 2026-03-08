@@ -29,7 +29,7 @@ type StatusFilter = 'ALL' | 'UPCOMING' | 'OVERDUE' | 'COMPLETED';
 
 const FILTERS: { key: StatusFilter; label: string }[] = [
   { key: 'ALL', label: 'Todas' },
-  { key: 'UPCOMING', label: 'Proximas' },
+  { key: 'UPCOMING', label: 'Próximas' },
   { key: 'OVERDUE', label: 'Vencidas' },
   { key: 'COMPLETED', label: 'Completadas' },
 ];

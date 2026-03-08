@@ -52,6 +52,10 @@ import { MetricsModule } from '../metrics/metrics.module';
     HealthModule,
     MetricsModule,
   ],
+  // Only ConfigModule, PrismaModule, and RedisModule are exported here.
+  // ThrottlerModule, BullModule, LoggerModule, SentryModule, HealthModule,
+  // and MetricsModule are available globally via their own @Global() decorators
+  // or internal NestJS module registration.
   exports: [ConfigModule, PrismaModule, RedisModule],
 })
 export class CoreModule {}

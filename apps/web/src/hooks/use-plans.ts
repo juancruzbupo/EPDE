@@ -31,8 +31,10 @@ export function useUpdatePlan() {
   return useMutation({
     mutationFn: ({ id, ...dto }: { id: string; name?: string; status?: PlanStatus }) =>
       updatePlan(id, dto),
-    onSuccess: (_data, vars) =>
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, vars.id] }),
+    onSuccess: (_data, vars) => {
+      toast.success('Plan actualizado');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, vars.id] });
+    },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al actualizar plan')),
   });
 }
@@ -53,7 +55,10 @@ export function useAddTask() {
       recurrenceMonths?: number;
       nextDueDate?: string;
     }) => addTask(planId, dto),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] }),
+    onSuccess: () => {
+      toast.success('Tarea agregada');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] });
+    },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al agregar tarea')),
   });
 }

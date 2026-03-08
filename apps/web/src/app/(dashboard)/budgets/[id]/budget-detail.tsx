@@ -26,18 +26,12 @@ import {
   CalendarCheck,
   StickyNote,
 } from 'lucide-react';
-import { BUDGET_STATUS_LABELS, BUDGET_STATUS_VARIANT, BudgetStatus } from '@epde/shared';
+import { BUDGET_STATUS_LABELS, BUDGET_STATUS_VARIANT, BudgetStatus, formatARS } from '@epde/shared';
 import type { BudgetRequestPublic } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import Link from 'next/link';
 import { RespondBudgetDialog } from './respond-budget-dialog';
-
-const formatCurrency = (value: string | number) =>
-  new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-  }).format(Number(value));
 
 type ConfirmAction = BudgetStatus | null;
 
@@ -84,7 +78,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
 
   if (!budget) return null;
 
-  const hasResponse = budget.status !== 'PENDING' && budget.lineItems.length > 0;
+  const hasResponse = budget.status !== BudgetStatus.PENDING && budget.lineItems.length > 0;
 
   return (
     <div className="space-y-6">
@@ -181,8 +175,8 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
                     <TableRow key={item.id}>
                       <TableCell>{item.description}</TableCell>
                       <TableCell className="text-right">{item.quantity}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(item.unitPrice)}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(item.subtotal)}</TableCell>
+                      <TableCell className="text-right">{formatARS(item.unitPrice)}</TableCell>
+                      <TableCell className="text-right">{formatARS(item.subtotal)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -191,7 +185,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
 
             <div className="flex justify-end">
               <p className="text-lg font-semibold">
-                Total: {budget.response ? formatCurrency(budget.response.totalAmount) : '-'}
+                Total: {budget.response ? formatARS(budget.response.totalAmount) : '-'}
               </p>
             </div>
 
@@ -235,16 +229,16 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
       )}
 
       {(isAdmin &&
-        (budget.status === 'PENDING' ||
-          budget.status === 'APPROVED' ||
-          budget.status === 'IN_PROGRESS')) ||
-      (isClient && budget.status === 'QUOTED') ? (
+        (budget.status === BudgetStatus.PENDING ||
+          budget.status === BudgetStatus.APPROVED ||
+          budget.status === BudgetStatus.IN_PROGRESS)) ||
+      (isClient && budget.status === BudgetStatus.QUOTED) ? (
         <Card>
           <CardContent className="flex gap-2 p-4">
-            {isAdmin && budget.status === 'PENDING' && (
+            {isAdmin && budget.status === BudgetStatus.PENDING && (
               <Button onClick={() => setRespondOpen(true)}>Cotizar</Button>
             )}
-            {isClient && budget.status === 'QUOTED' && (
+            {isClient && budget.status === BudgetStatus.QUOTED && (
               <>
                 <Button onClick={() => setConfirmAction('APPROVED')}>Aprobar</Button>
                 <Button variant="destructive" onClick={() => setConfirmAction('REJECTED')}>
@@ -252,10 +246,10 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
                 </Button>
               </>
             )}
-            {isAdmin && budget.status === 'APPROVED' && (
+            {isAdmin && budget.status === BudgetStatus.APPROVED && (
               <Button onClick={() => setConfirmAction('IN_PROGRESS')}>Iniciar Trabajo</Button>
             )}
-            {isAdmin && budget.status === 'IN_PROGRESS' && (
+            {isAdmin && budget.status === BudgetStatus.IN_PROGRESS && (
               <Button onClick={() => setConfirmAction('COMPLETED')}>Marcar Completado</Button>
             )}
           </CardContent>

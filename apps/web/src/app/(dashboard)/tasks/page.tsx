@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CheckSquare, MapPin, Calendar } from 'lucide-react';
 import { ErrorState } from '@/components/error-state';
+import { EmptyState } from '@/components/empty-state';
 import {
   TaskStatus,
   TASK_STATUS_LABELS,
@@ -122,15 +123,15 @@ export default function TasksPage() {
           className="justify-center py-24"
         />
       ) : !tasks || tasks.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <CheckSquare className="text-muted-foreground/40 mb-4 h-12 w-12" />
-          <h2 className="text-muted-foreground text-lg font-medium">Sin tareas</h2>
-          <p className="text-muted-foreground/70 mt-1 max-w-sm text-sm">
-            {status === 'all'
+        <EmptyState
+          icon={CheckSquare}
+          title="Sin tareas"
+          message={
+            status === 'all'
               ? 'No hay tareas registradas todavía.'
-              : `No hay tareas con estado "${TASK_STATUS_LABELS[status as TaskStatus] ?? status}".`}
-          </p>
-        </div>
+              : `No hay tareas con estado "${TASK_STATUS_LABELS[status as TaskStatus] ?? status}".`
+          }
+        />
       ) : (
         <div className="space-y-2">
           <p className="text-muted-foreground mb-3 text-sm">

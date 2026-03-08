@@ -1,5 +1,5 @@
 import type { AxiosInstance } from 'axios';
-import type { ApiResponse, CategoryTemplate } from '../types';
+import type { ApiResponse, PaginatedResponse, CategoryTemplate } from '../types';
 import type {
   CreateCategoryTemplateInput,
   UpdateCategoryTemplateInput,
@@ -8,9 +8,7 @@ import type { CreateTaskTemplateInput, UpdateTaskTemplateInput } from '../schema
 
 export function createCategoryTemplateQueries(apiClient: AxiosInstance) {
   return {
-    async getCategoryTemplates(
-      signal?: AbortSignal,
-    ): Promise<{ data: CategoryTemplate[]; cursor: string | null }> {
+    async getCategoryTemplates(signal?: AbortSignal): Promise<PaginatedResponse<CategoryTemplate>> {
       const { data } = await apiClient.get('/category-templates', { signal });
       return data;
     },

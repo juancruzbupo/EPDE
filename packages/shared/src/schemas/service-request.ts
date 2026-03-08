@@ -1,5 +1,11 @@
 import { z } from 'zod';
-import { ServiceStatus, SERVICE_URGENCY_VALUES, SERVICE_STATUS_VALUES } from '../types/enums';
+import {
+  ServiceStatus,
+  ServiceUrgency,
+  SERVICE_URGENCY_VALUES,
+  SERVICE_STATUS_VALUES,
+} from '../types/enums';
+import { PAGINATION_MAX_TAKE, PAGINATION_DEFAULT_TAKE } from '../constants';
 
 // ─── Create Service Request ─────────────────────────────
 
@@ -13,7 +19,7 @@ export const createServiceRequestSchema = z.object({
     .string()
     .min(10, 'La descripción debe tener al menos 10 caracteres')
     .max(2000, 'La descripción no puede superar 2000 caracteres'),
-  urgency: z.enum(SERVICE_URGENCY_VALUES).default('MEDIUM'),
+  urgency: z.enum(SERVICE_URGENCY_VALUES).default(ServiceUrgency.MEDIUM),
   photoUrls: z.array(z.string().url('URL de foto inválida')).max(5, 'Máximo 5 fotos').optional(),
 });
 
@@ -44,7 +50,7 @@ export const serviceRequestFiltersSchema = z.object({
   urgency: z.enum(SERVICE_URGENCY_VALUES).optional(),
   propertyId: z.string().uuid().optional(),
   cursor: z.string().uuid().optional(),
-  take: z.coerce.number().int().min(1).max(100).default(20),
+  take: z.coerce.number().int().min(1).max(PAGINATION_MAX_TAKE).default(PAGINATION_DEFAULT_TAKE),
 });
 
 export type ServiceRequestFiltersInput = z.infer<typeof serviceRequestFiltersSchema>;

@@ -2,6 +2,7 @@ import './instrument';
 import { randomUUID } from 'crypto';
 import { NestFactory } from '@nestjs/core';
 import { VersioningType } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
@@ -16,6 +17,9 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
   app.enableShutdownHooks();
 
+  const configService = app.get(ConfigService);
+  const nodeEnv = configService.get<string>('NODE_ENV');
+
   // Request-ID propagation: set on request + response for cross-service tracing
   app.use((req: Request, res: Response, next: NextFunction) => {
     const requestId = (req.headers['x-request-id'] as string) || randomUUID();
@@ -29,7 +33,7 @@ async function bootstrap() {
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
-          imgSrc: ["'self'", process.env.R2_PUBLIC_URL || ''].filter(Boolean),
+          imgSrc: ["'self'", configService.get<string>('R2_PUBLIC_URL') || ''].filter(Boolean),
           connectSrc: ["'self'"],
           frameSrc: ["'none'"],
           objectSrc: ["'none'"],
@@ -47,8 +51,8 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
-  const corsOrigin = process.env.CORS_ORIGIN;
-  if (!corsOrigin && ['production', 'staging'].includes(process.env.NODE_ENV || '')) {
+  const corsOrigin = configService.get<string>('CORS_ORIGIN');
+  if (!corsOrigin && ['production', 'staging'].includes(nodeEnv || '')) {
     throw new Error('CORS_ORIGIN must be set in production and staging');
   }
   if (!corsOrigin) {
@@ -62,7 +66,7 @@ async function bootstrap() {
     credentials: true,
   });
 
-  if (process.env.NODE_ENV !== 'production') {
+  if (nodeEnv !== 'production') {
     const config = new DocumentBuilder()
       .setTitle('EPDE API')
       .setDescription('API de la plataforma de mantenimiento preventivo para viviendas')
@@ -73,7 +77,7 @@ async function bootstrap() {
     SwaggerModule.setup('api/docs', app, document);
   }
 
-  const port = process.env.PORT ?? 3001;
+  const port = configService.get<number>('PORT') ?? 3001;
   await app.listen(port);
 }
 bootstrap();

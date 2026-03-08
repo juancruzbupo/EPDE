@@ -26,6 +26,6 @@ services:
       - key: CORS_ORIGIN
         sync: false
       - key: COOKIE_SAME_SITE
-        value: 'none'
+        value: 'strict'
       - key: SEED_ADMIN_PASSWORD
         sync: false
