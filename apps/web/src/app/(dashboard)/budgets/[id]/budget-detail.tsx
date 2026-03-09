@@ -1,12 +1,28 @@
 'use client';
 
+import type { BudgetRequestPublic } from '@epde/shared';
+import { BUDGET_STATUS_LABELS, BUDGET_STATUS_VARIANT, BudgetStatus, formatARS } from '@epde/shared';
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
+import {
+  AlignLeft,
+  ArrowLeft,
+  Calendar,
+  CalendarCheck,
+  Clock,
+  FileText,
+  Home,
+  StickyNote,
+  User,
+} from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
-import { useBudget, useUpdateBudgetStatus } from '@/hooks/use-budgets';
-import { PageHeader } from '@/components/page-header';
+
 import { ConfirmDialog } from '@/components/confirm-dialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -15,22 +31,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  ArrowLeft,
-  FileText,
-  Home,
-  User,
-  Calendar,
-  AlignLeft,
-  Clock,
-  CalendarCheck,
-  StickyNote,
-} from 'lucide-react';
-import { BUDGET_STATUS_LABELS, BUDGET_STATUS_VARIANT, BudgetStatus, formatARS } from '@epde/shared';
-import type { BudgetRequestPublic } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
-import Link from 'next/link';
+import { useBudget, useUpdateBudgetStatus } from '@/hooks/use-budgets';
+
 import { RespondBudgetDialog } from './respond-budget-dialog';
 
 type ConfirmAction = BudgetStatus | null;

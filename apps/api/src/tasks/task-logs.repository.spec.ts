@@ -1,5 +1,5 @@
-import { TaskLogsRepository } from './task-logs.repository';
 import { PrismaService } from '../prisma/prisma.service';
+import { TaskLogsRepository } from './task-logs.repository';
 
 describe('TaskLogsRepository', () => {
   let repository: TaskLogsRepository;

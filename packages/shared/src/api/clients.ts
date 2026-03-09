@@ -1,5 +1,6 @@
 import type { AxiosInstance } from 'axios';
-import type { PaginatedResponse, ApiResponse, ClientPublic } from '../types';
+
+import type { ApiResponse, ClientPublic, PaginatedResponse } from '../types';
 import type { UserStatus } from '../types/enums';
 
 export interface ClientFilters {

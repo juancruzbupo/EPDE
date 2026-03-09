@@ -1,11 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TaskReminderService } from './task-reminder.service';
-import { TasksRepository } from '../tasks/tasks.repository';
-import { NotificationsRepository } from '../notifications/notifications.repository';
+
 import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
+import { MetricsService } from '../metrics/metrics.service';
+import { NotificationsRepository } from '../notifications/notifications.repository';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { DistributedLockService } from '../redis/distributed-lock.service';
-import { MetricsService } from '../metrics/metrics.service';
+import { TasksRepository } from '../tasks/tasks.repository';
+import { TaskReminderService } from './task-reminder.service';
 
 const mockTasksRepository = {
   findUpcomingWithOwners: jest.fn().mockResolvedValue([]),

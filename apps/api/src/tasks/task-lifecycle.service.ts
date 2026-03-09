@@ -1,22 +1,23 @@
+import type {
+  CompleteTaskInput,
+  CreateTaskInput,
+  ReorderTasksInput,
+  ServiceUser,
+  UpdateTaskInput,
+} from '@epde/shared';
+import { getNextDueDate, recurrenceTypeToMonths, UserRole } from '@epde/shared';
 import {
+  BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
-  ForbiddenException,
-  BadRequestException,
 } from '@nestjs/common';
+import type { Task } from '@prisma/client';
+
 import { TaskNotCompletableError } from '../common/exceptions/domain.exceptions';
-import { TasksRepository } from './tasks.repository';
 import { MaintenancePlansRepository } from '../maintenance-plans/maintenance-plans.repository';
 import { TaskAuditLogRepository } from './task-audit-log.repository';
-import type {
-  CreateTaskInput,
-  UpdateTaskInput,
-  ReorderTasksInput,
-  CompleteTaskInput,
-  ServiceUser,
-} from '@epde/shared';
-import { recurrenceTypeToMonths, getNextDueDate, UserRole } from '@epde/shared';
-import type { Task } from '@prisma/client';
+import { TasksRepository } from './tasks.repository';
 
 type UpdateTaskData = Omit<UpdateTaskInput, 'categoryId'> & {
   updatedBy?: string;

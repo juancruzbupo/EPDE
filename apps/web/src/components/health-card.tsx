@@ -1,9 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
+
 import { AnimatedNumber } from '@/components/ui/animated-number';
-import { useMotionPreference, MOTION_DURATION } from '@/lib/motion';
+import { Card, CardContent } from '@/components/ui/card';
+import { MOTION_DURATION, useMotionPreference } from '@/lib/motion';
 
 interface HealthCardProps {
   totalTasks: number;

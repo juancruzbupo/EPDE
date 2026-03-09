@@ -1,6 +1,6 @@
-import type { BaseEntity, SoftDeletable } from '../index';
 import type { BudgetStatus } from '../enums';
-import type { Serialized, PropertyBriefWithOwner, UserBriefWithEmail } from './common';
+import type { BaseEntity, SoftDeletable } from '../index';
+import type { PropertyBriefWithOwner, Serialized, UserBriefWithEmail } from './common';
 
 export interface BudgetRequest extends BaseEntity, SoftDeletable {
   propertyId: string;

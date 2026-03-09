@@ -1,10 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, ConflictException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '@epde/shared';
-import { ClientsService } from './clients.service';
-import { ClientsRepository } from './clients.repository';
+import { ConflictException, NotFoundException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { Test, TestingModule } from '@nestjs/testing';
+
 import { EmailQueueService } from '../email/email-queue.service';
+import { ClientsRepository } from './clients.repository';
+import { ClientsService } from './clients.service';
 describe('ClientsService', () => {
   let service: ClientsService;
   let clientsRepository: {

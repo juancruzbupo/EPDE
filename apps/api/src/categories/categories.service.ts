@@ -1,12 +1,13 @@
+import type { CreateCategoryInput, UpdateCategoryInput } from '@epde/shared';
 import {
+  BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
-  ConflictException,
-  BadRequestException,
 } from '@nestjs/common';
+
 import { CategoryHasReferencingTasksError } from '../common/exceptions/domain.exceptions';
 import { CategoriesRepository } from './categories.repository';
-import type { CreateCategoryInput, UpdateCategoryInput } from '@epde/shared';
 
 @Injectable()
 export class CategoriesService {

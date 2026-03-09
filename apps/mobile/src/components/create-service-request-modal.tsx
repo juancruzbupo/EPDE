@@ -1,31 +1,32 @@
+import type { CreateServiceRequestInput, PropertyPublic } from '@epde/shared';
+import { createServiceRequestSchema } from '@epde/shared';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import {
-  View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
   Text,
   TextInput,
-  Pressable,
-  Modal,
-  Image,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  ActivityIndicator,
+  View,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
-import * as ImagePicker from 'expo-image-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useSlideIn } from '@/lib/animations';
-import { haptics } from '@/lib/haptics';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { createServiceRequestSchema } from '@epde/shared';
-import type { CreateServiceRequestInput, PropertyPublic } from '@epde/shared';
-import { useCreateServiceRequest } from '@/hooks/use-service-requests';
+
 import { useProperties } from '@/hooks/use-properties';
+import { useCreateServiceRequest } from '@/hooks/use-service-requests';
 import { useUploadFile } from '@/hooks/use-upload';
-import { TYPE } from '@/lib/fonts';
+import { useSlideIn } from '@/lib/animations';
 import { colors } from '@/lib/colors';
+import { TYPE } from '@/lib/fonts';
+import { haptics } from '@/lib/haptics';
 
 const URGENCY_OPTIONS = [
   { key: 'LOW', label: 'Baja' },

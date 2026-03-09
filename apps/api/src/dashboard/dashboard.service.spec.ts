@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DashboardService } from './dashboard.service';
+
 import { DashboardRepository } from './dashboard.repository';
+import { DashboardService } from './dashboard.service';
 
 const mockDashboardRepository = {
   getAdminStats: jest.fn(),

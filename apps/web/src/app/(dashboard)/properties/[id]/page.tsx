@@ -1,8 +1,10 @@
-import { notFound } from 'next/navigation';
+import type { ApiResponse, PropertyPublic } from '@epde/shared';
 import { UserRole } from '@epde/shared';
-import type { PropertyPublic, ApiResponse } from '@epde/shared';
+import { notFound } from 'next/navigation';
+
 import { serverFetch } from '@/lib/server-api';
 import { getServerUser } from '@/lib/server-auth';
+
 import { PropertyDetail } from './property-detail';
 
 interface Props {

@@ -1,6 +1,7 @@
-import { renderHook } from '@testing-library/react-native';
-import { useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from '@epde/shared';
+import { useQuery } from '@tanstack/react-query';
+import { renderHook } from '@testing-library/react-native';
+
 import { useClientDashboardStats, useClientUpcomingTasks } from '../use-dashboard';
 
 jest.mock('@tanstack/react-query', () => ({

@@ -1,4 +1,4 @@
-import type { TaskType, ProfessionalRequirement, TaskPriority, RecurrenceType } from '../enums';
+import type { ProfessionalRequirement, RecurrenceType, TaskPriority, TaskType } from '../enums';
 
 export interface CategoryTemplate {
   id: string;

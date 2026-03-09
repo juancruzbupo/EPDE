@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import { User } from 'lucide-react';
+
 import { fadeIn, fadeInUp, slideInLeft, slideInRight, staggerContainer } from '@/lib/motion';
+
 import type { SectionProps } from '../landing-data';
 import { CREDENTIALS } from '../landing-data';
 

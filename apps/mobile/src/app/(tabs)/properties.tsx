@@ -1,13 +1,14 @@
-import { memo, useCallback } from 'react';
-import { View, Text, FlatList, RefreshControl, Pressable, ActivityIndicator } from 'react-native';
+import type { PropertyPublic } from '@epde/shared';
 import { useRouter } from 'expo-router';
-import { useProperties } from '@/hooks/use-properties';
+import { memo, useCallback } from 'react';
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
+
 import { AnimatedListItem } from '@/components/animated-list-item';
-import { PropertyTypeBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
+import { PropertyTypeBadge } from '@/components/status-badge';
+import { useProperties } from '@/hooks/use-properties';
 import { TYPE } from '@/lib/fonts';
-import type { PropertyPublic } from '@epde/shared';
 
 const PropertyCard = memo(function PropertyCard({ property }: { property: PropertyPublic }) {
   const router = useRouter();

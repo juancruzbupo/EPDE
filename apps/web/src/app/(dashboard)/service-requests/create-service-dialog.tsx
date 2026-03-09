@@ -1,20 +1,18 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  createServiceRequestSchema,
   type CreateServiceRequestInput,
+  createServiceRequestSchema,
   SERVICE_URGENCY_LABELS,
 } from '@epde/shared';
-import { useProperties } from '@/hooks/use-properties';
-import { useCreateServiceRequest } from '@/hooks/use-service-requests';
-import { useUploadFile } from '@/hooks/use-upload';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Upload, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -23,7 +21,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Upload, X } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { useProperties } from '@/hooks/use-properties';
+import { useCreateServiceRequest } from '@/hooks/use-service-requests';
+import { useUploadFile } from '@/hooks/use-upload';
 
 interface CreateServiceDialogProps {
   open: boolean;

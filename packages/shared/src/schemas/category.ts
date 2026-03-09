@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { PAGINATION_MAX_TAKE, PAGINATION_DEFAULT_TAKE } from '../constants';
+
+import { PAGINATION_DEFAULT_TAKE, PAGINATION_MAX_TAKE } from '../constants';
 
 export const createCategorySchema = z.object({
   name: z

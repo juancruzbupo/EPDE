@@ -1,10 +1,11 @@
 'use client';
 
-import { ColumnDef } from '@tanstack/react-table';
-import { Badge } from '@/components/ui/badge';
 import { PROPERTY_TYPE_LABELS } from '@epde/shared';
-import type { PropertyPublic } from '@/lib/api/properties';
+import { ColumnDef } from '@tanstack/react-table';
 import Link from 'next/link';
+
+import { Badge } from '@/components/ui/badge';
+import type { PropertyPublic } from '@/lib/api/properties';
 
 export function propertyColumns({ isAdmin }: { isAdmin: boolean }): ColumnDef<PropertyPublic>[] {
   const cols: ColumnDef<PropertyPublic>[] = [

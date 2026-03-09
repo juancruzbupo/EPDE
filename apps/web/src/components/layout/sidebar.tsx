@@ -1,22 +1,23 @@
 'use client';
 
+import { UserRole } from '@epde/shared';
+import {
+  CheckSquare,
+  ClipboardList,
+  FileText,
+  Home,
+  LayoutDashboard,
+  LayoutTemplate,
+  LogOut,
+  Tags,
+  Users,
+  Wrench,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAuthStore } from '@/stores/auth-store';
-import {
-  LayoutDashboard,
-  Users,
-  Home,
-  Tags,
-  FileText,
-  Wrench,
-  LogOut,
-  LayoutTemplate,
-  ClipboardList,
-  CheckSquare,
-} from 'lucide-react';
+
 import { cn } from '@/lib/utils';
-import { UserRole } from '@epde/shared';
+import { useAuthStore } from '@/stores/auth-store';
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },

@@ -1,21 +1,22 @@
 'use client';
 
-import { useAuthStore } from '@/stores/auth-store';
 import { useMotionPreference } from '@/lib/motion';
-import { Header } from './sections/header';
-import { HeroSection } from './sections/hero';
-import { ProblemsSection } from './sections/problems';
-import { HowItWorksSection } from './sections/how-it-works';
-import { DigitalSystemSection } from './sections/digital-system';
-import { RealExampleSection } from './sections/real-example';
+import { useAuthStore } from '@/stores/auth-store';
+
+import { CostComparisonSection } from './sections/cost-comparison';
 import { CredentialsSection } from './sections/credentials';
 import { DeliverablesSection } from './sections/deliverables';
-import { TargetAudienceSection } from './sections/target-audience';
-import { CostComparisonSection } from './sections/cost-comparison';
-import { UrgencySection } from './sections/urgency';
-import { InvestmentSection } from './sections/investment';
+import { DigitalSystemSection } from './sections/digital-system';
 import { FinalCtaSection } from './sections/final-cta';
 import { Footer } from './sections/footer';
+import { Header } from './sections/header';
+import { HeroSection } from './sections/hero';
+import { HowItWorksSection } from './sections/how-it-works';
+import { InvestmentSection } from './sections/investment';
+import { ProblemsSection } from './sections/problems';
+import { RealExampleSection } from './sections/real-example';
+import { TargetAudienceSection } from './sections/target-audience';
+import { UrgencySection } from './sections/urgency';
 
 export function LandingPage() {
   const { isAuthenticated, isLoading } = useAuthStore();

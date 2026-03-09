@@ -1,7 +1,8 @@
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, ConflictException } from '@nestjs/common';
-import { CategoryTemplatesService } from './category-templates.service';
+
 import { CategoryTemplatesRepository } from './category-templates.repository';
+import { CategoryTemplatesService } from './category-templates.service';
 
 describe('CategoryTemplatesService', () => {
   let service: CategoryTemplatesService;

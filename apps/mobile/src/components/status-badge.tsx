@@ -1,30 +1,31 @@
-import { View, Text } from 'react-native';
-import { TYPE } from '@/lib/fonts';
-import {
-  TASK_STATUS_LABELS,
-  TASK_PRIORITY_LABELS,
-  PROPERTY_TYPE_LABELS,
-  BUDGET_STATUS_LABELS,
-  SERVICE_STATUS_LABELS,
-  SERVICE_URGENCY_LABELS,
-  PLAN_STATUS_LABELS,
-  TASK_STATUS_VARIANT,
-  PRIORITY_VARIANT,
-  BUDGET_STATUS_VARIANT,
-  SERVICE_STATUS_VARIANT,
-  URGENCY_VARIANT,
-  PLAN_STATUS_VARIANT,
-} from '@epde/shared';
 import type {
   BadgeVariant,
-  TaskStatus,
-  TaskPriority,
-  PropertyType,
   BudgetStatus,
+  PlanStatus,
+  PropertyType,
   ServiceStatus,
   ServiceUrgency,
-  PlanStatus,
+  TaskPriority,
+  TaskStatus,
 } from '@epde/shared';
+import {
+  BUDGET_STATUS_LABELS,
+  BUDGET_STATUS_VARIANT,
+  PLAN_STATUS_LABELS,
+  PLAN_STATUS_VARIANT,
+  PRIORITY_VARIANT,
+  PROPERTY_TYPE_LABELS,
+  SERVICE_STATUS_LABELS,
+  SERVICE_STATUS_VARIANT,
+  SERVICE_URGENCY_LABELS,
+  TASK_PRIORITY_LABELS,
+  TASK_STATUS_LABELS,
+  TASK_STATUS_VARIANT,
+  URGENCY_VARIANT,
+} from '@epde/shared';
+import { Text, View } from 'react-native';
+
+import { TYPE } from '@/lib/fonts';
 
 interface StatusBadgeProps {
   label: string;

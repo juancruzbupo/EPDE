@@ -1,16 +1,17 @@
-import { Global, Module } from '@nestjs/common';
-import { ThrottlerModule } from '@nestjs/throttler';
 import { BullModule } from '@nestjs/bullmq';
+import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { SentryModule } from '@sentry/nestjs/setup';
-import { LoggerModule } from 'nestjs-pino';
 import { randomUUID } from 'crypto';
 import { IncomingMessage } from 'http';
-import { PrismaModule } from '../prisma/prisma.module';
+import { LoggerModule } from 'nestjs-pino';
+
 import { ConfigModule } from '../config/config.module';
-import { RedisModule } from '../redis/redis.module';
 import { HealthModule } from '../health/health.module';
 import { MetricsModule } from '../metrics/metrics.module';
+import { PrismaModule } from '../prisma/prisma.module';
+import { RedisModule } from '../redis/redis.module';
 
 @Global()
 @Module({

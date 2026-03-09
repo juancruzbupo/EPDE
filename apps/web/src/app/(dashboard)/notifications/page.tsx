@@ -1,18 +1,19 @@
 'use client';
 
-import { useMemo } from 'react';
-import { useNotifications, useMarkAsRead, useMarkAllAsRead } from '@/hooks/use-notifications';
-import { PageHeader } from '@/components/page-header';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import { NOTIFICATION_TYPE_LABELS } from '@epde/shared';
 import type { NotificationType } from '@epde/shared';
-import { Bell, FileText, Wrench, Clock, CheckCheck } from 'lucide-react';
-import { PageTransition } from '@/components/ui/page-transition';
-import { ErrorState } from '@/components/error-state';
+import { NOTIFICATION_TYPE_LABELS } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { Bell, CheckCheck, Clock, FileText, Wrench } from 'lucide-react';
+import { useMemo } from 'react';
+
+import { ErrorState } from '@/components/error-state';
+import { PageHeader } from '@/components/page-header';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { PageTransition } from '@/components/ui/page-transition';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useMarkAllAsRead, useMarkAsRead, useNotifications } from '@/hooks/use-notifications';
 import type { NotificationPublic } from '@/lib/api/notifications';
 
 const typeIcons: Record<NotificationType, typeof Bell> = {

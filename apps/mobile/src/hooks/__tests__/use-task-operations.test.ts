@@ -1,13 +1,14 @@
-import { renderHook } from '@testing-library/react-native';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Alert } from 'react-native';
 import { QUERY_KEYS } from '@epde/shared';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { renderHook } from '@testing-library/react-native';
+import { Alert } from 'react-native';
+
 import {
+  useAddTaskNote,
+  useCompleteTask,
   useTaskDetail,
   useTaskLogs,
   useTaskNotes,
-  useCompleteTask,
-  useAddTaskNote,
 } from '../use-task-operations';
 
 jest.mock('@tanstack/react-query', () => ({

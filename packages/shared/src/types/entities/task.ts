@@ -1,15 +1,15 @@
-import type { BaseEntity, SoftDeletable } from '../index';
 import type {
-  TaskPriority,
+  ActionTaken,
+  ConditionFound,
+  ProfessionalRequirement,
   RecurrenceType,
+  TaskExecutor,
+  TaskPriority,
+  TaskResult,
   TaskStatus,
   TaskType,
-  ProfessionalRequirement,
-  TaskResult,
-  ConditionFound,
-  TaskExecutor,
-  ActionTaken,
 } from '../enums';
+import type { BaseEntity, SoftDeletable } from '../index';
 import type { Serialized } from './common';
 
 export interface Task extends BaseEntity, SoftDeletable {

@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { ClientsRepository } from './clients.repository';
-import { EmailQueueService } from '../email/email-queue.service';
+import type { ClientFiltersInput, CreateClientInput, UpdateClientInput } from '@epde/shared';
 import { UserRole } from '@epde/shared';
-import type { CreateClientInput, UpdateClientInput, ClientFiltersInput } from '@epde/shared';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+
+import { EmailQueueService } from '../email/email-queue.service';
+import { ClientsRepository } from './clients.repository';
 
 @Injectable()
 export class ClientsService {

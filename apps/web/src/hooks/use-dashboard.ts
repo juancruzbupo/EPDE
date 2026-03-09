@@ -1,10 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from '@epde/shared';
+import { useQuery } from '@tanstack/react-query';
+
 import {
-  getDashboardStats,
-  getDashboardActivity,
   getClientDashboardStats,
   getClientUpcomingTasks,
+  getDashboardActivity,
+  getDashboardStats,
 } from '@/lib/api/dashboard';
 
 export function useDashboardStats() {

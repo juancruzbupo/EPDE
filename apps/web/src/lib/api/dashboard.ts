@@ -1,6 +1,7 @@
+import type { ActivityItem, ApiResponse, DashboardStats } from '@epde/shared';
 import { createDashboardQueries } from '@epde/shared';
+
 import { apiClient } from '../api-client';
-import type { ApiResponse, DashboardStats, ActivityItem } from '@epde/shared';
 
 const queries = createDashboardQueries(apiClient);
 export const { getClientDashboardStats, getClientUpcomingTasks } = queries;

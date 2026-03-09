@@ -1,6 +1,7 @@
 import { z } from 'zod';
+
+import { PAGINATION_DEFAULT_TAKE, PAGINATION_MAX_TAKE } from '../constants';
 import { USER_STATUS_VALUES } from '../types/enums';
-import { PAGINATION_MAX_TAKE, PAGINATION_DEFAULT_TAKE } from '../constants';
 
 export const createClientSchema = z.object({
   email: z

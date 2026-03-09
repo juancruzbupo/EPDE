@@ -1,11 +1,13 @@
 'use client';
 
-import { useAuthStore } from '@/stores/auth-store';
 import { Menu } from 'lucide-react';
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { VisuallyHidden } from 'radix-ui';
-import { Sidebar } from './sidebar';
+
 import { NotificationBell } from '@/components/notification-bell';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { useAuthStore } from '@/stores/auth-store';
+
+import { Sidebar } from './sidebar';
 
 export function Header() {
   const { user } = useAuthStore();

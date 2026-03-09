@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
+
 import { fadeIn, fadeInUp, staggerContainer } from '@/lib/motion';
+
 import type { SectionProps } from '../landing-data';
 
 export function RealExampleSection({ motionProps }: SectionProps) {

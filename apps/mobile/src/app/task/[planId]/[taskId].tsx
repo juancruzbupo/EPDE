@@ -3,29 +3,30 @@
 
 // TODO [ROADMAP]: Migrate to expo-image for caching, progressive loading, and optimization.
 
-import { useState } from 'react';
-import { View, Text, RefreshControl, ActivityIndicator, TextInput, Pressable } from 'react-native';
-import Animated from 'react-native-reanimated';
-import { useLocalSearchParams, Stack } from 'expo-router';
-import { useSlideIn } from '@/lib/animations';
-import { formatDistanceToNow, format } from 'date-fns';
+import type { TaskLogPublic, TaskNotePublic } from '@epde/shared';
+import { RECURRENCE_TYPE_LABELS, TaskStatus } from '@epde/shared';
+import { format, formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { Stack, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
+import { ActivityIndicator, Pressable, RefreshControl, Text, TextInput, View } from 'react-native';
+import Animated from 'react-native-reanimated';
+
+import { CollapsibleSection } from '@/components/collapsible-section';
+import { CompleteTaskModal } from '@/components/complete-task-modal';
+import { EmptyState } from '@/components/empty-state';
+import { ErrorState } from '@/components/error-state';
+import { PriorityBadge, TaskStatusBadge } from '@/components/status-badge';
 import {
+  useAddTaskNote,
   useTaskDetail,
   useTaskLogs,
   useTaskNotes,
-  useAddTaskNote,
 } from '@/hooks/use-task-operations';
-import { TaskStatusBadge, PriorityBadge } from '@/components/status-badge';
-import { EmptyState } from '@/components/empty-state';
-import { ErrorState } from '@/components/error-state';
-import { CompleteTaskModal } from '@/components/complete-task-modal';
-import { CollapsibleSection } from '@/components/collapsible-section';
-import { TYPE } from '@/lib/fonts';
+import { useSlideIn } from '@/lib/animations';
 import { colors } from '@/lib/colors';
+import { TYPE } from '@/lib/fonts';
 import { defaultScreenOptions } from '@/lib/screen-options';
-import { RECURRENCE_TYPE_LABELS, TaskStatus } from '@epde/shared';
-import type { TaskLogPublic, TaskNotePublic } from '@epde/shared';
 
 function LogItem({ log }: { log: TaskLogPublic }) {
   return (

@@ -1,17 +1,18 @@
 'use client';
 
-import { useTaskLogs } from '@/hooks/use-task-operations';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
-  TASK_RESULT_LABELS,
+  ACTION_TAKEN_LABELS,
   CONDITION_FOUND_LABELS,
   TASK_EXECUTOR_LABELS,
-  ACTION_TAKEN_LABELS,
+  TASK_RESULT_LABELS,
 } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { History } from 'lucide-react';
+
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useTaskLogs } from '@/hooks/use-task-operations';
 
 interface TaskLogTimelineProps {
   planId: string;

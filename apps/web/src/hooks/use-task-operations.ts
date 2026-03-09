@@ -1,20 +1,21 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import type { CompleteTaskInput, RecurrenceType, TaskPriority } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS, TaskStatus } from '@epde/shared';
-import type { CompleteTaskInput, TaskPriority, RecurrenceType } from '@epde/shared';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+
+import type { PlanPublic, TaskNotePublic } from '@/lib/api/maintenance-plans';
 import {
-  updateTask,
-  removeTask,
-  reorderTasks,
-  getTaskDetail,
+  addTaskNote,
   completeTask,
+  getTaskDetail,
   getTaskLogs,
   getTaskNotes,
-  addTaskNote,
+  removeTask,
+  reorderTasks,
+  updateTask,
 } from '@/lib/api/maintenance-plans';
-import type { PlanPublic, TaskNotePublic } from '@/lib/api/maintenance-plans';
-import { useAuthStore } from '@/stores/auth-store';
 import { invalidateDashboard } from '@/lib/invalidate-dashboard';
+import { useAuthStore } from '@/stores/auth-store';
 
 export function useUpdateTask() {
   const queryClient = useQueryClient();

@@ -1,12 +1,13 @@
 'use client';
 
-import { ColumnDef } from '@tanstack/react-table';
-import { Badge } from '@/components/ui/badge';
 import { BUDGET_STATUS_LABELS, BUDGET_STATUS_VARIANT } from '@epde/shared';
+import { ColumnDef } from '@tanstack/react-table';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import type { BudgetRequestPublic } from '@/lib/api/budgets';
 import Link from 'next/link';
+
+import { Badge } from '@/components/ui/badge';
+import type { BudgetRequestPublic } from '@/lib/api/budgets';
 
 export const budgetColumns: ColumnDef<BudgetRequestPublic>[] = [
   {

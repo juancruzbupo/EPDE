@@ -1,13 +1,15 @@
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import { fadeIn, fadeInUp, staggerContainer, staggerItem } from '@/lib/motion';
+
 import type { SectionProps } from '../landing-data';
 import {
   Check,
   INVESTMENT_FEATURES,
-  PRICE_TIERS,
   PRICE_DISCLAIMER,
+  PRICE_TIERS,
   WHATSAPP_URL,
 } from '../landing-data';
 

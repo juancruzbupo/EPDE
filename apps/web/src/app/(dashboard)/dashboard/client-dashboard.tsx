@@ -1,29 +1,30 @@
 'use client';
 
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { useClientDashboardStats, useClientUpcomingTasks } from '@/hooks/use-dashboard';
-import { staggerContainer, staggerItem, fadeInUp, useMotionPreference } from '@/lib/motion';
-import { PageHeader } from '@/components/page-header';
-import { StatCard } from '@/components/stat-card';
-import { HealthCard } from '@/components/health-card';
-import { AnimatedNumber } from '@/components/ui/animated-number';
-import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import {
-  Home,
-  AlertTriangle,
-  FileText,
-  Wrench,
-  Clock,
-  CheckCircle,
-  ChevronRight,
-} from 'lucide-react';
-import { ErrorState } from '@/components/error-state';
+import { PRIORITY_VARIANT, TASK_PRIORITY_LABELS } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { TASK_PRIORITY_LABELS, PRIORITY_VARIANT } from '@epde/shared';
+import { motion } from 'framer-motion';
+import {
+  AlertTriangle,
+  CheckCircle,
+  ChevronRight,
+  Clock,
+  FileText,
+  Home,
+  Wrench,
+} from 'lucide-react';
+import Link from 'next/link';
+
+import { ErrorState } from '@/components/error-state';
+import { HealthCard } from '@/components/health-card';
+import { PageHeader } from '@/components/page-header';
+import { StatCard } from '@/components/stat-card';
+import { AnimatedNumber } from '@/components/ui/animated-number';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
+import { useClientDashboardStats, useClientUpcomingTasks } from '@/hooks/use-dashboard';
+import { fadeInUp, staggerContainer, staggerItem, useMotionPreference } from '@/lib/motion';
 
 export function ClientDashboard({ userName }: { userName: string }) {
   const {

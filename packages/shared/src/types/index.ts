@@ -8,8 +8,8 @@ export interface SoftDeletable {
   deletedAt: Date | null;
 }
 
-export * from './enums';
-export * from './entities/index';
-export * from './auth';
 export * from './api';
+export * from './auth';
 export * from './dashboard';
+export * from './entities/index';
+export * from './enums';

@@ -1,11 +1,12 @@
-import { renderHook } from '@testing-library/react';
-import { useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from '@epde/shared';
+import { useQuery } from '@tanstack/react-query';
+import { renderHook } from '@testing-library/react';
+
 import {
-  useDashboardStats,
-  useDashboardActivity,
   useClientDashboardStats,
   useClientUpcomingTasks,
+  useDashboardActivity,
+  useDashboardStats,
 } from '../use-dashboard';
 
 vi.mock('@tanstack/react-query', () => ({

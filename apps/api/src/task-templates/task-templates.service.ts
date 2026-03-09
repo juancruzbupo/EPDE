@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { TaskTemplatesRepository } from './task-templates.repository';
-import { CategoryTemplatesRepository } from '../category-templates/category-templates.repository';
 import type { CreateTaskTemplateInput, UpdateTaskTemplateInput } from '@epde/shared';
+import { Injectable, NotFoundException } from '@nestjs/common';
+
+import { CategoryTemplatesRepository } from '../category-templates/category-templates.repository';
+import { TaskTemplatesRepository } from './task-templates.repository';
 
 @Injectable()
 export class TaskTemplatesService {

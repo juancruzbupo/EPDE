@@ -1,5 +1,5 @@
-import { TaskNotesRepository } from './task-notes.repository';
 import { PrismaService } from '../prisma/prisma.service';
+import { TaskNotesRepository } from './task-notes.repository';
 
 describe('TaskNotesRepository', () => {
   let repository: TaskNotesRepository;

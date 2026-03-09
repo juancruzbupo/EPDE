@@ -1,4 +1,5 @@
-import { View, Text, Pressable } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+
 import { TYPE } from '@/lib/fonts';
 
 interface ErrorStateProps {

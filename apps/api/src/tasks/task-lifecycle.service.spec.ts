@@ -1,9 +1,10 @@
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
-import { TaskLifecycleService } from './task-lifecycle.service';
-import { TasksRepository } from './tasks.repository';
+
 import { MaintenancePlansRepository } from '../maintenance-plans/maintenance-plans.repository';
 import { TaskAuditLogRepository } from './task-audit-log.repository';
+import { TaskLifecycleService } from './task-lifecycle.service';
+import { TasksRepository } from './tasks.repository';
 
 const mockTasksRepository = {
   findById: jest.fn(),

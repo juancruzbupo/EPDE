@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
+
 import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
+import { EmailQueueService } from '../email/email-queue.service';
 import { NotificationQueueService } from './notification-queue.service';
 import { NotificationsService } from './notifications.service';
-import { EmailQueueService } from '../email/email-queue.service';
 
 /**
  * Centralized extension point for domain side-effects (notifications, emails, etc.).

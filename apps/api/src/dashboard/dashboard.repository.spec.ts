@@ -1,5 +1,5 @@
-import { DashboardRepository } from './dashboard.repository';
 import { PrismaService } from '../prisma/prisma.service';
+import { DashboardRepository } from './dashboard.repository';
 
 describe('DashboardRepository', () => {
   let repository: DashboardRepository;

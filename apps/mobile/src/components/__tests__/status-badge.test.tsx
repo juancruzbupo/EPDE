@@ -1,11 +1,12 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react-native';
+import React from 'react';
+
 import {
+  BudgetStatusBadge,
+  PriorityBadge,
+  ServiceStatusBadge,
   StatusBadge,
   TaskStatusBadge,
-  BudgetStatusBadge,
-  ServiceStatusBadge,
-  PriorityBadge,
 } from '../status-badge';
 
 describe('StatusBadge', () => {

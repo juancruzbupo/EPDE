@@ -1,8 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
 import { UserRole } from '@epde/shared';
-import { UsersService } from './users.service';
+import { NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+
 import { UsersRepository } from './users.repository';
+import { UsersService } from './users.service';
 
 describe('UsersService', () => {
   let service: UsersService;

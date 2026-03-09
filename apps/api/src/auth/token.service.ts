@@ -1,15 +1,16 @@
 import {
   Injectable,
+  Logger,
   ServiceUnavailableException,
   UnauthorizedException,
-  Logger,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
+
+import { MetricsService } from '../metrics/metrics.service';
 import { RedisService } from '../redis/redis.service';
 import { AuthAuditService } from './auth-audit.service';
-import { MetricsService } from '../metrics/metrics.service';
 
 interface TokenPair {
   accessToken: string;

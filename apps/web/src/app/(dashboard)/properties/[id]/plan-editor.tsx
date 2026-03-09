@@ -1,25 +1,27 @@
 'use client';
 
-import { useState } from 'react';
-import { usePlan } from '@/hooks/use-plans';
-import { useRemoveTask, useReorderTasks } from '@/hooks/use-task-operations';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ConfirmDialog } from '@/components/confirm-dialog';
-import { ErrorState } from '@/components/error-state';
-import { Plus, ChevronUp, ChevronDown, Trash2, Pencil } from 'lucide-react';
 import {
-  TASK_PRIORITY_LABELS,
-  RECURRENCE_TYPE_LABELS,
-  TASK_STATUS_LABELS,
   PLAN_STATUS_LABELS,
   PRIORITY_VARIANT,
+  RECURRENCE_TYPE_LABELS,
+  TASK_PRIORITY_LABELS,
+  TASK_STATUS_LABELS,
   TASK_STATUS_VARIANT,
 } from '@epde/shared';
-import { TaskDialog } from './task-dialog';
+import { ChevronDown, ChevronUp, Pencil, Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+
+import { ConfirmDialog } from '@/components/confirm-dialog';
+import { ErrorState } from '@/components/error-state';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { usePlan } from '@/hooks/use-plans';
+import { useRemoveTask, useReorderTasks } from '@/hooks/use-task-operations';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
+
+import { TaskDialog } from './task-dialog';
 
 interface PlanEditorProps {
   planId: string;

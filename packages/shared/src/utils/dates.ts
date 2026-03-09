@@ -1,5 +1,6 @@
-import { formatDistanceToNow, addMonths, isWithinInterval, addDays, startOfDay } from 'date-fns';
+import { addDays, addMonths, formatDistanceToNow, isWithinInterval, startOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
+
 import type { RecurrenceType } from '../types/enums';
 
 export function formatRelativeDate(date: Date): string {

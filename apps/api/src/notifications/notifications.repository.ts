@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Notification, Prisma } from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.service';
+
 import { BaseRepository, PaginatedResult } from '../common/repositories/base.repository';
+import { PrismaService } from '../prisma/prisma.service';
 
 function isTaskReminderData(data: unknown): data is { taskId: string } {
   return (

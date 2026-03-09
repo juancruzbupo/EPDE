@@ -1,4 +1,5 @@
 import type { UserPublic } from '@epde/shared';
+
 import { useAuthStore } from '@/stores/auth-store';
 
 // ---------------------------------------------------------------------------
@@ -10,8 +11,8 @@ jest.mock('@/lib/token-service');
 jest.mock('@/lib/query-client');
 
 import * as authApi from '@/lib/auth';
-import { tokenService } from '@/lib/token-service';
 import { queryClient } from '@/lib/query-client';
+import { tokenService } from '@/lib/token-service';
 
 const mockedAuthApi = authApi as jest.Mocked<typeof authApi>;
 const mockedTokenService = tokenService as jest.Mocked<typeof tokenService>;

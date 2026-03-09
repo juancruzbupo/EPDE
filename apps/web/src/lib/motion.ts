@@ -1,7 +1,7 @@
 'use client';
 
-import { useReducedMotion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
+import { useReducedMotion } from 'framer-motion';
 
 // --- Duration constants ---
 

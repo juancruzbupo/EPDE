@@ -1,6 +1,8 @@
-import Image from 'next/image';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
+
 import { fadeIn, fadeInUp, scaleIn, staggerContainer } from '@/lib/motion';
+
 import type { SectionProps } from '../landing-data';
 
 export function DigitalSystemSection({ motionProps }: SectionProps) {

@@ -1,8 +1,9 @@
 'use client';
 
+import { animate, motion, useMotionValue, useTransform } from 'framer-motion';
 import { useEffect, useRef } from 'react';
-import { useMotionValue, useTransform, animate, motion } from 'framer-motion';
-import { useMotionPreference, MOTION_DURATION } from '@/lib/motion';
+
+import { MOTION_DURATION, useMotionPreference } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 
 const formatter = new Intl.NumberFormat('es-AR');

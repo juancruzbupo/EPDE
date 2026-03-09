@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { DistributedLockService } from './distributed-lock.service';
 import { RedisService } from './redis.service';
 
@@ -12,10 +13,7 @@ describe('DistributedLockService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        DistributedLockService,
-        { provide: RedisService, useValue: mockRedisService },
-      ],
+      providers: [DistributedLockService, { provide: RedisService, useValue: mockRedisService }],
     }).compile();
 
     service = module.get<DistributedLockService>(DistributedLockService);

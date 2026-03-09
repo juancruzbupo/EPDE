@@ -1,12 +1,13 @@
-import { useEffect } from 'react';
 import { Tabs } from 'expo-router';
-import { View, Text } from 'react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
-import { useUnreadCount } from '@/hooks/use-notifications';
+import { useEffect } from 'react';
+import { Text, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+
 import { OfflineBanner } from '@/components/offline-banner';
+import { useUnreadCount } from '@/hooks/use-notifications';
 import { SPRING, useReducedMotion } from '@/lib/animations';
-import { haptics } from '@/lib/haptics';
 import { colors } from '@/lib/colors';
+import { haptics } from '@/lib/haptics';
 import { defaultTabBarOptions } from '@/lib/screen-options';
 
 function AnimatedTabIcon({

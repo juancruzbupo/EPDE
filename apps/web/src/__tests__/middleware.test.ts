@@ -1,5 +1,6 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { middleware } from '../middleware';
 
 // Mock NextResponse

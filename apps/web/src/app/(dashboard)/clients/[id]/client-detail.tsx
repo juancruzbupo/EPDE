@@ -1,23 +1,24 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { updateClientSchema, type UpdateClientInput, USER_STATUS_LABELS } from '@epde/shared';
 import type { ClientPublic } from '@epde/shared';
+import { type UpdateClientInput, updateClientSchema, USER_STATUS_LABELS } from '@epde/shared';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useClient, useUpdateClient, useDeleteClient } from '@/hooks/use-clients';
-import { PageHeader } from '@/components/page-header';
+import { ArrowLeft, Calendar, Mail, Phone, Trash2, User as UserIcon } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+
 import { ConfirmDialog } from '@/components/confirm-dialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Trash2, User as UserIcon, Mail, Phone, Calendar } from 'lucide-react';
-import Link from 'next/link';
+import { useClient, useDeleteClient, useUpdateClient } from '@/hooks/use-clients';
 
 interface ClientDetailProps {
   id: string;

@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
+
 import { fadeIn, fadeInUp, staggerContainer, staggerItem } from '@/lib/motion';
+
 import type { SectionProps } from '../landing-data';
-import { DELIVERABLES, INSPECTION_AREAS, Check } from '../landing-data';
+import { Check, DELIVERABLES, INSPECTION_AREAS } from '../landing-data';
 
 export function DeliverablesSection({ motionProps }: SectionProps) {
   return (

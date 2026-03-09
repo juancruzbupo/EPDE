@@ -1,14 +1,16 @@
 import { memo, useEffect } from 'react';
-import { View, Text } from 'react-native';
+import { Text, View } from 'react-native';
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
   Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from 'react-native-reanimated';
-import { TYPE } from '@/lib/fonts';
-import { colors } from '@/lib/colors';
+
 import { TIMING, useReducedMotion } from '@/lib/animations';
+import { colors } from '@/lib/colors';
+import { TYPE } from '@/lib/fonts';
+
 import { AnimatedNumber } from './animated-number';
 
 interface HealthCardProps {

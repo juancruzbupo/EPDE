@@ -1,4 +1,5 @@
 import { createCategoryQueries } from '@epde/shared';
+
 import { apiClient } from '../api-client';
 
 export type { CategoryPublic } from '@epde/shared';

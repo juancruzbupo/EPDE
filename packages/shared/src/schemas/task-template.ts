@@ -1,13 +1,14 @@
 import { z } from 'zod';
+
+import { PAGINATION_DEFAULT_TAKE, PAGINATION_MAX_TAKE } from '../constants';
 import {
-  TASK_TYPE_VALUES,
-  RECURRENCE_TYPE_VALUES,
   PROFESSIONAL_REQUIREMENT_VALUES,
-  TASK_PRIORITY_VALUES,
   ProfessionalRequirement,
+  RECURRENCE_TYPE_VALUES,
+  TASK_PRIORITY_VALUES,
+  TASK_TYPE_VALUES,
   TaskPriority,
 } from '../types/enums';
-import { PAGINATION_MAX_TAKE, PAGINATION_DEFAULT_TAKE } from '../constants';
 
 export const createCategoryTemplateSchema = z.object({
   name: z.string().min(2, 'Nombre debe tener al menos 2 caracteres').max(100),

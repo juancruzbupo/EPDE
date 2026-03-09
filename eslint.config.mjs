@@ -2,6 +2,7 @@ import js from '@eslint/js';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import prettierConfig from 'eslint-config-prettier';
+import simpleImportSort from 'eslint-plugin-simple-import-sort';
 
 export default [
   js.configs.recommended,
@@ -15,9 +16,12 @@ export default [
     },
     plugins: {
       '@typescript-eslint': tsPlugin,
+      'simple-import-sort': simpleImportSort,
     },
     rules: {
       ...tsPlugin.configs['recommended'].rules,
+      'simple-import-sort/imports': 'error',
+      'simple-import-sort/exports': 'error',
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_', varsIgnorePattern: '^_' },

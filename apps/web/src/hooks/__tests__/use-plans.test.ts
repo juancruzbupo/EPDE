@@ -1,7 +1,8 @@
-import { renderHook } from '@testing-library/react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from '@epde/shared';
-import { usePlans, useAllTasks, usePlan, useUpdatePlan, useAddTask } from '../use-plans';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { renderHook } from '@testing-library/react';
+
+import { useAddTask, useAllTasks, usePlan, usePlans, useUpdatePlan } from '../use-plans';
 
 vi.mock('@tanstack/react-query', () => ({
   useQuery: vi.fn(),

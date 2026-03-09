@@ -1,16 +1,17 @@
+import { UserRole } from '@epde/shared';
 import {
+  BadRequestException,
+  Body,
   Controller,
   Post,
-  Body,
   UploadedFile,
   UseInterceptors,
-  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { z } from 'zod';
-import { UserRole } from '@epde/shared';
+
 import { Roles } from '../common/decorators/roles.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { UploadService } from './upload.service';

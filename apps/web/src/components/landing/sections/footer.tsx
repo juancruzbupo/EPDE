@@ -1,5 +1,7 @@
 import { ArrowRight } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
+
 import { WHATSAPP_URL } from '../landing-data';
 
 export function Footer() {

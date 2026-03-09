@@ -1,25 +1,26 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAllTasks } from '@/hooks/use-plans';
-import { PageHeader } from '@/components/page-header';
-import { PageTransition } from '@/components/ui/page-transition';
-import { FilterSelect } from '@/components/filter-select';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { CheckSquare, MapPin, Calendar } from 'lucide-react';
-import { ErrorState } from '@/components/error-state';
-import { EmptyState } from '@/components/empty-state';
+import type { TaskListItem } from '@epde/shared';
 import {
-  TaskStatus,
+  formatRelativeDate,
+  PRIORITY_VARIANT,
+  TASK_PRIORITY_LABELS,
   TASK_STATUS_LABELS,
   TASK_STATUS_VARIANT,
-  TASK_PRIORITY_LABELS,
-  PRIORITY_VARIANT,
-  formatRelativeDate,
+  TaskStatus,
 } from '@epde/shared';
-import type { TaskListItem } from '@epde/shared';
+import { Calendar, CheckSquare, MapPin } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
+import { EmptyState } from '@/components/empty-state';
+import { ErrorState } from '@/components/error-state';
+import { FilterSelect } from '@/components/filter-select';
+import { PageHeader } from '@/components/page-header';
+import { Badge } from '@/components/ui/badge';
+import { PageTransition } from '@/components/ui/page-transition';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useAllTasks } from '@/hooks/use-plans';
 
 const statusOptions = [
   { value: 'all', label: 'Todos los estados' },

@@ -1,39 +1,40 @@
+import type {
+  CurrentUser as CurrentUserPayload,
+  LoginInput,
+  RefreshInput,
+  SetPasswordInput,
+} from '@epde/shared';
 import {
-  Controller,
-  Post,
-  Get,
-  Body,
-  UseGuards,
-  Res,
-  Req,
-  HttpCode,
-  HttpStatus,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { Throttle } from '@nestjs/throttler';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { ConfigService } from '@nestjs/config';
-import { Response, Request } from 'express';
-import { AuthService } from './auth.service';
-import {
-  loginSchema,
-  setPasswordSchema,
-  refreshSchema,
   CLIENT_TYPE_HEADER,
   CLIENT_TYPES,
+  loginSchema,
+  refreshSchema,
+  setPasswordSchema,
   UserRole,
 } from '@epde/shared';
-import type {
-  LoginInput,
-  SetPasswordInput,
-  RefreshInput,
-  CurrentUser as CurrentUserPayload,
-} from '@epde/shared';
-import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
+import { Request, Response } from 'express';
+
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { AuthService } from './auth.service';
 
 const ACCESS_COOKIE_NAME = 'access_token';
 const REFRESH_COOKIE_NAME = 'refresh_token';

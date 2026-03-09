@@ -1,10 +1,11 @@
 import type { AxiosInstance } from 'axios';
-import type { ApiResponse, PaginatedResponse, CategoryTemplate } from '../types';
+
 import type {
   CreateCategoryTemplateInput,
   UpdateCategoryTemplateInput,
 } from '../schemas/task-template';
 import type { CreateTaskTemplateInput, UpdateTaskTemplateInput } from '../schemas/task-template';
+import type { ApiResponse, CategoryTemplate, PaginatedResponse } from '../types';
 
 /**
  * Creates query and mutation functions for category and task templates.

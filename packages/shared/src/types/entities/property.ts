@@ -1,5 +1,5 @@
+import type { PlanStatus, PropertyType } from '../enums';
 import type { BaseEntity, SoftDeletable } from '../index';
-import type { PropertyType, PlanStatus } from '../enums';
 import type { Serialized, UserBriefWithEmail } from './common';
 
 export interface Property extends BaseEntity, SoftDeletable {

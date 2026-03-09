@@ -1,10 +1,11 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Button, type buttonVariants } from '@/components/ui/button';
-import { useMotionPreference, MOTION_DURATION } from '@/lib/motion';
 import type { VariantProps } from 'class-variance-authority';
+import { motion } from 'framer-motion';
 import { forwardRef } from 'react';
+
+import { Button, type buttonVariants } from '@/components/ui/button';
+import { MOTION_DURATION, useMotionPreference } from '@/lib/motion';
 
 type ButtonProps = React.ComponentProps<'button'> &
   VariantProps<typeof buttonVariants> & {

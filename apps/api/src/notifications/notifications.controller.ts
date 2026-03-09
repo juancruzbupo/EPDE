@@ -1,11 +1,12 @@
-import { Controller, Get, Patch, Param, Query, ParseUUIDPipe } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { Roles } from '../common/decorators/roles.decorator';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { NotificationsService } from './notifications.service';
+import type { CurrentUser as CurrentUserPayload, CursorPaginationInput } from '@epde/shared';
 import { cursorPaginationSchema, UserRole } from '@epde/shared';
-import type { CursorPaginationInput, CurrentUser as CurrentUserPayload } from '@epde/shared';
+import { Controller, Get, Param, ParseUUIDPipe, Patch, Query } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { NotificationsService } from './notifications.service';
 
 @ApiTags('Notificaciones')
 @ApiBearerAuth()

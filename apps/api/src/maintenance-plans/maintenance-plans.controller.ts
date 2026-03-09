@@ -1,41 +1,42 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
-  Param,
-  Body,
-  Query,
-  ParseUUIDPipe,
-} from '@nestjs/common';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { Roles } from '../common/decorators/roles.decorator';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { MaintenancePlansService } from './maintenance-plans.service';
-import { TaskLifecycleService } from '../tasks/task-lifecycle.service';
-import { TaskNotesService } from '../tasks/task-notes.service';
-import {
-  updatePlanSchema,
-  createTaskSchema,
-  updateTaskWithRecurrenceSchema,
-  reorderTasksSchema,
-  completeTaskSchema,
-  createTaskNoteSchema,
-  listTasksQuerySchema,
-  UserRole,
-} from '@epde/shared';
 import type {
-  UpdatePlanInput,
-  UpdateTaskInput,
-  ReorderTasksInput,
   CompleteTaskInput,
   CreateTaskNoteInput,
-  ListTasksQueryInput,
   CurrentUser as CurrentUserPayload,
+  ListTasksQueryInput,
+  ReorderTasksInput,
+  UpdatePlanInput,
+  UpdateTaskInput,
 } from '@epde/shared';
+import {
+  completeTaskSchema,
+  createTaskNoteSchema,
+  createTaskSchema,
+  listTasksQuerySchema,
+  reorderTasksSchema,
+  updatePlanSchema,
+  updateTaskWithRecurrenceSchema,
+  UserRole,
+} from '@epde/shared';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import type { z } from 'zod';
+
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { TaskLifecycleService } from '../tasks/task-lifecycle.service';
+import { TaskNotesService } from '../tasks/task-notes.service';
+import { MaintenancePlansService } from './maintenance-plans.service';
 
 const createTaskBodySchema = createTaskSchema
   .omit({ maintenancePlanId: true })

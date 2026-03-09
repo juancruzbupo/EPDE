@@ -1,10 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
-import { BudgetsService } from './budgets.service';
-import { BudgetsRepository } from './budgets.repository';
-import { PropertiesRepository } from '../properties/properties.repository';
-import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { UserRole } from '@epde/shared';
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+
+import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
+import { PropertiesRepository } from '../properties/properties.repository';
+import { BudgetsRepository } from './budgets.repository';
+import { BudgetsService } from './budgets.service';
 
 describe('BudgetsService', () => {
   let service: BudgetsService;

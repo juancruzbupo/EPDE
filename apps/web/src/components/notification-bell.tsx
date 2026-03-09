@@ -2,8 +2,9 @@
 
 import { Bell } from 'lucide-react';
 import Link from 'next/link';
-import { useUnreadCount } from '@/hooks/use-notifications';
+
 import { Button } from '@/components/ui/button';
+import { useUnreadCount } from '@/hooks/use-notifications';
 
 export function NotificationBell() {
   const { data: count } = useUnreadCount();

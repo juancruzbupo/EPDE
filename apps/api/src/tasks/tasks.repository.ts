@@ -1,9 +1,10 @@
+import { TASKS_MAX_TAKE } from '@epde/shared';
 import { Injectable } from '@nestjs/common';
 import { Task, TaskStatus } from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.service';
-import { BaseRepository } from '../common/repositories/base.repository';
-import { TASKS_MAX_TAKE } from '@epde/shared';
 import { addDays } from 'date-fns';
+
+import { BaseRepository } from '../common/repositories/base.repository';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class TasksRepository extends BaseRepository<Task, 'task'> {

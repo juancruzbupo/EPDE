@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
+
 import { fadeIn, fadeInUp, staggerContainer, staggerItem } from '@/lib/motion';
+
 import type { SectionProps } from '../landing-data';
-import { PROBLEMS, REPAIR_COSTS, COST_DISCLAIMER } from '../landing-data';
+import { COST_DISCLAIMER, PROBLEMS, REPAIR_COSTS } from '../landing-data';
 
 export function ProblemsSection({ motionProps }: SectionProps) {
   return (

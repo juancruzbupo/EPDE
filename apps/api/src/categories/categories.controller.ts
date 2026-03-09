@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, ParseUUIDPipe } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { Roles } from '../common/decorators/roles.decorator';
-import { CategoriesService } from './categories.service';
-import { createCategorySchema, updateCategorySchema, UserRole } from '@epde/shared';
 import type { CreateCategoryInput, UpdateCategoryInput } from '@epde/shared';
+import { createCategorySchema, updateCategorySchema, UserRole } from '@epde/shared';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
+import { Roles } from '../common/decorators/roles.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { CategoriesService } from './categories.service';
 
 @ApiTags('Categorias')
 @ApiBearerAuth()

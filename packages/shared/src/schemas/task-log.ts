@@ -1,9 +1,10 @@
 import { z } from 'zod';
+
 import {
-  TASK_RESULT_VALUES,
+  ACTION_TAKEN_VALUES,
   CONDITION_FOUND_VALUES,
   TASK_EXECUTOR_VALUES,
-  ACTION_TAKEN_VALUES,
+  TASK_RESULT_VALUES,
 } from '../types/enums';
 
 export const completeTaskSchema = z.object({

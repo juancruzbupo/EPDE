@@ -1,17 +1,18 @@
 'use client';
 
-import { ColumnDef } from '@tanstack/react-table';
-import { Badge } from '@/components/ui/badge';
 import {
-  SERVICE_URGENCY_LABELS,
   SERVICE_STATUS_LABELS,
-  URGENCY_VARIANT,
   SERVICE_STATUS_VARIANT,
+  SERVICE_URGENCY_LABELS,
+  URGENCY_VARIANT,
 } from '@epde/shared';
+import { ColumnDef } from '@tanstack/react-table';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import type { ServiceRequestPublic } from '@/lib/api/service-requests';
 import Link from 'next/link';
+
+import { Badge } from '@/components/ui/badge';
+import type { ServiceRequestPublic } from '@/lib/api/service-requests';
 
 export const serviceRequestColumns: ColumnDef<ServiceRequestPublic>[] = [
   {

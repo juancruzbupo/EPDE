@@ -1,25 +1,26 @@
 'use client';
 
-import { useState } from 'react';
-import { useServiceRequest, useUpdateServiceStatus } from '@/hooks/use-service-requests';
-import { PageHeader } from '@/components/page-header';
-import { ConfirmDialog } from '@/components/confirm-dialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, FileText, Home, User, AlertTriangle, Calendar, AlignLeft } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import type { ServiceRequestPublic } from '@epde/shared';
 import {
-  SERVICE_URGENCY_LABELS,
   SERVICE_STATUS_LABELS,
+  SERVICE_STATUS_VARIANT,
+  SERVICE_URGENCY_LABELS,
   ServiceStatus,
   URGENCY_VARIANT,
-  SERVICE_STATUS_VARIANT,
 } from '@epde/shared';
-import type { ServiceRequestPublic } from '@epde/shared';
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { AlertTriangle, AlignLeft, ArrowLeft, Calendar, FileText, Home, User } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
+
+import { ConfirmDialog } from '@/components/confirm-dialog';
+import { PageHeader } from '@/components/page-header';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useServiceRequest, useUpdateServiceStatus } from '@/hooks/use-service-requests';
 
 const STATUS_TRANSITIONS: Partial<Record<ServiceStatus, ServiceStatus>> = {
   OPEN: 'IN_REVIEW',

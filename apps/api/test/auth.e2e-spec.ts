@@ -1,9 +1,10 @@
 import { INestApplication } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import request from 'supertest';
+
 import { PrismaService } from '../src/prisma/prisma.service';
-import { createTestApp, cleanDatabase } from '../src/test/setup';
 import { seedTestData, TestData } from '../src/test/seed-test-data';
+import { cleanDatabase, createTestApp } from '../src/test/setup';
 import { generateTokens, loginAsMobile } from './helpers';
 
 const MOBILE = { 'x-client-type': 'mobile' };

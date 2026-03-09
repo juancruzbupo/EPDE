@@ -1,6 +1,7 @@
-import { renderHook } from '@testing-library/react-native';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from '@epde/shared';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { renderHook } from '@testing-library/react-native';
+
 import { useProperties, useProperty } from '../use-properties';
 
 jest.mock('@tanstack/react-query', () => ({

@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
+import { ColumnDef } from '@tanstack/react-table';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ColumnDef } from '@tanstack/react-table';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('framer-motion', () => ({
   motion: {

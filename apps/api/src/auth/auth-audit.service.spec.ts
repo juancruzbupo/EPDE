@@ -1,7 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { Logger } from '@nestjs/common';
-import { AuthAuditService } from './auth-audit.service';
+import { Test, TestingModule } from '@nestjs/testing';
+
 import { PrismaService } from '../prisma/prisma.service';
+import { AuthAuditService } from './auth-audit.service';
 
 const mockPrisma = {
   authAuditLog: { create: jest.fn().mockResolvedValue({}) },
@@ -15,10 +16,7 @@ describe('AuthAuditService', () => {
     mockPrisma.authAuditLog.create.mockReset().mockResolvedValue({});
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AuthAuditService,
-        { provide: PrismaService, useValue: mockPrisma },
-      ],
+      providers: [AuthAuditService, { provide: PrismaService, useValue: mockPrisma }],
     }).compile();
 
     service = module.get<AuthAuditService>(AuthAuditService);
@@ -62,7 +60,11 @@ describe('AuthAuditService', () => {
     service.logTokenReuse('family-abc', 'user-1');
 
     expect(warnSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ event: 'token_reuse_attack', family: 'family-abc', userId: 'user-1' }),
+      expect.objectContaining({
+        event: 'token_reuse_attack',
+        family: 'family-abc',
+        userId: 'user-1',
+      }),
     );
   });
 
@@ -71,7 +73,9 @@ describe('AuthAuditService', () => {
 
     expect(result).toBeUndefined();
     expect(mockPrisma.authAuditLog.create).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ event: 'login', userId: 'user-1' }) }),
+      expect.objectContaining({
+        data: expect.objectContaining({ event: 'login', userId: 'user-1' }),
+      }),
     );
   });
 

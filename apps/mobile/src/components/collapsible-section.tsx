@@ -1,13 +1,14 @@
-import { useState, type ReactNode } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { type ReactNode, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
   Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from 'react-native-reanimated';
-import { TYPE } from '@/lib/fonts';
+
 import { TIMING, useReducedMotion } from '@/lib/animations';
+import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 
 interface CollapsibleSectionProps {

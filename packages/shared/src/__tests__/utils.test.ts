@@ -1,9 +1,10 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import {
   formatRelativeDate,
+  getNextDueDate,
   isOverdue,
   isUpcoming,
-  getNextDueDate,
   recurrenceTypeToMonths,
 } from '../utils/dates';
 

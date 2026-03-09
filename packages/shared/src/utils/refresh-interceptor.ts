@@ -1,4 +1,4 @@
-import type { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import type { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
 interface RetryableConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;

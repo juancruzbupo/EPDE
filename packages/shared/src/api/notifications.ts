@@ -1,5 +1,6 @@
 import type { AxiosInstance } from 'axios';
-import type { PaginatedResponse, ApiResponse, NotificationPublic } from '../types';
+
+import type { ApiResponse, NotificationPublic, PaginatedResponse } from '../types';
 
 export interface NotificationFilters {
   cursor?: string;

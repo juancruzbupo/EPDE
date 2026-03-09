@@ -1,7 +1,8 @@
-import { renderHook } from '@testing-library/react-native';
-import { useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from '@epde/shared';
-import { usePlans, useAllTasks, usePlan } from '../use-plans';
+import { useQuery } from '@tanstack/react-query';
+import { renderHook } from '@testing-library/react-native';
+
+import { useAllTasks, usePlan, usePlans } from '../use-plans';
 
 jest.mock('@tanstack/react-query', () => ({
   useQuery: jest.fn(),

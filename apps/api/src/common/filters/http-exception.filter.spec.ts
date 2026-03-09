@@ -1,5 +1,6 @@
-import { HttpException, HttpStatus, ArgumentsHost } from '@nestjs/common';
+import { ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
+
 import { GlobalExceptionFilter } from './http-exception.filter';
 
 jest.mock('@sentry/node', () => ({
@@ -16,8 +17,8 @@ function createMockHost(mockJson: jest.Mock): ArgumentsHost {
     }),
     getArgs: () => [],
     getArgByIndex: () => ({}),
-    switchToRpc: () => ({} as never),
-    switchToWs: () => ({} as never),
+    switchToRpc: () => ({}) as never,
+    switchToWs: () => ({}) as never,
     getType: () => 'http' as const,
   } as unknown as ArgumentsHost;
 }

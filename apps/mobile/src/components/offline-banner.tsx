@@ -1,5 +1,6 @@
-import { View, Text } from 'react-native';
+import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { useNetworkStatus } from '@/hooks/use-network-status';
 import { TYPE } from '@/lib/fonts';
 

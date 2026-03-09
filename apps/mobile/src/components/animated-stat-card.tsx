@@ -1,8 +1,10 @@
 import { memo } from 'react';
 import { Text } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { TYPE } from '@/lib/fonts';
+
 import { useAnimatedEntry } from '@/lib/animations';
+import { TYPE } from '@/lib/fonts';
+
 import { AnimatedNumber } from './animated-number';
 
 interface AnimatedStatCardProps {

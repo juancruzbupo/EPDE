@@ -1,20 +1,22 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import type { UserStatus } from '@epde/shared';
+import { USER_STATUS_LABELS } from '@epde/shared';
+import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useMemo, useState } from 'react';
+
+import { ConfirmDialog } from '@/components/confirm-dialog';
+import { DataTable } from '@/components/data-table/data-table';
+import { ErrorState } from '@/components/error-state';
+import { FilterSelect } from '@/components/filter-select';
+import { PageHeader } from '@/components/page-header';
+import { SearchInput } from '@/components/search-input';
+import { Button } from '@/components/ui/button';
+import { PageTransition } from '@/components/ui/page-transition';
 import { useClients, useDeleteClient } from '@/hooks/use-clients';
 import { useDebounce } from '@/hooks/use-debounce';
-import { PageHeader } from '@/components/page-header';
-import { DataTable } from '@/components/data-table/data-table';
-import { SearchInput } from '@/components/search-input';
-import { FilterSelect } from '@/components/filter-select';
-import { ConfirmDialog } from '@/components/confirm-dialog';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import { USER_STATUS_LABELS } from '@epde/shared';
-import type { UserStatus } from '@epde/shared';
-import { PageTransition } from '@/components/ui/page-transition';
-import { ErrorState } from '@/components/error-state';
+
 import { clientColumns } from './columns';
 import { InviteClientDialog } from './invite-client-dialog';
 

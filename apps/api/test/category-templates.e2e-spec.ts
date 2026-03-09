@@ -1,8 +1,9 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
+
 import { PrismaService } from '../src/prisma/prisma.service';
-import { createTestApp, cleanDatabase } from '../src/test/setup';
 import { seedTestData, TestData } from '../src/test/seed-test-data';
+import { cleanDatabase, createTestApp } from '../src/test/setup';
 import { getToken } from './helpers';
 
 describe('CategoryTemplatesController (e2e)', () => {

@@ -1,21 +1,21 @@
 import type { LucideIcon } from 'lucide-react';
 import {
-  Search,
-  ClipboardList,
-  MonitorSmartphone,
-  Droplets,
-  Zap,
-  Thermometer,
+  AlertTriangle,
+  Award,
   BarChart3,
   Bell,
-  Smartphone,
-  Home,
-  Award,
-  Wrench,
-  FileText,
   Check,
-  AlertTriangle,
+  ClipboardList,
+  Droplets,
+  FileText,
+  Home,
+  MonitorSmartphone,
+  Search,
   Shield,
+  Smartphone,
+  Thermometer,
+  Wrench,
+  Zap,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -53,18 +53,18 @@ export const WHATSAPP_URL =
   'https://wa.me/5493001234567?text=Hola%20Noelia%2C%20quiero%20coordinar%20el%20diagn%C3%B3stico.';
 
 export {
-  Check,
-  Search,
-  ClipboardList,
-  MonitorSmartphone,
-  Droplets,
-  Zap,
-  Thermometer,
-  Home,
-  Wrench,
-  Award,
   AlertTriangle,
+  Award,
+  Check,
+  ClipboardList,
+  Droplets,
+  Home,
+  MonitorSmartphone,
+  Search,
   Shield,
+  Thermometer,
+  Wrench,
+  Zap,
 };
 
 // ---------------------------------------------------------------------------

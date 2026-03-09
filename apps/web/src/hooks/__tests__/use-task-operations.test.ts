@@ -1,14 +1,15 @@
-import { renderHook } from '@testing-library/react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
 import { QUERY_KEYS } from '@epde/shared';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { renderHook } from '@testing-library/react';
+import { toast } from 'sonner';
+
 import {
+  useAddTaskNote,
+  useCompleteTask,
   useRemoveTask,
   useTaskDetail,
   useTaskLogs,
   useTaskNotes,
-  useCompleteTask,
-  useAddTaskNote,
 } from '../use-task-operations';
 
 vi.mock('@tanstack/react-query', () => ({

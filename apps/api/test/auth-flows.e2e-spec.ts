@@ -1,13 +1,14 @@
 import { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
-import request from 'supertest';
+import { Test } from '@nestjs/testing';
 import cookieParser from 'cookie-parser';
-import { PrismaService } from '../src/prisma/prisma.service';
+import request from 'supertest';
+
 import { AppModule } from '../src/app.module';
-import { createTestApp, cleanDatabase } from '../src/test/setup';
+import { PrismaService } from '../src/prisma/prisma.service';
 import { seedTestData, TestData } from '../src/test/seed-test-data';
-import { loginAsMobile, generateTokens } from './helpers';
+import { cleanDatabase, createTestApp } from '../src/test/setup';
+import { generateTokens, loginAsMobile } from './helpers';
 
 const MOBILE = { 'x-client-type': 'mobile' };
 

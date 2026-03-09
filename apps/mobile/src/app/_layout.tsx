@@ -1,23 +1,25 @@
 import '@/lib/sentry';
 import '../global.css';
-import { useEffect } from 'react';
-import { Stack, useRouter, useSegments } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import * as SplashScreen from 'expo-splash-screen';
-import * as Linking from 'expo-linking';
+
 import {
-  useFonts,
   DMSans_400Regular,
   DMSans_500Medium,
   DMSans_700Bold,
+  useFonts,
 } from '@expo-google-fonts/dm-sans';
 import { DMSerifDisplay_400Regular } from '@expo-google-fonts/dm-serif-display';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { useAuthStore } from '@/stores/auth-store';
+import * as Linking from 'expo-linking';
+import { Stack, useRouter, useSegments } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 import { ErrorBoundary } from '@/components/error-boundary';
-import { asyncStoragePersister } from '@/lib/query-persister';
 import { queryClient } from '@/lib/query-client';
+import { asyncStoragePersister } from '@/lib/query-persister';
+import { useAuthStore } from '@/stores/auth-store';
 
 // TODO [ROADMAP]: Push notifications — requires expo-notifications,
 // backend FCM/APNs integration, and user preference management.

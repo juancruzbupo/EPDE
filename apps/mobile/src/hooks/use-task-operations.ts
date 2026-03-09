@@ -1,17 +1,18 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { CompleteTaskInput, PlanPublic, TaskNotePublic } from '@epde/shared';
+import { TaskStatus } from '@epde/shared';
+import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
+
 import {
+  addTaskNote,
+  completeTask,
   getTaskDetail,
   getTaskLogs,
   getTaskNotes,
-  completeTask,
-  addTaskNote,
 } from '@/lib/api/maintenance-plans';
-import { TaskStatus } from '@epde/shared';
-import type { PlanPublic, TaskNotePublic, CompleteTaskInput } from '@epde/shared';
-import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
-import { useAuthStore } from '@/stores/auth-store';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
+import { useAuthStore } from '@/stores/auth-store';
 
 export function useTaskDetail(planId: string, taskId: string) {
   return useQuery({

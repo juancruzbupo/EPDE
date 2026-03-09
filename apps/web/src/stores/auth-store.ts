@@ -1,5 +1,6 @@
-import { create } from 'zustand';
 import type { UserPublic } from '@epde/shared';
+import { create } from 'zustand';
+
 import * as authApi from '@/lib/auth';
 import { queryClient } from '@/lib/query-client';
 

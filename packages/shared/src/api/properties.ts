@@ -1,5 +1,6 @@
 import type { AxiosInstance } from 'axios';
-import type { PaginatedResponse, ApiResponse, PropertyPublic } from '../types';
+
+import type { ApiResponse, PaginatedResponse, PropertyPublic } from '../types';
 import type { PropertyType } from '../types/enums';
 
 export interface PropertyFilters {

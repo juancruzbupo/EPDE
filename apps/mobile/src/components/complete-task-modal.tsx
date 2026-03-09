@@ -1,42 +1,43 @@
-import { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  Modal,
-  Image,
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
-import Animated from 'react-native-reanimated';
-import * as ImagePicker from 'expo-image-picker';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useSlideIn } from '@/lib/animations';
-import { haptics } from '@/lib/haptics';
-import { useCompleteTask } from '@/hooks/use-task-operations';
-import { useUploadFile } from '@/hooks/use-upload';
-import { TYPE } from '@/lib/fonts';
-import { colors } from '@/lib/colors';
-import {
-  TASK_RESULT_LABELS,
-  CONDITION_FOUND_LABELS,
-  TASK_EXECUTOR_LABELS,
-  ACTION_TAKEN_LABELS,
-  TASK_RESULT_VALUES,
-  CONDITION_FOUND_VALUES,
-  TASK_EXECUTOR_VALUES,
-  ACTION_TAKEN_VALUES,
-} from '@epde/shared';
 import type {
-  TaskPublic,
-  TaskResult,
+  ActionTaken,
   ConditionFound,
   TaskExecutor,
-  ActionTaken,
+  TaskPublic,
+  TaskResult,
 } from '@epde/shared';
+import {
+  ACTION_TAKEN_LABELS,
+  ACTION_TAKEN_VALUES,
+  CONDITION_FOUND_LABELS,
+  CONDITION_FOUND_VALUES,
+  TASK_EXECUTOR_LABELS,
+  TASK_EXECUTOR_VALUES,
+  TASK_RESULT_LABELS,
+  TASK_RESULT_VALUES,
+} from '@epde/shared';
+import * as ImagePicker from 'expo-image-picker';
+import { useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import Animated from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { useCompleteTask } from '@/hooks/use-task-operations';
+import { useUploadFile } from '@/hooks/use-upload';
+import { useSlideIn } from '@/lib/animations';
+import { colors } from '@/lib/colors';
+import { TYPE } from '@/lib/fonts';
+import { haptics } from '@/lib/haptics';
 
 interface CompleteTaskModalProps {
   visible: boolean;

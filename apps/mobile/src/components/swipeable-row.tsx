@@ -1,15 +1,16 @@
 import { type ReactNode } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
   runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
 } from 'react-native-reanimated';
+
 import { SPRING, useReducedMotion } from '@/lib/animations';
-import { haptics } from '@/lib/haptics';
 import { colors } from '@/lib/colors';
+import { haptics } from '@/lib/haptics';
 
 export interface SwipeAction {
   icon: string;

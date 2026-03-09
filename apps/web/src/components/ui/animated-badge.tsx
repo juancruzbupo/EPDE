@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import type { VariantProps } from 'class-variance-authority';
 import { motion, useAnimationControls } from 'framer-motion';
+import { useEffect, useRef } from 'react';
+
 import { Badge, type badgeVariants } from '@/components/ui/badge';
 import { useMotionPreference } from '@/lib/motion';
-import type { VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 type BadgeProps = React.ComponentProps<'span'> &

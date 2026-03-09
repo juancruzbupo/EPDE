@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
 import { View } from 'react-native';
 import Animated, {
-  useSharedValue,
+  Easing,
   useAnimatedStyle,
+  useSharedValue,
   withRepeat,
   withTiming,
-  Easing,
 } from 'react-native-reanimated';
+
 import { useReducedMotion } from '@/lib/animations';
 
 interface SkeletonPlaceholderProps {

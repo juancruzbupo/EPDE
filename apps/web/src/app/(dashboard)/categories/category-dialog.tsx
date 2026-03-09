@@ -1,14 +1,15 @@
 'use client';
 
+import { type CreateCategoryInput, createCategorySchema } from '@epde/shared';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { createCategorySchema, type CreateCategoryInput } from '@epde/shared';
-import { useCreateCategory, useUpdateCategory } from '@/hooks/use-categories';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useCreateCategory, useUpdateCategory } from '@/hooks/use-categories';
 import type { CategoryPublic } from '@/lib/api/categories';
 
 interface CategoryDialogProps {

@@ -1,15 +1,13 @@
 'use client';
 
+import { createTaskSchema, RECURRENCE_TYPE_LABELS, TASK_PRIORITY_LABELS } from '@epde/shared';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { createTaskSchema, TASK_PRIORITY_LABELS, RECURRENCE_TYPE_LABELS } from '@epde/shared';
-import { useAddTask } from '@/hooks/use-plans';
-import { useUpdateTask } from '@/hooks/use-task-operations';
-import { useCategories } from '@/hooks/use-categories';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -19,6 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useCategories } from '@/hooks/use-categories';
+import { useAddTask } from '@/hooks/use-plans';
+import { useUpdateTask } from '@/hooks/use-task-operations';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
 
 type TaskFormValues = z.input<typeof createTaskSchema>;

@@ -1,10 +1,11 @@
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { PassportStrategy } from '@nestjs/passport';
+import type { JwtPayload as SharedJwtPayload } from '@epde/shared';
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+
 import { TokenService } from '../token.service';
-import type { JwtPayload as SharedJwtPayload } from '@epde/shared';
 
 interface JwtPayload extends SharedJwtPayload {
   purpose?: string;

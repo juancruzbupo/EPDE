@@ -1,24 +1,26 @@
 'use client';
 
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircle, Calendar, RotateCcw } from 'lucide-react';
 import {
-  TaskStatus,
-  TASK_PRIORITY_LABELS,
-  RECURRENCE_TYPE_LABELS,
-  TASK_STATUS_LABELS,
   PRIORITY_VARIANT,
+  RECURRENCE_TYPE_LABELS,
+  TASK_PRIORITY_LABELS,
+  TASK_STATUS_LABELS,
   TASK_STATUS_VARIANT,
+  TaskStatus,
 } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { Calendar, CheckCircle, RotateCcw } from 'lucide-react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { TaskPublic } from '@/lib/api/maintenance-plans';
+
 import { TaskLogTimeline } from './task-log-timeline';
 import { TaskNotes } from './task-notes';
-import type { TaskPublic } from '@/lib/api/maintenance-plans';
 
 interface TaskDetailSheetProps {
   open: boolean;

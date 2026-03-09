@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, ForbiddenException } from '@nestjs/common';
-import { ServiceRequestsService } from './service-requests.service';
-import { ServiceRequestsRepository } from './service-requests.repository';
-import { PropertiesRepository } from '../properties/properties.repository';
-import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { UserRole } from '@epde/shared';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+
+import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
+import { PropertiesRepository } from '../properties/properties.repository';
+import { ServiceRequestsRepository } from './service-requests.repository';
+import { ServiceRequestsService } from './service-requests.service';
 
 const mockServiceRequestsRepository = {
   findRequests: jest.fn(),

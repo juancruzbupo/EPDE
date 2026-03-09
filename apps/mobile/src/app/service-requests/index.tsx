@@ -1,25 +1,26 @@
-import { memo, useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  RefreshControl,
-  Pressable,
-  ScrollView,
-  ActivityIndicator,
-} from 'react-native';
-import { useRouter, Stack } from 'expo-router';
+import type { ServiceRequestPublic, ServiceStatus } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useServiceRequests } from '@/hooks/use-service-requests';
+import { Stack, useRouter } from 'expo-router';
+import { memo, useCallback, useState } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
+
 import { AnimatedListItem } from '@/components/animated-list-item';
-import { ServiceStatusBadge, UrgencyBadge } from '@/components/status-badge';
+import { CreateServiceRequestModal } from '@/components/create-service-request-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
-import { CreateServiceRequestModal } from '@/components/create-service-request-modal';
+import { ServiceStatusBadge, UrgencyBadge } from '@/components/status-badge';
+import { useServiceRequests } from '@/hooks/use-service-requests';
 import { TYPE } from '@/lib/fonts';
 import { defaultScreenOptions } from '@/lib/screen-options';
-import type { ServiceRequestPublic, ServiceStatus } from '@epde/shared';
 
 const STATUS_FILTERS = [
   { key: undefined, label: 'Todos' },

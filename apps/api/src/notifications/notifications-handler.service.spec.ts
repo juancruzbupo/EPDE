@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotificationsHandlerService } from './notifications-handler.service';
-import { NotificationQueueService } from './notification-queue.service';
-import { NotificationsService } from './notifications.service';
+
 import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
 import { EmailQueueService } from '../email/email-queue.service';
+import { NotificationQueueService } from './notification-queue.service';
+import { NotificationsService } from './notifications.service';
+import { NotificationsHandlerService } from './notifications-handler.service';
 
 const mockNotificationQueue = {
   enqueue: jest.fn().mockResolvedValue(undefined),

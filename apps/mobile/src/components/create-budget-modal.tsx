@@ -1,27 +1,28 @@
+import type { CreateBudgetRequestInput, PropertyPublic } from '@epde/shared';
+import { createBudgetRequestSchema } from '@epde/shared';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm } from 'react-hook-form';
 import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  Modal,
+  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
+  Modal,
   Platform,
+  Pressable,
   ScrollView,
-  ActivityIndicator,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useSlideIn } from '@/lib/animations';
-import { haptics } from '@/lib/haptics';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { createBudgetRequestSchema } from '@epde/shared';
-import type { CreateBudgetRequestInput, PropertyPublic } from '@epde/shared';
+
 import { useCreateBudgetRequest } from '@/hooks/use-budgets';
 import { useProperties } from '@/hooks/use-properties';
-import { TYPE } from '@/lib/fonts';
+import { useSlideIn } from '@/lib/animations';
 import { colors } from '@/lib/colors';
+import { TYPE } from '@/lib/fonts';
+import { haptics } from '@/lib/haptics';
 
 interface CreateBudgetModalProps {
   visible: boolean;

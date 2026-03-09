@@ -1,9 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { Children, type ReactNode } from 'react';
+
 import { fadeIn, staggerContainer, staggerItem, useMotionPreference } from '@/lib/motion';
 import { cn } from '@/lib/utils';
-import { Children, type ReactNode } from 'react';
 
 interface PageTransitionProps {
   children: ReactNode;

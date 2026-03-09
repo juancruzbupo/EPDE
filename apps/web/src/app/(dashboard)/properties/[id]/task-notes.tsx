@@ -1,15 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { useTaskNotes, useAddTaskNote } from '@/hooks/use-task-operations';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ErrorState } from '@/components/error-state';
-import { Send, MessageSquare } from 'lucide-react';
+import { createTaskNoteSchema } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { createTaskNoteSchema } from '@epde/shared';
+import { MessageSquare, Send } from 'lucide-react';
+import { useState } from 'react';
+
+import { ErrorState } from '@/components/error-state';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
+import { useAddTaskNote, useTaskNotes } from '@/hooks/use-task-operations';
 
 interface TaskNotesProps {
   planId: string;

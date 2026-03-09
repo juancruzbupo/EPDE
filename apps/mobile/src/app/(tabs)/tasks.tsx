@@ -1,25 +1,26 @@
-import { memo, useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  RefreshControl,
-  Pressable,
-  ScrollView,
-  ActivityIndicator,
-} from 'react-native';
-import { useRouter } from 'expo-router';
+import type { TaskStatus } from '@epde/shared';
+import { TASK_STATUS_LABELS } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useAllTasks } from '@/hooks/use-plans';
+import { useRouter } from 'expo-router';
+import { memo, useCallback, useState } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
+
 import { AnimatedListItem } from '@/components/animated-list-item';
-import { TaskStatusBadge, PriorityBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
-import { TYPE } from '@/lib/fonts';
-import { TASK_STATUS_LABELS } from '@epde/shared';
-import type { TaskStatus } from '@epde/shared';
+import { PriorityBadge, TaskStatusBadge } from '@/components/status-badge';
+import { useAllTasks } from '@/hooks/use-plans';
 import type { TaskListItem } from '@/lib/api/maintenance-plans';
+import { TYPE } from '@/lib/fonts';
 
 const FILTERS = [
   { key: undefined, label: 'Todas' },

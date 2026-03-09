@@ -1,22 +1,23 @@
-import { useCallback } from 'react';
-import { View, Text, FlatList, RefreshControl, Pressable, ActivityIndicator } from 'react-native';
+import type { NotificationPublic, NotificationType } from '@epde/shared';
+import { NOTIFICATION_TYPE_LABELS } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import {
-  useNotifications,
-  useUnreadCount,
-  useMarkAsRead,
-  useMarkAllAsRead,
-} from '@/hooks/use-notifications';
+import { useCallback } from 'react';
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
+
 import { AnimatedListItem } from '@/components/animated-list-item';
-import { SwipeableRow } from '@/components/swipeable-row';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
-import { haptics } from '@/lib/haptics';
-import { TYPE } from '@/lib/fonts';
+import { SwipeableRow } from '@/components/swipeable-row';
+import {
+  useMarkAllAsRead,
+  useMarkAsRead,
+  useNotifications,
+  useUnreadCount,
+} from '@/hooks/use-notifications';
 import { colors } from '@/lib/colors';
-import { NOTIFICATION_TYPE_LABELS } from '@epde/shared';
-import type { NotificationPublic, NotificationType } from '@epde/shared';
+import { TYPE } from '@/lib/fonts';
+import { haptics } from '@/lib/haptics';
 
 const NOTIF_TYPE_ICONS: Record<NotificationType, string> = {
   TASK_REMINDER: '\u{1F552}',

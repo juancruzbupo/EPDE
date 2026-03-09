@@ -1,6 +1,7 @@
-import { Platform } from 'react-native';
-import { apiClient } from '../api-client';
 import { validateUpload } from '@epde/shared';
+import { Platform } from 'react-native';
+
+import { apiClient } from '../api-client';
 
 export async function uploadFile(uri: string, folder: string): Promise<string> {
   const formData = new FormData();

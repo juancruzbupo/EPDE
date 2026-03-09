@@ -1,19 +1,26 @@
 'use client';
 
+import { createPropertySchema, PROPERTY_TYPE_LABELS } from '@epde/shared';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Check, ChevronsUpDown } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { createPropertySchema, PROPERTY_TYPE_LABELS } from '@epde/shared';
 import { z } from 'zod';
-import { Check, ChevronsUpDown } from 'lucide-react';
 
 type PropertyFormValues = z.input<typeof createPropertySchema>;
-import { useCreateProperty } from '@/hooks/use-properties';
-import { useClientSearch } from '@/hooks/use-clients';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Select,
   SelectContent,
@@ -21,15 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  Command,
-  CommandInput,
-  CommandList,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-} from '@/components/ui/command';
+import { useClientSearch } from '@/hooks/use-clients';
+import { useCreateProperty } from '@/hooks/use-properties';
 import { cn } from '@/lib/utils';
 
 interface CreatePropertyDialogProps {

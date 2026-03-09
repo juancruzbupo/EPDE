@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import axios from 'axios';
 import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import axios from 'axios';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { attachRefreshInterceptor } from '../utils/refresh-interceptor';
 
 function createMockClient() {

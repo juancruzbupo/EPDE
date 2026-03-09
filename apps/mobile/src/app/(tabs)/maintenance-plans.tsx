@@ -1,21 +1,22 @@
+import { PLAN_STATUS_LABELS, PlanStatus } from '@epde/shared';
+import { useRouter } from 'expo-router';
 import { memo, useCallback } from 'react';
 import {
-  View,
-  Text,
-  RefreshControl,
-  Pressable,
-  SectionList,
   ActivityIndicator,
+  Pressable,
+  RefreshControl,
+  SectionList,
+  Text,
+  View,
 } from 'react-native';
-import { useRouter } from 'expo-router';
-import { usePlans } from '@/hooks/use-plans';
+
 import { AnimatedListItem } from '@/components/animated-list-item';
-import { PlanStatusBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
-import { TYPE } from '@/lib/fonts';
-import { PLAN_STATUS_LABELS, PlanStatus } from '@epde/shared';
+import { PlanStatusBadge } from '@/components/status-badge';
+import { usePlans } from '@/hooks/use-plans';
 import type { PlanListItem } from '@/lib/api/maintenance-plans';
+import { TYPE } from '@/lib/fonts';
 
 const PlanCard = memo(function PlanCard({ plan }: { plan: PlanListItem }) {
   const router = useRouter();

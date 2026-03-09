@@ -1,9 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
-import { TaskNotesService } from './task-notes.service';
-import { TasksRepository } from './tasks.repository';
+import { Test, TestingModule } from '@nestjs/testing';
+
 import { TaskLogsRepository } from './task-logs.repository';
 import { TaskNotesRepository } from './task-notes.repository';
+import { TaskNotesService } from './task-notes.service';
+import { TasksRepository } from './tasks.repository';
 
 const mockTasksRepository = {
   findWithDetails: jest.fn(),

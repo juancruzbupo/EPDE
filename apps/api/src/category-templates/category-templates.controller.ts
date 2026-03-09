@@ -1,31 +1,32 @@
+import type {
+  CategoryTemplateFiltersInput,
+  CreateCategoryTemplateInput,
+  ReorderTemplatesInput,
+  UpdateCategoryTemplateInput,
+} from '@epde/shared';
 import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
-  Param,
-  Body,
-  Query,
-  ParseUUIDPipe,
-} from '@nestjs/common';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { Roles } from '../common/decorators/roles.decorator';
-import { CategoryTemplatesService } from './category-templates.service';
-import {
-  createCategoryTemplateSchema,
-  updateCategoryTemplateSchema,
   categoryTemplateFiltersSchema,
+  createCategoryTemplateSchema,
   reorderTemplatesSchema,
+  updateCategoryTemplateSchema,
   UserRole,
 } from '@epde/shared';
-import type {
-  CreateCategoryTemplateInput,
-  UpdateCategoryTemplateInput,
-  CategoryTemplateFiltersInput,
-  ReorderTemplatesInput,
-} from '@epde/shared';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
+import { Roles } from '../common/decorators/roles.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { CategoryTemplatesService } from './category-templates.service';
 
 @ApiTags('Plantillas de Categorías')
 @ApiBearerAuth()

@@ -1,15 +1,16 @@
 'use client';
 
-import { useForm, useFieldArray } from 'react-hook-form';
+import { formatARS, type RespondBudgetInput, respondBudgetSchema } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { respondBudgetSchema, formatARS, type RespondBudgetInput } from '@epde/shared';
-import { useRespondToBudget } from '@/hooks/use-budgets';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Plus, Trash2 } from 'lucide-react';
+import { useFieldArray, useForm } from 'react-hook-form';
+
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { useRespondToBudget } from '@/hooks/use-budgets';
 
 interface RespondBudgetDialogProps {
   open: boolean;

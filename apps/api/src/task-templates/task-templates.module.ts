@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { TaskTemplatesController } from './task-templates.controller';
-import { TaskTemplatesService } from './task-templates.service';
-import { TaskTemplatesRepository } from './task-templates.repository';
+
 import { CategoryTemplatesModule } from '../category-templates/category-templates.module';
+import { TaskTemplatesController } from './task-templates.controller';
+import { TaskTemplatesRepository } from './task-templates.repository';
+import { TaskTemplatesService } from './task-templates.service';
 
 @Module({
   imports: [CategoryTemplatesModule],

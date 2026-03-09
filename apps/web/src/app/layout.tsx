@@ -1,10 +1,12 @@
+import './globals.css';
+
 import type { Metadata } from 'next';
 import { DM_Sans, DM_Serif_Display } from 'next/font/google';
 import Script from 'next/script';
-import './globals.css';
-import { QueryProvider } from '@/providers/query-provider';
-import { AuthProvider } from '@/providers/auth-provider';
 import { Toaster } from 'sonner';
+
+import { AuthProvider } from '@/providers/auth-provider';
+import { QueryProvider } from '@/providers/query-provider';
 
 const dmSans = DM_Sans({
   subsets: ['latin'],

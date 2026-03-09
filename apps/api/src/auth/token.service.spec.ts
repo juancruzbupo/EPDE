@@ -1,11 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 import { ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
-import { TokenService } from './token.service';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { Test, TestingModule } from '@nestjs/testing';
+
+import { MetricsService } from '../metrics/metrics.service';
 import { RedisService } from '../redis/redis.service';
 import { AuthAuditService } from './auth-audit.service';
-import { MetricsService } from '../metrics/metrics.service';
+import { TokenService } from './token.service';
 
 const mockRedisService = {
   setex: jest.fn(),

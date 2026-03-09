@@ -1,14 +1,15 @@
-import { renderHook } from '@testing-library/react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from '@epde/shared';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { renderHook } from '@testing-library/react';
+
 import {
   useCategoryTemplates,
   useCreateCategoryTemplate,
-  useUpdateCategoryTemplate,
-  useDeleteCategoryTemplate,
   useCreateTaskTemplate,
-  useUpdateTaskTemplate,
+  useDeleteCategoryTemplate,
   useDeleteTaskTemplate,
+  useUpdateCategoryTemplate,
+  useUpdateTaskTemplate,
 } from '../use-category-templates';
 
 vi.mock('@tanstack/react-query', () => ({

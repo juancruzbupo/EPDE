@@ -1,5 +1,5 @@
-import { MaintenancePlansRepository } from './maintenance-plans.repository';
 import { PrismaService } from '../prisma/prisma.service';
+import { MaintenancePlansRepository } from './maintenance-plans.repository';
 
 describe('MaintenancePlansRepository', () => {
   let repository: MaintenancePlansRepository;

@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { Property, PropertyType, Prisma } from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.service';
+import { Prisma, Property, PropertyType } from '@prisma/client';
+
 import {
   BaseRepository,
   FindManyParams,
   PaginatedResult,
 } from '../common/repositories/base.repository';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class PropertiesRepository extends BaseRepository<Property, 'property'> {

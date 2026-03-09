@@ -1,6 +1,12 @@
 'use client';
 
+import { CLIENT_STATUS_VARIANT, USER_STATUS_LABELS } from '@epde/shared';
 import { ColumnDef } from '@tanstack/react-table';
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { MoreHorizontal, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,12 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Trash2 } from 'lucide-react';
-import { USER_STATUS_LABELS, CLIENT_STATUS_VARIANT } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
 import type { ClientPublic } from '@/lib/api/clients';
-import Link from 'next/link';
 
 export function clientColumns({
   onDelete,

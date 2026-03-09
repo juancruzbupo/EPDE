@@ -1,5 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
+
 import { TokenService } from '../src/auth/token.service';
 
 const MOBILE_HEADER = { 'x-client-type': 'mobile' };

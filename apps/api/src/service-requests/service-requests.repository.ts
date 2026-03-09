@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { ServiceRequest, ServiceUrgency, Prisma } from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.service';
+import { Prisma, ServiceRequest, ServiceUrgency } from '@prisma/client';
+
 import {
   BaseRepository,
   FindManyParams,
   PaginatedResult,
 } from '../common/repositories/base.repository';
+import { PrismaService } from '../prisma/prisma.service';
 
 const SERVICE_REQUEST_LIST_INCLUDE = {
   property: {

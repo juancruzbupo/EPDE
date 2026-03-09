@@ -1,8 +1,8 @@
 import type {
-  TaskType,
   ProfessionalRequirement,
-  TaskPriority,
   RecurrenceType,
+  TaskPriority,
+  TaskType,
 } from '../types/enums';
 
 export interface TaskTemplateSeed {

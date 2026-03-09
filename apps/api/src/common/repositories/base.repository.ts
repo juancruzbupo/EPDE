@@ -1,6 +1,7 @@
-import { PrismaClient } from '@prisma/client';
-import { PrismaService, SoftDeletableModel } from '../../prisma/prisma.service';
 import { PAGINATION_DEFAULT_TAKE, PAGINATION_MAX_TAKE } from '@epde/shared';
+import { PrismaClient } from '@prisma/client';
+
+import { PrismaService, SoftDeletableModel } from '../../prisma/prisma.service';
 
 /**
  * Union of valid Prisma model names (lowercase camelCase delegates).
@@ -47,6 +48,10 @@ export abstract class BaseRepository<
   TCreateInput = unknown,
   TUpdateInput = unknown,
 > {
+  /**
+   * @param hasSoftDelete Must match SOFT_DELETABLE_MODELS in prisma.service.ts.
+   *   When true, softDelete() is available and model/writeModel use the soft-delete extension.
+   */
   constructor(
     protected readonly prisma: PrismaService,
     protected readonly modelName: M,

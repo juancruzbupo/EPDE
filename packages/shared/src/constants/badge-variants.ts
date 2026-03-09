@@ -4,13 +4,13 @@
  */
 
 import type {
-  TaskStatus,
   BudgetStatus,
+  PlanStatus,
   ServiceStatus,
   ServiceUrgency,
   TaskPriority,
+  TaskStatus,
   UserStatus,
-  PlanStatus,
 } from '../types/enums';
 
 export type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'success';

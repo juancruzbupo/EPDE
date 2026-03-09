@@ -1,5 +1,5 @@
-import { CategoriesRepository } from './categories.repository';
 import { PrismaService } from '../prisma/prisma.service';
+import { CategoriesRepository } from './categories.repository';
 
 describe('CategoriesRepository', () => {
   let repository: CategoriesRepository;

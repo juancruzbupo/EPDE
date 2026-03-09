@@ -1,29 +1,30 @@
-import { useState, useCallback, useMemo } from 'react';
-import {
-  View,
-  Text,
-  SectionList,
-  Pressable,
-  RefreshControl,
-  ActivityIndicator,
-} from 'react-native';
-import Animated from 'react-native-reanimated';
-import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import { useProperty } from '@/hooks/use-properties';
-import { usePlan } from '@/hooks/use-plans';
-import { AnimatedListItem } from '@/components/animated-list-item';
-import { SwipeableRow } from '@/components/swipeable-row';
-import { CompleteTaskModal } from '@/components/complete-task-modal';
-import { TaskStatusBadge, PriorityBadge, PropertyTypeBadge } from '@/components/status-badge';
-import { EmptyState } from '@/components/empty-state';
-import { ErrorState } from '@/components/error-state';
-import { useAnimatedEntry } from '@/lib/animations';
-import { TYPE } from '@/lib/fonts';
-import { colors } from '@/lib/colors';
-import { defaultScreenOptions } from '@/lib/screen-options';
 import type { TaskPublic } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  Pressable,
+  RefreshControl,
+  SectionList,
+  Text,
+  View,
+} from 'react-native';
+import Animated from 'react-native-reanimated';
+
+import { AnimatedListItem } from '@/components/animated-list-item';
+import { CompleteTaskModal } from '@/components/complete-task-modal';
+import { EmptyState } from '@/components/empty-state';
+import { ErrorState } from '@/components/error-state';
+import { PriorityBadge, PropertyTypeBadge, TaskStatusBadge } from '@/components/status-badge';
+import { SwipeableRow } from '@/components/swipeable-row';
+import { usePlan } from '@/hooks/use-plans';
+import { useProperty } from '@/hooks/use-properties';
+import { useAnimatedEntry } from '@/lib/animations';
+import { colors } from '@/lib/colors';
+import { TYPE } from '@/lib/fonts';
+import { defaultScreenOptions } from '@/lib/screen-options';
 
 type StatusFilter = 'ALL' | 'UPCOMING' | 'OVERDUE' | 'COMPLETED';
 

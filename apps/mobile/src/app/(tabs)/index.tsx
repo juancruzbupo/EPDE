@@ -1,18 +1,19 @@
-import { memo, useCallback } from 'react';
-import { View, Text, FlatList, RefreshControl, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
+import type { UpcomingTask } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useClientDashboardStats, useClientUpcomingTasks } from '@/hooks/use-dashboard';
-import { AnimatedStatCard } from '@/components/animated-stat-card';
-import { HealthCard } from '@/components/health-card';
-import { StatCardSkeleton } from '@/components/skeleton-placeholder';
+import { useRouter } from 'expo-router';
+import { memo, useCallback } from 'react';
+import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
+
 import { AnimatedListItem } from '@/components/animated-list-item';
-import { PriorityBadge } from '@/components/status-badge';
+import { AnimatedStatCard } from '@/components/animated-stat-card';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
+import { HealthCard } from '@/components/health-card';
+import { StatCardSkeleton } from '@/components/skeleton-placeholder';
+import { PriorityBadge } from '@/components/status-badge';
+import { useClientDashboardStats, useClientUpcomingTasks } from '@/hooks/use-dashboard';
 import { TYPE } from '@/lib/fonts';
-import type { UpcomingTask } from '@epde/shared';
 
 const TaskCard = memo(function TaskCard({ task, index }: { task: UpcomingTask; index: number }) {
   const router = useRouter();

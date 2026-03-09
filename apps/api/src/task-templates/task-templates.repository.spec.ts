@@ -1,5 +1,5 @@
-import { TaskTemplatesRepository } from './task-templates.repository';
 import { PrismaService } from '../prisma/prisma.service';
+import { TaskTemplatesRepository } from './task-templates.repository';
 
 describe('TaskTemplatesRepository', () => {
   let repository: TaskTemplatesRepository;

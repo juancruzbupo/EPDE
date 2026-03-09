@@ -1,12 +1,13 @@
-import { renderHook } from '@testing-library/react';
-import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
 import { QUERY_KEYS } from '@epde/shared';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { renderHook } from '@testing-library/react';
+import { toast } from 'sonner';
+
 import {
+  useMarkAllAsRead,
+  useMarkAsRead,
   useNotifications,
   useUnreadCount,
-  useMarkAsRead,
-  useMarkAllAsRead,
 } from '../use-notifications';
 
 vi.mock('@tanstack/react-query', () => ({

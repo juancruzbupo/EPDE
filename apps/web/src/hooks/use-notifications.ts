@@ -1,11 +1,12 @@
-import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { QUERY_KEYS, getErrorMessage } from '@epde/shared';
+
 import {
   getNotifications,
   getUnreadCount,
-  markAsRead,
   markAllAsRead,
+  markAsRead,
 } from '@/lib/api/notifications';
 
 export function useNotifications() {

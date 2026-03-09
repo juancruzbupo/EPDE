@@ -1,12 +1,13 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PropertiesRepository } from './properties.repository';
-import { UserRole } from '@epde/shared';
 import type {
   CreatePropertyInput,
-  UpdatePropertyInput,
   PropertyFiltersInput,
   ServiceUser,
+  UpdatePropertyInput,
 } from '@epde/shared';
+import { UserRole } from '@epde/shared';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+
+import { PropertiesRepository } from './properties.repository';
 
 @Injectable()
 export class PropertiesService {

@@ -1,9 +1,10 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { PrismaService } from '../src/prisma/prisma.service';
-import { createTestApp, cleanDatabase } from '../src/test/setup';
-import { seedTestData, TestData } from '../src/test/seed-test-data';
+
 import { TokenService } from '../src/auth/token.service';
+import { PrismaService } from '../src/prisma/prisma.service';
+import { seedTestData, TestData } from '../src/test/seed-test-data';
+import { cleanDatabase, createTestApp } from '../src/test/setup';
 
 describe('ServiceRequestsController (e2e)', () => {
   let app: INestApplication;

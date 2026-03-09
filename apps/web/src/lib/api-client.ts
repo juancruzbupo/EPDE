@@ -1,8 +1,8 @@
 // Singleton refresh: only one refresh attempt per 401 cycle.
 // If refresh fails, redirect to login — no retry loop, no backoff needed.
 // CSRF protection: auth cookies use SameSite=strict (same origin via proxy).
-import axios from 'axios';
 import { attachRefreshInterceptor, CLIENT_TYPE_HEADER, CLIENT_TYPES } from '@epde/shared';
+import axios from 'axios';
 
 // Browser requests go through Next.js proxy (same origin → cookies work)
 // In development, proxy rewrites to localhost:3001

@@ -1,5 +1,5 @@
-import { CategoryTemplatesRepository } from './category-templates.repository';
 import { PrismaService } from '../prisma/prisma.service';
+import { CategoryTemplatesRepository } from './category-templates.repository';
 
 describe('CategoryTemplatesRepository', () => {
   let repository: CategoryTemplatesRepository;

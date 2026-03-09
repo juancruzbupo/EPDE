@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
+
 import { fadeIn, fadeInUp, staggerContainer, staggerItem } from '@/lib/motion';
+
 import type { SectionProps } from '../landing-data';
 import { STEPS } from '../landing-data';
 

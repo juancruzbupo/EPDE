@@ -1,15 +1,16 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { createClientSchema, type CreateClientInput } from '@epde/shared';
-import { useCreateClient } from '@/hooks/use-clients';
+import { type CreateClientInput, createClientSchema } from '@epde/shared';
 import { getErrorMessage } from '@epde/shared';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useCreateClient } from '@/hooks/use-clients';
 
 interface InviteClientDialogProps {
   open: boolean;

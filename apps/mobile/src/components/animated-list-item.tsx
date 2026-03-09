@@ -1,5 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import Animated from 'react-native-reanimated';
+
 import { useAnimatedEntry, usePressAnimation } from '@/lib/animations';
 import { haptics } from '@/lib/haptics';
 

@@ -1,8 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TaskSafetyService } from './task-safety.service';
-import { TasksRepository } from '../tasks/tasks.repository';
-import { DistributedLockService } from '../redis/distributed-lock.service';
+
 import { MetricsService } from '../metrics/metrics.service';
+import { DistributedLockService } from '../redis/distributed-lock.service';
+import { TasksRepository } from '../tasks/tasks.repository';
+import { TaskSafetyService } from './task-safety.service';
 
 const mockTasksRepository = {
   findStaleCompleted: jest.fn().mockResolvedValue([]),

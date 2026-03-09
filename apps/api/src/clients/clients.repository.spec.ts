@@ -1,5 +1,5 @@
-import { ClientsRepository } from './clients.repository';
 import { PrismaService } from '../prisma/prisma.service';
+import { ClientsRepository } from './clients.repository';
 
 describe('ClientsRepository', () => {
   let repository: ClientsRepository;

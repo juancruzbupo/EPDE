@@ -1,27 +1,28 @@
-import { useState } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  RefreshControl,
-  ActivityIndicator,
-  Image,
-  Pressable,
-  Modal,
-  Dimensions,
-} from 'react-native';
-import Animated from 'react-native-reanimated';
-import { useLocalSearchParams, Stack } from 'expo-router';
-import { useSlideIn } from '@/lib/animations';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useServiceRequest } from '@/hooks/use-service-requests';
-import { ServiceStatusBadge, UrgencyBadge } from '@/components/status-badge';
+import { Stack, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
+import {
+  ActivityIndicator,
+  Dimensions,
+  Image,
+  Modal,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
+import Animated from 'react-native-reanimated';
+
+import { CollapsibleSection } from '@/components/collapsible-section';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
-import { CollapsibleSection } from '@/components/collapsible-section';
-import { TYPE } from '@/lib/fonts';
+import { ServiceStatusBadge, UrgencyBadge } from '@/components/status-badge';
+import { useServiceRequest } from '@/hooks/use-service-requests';
+import { useSlideIn } from '@/lib/animations';
 import { colors } from '@/lib/colors';
+import { TYPE } from '@/lib/fonts';
 import { defaultScreenOptions } from '@/lib/screen-options';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');

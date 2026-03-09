@@ -1,6 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
+import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
+
 import { EMAIL_QUEUE, EmailJobData } from './email-queue.processor';
 
 @Injectable()

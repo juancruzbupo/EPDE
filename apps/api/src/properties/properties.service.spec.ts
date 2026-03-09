@@ -1,8 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PropertiesService } from './properties.service';
-import { PropertiesRepository } from './properties.repository';
 import { UserRole } from '@epde/shared';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+
+import { PropertiesRepository } from './properties.repository';
+import { PropertiesService } from './properties.service';
 
 const mockPropertiesRepository = {
   findProperties: jest.fn(),

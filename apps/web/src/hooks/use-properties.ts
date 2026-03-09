@@ -1,16 +1,17 @@
-import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { PropertyPublic, UpdatePropertyInput } from '@epde/shared';
+import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { QUERY_KEYS, getErrorMessage } from '@epde/shared';
-import { invalidateDashboard } from '@/lib/invalidate-dashboard';
-import type { UpdatePropertyInput, PropertyPublic } from '@epde/shared';
+
 import {
+  createProperty,
+  deleteProperty,
   getProperties,
   getProperty,
-  createProperty,
-  updateProperty,
-  deleteProperty,
   type PropertyFilters,
+  updateProperty,
 } from '@/lib/api/properties';
+import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 
 export function useProperties(filters: Omit<PropertyFilters, 'cursor'>) {
   return useInfiniteQuery({

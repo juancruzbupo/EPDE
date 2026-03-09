@@ -1,6 +1,6 @@
+import { DESIGN_TOKENS_LIGHT, TASK_TYPE_TOKENS_LIGHT } from '@epde/shared';
 import * as fs from 'fs';
 import * as path from 'path';
-import { DESIGN_TOKENS_LIGHT, TASK_TYPE_TOKENS_LIGHT } from '@epde/shared';
 
 /**
  * Verify that the mobile global.css defines a --color-* variable for every key

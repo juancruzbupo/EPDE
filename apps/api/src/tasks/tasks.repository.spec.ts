@@ -1,6 +1,7 @@
-import { TasksRepository } from './tasks.repository';
-import { PrismaService } from '../prisma/prisma.service';
 import { TASKS_MAX_TAKE } from '@epde/shared';
+
+import { PrismaService } from '../prisma/prisma.service';
+import { TasksRepository } from './tasks.repository';
 
 describe('TasksRepository', () => {
   let repository: TasksRepository;

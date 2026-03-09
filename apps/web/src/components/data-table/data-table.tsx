@@ -2,6 +2,9 @@
 
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
+
+import { Button } from '@/components/ui/button';
+import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import {
   Table,
   TableBody,
@@ -10,9 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
-import { fadeInUp, useMotionPreference, MOTION_DURATION } from '@/lib/motion';
+import { fadeInUp, MOTION_DURATION, useMotionPreference } from '@/lib/motion';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

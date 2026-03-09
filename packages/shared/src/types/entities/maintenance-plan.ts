@@ -1,6 +1,6 @@
+import type { PlanStatus, RecurrenceType, TaskPriority, TaskStatus } from '../enums';
 import type { BaseEntity } from '../index';
-import type { PlanStatus, TaskStatus, TaskPriority, RecurrenceType } from '../enums';
-import type { Serialized, PropertyBrief, UserBriefWithEmail } from './common';
+import type { PropertyBrief, Serialized, UserBriefWithEmail } from './common';
 import type { TaskPublic } from './task';
 
 export interface MaintenancePlan extends BaseEntity {

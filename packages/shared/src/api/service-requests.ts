@@ -1,5 +1,6 @@
 import type { AxiosInstance } from 'axios';
-import type { PaginatedResponse, ApiResponse, ServiceRequestPublic } from '../types';
+
+import type { ApiResponse, PaginatedResponse, ServiceRequestPublic } from '../types';
 import type { ServiceStatus, ServiceUrgency } from '../types/enums';
 
 export interface ServiceRequestFilters {

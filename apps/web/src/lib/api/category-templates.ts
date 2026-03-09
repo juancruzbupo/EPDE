@@ -1,4 +1,5 @@
 import { createCategoryTemplateQueries } from '@epde/shared';
+
 import { apiClient } from '../api-client';
 
 export type { CategoryTemplate } from '@epde/shared';

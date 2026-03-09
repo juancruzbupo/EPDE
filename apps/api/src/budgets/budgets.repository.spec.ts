@@ -1,9 +1,9 @@
-import { BudgetsRepository } from './budgets.repository';
-import { PrismaService } from '../prisma/prisma.service';
 import {
   BudgetNotPendingError,
   BudgetVersionConflictError,
 } from '../common/exceptions/domain.exceptions';
+import { PrismaService } from '../prisma/prisma.service';
+import { BudgetsRepository } from './budgets.repository';
 
 describe('BudgetsRepository', () => {
   let repository: BudgetsRepository;

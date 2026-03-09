@@ -1,14 +1,14 @@
+import {
+  CHART_TOKENS_DARK,
+  CHART_TOKENS_LIGHT,
+  DESIGN_TOKENS_DARK,
+  DESIGN_TOKENS_LIGHT,
+  TASK_TYPE_TOKENS_DARK,
+  TASK_TYPE_TOKENS_LIGHT,
+} from '@epde/shared';
 import * as fs from 'fs';
 import * as path from 'path';
-import { describe, it, expect } from 'vitest';
-import {
-  DESIGN_TOKENS_LIGHT,
-  DESIGN_TOKENS_DARK,
-  TASK_TYPE_TOKENS_LIGHT,
-  TASK_TYPE_TOKENS_DARK,
-  CHART_TOKENS_LIGHT,
-  CHART_TOKENS_DARK,
-} from '@epde/shared';
+import { describe, expect, it } from 'vitest';
 
 /**
  * Verify that the web globals.css defines a --color-* variable for every key

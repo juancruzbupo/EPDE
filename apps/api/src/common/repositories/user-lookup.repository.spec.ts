@@ -1,5 +1,5 @@
-import { UserLookupRepository } from './user-lookup.repository';
 import { PrismaService } from '../../prisma/prisma.service';
+import { UserLookupRepository } from './user-lookup.repository';
 
 describe('UserLookupRepository', () => {
   let repository: UserLookupRepository;

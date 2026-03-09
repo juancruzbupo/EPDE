@@ -1,25 +1,26 @@
+import type { ClientFiltersInput, CreateClientInput, UpdateClientInput } from '@epde/shared';
 import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
-  Param,
-  Body,
-  Query,
-  ParseUUIDPipe,
-} from '@nestjs/common';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { Roles } from '../common/decorators/roles.decorator';
-import { ClientsService } from './clients.service';
-import {
+  clientFiltersSchema,
   createClientSchema,
   updateClientSchema,
-  clientFiltersSchema,
   UserRole,
 } from '@epde/shared';
-import type { CreateClientInput, UpdateClientInput, ClientFiltersInput } from '@epde/shared';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
+import { Roles } from '../common/decorators/roles.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { ClientsService } from './clients.service';
 
 @ApiTags('Clientes')
 @ApiBearerAuth()

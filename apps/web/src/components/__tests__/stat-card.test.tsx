@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Home } from 'lucide-react';
+import { describe, expect, it } from 'vitest';
+
 import { StatCard } from '../stat-card';
 
 describe('StatCard', () => {

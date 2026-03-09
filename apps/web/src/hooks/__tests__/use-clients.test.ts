@@ -1,13 +1,14 @@
+import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
-import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { QUERY_KEYS, getErrorMessage } from '@epde/shared';
+
 import {
-  useClients,
   useClient,
+  useClients,
   useCreateClient,
-  useUpdateClient,
   useDeleteClient,
+  useUpdateClient,
 } from '../use-clients';
 
 vi.mock('@tanstack/react-query', () => ({

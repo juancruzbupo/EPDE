@@ -1,8 +1,9 @@
+import type { CreateTaskNoteInput } from '@epde/shared';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { TasksRepository } from './tasks.repository';
+
 import { TaskLogsRepository } from './task-logs.repository';
 import { TaskNotesRepository } from './task-notes.repository';
-import type { CreateTaskNoteInput } from '@epde/shared';
+import { TasksRepository } from './tasks.repository';
 
 @Injectable()
 export class TaskNotesService {

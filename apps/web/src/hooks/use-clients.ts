@@ -1,16 +1,19 @@
-import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import type { ClientPublic, UserStatus } from '@epde/shared';
-import { useDebounce } from './use-debounce';
+import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+
 import {
-  getClients,
-  getClient,
-  createClient,
-  updateClient,
-  deleteClient,
   type ClientFilters,
+  createClient,
+  deleteClient,
+  getClient,
+  getClients,
+  updateClient,
 } from '@/lib/api/clients';
+import { invalidateDashboard } from '@/lib/invalidate-dashboard';
+
+import { useDebounce } from './use-debounce';
 
 export function useClients(filters: ClientFilters) {
   return useInfiniteQuery({
@@ -38,6 +41,7 @@ export function useCreateClient() {
     onSuccess: () => {
       toast.success('Cliente creado');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.clients] });
+      invalidateDashboard(queryClient);
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al crear cliente'));
@@ -87,6 +91,7 @@ export function useDeleteClient() {
     onSuccess: () => {
       toast.success('Cliente eliminado');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.clients] });
+      invalidateDashboard(queryClient);
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al eliminar cliente'));

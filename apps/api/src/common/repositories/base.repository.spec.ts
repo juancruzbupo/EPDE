@@ -1,6 +1,7 @@
+import { PAGINATION_DEFAULT_TAKE, PAGINATION_MAX_TAKE } from '@epde/shared';
+
 import { PrismaService } from '../../prisma/prisma.service';
 import { BaseRepository } from './base.repository';
-import { PAGINATION_DEFAULT_TAKE, PAGINATION_MAX_TAKE } from '@epde/shared';
 
 // Concrete test subclass — uses 'user' as the model name
 class TestRepository extends BaseRepository<{ id: string }, 'user'> {

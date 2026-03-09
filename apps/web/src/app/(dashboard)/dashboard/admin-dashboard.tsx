@@ -1,17 +1,18 @@
 'use client';
 
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { motion } from 'framer-motion';
-import { useDashboardStats, useDashboardActivity } from '@/hooks/use-dashboard';
-import { staggerContainer, staggerItem, fadeInUp, useMotionPreference } from '@/lib/motion';
+import { Activity, AlertTriangle, FileText, Home, Users, Wrench } from 'lucide-react';
+
+import { ErrorState } from '@/components/error-state';
 import { PageHeader } from '@/components/page-header';
 import { StatCard } from '@/components/stat-card';
 import { AnimatedNumber } from '@/components/ui/animated-number';
-import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Home, AlertTriangle, FileText, Wrench, Activity } from 'lucide-react';
-import { ErrorState } from '@/components/error-state';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
+import { useDashboardActivity, useDashboardStats } from '@/hooks/use-dashboard';
+import { fadeInUp, staggerContainer, staggerItem, useMotionPreference } from '@/lib/motion';
 
 export function AdminDashboard() {
   const {

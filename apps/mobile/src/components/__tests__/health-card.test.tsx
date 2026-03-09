@@ -1,6 +1,7 @@
+import { render, screen } from '@testing-library/react-native';
 import React from 'react';
 import { AccessibilityInfo } from 'react-native';
-import { render, screen } from '@testing-library/react-native';
+
 import { HealthCard } from '../health-card';
 
 // Enable reduced motion so AnimatedNumber displays values synchronously

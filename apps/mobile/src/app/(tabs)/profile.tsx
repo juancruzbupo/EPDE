@@ -1,7 +1,8 @@
-import { View, Text, Pressable, Alert, ScrollView } from 'react-native';
 import Constants from 'expo-constants';
-import { useAuthStore } from '@/stores/auth-store';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+
 import { TYPE } from '@/lib/fonts';
+import { useAuthStore } from '@/stores/auth-store';
 
 export default function ProfileScreen() {
   const user = useAuthStore((s) => s.user);

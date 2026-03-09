@@ -1,6 +1,7 @@
 'use client';
 
 import { Component, type ReactNode } from 'react';
+
 import { Button } from '@/components/ui/button';
 
 interface Props {

@@ -1,14 +1,16 @@
 import './instrument';
-import { randomUUID } from 'crypto';
-import { NestFactory } from '@nestjs/core';
+
 import { VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import helmet from 'helmet';
+import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { randomUUID } from 'crypto';
+import type { NextFunction, Request, Response } from 'express';
+import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
-import type { Request, Response, NextFunction } from 'express';
+
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 

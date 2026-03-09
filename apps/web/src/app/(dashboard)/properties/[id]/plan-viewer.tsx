@@ -1,28 +1,30 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { usePlan } from '@/hooks/use-plans';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { FilterSelect } from '@/components/filter-select';
-import { ErrorState } from '@/components/error-state';
-import { CheckCircle, ClipboardList } from 'lucide-react';
 import {
-  TaskStatus,
-  TASK_PRIORITY_LABELS,
-  RECURRENCE_TYPE_LABELS,
-  TASK_STATUS_LABELS,
   PLAN_STATUS_LABELS,
   PRIORITY_VARIANT,
+  RECURRENCE_TYPE_LABELS,
+  TASK_PRIORITY_LABELS,
+  TASK_STATUS_LABELS,
   TASK_STATUS_VARIANT,
+  TaskStatus,
 } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { TaskDetailSheet } from './task-detail-sheet';
-import { CompleteTaskDialog } from './complete-task-dialog';
+import { CheckCircle, ClipboardList } from 'lucide-react';
+import { useMemo, useState } from 'react';
+
+import { ErrorState } from '@/components/error-state';
+import { FilterSelect } from '@/components/filter-select';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { usePlan } from '@/hooks/use-plans';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
+
+import { CompleteTaskDialog } from './complete-task-dialog';
+import { TaskDetailSheet } from './task-detail-sheet';
 
 interface PlanViewerProps {
   planId: string;

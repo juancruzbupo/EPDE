@@ -1,18 +1,19 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
-import { useState } from 'react';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+
 import { setPassword } from '@/lib/auth';
 import { colors } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';

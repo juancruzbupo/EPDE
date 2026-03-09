@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
 import {
-  useSharedValue,
+  Easing,
   useAnimatedStyle,
-  withTiming,
-  withSpring,
+  useSharedValue,
   withRepeat,
   withSequence,
-  Easing,
+  withSpring,
+  withTiming,
 } from 'react-native-reanimated';
 
 // --- Timing constants ---

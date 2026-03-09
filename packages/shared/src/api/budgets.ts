@@ -1,5 +1,6 @@
 import type { AxiosInstance } from 'axios';
-import type { PaginatedResponse, ApiResponse, BudgetRequestPublic } from '../types';
+
+import type { ApiResponse, BudgetRequestPublic, PaginatedResponse } from '../types';
 import type { BudgetStatus } from '../types/enums';
 
 export interface BudgetFilters {

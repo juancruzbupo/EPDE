@@ -1,13 +1,14 @@
-import { useEffect, useRef, type PropsWithChildren } from 'react';
+import { type PropsWithChildren, useEffect, useRef } from 'react';
 import Animated, {
-  useSharedValue,
+  Easing,
   useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
   withSequence,
   withTiming,
-  withRepeat,
-  Easing,
 } from 'react-native-reanimated';
-import { useReducedMotion, TIMING } from '@/lib/animations';
+
+import { TIMING, useReducedMotion } from '@/lib/animations';
 
 interface AnimatedBadgeProps {
   pulse?: boolean;

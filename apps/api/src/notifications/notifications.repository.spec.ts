@@ -1,6 +1,7 @@
-import { NotificationsRepository } from './notifications.repository';
-import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+
+import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsRepository } from './notifications.repository';
 
 describe('NotificationsRepository', () => {
   let repository: NotificationsRepository;

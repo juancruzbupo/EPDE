@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { MaintenancePlansRepository } from './maintenance-plans.repository';
-import type { UpdatePlanInput, ServiceUser } from '@epde/shared';
+import type { ServiceUser, UpdatePlanInput } from '@epde/shared';
 import { UserRole } from '@epde/shared';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+
+import { MaintenancePlansRepository } from './maintenance-plans.repository';
 
 @Injectable()
 export class MaintenancePlansService {

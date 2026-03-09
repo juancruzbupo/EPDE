@@ -1,10 +1,11 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { Roles } from '../common/decorators/roles.decorator';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { DashboardService } from './dashboard.service';
-import { UserRole } from '@epde/shared';
 import type { CurrentUser as CurrentUserPayload } from '@epde/shared';
+import { UserRole } from '@epde/shared';
+import { Controller, Get } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
+import { DashboardService } from './dashboard.service';
 
 @ApiTags('Panel')
 @ApiBearerAuth()

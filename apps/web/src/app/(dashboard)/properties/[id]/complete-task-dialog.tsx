@@ -1,23 +1,22 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  completeTaskSchema,
+  ACTION_TAKEN_LABELS,
   type CompleteTaskInput,
-  TASK_RESULT_LABELS,
+  completeTaskSchema,
   CONDITION_FOUND_LABELS,
   TASK_EXECUTOR_LABELS,
-  ACTION_TAKEN_LABELS,
+  TASK_RESULT_LABELS,
 } from '@epde/shared';
-import { useCompleteTask } from '@/hooks/use-task-operations';
-import { useUploadFile } from '@/hooks/use-upload';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2, Upload, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -25,7 +24,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Upload, X, Loader2 } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { useCompleteTask } from '@/hooks/use-task-operations';
+import { useUploadFile } from '@/hooks/use-upload';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
 
 interface CompleteTaskDialogProps {

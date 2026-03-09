@@ -1,17 +1,18 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import type {
+  CreateServiceRequestInput,
+  ServiceRequestFiltersInput,
+  ServiceUser,
+  UpdateServiceStatusInput,
+} from '@epde/shared';
+import { UserRole } from '@epde/shared';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+
+import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
+import { PropertiesRepository } from '../properties/properties.repository';
 import {
   ServiceRequestsRepository,
   type ServiceRequestWithDetails,
 } from './service-requests.repository';
-import { PropertiesRepository } from '../properties/properties.repository';
-import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
-import { UserRole } from '@epde/shared';
-import type {
-  CreateServiceRequestInput,
-  UpdateServiceStatusInput,
-  ServiceRequestFiltersInput,
-  ServiceUser,
-} from '@epde/shared';
 
 @Injectable()
 export class ServiceRequestsService {

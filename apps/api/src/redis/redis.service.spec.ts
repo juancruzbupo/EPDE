@@ -1,5 +1,6 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
+import { Test, TestingModule } from '@nestjs/testing';
+
 import { RedisService } from './redis.service';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

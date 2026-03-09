@@ -1,12 +1,13 @@
+import { UserRole } from '@epde/shared';
 import { Injectable } from '@nestjs/common';
-import { User, Prisma } from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.service';
+import { Prisma, User } from '@prisma/client';
+
 import {
   BaseRepository,
   FindManyParams,
   PaginatedResult,
 } from '../common/repositories/base.repository';
-import { UserRole } from '@epde/shared';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ClientsRepository extends BaseRepository<User, 'user'> {

@@ -1,5 +1,5 @@
-import type { QueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from '@epde/shared';
+import type { QueryClient } from '@tanstack/react-query';
 
 /**
  * Invalidates all dashboard query keys (admin + client).

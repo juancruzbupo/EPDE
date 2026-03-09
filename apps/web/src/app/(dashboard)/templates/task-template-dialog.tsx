@@ -1,18 +1,19 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { createTaskTemplateSchema, type CreateTaskTemplateInput } from '@epde/shared';
+import type { TaskTemplate } from '@epde/shared';
+import { type CreateTaskTemplateInput, createTaskTemplateSchema } from '@epde/shared';
 import {
-  TASK_TYPE_LABELS,
   PROFESSIONAL_REQUIREMENT_LABELS,
-  TASK_PRIORITY_LABELS,
   RECURRENCE_TYPE_LABELS,
+  TASK_PRIORITY_LABELS,
+  TASK_TYPE_LABELS,
 } from '@epde/shared';
-import { useCreateTaskTemplate, useUpdateTaskTemplate } from '@/hooks/use-category-templates';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -22,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { TaskTemplate } from '@epde/shared';
+import { useCreateTaskTemplate, useUpdateTaskTemplate } from '@/hooks/use-category-templates';
 
 interface TaskTemplateDialogProps {
   open: boolean;

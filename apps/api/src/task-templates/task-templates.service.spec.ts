@@ -1,8 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
-import { TaskTemplatesService } from './task-templates.service';
-import { TaskTemplatesRepository } from './task-templates.repository';
+import { Test, TestingModule } from '@nestjs/testing';
+
 import { CategoryTemplatesRepository } from '../category-templates/category-templates.repository';
+import { TaskTemplatesRepository } from './task-templates.repository';
+import { TaskTemplatesService } from './task-templates.service';
 
 describe('TaskTemplatesService', () => {
   let service: TaskTemplatesService;

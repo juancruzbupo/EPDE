@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { TasksRepository } from '../tasks/tasks.repository';
-import { DistributedLockService } from '../redis/distributed-lock.service';
+
 import { MetricsService } from '../metrics/metrics.service';
+import { DistributedLockService } from '../redis/distributed-lock.service';
+import { TasksRepository } from '../tasks/tasks.repository';
 
 @Injectable()
 export class TaskStatusService {

@@ -1,15 +1,17 @@
 'use client';
 
-import { useProperty } from '@/hooks/use-properties';
-import { PageHeader } from '@/components/page-header';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, MapPin, Building, Calendar, Ruler, User, ClipboardList } from 'lucide-react';
-import { PROPERTY_TYPE_LABELS } from '@epde/shared';
 import type { PropertyPublic } from '@epde/shared';
+import { PROPERTY_TYPE_LABELS } from '@epde/shared';
+import { ArrowLeft, Building, Calendar, ClipboardList, MapPin, Ruler, User } from 'lucide-react';
 import Link from 'next/link';
+
+import { PageHeader } from '@/components/page-header';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useProperty } from '@/hooks/use-properties';
+
 import { PlanEditor } from './plan-editor';
 import { PlanViewer } from './plan-viewer';
 

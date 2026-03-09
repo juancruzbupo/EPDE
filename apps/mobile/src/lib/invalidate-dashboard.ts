@@ -1,5 +1,5 @@
-import type { QueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from '@epde/shared';
+import type { QueryClient } from '@tanstack/react-query';
 
 /** Mobile is client-only — only invalidate client dashboard keys */
 export function invalidateClientDashboard(qc: QueryClient): void {

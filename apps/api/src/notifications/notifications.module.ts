@@ -1,15 +1,15 @@
-import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
-import { NotificationsController } from './notifications.controller';
-import { NotificationsService } from './notifications.service';
-import { NotificationsRepository } from './notifications.repository';
-import { NotificationsHandlerService } from './notifications-handler.service';
-import { NotificationQueueService } from './notification-queue.service';
-import { NotificationQueueProcessor } from './notification-queue.processor';
-import { NOTIFICATION_QUEUE } from './notification-queue.types';
-import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
+import { Module } from '@nestjs/common';
 
+import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
 import { EmailModule } from '../email/email.module';
+import { NotificationQueueProcessor } from './notification-queue.processor';
+import { NotificationQueueService } from './notification-queue.service';
+import { NOTIFICATION_QUEUE } from './notification-queue.types';
+import { NotificationsController } from './notifications.controller';
+import { NotificationsRepository } from './notifications.repository';
+import { NotificationsService } from './notifications.service';
+import { NotificationsHandlerService } from './notifications-handler.service';
 
 @Module({
   imports: [

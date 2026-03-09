@@ -1,5 +1,5 @@
-import type { BaseEntity, SoftDeletable } from '../index';
 import type { UserRole, UserStatus } from '../enums';
+import type { BaseEntity, SoftDeletable } from '../index';
 import type { Serialized } from './common';
 
 export interface User extends BaseEntity, SoftDeletable {

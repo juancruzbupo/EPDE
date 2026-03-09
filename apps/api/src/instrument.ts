@@ -1,9 +1,9 @@
 // instrument.ts is loaded before NestJS bootstrap via the `import './instrument'` at the
 // top of main.ts. ConfigService is not available at this point — direct process.env access
 // is intentional here and is the only exception to the project-wide ConfigModule pattern.
-import { NodeSDK } from '@opentelemetry/sdk-node';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { NodeSDK } from '@opentelemetry/sdk-node';
 import * as Sentry from '@sentry/nestjs';
 
 // OpenTelemetry — only active when OTEL endpoint is configured

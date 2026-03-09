@@ -2,22 +2,22 @@ export * from './badge-variants';
 export * from './design-tokens';
 
 import type {
-  TaskStatus,
-  TaskPriority,
+  ActionTaken,
   BudgetStatus,
-  ServiceStatus,
+  ConditionFound,
+  NotificationType,
+  PlanStatus,
+  ProfessionalRequirement,
   PropertyType,
   RecurrenceType,
-  UserStatus,
-  PlanStatus,
+  ServiceStatus,
   ServiceUrgency,
-  NotificationType,
-  TaskType,
-  ProfessionalRequirement,
-  TaskResult,
-  ConditionFound,
   TaskExecutor,
-  ActionTaken,
+  TaskPriority,
+  TaskResult,
+  TaskStatus,
+  TaskType,
+  UserStatus,
 } from '../types/enums';
 
 export const APP_NAME = 'EPDE';

@@ -1,6 +1,6 @@
-import React from 'react';
-import { render } from '@testing-library/react-native';
 import type { ClientDashboardStats, UpcomingTask } from '@epde/shared';
+import { render } from '@testing-library/react-native';
+import React from 'react';
 
 // ---------------------------------------------------------------------------
 // Mocks — declared before import of the component under test

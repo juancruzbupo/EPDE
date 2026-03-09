@@ -5,9 +5,10 @@
  * Notifications subsystems, which must NOT import UsersModule (circular-dependency risk).
  * It intentionally exposes only the minimal projections each consumer needs.
  */
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
 import { UserRole } from '@epde/shared';
+import { Injectable } from '@nestjs/common';
+
+import { PrismaService } from '../../prisma/prisma.service';
 
 const MAX_ADMIN_FETCH = 500;
 

@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import { fadeIn, fadeInUp, staggerContainer } from '@/lib/motion';
+
 import type { SectionProps } from '../landing-data';
 import { WHATSAPP_URL } from '../landing-data';
 

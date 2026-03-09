@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import {
   createServiceRequestSchema,
-  updateServiceStatusSchema,
   serviceRequestFiltersSchema,
+  updateServiceStatusSchema,
 } from '../schemas/service-request';
 
 const VALID_UUID = '550e8400-e29b-41d4-a716-446655440000';

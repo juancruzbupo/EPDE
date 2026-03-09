@@ -1,12 +1,13 @@
-import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
+
 import {
   getNotifications,
   getUnreadCount,
-  markAsRead,
   markAllAsRead,
+  markAsRead,
 } from '@/lib/api/notifications';
-import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 
 export function useNotifications() {
   return useInfiniteQuery({

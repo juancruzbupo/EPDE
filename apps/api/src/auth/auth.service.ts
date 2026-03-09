@@ -1,11 +1,12 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { BCRYPT_SALT_ROUNDS } from '@epde/shared';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+
 import { UserAlreadyHasPasswordError } from '../common/exceptions/domain.exceptions';
 import { UsersService } from '../users/users.service';
-import { TokenService } from './token.service';
 import { AuthAuditService } from './auth-audit.service';
-import { BCRYPT_SALT_ROUNDS } from '@epde/shared';
+import { TokenService } from './token.service';
 
 interface LoginMeta {
   clientType?: string;

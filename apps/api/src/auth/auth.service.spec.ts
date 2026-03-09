@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Test, TestingModule } from '@nestjs/testing';
-import { JwtService } from '@nestjs/jwt';
-import { UnauthorizedException, BadRequestException } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
-import { AuthService } from './auth.service';
-import { TokenService } from './token.service';
-import { AuthAuditService } from './auth-audit.service';
-import { UsersService } from '../users/users.service';
 import { BCRYPT_SALT_ROUNDS } from '@epde/shared';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { Test, TestingModule } from '@nestjs/testing';
+import * as bcrypt from 'bcrypt';
+
+import { UsersService } from '../users/users.service';
+import { AuthService } from './auth.service';
+import { AuthAuditService } from './auth-audit.service';
+import { TokenService } from './token.service';
 
 jest.mock('bcrypt', () => ({
   compare: jest.fn(),

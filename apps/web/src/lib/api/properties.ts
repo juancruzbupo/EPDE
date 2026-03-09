@@ -1,5 +1,6 @@
+import type { ApiResponse, PropertyType, UpdatePropertyInput } from '@epde/shared';
 import { createPropertyQueries } from '@epde/shared';
-import type { ApiResponse, UpdatePropertyInput, PropertyType } from '@epde/shared';
+
 import { apiClient } from '../api-client';
 
 export type { PropertyFilters, PropertyPublic } from '@epde/shared';

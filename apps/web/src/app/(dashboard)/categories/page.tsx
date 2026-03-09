@@ -1,9 +1,15 @@
 'use client';
 
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { useCategories, useDeleteCategory } from '@/hooks/use-categories';
+
+import { ConfirmDialog } from '@/components/confirm-dialog';
+import { ErrorState } from '@/components/error-state';
 import { PageHeader } from '@/components/page-header';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { PageTransition } from '@/components/ui/page-transition';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -12,14 +18,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ConfirmDialog } from '@/components/confirm-dialog';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
-import { PageTransition } from '@/components/ui/page-transition';
-import { ErrorState } from '@/components/error-state';
-import { CategoryDialog } from './category-dialog';
+import { useCategories, useDeleteCategory } from '@/hooks/use-categories';
 import type { CategoryPublic } from '@/lib/api/categories';
+
+import { CategoryDialog } from './category-dialog';
 
 export default function CategoriesPage() {
   const { data: categories, isLoading, isError, refetch } = useCategories();

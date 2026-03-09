@@ -1,5 +1,6 @@
-import * as bcrypt from 'bcrypt';
 import { BCRYPT_SALT_ROUNDS } from '@epde/shared';
+import * as bcrypt from 'bcrypt';
+
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface TestData {

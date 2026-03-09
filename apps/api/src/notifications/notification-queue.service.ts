@@ -1,10 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
+import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
+
 import {
   NOTIFICATION_QUEUE,
-  NotificationJobData,
   NotificationBatchJobData,
+  NotificationJobData,
 } from './notification-queue.types';
 
 @Injectable()

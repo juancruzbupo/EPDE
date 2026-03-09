@@ -1,8 +1,8 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { MeterProvider } from '@opentelemetry/sdk-metrics';
-import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
-import { metrics } from '@opentelemetry/api';
 import type { Counter, Histogram } from '@opentelemetry/api';
+import { metrics } from '@opentelemetry/api';
+import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
+import { MeterProvider } from '@opentelemetry/sdk-metrics';
 
 @Injectable()
 export class MetricsService implements OnModuleInit {

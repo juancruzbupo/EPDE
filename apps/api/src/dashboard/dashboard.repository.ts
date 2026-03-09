@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { addDays, startOfMonth } from 'date-fns';
 import { UserRole } from '@epde/shared';
+import { Injectable } from '@nestjs/common';
+import { addDays, startOfMonth } from 'date-fns';
+
+import { PrismaService } from '../prisma/prisma.service';
 
 /**
  * Standalone repository — does not extend BaseRepository because dashboard

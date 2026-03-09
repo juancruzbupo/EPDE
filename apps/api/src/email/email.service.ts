@@ -1,7 +1,7 @@
+import { DESIGN_TOKENS_LIGHT } from '@epde/shared';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
-import { DESIGN_TOKENS_LIGHT } from '@epde/shared';
 
 const BUDGET_STATUS_LABELS: Record<string, string> = {
   APPROVED: 'aprobado',

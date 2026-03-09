@@ -1,9 +1,10 @@
-import axios from 'axios';
+import { attachRefreshInterceptor, CLIENT_TYPE_HEADER, CLIENT_TYPES } from '@epde/shared';
 import type { InternalAxiosRequestConfig } from 'axios';
+import axios from 'axios';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
+
 import { tokenService } from './token-service';
-import { CLIENT_TYPE_HEADER, CLIENT_TYPES, attachRefreshInterceptor } from '@epde/shared';
 
 function getDevApiUrl(): string {
   // On web, localhost works fine

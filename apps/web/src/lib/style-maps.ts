@@ -3,7 +3,7 @@
  * Badge variant mappings live in @epde/shared — import directly from there.
  */
 
-import type { TaskType, ProfessionalRequirement } from '@epde/shared';
+import type { ProfessionalRequirement, TaskType } from '@epde/shared';
 
 // ─── Color class maps (platform-specific, not shared) ───
 

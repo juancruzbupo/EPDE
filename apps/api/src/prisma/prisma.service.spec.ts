@@ -1,18 +1,19 @@
+import {
+  createBudgetRequestSchema,
+  createCategorySchema,
+  createCategoryTemplateSchema,
+  createClientSchema,
+  createPropertySchema,
+  createServiceRequestSchema,
+  createTaskNoteSchema,
+  createTaskSchema,
+  createTaskTemplateSchema,
+} from '@epde/shared';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Prisma } from '@prisma/client';
 import type { ZodObject, ZodRawShape } from 'zod';
-import { PrismaService, SOFT_DELETABLE_MODELS, hasDeletedAtKey } from './prisma.service';
-import {
-  createPropertySchema,
-  createTaskSchema,
-  createBudgetRequestSchema,
-  createServiceRequestSchema,
-  createCategorySchema,
-  createClientSchema,
-  createCategoryTemplateSchema,
-  createTaskTemplateSchema,
-  createTaskNoteSchema,
-} from '@epde/shared';
+
+import { hasDeletedAtKey, PrismaService, SOFT_DELETABLE_MODELS } from './prisma.service';
 
 describe('PrismaService', () => {
   let service: PrismaService;

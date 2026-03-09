@@ -1,9 +1,10 @@
-import { create } from 'zustand';
 import type { UserPublic } from '@epde/shared';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { create } from 'zustand';
+
 import * as authApi from '@/lib/auth';
-import { tokenService } from '@/lib/token-service';
 import { queryClient } from '@/lib/query-client';
+import { tokenService } from '@/lib/token-service';
 
 interface AuthState {
   user: UserPublic | null;

@@ -1,13 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import type { CategoryTemplate, TaskTemplate } from '@epde/shared';
 import {
-  useCategoryTemplates,
-  useDeleteCategoryTemplate,
-  useDeleteTaskTemplate,
-} from '@/hooks/use-category-templates';
+  PRIORITY_VARIANT,
+  PROFESSIONAL_REQUIREMENT_LABELS,
+  RECURRENCE_TYPE_LABELS,
+  TASK_PRIORITY_LABELS,
+  TASK_TYPE_LABELS,
+} from '@epde/shared';
+import { ChevronDown, ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+
+import { ConfirmDialog } from '@/components/confirm-dialog';
+import { ErrorState } from '@/components/error-state';
 import { PageHeader } from '@/components/page-header';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageTransition } from '@/components/ui/page-transition';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -16,24 +27,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ConfirmDialog } from '@/components/confirm-dialog';
-import { Plus, Pencil, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
-import { PageTransition } from '@/components/ui/page-transition';
-import { ErrorState } from '@/components/error-state';
 import {
-  TASK_TYPE_LABELS,
-  PROFESSIONAL_REQUIREMENT_LABELS,
-  TASK_PRIORITY_LABELS,
-  RECURRENCE_TYPE_LABELS,
-  PRIORITY_VARIANT,
-} from '@epde/shared';
-import { TASK_TYPE_COLORS, PROFESSIONAL_REQ_COLORS } from '@/lib/style-maps';
+  useCategoryTemplates,
+  useDeleteCategoryTemplate,
+  useDeleteTaskTemplate,
+} from '@/hooks/use-category-templates';
+import { PROFESSIONAL_REQ_COLORS, TASK_TYPE_COLORS } from '@/lib/style-maps';
+
 import { CategoryTemplateDialog } from './category-template-dialog';
 import { TaskTemplateDialog } from './task-template-dialog';
-import type { CategoryTemplate, TaskTemplate } from '@epde/shared';
 
 export default function TemplatesPage() {
   const { data: categories, isLoading, isError, refetch } = useCategoryTemplates();

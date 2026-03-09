@@ -1,7 +1,8 @@
-import { Test } from '@nestjs/testing';
 import { INestApplication, VersioningType } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
 import { ThrottlerStorage } from '@nestjs/throttler';
 import cookieParser from 'cookie-parser';
+
 import { AppModule } from '../app.module';
 import { PrismaService } from '../prisma/prisma.service';
 

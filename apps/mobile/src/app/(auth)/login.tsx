@@ -1,20 +1,21 @@
+import type { LoginInput } from '@epde/shared';
+import { loginSchema } from '@epde/shared';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
-import { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema } from '@epde/shared';
-import type { LoginInput } from '@epde/shared';
-import { useAuthStore } from '@/stores/auth-store';
+
 import { colors } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
+import { useAuthStore } from '@/stores/auth-store';
 
 export default function LoginScreen() {
   const login = useAuthStore((s) => s.login);

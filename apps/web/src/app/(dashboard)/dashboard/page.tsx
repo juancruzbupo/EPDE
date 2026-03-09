@@ -1,7 +1,9 @@
 'use client';
 
-import { useAuthStore } from '@/stores/auth-store';
 import { UserRole } from '@epde/shared';
+
+import { useAuthStore } from '@/stores/auth-store';
+
 import { AdminDashboard } from './admin-dashboard';
 import { ClientDashboard } from './client-dashboard';
 

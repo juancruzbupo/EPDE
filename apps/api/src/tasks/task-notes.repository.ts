@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { TaskNote } from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.service';
+
 import { BaseRepository } from '../common/repositories/base.repository';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class TaskNotesRepository extends BaseRepository<TaskNote, 'taskNote'> {

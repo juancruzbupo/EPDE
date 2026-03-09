@@ -1,6 +1,7 @@
 import { z } from 'zod';
+
+import { PAGINATION_DEFAULT_TAKE, PAGINATION_MAX_TAKE } from '../constants';
 import { PROPERTY_TYPE_VALUES, PropertyType } from '../types/enums';
-import { PAGINATION_MAX_TAKE, PAGINATION_DEFAULT_TAKE } from '../constants';
 
 export const createPropertySchema = z.object({
   userId: z.string().uuid('ID de usuario inválido'),

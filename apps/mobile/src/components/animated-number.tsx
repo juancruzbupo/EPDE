@@ -1,13 +1,14 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Text, type TextProps } from 'react-native';
 import {
-  useSharedValue,
-  useAnimatedReaction,
-  withTiming,
   Easing,
   runOnJS,
+  useAnimatedReaction,
+  useSharedValue,
+  withTiming,
 } from 'react-native-reanimated';
-import { useReducedMotion, TIMING } from '@/lib/animations';
+
+import { TIMING, useReducedMotion } from '@/lib/animations';
 
 interface AnimatedNumberProps extends Omit<TextProps, 'children'> {
   value: number;

@@ -1,5 +1,6 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Observable, tap } from 'rxjs';
+
 import { MetricsService } from './metrics.service';
 
 @Injectable()
@@ -21,12 +22,7 @@ export class MetricsInterceptor implements NestInterceptor {
           /\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|\/[a-z0-9]{25,}/gi,
           '/:id',
         );
-        this.metricsService.recordHttpRequest(
-          request.method,
-          route,
-          statusCode,
-          durationMs,
-        );
+        this.metricsService.recordHttpRequest(request.method, route, statusCode, durationMs);
       } catch {
         // Metrics failure must never interrupt the response
       }

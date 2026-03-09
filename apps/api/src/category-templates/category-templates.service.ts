@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { CategoryTemplatesRepository } from './category-templates.repository';
 import type {
+  CategoryTemplateFiltersInput,
   CreateCategoryTemplateInput,
   UpdateCategoryTemplateInput,
-  CategoryTemplateFiltersInput,
 } from '@epde/shared';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+
+import { CategoryTemplatesRepository } from './category-templates.repository';
 
 @Injectable()
 export class CategoryTemplatesService {
