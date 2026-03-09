@@ -37,7 +37,7 @@ const uploadBodySchema = z.object({
 
 @ApiTags('Carga de Archivos')
 @ApiBearerAuth()
-@Roles(UserRole.ADMIN)
+@Roles(UserRole.ADMIN, UserRole.CLIENT)
 @Controller('upload')
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
