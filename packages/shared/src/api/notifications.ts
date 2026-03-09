@@ -6,8 +6,14 @@ export interface NotificationFilters {
   take?: number;
 }
 
+/**
+ * Creates query and mutation functions for user notifications.
+ * @param apiClient Axios instance (web uses proxy `/api/v1`, mobile uses direct URL)
+ */
 export function createNotificationQueries(apiClient: AxiosInstance) {
   return {
+    // --- Queries ---
+
     async getNotifications(
       params: NotificationFilters = {},
       signal?: AbortSignal,
@@ -20,6 +26,8 @@ export function createNotificationQueries(apiClient: AxiosInstance) {
       const { data } = await apiClient.get('/notifications/unread-count', { signal });
       return data;
     },
+
+    // --- Mutations ---
 
     async markAsRead(id: string): Promise<ApiResponse<NotificationPublic>> {
       const { data } = await apiClient.patch(`/notifications/${id}/read`);

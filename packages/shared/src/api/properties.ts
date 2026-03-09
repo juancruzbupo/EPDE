@@ -11,8 +11,14 @@ export interface PropertyFilters {
   take?: number;
 }
 
+/**
+ * Creates query functions for client properties.
+ * @param apiClient Axios instance (web uses proxy `/api/v1`, mobile uses direct URL)
+ */
 export function createPropertyQueries(apiClient: AxiosInstance) {
   return {
+    // --- Queries ---
+
     async getProperties(
       params: PropertyFilters,
       signal?: AbortSignal,

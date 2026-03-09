@@ -9,8 +9,14 @@ export interface ClientFilters {
   take?: number;
 }
 
+/**
+ * Creates query and mutation functions for client management.
+ * @param apiClient Axios instance (web uses proxy `/api/v1`, mobile uses direct URL)
+ */
 export function createClientQueries(apiClient: AxiosInstance) {
   return {
+    // --- Queries ---
+
     async getClients(
       params: ClientFilters,
       signal?: AbortSignal,
@@ -23,6 +29,8 @@ export function createClientQueries(apiClient: AxiosInstance) {
       const { data } = await apiClient.get(`/clients/${id}`, { signal });
       return data;
     },
+
+    // --- Mutations ---
 
     async createClient(dto: {
       email: string;

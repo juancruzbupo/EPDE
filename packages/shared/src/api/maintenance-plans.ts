@@ -11,8 +11,14 @@ import type {
 import type { TaskStatus } from '../types/enums';
 import type { CompleteTaskInput } from '../schemas/task-log';
 
+/**
+ * Creates query and mutation functions for the maintenance plans domain.
+ * @param apiClient Axios instance (web uses proxy `/api/v1`, mobile uses direct URL)
+ */
 export function createMaintenancePlanQueries(apiClient: AxiosInstance) {
   return {
+    // --- Queries ---
+
     async getPlans(signal?: AbortSignal): Promise<{ data: PlanListItem[] }> {
       const { data } = await apiClient.get('/maintenance-plans', { signal });
       return data;
@@ -66,6 +72,8 @@ export function createMaintenancePlanQueries(apiClient: AxiosInstance) {
       });
       return data;
     },
+
+    // --- Mutations ---
 
     async completeTask(
       planId: string,

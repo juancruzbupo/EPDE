@@ -6,8 +6,14 @@ import type {
 } from '../schemas/task-template';
 import type { CreateTaskTemplateInput, UpdateTaskTemplateInput } from '../schemas/task-template';
 
+/**
+ * Creates query and mutation functions for category and task templates.
+ * @param apiClient Axios instance (web uses proxy `/api/v1`, mobile uses direct URL)
+ */
 export function createCategoryTemplateQueries(apiClient: AxiosInstance) {
   return {
+    // --- Queries ---
+
     async getCategoryTemplates(signal?: AbortSignal): Promise<PaginatedResponse<CategoryTemplate>> {
       const { data } = await apiClient.get('/category-templates', { signal });
       return data;
@@ -20,6 +26,8 @@ export function createCategoryTemplateQueries(apiClient: AxiosInstance) {
       const { data } = await apiClient.get(`/category-templates/${id}`, { signal });
       return data;
     },
+
+    // --- Mutations ---
 
     async createCategoryTemplate(
       dto: CreateCategoryTemplateInput,

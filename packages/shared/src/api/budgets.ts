@@ -9,8 +9,14 @@ export interface BudgetFilters {
   take?: number;
 }
 
+/**
+ * Creates query and mutation functions for budget requests.
+ * @param apiClient Axios instance (web uses proxy `/api/v1`, mobile uses direct URL)
+ */
 export function createBudgetQueries(apiClient: AxiosInstance) {
   return {
+    // --- Queries ---
+
     async getBudgets(
       params: BudgetFilters,
       signal?: AbortSignal,
@@ -23,6 +29,8 @@ export function createBudgetQueries(apiClient: AxiosInstance) {
       const { data } = await apiClient.get(`/budgets/${id}`, { signal });
       return data;
     },
+
+    // --- Mutations ---
 
     async createBudgetRequest(dto: {
       propertyId: string;

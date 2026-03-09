@@ -42,6 +42,9 @@ export async function createTestApp(): Promise<INestApplication> {
 /**
  * Cleans all tables using TRUNCATE CASCADE to avoid FK race conditions
  * with async event handlers (e.g. notification listeners).
+ *
+ * IMPORTANT: When adding new Prisma models with foreign keys,
+ * add them here in dependency order (children before parents).
  */
 export async function cleanDatabase(prisma: PrismaService): Promise<void> {
   const tableNames = [
@@ -57,6 +60,8 @@ export async function cleanDatabase(prisma: PrismaService): Promise<void> {
     'BudgetResponse',
     'BudgetRequest',
     'Property',
+    'TaskTemplate',
+    'CategoryTemplate',
     'Category',
     'User',
   ];

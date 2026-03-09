@@ -10,8 +10,14 @@ export interface ServiceRequestFilters {
   take?: number;
 }
 
+/**
+ * Creates query and mutation functions for service requests.
+ * @param apiClient Axios instance (web uses proxy `/api/v1`, mobile uses direct URL)
+ */
 export function createServiceRequestQueries(apiClient: AxiosInstance) {
   return {
+    // --- Queries ---
+
     async getServiceRequests(
       params: ServiceRequestFilters,
       signal?: AbortSignal,
@@ -27,6 +33,8 @@ export function createServiceRequestQueries(apiClient: AxiosInstance) {
       const { data } = await apiClient.get(`/service-requests/${id}`, { signal });
       return data;
     },
+
+    // --- Mutations ---
 
     async createServiceRequest(dto: {
       propertyId: string;

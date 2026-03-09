@@ -23,7 +23,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
-    // Immediately clear local state to prevent in-flight requests with stale auth
+    // Immediately clear local state to prevent in-flight requests with stale auth.
+    // Web does not persist query cache (unlike mobile with AsyncStorage),
+    // so queryClient.clear() is sufficient — no storage cleanup needed.
     queryClient.cancelQueries();
     queryClient.clear();
     set({ user: null, isAuthenticated: false });
