@@ -1,4 +1,4 @@
-import { UserRole } from '@epde/shared';
+import { BudgetStatus, ServiceStatus, TaskStatus, UserRole } from '@epde/shared';
 import { Injectable } from '@nestjs/common';
 import { addDays, startOfMonth } from 'date-fns';
 
@@ -23,11 +23,11 @@ export class DashboardRepository {
         this.prisma.softDelete.user.count({ where: { role: UserRole.CLIENT } }),
         this.prisma.softDelete.property.count(),
         this.prisma.softDelete.task.count({
-          where: { nextDueDate: { lt: new Date() }, status: { not: 'COMPLETED' } },
+          where: { nextDueDate: { lt: new Date() }, status: { not: TaskStatus.COMPLETED } },
         }),
-        this.prisma.softDelete.budgetRequest.count({ where: { status: 'PENDING' } }),
+        this.prisma.softDelete.budgetRequest.count({ where: { status: BudgetStatus.PENDING } }),
         this.prisma.softDelete.serviceRequest.count({
-          where: { status: { in: ['OPEN', 'IN_REVIEW'] } },
+          where: { status: { in: [ServiceStatus.OPEN, ServiceStatus.IN_REVIEW] } },
         }),
       ]);
 
@@ -49,7 +49,7 @@ export class DashboardRepository {
           select: { id: true, address: true, city: true, createdAt: true },
         }),
         this.prisma.softDelete.task.findMany({
-          where: { status: 'COMPLETED' },
+          where: { status: TaskStatus.COMPLETED },
           orderBy: { updatedAt: 'desc' },
           take: 5,
           select: { id: true, name: true, updatedAt: true },
@@ -95,20 +95,20 @@ export class DashboardRepository {
 
     const [pendingTasks, overdueTasks, upcomingTasks, completedThisMonth] = await Promise.all([
       this.prisma.softDelete.task.count({
-        where: { ...taskWhere, status: 'PENDING' },
+        where: { ...taskWhere, status: TaskStatus.PENDING },
       }),
       this.prisma.softDelete.task.count({
         where: {
           ...taskWhere,
           nextDueDate: { lt: now },
-          status: { not: 'COMPLETED' },
+          status: { not: TaskStatus.COMPLETED },
         },
       }),
       this.prisma.softDelete.task.count({
         where: {
           ...taskWhere,
           nextDueDate: { gte: now, lte: thirtyDaysFromNow },
-          status: { not: 'COMPLETED' },
+          status: { not: TaskStatus.COMPLETED },
         },
       }),
       this.prisma.taskLog.count({
@@ -127,13 +127,13 @@ export class DashboardRepository {
       this.prisma.softDelete.budgetRequest.count({
         where: {
           propertyId: { in: propertyIds },
-          status: { in: ['PENDING', 'QUOTED'] },
+          status: { in: [BudgetStatus.PENDING, BudgetStatus.QUOTED] },
         },
       }),
       this.prisma.softDelete.serviceRequest.count({
         where: {
           propertyId: { in: propertyIds },
-          status: { in: ['OPEN', 'IN_REVIEW', 'IN_PROGRESS'] },
+          status: { in: [ServiceStatus.OPEN, ServiceStatus.IN_REVIEW, ServiceStatus.IN_PROGRESS] },
         },
       }),
     ]);
@@ -151,8 +151,11 @@ export class DashboardRepository {
           property: { userId, deletedAt: null },
         },
         OR: [
-          { nextDueDate: { lt: now }, status: { not: 'COMPLETED' } },
-          { nextDueDate: { gte: now, lte: thirtyDaysFromNow }, status: { not: 'COMPLETED' } },
+          { nextDueDate: { lt: now }, status: { not: TaskStatus.COMPLETED } },
+          {
+            nextDueDate: { gte: now, lte: thirtyDaysFromNow },
+            status: { not: TaskStatus.COMPLETED },
+          },
         ],
       },
       include: {

@@ -162,6 +162,15 @@ export abstract class BaseRepository<
     return this.writeModel.delete({ where: { id } });
   }
 
+  /**
+   * Counts records matching the given filter.
+   *
+   * ⚠️ Prisma limitation: `_count` in `include` and raw `count()` on
+   * soft-deletable models DO filter out `deletedAt != null` rows (via the
+   * extension middleware). However, `_count` on **relations** (e.g.
+   * `property._count.tasks`) does NOT inherit the soft-delete filter —
+   * you must add `deletedAt: null` manually in those nested where clauses.
+   */
   async count(where?: Record<string, unknown>): Promise<number> {
     return this.model.count({ ...(where && { where }) });
   }

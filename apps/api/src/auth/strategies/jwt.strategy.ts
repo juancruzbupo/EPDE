@@ -47,6 +47,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Token type invalid');
     }
 
+    // isBlacklisted() uses safeExists() which returns false on Redis failure
+    // (graceful degradation). This catch is a fail-closed safety net: if an
+    // unexpected error ever propagates, reject the request rather than allow
+    // a potentially revoked token through.
     try {
       const blacklisted = await this.tokenService.isBlacklisted(payload.jti);
       if (blacklisted) {

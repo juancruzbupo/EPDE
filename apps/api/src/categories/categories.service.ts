@@ -49,6 +49,14 @@ export class CategoriesService {
     return this.categoriesRepository.update(id, dto);
   }
 
+  /**
+   * Deletes a category if it has no referencing tasks.
+   *
+   * TOCTOU note: there is a race between hasReferencingTasks() and hardDelete().
+   * This is acceptable because: (1) admin-only operation with low concurrency,
+   * (2) the DB FK constraint on task.categoryId will reject the delete if a task
+   * is created between the check and the delete, so data integrity is preserved.
+   */
   async deleteCategory(id: string) {
     const category = await this.categoriesRepository.findById(id);
     if (!category) {
