@@ -44,7 +44,7 @@
 32. **Tipografia: `type-*` en landing, Tailwind text en dashboard** — Las secciones de landing usan clases `type-display`, `type-heading`, `type-body`, `type-caption` definidas en `globals.css`. El dashboard y paginas autenticadas usan `text-sm`, `text-base`, `text-lg` de Tailwind directamente. NUNCA mezclar sistemas
 33. **List pages siguen patron de properties** — Toda pagina de listado paginado sigue el patron de `app/(dashboard)/properties/page.tsx`: `useInfiniteQuery` + `maxPages: 10` + skeleton loading + error state + empty state + infinite scroll trigger. Copiar estructura como baseline
 34. **Filter interfaces reflejan Zod schemas** — Los tipos de filtros en frontend (`PropertyFilters`, `BudgetFilters`, etc.) DEBEN ser subconjuntos de los schemas Zod de `@epde/shared`. Si el schema agrega un campo, el filtro debe reflejarlo. Evitar drift manual entre tipos de filtro locales y schemas compartidos
-35. **Import ordering** — Orden de imports en archivos TS/TSX: (1) React/framework (`react`, `next/*`, `@nestjs/*`), (2) external packages (`lucide-react`, `framer-motion`, `date-fns`), (3) `@epde/shared`, (4) `@/` local imports (components, hooks, lib), (5) `type` imports al final de cada grupo. Separar grupos con linea en blanco
+35. **Import ordering** — Enforced via `eslint-plugin-simple-import-sort` (`simple-import-sort/imports` + `simple-import-sort/exports` en `eslint.config.mjs`). Orden: (1) React/framework (`react`, `next/*`, `@nestjs/*`), (2) external packages (`lucide-react`, `framer-motion`, `date-fns`), (3) `@epde/shared`, (4) `@/` local imports (components, hooks, lib), (5) `type` imports al final de cada grupo. Se auto-formatea con `pnpm lint --fix`
 36. **Regla de excepciones** — Domain exceptions (`XxxError extends Error` en `common/exceptions/domain.exceptions.ts`) para logica transaccional dentro de try/catch que mapea a HTTP. HTTP exceptions directas (`NotFoundException`, `ForbiddenException`) para validaciones de existencia/ownership pre-operacion. Los repositories NUNCA importan `@nestjs/common`
 
 ### NUNCA
@@ -256,11 +256,11 @@ Los tests `css-tokens.test.ts` en web y mobile verifican tanto la **existencia**
 
 Regla para cuándo aplicar `staleTime` en hooks de React Query:
 
-| Tipo de hook            | staleTime               | Razón                                                       |
-| ----------------------- | ----------------------- | ----------------------------------------------------------- |
-| Dashboard hooks         | `2 * 60 * 1000` (2 min) | Datos cambian infrecuentemente, usuario navega tabs seguido |
-| Listados con paginación | default (0)             | Siempre fresh al navegar — cambios frecuentes por CRUD      |
-| Detail views            | default (0)             | Siempre fresh — dato individual puede cambiar entre vistas  |
+| Tipo de hook            | staleTime            | Razón                                                       |
+| ----------------------- | -------------------- | ----------------------------------------------------------- |
+| Dashboard hooks         | `2 * 60_000` (2 min) | Datos cambian infrecuentemente, usuario navega tabs seguido |
+| Listados con paginación | default (0)          | Siempre fresh al navegar — cambios frecuentes por CRUD      |
+| Detail views            | default (0)          | Siempre fresh — dato individual puede cambiar entre vistas  |
 
 Aplicar en **web y mobile** por igual. Si un hook tiene `staleTime` en web, su equivalente mobile DEBE tenerlo también.
 
@@ -667,7 +667,9 @@ describe('BudgetsService', () => {
 
 **QUERY_KEYS** es SSoT en `@epde/shared` — nunca crear query keys locales. Import siempre: `import { QUERY_KEYS } from '@epde/shared'`.
 
-**staleTime policy**: Dashboard hooks usan `staleTime: 2 * 60 * 1000` (2 min). El resto usa el default de React Query (0).
+**staleTime policy**: Global `staleTime: 2 * 60_000` (2 min) en ambos query clients. Hooks pueden overridear si necesitan datos más frescos.
+
+**retry policy**: Smart retry — skip errores 4xx (auth/validación), retry 5xx una vez. Configurado globalmente en ambos query clients.
 
 ```typescript
 // apps/web/src/hooks/use-budgets.ts — Hook template
@@ -875,7 +877,18 @@ export const useAuthStore = create<AuthState>((set) => ({
 }));
 
 // apps/web/src/lib/query-client.ts — singleton exportable
-export const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 120_000 } } });
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 2 * 60_000, // 2 min
+      retry: (failureCount, error) => {
+        const status = (error as { response?: { status?: number } })?.response?.status;
+        if (status && status < 500) return false; // Skip 4xx (auth/validation)
+        return failureCount < 1; // Retry 5xx once
+      },
+    },
+  },
+});
 ```
 
 **Middleware (Next.js):** Verifica cookie `access_token`, decodifica JWT, redirige a `/login` si expirado (buffer 30s).
