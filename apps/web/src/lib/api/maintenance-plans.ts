@@ -1,9 +1,11 @@
 import type {
   ApiResponse,
+  PlanPublic,
   PlanStatus,
   ProfessionalRequirement,
   RecurrenceType,
   TaskPriority,
+  TaskPublic,
   TaskStatus,
   TaskType,
 } from '@epde/shared';
@@ -37,7 +39,7 @@ export const {
 export async function updatePlan(
   id: string,
   dto: { name?: string; status?: PlanStatus },
-): Promise<ApiResponse<unknown>> {
+): Promise<ApiResponse<PlanPublic>> {
   const { data } = await apiClient.patch(`/maintenance-plans/${id}`, dto);
   return data;
 }
@@ -53,7 +55,7 @@ export async function addTask(
     recurrenceMonths?: number;
     nextDueDate?: string;
   },
-): Promise<ApiResponse<unknown>> {
+): Promise<ApiResponse<TaskPublic>> {
   const { data } = await apiClient.post(`/maintenance-plans/${planId}/tasks`, dto);
   return data;
 }
@@ -75,12 +77,12 @@ export async function updateTask(
     technicalDescription?: string | null;
     estimatedDurationMinutes?: number | null;
   },
-): Promise<ApiResponse<unknown>> {
+): Promise<ApiResponse<TaskPublic>> {
   const { data } = await apiClient.patch(`/maintenance-plans/${planId}/tasks/${taskId}`, dto);
   return data;
 }
 
-export async function removeTask(planId: string, taskId: string): Promise<ApiResponse<unknown>> {
+export async function removeTask(planId: string, taskId: string): Promise<ApiResponse<null>> {
   const { data } = await apiClient.delete(`/maintenance-plans/${planId}/tasks/${taskId}`);
   return data;
 }
@@ -88,7 +90,7 @@ export async function removeTask(planId: string, taskId: string): Promise<ApiRes
 export async function reorderTasks(
   planId: string,
   tasks: { id: string; order: number }[],
-): Promise<ApiResponse<unknown>> {
+): Promise<ApiResponse<null>> {
   const { data } = await apiClient.patch(`/maintenance-plans/${planId}/tasks/reorder`, { tasks });
   return data;
 }

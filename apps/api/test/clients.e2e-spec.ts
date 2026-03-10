@@ -114,6 +114,8 @@ describe('ClientsController (e2e)', () => {
         .set('Authorization', `Bearer ${adminToken}`);
 
       expect(res.status).toBe(200);
+      expect(res.body.data).toBeNull();
+      expect(res.body.message).toBeDefined();
     });
 
     it('should reject deletion by client role', async () => {

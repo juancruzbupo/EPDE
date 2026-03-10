@@ -36,7 +36,11 @@ export function useUpdateTask() {
       nextDueDate?: string;
       status?: TaskStatus;
     }) => updateTask(planId, taskId, dto),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] }),
+    onSuccess: () => {
+      toast.success('Tarea actualizada');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] });
+      invalidateDashboard(queryClient);
+    },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al actualizar tarea')),
   });
 }
@@ -46,7 +50,10 @@ export function useRemoveTask() {
   return useMutation({
     mutationFn: ({ planId, taskId }: { planId: string; taskId: string }) =>
       removeTask(planId, taskId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] }),
+    onSuccess: () => {
+      toast.success('Tarea eliminada');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] });
+    },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al eliminar tarea')),
   });
 }
@@ -56,7 +63,10 @@ export function useReorderTasks() {
   return useMutation({
     mutationFn: ({ planId, tasks }: { planId: string; tasks: { id: string; order: number }[] }) =>
       reorderTasks(planId, tasks),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] }),
+    onSuccess: () => {
+      toast.success('Orden actualizado');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] });
+    },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al reordenar tareas')),
   });
 }
@@ -119,6 +129,8 @@ export function useCompleteTask() {
       return { previousPlan };
     },
 
+    onSuccess: () => toast.success('Tarea completada'),
+
     onError: (_err, variables, context) => {
       toast.error(getErrorMessage(_err, 'Error al completar tarea'));
       if (context?.previousPlan) {
@@ -126,8 +138,7 @@ export function useCompleteTask() {
       }
     },
 
-    onSettled: (_data, error, variables) => {
-      if (!error) toast.success('Tarea completada');
+    onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
       invalidateDashboard(queryClient);
       queryClient.invalidateQueries({

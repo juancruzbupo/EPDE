@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { Children, type ReactNode } from 'react';
 
-import { fadeIn, staggerContainer, staggerItem, useMotionPreference } from '@/lib/motion';
+import { staggerContainer, staggerItem, useMotionPreference } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 
 interface PageTransitionProps {
@@ -28,20 +28,6 @@ export function PageTransition({ children, className }: PageTransitionProps) {
       {Children.map(children, (child) =>
         child ? <motion.div variants={staggerItem}>{child}</motion.div> : null,
       )}
-    </motion.div>
-  );
-}
-
-export function FadeIn({ children, className }: { children: ReactNode; className?: string }) {
-  const { shouldAnimate } = useMotionPreference();
-
-  if (!shouldAnimate) {
-    return <div className={className}>{children}</div>;
-  }
-
-  return (
-    <motion.div className={className} variants={fadeIn} initial="hidden" animate="visible">
-      {children}
     </motion.div>
   );
 }

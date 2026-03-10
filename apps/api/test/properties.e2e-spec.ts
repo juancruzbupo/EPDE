@@ -151,6 +151,8 @@ describe('PropertiesController (e2e)', () => {
         .set('Authorization', `Bearer ${adminToken}`);
 
       expect(deleteRes.status).toBe(200);
+      expect(deleteRes.body.data).toBeNull();
+      expect(deleteRes.body.message).toBeDefined();
 
       // Property should no longer appear in listings
       const listRes = await request(app.getHttpServer())

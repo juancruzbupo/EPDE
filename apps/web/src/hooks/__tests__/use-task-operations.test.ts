@@ -194,15 +194,11 @@ describe('useCompleteTask', () => {
     });
   });
 
-  it('shows success toast when no error on settled', () => {
+  it('shows success toast on success', () => {
     renderHook(() => useCompleteTask());
 
     const config = vi.mocked(useMutation).mock.calls[0][0];
-    (config.onSettled as (d: unknown, err: unknown, vars: typeof variables) => void)(
-      undefined,
-      null,
-      variables,
-    );
+    (config.onSuccess as () => void)();
 
     expect(toast.success).toHaveBeenCalledWith('Tarea completada');
   });

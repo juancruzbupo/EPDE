@@ -1,7 +1,9 @@
+import type { UserRole } from '@epde/shared';
+
 interface JwtPayload {
   sub: string;
   email: string;
-  role: string;
+  role: UserRole;
 }
 
 /**

@@ -1,3 +1,4 @@
+import type { UserRole } from '@epde/shared';
 import { cookies } from 'next/headers';
 
 import { decodeJwtPayload } from './jwt';
@@ -5,7 +6,7 @@ import { decodeJwtPayload } from './jwt';
 interface ServerUser {
   id: string;
   email: string;
-  role: string;
+  role: UserRole;
 }
 
 /**
