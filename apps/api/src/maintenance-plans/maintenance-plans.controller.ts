@@ -94,7 +94,7 @@ export class MaintenancePlansController {
     @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.plansService.updatePlan(id, dto, user.id);
-    return { data };
+    return { data, message: 'Plan de mantenimiento actualizado' };
   }
 
   @Post(':id/tasks')
@@ -117,7 +117,7 @@ export class MaintenancePlansController {
     @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.taskLifecycle.updateTask(planId, taskId, dto, user.id);
-    return { data };
+    return { data, message: 'Tarea actualizada' };
   }
 
   @Delete(':id/tasks/:taskId')
@@ -136,7 +136,7 @@ export class MaintenancePlansController {
     @Body(new ZodValidationPipe(reorderTasksSchema)) dto: ReorderTasksInput,
   ) {
     const data = await this.taskLifecycle.reorderTasks(planId, dto);
-    return { data };
+    return { data, message: 'Orden de tareas actualizado' };
   }
 
   @Get(':id/tasks/:taskId')

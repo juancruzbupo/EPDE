@@ -71,7 +71,7 @@ export class PropertiesController {
     @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.propertiesService.updateProperty(id, dto, user);
-    return { data };
+    return { data, message: 'Propiedad actualizada' };
   }
 
   @Delete(':id')

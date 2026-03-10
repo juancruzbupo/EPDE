@@ -36,7 +36,7 @@ export class CategoriesController {
     @Body(new ZodValidationPipe(updateCategorySchema)) dto: UpdateCategoryInput,
   ) {
     const data = await this.categoriesService.updateCategory(id, dto);
-    return { data };
+    return { data, message: 'Categoría actualizada' };
   }
 
   @Delete(':id')

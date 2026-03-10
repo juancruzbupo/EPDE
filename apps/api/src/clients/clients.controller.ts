@@ -57,7 +57,7 @@ export class ClientsController {
     @Body(new ZodValidationPipe(updateClientSchema)) dto: UpdateClientInput,
   ) {
     const data = await this.clientsService.updateClient(id, dto);
-    return { data };
+    return { data, message: 'Cliente actualizado' };
   }
 
   @Delete(':id')

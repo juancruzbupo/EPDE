@@ -23,8 +23,8 @@ const mockUser = {
   passwordHash: '$2b$12$hashedpassword',
   name: 'Juan Perez',
   phone: '+5491112345678',
-  createdAt: new Date(),
-  updatedAt: new Date(),
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
   deletedAt: null,
 };
 

@@ -37,7 +37,7 @@ export class NotificationsController {
     @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.notificationsService.markAsRead(id, user.id);
-    return { data };
+    return { data, message: 'Notificación marcada como leída' };
   }
 
   /** Collection-level bulk action — marks ALL unread notifications as read. */

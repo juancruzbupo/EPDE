@@ -61,6 +61,6 @@ export class ServiceRequestsController {
     @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.serviceRequestsService.updateStatus(id, dto, user);
-    return { data };
+    return { data, message: 'Estado de la solicitud actualizado' };
   }
 }

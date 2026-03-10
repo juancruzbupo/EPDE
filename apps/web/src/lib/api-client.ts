@@ -1,6 +1,10 @@
 // Singleton refresh: only one refresh attempt per 401 cycle.
 // If refresh fails, redirect to login — no retry loop, no backoff needed.
 // CSRF protection: auth cookies use SameSite=strict (same origin via proxy).
+//
+// Web auth uses HttpOnly cookies via same-origin proxy (/api/v1 → backend).
+// Token rotation happens server-side; no client-side refresh token storage.
+// withCredentials: true ensures cookies are sent with every request.
 import { attachRefreshInterceptor, CLIENT_TYPE_HEADER, CLIENT_TYPES } from '@epde/shared';
 import axios from 'axios';
 

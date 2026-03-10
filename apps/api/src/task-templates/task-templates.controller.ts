@@ -43,7 +43,7 @@ export class TaskTemplatesController {
     @Body(new ZodValidationPipe(updateTaskTemplateSchema)) dto: UpdateTaskTemplateInput,
   ) {
     const data = await this.service.update(id, dto);
-    return { data };
+    return { data, message: 'Plantilla de tarea actualizada' };
   }
 
   @Delete('task-templates/:id')

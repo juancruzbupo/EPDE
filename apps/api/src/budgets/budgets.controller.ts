@@ -71,6 +71,6 @@ export class BudgetsController {
     @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.budgetsService.updateStatus(id, dto, user);
-    return { data };
+    return { data, message: 'Estado del presupuesto actualizado' };
   }
 }

@@ -63,7 +63,7 @@ export class CategoryTemplatesController {
     @Body(new ZodValidationPipe(updateCategoryTemplateSchema)) dto: UpdateCategoryTemplateInput,
   ) {
     const data = await this.service.update(id, dto);
-    return { data };
+    return { data, message: 'Plantilla de categoría actualizada' };
   }
 
   @Delete(':id')

@@ -516,8 +516,8 @@ Todas las respuestas siguen esta convención:
 | **List** (con paginación) | `PaginatedResult<T>` directo (sin wrapper `data`) |
 | **Detail** (GET /:id)     | `{ data: T }`                                     |
 | **Create** (POST)         | `{ data: T, message: string }`                    |
-| **Update** (PATCH)        | `{ data: T }`                                     |
-| **Delete** (DELETE)       | `{ message: string }`                             |
+| **Update** (PATCH)        | `{ data: T, message: string }`                    |
+| **Delete** (DELETE)       | `{ data: null, message: string }`                 |
 
 ```typescript
 // ✅ Correcto — el service retorna { message } directamente
@@ -570,7 +570,7 @@ Set-password → verify JWT + check purpose === 'invite' + check status === 'INV
 ### 3.7 Upload Pattern
 
 ```typescript
-@Roles(UserRole.ADMIN) // Solo admin puede subir archivos
+@Roles(UserRole.ADMIN, UserRole.CLIENT) // Ambos roles pueden subir archivos
 @Controller('upload')
 export class UploadController {
   @Post()
@@ -658,6 +658,14 @@ describe('BudgetsService', () => {
 - Test permisos CLIENT vs ADMIN
 - Test happy path + error cases (not found, forbidden)
 - Naming: `should <expected behavior>`
+
+**Test estructural — Endpoint protection:**
+
+`test/endpoint-protection.e2e-spec.ts` usa `DiscoveryService` + `Reflector` para iterar todos los controllers y verificar que cada route handler tenga `@Roles()` o `@Public()`. Si alguien agrega un endpoint sin decorator, este test falla. Refuerza NUNCA #16.
+
+**ESM mock pattern (file-type):**
+
+`file-type` es ESM-only y no se puede importar en Jest/CJS. Se resuelve con `moduleNameMapper` en `jest-e2e.config.ts` apuntando a `test/__mocks__/file-type.ts` (mock manual que detecta JPEG/PNG via magic bytes). Usar este patron para cualquier paquete ESM-only en tests E2E.
 
 ---
 
@@ -892,6 +900,8 @@ export const queryClient = new QueryClient({
 ```
 
 **Middleware (Next.js):** Verifica cookie `access_token`, decodifica JWT, redirige a `/login` si expirado (buffer 30s).
+
+**Dashboard layout — Server Component:** `(dashboard)/layout.tsx` es un Server Component (async) que llama a `getServerUser()` (lee cookie server-side, decodifica JWT). Si no hay usuario, redirige a `/login` con `redirect()`. Las child pages son Client Components con `'use client'` + React Query. Este patron evita flash de contenido no autenticado y es mas eficiente que verificar auth client-side con `useEffect`.
 
 ### 4.7 UI/UX Patterns
 
