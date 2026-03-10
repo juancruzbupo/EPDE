@@ -1,4 +1,4 @@
-import { BCRYPT_SALT_ROUNDS } from '@epde/shared';
+import { BCRYPT_SALT_ROUNDS, UserRole, UserStatus } from '@epde/shared';
 import * as bcrypt from 'bcrypt';
 
 import { PrismaService } from '../prisma/prisma.service';
@@ -20,8 +20,8 @@ export async function seedTestData(prisma: PrismaService): Promise<TestData> {
       email: 'admin@test.com',
       name: 'Admin Test',
       passwordHash: hash,
-      role: 'ADMIN',
-      status: 'ACTIVE',
+      role: UserRole.ADMIN,
+      status: UserStatus.ACTIVE,
     },
   });
 
@@ -30,8 +30,8 @@ export async function seedTestData(prisma: PrismaService): Promise<TestData> {
       email: 'client@test.com',
       name: 'Client Test',
       passwordHash: hash,
-      role: 'CLIENT',
-      status: 'ACTIVE',
+      role: UserRole.CLIENT,
+      status: UserStatus.ACTIVE,
     },
   });
 
@@ -39,8 +39,8 @@ export async function seedTestData(prisma: PrismaService): Promise<TestData> {
     data: {
       email: 'invited@test.com',
       name: 'Invited User',
-      role: 'CLIENT',
-      status: 'INVITED',
+      role: UserRole.CLIENT,
+      status: UserStatus.INVITED,
     },
   });
 

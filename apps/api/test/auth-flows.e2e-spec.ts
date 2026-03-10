@@ -1,3 +1,4 @@
+import { UserRole, UserStatus } from '@epde/shared';
 import { INestApplication } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
@@ -91,7 +92,7 @@ describe('Auth Flows - Integration (e2e)', () => {
 
       // Verify user status changed to ACTIVE
       const user = await prisma.user.findUnique({ where: { id: testData.invited.id } });
-      expect(user?.status).toBe('ACTIVE');
+      expect(user?.status).toBe(UserStatus.ACTIVE);
 
       // Login with new password
       const loginRes = await loginAsMobile(app, testData.invited.email, 'NewPassword1!');
@@ -191,7 +192,7 @@ describe('Auth Rate Limiting (e2e)', () => {
     const { refreshToken: rt } = await generateTokens(app, {
       id: testData.client.id,
       email: testData.client.email,
-      role: 'CLIENT',
+      role: UserRole.CLIENT,
     });
 
     // Send 10 refresh requests sequentially to avoid ECONNRESET.

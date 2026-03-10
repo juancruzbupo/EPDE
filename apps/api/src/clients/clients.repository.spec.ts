@@ -1,3 +1,5 @@
+import { UserRole, UserStatus } from '@epde/shared';
+
 import { PrismaService } from '../prisma/prisma.service';
 import { ClientsRepository } from './clients.repository';
 
@@ -65,17 +67,17 @@ describe('ClientsRepository', () => {
 
       expect(mockModel.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ role: 'CLIENT' }),
+          where: expect.objectContaining({ role: UserRole.CLIENT }),
         }),
       );
     });
 
     it('should filter by status when provided', async () => {
-      await repository.findClients({ status: 'ACTIVE' });
+      await repository.findClients({ status: UserStatus.ACTIVE });
 
       expect(mockModel.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ role: 'CLIENT', status: 'ACTIVE' }),
+          where: expect.objectContaining({ role: UserRole.CLIENT, status: UserStatus.ACTIVE }),
         }),
       );
     });
@@ -86,7 +88,7 @@ describe('ClientsRepository', () => {
       expect(mockModel.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            role: 'CLIENT',
+            role: UserRole.CLIENT,
             OR: [
               { name: { contains: 'juan', mode: 'insensitive' } },
               { email: { contains: 'juan', mode: 'insensitive' } },
@@ -144,7 +146,7 @@ describe('ClientsRepository', () => {
     });
 
     it('should create a client via writeModel', async () => {
-      const data = { name: 'Juan Pérez', email: 'juan@example.com', role: 'CLIENT' as const };
+      const data = { name: 'Juan Pérez', email: 'juan@example.com', role: UserRole.CLIENT };
       mockModel.create.mockResolvedValue({ id: 'clx1user0000001', ...data });
 
       const result = await repository.create(data);

@@ -1,3 +1,4 @@
+import { UserRole } from '@epde/shared';
 import { INestApplication } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import request from 'supertest';
@@ -138,7 +139,7 @@ describe('Auth - Token Rotation (e2e)', () => {
       const { accessToken } = await generateTokens(app, {
         id: testData.admin.id,
         email: testData.admin.email,
-        role: 'ADMIN',
+        role: UserRole.ADMIN,
       });
 
       // Verify token works before logout
@@ -167,7 +168,7 @@ describe('Auth - Token Rotation (e2e)', () => {
       const { accessToken, refreshToken } = await generateTokens(app, {
         id: testData.admin.id,
         email: testData.admin.email,
-        role: 'ADMIN',
+        role: UserRole.ADMIN,
       });
 
       // Logout

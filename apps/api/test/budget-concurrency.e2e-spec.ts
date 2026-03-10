@@ -1,3 +1,4 @@
+import { BudgetStatus, UserRole } from '@epde/shared';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 
@@ -24,12 +25,12 @@ describe('Budget Concurrency (e2e)', () => {
     clientToken = await getToken(app, {
       id: testData.client.id,
       email: testData.client.email,
-      role: 'CLIENT',
+      role: UserRole.CLIENT,
     });
     adminToken = await getToken(app, {
       id: testData.admin.id,
       email: testData.admin.email,
-      role: 'ADMIN',
+      role: UserRole.ADMIN,
     });
   });
 
@@ -97,11 +98,11 @@ describe('Budget Concurrency (e2e)', () => {
         request(app.getHttpServer())
           .patch(`/api/v1/budgets/${budgetId}/status`)
           .set('Authorization', `Bearer ${clientToken}`)
-          .send({ status: 'APPROVED' }),
+          .send({ status: BudgetStatus.APPROVED }),
         request(app.getHttpServer())
           .patch(`/api/v1/budgets/${budgetId}/status`)
           .set('Authorization', `Bearer ${clientToken}`)
-          .send({ status: 'REJECTED' }),
+          .send({ status: BudgetStatus.REJECTED }),
       ]);
 
       const statuses = [approveRes.status, rejectRes.status].sort();
@@ -110,7 +111,7 @@ describe('Budget Concurrency (e2e)', () => {
 
       // Verify the budget has exactly one final status
       const budget = await prisma.budgetRequest.findUnique({ where: { id: budgetId } });
-      expect(['APPROVED', 'REJECTED']).toContain(budget?.status);
+      expect([BudgetStatus.APPROVED, BudgetStatus.REJECTED]).toContain(budget?.status);
     });
   });
 
@@ -129,7 +130,7 @@ describe('Budget Concurrency (e2e)', () => {
       // Verify version was incremented
       const budget = await prisma.budgetRequest.findUnique({ where: { id: budgetId } });
       expect(budget?.version).toBe(1);
-      expect(budget?.status).toBe('QUOTED');
+      expect(budget?.status).toBe(BudgetStatus.QUOTED);
     });
   });
 });

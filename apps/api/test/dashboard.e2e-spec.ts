@@ -1,3 +1,4 @@
+import { PlanStatus, TaskStatus, UserRole, UserStatus } from '@epde/shared';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 
@@ -24,12 +25,12 @@ describe('DashboardController (e2e)', () => {
     clientToken = await getToken(app, {
       id: testData.client.id,
       email: testData.client.email,
-      role: 'CLIENT',
+      role: UserRole.CLIENT,
     });
     adminToken = await getToken(app, {
       id: testData.admin.id,
       email: testData.admin.email,
-      role: 'ADMIN',
+      role: UserRole.ADMIN,
     });
   });
 
@@ -118,8 +119,8 @@ describe('DashboardController (e2e)', () => {
           email: 'other@test.com',
           name: 'Other Client',
           passwordHash: 'unused',
-          role: 'CLIENT',
-          status: 'ACTIVE',
+          role: UserRole.CLIENT,
+          status: UserStatus.ACTIVE,
         },
       });
 
@@ -136,7 +137,7 @@ describe('DashboardController (e2e)', () => {
         data: {
           propertyId: otherProperty.id,
           name: 'Other Plan',
-          status: 'ACTIVE',
+          status: PlanStatus.ACTIVE,
         },
       });
 
@@ -150,7 +151,7 @@ describe('DashboardController (e2e)', () => {
           professionalRequirement: 'PROFESSIONAL_REQUIRED',
           recurrenceType: 'ANNUAL',
           nextDueDate: new Date(Date.now() + 86400000), // tomorrow
-          status: 'PENDING',
+          status: TaskStatus.PENDING,
           order: 0,
         },
       });

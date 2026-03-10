@@ -1,3 +1,5 @@
+import { TaskStatus } from '@epde/shared';
+
 import { PrismaService } from '../prisma/prisma.service';
 import { TaskAuditLogRepository } from './task-audit-log.repository';
 
@@ -22,8 +24,8 @@ describe('TaskAuditLogRepository', () => {
 
   describe('createAuditLog', () => {
     it('should create an audit log with JSON before/after values', async () => {
-      const before = { status: 'PENDING' };
-      const after = { status: 'COMPLETED' };
+      const before = { status: TaskStatus.PENDING };
+      const after = { status: TaskStatus.COMPLETED };
       mockAuditLogModel.create.mockResolvedValue({
         id: 'clx1aud00000001',
         taskId: 'clx1tsk00000001',
@@ -46,8 +48,8 @@ describe('TaskAuditLogRepository', () => {
           taskId: 'clx1tsk00000001',
           userId: 'clx1usr00000001',
           action: 'STATUS_CHANGE',
-          before: { status: 'PENDING' },
-          after: { status: 'COMPLETED' },
+          before: { status: TaskStatus.PENDING },
+          after: { status: TaskStatus.COMPLETED },
         },
       });
     });

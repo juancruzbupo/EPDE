@@ -1,4 +1,4 @@
-import { UserRole } from '@epde/shared';
+import { BudgetStatus, UserRole } from '@epde/shared';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -96,7 +96,7 @@ describe('BudgetsService', () => {
       const budget = {
         id: 'budget-1',
         title: 'Test Budget',
-        status: 'PENDING',
+        status: BudgetStatus.PENDING,
         property: { userId: 'someone-else' },
       };
       budgetsRepository.findByIdWithDetails.mockResolvedValue(budget);
@@ -117,7 +117,7 @@ describe('BudgetsService', () => {
       const budget = {
         id: 'budget-1',
         title: 'Test Budget',
-        status: 'PENDING',
+        status: BudgetStatus.PENDING,
         property: { userId: 'other-user' },
       };
       budgetsRepository.findByIdWithDetails.mockResolvedValue(budget);
@@ -129,7 +129,7 @@ describe('BudgetsService', () => {
       const budget = {
         id: 'budget-1',
         title: 'Test Budget',
-        status: 'PENDING',
+        status: BudgetStatus.PENDING,
         property: { userId: clientUser.id },
       };
       budgetsRepository.findByIdWithDetails.mockResolvedValue(budget);
@@ -159,7 +159,7 @@ describe('BudgetsService', () => {
         requestedBy: clientUser.id,
         title: dto.title,
         description: dto.description,
-        status: 'PENDING',
+        status: BudgetStatus.PENDING,
       };
       budgetsRepository.create.mockResolvedValue(createdBudget);
 
@@ -174,7 +174,7 @@ describe('BudgetsService', () => {
           createdBy: clientUser.id,
           title: dto.title,
           description: dto.description,
-          status: 'PENDING',
+          status: BudgetStatus.PENDING,
         },
         {
           property: { select: { id: true, address: true, city: true } },
@@ -227,7 +227,7 @@ describe('BudgetsService', () => {
     it('should create response with line items and call notification handler', async () => {
       budgetsRepository.findById.mockResolvedValue({
         id: 'budget-1',
-        status: 'PENDING',
+        status: BudgetStatus.PENDING,
         version: 0,
       });
 
@@ -235,7 +235,7 @@ describe('BudgetsService', () => {
         id: 'budget-1',
         title: 'Reparacion de techo',
         requestedBy: 'client-1',
-        status: 'QUOTED',
+        status: BudgetStatus.QUOTED,
       };
       budgetsRepository.respondToBudget.mockResolvedValue(respondedBudget);
 
@@ -261,7 +261,7 @@ describe('BudgetsService', () => {
     it('should throw BadRequestException if budget is not PENDING', async () => {
       budgetsRepository.findById.mockResolvedValue({
         id: 'budget-1',
-        status: 'QUOTED',
+        status: BudgetStatus.QUOTED,
         version: 1,
       });
 
@@ -281,14 +281,14 @@ describe('BudgetsService', () => {
     it('should pass null validUntil when not provided', async () => {
       budgetsRepository.findById.mockResolvedValue({
         id: 'budget-1',
-        status: 'PENDING',
+        status: BudgetStatus.PENDING,
         version: 0,
       });
       budgetsRepository.respondToBudget.mockResolvedValue({
         id: 'budget-1',
         title: 'Test',
         requestedBy: 'client-1',
-        status: 'QUOTED',
+        status: BudgetStatus.QUOTED,
       });
 
       const dtoWithoutDate = {
@@ -311,28 +311,32 @@ describe('BudgetsService', () => {
       const budget = {
         id: 'budget-1',
         title: 'Test Budget',
-        status: 'QUOTED',
+        status: BudgetStatus.QUOTED,
         requestedBy: 'client-1',
         property: { userId: clientUser.id },
       };
       budgetsRepository.findByIdWithDetails.mockResolvedValue(budget);
 
-      const updatedBudget = { ...budget, status: 'APPROVED' };
+      const updatedBudget = { ...budget, status: BudgetStatus.APPROVED };
       budgetsRepository.update.mockResolvedValue(updatedBudget);
 
-      const result = await service.updateStatus('budget-1', { status: 'APPROVED' }, clientUser);
+      const result = await service.updateStatus(
+        'budget-1',
+        { status: BudgetStatus.APPROVED },
+        clientUser,
+      );
 
       expect(result).toEqual(updatedBudget);
       expect(budgetsRepository.update).toHaveBeenCalledWith(
         'budget-1',
-        { status: 'APPROVED', updatedBy: 'client-1' },
+        { status: BudgetStatus.APPROVED, updatedBy: 'client-1' },
         expect.any(Object),
       );
       expect(notificationsHandler.handleBudgetStatusChanged).toHaveBeenCalledWith({
         budgetId: 'budget-1',
         title: 'Test Budget',
-        oldStatus: 'QUOTED',
-        newStatus: 'APPROVED',
+        oldStatus: BudgetStatus.QUOTED,
+        newStatus: BudgetStatus.APPROVED,
         requesterId: 'client-1',
       });
     });
@@ -341,28 +345,32 @@ describe('BudgetsService', () => {
       const budget = {
         id: 'budget-1',
         title: 'Test Budget',
-        status: 'APPROVED',
+        status: BudgetStatus.APPROVED,
         requestedBy: 'client-1',
         property: { userId: 'client-1' },
       };
       budgetsRepository.findByIdWithDetails.mockResolvedValue(budget);
 
-      const updatedBudget = { ...budget, status: 'IN_PROGRESS' };
+      const updatedBudget = { ...budget, status: BudgetStatus.IN_PROGRESS };
       budgetsRepository.update.mockResolvedValue(updatedBudget);
 
-      const result = await service.updateStatus('budget-1', { status: 'IN_PROGRESS' }, adminUser);
+      const result = await service.updateStatus(
+        'budget-1',
+        { status: BudgetStatus.IN_PROGRESS },
+        adminUser,
+      );
 
       expect(result).toEqual(updatedBudget);
       expect(budgetsRepository.update).toHaveBeenCalledWith(
         'budget-1',
-        { status: 'IN_PROGRESS', updatedBy: 'admin-1' },
+        { status: BudgetStatus.IN_PROGRESS, updatedBy: 'admin-1' },
         expect.any(Object),
       );
       expect(notificationsHandler.handleBudgetStatusChanged).toHaveBeenCalledWith({
         budgetId: 'budget-1',
         title: 'Test Budget',
-        oldStatus: 'APPROVED',
-        newStatus: 'IN_PROGRESS',
+        oldStatus: BudgetStatus.APPROVED,
+        newStatus: BudgetStatus.IN_PROGRESS,
         requesterId: 'client-1',
       });
     });
@@ -371,7 +379,7 @@ describe('BudgetsService', () => {
       const budget = {
         id: 'budget-1',
         title: 'Test Budget',
-        status: 'QUOTED',
+        status: BudgetStatus.QUOTED,
         requestedBy: 'client-1',
         property: { userId: 'client-1' },
       };
@@ -379,7 +387,7 @@ describe('BudgetsService', () => {
 
       // Admin trying to approve (only CLIENT can do QUOTED -> APPROVED)
       await expect(
-        service.updateStatus('budget-1', { status: 'APPROVED' }, adminUser),
+        service.updateStatus('budget-1', { status: BudgetStatus.APPROVED }, adminUser),
       ).rejects.toThrow(ForbiddenException);
 
       expect(budgetsRepository.update).not.toHaveBeenCalled();
@@ -389,7 +397,7 @@ describe('BudgetsService', () => {
       budgetsRepository.findByIdWithDetails.mockResolvedValue(null);
 
       await expect(
-        service.updateStatus('nonexistent', { status: 'APPROVED' }, clientUser),
+        service.updateStatus('nonexistent', { status: BudgetStatus.APPROVED }, clientUser),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -397,7 +405,7 @@ describe('BudgetsService', () => {
       const budget = {
         id: 'budget-1',
         title: 'Test Budget',
-        status: 'PENDING',
+        status: BudgetStatus.PENDING,
         requestedBy: 'client-1',
         property: { userId: clientUser.id },
       };
@@ -405,7 +413,7 @@ describe('BudgetsService', () => {
 
       // PENDING has no allowed transitions in the map
       await expect(
-        service.updateStatus('budget-1', { status: 'APPROVED' }, clientUser),
+        service.updateStatus('budget-1', { status: BudgetStatus.APPROVED }, clientUser),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -413,14 +421,14 @@ describe('BudgetsService', () => {
       const budget = {
         id: 'budget-1',
         title: 'Test Budget',
-        status: 'QUOTED',
+        status: BudgetStatus.QUOTED,
         requestedBy: 'client-1',
         property: { userId: 'other-client' },
       };
       budgetsRepository.findByIdWithDetails.mockResolvedValue(budget);
 
       await expect(
-        service.updateStatus('budget-1', { status: 'APPROVED' }, clientUser),
+        service.updateStatus('budget-1', { status: BudgetStatus.APPROVED }, clientUser),
       ).rejects.toThrow(ForbiddenException);
     });
   });

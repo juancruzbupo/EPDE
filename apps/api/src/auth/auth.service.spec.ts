@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BCRYPT_SALT_ROUNDS } from '@epde/shared';
+import { BCRYPT_SALT_ROUNDS, UserRole, UserStatus } from '@epde/shared';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -18,8 +18,8 @@ jest.mock('bcrypt', () => ({
 const mockUser = {
   id: 'user-1',
   email: 'test@example.com',
-  role: 'CLIENT',
-  status: 'ACTIVE',
+  role: UserRole.CLIENT,
+  status: UserStatus.ACTIVE,
   passwordHash: '$2b$12$hashedpassword',
   name: 'Juan Perez',
   phone: '+5491112345678',
@@ -32,7 +32,7 @@ const mockInvitedUser = {
   ...mockUser,
   id: 'user-2',
   email: 'invited@example.com',
-  status: 'INVITED',
+  status: UserStatus.INVITED,
   passwordHash: null,
 };
 
@@ -135,7 +135,7 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('should return user, accessToken, refreshToken and strip passwordHash', async () => {
-      const loginInput = { id: 'user-1', email: 'test@example.com', role: 'CLIENT' };
+      const loginInput = { id: 'user-1', email: 'test@example.com', role: UserRole.CLIENT };
 
       tokenService.generateTokenPair.mockResolvedValue({
         accessToken: 'mock-access-token',
@@ -207,7 +207,7 @@ describe('AuthService', () => {
       (bcrypt.hash as jest.Mock).mockResolvedValue('new-hashed-password');
       usersService.update.mockResolvedValue({
         ...mockInvitedUser,
-        status: 'ACTIVE',
+        status: UserStatus.ACTIVE,
         passwordHash: 'new-hashed-password',
       } as any);
 
@@ -218,7 +218,7 @@ describe('AuthService', () => {
       expect(bcrypt.hash).toHaveBeenCalledWith('NewPassword123!', BCRYPT_SALT_ROUNDS);
       expect(usersService.update).toHaveBeenCalledWith('user-2', {
         passwordHash: 'new-hashed-password',
-        status: 'ACTIVE',
+        status: UserStatus.ACTIVE,
       });
       expect(result).toEqual({ message: 'Contraseña configurada correctamente' });
     });

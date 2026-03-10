@@ -1,3 +1,4 @@
+import { TaskStatus, UserRole } from '@epde/shared';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -166,7 +167,7 @@ describe('TaskLifecycleService', () => {
       };
       const task = {
         id: taskId,
-        status: 'PENDING',
+        status: TaskStatus.PENDING,
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         nextDueDate: new Date('2025-01-01'),
@@ -182,7 +183,7 @@ describe('TaskLifecycleService', () => {
 
       const result = await service.completeTask(taskId, userId, dto as never, {
         id: userId,
-        role: 'ADMIN',
+        role: UserRole.ADMIN,
       });
 
       expect(mockTasksRepository.completeAndReschedule).toHaveBeenCalledWith(
@@ -205,7 +206,7 @@ describe('TaskLifecycleService', () => {
       };
       const task = {
         id: taskId,
-        status: 'OVERDUE',
+        status: TaskStatus.OVERDUE,
         recurrenceType: 'ON_DETECTION',
         recurrenceMonths: null,
         nextDueDate: null,
@@ -215,7 +216,10 @@ describe('TaskLifecycleService', () => {
       mockTasksRepository.findById.mockResolvedValue(task);
       mockTasksRepository.completeAndReschedule.mockResolvedValue({ task, log: {} });
 
-      await service.completeTask(taskId, userId, dto as never, { id: userId, role: 'ADMIN' });
+      await service.completeTask(taskId, userId, dto as never, {
+        id: userId,
+        role: UserRole.ADMIN,
+      });
 
       expect(mockTasksRepository.completeAndReschedule).toHaveBeenCalledWith(
         taskId,
@@ -228,7 +232,7 @@ describe('TaskLifecycleService', () => {
     it('should throw BadRequestException when task is not in a completable status', async () => {
       const task = {
         id: 'task-1',
-        status: 'COMPLETED',
+        status: TaskStatus.COMPLETED,
         maintenancePlanId: 'plan-1',
         recurrenceType: 'ANNUAL',
         nextDueDate: new Date(),
@@ -237,7 +241,10 @@ describe('TaskLifecycleService', () => {
       mockTasksRepository.findById.mockResolvedValue(task);
 
       await expect(
-        service.completeTask('task-1', 'user-1', {} as never, { id: 'user-1', role: 'ADMIN' }),
+        service.completeTask('task-1', 'user-1', {} as never, {
+          id: 'user-1',
+          role: UserRole.ADMIN,
+        }),
       ).rejects.toThrow(BadRequestException);
 
       expect(mockTasksRepository.completeAndReschedule).not.toHaveBeenCalled();
@@ -246,10 +253,13 @@ describe('TaskLifecycleService', () => {
 
   describe('verifyTaskAccess', () => {
     it('should return task when ADMIN accesses any task', async () => {
-      const task = { id: 'task-1', maintenancePlanId: 'plan-1', status: 'PENDING' };
+      const task = { id: 'task-1', maintenancePlanId: 'plan-1', status: TaskStatus.PENDING };
       mockTasksRepository.findById.mockResolvedValue(task);
 
-      const result = await service.verifyTaskAccess('task-1', { id: 'admin-1', role: 'ADMIN' });
+      const result = await service.verifyTaskAccess('task-1', {
+        id: 'admin-1',
+        role: UserRole.ADMIN,
+      });
 
       expect(result).toEqual(task);
       expect(mockPlansRepository.findWithProperty).not.toHaveBeenCalled();
@@ -259,7 +269,7 @@ describe('TaskLifecycleService', () => {
       const taskId = 'task-1';
       const task = {
         id: taskId,
-        status: 'PENDING',
+        status: TaskStatus.PENDING,
         maintenancePlanId: 'plan-1',
       };
 
@@ -269,12 +279,12 @@ describe('TaskLifecycleService', () => {
       });
 
       await expect(
-        service.verifyTaskAccess(taskId, { id: 'client-user', role: 'CLIENT' }),
+        service.verifyTaskAccess(taskId, { id: 'client-user', role: UserRole.CLIENT }),
       ).rejects.toThrow(ForbiddenException);
     });
 
     it('should return task when CLIENT owns the property', async () => {
-      const task = { id: 'task-1', maintenancePlanId: 'plan-1', status: 'PENDING' };
+      const task = { id: 'task-1', maintenancePlanId: 'plan-1', status: TaskStatus.PENDING };
       mockTasksRepository.findById.mockResolvedValue(task);
       mockPlansRepository.findWithProperty.mockResolvedValue({
         property: { userId: 'client-user' },
@@ -282,7 +292,7 @@ describe('TaskLifecycleService', () => {
 
       const result = await service.verifyTaskAccess('task-1', {
         id: 'client-user',
-        role: 'CLIENT',
+        role: UserRole.CLIENT,
       });
 
       expect(result).toEqual(task);

@@ -1,3 +1,5 @@
+import { PlanStatus } from '@epde/shared';
+
 import { PrismaService } from '../prisma/prisma.service';
 import { PropertiesRepository } from './properties.repository';
 
@@ -66,7 +68,7 @@ describe('PropertiesRepository', () => {
         data: expect.objectContaining({
           propertyId: 'prop-1',
           name: `Plan de Mantenimiento — ${data.address}`,
-          status: 'DRAFT',
+          status: PlanStatus.DRAFT,
           createdBy: 'admin-1',
         }),
       });

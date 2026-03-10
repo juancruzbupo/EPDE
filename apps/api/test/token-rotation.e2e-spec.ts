@@ -1,3 +1,4 @@
+import { UserRole } from '@epde/shared';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 
@@ -91,7 +92,7 @@ describe('Token Rotation - Advanced (e2e)', () => {
       const { refreshToken } = await generateTokens(app, {
         id: testData.client.id,
         email: testData.client.email,
-        role: 'CLIENT',
+        role: UserRole.CLIENT,
       });
 
       // Manually revoke the family via Redis (simulates TTL expiry)

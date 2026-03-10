@@ -1,3 +1,4 @@
+import { TaskStatus } from '@epde/shared';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { DashboardRepository } from './dashboard.repository';
@@ -215,7 +216,7 @@ describe('DashboardService', () => {
           name: 'Revisar techos',
           nextDueDate: dueDate,
           priority: 'HIGH',
-          status: 'PENDING',
+          status: TaskStatus.PENDING,
           maintenancePlan: {
             id: 'plan-1',
             property: { address: 'Av. Corrientes 1234' },
@@ -227,7 +228,7 @@ describe('DashboardService', () => {
           name: 'Limpiar canaletas',
           nextDueDate: new Date('2025-07-01T10:00:00.000Z'),
           priority: 'MEDIUM',
-          status: 'UPCOMING',
+          status: TaskStatus.UPCOMING,
           maintenancePlan: {
             id: 'plan-2',
             property: { address: 'Calle San Martín 567' },
@@ -246,7 +247,7 @@ describe('DashboardService', () => {
         name: 'Revisar techos',
         nextDueDate: '2025-06-15T10:00:00.000Z',
         priority: 'HIGH',
-        status: 'PENDING',
+        status: TaskStatus.PENDING,
         propertyAddress: 'Av. Corrientes 1234',
         categoryName: 'Techos',
         maintenancePlanId: 'plan-1',
@@ -257,7 +258,7 @@ describe('DashboardService', () => {
         name: 'Limpiar canaletas',
         nextDueDate: '2025-07-01T10:00:00.000Z',
         priority: 'MEDIUM',
-        status: 'UPCOMING',
+        status: TaskStatus.UPCOMING,
         propertyAddress: 'Calle San Martín 567',
         categoryName: 'Plomería',
         maintenancePlanId: 'plan-2',

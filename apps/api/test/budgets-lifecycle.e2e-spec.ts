@@ -1,3 +1,4 @@
+import { BudgetStatus, UserRole } from '@epde/shared';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 
@@ -26,14 +27,14 @@ describe('BudgetsController (e2e)', () => {
     const clientPair = await tokenService.generateTokenPair({
       id: testData.client.id,
       email: testData.client.email,
-      role: 'CLIENT',
+      role: UserRole.CLIENT,
     });
     clientToken = clientPair.accessToken;
 
     const adminPair = await tokenService.generateTokenPair({
       id: testData.admin.id,
       email: testData.admin.email,
-      role: 'ADMIN',
+      role: UserRole.ADMIN,
     });
     adminToken = adminPair.accessToken;
   });
@@ -56,7 +57,7 @@ describe('BudgetsController (e2e)', () => {
         });
 
       expect(createRes.status).toBe(201);
-      expect(createRes.body.data.status).toBe('PENDING');
+      expect(createRes.body.data.status).toBe(BudgetStatus.PENDING);
       const budgetId = createRes.body.data.id;
 
       // 2. Admin quotes the budget
@@ -73,34 +74,34 @@ describe('BudgetsController (e2e)', () => {
         });
 
       expect(quoteRes.status).toBe(201);
-      expect(quoteRes.body.data.status).toBe('QUOTED');
+      expect(quoteRes.body.data.status).toBe(BudgetStatus.QUOTED);
 
       // 3. Client approves
       const approveRes = await request(app.getHttpServer())
         .patch(`/api/v1/budgets/${budgetId}/status`)
         .set('Authorization', `Bearer ${clientToken}`)
-        .send({ status: 'APPROVED' });
+        .send({ status: BudgetStatus.APPROVED });
 
       expect(approveRes.status).toBe(200);
-      expect(approveRes.body.data.status).toBe('APPROVED');
+      expect(approveRes.body.data.status).toBe(BudgetStatus.APPROVED);
 
       // 4. Admin moves to IN_PROGRESS
       const progressRes = await request(app.getHttpServer())
         .patch(`/api/v1/budgets/${budgetId}/status`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ status: 'IN_PROGRESS' });
+        .send({ status: BudgetStatus.IN_PROGRESS });
 
       expect(progressRes.status).toBe(200);
-      expect(progressRes.body.data.status).toBe('IN_PROGRESS');
+      expect(progressRes.body.data.status).toBe(BudgetStatus.IN_PROGRESS);
 
       // 5. Admin marks as COMPLETED
       const completeRes = await request(app.getHttpServer())
         .patch(`/api/v1/budgets/${budgetId}/status`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ status: 'COMPLETED' });
+        .send({ status: BudgetStatus.COMPLETED });
 
       expect(completeRes.status).toBe(200);
-      expect(completeRes.body.data.status).toBe('COMPLETED');
+      expect(completeRes.body.data.status).toBe(BudgetStatus.COMPLETED);
     });
   });
 
@@ -129,10 +130,10 @@ describe('BudgetsController (e2e)', () => {
       const rejectRes = await request(app.getHttpServer())
         .patch(`/api/v1/budgets/${budgetId}/status`)
         .set('Authorization', `Bearer ${clientToken}`)
-        .send({ status: 'REJECTED' });
+        .send({ status: BudgetStatus.REJECTED });
 
       expect(rejectRes.status).toBe(200);
-      expect(rejectRes.body.data.status).toBe('REJECTED');
+      expect(rejectRes.body.data.status).toBe(BudgetStatus.REJECTED);
     });
   });
 

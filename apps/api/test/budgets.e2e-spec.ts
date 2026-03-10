@@ -1,3 +1,4 @@
+import { BudgetStatus, UserRole } from '@epde/shared';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 
@@ -24,12 +25,12 @@ describe('Budgets - Audit & Decimal (e2e)', () => {
     clientToken = await getToken(app, {
       id: testData.client.id,
       email: testData.client.email,
-      role: 'CLIENT',
+      role: UserRole.CLIENT,
     });
     adminToken = await getToken(app, {
       id: testData.admin.id,
       email: testData.admin.email,
-      role: 'ADMIN',
+      role: UserRole.ADMIN,
     });
   });
 
@@ -109,7 +110,7 @@ describe('Budgets - Audit & Decimal (e2e)', () => {
       await request(app.getHttpServer())
         .patch(`/api/v1/budgets/${budgetId}/status`)
         .set('Authorization', `Bearer ${clientToken}`)
-        .send({ status: 'APPROVED' });
+        .send({ status: BudgetStatus.APPROVED });
 
       // Verify updatedBy is set in the database
       const budget = await prisma.budgetRequest.findUnique({

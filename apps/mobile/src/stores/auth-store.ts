@@ -37,7 +37,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch {
       // API may fail — local cleanup already done
     } finally {
-      await tokenService.clearTokens();
+      try {
+        await tokenService.clearTokens();
+      } catch {
+        // SecureStore unavailable — tokens may persist until next app launch
+      }
 
       // Clear persisted query cache to prevent data leaks between sessions
       const keys = await AsyncStorage.getAllKeys();
@@ -50,7 +54,13 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   checkAuth: async () => {
     try {
-      const hasTokens = await tokenService.hasTokens();
+      let hasTokens = false;
+      try {
+        hasTokens = await tokenService.hasTokens();
+      } catch {
+        // SecureStore unavailable (locked keychain, restricted device)
+        // Treat as unauthenticated — user can re-login
+      }
       if (!hasTokens) {
         set({ user: null, isAuthenticated: false, isLoading: false });
         return;
@@ -58,7 +68,11 @@ export const useAuthStore = create<AuthState>((set) => ({
       const user = await authApi.getMe();
       set({ user, isAuthenticated: true, isLoading: false });
     } catch {
-      await tokenService.clearTokens();
+      try {
+        await tokenService.clearTokens();
+      } catch {
+        // SecureStore unavailable during cleanup — ignore
+      }
       set({ user: null, isAuthenticated: false, isLoading: false });
     }
   },

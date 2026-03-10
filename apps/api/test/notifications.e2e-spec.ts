@@ -1,3 +1,4 @@
+import { UserRole } from '@epde/shared';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 
@@ -22,7 +23,7 @@ describe('NotificationsController (e2e)', () => {
     clientToken = await getToken(app, {
       id: testData.client.id,
       email: testData.client.email,
-      role: 'CLIENT',
+      role: UserRole.CLIENT,
     });
   });
 

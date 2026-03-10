@@ -1,3 +1,5 @@
+import { BudgetStatus } from '@epde/shared';
+
 import {
   BudgetNotPendingError,
   BudgetVersionConflictError,
@@ -43,16 +45,16 @@ describe('BudgetsRepository', () => {
     it('should succeed when budget is PENDING and version matches', async () => {
       mockTx.budgetRequest.findUnique.mockResolvedValue({
         id: 'b1',
-        status: 'PENDING',
+        status: BudgetStatus.PENDING,
         version: 1,
       });
-      mockTx.budgetRequest.update.mockResolvedValue({ id: 'b1', status: 'QUOTED' });
+      mockTx.budgetRequest.update.mockResolvedValue({ id: 'b1', status: BudgetStatus.QUOTED });
       mockTx.budgetLineItem.createMany.mockResolvedValue({ count: 1 });
       mockTx.budgetResponse.create.mockResolvedValue({ id: 'r1' });
 
       const result = await repository.respondToBudget('b1', 1, lineItems, response);
 
-      expect(result).toEqual({ id: 'b1', status: 'QUOTED' });
+      expect(result).toEqual({ id: 'b1', status: BudgetStatus.QUOTED });
       expect(mockTx.budgetLineItem.createMany).toHaveBeenCalledWith({
         data: expect.arrayContaining([
           expect.objectContaining({ budgetRequestId: 'b1', description: 'Item 1' }),
@@ -62,7 +64,7 @@ describe('BudgetsRepository', () => {
       expect(mockTx.budgetRequest.update).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { id: 'b1' },
-          data: expect.objectContaining({ status: 'QUOTED', version: { increment: 1 } }),
+          data: expect.objectContaining({ status: BudgetStatus.QUOTED, version: { increment: 1 } }),
         }),
       );
     });
@@ -70,7 +72,7 @@ describe('BudgetsRepository', () => {
     it('should throw BudgetNotPendingError when budget is not PENDING', async () => {
       mockTx.budgetRequest.findUnique.mockResolvedValue({
         id: 'b1',
-        status: 'QUOTED',
+        status: BudgetStatus.QUOTED,
         version: 1,
       });
 
@@ -90,7 +92,7 @@ describe('BudgetsRepository', () => {
     it('should throw BudgetVersionConflictError on version mismatch', async () => {
       mockTx.budgetRequest.findUnique.mockResolvedValue({
         id: 'b1',
-        status: 'PENDING',
+        status: BudgetStatus.PENDING,
         version: 2,
       });
 

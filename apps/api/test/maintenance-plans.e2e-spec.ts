@@ -1,3 +1,4 @@
+import { PlanStatus, TaskStatus, UserRole, UserStatus } from '@epde/shared';
 import { INestApplication } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
@@ -37,13 +38,13 @@ describe('MaintenancePlansController (e2e)', () => {
     adminToken = jwtService.sign({
       sub: testData.admin.id,
       email: testData.admin.email,
-      role: 'ADMIN',
+      role: UserRole.ADMIN,
       jti: randomUUID(),
     });
     clientToken = jwtService.sign({
       sub: testData.client.id,
       email: testData.client.email,
-      role: 'CLIENT',
+      role: UserRole.CLIENT,
       jti: randomUUID(),
     });
 
@@ -53,8 +54,8 @@ describe('MaintenancePlansController (e2e)', () => {
         email: 'other-client@test.com',
         name: 'Other Client',
         passwordHash: 'irrelevant',
-        role: 'CLIENT',
-        status: 'ACTIVE',
+        role: UserRole.CLIENT,
+        status: UserStatus.ACTIVE,
       },
     });
 
@@ -72,7 +73,7 @@ describe('MaintenancePlansController (e2e)', () => {
       data: {
         name: 'Plan Test',
         propertyId: testData.property.id,
-        status: 'ACTIVE',
+        status: PlanStatus.ACTIVE,
       },
     });
     planId = plan.id;
@@ -82,7 +83,7 @@ describe('MaintenancePlansController (e2e)', () => {
       data: {
         name: 'Plan otro cliente',
         propertyId: otherProperty.id,
-        status: 'ACTIVE',
+        status: PlanStatus.ACTIVE,
       },
     });
     otherPlanId = otherPlan.id;
@@ -93,7 +94,7 @@ describe('MaintenancePlansController (e2e)', () => {
         maintenancePlanId: planId,
         categoryId: testData.category.id,
         name: 'Inspección de cañerías',
-        status: 'PENDING',
+        status: TaskStatus.PENDING,
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         priority: 'MEDIUM',
@@ -223,7 +224,7 @@ describe('MaintenancePlansController (e2e)', () => {
           maintenancePlanId: otherPlanId,
           categoryId: testData.category.id,
           name: 'Tarea de otro cliente',
-          status: 'PENDING',
+          status: TaskStatus.PENDING,
           recurrenceType: 'ANNUAL',
           recurrenceMonths: 12,
           priority: 'LOW',
@@ -278,7 +279,7 @@ describe('MaintenancePlansController (e2e)', () => {
           maintenancePlanId: planId,
           categoryId: testData.category.id,
           name: 'Tarea ya completada',
-          status: 'COMPLETED',
+          status: TaskStatus.COMPLETED,
           recurrenceType: 'ANNUAL',
           recurrenceMonths: 12,
           priority: 'LOW',
@@ -302,7 +303,7 @@ describe('MaintenancePlansController (e2e)', () => {
           maintenancePlanId: otherPlanId,
           categoryId: testData.category.id,
           name: 'Tarea otro',
-          status: 'PENDING',
+          status: TaskStatus.PENDING,
           recurrenceType: 'ANNUAL',
           recurrenceMonths: 12,
           priority: 'LOW',
@@ -361,7 +362,7 @@ describe('MaintenancePlansController (e2e)', () => {
           maintenancePlanId: otherPlanId,
           categoryId: testData.category.id,
           name: 'Tarea otro',
-          status: 'PENDING',
+          status: TaskStatus.PENDING,
           recurrenceType: 'ANNUAL',
           recurrenceMonths: 12,
           priority: 'LOW',
@@ -400,7 +401,7 @@ describe('MaintenancePlansController (e2e)', () => {
           maintenancePlanId: otherPlanId,
           categoryId: testData.category.id,
           name: 'Tarea otro',
-          status: 'PENDING',
+          status: TaskStatus.PENDING,
           recurrenceType: 'ANNUAL',
           recurrenceMonths: 12,
           priority: 'LOW',

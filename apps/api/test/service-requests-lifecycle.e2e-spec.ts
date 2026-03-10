@@ -1,3 +1,4 @@
+import { ServiceStatus, UserRole } from '@epde/shared';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 
@@ -26,14 +27,14 @@ describe('ServiceRequestsController (e2e)', () => {
     const clientPair = await tokenService.generateTokenPair({
       id: testData.client.id,
       email: testData.client.email,
-      role: 'CLIENT',
+      role: UserRole.CLIENT,
     });
     clientToken = clientPair.accessToken;
 
     const adminPair = await tokenService.generateTokenPair({
       id: testData.admin.id,
       email: testData.admin.email,
-      role: 'ADMIN',
+      role: UserRole.ADMIN,
     });
     adminToken = adminPair.accessToken;
   });
@@ -57,35 +58,35 @@ describe('ServiceRequestsController (e2e)', () => {
         });
 
       expect(createRes.status).toBe(201);
-      expect(createRes.body.data.status).toBe('OPEN');
+      expect(createRes.body.data.status).toBe(ServiceStatus.OPEN);
       const requestId = createRes.body.data.id;
 
       // 2. Admin → IN_REVIEW
       const reviewRes = await request(app.getHttpServer())
         .patch(`/api/v1/service-requests/${requestId}/status`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ status: 'IN_REVIEW' });
+        .send({ status: ServiceStatus.IN_REVIEW });
 
       expect(reviewRes.status).toBe(200);
-      expect(reviewRes.body.data.status).toBe('IN_REVIEW');
+      expect(reviewRes.body.data.status).toBe(ServiceStatus.IN_REVIEW);
 
       // 3. Admin → IN_PROGRESS
       const progressRes = await request(app.getHttpServer())
         .patch(`/api/v1/service-requests/${requestId}/status`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ status: 'IN_PROGRESS' });
+        .send({ status: ServiceStatus.IN_PROGRESS });
 
       expect(progressRes.status).toBe(200);
-      expect(progressRes.body.data.status).toBe('IN_PROGRESS');
+      expect(progressRes.body.data.status).toBe(ServiceStatus.IN_PROGRESS);
 
       // 4. Admin → RESOLVED
       const resolveRes = await request(app.getHttpServer())
         .patch(`/api/v1/service-requests/${requestId}/status`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ status: 'RESOLVED' });
+        .send({ status: ServiceStatus.RESOLVED });
 
       expect(resolveRes.status).toBe(200);
-      expect(resolveRes.body.data.status).toBe('RESOLVED');
+      expect(resolveRes.body.data.status).toBe(ServiceStatus.RESOLVED);
     });
   });
 

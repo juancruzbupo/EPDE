@@ -1,3 +1,4 @@
+import { UserRole } from '@epde/shared';
 import { ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -36,12 +37,12 @@ const mockMetricsService = {
   recordTokenRotation: jest.fn(),
 };
 
-const TEST_USER = { id: 'user-1', email: 'test@test.com', role: 'CLIENT' };
+const TEST_USER = { id: 'user-1', email: 'test@test.com', role: UserRole.CLIENT };
 
 const REFRESH_PAYLOAD = {
   sub: 'user-1',
   email: 'test@test.com',
-  role: 'CLIENT',
+  role: UserRole.CLIENT,
   jti: 'jti-123',
   family: 'family-abc',
   generation: 0,

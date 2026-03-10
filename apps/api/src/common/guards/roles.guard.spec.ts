@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { UserRole } from '@epde/shared';
 import { ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
@@ -41,33 +42,33 @@ describe('RolesGuard', () => {
       return undefined;
     }) as any);
 
-    expect(guard.canActivate(mockContext({ role: 'ADMIN' }))).toBe(false);
+    expect(guard.canActivate(mockContext({ role: UserRole.ADMIN }))).toBe(false);
   });
 
   it('should allow matching role', () => {
     jest.spyOn(reflector, 'getAllAndOverride').mockImplementation(((key: string) => {
       if (key === IS_PUBLIC_KEY) return false;
-      if (key === ROLES_KEY) return ['ADMIN'];
+      if (key === ROLES_KEY) return [UserRole.ADMIN];
       return undefined;
     }) as any);
 
-    expect(guard.canActivate(mockContext({ role: 'ADMIN' }))).toBe(true);
+    expect(guard.canActivate(mockContext({ role: UserRole.ADMIN }))).toBe(true);
   });
 
   it('should deny mismatching role', () => {
     jest.spyOn(reflector, 'getAllAndOverride').mockImplementation(((key: string) => {
       if (key === IS_PUBLIC_KEY) return false;
-      if (key === ROLES_KEY) return ['ADMIN'];
+      if (key === ROLES_KEY) return [UserRole.ADMIN];
       return undefined;
     }) as any);
 
-    expect(guard.canActivate(mockContext({ role: 'CLIENT' }))).toBe(false);
+    expect(guard.canActivate(mockContext({ role: UserRole.CLIENT }))).toBe(false);
   });
 
   it('should deny when no user on request', () => {
     jest.spyOn(reflector, 'getAllAndOverride').mockImplementation(((key: string) => {
       if (key === IS_PUBLIC_KEY) return false;
-      if (key === ROLES_KEY) return ['CLIENT'];
+      if (key === ROLES_KEY) return [UserRole.CLIENT];
       return undefined;
     }) as any);
 

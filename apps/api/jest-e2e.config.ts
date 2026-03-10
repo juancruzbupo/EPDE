@@ -10,6 +10,7 @@ const config: Config = {
   moduleNameMapper: {
     '^@epde/shared$': '<rootDir>/../../packages/shared/src/index.ts',
     '^@epde/shared/(.*)$': '<rootDir>/../../packages/shared/src/$1',
+    '^file-type$': '<rootDir>/test/__mocks__/file-type.ts',
   },
 };
 

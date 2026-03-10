@@ -1,4 +1,4 @@
-import { TASKS_MAX_TAKE } from '@epde/shared';
+import { TASKS_MAX_TAKE, TaskStatus } from '@epde/shared';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { TasksRepository } from './tasks.repository';
@@ -39,10 +39,10 @@ describe('TasksRepository', () => {
       expect(mockModel.updateMany).toHaveBeenCalledWith({
         where: {
           nextDueDate: { lt: expect.any(Date) },
-          status: { notIn: ['COMPLETED', 'OVERDUE'] },
+          status: { notIn: [TaskStatus.COMPLETED, TaskStatus.OVERDUE] },
           recurrenceType: { not: 'ON_DETECTION' },
         },
-        data: { status: 'OVERDUE' },
+        data: { status: TaskStatus.OVERDUE },
       });
     });
   });
@@ -55,7 +55,7 @@ describe('TasksRepository', () => {
         expect.objectContaining({
           where: {
             nextDueDate: { gte: expect.any(Date), lte: expect.any(Date) },
-            status: { not: 'COMPLETED' },
+            status: { not: TaskStatus.COMPLETED },
             recurrenceType: { not: 'ON_DETECTION' },
           },
         }),
@@ -77,7 +77,7 @@ describe('TasksRepository', () => {
         expect.objectContaining({
           where: {
             nextDueDate: { lt: expect.any(Date) },
-            status: 'OVERDUE',
+            status: TaskStatus.OVERDUE,
             recurrenceType: { not: 'ON_DETECTION' },
           },
         }),

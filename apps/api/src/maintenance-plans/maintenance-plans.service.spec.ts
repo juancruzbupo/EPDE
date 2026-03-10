@@ -1,4 +1,4 @@
-import { UserRole } from '@epde/shared';
+import { PlanStatus, UserRole } from '@epde/shared';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -108,8 +108,8 @@ describe('MaintenancePlansService', () => {
 
   describe('updatePlan', () => {
     it('should update plan when found', async () => {
-      const existingPlan = { id: 'plan-1', name: 'Plan original', status: 'ACTIVE' };
-      const updatedPlan = { id: 'plan-1', name: 'Plan actualizado', status: 'ACTIVE' };
+      const existingPlan = { id: 'plan-1', name: 'Plan original', status: PlanStatus.ACTIVE };
+      const updatedPlan = { id: 'plan-1', name: 'Plan actualizado', status: PlanStatus.ACTIVE };
       plansRepository.findById.mockResolvedValue(existingPlan);
       plansRepository.update.mockResolvedValue(updatedPlan);
 

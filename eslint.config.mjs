@@ -42,12 +42,12 @@ export default [
   prettierConfig,
   {
     ignores: [
-      'node_modules/',
-      'dist/',
-      '.next/',
-      'build/',
-      'coverage/',
-      '.turbo/',
+      '**/node_modules/',
+      '**/dist/',
+      '**/.next/',
+      '**/build/',
+      '**/coverage/',
+      '**/.turbo/',
       '**/next-env.d.ts',
     ],
   },

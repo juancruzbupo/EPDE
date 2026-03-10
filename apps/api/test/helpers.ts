@@ -1,3 +1,4 @@
+import { UserRole } from '@epde/shared';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 
@@ -16,7 +17,7 @@ export async function generateTokens(
   return tokenService.generateTokenPair({
     id: user.id,
     email: user.email,
-    role: user.role ?? 'CLIENT',
+    role: user.role ?? UserRole.CLIENT,
   });
 }
 

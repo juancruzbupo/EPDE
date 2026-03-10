@@ -1,4 +1,4 @@
-import { UserRole } from '@epde/shared';
+import { UserRole, UserStatus } from '@epde/shared';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -98,7 +98,7 @@ describe('UsersService', () => {
         email: 'nuevo@test.com',
         name: 'Nuevo Usuario',
         role: UserRole.CLIENT,
-        status: 'ACTIVE' as const,
+        status: UserStatus.ACTIVE,
         passwordHash: 'hashed-password',
       };
       const createdUser = { id: 'new-user-1', ...createData };
@@ -130,20 +130,20 @@ describe('UsersService', () => {
     });
 
     it('should update user status', async () => {
-      const updateData = { status: 'ACTIVE' as const };
+      const updateData = { status: UserStatus.ACTIVE };
       const updatedUser = {
         id: 'client-1',
         name: 'Juan',
         email: 'juan@test.com',
         role: UserRole.CLIENT,
-        status: 'ACTIVE',
+        status: UserStatus.ACTIVE,
       };
       usersRepository.update.mockResolvedValue(updatedUser);
 
       const result = await service.update('client-1', updateData);
 
       expect(result).toEqual(updatedUser);
-      expect(result.status).toBe('ACTIVE');
+      expect(result.status).toBe(UserStatus.ACTIVE);
     });
   });
 });

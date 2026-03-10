@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { UserRole } from '@epde/shared';
+import { ServiceStatus, UserRole } from '@epde/shared';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -35,7 +35,7 @@ const mockServiceRequest = {
   title: 'Filtración en el techo',
   description: 'Se detectó una filtración en el techo del dormitorio principal',
   urgency: 'HIGH',
-  status: 'OPEN',
+  status: ServiceStatus.OPEN,
   createdAt: new Date(),
   updatedAt: new Date(),
   property: {
@@ -118,7 +118,7 @@ describe('ServiceRequestsService', () => {
     it('should forward filter params (status, urgency, propertyId)', async () => {
       const filtersWithParams = {
         ...filters,
-        status: 'OPEN' as const,
+        status: ServiceStatus.OPEN,
         urgency: 'HIGH' as const,
         propertyId: 'prop-1',
       };
@@ -133,7 +133,7 @@ describe('ServiceRequestsService', () => {
 
       expect(serviceRequestsRepo.findRequests).toHaveBeenCalledWith(
         expect.objectContaining({
-          status: 'OPEN',
+          status: ServiceStatus.OPEN,
           urgency: 'HIGH',
           propertyId: 'prop-1',
         }),
@@ -260,12 +260,12 @@ describe('ServiceRequestsService', () => {
   });
 
   describe('updateStatus', () => {
-    const updateDto = { status: 'IN_PROGRESS' as const };
+    const updateDto = { status: ServiceStatus.IN_PROGRESS };
     const adminUser = { id: 'admin-1', role: UserRole.ADMIN };
 
     it('should update status and call notification handler', async () => {
       serviceRequestsRepo.findByIdWithDetails.mockResolvedValue(mockServiceRequest);
-      const updatedRequest = { ...mockServiceRequest, status: 'IN_PROGRESS' };
+      const updatedRequest = { ...mockServiceRequest, status: ServiceStatus.IN_PROGRESS };
       serviceRequestsRepo.update.mockResolvedValue(updatedRequest);
 
       const result = await service.updateStatus('sr-1', updateDto, adminUser);
@@ -273,7 +273,7 @@ describe('ServiceRequestsService', () => {
       expect(serviceRequestsRepo.findByIdWithDetails).toHaveBeenCalledWith('sr-1');
       expect(serviceRequestsRepo.update).toHaveBeenCalledWith(
         'sr-1',
-        { status: 'IN_PROGRESS', updatedBy: 'admin-1' },
+        { status: ServiceStatus.IN_PROGRESS, updatedBy: 'admin-1' },
         {
           property: {
             select: {
@@ -290,8 +290,8 @@ describe('ServiceRequestsService', () => {
       expect(notificationsHandler.handleServiceStatusChanged).toHaveBeenCalledWith({
         serviceRequestId: 'sr-1',
         title: 'Filtración en el techo',
-        oldStatus: 'OPEN',
-        newStatus: 'IN_PROGRESS',
+        oldStatus: ServiceStatus.OPEN,
+        newStatus: ServiceStatus.IN_PROGRESS,
         requesterId: 'client-1',
       });
       expect(result).toEqual(updatedRequest);

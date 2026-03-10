@@ -1,3 +1,5 @@
+import { BudgetStatus, ServiceStatus, TaskStatus, UserRole } from '@epde/shared';
+
 import { PrismaService } from '../prisma/prisma.service';
 import { DashboardRepository } from './dashboard.repository';
 
@@ -56,7 +58,7 @@ describe('DashboardRepository', () => {
 
       await repository.getAdminStats();
 
-      expect(mockUserModel.count).toHaveBeenCalledWith({ where: { role: 'CLIENT' } });
+      expect(mockUserModel.count).toHaveBeenCalledWith({ where: { role: UserRole.CLIENT } });
     });
 
     it('should count overdue tasks that are not COMPLETED', async () => {
@@ -71,7 +73,7 @@ describe('DashboardRepository', () => {
       expect(mockTaskModel.count).toHaveBeenCalledWith({
         where: {
           nextDueDate: { lt: expect.any(Date) },
-          status: { not: 'COMPLETED' },
+          status: { not: TaskStatus.COMPLETED },
         },
       });
     });
@@ -105,7 +107,7 @@ describe('DashboardRepository', () => {
 
       expect(mockTaskModel.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { status: 'COMPLETED' },
+          where: { status: TaskStatus.COMPLETED },
           take: 5,
         }),
       );
@@ -179,13 +181,13 @@ describe('DashboardRepository', () => {
       expect(mockBudgetModel.count).toHaveBeenCalledWith({
         where: {
           propertyId: { in: ['p1', 'p2'] },
-          status: { in: ['PENDING', 'QUOTED'] },
+          status: { in: [BudgetStatus.PENDING, BudgetStatus.QUOTED] },
         },
       });
       expect(mockServiceModel.count).toHaveBeenCalledWith({
         where: {
           propertyId: { in: ['p1', 'p2'] },
-          status: { in: ['OPEN', 'IN_REVIEW', 'IN_PROGRESS'] },
+          status: { in: [ServiceStatus.OPEN, ServiceStatus.IN_REVIEW, ServiceStatus.IN_PROGRESS] },
         },
       });
     });
@@ -203,7 +205,9 @@ describe('DashboardRepository', () => {
             maintenancePlan: {
               property: { userId: 'user-1', deletedAt: null },
             },
-            OR: expect.arrayContaining([expect.objectContaining({ status: { not: 'COMPLETED' } })]),
+            OR: expect.arrayContaining([
+              expect.objectContaining({ status: { not: TaskStatus.COMPLETED } }),
+            ]),
           }),
           take: 10,
           orderBy: { nextDueDate: 'asc' },

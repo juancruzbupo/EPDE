@@ -1,4 +1,4 @@
-import { UserRole } from '@epde/shared';
+import { UserRole, UserStatus } from '@epde/shared';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -103,14 +103,14 @@ describe('ClientsService', () => {
         total: 0,
       });
 
-      const filters = { cursor: undefined, take: 20, search: 'juan', status: 'ACTIVE' as const };
+      const filters = { cursor: undefined, take: 20, search: 'juan', status: UserStatus.ACTIVE };
       await service.listClients(filters);
 
       expect(clientsRepository.findClients).toHaveBeenCalledWith({
         cursor: undefined,
         take: 20,
         search: 'juan',
-        status: 'ACTIVE',
+        status: UserStatus.ACTIVE,
       });
     });
   });
@@ -173,7 +173,7 @@ describe('ClientsService', () => {
         name: dto.name,
         phone: dto.phone,
         role: UserRole.CLIENT,
-        status: 'INVITED',
+        status: UserStatus.INVITED,
         passwordHash: null,
       };
       clientsRepository.create.mockResolvedValue(createdClient);
@@ -189,7 +189,7 @@ describe('ClientsService', () => {
         name: dto.name,
         phone: dto.phone,
         role: UserRole.CLIENT,
-        status: 'INVITED',
+        status: UserStatus.INVITED,
       });
       expect(jwtService.sign).toHaveBeenCalledWith(
         { sub: 'client-new', email: dto.email, purpose: 'invite' },
@@ -228,7 +228,7 @@ describe('ClientsService', () => {
         email: dto.email,
         name: dto.name,
         phone: dto.phone,
-        status: 'INVITED',
+        status: UserStatus.INVITED,
         passwordHash: null,
         deletedAt: null,
       };
@@ -242,7 +242,7 @@ describe('ClientsService', () => {
       expect(clientsRepository.update).toHaveBeenCalledWith('deleted-1', {
         name: dto.name,
         phone: dto.phone,
-        status: 'INVITED',
+        status: UserStatus.INVITED,
         passwordHash: null,
         deletedAt: null,
       });

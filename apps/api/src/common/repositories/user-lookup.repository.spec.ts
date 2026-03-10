@@ -1,3 +1,5 @@
+import { UserRole } from '@epde/shared';
+
 import { PrismaService } from '../../prisma/prisma.service';
 import { UserLookupRepository } from './user-lookup.repository';
 
@@ -27,7 +29,7 @@ describe('UserLookupRepository', () => {
       await repository.findAdminIds();
 
       expect(mockUserModel.findMany).toHaveBeenCalledWith({
-        where: { role: 'ADMIN', deletedAt: null },
+        where: { role: UserRole.ADMIN, deletedAt: null },
         select: { id: true },
         take: 500,
       });

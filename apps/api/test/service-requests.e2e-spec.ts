@@ -1,3 +1,4 @@
+import { ServiceStatus, UserRole } from '@epde/shared';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 
@@ -24,12 +25,12 @@ describe('ServiceRequests - Audit (e2e)', () => {
     clientToken = await getToken(app, {
       id: testData.client.id,
       email: testData.client.email,
-      role: 'CLIENT',
+      role: UserRole.CLIENT,
     });
     adminToken = await getToken(app, {
       id: testData.admin.id,
       email: testData.admin.email,
-      role: 'ADMIN',
+      role: UserRole.ADMIN,
     });
   });
 
@@ -58,7 +59,7 @@ describe('ServiceRequests - Audit (e2e)', () => {
       await request(app.getHttpServer())
         .patch(`/api/v1/service-requests/${srId}/status`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ status: 'IN_REVIEW' });
+        .send({ status: ServiceStatus.IN_REVIEW });
 
       // Verify updatedBy is set in the database
       const sr = await prisma.serviceRequest.findUnique({
@@ -88,7 +89,7 @@ describe('ServiceRequests - Audit (e2e)', () => {
       await request(app.getHttpServer())
         .patch(`/api/v1/service-requests/${srId}/status`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ status: 'IN_REVIEW' });
+        .send({ status: ServiceStatus.IN_REVIEW });
 
       let sr = await prisma.serviceRequest.findUnique({ where: { id: srId } });
       expect(sr?.updatedBy).toBe(testData.admin.id);
@@ -97,7 +98,7 @@ describe('ServiceRequests - Audit (e2e)', () => {
       await request(app.getHttpServer())
         .patch(`/api/v1/service-requests/${srId}/status`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ status: 'IN_PROGRESS' });
+        .send({ status: ServiceStatus.IN_PROGRESS });
 
       sr = await prisma.serviceRequest.findUnique({ where: { id: srId } });
       expect(sr?.updatedBy).toBe(testData.admin.id);
@@ -106,11 +107,11 @@ describe('ServiceRequests - Audit (e2e)', () => {
       await request(app.getHttpServer())
         .patch(`/api/v1/service-requests/${srId}/status`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ status: 'RESOLVED' });
+        .send({ status: ServiceStatus.RESOLVED });
 
       sr = await prisma.serviceRequest.findUnique({ where: { id: srId } });
       expect(sr?.updatedBy).toBe(testData.admin.id);
-      expect(sr?.status).toBe('RESOLVED');
+      expect(sr?.status).toBe(ServiceStatus.RESOLVED);
     });
   });
 });

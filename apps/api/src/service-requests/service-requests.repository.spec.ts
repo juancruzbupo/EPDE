@@ -1,3 +1,5 @@
+import { ServiceStatus } from '@epde/shared';
+
 import { PrismaService } from '../prisma/prisma.service';
 import { ServiceRequestsRepository } from './service-requests.repository';
 
@@ -96,11 +98,11 @@ describe('ServiceRequestsRepository', () => {
 
   describe('findRequests', () => {
     it('should filter by status when provided', async () => {
-      await repository.findRequests({ status: 'OPEN' });
+      await repository.findRequests({ status: ServiceStatus.OPEN });
 
       expect(mockModel.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ status: 'OPEN' }),
+          where: expect.objectContaining({ status: ServiceStatus.OPEN }),
         }),
       );
     });
