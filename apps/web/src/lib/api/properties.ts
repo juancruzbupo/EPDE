@@ -1,4 +1,4 @@
-import type { ApiResponse, PropertyType, UpdatePropertyInput } from '@epde/shared';
+import type { ApiResponse, PropertyPublic, PropertyType, UpdatePropertyInput } from '@epde/shared';
 import { createPropertyQueries } from '@epde/shared';
 
 import { apiClient } from '../api-client';
@@ -16,7 +16,7 @@ export async function createProperty(dto: {
   type?: PropertyType;
   yearBuilt?: number;
   squareMeters?: number;
-}): Promise<ApiResponse<unknown>> {
+}): Promise<ApiResponse<PropertyPublic>> {
   const { data } = await apiClient.post('/properties', dto);
   return data;
 }
@@ -24,12 +24,12 @@ export async function createProperty(dto: {
 export async function updateProperty(
   id: string,
   dto: UpdatePropertyInput,
-): Promise<ApiResponse<unknown>> {
+): Promise<ApiResponse<PropertyPublic>> {
   const { data } = await apiClient.patch(`/properties/${id}`, dto);
   return data;
 }
 
-export async function deleteProperty(id: string): Promise<ApiResponse<unknown>> {
+export async function deleteProperty(id: string): Promise<ApiResponse<null>> {
   const { data } = await apiClient.delete(`/properties/${id}`);
   return data;
 }

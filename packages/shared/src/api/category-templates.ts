@@ -45,7 +45,7 @@ export function createCategoryTemplateQueries(apiClient: AxiosInstance) {
       return data;
     },
 
-    async deleteCategoryTemplate(id: string): Promise<ApiResponse<CategoryTemplate>> {
+    async deleteCategoryTemplate(id: string): Promise<ApiResponse<null>> {
       const { data } = await apiClient.delete(`/category-templates/${id}`);
       return data;
     },
@@ -67,7 +67,7 @@ export function createCategoryTemplateQueries(apiClient: AxiosInstance) {
       return data;
     },
 
-    async deleteTaskTemplate(id: string): Promise<ApiResponse<CategoryTemplate>> {
+    async deleteTaskTemplate(id: string): Promise<ApiResponse<null>> {
       const { data } = await apiClient.delete(`/task-templates/${id}`);
       return data;
     },

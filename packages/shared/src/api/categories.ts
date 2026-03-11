@@ -35,7 +35,7 @@ export function createCategoryQueries(apiClient: AxiosInstance) {
       return data;
     },
 
-    async deleteCategory(id: string): Promise<ApiResponse<CategoryPublic>> {
+    async deleteCategory(id: string): Promise<ApiResponse<null>> {
       const { data } = await apiClient.delete(`/categories/${id}`);
       return data;
     },
