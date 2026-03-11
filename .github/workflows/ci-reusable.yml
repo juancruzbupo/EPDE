@@ -1,0 +1,131 @@
+name: CI Reusable
+
+on:
+  workflow_call:
+    inputs:
+      run-coverage:
+        description: 'Run per-app coverage checks'
+        type: boolean
+        default: false
+      enforce-specs:
+        description: 'Enforce spec files for modified services (PRs only)'
+        type: boolean
+        default: false
+    secrets:
+      TURBO_TOKEN:
+        required: false
+      TURBO_TEAM:
+        required: false
+
+jobs:
+  ci:
+    name: Lint, Type Check, Build & Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: epde_test
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5433/epde_test
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: test-secret-for-ci-must-be-at-least-32-chars-long
+      NODE_ENV: test
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Audit dependencies
+        run: pnpm audit --audit-level=high
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Build
+        run: pnpm build
+
+      - name: Schema drift check
+        run: pnpm check:schema-drift
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Push schema to test database
+        run: pnpm --filter @epde/api exec prisma db push --skip-generate
+
+      - name: Unit & integration tests
+        run: pnpm test
+
+      - name: E2E tests
+        run: pnpm --filter @epde/api test:e2e
+
+      - name: Frontend coverage check
+        if: inputs.run-coverage
+        run: pnpm --filter @epde/web test -- --coverage
+
+      - name: Mobile coverage check
+        if: inputs.run-coverage
+        run: pnpm --filter @epde/mobile test -- --coverage
+
+      - name: API coverage check
+        if: inputs.run-coverage
+        run: pnpm --filter @epde/api test -- --coverage
+
+      - name: Enforce spec files for modified services
+        if: inputs.enforce-specs && github.event_name == 'pull_request'
+        run: |
+          missing=""
+          for svc in $(find apps/api/src -name "*.service.ts" -not -name "*.spec.ts" -not -path "*/node_modules/*" -not -path "*/dist/*"); do
+            spec="${svc%.ts}.spec.ts"
+            if [ ! -f "$spec" ]; then
+              svc_relative="${svc#./}"
+              if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -qF "$svc_relative"; then
+                missing="$missing\n  $svc"
+              fi
+            fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Services modificados sin spec file:$missing"
+            exit 1
+          fi

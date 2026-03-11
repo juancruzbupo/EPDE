@@ -32,7 +32,8 @@ Documento exhaustivo que describe la estructura, tecnologias, patrones de diseno
 epde/
 ├── .github/
 │   └── workflows/
-│       ├── ci.yml                    # GitHub Actions (lint, typecheck, build, e2e)
+│       ├── ci-reusable.yml           # Reusable workflow (lint, typecheck, build, test, e2e)
+│       ├── ci.yml                    # CI caller (coverage + spec enforcement)
 │       ├── cd.yml                    # Deploy produccion (Render + Vercel)
 │       └── cd-staging.yml           # Deploy staging
 ├── .husky/
@@ -900,14 +901,22 @@ Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `
 
 ### GitHub Actions CI
 
+Arquitectura de workflows: `ci-reusable.yml` contiene todos los steps de CI. Los demas workflows lo llaman via `uses:`.
+
 ```yaml
-Jobs: lint → typecheck → build → test → test:e2e → coverage (web + API + Shared)
-Enforcement (PRs): service modificado sin spec → fail
+# ci-reusable.yml (workflow_call)
+Jobs: build → schema-drift → lint → typecheck → test → test:e2e → coverage (opcional) → spec enforcement (opcional)
 Services: PostgreSQL 16 Alpine, Redis 7 Alpine
-Triggers: push a main/develop, PRs a main/develop
+Inputs: run-coverage (bool), enforce-specs (bool)
+
+# ci.yml (push/PR a main/develop)
+uses: ci-reusable.yml con run-coverage: true, enforce-specs: true
+
+# cd.yml / cd-staging.yml
+uses: ci-reusable.yml (sin coverage ni spec enforcement) + deploy jobs
 ```
 
-**Coverage thresholds:**
+**Coverage thresholds** (enforceados en CI via config de Jest/Vitest + `--coverage`):
 
 | Package | Statements | Branches | Functions | Lines |
 | ------- | ---------- | -------- | --------- | ----- |
@@ -918,7 +927,7 @@ Triggers: push a main/develop, PRs a main/develop
 
 ### GitHub Actions CD
 
-Pipeline de deploy real:
+Pipeline de deploy real — ambos pipelines reusan `ci-reusable.yml` como gate:
 
 - **Produccion** (`cd.yml`): trigger en push a `main`
   - `deploy-api`: Render deploy hook (`curl -X POST $RENDER_DEPLOY_HOOK_URL`) — Render detecta el Dockerfile y deploya

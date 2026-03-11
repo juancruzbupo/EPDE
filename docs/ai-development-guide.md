@@ -423,6 +423,9 @@ class BudgetsService {
 **Excepción — operaciones bulk del scheduler:**
 `handleTaskReminders()` retorna `{ notificationCount, failedEmails }` (no void) porque el scheduler necesita logear resultados. Usa `NotificationsService.createNotifications()` directo (bulk DB insert) + `Promise.allSettled` para emails.
 
+**ADR — Inyección directa vs Event Bus:**
+El patrón actual (inyección directa de `NotificationsHandlerService`) es la decisión correcta para 2-3 consumers (`BudgetsService`, `ServiceRequestsService`, `ClientsService`). Es explícito, tipado, y fácil de testear. Si los consumers crecen a 5+, considerar reintroducir un event bus liviano (`EventEmitter2` o un decorator `@Notify()`) para reducir acoplamiento lineal. Por ahora, la simplicidad vale más que la abstracción.
+
 ### 3.3c Domain Exceptions
 
 Los repositories y services lanzan excepciones de dominio (no HTTP) definidas en `apps/api/src/common/exceptions/domain.exceptions.ts`. El service las atrapa y mapea a HTTP:

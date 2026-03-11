@@ -1228,13 +1228,13 @@ Auditoría staff-level del monorepo identificó 11 hallazgos estructurales agrup
 
 > Semana 2 — añade un safety net para que un nuevo modelo Prisma sin schema Zod no pase desapercibido.
 
-- [ ] **15.6.1 — `scripts/check-schema-drift.ts`** — Script que:
+- [x] **15.6.1 — `scripts/check-schema-drift.mjs`** — Script que:
   1. Lee los nombres de modelos de `apps/api/prisma/schema.prisma` (busca líneas `^model (\w+)`)
-  2. Lee los exports de `packages/shared/src/schemas/index.ts`
-  3. Por cada modelo Prisma, verifica que exista al menos un schema `create<Model>Schema` en shared
-  4. Imprime warnings para modelos sin schema y falla con exit code 1 si hay alguno
+  2. Por cada modelo Prisma, verifica que exista un schema file en `packages/shared/src/schemas/`
+  3. Lee los enums de Prisma y compara **cada value** contra `packages/shared/src/types/enums.ts`
+  4. Falla con exit code 1 si hay modelos sin schema o enum values desincronizados
 
-- [ ] **15.6.2 — Agregar a CI (informativo)** — En `.github/workflows/ci.yml`, step `Schema drift check` que ejecuta `pnpm tsx scripts/check-schema-drift.ts`. Que sea `continue-on-error: true` inicialmente para no bloquear PRs — cambiar a hard fail una vez que todos los modelos tengan schema
+- [x] **15.6.2 — Agregar a CI (hard fail)** — En `.github/workflows/ci-reusable.yml`, step `Schema drift check` ejecuta `pnpm check:schema-drift` (`node scripts/check-schema-drift.mjs`). Es hard fail — bloquea PRs si hay drift
 
 ### 15.7 — M3 + M5: Claridad de módulos y ubicación de repositorios
 

@@ -214,7 +214,7 @@ redis-cli -u $REDIS_URL ping
 
 El deploy se ejecuta automaticamente via GitHub Actions (`cd.yml`) en push a `main`:
 
-1. CI job corre: audit → build → schema-drift → lint → typecheck → test → E2E
+1. CI job (via `ci-reusable.yml`): audit → build → schema-drift (modelos + enums) → lint → typecheck → test → E2E
 2. Si CI pasa, deploy-api y deploy-web se ejecutan en paralelo
 3. **deploy-api (Render)**:
    - Trigger via deploy hook URL (`curl -X POST $RENDER_DEPLOY_HOOK_URL`)
@@ -244,7 +244,7 @@ Esto previene deploys accidentales desde branches no autorizados y requiere apro
 
 ### Staging
 
-Se despliega automaticamente en push a `develop` (`cd-staging.yml`). Misma pipeline CI (con postgres/redis services, audit, schema-drift, E2E) pero con secrets de staging (`RENDER_DEPLOY_HOOK_URL_STAGING`, `VERCEL_PROJECT_ID_STAGING`).
+Se despliega automaticamente en push a `develop` (`cd-staging.yml`). Reutiliza `ci-reusable.yml` (misma pipeline CI con postgres/redis, audit, schema-drift, E2E) pero con secrets de staging (`RENDER_DEPLOY_HOOK_URL_STAGING`, `VERCEL_PROJECT_ID_STAGING`).
 
 ### Deploy manual (API)
 

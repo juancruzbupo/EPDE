@@ -12,7 +12,7 @@ pnpm build            # Build de produccion (todos los workspaces)
 pnpm lint             # ESLint en todos los workspaces
 pnpm typecheck        # TypeScript check en todos los workspaces
 pnpm test             # Tests unitarios (API jest, Shared vitest, Web vitest, Mobile jest-expo)
-pnpm check:schema-drift   # Verifica que cada modelo Prisma tenga schema en @epde/shared (bloqueante en CI)
+pnpm check:schema-drift   # Verifica modelos Prisma → schema files + enum values → enums.ts (bloqueante en CI)
 
 # Tests e2e (requiere DB + Redis corriendo)
 pnpm --filter @epde/api test:e2e
@@ -356,20 +356,20 @@ Referencia completa en [env-vars.md](env-vars.md).
 
 ### Errores comunes
 
-| Error                                        | Causa                                | Solucion                                                                                                                 |
-| -------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
-| `Cannot find module dist/main`               | API no buildeada                     | `pnpm --filter @epde/api build`                                                                                          |
-| `Module not found @/components/ui/x`         | Componente nuevo sin restart         | Reiniciar dev server                                                                                                     |
-| `Unique constraint on (email)`               | Email existe (incluido soft-deleted) | Usar `writeModel` en repository                                                                                          |
-| `NEXT_PUBLIC_* undefined`                    | Env var no disponible                | Reiniciar dev server                                                                                                     |
-| Port 3000/3001 in use                        | Proceso previo corriendo             | `lsof -ti:3000,3001 \| xargs kill -9`                                                                                    |
-| `z.coerce.number()` falla con ""             | Empty string → 0 → falla min()       | Usar `setValueAs` en form register                                                                                       |
-| `z.string().datetime()` falla con date input | Input retorna YYYY-MM-DD             | Usar `z.string().date()`                                                                                                 |
-| Permission check falla (403)                 | Falta campo en Prisma `select`       | Agregar campo (ej: `userId: true`)                                                                                       |
-| Redis connection refused                     | Redis no esta corriendo              | `docker compose up -d`                                                                                                   |
-| `check:schema-drift` falla con nuevo modelo  | Modelo Prisma sin schema en shared   | Agregar schema en `packages/shared/src/schemas/` o actualizar `MODEL_TO_SCHEMA_FILE` en `scripts/check-schema-drift.mjs` |
-| Port 8081 in use                             | Expo ya corriendo                    | `lsof -ti:8081 \| xargs kill -9`                                                                                         |
-| `FATAL: sorry, too many clients already`     | Zombie connections por `kill -9`     | `docker compose restart postgres`                                                                                        |
+| Error                                        | Causa                                   | Solucion                                                                                        |
+| -------------------------------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `Cannot find module dist/main`               | API no buildeada                        | `pnpm --filter @epde/api build`                                                                 |
+| `Module not found @/components/ui/x`         | Componente nuevo sin restart            | Reiniciar dev server                                                                            |
+| `Unique constraint on (email)`               | Email existe (incluido soft-deleted)    | Usar `writeModel` en repository                                                                 |
+| `NEXT_PUBLIC_* undefined`                    | Env var no disponible                   | Reiniciar dev server                                                                            |
+| Port 3000/3001 in use                        | Proceso previo corriendo                | `lsof -ti:3000,3001 \| xargs kill -9`                                                           |
+| `z.coerce.number()` falla con ""             | Empty string → 0 → falla min()          | Usar `setValueAs` en form register                                                              |
+| `z.string().datetime()` falla con date input | Input retorna YYYY-MM-DD                | Usar `z.string().date()`                                                                        |
+| Permission check falla (403)                 | Falta campo en Prisma `select`          | Agregar campo (ej: `userId: true`)                                                              |
+| Redis connection refused                     | Redis no esta corriendo                 | `docker compose up -d`                                                                          |
+| `check:schema-drift` falla con modelo/enum   | Modelo sin schema o enum desincronizado | Agregar schema file, actualizar `MODEL_TO_SCHEMA_FILE`, o sincronizar enum values en `enums.ts` |
+| Port 8081 in use                             | Expo ya corriendo                       | `lsof -ti:8081 \| xargs kill -9`                                                                |
+| `FATAL: sorry, too many clients already`     | Zombie connections por `kill -9`        | `docker compose restart postgres`                                                               |
 
 ## Testing
 
