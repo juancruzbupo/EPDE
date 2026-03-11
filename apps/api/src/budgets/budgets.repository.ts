@@ -1,3 +1,4 @@
+import { BudgetStatus } from '@epde/shared';
 import { Injectable } from '@nestjs/common';
 import { BudgetRequest, Prisma } from '@prisma/client';
 
@@ -96,7 +97,7 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
     return this.prisma.$transaction(async (tx) => {
       // Re-check status + version inside transaction for TOCTOU safety
       const budget = await tx.budgetRequest.findUnique({ where: { id } });
-      if (!budget || budget.status !== 'PENDING') {
+      if (!budget || budget.status !== BudgetStatus.PENDING) {
         throw new BudgetNotPendingError();
       }
       if (budget.version !== expectedVersion) {

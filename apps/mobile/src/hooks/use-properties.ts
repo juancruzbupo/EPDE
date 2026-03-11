@@ -3,6 +3,7 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 import { getProperties, getProperty, type PropertyFilters } from '@/lib/api/properties';
 
+/** Mobile is CLIENT-only — filters default to {} (no admin filtering needed). Web requires filters explicitly. */
 export function useProperties(filters: Omit<PropertyFilters, 'cursor'> = {}) {
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.properties, filters],

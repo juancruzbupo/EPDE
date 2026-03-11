@@ -1,4 +1,5 @@
 import type { TaskPublic } from '@epde/shared';
+import { TaskStatus } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -39,11 +40,11 @@ function TaskCard({ task, planId }: { task: TaskPublic; planId: string }) {
   const router = useRouter();
 
   const statusDotColor =
-    task.status === 'COMPLETED'
+    task.status === TaskStatus.COMPLETED
       ? 'bg-success'
-      : task.status === 'OVERDUE'
+      : task.status === TaskStatus.OVERDUE
         ? 'bg-destructive'
-        : task.status === 'UPCOMING'
+        : task.status === TaskStatus.UPCOMING
           ? 'bg-primary'
           : 'bg-muted-foreground';
 
@@ -223,7 +224,7 @@ export default function PropertyDetailScreen() {
           <AnimatedListItem index={index}>
             <SwipeableRow
               rightActions={
-                item.status !== 'COMPLETED'
+                item.status !== TaskStatus.COMPLETED
                   ? [{ icon: '✓', color: colors.success, onPress: () => setCompleteTask(item) }]
                   : []
               }

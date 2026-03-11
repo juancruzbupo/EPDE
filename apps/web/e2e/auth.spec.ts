@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 
+import { E2E_ADMIN } from './fixtures';
+
 test.describe('Authentication', () => {
   test('login page renders form', async ({ page }) => {
     await page.goto('/login');
@@ -18,8 +20,8 @@ test.describe('Authentication', () => {
 
   test('successful login redirects to dashboard', async ({ page }) => {
     await page.goto('/login');
-    await page.getByLabel(/email/i).fill('admin@epde.com');
-    await page.getByLabel(/contraseña/i).fill('Admin123!');
+    await page.getByLabel(/email/i).fill(E2E_ADMIN.email);
+    await page.getByLabel(/contraseña/i).fill(E2E_ADMIN.password);
     await page.getByRole('button', { name: /iniciar/i }).click();
     await expect(page).toHaveURL(/dashboard/, { timeout: 10000 });
   });

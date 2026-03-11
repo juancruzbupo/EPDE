@@ -451,15 +451,16 @@ try {
 
 **Excepciones existentes:**
 
-| Exception                          | Usada en                    | HTTP mapping |
-| ---------------------------------- | --------------------------- | ------------ |
-| `BudgetNotPendingError`            | `budgets.service.ts`        | BadRequest   |
-| `BudgetVersionConflictError`       | `budgets.service.ts`        | Conflict     |
-| `CategoryHasReferencingTasksError` | `categories.service.ts`     | BadRequest   |
-| `TaskNotCompletableError`          | `task-lifecycle.service.ts` | BadRequest   |
-| `InvalidBudgetTransitionError`     | `budgets.service.ts`        | BadRequest   |
-| `UserAlreadyHasPasswordError`      | `auth.service.ts`           | BadRequest   |
-| `BudgetAccessDeniedError`          | `budgets.service.ts`        | Forbidden    |
+| Exception                             | Usada en                      | HTTP mapping |
+| ------------------------------------- | ----------------------------- | ------------ |
+| `BudgetNotPendingError`               | `budgets.service.ts`          | BadRequest   |
+| `BudgetVersionConflictError`          | `budgets.service.ts`          | Conflict     |
+| `CategoryHasReferencingTasksError`    | `categories.service.ts`       | BadRequest   |
+| `TaskNotCompletableError`             | `task-lifecycle.service.ts`   | BadRequest   |
+| `InvalidBudgetTransitionError`        | `budgets.service.ts`          | BadRequest   |
+| `UserAlreadyHasPasswordError`         | `auth.service.ts`             | BadRequest   |
+| `BudgetAccessDeniedError`             | `budgets.service.ts`          | Forbidden    |
+| `InvalidServiceStatusTransitionError` | `service-requests.service.ts` | BadRequest   |
 
 **Regla:** los repositories NUNCA importan `@nestjs/common` exceptions. Solo lanzan `Error` subclasses de dominio.
 
@@ -1196,6 +1197,16 @@ El QueryClient de mobile difiere de web para soportar uso offline durante inspec
 | `packages/shared` | Vitest           | `vi.mock()` / `vi.fn()`     | `vitest.config.ts` |
 
 > NUNCA usar `jest.fn()` en web/shared tests ni `vi.fn()` en mobile/API tests. Los test runners no son intercambiables.
+
+**Coverage Thresholds por Workspace:**
+
+| Workspace | Statements | Branches | Functions | Lines | Rationale                                                                                                             |
+| --------- | ---------- | -------- | --------- | ----- | --------------------------------------------------------------------------------------------------------------------- |
+| API       | 75         | 60       | 65        | 75    | Core de negocio — mayor rigor. Jest + ts-jest permite coverage preciso                                                |
+| Web       | 70         | 70       | 65        | 70    | Pages excluidas del coverage (`page.tsx`, `layout.tsx`, `ui/**`). Hooks y componentes custom cubren el grueso         |
+| Mobile    | 60         | 40       | 50        | 60    | jest-expo + react-native-reanimated mocks limitan cobertura de branches. Animaciones y gestures no son unit-testables |
+
+Los thresholds se bumpen progresivamente al subir la cobertura real. El floor actual refleja la complejidad de cada runner, no una decision arbitraria. API > Web > Mobile es intencional.
 
 ---
 

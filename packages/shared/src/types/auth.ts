@@ -11,6 +11,7 @@ export interface SetPasswordRequest {
   newPassword: string;
 }
 
+/** Web only — tokens handled via HttpOnly cookies, not included in response body. */
 export interface AuthResponse {
   user: UserPublic;
 }

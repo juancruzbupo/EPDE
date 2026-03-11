@@ -55,3 +55,10 @@ export class BudgetAccessDeniedError extends Error {
     );
   }
 }
+
+export class InvalidServiceStatusTransitionError extends Error {
+  readonly name = 'InvalidServiceStatusTransitionError';
+  constructor(currentStatus: string, targetStatus: string) {
+    super(`No se puede cambiar el estado de ${currentStatus} a ${targetStatus}`);
+  }
+}

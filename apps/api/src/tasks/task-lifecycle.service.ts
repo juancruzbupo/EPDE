@@ -83,7 +83,7 @@ export class TaskLifecycleService {
         priority: dto.priority ?? TaskPriority.MEDIUM,
         recurrenceType: dto.recurrenceType ?? RecurrenceType.ANNUAL,
         recurrenceMonths:
-          dto.recurrenceType === 'CUSTOM'
+          dto.recurrenceType === RecurrenceType.CUSTOM
             ? dto.recurrenceMonths
             : (recurrenceTypeToMonths(dto.recurrenceType ?? RecurrenceType.ANNUAL) ?? 12),
         nextDueDate: dto.nextDueDate,
@@ -162,7 +162,7 @@ export class TaskLifecycleService {
       }
 
       let newDueDate: Date | null = null;
-      if (task.recurrenceType !== 'ON_DETECTION' && task.nextDueDate) {
+      if (task.recurrenceType !== RecurrenceType.ON_DETECTION && task.nextDueDate) {
         const recurrenceMonths =
           task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType) ?? 12;
         newDueDate = getNextDueDate(task.nextDueDate, recurrenceMonths);

@@ -4,15 +4,29 @@ import type {
   ServiceUser,
   UpdateServiceStatusInput,
 } from '@epde/shared';
-import { ServiceUrgency, UserRole } from '@epde/shared';
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ServiceStatus, ServiceUrgency, UserRole } from '@epde/shared';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
+import { InvalidServiceStatusTransitionError } from '../common/exceptions/domain.exceptions';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { PropertiesRepository } from '../properties/properties.repository';
 import {
   ServiceRequestsRepository,
   type ServiceRequestWithDetails,
 } from './service-requests.repository';
+
+/** Linear status machine: OPEN → IN_REVIEW → IN_PROGRESS → RESOLVED → CLOSED */
+const VALID_TRANSITIONS: Record<string, ServiceStatus> = {
+  [ServiceStatus.OPEN]: ServiceStatus.IN_REVIEW,
+  [ServiceStatus.IN_REVIEW]: ServiceStatus.IN_PROGRESS,
+  [ServiceStatus.IN_PROGRESS]: ServiceStatus.RESOLVED,
+  [ServiceStatus.RESOLVED]: ServiceStatus.CLOSED,
+};
 
 @Injectable()
 export class ServiceRequestsService {
@@ -85,6 +99,18 @@ export class ServiceRequestsService {
     }
 
     this.assertAccess(request, currentUser);
+
+    try {
+      const allowedNext = VALID_TRANSITIONS[request.status];
+      if (!allowedNext || allowedNext !== dto.status) {
+        throw new InvalidServiceStatusTransitionError(request.status, dto.status);
+      }
+    } catch (e) {
+      if (e instanceof InvalidServiceStatusTransitionError) {
+        throw new BadRequestException(e.message);
+      }
+      throw e;
+    }
 
     const updated = await this.serviceRequestsRepository.update(
       id,

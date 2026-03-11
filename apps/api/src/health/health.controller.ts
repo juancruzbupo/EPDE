@@ -5,6 +5,14 @@ import { Public } from '../common/decorators/public.decorator';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisHealthIndicator } from './redis.health';
 
+/**
+ * Infrastructure health checks — NOT a domain controller.
+ *
+ * PrismaService is injected here because `@nestjs/terminus` PrismaHealthIndicator.pingCheck()
+ * requires a PrismaClient instance as argument. This is the documented Terminus API, not a
+ * violation of the "only repositories inject PrismaService" rule — health checks are
+ * infrastructure-layer concerns, not data access.
+ */
 @Controller('health')
 export class HealthController {
   constructor(

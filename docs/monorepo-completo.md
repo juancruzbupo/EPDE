@@ -878,7 +878,7 @@ Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `
 5. **Categories** — CRUD
 6. **Maintenance Plans** — CRUD + tareas + complete + notes + reorder
 7. **Budgets** — CRUD + respond + status changes
-8. **Service Requests** — CRUD + status changes
+8. **Service Requests** — CRUD + status changes (linear state machine: OPEN → IN_REVIEW → IN_PROGRESS → RESOLVED → CLOSED, enforced via `InvalidServiceStatusTransitionError`)
 9. **Notifications** — list, unread-count, mark-read, mark-all-read
 10. **Upload** — multipart/form-data a R2
 11. **Dashboard** — stats, upcoming-tasks, recent-activity

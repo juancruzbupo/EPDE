@@ -12,6 +12,7 @@ import {
   createTaskNoteSchema,
   createTaskSchema,
   listTasksQuerySchema,
+  RecurrenceType,
   reorderTasksSchema,
   updatePlanSchema,
   updateTaskWithRecurrenceSchema,
@@ -41,7 +42,7 @@ import { MaintenancePlansService } from './maintenance-plans.service';
 const createTaskBodySchema = createTaskSchema
   .omit({ maintenancePlanId: true })
   .superRefine((data, ctx) => {
-    if (data.recurrenceType === 'CUSTOM' && !data.recurrenceMonths) {
+    if (data.recurrenceType === RecurrenceType.CUSTOM && !data.recurrenceMonths) {
       ctx.addIssue({
         code: 'custom' as const,
         message: 'recurrenceMonths es requerido cuando recurrenceType es CUSTOM',

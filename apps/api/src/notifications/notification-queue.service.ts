@@ -8,6 +8,16 @@ import {
   NotificationJobData,
 } from './notification-queue.types';
 
+/**
+ * Low-level BullMQ adapter — enqueues notification jobs for async processing.
+ *
+ * ## Notification service naming
+ * - `NotificationQueueService` (this) — BullMQ queue adapter (enqueue/enqueueBatch)
+ * - `NotificationsHandlerService` — Domain orchestrator: maps domain events to queue + email calls
+ * - `NotificationsService` — CRUD for notification entities (read, mark as read, count)
+ *
+ * Domain services inject `NotificationsHandlerService`, NEVER this service directly.
+ */
 @Injectable()
 export class NotificationQueueService {
   private readonly logger = new Logger(NotificationQueueService.name);

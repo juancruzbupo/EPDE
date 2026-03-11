@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ServiceStatus, ServiceUrgency, UserRole } from '@epde/shared';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
@@ -260,12 +260,12 @@ describe('ServiceRequestsService', () => {
   });
 
   describe('updateStatus', () => {
-    const updateDto = { status: ServiceStatus.IN_PROGRESS };
+    const updateDto = { status: ServiceStatus.IN_REVIEW };
     const adminUser = { id: 'admin-1', role: UserRole.ADMIN };
 
     it('should update status and call notification handler', async () => {
       serviceRequestsRepo.findByIdWithDetails.mockResolvedValue(mockServiceRequest);
-      const updatedRequest = { ...mockServiceRequest, status: ServiceStatus.IN_PROGRESS };
+      const updatedRequest = { ...mockServiceRequest, status: ServiceStatus.IN_REVIEW };
       serviceRequestsRepo.update.mockResolvedValue(updatedRequest);
 
       const result = await service.updateStatus('sr-1', updateDto, adminUser);
@@ -273,7 +273,7 @@ describe('ServiceRequestsService', () => {
       expect(serviceRequestsRepo.findByIdWithDetails).toHaveBeenCalledWith('sr-1');
       expect(serviceRequestsRepo.update).toHaveBeenCalledWith(
         'sr-1',
-        { status: ServiceStatus.IN_PROGRESS, updatedBy: 'admin-1' },
+        { status: ServiceStatus.IN_REVIEW, updatedBy: 'admin-1' },
         {
           property: {
             select: {
@@ -291,10 +291,21 @@ describe('ServiceRequestsService', () => {
         serviceRequestId: 'sr-1',
         title: 'Filtración en el techo',
         oldStatus: ServiceStatus.OPEN,
-        newStatus: ServiceStatus.IN_PROGRESS,
+        newStatus: ServiceStatus.IN_REVIEW,
         requesterId: 'client-1',
       });
       expect(result).toEqual(updatedRequest);
+    });
+
+    it('should throw BadRequestException for invalid status transition', async () => {
+      serviceRequestsRepo.findByIdWithDetails.mockResolvedValue(mockServiceRequest);
+
+      // OPEN → IN_PROGRESS is invalid (must go OPEN → IN_REVIEW first)
+      const invalidDto = { status: ServiceStatus.IN_PROGRESS };
+      await expect(service.updateStatus('sr-1', invalidDto, adminUser)).rejects.toThrow(
+        BadRequestException,
+      );
+      expect(serviceRequestsRepo.update).not.toHaveBeenCalled();
     });
 
     it('should throw NotFoundException when service request not found', async () => {

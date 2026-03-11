@@ -1,6 +1,11 @@
 'use client';
 
-import { createTaskSchema, RECURRENCE_TYPE_LABELS, TASK_PRIORITY_LABELS } from '@epde/shared';
+import {
+  createTaskSchema,
+  RECURRENCE_TYPE_LABELS,
+  RecurrenceType,
+  TASK_PRIORITY_LABELS,
+} from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -190,7 +195,7 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
             </div>
           </div>
 
-          {recurrenceType === 'CUSTOM' && (
+          {recurrenceType === RecurrenceType.CUSTOM && (
             <div className="space-y-2">
               <Label htmlFor="task-recurrence-months">Meses personalizados</Label>
               <Input

@@ -12,6 +12,7 @@ import {
 } from '@/lib/api/budgets';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
 
+/** Mobile is CLIENT-only — filters default to {} (no admin filtering needed). Web requires filters explicitly. */
 export function useBudgets(filters: Omit<BudgetFilters, 'cursor'> = {}) {
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.budgets, filters],
