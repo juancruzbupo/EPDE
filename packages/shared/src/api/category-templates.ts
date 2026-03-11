@@ -23,7 +23,7 @@ export function createCategoryTemplateQueries(apiClient: AxiosInstance) {
     async getCategoryTemplate(
       id: string,
       signal?: AbortSignal,
-    ): Promise<{ data: CategoryTemplate }> {
+    ): Promise<ApiResponse<CategoryTemplate>> {
       const { data } = await apiClient.get(`/category-templates/${id}`, { signal });
       return data;
     },

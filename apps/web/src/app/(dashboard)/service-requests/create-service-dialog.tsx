@@ -4,6 +4,7 @@ import {
   type CreateServiceRequestInput,
   createServiceRequestSchema,
   SERVICE_URGENCY_LABELS,
+  ServiceUrgency,
 } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Upload, X } from 'lucide-react';
@@ -55,7 +56,7 @@ export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogP
   } = useForm<CreateServiceRequestInput>({
     resolver: zodResolver(createServiceRequestSchema),
     defaultValues: {
-      urgency: 'MEDIUM',
+      urgency: ServiceUrgency.MEDIUM,
     },
   });
 

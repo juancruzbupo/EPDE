@@ -4,7 +4,7 @@ import type {
   ServiceUser,
   UpdateServiceStatusInput,
 } from '@epde/shared';
-import { UserRole } from '@epde/shared';
+import { ServiceUrgency, UserRole } from '@epde/shared';
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
@@ -56,7 +56,7 @@ export class ServiceRequestsService {
     }
 
     // Zod applies default('MEDIUM'), so urgency is always present after validation
-    const urgency = dto.urgency ?? 'MEDIUM';
+    const urgency = dto.urgency ?? ServiceUrgency.MEDIUM;
 
     const result = await this.serviceRequestsRepository.createWithPhotos({
       propertyId: dto.propertyId,

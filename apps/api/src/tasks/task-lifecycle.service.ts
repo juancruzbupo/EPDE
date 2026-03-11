@@ -5,7 +5,14 @@ import type {
   ServiceUser,
   UpdateTaskInput,
 } from '@epde/shared';
-import { getNextDueDate, recurrenceTypeToMonths, UserRole } from '@epde/shared';
+import {
+  getNextDueDate,
+  RecurrenceType,
+  recurrenceTypeToMonths,
+  TaskPriority,
+  TaskStatus,
+  UserRole,
+} from '@epde/shared';
 import {
   BadRequestException,
   ForbiddenException,
@@ -73,15 +80,15 @@ export class TaskLifecycleService {
         category: { connect: { id: dto.categoryId } },
         name: dto.name,
         description: dto.description,
-        priority: dto.priority ?? 'MEDIUM',
-        recurrenceType: dto.recurrenceType ?? 'ANNUAL',
+        priority: dto.priority ?? TaskPriority.MEDIUM,
+        recurrenceType: dto.recurrenceType ?? RecurrenceType.ANNUAL,
         recurrenceMonths:
           dto.recurrenceType === 'CUSTOM'
             ? dto.recurrenceMonths
-            : (recurrenceTypeToMonths(dto.recurrenceType ?? 'ANNUAL') ?? 12),
+            : (recurrenceTypeToMonths(dto.recurrenceType ?? RecurrenceType.ANNUAL) ?? 12),
         nextDueDate: dto.nextDueDate,
         order: maxOrder + 1,
-        status: 'PENDING',
+        status: TaskStatus.PENDING,
         createdBy,
       },
       { category: true },
@@ -145,7 +152,11 @@ export class TaskLifecycleService {
     const task = await this.verifyTaskAccess(taskId, user);
 
     try {
-      const COMPLETABLE_STATUSES = ['PENDING', 'UPCOMING', 'OVERDUE'];
+      const COMPLETABLE_STATUSES: TaskStatus[] = [
+        TaskStatus.PENDING,
+        TaskStatus.UPCOMING,
+        TaskStatus.OVERDUE,
+      ];
       if (!COMPLETABLE_STATUSES.includes(task.status)) {
         throw new TaskNotCompletableError(task.status);
       }

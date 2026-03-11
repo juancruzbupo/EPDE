@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, ServiceRequest, ServiceUrgency } from '@prisma/client';
+import { Prisma, ServiceRequest, ServiceStatus, ServiceUrgency } from '@prisma/client';
 
 import {
   BaseRepository,
@@ -95,7 +95,7 @@ export class ServiceRequestsRepository extends BaseRepository<ServiceRequest, 's
             title: data.title,
             description: data.description,
             urgency: data.urgency,
-            status: 'OPEN',
+            status: ServiceStatus.OPEN,
           },
         });
 

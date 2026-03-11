@@ -13,10 +13,10 @@ export function useUploadFile() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('folder', folder);
-      const { data } = await apiClient.post('/upload', formData, {
+      const { data } = await apiClient.post<{ data: { url: string } }>('/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      return data.data.url as string;
+      return data.data.url;
     },
     onSuccess: () => toast.success('Archivo subido'),
     onError: (err) => {

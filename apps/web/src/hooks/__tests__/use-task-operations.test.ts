@@ -1,4 +1,4 @@
-import { QUERY_KEYS } from '@epde/shared';
+import { QUERY_KEYS, TaskStatus } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
 import { toast } from 'sonner';
@@ -131,7 +131,7 @@ describe('useCompleteTask', () => {
   };
 
   it('applies optimistic update in onMutate', async () => {
-    const currentPlan = { id: 'plan-1', tasks: [{ id: 'task-1', status: 'PENDING' }] };
+    const currentPlan = { id: 'plan-1', tasks: [{ id: 'task-1', status: TaskStatus.PENDING }] };
     mockGetQueryData.mockReturnValue(currentPlan);
     mockCancelQueries.mockResolvedValue(undefined);
 
@@ -150,7 +150,7 @@ describe('useCompleteTask', () => {
   });
 
   it('rolls back and shows error toast on error', () => {
-    const previousPlan = { id: 'plan-1', tasks: [{ id: 'task-1', status: 'PENDING' }] };
+    const previousPlan = { id: 'plan-1', tasks: [{ id: 'task-1', status: TaskStatus.PENDING }] };
     renderHook(() => useCompleteTask());
 
     const config = vi.mocked(useMutation).mock.calls[0][0];

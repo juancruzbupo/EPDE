@@ -1,4 +1,4 @@
-import { getNextDueDate, recurrenceTypeToMonths } from '@epde/shared';
+import { getNextDueDate, recurrenceTypeToMonths, TaskStatus } from '@epde/shared';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
@@ -49,7 +49,11 @@ export class TaskSafetyService {
               task.recurrenceMonths ?? recurrenceTypeToMonths(task.recurrenceType) ?? 12;
             if (!task.nextDueDate) return Promise.resolve();
             const newDueDate = getNextDueDate(task.nextDueDate, months);
-            return this.tasksRepository.updateDueDateAndStatus(task.id, newDueDate, 'PENDING');
+            return this.tasksRepository.updateDueDateAndStatus(
+              task.id,
+              newDueDate,
+              TaskStatus.PENDING,
+            );
           }),
         );
         const failed = results.filter((r) => r.status === 'rejected');

@@ -1,4 +1,4 @@
-import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import { BudgetStatus, getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
 import { toast } from 'sonner';
@@ -45,7 +45,7 @@ describe('useBudgets', () => {
   });
 
   it('should call useInfiniteQuery with correct queryKey', () => {
-    const filters = { status: 'PENDING' as const };
+    const filters = { status: BudgetStatus.PENDING };
     renderHook(() => useBudgets(filters));
 
     expect(useInfiniteQuery).toHaveBeenCalledWith(

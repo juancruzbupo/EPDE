@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ServiceStatus, UserRole } from '@epde/shared';
+import { ServiceStatus, ServiceUrgency, UserRole } from '@epde/shared';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -185,7 +185,7 @@ describe('ServiceRequestsService', () => {
       propertyId: 'prop-1',
       title: 'Humedad en pared',
       description: 'Se detectó humedad en la pared del living',
-      urgency: 'MEDIUM' as const,
+      urgency: ServiceUrgency.MEDIUM,
       photoUrls: ['https://example.com/photo1.jpg'],
     };
 

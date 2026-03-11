@@ -46,6 +46,9 @@
 34. **Filter interfaces reflejan Zod schemas** — Los tipos de filtros en frontend (`PropertyFilters`, `BudgetFilters`, etc.) DEBEN ser subconjuntos de los schemas Zod de `@epde/shared`. Si el schema agrega un campo, el filtro debe reflejarlo. Evitar drift manual entre tipos de filtro locales y schemas compartidos
 35. **Import ordering** — Enforced via `eslint-plugin-simple-import-sort` (`simple-import-sort/imports` + `simple-import-sort/exports` en `eslint.config.mjs`). Orden: (1) React/framework (`react`, `next/*`, `@nestjs/*`), (2) external packages (`lucide-react`, `framer-motion`, `date-fns`), (3) `@epde/shared`, (4) `@/` local imports (components, hooks, lib), (5) `type` imports al final de cada grupo. Se auto-formatea con `pnpm lint --fix`
 36. **Regla de excepciones** — Domain exceptions (`XxxError extends Error` en `common/exceptions/domain.exceptions.ts`) para logica transaccional dentro de try/catch que mapea a HTTP. HTTP exceptions directas (`NotFoundException`, `ForbiddenException`) para validaciones de existencia/ownership pre-operacion. Los repositories NUNCA importan `@nestjs/common`
+37. **Rutas estaticas antes de parametrizadas** — En NestJS controllers, las rutas estaticas (`@Patch('read-all')`, `@Patch('reorder/batch')`) DEBEN declararse antes de las rutas parametrizadas (`@Patch(':id/read')`, `@Patch(':id')`). Si no, NestJS matchea el segmento estatico como parametro UUID y falla con 400
+38. **Axios generics en vez de `as` casts** — Preferir `apiClient.post<{ data: T }>(url, body)` en vez de `const res = ... ; return res.data as T`. Los generics permiten que TypeScript infiera el tipo de `data` sin type assertions inseguras
+39. **API factory return types explícitos con `ApiResponse<T>`** — Toda funcion en `packages/shared/src/api/*.ts` DEBE tener return type explicito: `Promise<ApiResponse<T>>` para detalle/mutacion, `Promise<PaginatedResponse<T>>` para listas paginadas. NUNCA usar `Promise<{ data: T }>` inline — usar siempre los type aliases de `../types`
 
 ### NUNCA
 
@@ -71,6 +74,8 @@
 20. **NUNCA tipar `@CurrentUser()` con objetos inline** — Usar `CurrentUserPayload` de `@epde/shared` (alias de `CurrentUser`)
 21. **NUNCA envolver `PaginatedResult` en `{ data }`** — Los endpoints de listado paginado retornan `return this.service.listXxx(...)` directo. Solo endpoints de detalle/mutacion usan `return { data }`. Envolver produce doble envelope `{ data: { data: [...], nextCursor } }` que rompe `useInfiniteQuery`
 22. **NUNCA usar `as Omit<Type, 'field'>` para excluir campos de un DTO** — El type cast NO elimina la propiedad en runtime. Usar destructuring: `const { field, ...rest } = dto`. Ejemplo: `categoryId` en un update DTO debe destructurarse antes de spread a Prisma, o se genera conflicto FK + relation connect
+23. **NUNCA declarar ruta parametrizada antes de ruta estatica** — En NestJS, `@Patch(':id')` matchea antes que `@Patch('reorder/batch')` si esta declarada primero. Resultado: `ParseUUIDPipe` falla con 400 al recibir `'reorder'` como UUID
+24. **NUNCA usar `as string` / `as T` para tipar responses de Axios** — Usar generics: `apiClient.post<{ data: T }>(...)`. Los type assertions no validan en runtime y ocultan mismatches entre el tipo esperado y el response real
 
 ---
 

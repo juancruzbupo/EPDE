@@ -1,4 +1,4 @@
-import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import { getErrorMessage, QUERY_KEYS, ServiceStatus } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
 import { toast } from 'sonner';
@@ -55,7 +55,7 @@ beforeEach(() => {
 
 describe('useServiceRequests', () => {
   it('calls useInfiniteQuery with correct queryKey and maxPages', () => {
-    const filters = { status: 'OPEN' as const };
+    const filters = { status: ServiceStatus.OPEN };
     renderHook(() => useServiceRequests(filters));
 
     expect(useInfiniteQuery).toHaveBeenCalledWith(

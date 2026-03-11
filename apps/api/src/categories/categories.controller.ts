@@ -42,6 +42,7 @@ export class CategoriesController {
   @Delete(':id')
   @Roles(UserRole.ADMIN)
   async deleteCategory(@Param('id', ParseUUIDPipe) id: string) {
-    return this.categoriesService.deleteCategory(id);
+    await this.categoriesService.deleteCategory(id);
+    return { data: null, message: 'Categoría eliminada' };
   }
 }

@@ -40,6 +40,7 @@ export class CategoryTemplatesController {
     @Query(new ZodValidationPipe(categoryTemplateFiltersSchema))
     filters: CategoryTemplateFiltersInput,
   ) {
+    // Returns PaginatedResult directly — already contains { data, nextCursor, hasMore }
     return this.service.list(filters);
   }
 
@@ -57,6 +58,11 @@ export class CategoryTemplatesController {
     return { data, message: 'Categoría template creada' };
   }
 
+  @Patch('reorder/batch')
+  async reorder(@Body(new ZodValidationPipe(reorderTemplatesSchema)) dto: ReorderTemplatesInput) {
+    return this.service.reorder(dto.ids);
+  }
+
   @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -69,10 +75,5 @@ export class CategoryTemplatesController {
   @Delete(':id')
   async remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.remove(id);
-  }
-
-  @Patch('reorder/batch')
-  async reorder(@Body(new ZodValidationPipe(reorderTemplatesSchema)) dto: ReorderTemplatesInput) {
-    return this.service.reorder(dto.ids);
   }
 }

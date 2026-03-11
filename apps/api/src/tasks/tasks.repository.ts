@@ -116,7 +116,7 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
 
       const updatedTask = await tx.task.update({
         where: { id: taskId },
-        data: { status: 'PENDING', nextDueDate: newDueDate },
+        data: { status: TaskStatus.PENDING, nextDueDate: newDueDate },
         include: { category: true },
       });
 
@@ -128,10 +128,10 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
     const result = await this.model.updateMany({
       where: {
         nextDueDate: { lt: new Date() },
-        status: { notIn: ['COMPLETED', 'OVERDUE'] },
+        status: { notIn: [TaskStatus.COMPLETED, TaskStatus.OVERDUE] },
         recurrenceType: { not: 'ON_DETECTION' },
       },
-      data: { status: 'OVERDUE' },
+      data: { status: TaskStatus.OVERDUE },
     });
     return result.count;
   }
@@ -141,10 +141,10 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
     const result = await this.model.updateMany({
       where: {
         nextDueDate: { gte: now, lte: addDays(now, 30) },
-        status: 'PENDING',
+        status: TaskStatus.PENDING,
         recurrenceType: { not: 'ON_DETECTION' },
       },
-      data: { status: 'UPCOMING' },
+      data: { status: TaskStatus.UPCOMING },
     });
     return result.count;
   }
@@ -153,9 +153,9 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
     const result = await this.model.updateMany({
       where: {
         nextDueDate: { gt: addDays(new Date(), 30) },
-        status: 'UPCOMING',
+        status: TaskStatus.UPCOMING,
       },
-      data: { status: 'PENDING' },
+      data: { status: TaskStatus.PENDING },
     });
     return result.count;
   }
@@ -178,7 +178,7 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
     return this.model.findMany({
       where: {
         nextDueDate: { gte: now, lte: addDays(now, daysAhead) },
-        status: { not: 'COMPLETED' },
+        status: { not: TaskStatus.COMPLETED },
         recurrenceType: { not: 'ON_DETECTION' },
       },
       include: taskInclude,
@@ -189,7 +189,7 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
     return this.model.findMany({
       where: {
         nextDueDate: { lt: new Date() },
-        status: 'OVERDUE',
+        status: TaskStatus.OVERDUE,
         recurrenceType: { not: 'ON_DETECTION' },
       },
       include: {
@@ -210,7 +210,7 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
   async findStaleCompleted(): Promise<Task[]> {
     return this.model.findMany({
       where: {
-        status: 'COMPLETED',
+        status: TaskStatus.COMPLETED,
         nextDueDate: { not: null, lt: new Date() },
         recurrenceType: { not: 'ON_DETECTION' },
       },

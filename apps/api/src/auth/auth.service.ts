@@ -1,4 +1,4 @@
-import { BCRYPT_SALT_ROUNDS } from '@epde/shared';
+import { BCRYPT_SALT_ROUNDS, UserStatus } from '@epde/shared';
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -31,7 +31,7 @@ export class AuthService {
     if (!isMatch) {
       return null;
     }
-    if (user.status !== 'ACTIVE') {
+    if (user.status !== UserStatus.ACTIVE) {
       return null;
     }
     return user;
@@ -76,7 +76,7 @@ export class AuthService {
 
       const user = await this.usersService.findById(payload.sub);
 
-      if (user.status !== 'INVITED') {
+      if (user.status !== UserStatus.INVITED) {
         throw new UserAlreadyHasPasswordError();
       }
 
@@ -84,7 +84,7 @@ export class AuthService {
 
       await this.usersService.update(user.id, {
         passwordHash: hash,
-        status: 'ACTIVE',
+        status: UserStatus.ACTIVE,
       });
 
       this.authAudit.logPasswordSet(user.id);

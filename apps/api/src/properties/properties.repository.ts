@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, Property, PropertyType } from '@prisma/client';
+import { PlanStatus, Prisma, Property, PropertyType } from '@prisma/client';
 
 import {
   BaseRepository,
@@ -88,7 +88,7 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
         data: {
           propertyId: property.id,
           name: `Plan de Mantenimiento — ${property.address}`,
-          status: 'DRAFT',
+          status: PlanStatus.DRAFT,
           createdBy: data.createdBy,
         },
       });

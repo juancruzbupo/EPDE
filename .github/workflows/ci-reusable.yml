@@ -112,6 +112,17 @@ jobs:
         if: inputs.run-coverage
         run: pnpm --filter @epde/api test -- --coverage
 
+      - name: Upload coverage reports
+        if: inputs.run-coverage && !cancelled()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            apps/web/coverage/
+            apps/mobile/coverage/
+            apps/api/coverage/
+          retention-days: 14
+
       - name: Enforce spec files for modified services
         if: inputs.enforce-specs && github.event_name == 'pull_request'
         run: |

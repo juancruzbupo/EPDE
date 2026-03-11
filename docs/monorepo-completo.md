@@ -905,7 +905,7 @@ Arquitectura de workflows: `ci-reusable.yml` contiene todos los steps de CI. Los
 
 ```yaml
 # ci-reusable.yml (workflow_call)
-Jobs: build → schema-drift → lint → typecheck → test → test:e2e → coverage (opcional) → spec enforcement (opcional)
+Jobs: build → schema-drift → lint → typecheck → test → test:e2e → coverage (opcional) → upload coverage artifacts (opcional, 14 dias) → spec enforcement (opcional)
 Services: PostgreSQL 16 Alpine, Redis 7 Alpine
 Inputs: run-coverage (bool), enforce-specs (bool)
 

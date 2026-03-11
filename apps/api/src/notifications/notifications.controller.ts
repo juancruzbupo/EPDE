@@ -30,6 +30,14 @@ export class NotificationsController {
     return { data: { count } };
   }
 
+  /** Collection-level bulk action — marks ALL unread notifications as read. */
+  @Patch('read-all')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  async markAllAsRead(@CurrentUser() user: CurrentUserPayload) {
+    const count = await this.notificationsService.markAllAsRead(user.id);
+    return { data: { count }, message: 'Notificaciones marcadas como leídas' };
+  }
+
   @Patch(':id/read')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async markAsRead(
@@ -38,13 +46,5 @@ export class NotificationsController {
   ) {
     const data = await this.notificationsService.markAsRead(id, user.id);
     return { data, message: 'Notificación marcada como leída' };
-  }
-
-  /** Collection-level bulk action — marks ALL unread notifications as read. */
-  @Patch('read-all')
-  @Roles(UserRole.CLIENT, UserRole.ADMIN)
-  async markAllAsRead(@CurrentUser() user: CurrentUserPayload) {
-    const count = await this.notificationsService.markAllAsRead(user.id);
-    return { data: { count }, message: 'Notificaciones marcadas como leídas' };
   }
 }

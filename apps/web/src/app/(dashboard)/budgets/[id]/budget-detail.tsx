@@ -38,20 +38,20 @@ import { RespondBudgetDialog } from './respond-budget-dialog';
 type ConfirmAction = BudgetStatus | null;
 
 const confirmMessages: Partial<Record<BudgetStatus, { title: string; description: string }>> = {
-  APPROVED: {
+  [BudgetStatus.APPROVED]: {
     title: 'Aprobar presupuesto',
     description: '¿Estás seguro de que queres aprobar este presupuesto?',
   },
-  REJECTED: {
+  [BudgetStatus.REJECTED]: {
     title: 'Rechazar presupuesto',
     description:
       '¿Estás seguro de que queres rechazar este presupuesto? Esta acción no se puede deshacer.',
   },
-  IN_PROGRESS: {
+  [BudgetStatus.IN_PROGRESS]: {
     title: 'Iniciar trabajo',
     description: '¿Estás seguro de que queres iniciar el trabajo de este presupuesto?',
   },
-  COMPLETED: {
+  [BudgetStatus.COMPLETED]: {
     title: 'Marcar completado',
     description: '¿Estás seguro de que queres marcar este presupuesto como completado?',
   },
@@ -242,17 +242,24 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
             )}
             {isClient && budget.status === BudgetStatus.QUOTED && (
               <>
-                <Button onClick={() => setConfirmAction('APPROVED')}>Aprobar</Button>
-                <Button variant="destructive" onClick={() => setConfirmAction('REJECTED')}>
+                <Button onClick={() => setConfirmAction(BudgetStatus.APPROVED)}>Aprobar</Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => setConfirmAction(BudgetStatus.REJECTED)}
+                >
                   Rechazar
                 </Button>
               </>
             )}
             {isAdmin && budget.status === BudgetStatus.APPROVED && (
-              <Button onClick={() => setConfirmAction('IN_PROGRESS')}>Iniciar Trabajo</Button>
+              <Button onClick={() => setConfirmAction(BudgetStatus.IN_PROGRESS)}>
+                Iniciar Trabajo
+              </Button>
             )}
             {isAdmin && budget.status === BudgetStatus.IN_PROGRESS && (
-              <Button onClick={() => setConfirmAction('COMPLETED')}>Marcar Completado</Button>
+              <Button onClick={() => setConfirmAction(BudgetStatus.COMPLETED)}>
+                Marcar Completado
+              </Button>
             )}
           </CardContent>
         </Card>
@@ -267,7 +274,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
         description={confirmAction ? (confirmMessages[confirmAction]?.description ?? '') : ''}
         onConfirm={handleStatusChange}
         isLoading={updateStatus.isPending}
-        variant={confirmAction === 'REJECTED' ? 'destructive' : 'default'}
+        variant={confirmAction === BudgetStatus.REJECTED ? 'destructive' : 'default'}
       />
     </div>
   );

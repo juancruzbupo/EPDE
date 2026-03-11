@@ -23,17 +23,17 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useServiceRequest, useUpdateServiceStatus } from '@/hooks/use-service-requests';
 
 const STATUS_TRANSITIONS: Partial<Record<ServiceStatus, ServiceStatus>> = {
-  OPEN: 'IN_REVIEW',
-  IN_REVIEW: 'IN_PROGRESS',
-  IN_PROGRESS: 'RESOLVED',
-  RESOLVED: 'CLOSED',
+  [ServiceStatus.OPEN]: ServiceStatus.IN_REVIEW,
+  [ServiceStatus.IN_REVIEW]: ServiceStatus.IN_PROGRESS,
+  [ServiceStatus.IN_PROGRESS]: ServiceStatus.RESOLVED,
+  [ServiceStatus.RESOLVED]: ServiceStatus.CLOSED,
 };
 
 const TRANSITION_LABELS: Partial<Record<ServiceStatus, string>> = {
-  IN_REVIEW: 'Pasar a En Revision',
-  IN_PROGRESS: 'Pasar a En Progreso',
-  RESOLVED: 'Marcar como Resuelto',
-  CLOSED: 'Cerrar solicitud',
+  [ServiceStatus.IN_REVIEW]: 'Pasar a En Revision',
+  [ServiceStatus.IN_PROGRESS]: 'Pasar a En Progreso',
+  [ServiceStatus.RESOLVED]: 'Marcar como Resuelto',
+  [ServiceStatus.CLOSED]: 'Cerrar solicitud',
 };
 
 interface ServiceRequestDetailProps {

@@ -12,6 +12,9 @@ import type {
 } from '../types';
 import type { TaskStatus } from '../types/enums';
 
+// Note: getPlans/getAllTasks return ApiResponse<T[]> (array wrapped in { data }),
+// not PaginatedResponse, because these endpoints return full lists without cursor pagination.
+
 /**
  * Creates query and mutation functions for the maintenance plans domain.
  * @param apiClient Axios instance (web uses proxy `/api/v1`, mobile uses direct URL)
@@ -20,7 +23,7 @@ export function createMaintenancePlanQueries(apiClient: AxiosInstance) {
   return {
     // --- Queries ---
 
-    async getPlans(signal?: AbortSignal): Promise<{ data: PlanListItem[] }> {
+    async getPlans(signal?: AbortSignal): Promise<ApiResponse<PlanListItem[]>> {
       const { data } = await apiClient.get('/maintenance-plans', { signal });
       return data;
     },
@@ -28,7 +31,7 @@ export function createMaintenancePlanQueries(apiClient: AxiosInstance) {
     async getAllTasks(
       status?: TaskStatus,
       signal?: AbortSignal,
-    ): Promise<{ data: TaskListItem[] }> {
+    ): Promise<ApiResponse<TaskListItem[]>> {
       const { data } = await apiClient.get('/maintenance-plans/tasks', {
         params: status ? { status } : {},
         signal,

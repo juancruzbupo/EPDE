@@ -55,7 +55,7 @@ function SelectorGroup<T extends string>({
 }: {
   label: string;
   options: readonly T[];
-  labels: Record<string, string>;
+  labels: Record<T, string>;
   value: T | null;
   onChange: (v: T) => void;
 }) {

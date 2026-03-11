@@ -1,5 +1,5 @@
 import type { ClientFiltersInput, CreateClientInput, UpdateClientInput } from '@epde/shared';
-import { UserRole } from '@epde/shared';
+import { UserRole, UserStatus } from '@epde/shared';
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
@@ -45,7 +45,7 @@ export class ClientsService {
       client = await this.clientsRepository.update(existing.id, {
         name: dto.name,
         phone: dto.phone,
-        status: 'INVITED',
+        status: UserStatus.INVITED,
         passwordHash: null,
         deletedAt: null,
       });
@@ -57,7 +57,7 @@ export class ClientsService {
         name: dto.name,
         phone: dto.phone,
         role: UserRole.CLIENT,
-        status: 'INVITED',
+        status: UserStatus.INVITED,
       });
     }
 
