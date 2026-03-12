@@ -1,8 +1,10 @@
+import type { NotificationType } from '@epde/shared';
+
 export const NOTIFICATION_QUEUE = 'notification';
 
 export interface NotificationJobData {
   userId: string;
-  type: 'BUDGET_UPDATE' | 'SERVICE_UPDATE' | 'TASK_REMINDER' | 'SYSTEM';
+  type: NotificationType;
   title: string;
   message: string;
   data?: Record<string, string>;

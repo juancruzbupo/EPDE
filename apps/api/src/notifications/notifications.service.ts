@@ -1,3 +1,4 @@
+import type { NotificationType } from '@epde/shared';
 import { Injectable } from '@nestjs/common';
 
 import { NotificationsRepository } from './notifications.repository';
@@ -25,7 +26,7 @@ export class NotificationsService {
   async createNotifications(
     data: {
       userId: string;
-      type: 'TASK_REMINDER' | 'BUDGET_UPDATE' | 'SERVICE_UPDATE' | 'SYSTEM';
+      type: NotificationType;
       title: string;
       message: string;
       data?: Record<string, unknown>;
@@ -37,7 +38,7 @@ export class NotificationsService {
 
   async createNotification(data: {
     userId: string;
-    type: 'TASK_REMINDER' | 'BUDGET_UPDATE' | 'SERVICE_UPDATE' | 'SYSTEM';
+    type: NotificationType;
     title: string;
     message: string;
     data?: Record<string, unknown>;

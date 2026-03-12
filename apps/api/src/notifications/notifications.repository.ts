@@ -1,3 +1,4 @@
+import { NotificationType } from '@epde/shared';
 import { Injectable } from '@nestjs/common';
 import { Notification, Prisma } from '@prisma/client';
 
@@ -54,7 +55,7 @@ export class NotificationsRepository extends BaseRepository<Notification, 'notif
   async createMany(
     notifications: {
       userId: string;
-      type: 'TASK_REMINDER' | 'BUDGET_UPDATE' | 'SERVICE_UPDATE' | 'SYSTEM';
+      type: NotificationType;
       title: string;
       message: string;
       data?: Record<string, unknown> | null;
@@ -79,7 +80,7 @@ export class NotificationsRepository extends BaseRepository<Notification, 'notif
 
     const existing = await this.writeModel.findMany({
       where: {
-        type: 'TASK_REMINDER',
+        type: NotificationType.TASK_REMINDER,
         createdAt: { gte: todayStart },
       },
       select: { data: true },

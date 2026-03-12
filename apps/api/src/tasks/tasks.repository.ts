@@ -1,3 +1,4 @@
+import type { ActionTaken, ConditionFound, TaskExecutor, TaskResult } from '@epde/shared';
 import { TASKS_MAX_TAKE } from '@epde/shared';
 import { Injectable } from '@nestjs/common';
 import { Task, TaskStatus } from '@prisma/client';
@@ -86,10 +87,10 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
     taskId: string,
     userId: string,
     dto: {
-      result: string;
-      conditionFound: string;
-      executor: string;
-      actionTaken: string;
+      result: TaskResult;
+      conditionFound: ConditionFound;
+      executor: TaskExecutor;
+      actionTaken: ActionTaken;
       completedAt?: Date;
       cost?: number;
       note?: string;
@@ -103,10 +104,10 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
           taskId,
           completedBy: userId,
           completedAt: dto.completedAt ?? new Date(),
-          result: dto.result as 'OK',
-          conditionFound: dto.conditionFound as 'GOOD',
-          executor: dto.executor as 'OWNER',
-          actionTaken: dto.actionTaken as 'INSPECTION_ONLY',
+          result: dto.result,
+          conditionFound: dto.conditionFound,
+          executor: dto.executor,
+          actionTaken: dto.actionTaken,
           cost: dto.cost,
           notes: dto.note,
           photoUrl: dto.photoUrl,

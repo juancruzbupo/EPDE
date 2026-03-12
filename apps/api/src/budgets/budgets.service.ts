@@ -210,15 +210,17 @@ export class BudgetsService {
   }
 
   private validateStatusTransition(
-    current: string,
-    next: string,
+    current: BudgetStatus,
+    next: BudgetStatus,
     user: ServiceUser,
     budget: { property?: { userId: string } | null },
   ) {
-    const allowedTransitions: Record<string, { status: string[]; role: string }[]> = {
-      QUOTED: [{ status: ['APPROVED', 'REJECTED'], role: UserRole.CLIENT }],
-      APPROVED: [{ status: ['IN_PROGRESS'], role: UserRole.ADMIN }],
-      IN_PROGRESS: [{ status: ['COMPLETED'], role: UserRole.ADMIN }],
+    const allowedTransitions: Record<string, { status: BudgetStatus[]; role: UserRole }[]> = {
+      [BudgetStatus.QUOTED]: [
+        { status: [BudgetStatus.APPROVED, BudgetStatus.REJECTED], role: UserRole.CLIENT },
+      ],
+      [BudgetStatus.APPROVED]: [{ status: [BudgetStatus.IN_PROGRESS], role: UserRole.ADMIN }],
+      [BudgetStatus.IN_PROGRESS]: [{ status: [BudgetStatus.COMPLETED], role: UserRole.ADMIN }],
     };
 
     const allowed = allowedTransitions[current];

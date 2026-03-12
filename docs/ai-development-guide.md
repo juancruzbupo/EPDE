@@ -48,7 +48,7 @@
 36. **Regla de excepciones** — Domain exceptions (`XxxError extends Error` en `common/exceptions/domain.exceptions.ts`) para logica transaccional dentro de try/catch que mapea a HTTP. HTTP exceptions directas (`NotFoundException`, `ForbiddenException`) para validaciones de existencia/ownership pre-operacion. Los repositories NUNCA importan `@nestjs/common`
 37. **Rutas estaticas antes de parametrizadas** — En NestJS controllers, las rutas estaticas (`@Patch('read-all')`, `@Patch('reorder/batch')`) DEBEN declararse antes de las rutas parametrizadas (`@Patch(':id/read')`, `@Patch(':id')`). Si no, NestJS matchea el segmento estatico como parametro UUID y falla con 400
 38. **Axios generics en vez de `as` casts** — Preferir `apiClient.post<{ data: T }>(url, body)` en vez de `const res = ... ; return res.data as T`. Los generics permiten que TypeScript infiera el tipo de `data` sin type assertions inseguras
-39. **API factory return types explícitos con `ApiResponse<T>`** — Toda funcion en `packages/shared/src/api/*.ts` DEBE tener return type explicito: `Promise<ApiResponse<T>>` para detalle/mutacion, `Promise<PaginatedResponse<T>>` para listas paginadas. NUNCA usar `Promise<{ data: T }>` inline — usar siempre los type aliases de `../types`
+39. **API factory return types explícitos con `ApiResponse<T>`** — Toda funcion en `packages/shared/src/api/*.ts` DEBE tener return type explicito: `Promise<ApiResponse<T>>` para detalle/mutacion, `Promise<ApiResponse<null>>` para deletes, `Promise<PaginatedResponse<T>>` para listas paginadas. NUNCA usar `Promise<{ data: T }>` inline — usar siempre los type aliases de `../types`
 
 ### NUNCA
 
