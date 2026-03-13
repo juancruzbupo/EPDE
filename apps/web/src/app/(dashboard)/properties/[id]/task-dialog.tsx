@@ -157,7 +157,7 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Editar Tarea' : 'Agregar Tarea'}</DialogTitle>
         </DialogHeader>
