@@ -109,6 +109,17 @@ export class MaintenancePlansController {
     return { data, message: 'Tarea agregada' };
   }
 
+  // Static segment MUST be before :taskId to avoid NestJS matching "reorder" as a UUID
+  @Patch(':id/tasks/reorder')
+  @Roles(UserRole.ADMIN)
+  async reorderTasks(
+    @Param('id', ParseUUIDPipe) planId: string,
+    @Body(new ZodValidationPipe(reorderTasksSchema)) dto: ReorderTasksInput,
+  ) {
+    const data = await this.taskLifecycle.reorderTasks(planId, dto);
+    return { data, message: 'Orden de tareas actualizado' };
+  }
+
   @Patch(':id/tasks/:taskId')
   @Roles(UserRole.ADMIN)
   async updateTask(
@@ -128,16 +139,6 @@ export class MaintenancePlansController {
     @Param('taskId', ParseUUIDPipe) taskId: string,
   ) {
     return this.taskLifecycle.removeTask(planId, taskId);
-  }
-
-  @Patch(':id/tasks/reorder')
-  @Roles(UserRole.ADMIN)
-  async reorderTasks(
-    @Param('id', ParseUUIDPipe) planId: string,
-    @Body(new ZodValidationPipe(reorderTasksSchema)) dto: ReorderTasksInput,
-  ) {
-    const data = await this.taskLifecycle.reorderTasks(planId, dto);
-    return { data, message: 'Orden de tareas actualizado' };
   }
 
   @Get(':id/tasks/:taskId')
