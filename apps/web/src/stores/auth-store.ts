@@ -36,6 +36,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch {
       // API may fail — local cleanup already done
     }
+
+    // Hard redirect to clear any stale client state and let the middleware
+    // enforce the unauthenticated flow. Using window.location instead of
+    // router.push to ensure a full page reload (no cached RSC payloads).
+    window.location.href = '/login';
   },
 
   checkAuth: async () => {

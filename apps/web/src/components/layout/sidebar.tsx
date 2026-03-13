@@ -51,7 +51,7 @@ export function Sidebar({ className }: { className?: string }) {
         <h2 className="font-heading text-sidebar-primary text-xl font-bold">EPDE</h2>
       </div>
 
-      <nav aria-label="Navegación principal" className="flex-1 space-y-1 px-3">
+      <nav aria-label="Navegación principal" className="flex-1 space-y-1 overflow-y-auto px-3">
         {filteredItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
