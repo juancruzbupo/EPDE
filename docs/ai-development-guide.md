@@ -49,6 +49,7 @@
 37. **Rutas estaticas antes de parametrizadas** — En NestJS controllers, las rutas estaticas (`@Patch('read-all')`, `@Patch('reorder/batch')`) DEBEN declararse antes de las rutas parametrizadas (`@Patch(':id/read')`, `@Patch(':id')`). Si no, NestJS matchea el segmento estatico como parametro UUID y falla con 400
 38. **Axios generics en vez de `as` casts** — Preferir `apiClient.post<{ data: T }>(url, body)` en vez de `const res = ... ; return res.data as T`. Los generics permiten que TypeScript infiera el tipo de `data` sin type assertions inseguras
 39. **API factory return types explícitos con `ApiResponse<T>`** — Toda funcion en `packages/shared/src/api/*.ts` DEBE tener return type explicito: `Promise<ApiResponse<T>>` para detalle/mutacion, `Promise<ApiResponse<null>>` para deletes, `Promise<PaginatedResponse<T>>` para listas paginadas. NUNCA usar `Promise<{ data: T }>` inline — usar siempre los type aliases de `../types`
+40. **Template auto-fill en creacion de tareas** — El TaskDialog matchea `Category.name` → `CategoryTemplate.name` para mostrar un selector de `TaskTemplate` en vez de texto libre para el nombre. Al seleccionar una plantilla se auto-completan: `taskType`, `professionalRequirement`, `priority`, `recurrenceType`, `recurrenceMonths`, `technicalDescription`, `estimatedDurationMinutes`. El admin puede sobreescribir cualquier campo. En modo edicion el nombre es siempre texto libre
 
 ### NUNCA
 

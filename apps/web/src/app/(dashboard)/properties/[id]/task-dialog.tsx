@@ -1,5 +1,6 @@
 'use client';
 
+import type { TaskTemplate } from '@epde/shared';
 import {
   createTaskSchema,
   PROFESSIONAL_REQUIREMENT_LABELS,
@@ -9,7 +10,7 @@ import {
   TASK_TYPE_LABELS,
 } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -25,6 +26,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useCategories } from '@/hooks/use-categories';
+import { useCategoryTemplates } from '@/hooks/use-category-templates';
 import { useAddTask } from '@/hooks/use-plans';
 import { useUpdateTask } from '@/hooks/use-task-operations';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
@@ -43,6 +45,8 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
   const addTask = useAddTask();
   const updateTask = useUpdateTask();
   const { data: categories, isLoading: categoriesLoading } = useCategories();
+  const { data: categoryTemplates } = useCategoryTemplates();
+  const [useCustomName, setUseCustomName] = useState(false);
 
   const {
     register,
@@ -61,6 +65,48 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
   });
 
   const recurrenceType = watch('recurrenceType');
+  const watchedCategoryId = watch('categoryId');
+
+  // Match Category → CategoryTemplate by name to get available TaskTemplates
+  const taskTemplates = useMemo(() => {
+    if (!watchedCategoryId || !categories || !categoryTemplates) return [];
+    const categoryName = categories.find((c) => c.id === watchedCategoryId)?.name;
+    if (!categoryName) return [];
+    const match = categoryTemplates.find((ct) => ct.name === categoryName);
+    return match?.tasks ?? [];
+  }, [watchedCategoryId, categories, categoryTemplates]);
+
+  const hasTemplates = taskTemplates.length > 0 && !isEdit;
+
+  const applyTemplate = useCallback(
+    (template: TaskTemplate) => {
+      setValue('name', template.name);
+      setValue('taskType', template.taskType as TaskFormValues['taskType']);
+      setValue(
+        'professionalRequirement',
+        template.professionalRequirement as TaskFormValues['professionalRequirement'],
+      );
+      setValue('priority', template.priority as TaskFormValues['priority']);
+      setValue('recurrenceType', template.recurrenceType as TaskFormValues['recurrenceType']);
+      if (template.recurrenceMonths) setValue('recurrenceMonths', template.recurrenceMonths);
+      setValue('technicalDescription', template.technicalDescription ?? '');
+      setValue('estimatedDurationMinutes', template.estimatedDurationMinutes ?? undefined);
+    },
+    [setValue],
+  );
+
+  const handleTemplateSelect = useCallback(
+    (templateId: string) => {
+      if (templateId === '__custom__') {
+        setUseCustomName(true);
+        setValue('name', '');
+        return;
+      }
+      const template = taskTemplates.find((t) => t.id === templateId);
+      if (template) applyTemplate(template);
+    },
+    [taskTemplates, applyTemplate, setValue],
+  );
 
   useEffect(() => {
     if (task) {
@@ -82,6 +128,7 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
       if (task.nextDueDate) setValue('nextDueDate', new Date(task.nextDueDate));
     } else {
       reset({ maintenancePlanId: planId, priority: 'MEDIUM', recurrenceType: 'ANNUAL' });
+      setUseCustomName(false);
     }
   }, [task, planId, setValue, reset]);
 
@@ -118,21 +165,14 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
           <input type="hidden" {...register('maintenancePlanId')} />
 
           <div className="space-y-2">
-            <Label htmlFor="task-name">Nombre</Label>
-            <Input id="task-name" {...register('name')} />
-            {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="task-description">Descripción (opcional)</Label>
-            <Input id="task-description" {...register('description')} />
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="task-category">Categoría</Label>
             <Select
               value={watch('categoryId') ?? ''}
-              onValueChange={(v) => setValue('categoryId', v)}
+              onValueChange={(v) => {
+                setValue('categoryId', v);
+                setValue('name', '');
+                setUseCustomName(false);
+              }}
               disabled={categoriesLoading}
             >
               <SelectTrigger id="task-category">
@@ -153,6 +193,49 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
             {errors.categoryId && (
               <p className="text-destructive text-sm">{errors.categoryId.message}</p>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="task-name">Nombre</Label>
+            {hasTemplates && !useCustomName ? (
+              <Select onValueChange={handleTemplateSelect}>
+                <SelectTrigger id="task-name">
+                  <SelectValue placeholder="Seleccionar plantilla..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {taskTemplates.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.name}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="__custom__">Nombre personalizado...</SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="flex gap-2">
+                <Input id="task-name" className="flex-1" {...register('name')} />
+                {hasTemplates && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0 self-center"
+                    onClick={() => {
+                      setUseCustomName(false);
+                      setValue('name', '');
+                    }}
+                  >
+                    Usar plantilla
+                  </Button>
+                )}
+              </div>
+            )}
+            {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="task-description">Descripción (opcional)</Label>
+            <Input id="task-description" {...register('description')} />
           </div>
 
           <div className="grid grid-cols-2 gap-4">

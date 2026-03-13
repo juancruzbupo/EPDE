@@ -209,6 +209,26 @@ Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
 
 **Nota:** Los planes se crean automaticamente al crear una propiedad (no hay endpoint `POST /maintenance-plans` independiente).
 
+**POST /maintenance-plans/:id/tasks**
+
+```json
+{
+  "categoryId": "uuid",
+  "name": "Verificar termicas y disyuntores",
+  "description": "Opcional",
+  "priority": "HIGH",
+  "recurrenceType": "BIANNUAL",
+  "recurrenceMonths": 6,
+  "nextDueDate": "2026-06-01",
+  "taskType": "INSPECTION",
+  "professionalRequirement": "OWNER_CAN_DO",
+  "technicalDescription": "Revisar que todas las termicas operen correctamente",
+  "estimatedDurationMinutes": 15
+}
+```
+
+**Nota:** En el frontend, al seleccionar una categoria con plantillas (CategoryTemplate), se muestra un selector de TaskTemplate que auto-completa todos los campos. El admin puede sobreescribir cualquier valor.
+
 ---
 
 ### Plantillas de Categorias (ADMIN only)
