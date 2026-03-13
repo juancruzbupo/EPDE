@@ -1,8 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+
 import type {
-  TaskTemplateSeed,
   CategoryTemplateSeed,
+  TaskTemplateSeed,
 } from '../../../packages/shared/src/seed/template-data';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { TEMPLATE_SEED_DATA } = require('../../../packages/shared/dist/seed/index.cjs') as {
@@ -14,18 +15,27 @@ const prisma = new PrismaClient();
 
 const BCRYPT_SALT_ROUNDS = 12;
 
+// Names MUST match CategoryTemplate names in TEMPLATE_SEED_DATA
+// so the TaskDialog can match Category → CategoryTemplate → TaskTemplate[].
 const CATEGORY_DEFAULTS = [
-  { name: 'Electricidad', icon: 'zap', order: 1 },
-  { name: 'Plomería', icon: 'droplets', order: 2 },
-  { name: 'Pintura', icon: 'paintbrush', order: 3 },
-  { name: 'Techos y Cubiertas', icon: 'home', order: 4 },
-  { name: 'Jardín y Exteriores', icon: 'trees', order: 5 },
-  { name: 'Climatización', icon: 'thermometer', order: 6 },
-  { name: 'Seguridad', icon: 'shield', order: 7 },
-  { name: 'Limpieza General', icon: 'sparkles', order: 8 },
-  { name: 'Estructural', icon: 'building', order: 9 },
-  { name: 'Aberturas', icon: 'door-open', order: 10 },
+  { name: 'Estructura', icon: 'building', order: 1 },
+  { name: 'Techos y Cubiertas', icon: 'home', order: 2 },
+  { name: 'Instalación Eléctrica', icon: 'zap', order: 3 },
+  { name: 'Instalación Sanitaria', icon: 'droplets', order: 4 },
+  { name: 'Gas y Calefacción', icon: 'flame', order: 5 },
+  { name: 'Aberturas', icon: 'door-open', order: 6 },
+  { name: 'Pintura y Revestimientos', icon: 'paintbrush', order: 7 },
+  { name: 'Jardín y Exteriores', icon: 'trees', order: 8 },
+  { name: 'Climatización', icon: 'thermometer', order: 9 },
 ];
+
+// Rename categories from old names to match template names (for existing DBs)
+const CATEGORY_RENAMES: Record<string, string> = {
+  Electricidad: 'Instalación Eléctrica',
+  Plomería: 'Instalación Sanitaria',
+  Pintura: 'Pintura y Revestimientos',
+  Estructural: 'Estructura',
+};
 
 async function main() {
   console.log('Seeding database...');
@@ -50,7 +60,42 @@ async function main() {
   });
   console.log(`Admin user created: ${admin.email}`);
 
-  // Create default categories
+  // Rename old categories to match CategoryTemplate names (idempotent)
+  for (const [oldName, newName] of Object.entries(CATEGORY_RENAMES)) {
+    const old = await prisma.category.findFirst({
+      where: { name: oldName, deletedAt: null },
+    });
+    if (old) {
+      await prisma.category.update({
+        where: { id: old.id },
+        data: { name: newName },
+      });
+      console.log(`  Renamed category: "${oldName}" → "${newName}"`);
+    }
+  }
+
+  // Soft-delete legacy categories that no longer have templates
+  for (const legacyName of ['Seguridad', 'Limpieza General']) {
+    const legacy = await prisma.category.findFirst({
+      where: { name: legacyName, deletedAt: null },
+    });
+    if (legacy) {
+      const taskCount = await prisma.task.count({
+        where: { categoryId: legacy.id, deletedAt: null },
+      });
+      if (taskCount === 0) {
+        await prisma.category.update({
+          where: { id: legacy.id },
+          data: { deletedAt: new Date() },
+        });
+        console.log(`  Soft-deleted unused category: "${legacyName}"`);
+      } else {
+        console.log(`  Kept "${legacyName}" (has ${taskCount} active tasks)`);
+      }
+    }
+  }
+
+  // Create/update default categories
   for (const cat of CATEGORY_DEFAULTS) {
     const existing = await prisma.category.findFirst({
       where: { name: cat.name, deletedAt: null },
@@ -64,7 +109,7 @@ async function main() {
       await prisma.category.create({ data: cat });
     }
   }
-  console.log(`${CATEGORY_DEFAULTS.length} categories created`);
+  console.log(`${CATEGORY_DEFAULTS.length} categories synced`);
 
   // Create category + task templates
   const existingTemplates = await prisma.categoryTemplate.count();

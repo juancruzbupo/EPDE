@@ -12,7 +12,7 @@
 // Requiere: templates ya creados (seed.ts principal debe correr primero)
 // ============================================================================
 
-import { PrismaClient, Prisma } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 
@@ -59,17 +59,18 @@ const ids = {
 // CATEGORÍAS (globales, compartidas entre propiedades)
 // ============================================================================
 
+// Names MUST match CATEGORY_DEFAULTS in seed.ts / TEMPLATE_SEED_DATA in shared
 const CATEGORIES = [
   { name: 'Estructura', icon: '🏗', description: 'Control estructural de la vivienda' },
   {
-    name: 'Cubierta y Techos',
+    name: 'Techos y Cubiertas',
     icon: '🏠',
     description: 'Mantenimiento de cubiertas, canaletas y membranas',
   },
   {
-    name: 'Humedades y Envolvente',
+    name: 'Pintura y Revestimientos',
     icon: '🧱',
-    description: 'Control de humedad, revoques y pintura exterior',
+    description: 'Control de humedad, revoques, pintura y revestimientos',
   },
   {
     name: 'Instalación Sanitaria',
@@ -82,24 +83,28 @@ const CATEGORIES = [
     description: 'Tablero, disyuntores, puesta a tierra',
   },
   {
-    name: 'Instalación de Gas',
+    name: 'Gas y Calefacción',
     icon: '🔥',
     description: 'Artefactos, ventilaciones y hermeticidad',
   },
   {
-    name: 'Carpinterías',
+    name: 'Aberturas',
     icon: '🪟',
     description: 'Herrajes, burletes, selladores, puertas y ventanas',
   },
-  { name: 'Pisos y Revestimientos', icon: '🧱', description: 'Juntas, cerámicos, sellado húmedo' },
   {
-    name: 'Exterior y Terreno',
+    name: 'Climatización',
+    icon: '❄️',
+    description: 'Aire acondicionado, ventilación y aislación térmica',
+  },
+  {
+    name: 'Jardín y Exteriores',
     icon: '🌳',
     description: 'Perímetro, veredas, raíces, desagües de patio',
   },
 ] as const;
 
-// —— Definición completa de las 48 tareas del template ———————————————————————
+// —— Definición completa de las 51 tareas del template ———————————————————————
 
 interface TaskDef {
   name: string;
@@ -207,7 +212,7 @@ const TASK_DEFS: TaskDef[] = [
     categoryIndex: 0,
   },
 
-  // —— 1. CUBIERTA Y TECHOS (9 tareas) ——
+  // —— 1. TECHOS Y CUBIERTAS (9 tareas) ——
   {
     name: 'Limpieza de canaletas',
     taskType: 'CLEANING',
@@ -310,7 +315,7 @@ const TASK_DEFS: TaskDef[] = [
     categoryIndex: 1,
   },
 
-  // —— 2. HUMEDADES Y ENVOLVENTE (6 tareas) ——
+  // —— 2. PINTURA Y REVESTIMIENTOS (6 + 3 pisos = 9 tareas) ——
   {
     name: 'Control de humedad ascendente',
     taskType: 'INSPECTION',
@@ -508,7 +513,7 @@ const TASK_DEFS: TaskDef[] = [
     categoryIndex: 4,
   },
 
-  // —— 5. INSTALACIÓN DE GAS (3 tareas) ——
+  // —— 5. GAS Y CALEFACCIÓN (3 tareas) ——
   {
     name: 'Revisión de artefactos a gas',
     taskType: 'INSPECTION',
@@ -546,7 +551,7 @@ const TASK_DEFS: TaskDef[] = [
     categoryIndex: 5,
   },
 
-  // —— 6. CARPINTERÍAS (4 tareas) ——
+  // —— 6. ABERTURAS (4 tareas) ——
   {
     name: 'Lubricación de herrajes',
     taskType: 'LUBRICATION',
@@ -595,9 +600,46 @@ const TASK_DEFS: TaskDef[] = [
     categoryIndex: 6,
   },
 
-  // —— 7. PISOS Y REVESTIMIENTOS (3 tareas) ——
+  // —— 7. CLIMATIZACIÓN (3 tareas) ——
   {
-    name: 'Revisión de juntas de dilatación',
+    name: 'Limpieza de filtros de aire acondicionado',
+    taskType: 'CLEANING',
+    professionalRequirement: 'OWNER_CAN_DO',
+    technicalDescription: 'Retirar filtros, lavar con agua y jabón neutro, secar y reinstalar.',
+    priority: 'MEDIUM',
+    recurrenceType: 'QUARTERLY',
+    recurrenceMonths: 3,
+    estimatedDurationMinutes: 20,
+    categoryIndex: 7,
+  },
+  {
+    name: 'Service de aire acondicionado',
+    taskType: 'MAINTENANCE',
+    professionalRequirement: 'REQUIRES_PROFESSIONAL',
+    technicalDescription:
+      'Limpieza de evaporador y condensador, carga de gas si necesario, verificación eléctrica.',
+    priority: 'HIGH',
+    recurrenceType: 'ANNUAL',
+    recurrenceMonths: 12,
+    estimatedDurationMinutes: 90,
+    categoryIndex: 7,
+  },
+  {
+    name: 'Control de ventilación natural',
+    taskType: 'INSPECTION',
+    professionalRequirement: 'OWNER_CAN_DO',
+    technicalDescription:
+      'Verificar que rejillas de ventilación no estén obstruidas. Controlar tiraje de ventilaciones.',
+    priority: 'LOW',
+    recurrenceType: 'BIANNUAL',
+    recurrenceMonths: 6,
+    estimatedDurationMinutes: 15,
+    categoryIndex: 7,
+  },
+
+  // —— Pisos y revestimientos (ahora bajo Pintura y Revestimientos, index 2) ——
+  {
+    name: 'Revisión de juntas de dilatación en pisos',
     taskType: 'INSPECTION',
     professionalRequirement: 'OWNER_CAN_DO',
     technicalDescription:
@@ -606,7 +648,7 @@ const TASK_DEFS: TaskDef[] = [
     recurrenceType: 'ANNUAL',
     recurrenceMonths: 12,
     estimatedDurationMinutes: 20,
-    categoryIndex: 7,
+    categoryIndex: 2,
   },
   {
     name: 'Control de desprendimiento de cerámicos',
@@ -618,7 +660,7 @@ const TASK_DEFS: TaskDef[] = [
     recurrenceType: 'ANNUAL',
     recurrenceMonths: 12,
     estimatedDurationMinutes: 20,
-    categoryIndex: 7,
+    categoryIndex: 2,
   },
   {
     name: 'Sellado de juntas húmedas (baños/cocina)',
@@ -629,10 +671,10 @@ const TASK_DEFS: TaskDef[] = [
     recurrenceType: 'CUSTOM',
     recurrenceMonths: 24,
     estimatedDurationMinutes: 45,
-    categoryIndex: 7,
+    categoryIndex: 2,
   },
 
-  // —— 8. EXTERIOR Y TERRENO (4 tareas) ——
+  // —— 8. JARDÍN Y EXTERIORES (4 tareas) ——
   {
     name: 'Control de pendientes perimetrales',
     taskType: 'INSPECTION',
@@ -850,7 +892,7 @@ export async function seedDemo(prisma: PrismaClient) {
     },
     monthsAgo(18),
   );
-  console.log(`  ✓ Propiedad: ${mariaProp.address} (${mariaProp.city}) — 48 tareas`);
+  console.log(`  ✓ Propiedad: ${mariaProp.address} (${mariaProp.city}) — 51 tareas`);
 
   // —— Task Logs para María (historial rico de 18 meses) ——
 
@@ -1571,7 +1613,7 @@ export async function seedDemo(prisma: PrismaClient) {
     },
     monthsAgo(6),
   );
-  console.log(`  ✓ Propiedad: ${carlosProp.address} (${carlosProp.city}) — 48 tareas`);
+  console.log(`  ✓ Propiedad: ${carlosProp.address} (${carlosProp.city}) — 51 tareas`);
 
   // —— Task Logs para Carlos (1 ciclo parcial) ——
   const carlosCycle1 = monthsAgo(3);
@@ -1854,7 +1896,7 @@ export async function seedDemo(prisma: PrismaClient) {
     monthsAgo(1),
   );
   console.log(
-    `  ✓ Propiedad: ${lauraProp.address} (${lauraProp.city}) — 48 tareas (todas pendientes)`,
+    `  ✓ Propiedad: ${lauraProp.address} (${lauraProp.city}) — 51 tareas (todas pendientes)`,
   );
   console.log('  ✓ Sin historial, presupuestos ni solicitudes');
 
@@ -1865,7 +1907,7 @@ export async function seedDemo(prisma: PrismaClient) {
       type: 'SYSTEM',
       title: 'Bienvenida a EPDE',
       message:
-        'Tu plan de mantenimiento preventivo fue creado con 48 tareas. Revisá las tareas próximas en tu panel.',
+        'Tu plan de mantenimiento preventivo fue creado con 51 tareas. Revisá las tareas próximas en tu panel.',
       read: true,
       createdAt: monthsAgo(1),
     },

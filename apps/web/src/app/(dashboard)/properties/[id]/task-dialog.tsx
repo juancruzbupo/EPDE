@@ -198,9 +198,15 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
           <div className="space-y-2">
             <Label htmlFor="task-name">Nombre</Label>
             {hasTemplates && !useCustomName ? (
-              <Select onValueChange={handleTemplateSelect}>
+              <Select onValueChange={handleTemplateSelect} disabled={!watchedCategoryId}>
                 <SelectTrigger id="task-name">
-                  <SelectValue placeholder="Seleccionar plantilla..." />
+                  <SelectValue
+                    placeholder={
+                      watchedCategoryId
+                        ? 'Seleccionar plantilla...'
+                        : 'Seleccioná una categoría primero'
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {taskTemplates.map((t) => (
@@ -213,7 +219,15 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
               </Select>
             ) : (
               <div className="flex gap-2">
-                <Input id="task-name" className="flex-1" {...register('name')} />
+                <Input
+                  id="task-name"
+                  className="flex-1"
+                  disabled={!watchedCategoryId && !isEdit}
+                  placeholder={
+                    watchedCategoryId || isEdit ? '' : 'Seleccioná una categoría primero'
+                  }
+                  {...register('name')}
+                />
                 {hasTemplates && (
                   <Button
                     type="button"
