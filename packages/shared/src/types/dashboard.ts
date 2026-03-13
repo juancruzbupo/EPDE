@@ -1,4 +1,4 @@
-import type { TaskPriority, TaskStatus } from './enums';
+import type { ActivityType, TaskPriority, TaskStatus } from './enums';
 
 export interface DashboardStats {
   totalClients: number;
@@ -32,12 +32,7 @@ export interface UpcomingTask {
 
 export interface ActivityItem {
   id: string;
-  type:
-    | 'client_created'
-    | 'property_created'
-    | 'task_completed'
-    | 'budget_requested'
-    | 'service_requested';
+  type: ActivityType;
   description: string;
   timestamp: string;
   metadata?: Record<string, unknown>;

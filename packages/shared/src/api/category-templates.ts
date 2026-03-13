@@ -5,7 +5,7 @@ import type {
   UpdateCategoryTemplateInput,
 } from '../schemas/task-template';
 import type { CreateTaskTemplateInput, UpdateTaskTemplateInput } from '../schemas/task-template';
-import type { ApiResponse, CategoryTemplate, PaginatedResponse } from '../types';
+import type { ApiResponse, CategoryTemplate } from '../types';
 
 /**
  * Creates query and mutation functions for category and task templates.
@@ -15,7 +15,7 @@ export function createCategoryTemplateQueries(apiClient: AxiosInstance) {
   return {
     // --- Queries ---
 
-    async getCategoryTemplates(signal?: AbortSignal): Promise<PaginatedResponse<CategoryTemplate>> {
+    async getCategoryTemplates(signal?: AbortSignal): Promise<ApiResponse<CategoryTemplate[]>> {
       const { data } = await apiClient.get('/category-templates', { signal });
       return data;
     },

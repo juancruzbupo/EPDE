@@ -1,3 +1,4 @@
+import { ActivityType } from '@epde/shared';
 import { Injectable } from '@nestjs/common';
 
 import { DashboardRepository } from './dashboard.repository';
@@ -17,31 +18,31 @@ export class DashboardService {
     const activities = [
       ...recentClients.map((c) => ({
         id: c.id,
-        type: 'client_created' as const,
+        type: ActivityType.CLIENT_CREATED,
         description: `Nuevo cliente: ${c.name}`,
         timestamp: c.createdAt,
       })),
       ...recentProperties.map((p) => ({
         id: p.id,
-        type: 'property_created' as const,
+        type: ActivityType.PROPERTY_CREATED,
         description: `Nueva propiedad: ${p.address}, ${p.city}`,
         timestamp: p.createdAt,
       })),
       ...recentTasks.map((t) => ({
         id: t.id,
-        type: 'task_completed' as const,
+        type: ActivityType.TASK_COMPLETED,
         description: `Tarea completada: ${t.name}`,
         timestamp: t.updatedAt,
       })),
       ...recentBudgets.map((b) => ({
         id: b.id,
-        type: 'budget_requested' as const,
+        type: ActivityType.BUDGET_REQUESTED,
         description: `Presupuesto solicitado: ${b.title}`,
         timestamp: b.createdAt,
       })),
       ...recentServices.map((s) => ({
         id: s.id,
-        type: 'service_requested' as const,
+        type: ActivityType.SERVICE_REQUESTED,
         description: `Solicitud de servicio: ${s.title}`,
         timestamp: s.createdAt,
       })),

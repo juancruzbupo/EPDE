@@ -1,4 +1,4 @@
-import { TaskStatus } from '@epde/shared';
+import { ActivityType, TaskStatus } from '@epde/shared';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { DashboardRepository } from './dashboard.repository';
@@ -90,7 +90,7 @@ describe('DashboardService', () => {
 
       // The first item should be the most recent (offset=1)
       expect(result[0]!.id).toBe('c1');
-      expect(result[0]!.type).toBe('client_created');
+      expect(result[0]!.type).toBe(ActivityType.CLIENT_CREATED);
       expect(result[0]!.description).toBe('Nuevo cliente: Cliente A');
 
       // Check specific description formats

@@ -90,6 +90,17 @@ export const NotificationType = {
 } as const;
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType];
 
+// ─── Dashboard Activity ─────────────────────────────────
+
+export const ActivityType = {
+  CLIENT_CREATED: 'client_created',
+  PROPERTY_CREATED: 'property_created',
+  TASK_COMPLETED: 'task_completed',
+  BUDGET_REQUESTED: 'budget_requested',
+  SERVICE_REQUESTED: 'service_requested',
+} as const;
+export type ActivityType = (typeof ActivityType)[keyof typeof ActivityType];
+
 // ─── Task Metadata (set at creation) ─────────────────────
 
 export const TaskType = {
@@ -199,3 +210,7 @@ export const TASK_EXECUTOR_VALUES = Object.values(TaskExecutor) as [
   ...TaskExecutor[],
 ];
 export const ACTION_TAKEN_VALUES = Object.values(ActionTaken) as [ActionTaken, ...ActionTaken[]];
+export const NOTIFICATION_TYPE_VALUES = Object.values(NotificationType) as [
+  NotificationType,
+  ...NotificationType[],
+];
