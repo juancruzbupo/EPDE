@@ -7,10 +7,12 @@ import type {
 } from '@epde/shared';
 import {
   getNextDueDate,
+  ProfessionalRequirement,
   RecurrenceType,
   recurrenceTypeToMonths,
   TaskPriority,
   TaskStatus,
+  TaskType,
   UserRole,
 } from '@epde/shared';
 import {
@@ -90,6 +92,11 @@ export class TaskLifecycleService {
         order: maxOrder + 1,
         status: TaskStatus.PENDING,
         createdBy,
+        taskType: dto.taskType ?? TaskType.INSPECTION,
+        professionalRequirement:
+          dto.professionalRequirement ?? ProfessionalRequirement.OWNER_CAN_DO,
+        technicalDescription: dto.technicalDescription,
+        estimatedDurationMinutes: dto.estimatedDurationMinutes,
       },
       { category: true },
     );

@@ -1,4 +1,10 @@
-import type { CompleteTaskInput, RecurrenceType, TaskPriority } from '@epde/shared';
+import type {
+  CompleteTaskInput,
+  ProfessionalRequirement,
+  RecurrenceType,
+  TaskPriority,
+  TaskType,
+} from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS, TaskStatus } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -35,6 +41,10 @@ export function useUpdateTask() {
       recurrenceMonths?: number;
       nextDueDate?: string;
       status?: TaskStatus;
+      taskType?: TaskType;
+      professionalRequirement?: ProfessionalRequirement;
+      technicalDescription?: string | null;
+      estimatedDurationMinutes?: number | null;
     }) => updateTask(planId, taskId, dto),
     onSuccess: () => {
       toast.success('Tarea actualizada');

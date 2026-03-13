@@ -1,4 +1,11 @@
-import type { PlanStatus, RecurrenceType, TaskPriority, TaskStatus } from '@epde/shared';
+import type {
+  PlanStatus,
+  ProfessionalRequirement,
+  RecurrenceType,
+  TaskPriority,
+  TaskStatus,
+  TaskType,
+} from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -55,6 +62,10 @@ export function useAddTask() {
       recurrenceType?: RecurrenceType;
       recurrenceMonths?: number;
       nextDueDate?: string;
+      taskType?: TaskType;
+      professionalRequirement?: ProfessionalRequirement;
+      technicalDescription?: string;
+      estimatedDurationMinutes?: number;
     }) => addTask(planId, dto),
     onSuccess: () => {
       toast.success('Tarea agregada');

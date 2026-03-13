@@ -54,6 +54,10 @@ export async function addTask(
     recurrenceType?: RecurrenceType;
     recurrenceMonths?: number;
     nextDueDate?: string;
+    taskType?: TaskType;
+    professionalRequirement?: ProfessionalRequirement;
+    technicalDescription?: string;
+    estimatedDurationMinutes?: number;
   },
 ): Promise<ApiResponse<TaskPublic>> {
   const { data } = await apiClient.post(`/maintenance-plans/${planId}/tasks`, dto);
