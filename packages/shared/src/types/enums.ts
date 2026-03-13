@@ -214,3 +214,7 @@ export const NOTIFICATION_TYPE_VALUES = Object.values(NotificationType) as [
   NotificationType,
   ...NotificationType[],
 ];
+export const ACTIVITY_TYPE_VALUES = Object.values(ActivityType) as [
+  ActivityType,
+  ...ActivityType[],
+];
