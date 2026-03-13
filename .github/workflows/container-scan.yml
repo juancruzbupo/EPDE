@@ -29,7 +29,7 @@ jobs:
         run: docker build -f apps/api/Dockerfile -t epde-api:scan .
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.31.0
+        uses: aquasecurity/trivy-action@0.35.0
         with:
           image-ref: 'epde-api:scan'
           format: 'sarif'
