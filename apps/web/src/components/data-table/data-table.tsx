@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { fadeInUp, MOTION_DURATION, useMotionPreference } from '@/lib/motion';
+import { FADE_IN_UP, MOTION_DURATION, useMotionPreference } from '@/lib/motion';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -116,7 +116,7 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
                   {shouldAnimate ? (
-                    <motion.span variants={fadeInUp} initial="hidden" animate="visible">
+                    <motion.span variants={FADE_IN_UP} initial="hidden" animate="visible">
                       {emptyMessage}
                     </motion.span>
                   ) : (

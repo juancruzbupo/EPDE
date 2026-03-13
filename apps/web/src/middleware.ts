@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-const publicPaths = ['/login', '/set-password'];
+const PUBLIC_PATHS = ['/login', '/set-password'];
 
 /**
  * Decode JWT payload (no signature verification — that happens API-side).
@@ -23,7 +23,7 @@ function isTokenExpired(token: string): boolean {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname === '/' || publicPaths.some((path) => pathname.startsWith(path))) {
+  if (pathname === '/' || PUBLIC_PATHS.some((path) => pathname.startsWith(path))) {
     return NextResponse.next();
   }
 

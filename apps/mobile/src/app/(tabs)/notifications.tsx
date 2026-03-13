@@ -15,7 +15,7 @@ import {
   useNotifications,
   useUnreadCount,
 } from '@/hooks/use-notifications';
-import { colors } from '@/lib/colors';
+import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 
@@ -131,7 +131,7 @@ export default function NotificationsScreen() {
                 ? [
                     {
                       icon: '✓',
-                      color: colors.success,
+                      color: COLORS.success,
                       onPress: () => {
                         haptics.light();
                         markAsRead.mutate(item.id);

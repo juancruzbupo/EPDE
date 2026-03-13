@@ -24,7 +24,7 @@ import { useProperties } from '@/hooks/use-properties';
 import { useCreateServiceRequest } from '@/hooks/use-service-requests';
 import { useUploadFile } from '@/hooks/use-upload';
 import { useSlideIn } from '@/lib/animations';
-import { colors } from '@/lib/colors';
+import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 
@@ -268,7 +268,7 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
             ))}
             {properties.length === 0 && (
               <View className="py-2">
-                <ActivityIndicator size="small" color={colors.primary} />
+                <ActivityIndicator size="small" color={COLORS.primary} />
               </View>
             )}
           </ScrollView>
@@ -292,7 +292,7 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
                 onChangeText={onChange}
                 onBlur={onBlur}
                 placeholder="Describir brevemente el problema..."
-                placeholderTextColor={colors.mutedForeground}
+                placeholderTextColor={COLORS.mutedForeground}
                 maxLength={200}
                 style={TYPE.bodyMd}
                 className="border-border bg-card text-foreground mb-1 rounded-xl border p-3"
@@ -319,7 +319,7 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
                 onChangeText={onChange}
                 onBlur={onBlur}
                 placeholder="Describir en detalle el problema o servicio necesario (minimo 10 caracteres)..."
-                placeholderTextColor={colors.mutedForeground}
+                placeholderTextColor={COLORS.mutedForeground}
                 multiline
                 maxLength={2000}
                 style={[TYPE.bodyMd, { minHeight: 100, textAlignVertical: 'top' }]}

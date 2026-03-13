@@ -1,33 +1,33 @@
 import { motion } from 'framer-motion';
 
-import { fadeIn, fadeInUp, staggerContainer } from '@/lib/motion';
+import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER } from '@/lib/motion';
 
 import type { SectionProps } from '../landing-data';
 
 export function RealExampleSection({ motionProps }: SectionProps) {
   return (
     <section className="bg-muted/30 py-20 md:py-28">
-      <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-3xl px-4">
+      <motion.div variants={STAGGER_CONTAINER} {...motionProps} className="mx-auto max-w-3xl px-4">
         <motion.p
-          variants={fadeIn}
+          variants={FADE_IN}
           className="type-label-md text-primary tracking-widest uppercase"
         >
           Ejemplo de detección temprana
         </motion.p>
         <motion.h2
-          variants={fadeInUp}
+          variants={FADE_IN_UP}
           className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
         >
           Filtración incipiente en techo detectada en una revisión preventiva.
         </motion.h2>
 
-        <motion.p variants={fadeIn} className="type-body-lg text-muted-foreground mt-6 max-w-2xl">
+        <motion.p variants={FADE_IN} className="type-body-lg text-muted-foreground mt-6 max-w-2xl">
           En una inspección preventiva de rutina se detecta una filtración inicial en la cubierta
           que aún no presenta síntomas visibles en el interior. Sin intervención, el agua avanza
           hacia la estructura, daña el cielorraso y genera humedad en muros.
         </motion.p>
 
-        <motion.div variants={fadeInUp} className="mt-10 grid gap-6 sm:grid-cols-2">
+        <motion.div variants={FADE_IN_UP} className="mt-10 grid gap-6 sm:grid-cols-2">
           <div className="border-success/30 bg-success/[0.03] rounded-xl border-2 p-6">
             <p className="type-label-md text-success tracking-wide uppercase">
               Reparación preventiva temprana
@@ -60,7 +60,7 @@ export function RealExampleSection({ motionProps }: SectionProps) {
         </motion.div>
 
         <motion.p
-          variants={fadeIn}
+          variants={FADE_IN}
           className="type-body-sm text-muted-foreground/70 mx-auto mt-6 max-w-2xl text-center"
         >
           Ejemplo ilustrativo basado en escenarios típicos. Los costos son estimaciones de mercado y

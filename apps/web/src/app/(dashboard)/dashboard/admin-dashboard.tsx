@@ -12,7 +12,7 @@ import { AnimatedNumber } from '@/components/ui/animated-number';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { useDashboardActivity, useDashboardStats } from '@/hooks/use-dashboard';
-import { fadeInUp, staggerContainer, staggerItem, useMotionPreference } from '@/lib/motion';
+import { FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM, useMotionPreference } from '@/lib/motion';
 
 export function AdminDashboard() {
   const {
@@ -40,12 +40,12 @@ export function AdminDashboard() {
         key={statsLoading ? 'loading' : 'loaded'}
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5"
         {...(shouldAnimate
-          ? { variants: staggerContainer, initial: 'hidden', animate: 'visible' }
+          ? { variants: STAGGER_CONTAINER, initial: 'hidden', animate: 'visible' }
           : {})}
       >
         {statsLoading ? (
           Array.from({ length: 5 }).map((_, i) => (
-            <Item key={`skel-${i}`} {...(shouldAnimate ? { variants: staggerItem } : {})}>
+            <Item key={`skel-${i}`} {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
               <Card>
                 <CardContent className="p-6">
                   <SkeletonShimmer className="h-20 w-full" />
@@ -54,7 +54,7 @@ export function AdminDashboard() {
             </Item>
           ))
         ) : statsError ? (
-          <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+          <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
             <ErrorState
               message="No se pudieron cargar las estadísticas"
               onRetry={refetchStats}
@@ -63,21 +63,21 @@ export function AdminDashboard() {
           </Item>
         ) : stats ? (
           <>
-            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+            <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
               <StatCard
                 title="Clientes"
                 value={<AnimatedNumber value={stats.totalClients} />}
                 icon={Users}
               />
             </Item>
-            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+            <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
               <StatCard
                 title="Propiedades"
                 value={<AnimatedNumber value={stats.totalProperties} />}
                 icon={Home}
               />
             </Item>
-            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+            <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
               <StatCard
                 title="Tareas Vencidas"
                 value={<AnimatedNumber value={stats.overdueTasks} />}
@@ -85,14 +85,14 @@ export function AdminDashboard() {
                 className={stats.overdueTasks > 0 ? 'border-destructive/30 bg-destructive/10' : ''}
               />
             </Item>
-            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+            <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
               <StatCard
                 title="Presupuestos"
                 value={<AnimatedNumber value={stats.pendingBudgets} />}
                 icon={FileText}
               />
             </Item>
-            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+            <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
               <StatCard
                 title="Servicios"
                 value={<AnimatedNumber value={stats.pendingServices} />}
@@ -104,7 +104,7 @@ export function AdminDashboard() {
       </Wrapper>
 
       <motion.div
-        {...(shouldAnimate ? { variants: fadeInUp, initial: 'hidden', animate: 'visible' } : {})}
+        {...(shouldAnimate ? { variants: FADE_IN_UP, initial: 'hidden', animate: 'visible' } : {})}
       >
         <Card className="mt-6">
           <CardHeader>
@@ -126,12 +126,12 @@ export function AdminDashboard() {
               <Wrapper
                 className="space-y-3"
                 {...(shouldAnimate
-                  ? { variants: staggerContainer, initial: 'hidden', animate: 'visible' }
+                  ? { variants: STAGGER_CONTAINER, initial: 'hidden', animate: 'visible' }
                   : {})}
               >
                 <ul className="space-y-3">
                   {activity.map((item) => (
-                    <Item key={item.id} {...(shouldAnimate ? { variants: staggerItem } : {})}>
+                    <Item key={item.id} {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
                       <li className="flex items-start gap-3 rounded-lg border p-3">
                         <div className="bg-muted mt-0.5 rounded-full p-2">
                           <Activity className="h-4 w-4" />

@@ -35,7 +35,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCompleteTask } from '@/hooks/use-task-operations';
 import { useUploadFile } from '@/hooks/use-upload';
 import { useSlideIn } from '@/lib/animations';
-import { colors } from '@/lib/colors';
+import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 
@@ -320,7 +320,7 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
             value={cost}
             onChangeText={setCost}
             placeholder="0.00"
-            placeholderTextColor={colors.mutedForeground}
+            placeholderTextColor={COLORS.mutedForeground}
             keyboardType="decimal-pad"
             style={TYPE.bodyMd}
             className="border-border bg-card text-foreground mb-4 rounded-xl border p-3"
@@ -333,7 +333,7 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
             value={note}
             onChangeText={setNote}
             placeholder="Describir el trabajo realizado..."
-            placeholderTextColor={colors.mutedForeground}
+            placeholderTextColor={COLORS.mutedForeground}
             multiline
             maxLength={500}
             style={[TYPE.bodyMd, { minHeight: 80, textAlignVertical: 'top' }]}

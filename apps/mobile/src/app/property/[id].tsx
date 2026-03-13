@@ -23,7 +23,7 @@ import { SwipeableRow } from '@/components/swipeable-row';
 import { usePlan } from '@/hooks/use-plans';
 import { useProperty } from '@/hooks/use-properties';
 import { useAnimatedEntry } from '@/lib/animations';
-import { colors } from '@/lib/colors';
+import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { defaultScreenOptions } from '@/lib/screen-options';
 
@@ -114,7 +114,7 @@ export default function PropertyDetailScreen() {
         <Stack.Screen
           options={{ headerShown: true, title: 'Propiedad', headerBackTitle: 'Volver' }}
         />
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
@@ -225,7 +225,7 @@ export default function PropertyDetailScreen() {
             <SwipeableRow
               rightActions={
                 item.status !== TaskStatus.COMPLETED
-                  ? [{ icon: '✓', color: colors.success, onPress: () => setCompleteTask(item) }]
+                  ? [{ icon: '✓', color: COLORS.success, onPress: () => setCompleteTask(item) }]
                   : []
               }
             >

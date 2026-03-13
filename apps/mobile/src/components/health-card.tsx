@@ -8,7 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { TIMING, useReducedMotion } from '@/lib/animations';
-import { colors } from '@/lib/colors';
+import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 
 import { AnimatedNumber } from './animated-number';
@@ -20,12 +20,12 @@ interface HealthCardProps {
 }
 
 function getHealthInfo(total: number, overdue: number) {
-  if (total === 0) return { percent: 100, label: 'Sin tareas', color: colors.mutedForeground };
+  if (total === 0) return { percent: 100, label: 'Sin tareas', color: COLORS.mutedForeground };
   const percent = Math.round(((total - overdue) / total) * 100);
-  if (percent > 90) return { percent, label: 'Excelente', color: colors.success };
-  if (percent > 70) return { percent, label: 'Bueno', color: colors.primary };
-  if (percent > 50) return { percent, label: 'Necesita atencion', color: colors.warning };
-  return { percent, label: 'Critico', color: colors.destructive };
+  if (percent > 90) return { percent, label: 'Excelente', color: COLORS.success };
+  if (percent > 70) return { percent, label: 'Bueno', color: COLORS.primary };
+  if (percent > 50) return { percent, label: 'Necesita atencion', color: COLORS.warning };
+  return { percent, label: 'Critico', color: COLORS.destructive };
 }
 
 export const HealthCard = memo(function HealthCard({
@@ -76,7 +76,7 @@ export const HealthCard = memo(function HealthCard({
           </View>
           <View className="items-center">
             <Text
-              style={[TYPE.titleSm, { color: overdueTasks > 0 ? colors.destructive : undefined }]}
+              style={[TYPE.titleSm, { color: overdueTasks > 0 ? COLORS.destructive : undefined }]}
               className="text-foreground"
             >
               {overdueTasks}

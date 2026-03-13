@@ -11,7 +11,7 @@ import { ErrorState } from '@/components/error-state';
 import { BudgetStatusBadge } from '@/components/status-badge';
 import { useBudget, useUpdateBudgetStatus } from '@/hooks/use-budgets';
 import { useSlideIn } from '@/lib/animations';
-import { colors } from '@/lib/colors';
+import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { defaultScreenOptions } from '@/lib/screen-options';
@@ -69,7 +69,7 @@ export default function BudgetDetailScreen() {
         <Stack.Screen
           options={{ headerShown: true, title: 'Presupuesto', headerBackTitle: 'Volver' }}
         />
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }

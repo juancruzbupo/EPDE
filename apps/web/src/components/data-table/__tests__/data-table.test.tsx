@@ -16,7 +16,7 @@ vi.mock('framer-motion', () => ({
 
 vi.mock('@/lib/motion', () => ({
   useMotionPreference: () => ({ shouldAnimate: false }),
-  fadeInUp: {},
+  FADE_IN_UP: {},
   MOTION_DURATION: { fast: 0.15, normal: 0.25, slow: 0.4 },
 }));
 

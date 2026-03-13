@@ -8,4 +8,4 @@
  */
 import { DESIGN_TOKENS_LIGHT } from '@epde/shared';
 
-export const colors = DESIGN_TOKENS_LIGHT;
+export const COLORS = DESIGN_TOKENS_LIGHT;

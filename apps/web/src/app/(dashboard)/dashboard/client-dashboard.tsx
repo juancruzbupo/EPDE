@@ -24,7 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { useClientDashboardStats, useClientUpcomingTasks } from '@/hooks/use-dashboard';
-import { fadeInUp, staggerContainer, staggerItem, useMotionPreference } from '@/lib/motion';
+import { FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM, useMotionPreference } from '@/lib/motion';
 
 export function ClientDashboard({ userName }: { userName: string }) {
   const {
@@ -73,12 +73,12 @@ export function ClientDashboard({ userName }: { userName: string }) {
         key={statsLoading ? 'loading' : 'loaded'}
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
         {...(shouldAnimate
-          ? { variants: staggerContainer, initial: 'hidden', animate: 'visible' }
+          ? { variants: STAGGER_CONTAINER, initial: 'hidden', animate: 'visible' }
           : {})}
       >
         {statsLoading ? (
           Array.from({ length: 6 }).map((_, i) => (
-            <Item key={`skel-${i}`} {...(shouldAnimate ? { variants: staggerItem } : {})}>
+            <Item key={`skel-${i}`} {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
               <Card>
                 <CardContent className="p-6">
                   <SkeletonShimmer className="h-20 w-full" />
@@ -87,7 +87,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
             </Item>
           ))
         ) : statsError ? (
-          <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+          <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
             <ErrorState
               message="No se pudieron cargar las estadísticas"
               onRetry={refetchStats}
@@ -96,21 +96,21 @@ export function ClientDashboard({ userName }: { userName: string }) {
           </Item>
         ) : stats ? (
           <>
-            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+            <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
               <StatCard
                 title="Propiedades"
                 value={<AnimatedNumber value={stats.totalProperties} />}
                 icon={Home}
               />
             </Item>
-            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+            <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
               <StatCard
                 title="Tareas Pendientes"
                 value={<AnimatedNumber value={stats.pendingTasks} />}
                 icon={Clock}
               />
             </Item>
-            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+            <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
               <StatCard
                 title="Tareas Vencidas"
                 value={<AnimatedNumber value={stats.overdueTasks} />}
@@ -118,21 +118,21 @@ export function ClientDashboard({ userName }: { userName: string }) {
                 className={stats.overdueTasks > 0 ? 'border-destructive/30 bg-destructive/10' : ''}
               />
             </Item>
-            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+            <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
               <StatCard
                 title="Completadas este mes"
                 value={<AnimatedNumber value={stats.completedThisMonth} />}
                 icon={CheckCircle}
               />
             </Item>
-            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+            <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
               <StatCard
                 title="Presupuestos"
                 value={<AnimatedNumber value={stats.pendingBudgets} />}
                 icon={FileText}
               />
             </Item>
-            <Item {...(shouldAnimate ? { variants: staggerItem } : {})}>
+            <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
               <StatCard
                 title="Servicios Abiertos"
                 value={<AnimatedNumber value={stats.openServices} />}
@@ -144,7 +144,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
       </Wrapper>
 
       <motion.div
-        {...(shouldAnimate ? { variants: fadeInUp, initial: 'hidden', animate: 'visible' } : {})}
+        {...(shouldAnimate ? { variants: FADE_IN_UP, initial: 'hidden', animate: 'visible' } : {})}
       >
         <Card className="mt-6">
           <CardHeader>
@@ -162,7 +162,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
             ) : upcoming && upcoming.length > 0 ? (
               <Wrapper
                 {...(shouldAnimate
-                  ? { variants: staggerContainer, initial: 'hidden', animate: 'visible' }
+                  ? { variants: STAGGER_CONTAINER, initial: 'hidden', animate: 'visible' }
                   : {})}
               >
                 <ul className="space-y-2">
@@ -171,7 +171,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
                       ? new Date(task.nextDueDate) < new Date()
                       : false;
                     return (
-                      <Item key={task.id} {...(shouldAnimate ? { variants: staggerItem } : {})}>
+                      <Item key={task.id} {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
                         <li>
                           <Link
                             href={`/properties/${task.propertyId}?tab=plan`}

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 
-import { fadeIn, fadeInUp, staggerContainer, staggerItem } from '@/lib/motion';
+import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/motion';
 
 import type { SectionProps } from '../landing-data';
 import { COST_DISCLAIMER, PROBLEMS, REPAIR_COSTS } from '../landing-data';
@@ -10,9 +10,13 @@ export function ProblemsSection({ motionProps }: SectionProps) {
     <>
       {/* Problema */}
       <section className="bg-muted/30 py-20 md:py-28">
-        <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-5xl px-4">
+        <motion.div
+          variants={STAGGER_CONTAINER}
+          {...motionProps}
+          className="mx-auto max-w-5xl px-4"
+        >
           <motion.h2
-            variants={fadeInUp}
+            variants={FADE_IN_UP}
             className="font-heading text-foreground text-3xl tracking-tight sm:text-4xl"
           >
             El problema no es el paso del tiempo.
@@ -20,7 +24,7 @@ export function ProblemsSection({ motionProps }: SectionProps) {
             <span className="text-muted-foreground">Es no tener sistema.</span>
           </motion.h2>
           <motion.div
-            variants={fadeIn}
+            variants={FADE_IN}
             className="type-body-lg text-muted-foreground mt-4 max-w-2xl space-y-4"
           >
             <p>
@@ -38,7 +42,7 @@ export function ProblemsSection({ motionProps }: SectionProps) {
             {PROBLEMS.map((problem) => (
               <motion.div
                 key={problem.title}
-                variants={staggerItem}
+                variants={STAGGER_ITEM}
                 className="border-border bg-card rounded-xl border p-6"
               >
                 <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-lg">
@@ -54,7 +58,7 @@ export function ProblemsSection({ motionProps }: SectionProps) {
           </div>
 
           <motion.p
-            variants={fadeIn}
+            variants={FADE_IN}
             className="type-body-lg text-muted-foreground mx-auto mt-10 max-w-2xl text-center"
           >
             La diferencia entre preservar tu vivienda y enfrentar una reparación mayor es, casi
@@ -65,14 +69,21 @@ export function ProblemsSection({ motionProps }: SectionProps) {
 
       {/* Costos de reparación si no se previene */}
       <section className="py-20 md:py-28">
-        <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-4xl px-4">
+        <motion.div
+          variants={STAGGER_CONTAINER}
+          {...motionProps}
+          className="mx-auto max-w-4xl px-4"
+        >
           <motion.h2
-            variants={fadeInUp}
+            variants={FADE_IN_UP}
             className="font-heading text-foreground text-3xl tracking-tight sm:text-4xl"
           >
             ¿Cuánto cuesta no prevenir?
           </motion.h2>
-          <motion.p variants={fadeIn} className="type-body-lg text-muted-foreground mt-4 max-w-2xl">
+          <motion.p
+            variants={FADE_IN}
+            className="type-body-lg text-muted-foreground mt-4 max-w-2xl"
+          >
             Estos son los costos estimados de reparación cuando los problemas no se detectan a
             tiempo.
           </motion.p>
@@ -81,7 +92,7 @@ export function ProblemsSection({ motionProps }: SectionProps) {
             {REPAIR_COSTS.map((item) => (
               <motion.div
                 key={item.problem}
-                variants={staggerItem}
+                variants={STAGGER_ITEM}
                 className="border-border bg-card rounded-xl border p-6"
               >
                 <div className="bg-destructive/10 flex h-10 w-10 items-center justify-center rounded-lg">
@@ -100,7 +111,7 @@ export function ProblemsSection({ motionProps }: SectionProps) {
           </div>
 
           <motion.p
-            variants={fadeIn}
+            variants={FADE_IN}
             className="type-body-md text-foreground/70 mx-auto mt-8 max-w-2xl text-center font-medium"
           >
             Detectar estos problemas a tiempo mediante mantenimiento preventivo puede reducir
@@ -108,7 +119,7 @@ export function ProblemsSection({ motionProps }: SectionProps) {
           </motion.p>
 
           <motion.p
-            variants={fadeIn}
+            variants={FADE_IN}
             className="type-body-sm text-muted-foreground/70 mx-auto mt-4 max-w-3xl text-center"
           >
             {COST_DISCLAIMER}

@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { Children, type ReactNode } from 'react';
 
-import { staggerContainer, staggerItem, useMotionPreference } from '@/lib/motion';
+import { STAGGER_CONTAINER, STAGGER_ITEM, useMotionPreference } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 
 interface PageTransitionProps {
@@ -21,12 +21,12 @@ export function PageTransition({ children, className }: PageTransitionProps) {
   return (
     <motion.div
       className={cn('space-y-6', className)}
-      variants={staggerContainer}
+      variants={STAGGER_CONTAINER}
       initial="hidden"
       animate="visible"
     >
       {Children.map(children, (child) =>
-        child ? <motion.div variants={staggerItem}>{child}</motion.div> : null,
+        child ? <motion.div variants={STAGGER_ITEM}>{child}</motion.div> : null,
       )}
     </motion.div>
   );

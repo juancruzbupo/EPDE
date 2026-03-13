@@ -24,7 +24,7 @@ import {
   useTaskNotes,
 } from '@/hooks/use-task-operations';
 import { useSlideIn } from '@/lib/animations';
-import { colors } from '@/lib/colors';
+import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { defaultScreenOptions } from '@/lib/screen-options';
 
@@ -100,7 +100,7 @@ export default function TaskDetailScreen() {
     return (
       <View className="bg-background flex-1 items-center justify-center">
         <Stack.Screen options={{ headerShown: true, title: 'Tarea', headerBackTitle: 'Volver' }} />
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
@@ -224,7 +224,7 @@ export default function TaskDetailScreen() {
               value={noteContent}
               onChangeText={setNoteContent}
               placeholder="Agregar una nota..."
-              placeholderTextColor={colors.mutedForeground}
+              placeholderTextColor={COLORS.mutedForeground}
               multiline
               maxLength={2000}
               style={[TYPE.bodyMd, { minHeight: 40, textAlignVertical: 'top' }]}

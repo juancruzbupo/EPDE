@@ -6,7 +6,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-na
 import { OfflineBanner } from '@/components/offline-banner';
 import { useUnreadCount } from '@/hooks/use-notifications';
 import { SPRING, useReducedMotion } from '@/lib/animations';
-import { colors } from '@/lib/colors';
+import { COLORS } from '@/lib/colors';
 import { haptics } from '@/lib/haptics';
 import { defaultTabBarOptions } from '@/lib/screen-options';
 
@@ -103,7 +103,7 @@ export default function TabLayout() {
               <AnimatedTabIcon emoji="🔔" color={color} focused={focused} />
             ),
             tabBarBadge: unreadCount && unreadCount > 0 ? unreadCount : undefined,
-            tabBarBadgeStyle: { backgroundColor: colors.primary, fontSize: 10 },
+            tabBarBadgeStyle: { backgroundColor: COLORS.primary, fontSize: 10 },
           }}
         />
         <Tabs.Screen

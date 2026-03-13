@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 
-import { colors } from '@/lib/colors';
+import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -68,7 +68,7 @@ export default function LoginScreen() {
                 className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3"
                 style={TYPE.bodyLg}
                 placeholder="tu@email.com"
-                placeholderTextColor={colors.mutedForeground}
+                placeholderTextColor={COLORS.mutedForeground}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
@@ -93,7 +93,7 @@ export default function LoginScreen() {
                 className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3"
                 style={TYPE.bodyLg}
                 placeholder="••••••"
-                placeholderTextColor={colors.mutedForeground}
+                placeholderTextColor={COLORS.mutedForeground}
                 secureTextEntry
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -114,7 +114,7 @@ export default function LoginScreen() {
             style={{ opacity: isLoading ? 0.6 : 1 }}
           >
             {isLoading ? (
-              <ActivityIndicator color={colors.primaryForeground} />
+              <ActivityIndicator color={COLORS.primaryForeground} />
             ) : (
               <Text style={TYPE.titleMd} className="text-primary-foreground">
                 Ingresar

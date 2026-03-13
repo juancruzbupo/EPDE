@@ -15,7 +15,7 @@ import {
 import { z } from 'zod';
 
 import { setPassword } from '@/lib/auth';
-import { colors } from '@/lib/colors';
+import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 
 const schema = z
@@ -95,7 +95,7 @@ export default function SetPasswordScreen() {
                 className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3"
                 style={TYPE.bodyLg}
                 placeholder="••••••••"
-                placeholderTextColor={colors.mutedForeground}
+                placeholderTextColor={COLORS.mutedForeground}
                 secureTextEntry
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -118,7 +118,7 @@ export default function SetPasswordScreen() {
                 className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3"
                 style={TYPE.bodyLg}
                 placeholder="••••••••"
-                placeholderTextColor={colors.mutedForeground}
+                placeholderTextColor={COLORS.mutedForeground}
                 secureTextEntry
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -139,7 +139,7 @@ export default function SetPasswordScreen() {
             style={{ opacity: isLoading ? 0.6 : 1 }}
           >
             {isLoading ? (
-              <ActivityIndicator color={colors.primaryForeground} />
+              <ActivityIndicator color={COLORS.primaryForeground} />
             ) : (
               <Text style={TYPE.titleMd} className="text-primary-foreground">
                 Configurar Contraseña

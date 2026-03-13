@@ -1,23 +1,23 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
-import { fadeIn, fadeInUp, scaleIn, staggerContainer } from '@/lib/motion';
+import { FADE_IN, FADE_IN_UP, SCALE_IN, STAGGER_CONTAINER } from '@/lib/motion';
 
 import type { SectionProps } from '../landing-data';
 
 export function DigitalSystemSection({ motionProps }: SectionProps) {
   return (
     <section className="py-20 md:py-28">
-      <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-4xl px-4">
+      <motion.div variants={STAGGER_CONTAINER} {...motionProps} className="mx-auto max-w-4xl px-4">
         <div className="text-center">
           <motion.p
-            variants={fadeIn}
+            variants={FADE_IN}
             className="type-label-md text-primary tracking-widest uppercase"
           >
             La plataforma
           </motion.p>
           <motion.h2
-            variants={fadeInUp}
+            variants={FADE_IN_UP}
             className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
           >
             Así se ve el sistema EPDE.
@@ -25,7 +25,7 @@ export function DigitalSystemSection({ motionProps }: SectionProps) {
         </div>
 
         <motion.div
-          variants={scaleIn}
+          variants={SCALE_IN}
           className="mt-10 flex items-center justify-center gap-6 md:gap-10"
         >
           <div className="border-border overflow-hidden rounded-xl border shadow-sm">
@@ -51,14 +51,14 @@ export function DigitalSystemSection({ motionProps }: SectionProps) {
         </motion.div>
 
         <motion.p
-          variants={fadeIn}
+          variants={FADE_IN}
           className="type-body-lg text-muted-foreground mx-auto mt-8 max-w-2xl text-center"
         >
           Cada vivienda cuenta con su panel de seguimiento, historial técnico y planificación anual.
         </motion.p>
 
         <motion.p
-          variants={fadeIn}
+          variants={FADE_IN}
           className="type-body-lg text-foreground mx-auto mt-3 max-w-2xl text-center font-medium"
         >
           Todo el mantenimiento de tu vivienda organizado en un solo lugar.

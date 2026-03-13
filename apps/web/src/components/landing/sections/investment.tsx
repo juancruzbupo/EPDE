@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { fadeIn, fadeInUp, staggerContainer, staggerItem } from '@/lib/motion';
+import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/motion';
 
 import type { SectionProps } from '../landing-data';
 import {
@@ -16,22 +16,22 @@ import {
 export function InvestmentSection({ motionProps }: SectionProps) {
   return (
     <section id="inversion" className="bg-muted/30 py-20 md:py-28">
-      <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-4xl px-4">
+      <motion.div variants={STAGGER_CONTAINER} {...motionProps} className="mx-auto max-w-4xl px-4">
         <div className="text-center">
           <motion.p
-            variants={fadeIn}
+            variants={FADE_IN}
             className="type-label-md text-primary tracking-widest uppercase"
           >
             Inversión
           </motion.p>
           <motion.h2
-            variants={fadeInUp}
+            variants={FADE_IN_UP}
             className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
           >
             ¿Cuánto cuesta un diagnóstico preventivo?
           </motion.h2>
           <motion.p
-            variants={fadeIn}
+            variants={FADE_IN}
             className="type-body-lg text-muted-foreground mx-auto mt-4 max-w-2xl"
           >
             El valor depende de la superficie y complejidad técnica de tu vivienda.
@@ -43,7 +43,7 @@ export function InvestmentSection({ motionProps }: SectionProps) {
           {PRICE_TIERS.map((tier) => (
             <motion.div
               key={tier.label}
-              variants={staggerItem}
+              variants={STAGGER_ITEM}
               className="border-border bg-card rounded-xl border p-6 text-center"
             >
               <h3 className="type-title-md text-foreground">{tier.label}</h3>
@@ -54,7 +54,7 @@ export function InvestmentSection({ motionProps }: SectionProps) {
 
         {/* Features card */}
         <motion.div
-          variants={fadeInUp}
+          variants={FADE_IN_UP}
           className="border-primary/20 bg-primary/[0.03] mt-10 rounded-2xl border-2 p-8 sm:p-12"
         >
           <p className="type-title-md text-foreground mb-6 text-center">
@@ -82,7 +82,7 @@ export function InvestmentSection({ motionProps }: SectionProps) {
         </motion.div>
 
         <motion.p
-          variants={fadeIn}
+          variants={FADE_IN}
           className="type-body-sm text-muted-foreground/70 mx-auto mt-8 max-w-3xl text-center"
         >
           {PRICE_DISCLAIMER}

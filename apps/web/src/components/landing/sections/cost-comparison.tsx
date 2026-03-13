@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 
-import { fadeIn, fadeInUp, staggerContainer, staggerItem } from '@/lib/motion';
+import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/motion';
 
 import type { SectionProps } from '../landing-data';
 import { COST_COMPARISONS, COST_DISCLAIMER } from '../landing-data';
@@ -8,16 +8,16 @@ import { COST_COMPARISONS, COST_DISCLAIMER } from '../landing-data';
 export function CostComparisonSection({ motionProps }: SectionProps) {
   return (
     <section className="bg-muted/30 py-20 md:py-28">
-      <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-5xl px-4">
+      <motion.div variants={STAGGER_CONTAINER} {...motionProps} className="mx-auto max-w-5xl px-4">
         <div className="text-center">
           <motion.h2
-            variants={fadeInUp}
+            variants={FADE_IN_UP}
             className="font-heading text-foreground text-3xl tracking-tight sm:text-4xl"
           >
             Prevenir siempre cuesta menos que reparar.
           </motion.h2>
           <motion.p
-            variants={fadeIn}
+            variants={FADE_IN}
             className="type-body-lg text-muted-foreground mx-auto mt-4 max-w-2xl"
           >
             Comparación entre el costo de una intervención preventiva a tiempo y el costo de una
@@ -27,7 +27,7 @@ export function CostComparisonSection({ motionProps }: SectionProps) {
 
         {/* Desktop table */}
         <motion.div
-          variants={fadeInUp}
+          variants={FADE_IN_UP}
           className="border-border mt-10 hidden overflow-hidden rounded-xl border md:block"
         >
           <table className="w-full">
@@ -76,7 +76,7 @@ export function CostComparisonSection({ motionProps }: SectionProps) {
           {COST_COMPARISONS.map((row) => (
             <motion.div
               key={row.pathology}
-              variants={staggerItem}
+              variants={STAGGER_ITEM}
               className="border-border bg-card rounded-xl border p-5"
             >
               <h3 className="type-title-md text-foreground">{row.pathology}</h3>
@@ -98,7 +98,7 @@ export function CostComparisonSection({ motionProps }: SectionProps) {
         </div>
 
         <motion.p
-          variants={fadeIn}
+          variants={FADE_IN}
           className="type-body-sm text-muted-foreground/70 mx-auto mt-8 max-w-3xl text-center"
         >
           {COST_DISCLAIMER}

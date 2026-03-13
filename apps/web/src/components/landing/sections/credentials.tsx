@@ -1,7 +1,13 @@
 import { motion } from 'framer-motion';
 import { User } from 'lucide-react';
 
-import { fadeIn, fadeInUp, slideInLeft, slideInRight, staggerContainer } from '@/lib/motion';
+import {
+  FADE_IN,
+  FADE_IN_UP,
+  SLIDE_IN_LEFT,
+  SLIDE_IN_RIGHT,
+  STAGGER_CONTAINER,
+} from '@/lib/motion';
 
 import type { SectionProps } from '../landing-data';
 import { CREDENTIALS } from '../landing-data';
@@ -9,15 +15,15 @@ import { CREDENTIALS } from '../landing-data';
 export function CredentialsSection({ motionProps }: SectionProps) {
   return (
     <section className="py-20 md:py-28">
-      <motion.div variants={staggerContainer} {...motionProps} className="mx-auto max-w-3xl px-4">
+      <motion.div variants={STAGGER_CONTAINER} {...motionProps} className="mx-auto max-w-3xl px-4">
         <motion.p
-          variants={fadeIn}
+          variants={FADE_IN}
           className="type-label-md text-primary tracking-widest uppercase"
         >
           Quién está detrás
         </motion.p>
         <motion.h2
-          variants={fadeInUp}
+          variants={FADE_IN_UP}
           className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
         >
           Criterio profesional,
@@ -27,7 +33,7 @@ export function CredentialsSection({ motionProps }: SectionProps) {
 
         <div className="mt-10 flex flex-col gap-8 md:flex-row md:items-start md:gap-12">
           <motion.div
-            variants={slideInLeft}
+            variants={SLIDE_IN_LEFT}
             className="flex shrink-0 justify-center md:justify-start"
           >
             <div className="bg-primary/10 flex h-32 w-32 items-center justify-center rounded-2xl">
@@ -35,7 +41,7 @@ export function CredentialsSection({ motionProps }: SectionProps) {
             </div>
           </motion.div>
 
-          <motion.div variants={slideInRight} className="space-y-4">
+          <motion.div variants={SLIDE_IN_RIGHT} className="space-y-4">
             <div>
               <p className="type-body-lg text-foreground">
                 Soy <span className="font-medium">Noelia E. Yuskowich</span>, arquitecta. Creé EPDE

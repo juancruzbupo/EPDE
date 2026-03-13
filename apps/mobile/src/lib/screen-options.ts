@@ -1,10 +1,10 @@
-import { colors } from './colors';
+import { COLORS } from './colors';
 import { TYPE } from './fonts';
 
 /** Shared screen options for expo-router Stack headers */
 export const defaultScreenOptions = {
-  headerStyle: { backgroundColor: colors.background },
-  headerTintColor: colors.foreground,
+  headerStyle: { backgroundColor: COLORS.background },
+  headerTintColor: COLORS.foreground,
   headerTitleStyle: { fontFamily: TYPE.titleLg.fontFamily },
 } as const;
 
@@ -12,10 +12,10 @@ export const defaultScreenOptions = {
 export const defaultTabBarOptions = {
   ...defaultScreenOptions,
   tabBarStyle: {
-    backgroundColor: colors.background,
-    borderTopColor: colors.border,
+    backgroundColor: COLORS.background,
+    borderTopColor: COLORS.border,
   },
-  tabBarActiveTintColor: colors.primary,
-  tabBarInactiveTintColor: colors.mutedForeground,
+  tabBarActiveTintColor: COLORS.primary,
+  tabBarInactiveTintColor: COLORS.mutedForeground,
   tabBarLabelStyle: { fontFamily: TYPE.labelMd.fontFamily, fontSize: TYPE.labelMd.fontSize },
 } as const;

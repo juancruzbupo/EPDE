@@ -15,17 +15,17 @@ const EASE_OUT: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
 
 // --- Variants ---
 
-export const fadeIn: Variants = {
+export const FADE_IN: Variants = {
   hidden: { opacity: 0, y: 8 },
   visible: { opacity: 1, y: 0, transition: { duration: MOTION_DURATION.normal, ease: EASE_OUT } },
 };
 
-export const fadeInUp: Variants = {
+export const FADE_IN_UP: Variants = {
   hidden: { opacity: 0, y: 16 },
   visible: { opacity: 1, y: 0, transition: { duration: MOTION_DURATION.slow, ease: EASE_OUT } },
 };
 
-export const scaleIn: Variants = {
+export const SCALE_IN: Variants = {
   hidden: { opacity: 0, scale: 0.95 },
   visible: {
     opacity: 1,
@@ -34,17 +34,17 @@ export const scaleIn: Variants = {
   },
 };
 
-export const slideInLeft: Variants = {
+export const SLIDE_IN_LEFT: Variants = {
   hidden: { opacity: 0, x: -16 },
   visible: { opacity: 1, x: 0, transition: { duration: MOTION_DURATION.normal, ease: EASE_OUT } },
 };
 
-export const slideInRight: Variants = {
+export const SLIDE_IN_RIGHT: Variants = {
   hidden: { opacity: 0, x: 16 },
   visible: { opacity: 1, x: 0, transition: { duration: MOTION_DURATION.normal, ease: EASE_OUT } },
 };
 
-export const staggerContainer: Variants = {
+export const STAGGER_CONTAINER: Variants = {
   hidden: {},
   visible: {
     transition: {
@@ -53,16 +53,16 @@ export const staggerContainer: Variants = {
   },
 };
 
-export const staggerItem: Variants = {
+export const STAGGER_ITEM: Variants = {
   hidden: { opacity: 0, y: 8 },
   visible: { opacity: 1, y: 0, transition: { duration: MOTION_DURATION.normal, ease: EASE_OUT } },
 };
 
-export const microBounce: Variants = {
+export const MICRO_BOUNCE: Variants = {
   tap: { scale: 0.95, transition: { duration: MOTION_DURATION.fast } },
 };
 
-export const pulseOnce: Variants = {
+export const PULSE_ONCE: Variants = {
   pulse: {
     scale: [1, 1.08, 1],
     transition: { duration: 0.3, ease: EASE_OUT },
@@ -82,7 +82,7 @@ export function useMotionPreference() {
 
   return {
     shouldAnimate,
-    variants: shouldAnimate ? staggerItem : EMPTY_VARIANTS,
-    containerVariants: shouldAnimate ? staggerContainer : EMPTY_VARIANTS,
+    variants: shouldAnimate ? STAGGER_ITEM : EMPTY_VARIANTS,
+    containerVariants: shouldAnimate ? STAGGER_CONTAINER : EMPTY_VARIANTS,
   };
 }

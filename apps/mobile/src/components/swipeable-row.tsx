@@ -9,7 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { SPRING, useReducedMotion } from '@/lib/animations';
-import { colors } from '@/lib/colors';
+import { COLORS } from '@/lib/colors';
 import { haptics } from '@/lib/haptics';
 
 export interface SwipeAction {
@@ -123,6 +123,6 @@ const styles = StyleSheet.create({
   },
   actionIcon: {
     fontSize: 24,
-    color: colors.primaryForeground,
+    color: COLORS.primaryForeground,
   },
 });
