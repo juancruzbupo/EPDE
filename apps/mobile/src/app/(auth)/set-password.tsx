@@ -23,6 +23,7 @@ const schema = z
     newPassword: z
       .string()
       .min(8, 'La contraseña debe tener al menos 8 caracteres')
+      .max(128, 'La contraseña no puede superar 128 caracteres')
       .regex(/[A-Z]/, 'Debe contener al menos una mayúscula')
       .regex(/[a-z]/, 'Debe contener al menos una minúscula')
       .regex(/[0-9]/, 'Debe contener al menos un número'),

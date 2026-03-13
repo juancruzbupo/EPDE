@@ -2,9 +2,11 @@
 
 import {
   createTaskSchema,
+  PROFESSIONAL_REQUIREMENT_LABELS,
   RECURRENCE_TYPE_LABELS,
   RecurrenceType,
   TASK_PRIORITY_LABELS,
+  TASK_TYPE_LABELS,
 } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
@@ -207,6 +209,68 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
               />
             </div>
           )}
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="task-type">Tipo de tarea</Label>
+              <Select
+                value={watch('taskType') ?? 'INSPECTION'}
+                onValueChange={(v) => setValue('taskType', v as TaskFormValues['taskType'])}
+              >
+                <SelectTrigger id="task-type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(TASK_TYPE_LABELS).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="task-professional">Requerimiento profesional</Label>
+              <Select
+                value={watch('professionalRequirement') ?? 'OWNER_CAN_DO'}
+                onValueChange={(v) =>
+                  setValue(
+                    'professionalRequirement',
+                    v as TaskFormValues['professionalRequirement'],
+                  )
+                }
+              >
+                <SelectTrigger id="task-professional">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(PROFESSIONAL_REQUIREMENT_LABELS).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="task-technical-desc">Descripción técnica (opcional)</Label>
+              <Input id="task-technical-desc" {...register('technicalDescription')} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="task-duration">Duración estimada (min, opcional)</Label>
+              <Input
+                id="task-duration"
+                type="number"
+                min={1}
+                {...register('estimatedDurationMinutes')}
+              />
+            </div>
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="task-due-date">Próxima fecha de vencimiento</Label>
