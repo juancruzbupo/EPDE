@@ -72,6 +72,10 @@ export function useCompleteTask() {
       return { previousPlan };
     },
 
+    onSuccess: () => {
+      Alert.alert('Éxito', 'Tarea marcada como completada');
+    },
+
     onError: (_err, variables, context) => {
       if (context?.previousPlan) {
         queryClient.setQueryData([QUERY_KEYS.plans, variables.planId], context.previousPlan);

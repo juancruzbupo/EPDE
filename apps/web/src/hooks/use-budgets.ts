@@ -1,4 +1,4 @@
-import type { BudgetRequestPublic, BudgetStatus } from '@epde/shared';
+import type { BudgetRequestPublic, BudgetStatus, RespondBudgetInput } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -50,16 +50,7 @@ export function useCreateBudgetRequest() {
 export function useRespondToBudget() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      id,
-      ...dto
-    }: {
-      id: string;
-      lineItems: { description: string; quantity: number; unitPrice: number }[];
-      estimatedDays?: number;
-      notes?: string;
-      validUntil?: string;
-    }) => respondToBudget(id, dto),
+    mutationFn: ({ id, ...dto }: { id: string } & RespondBudgetInput) => respondToBudget(id, dto),
     onSuccess: () => {
       toast.success('Cotización enviada');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });

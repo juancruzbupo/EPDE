@@ -4,6 +4,7 @@ import {
   CONDITION_FOUND_LABELS,
   type ConditionFound,
   ServiceStatus,
+  TaskResult,
   TaskStatus,
   UserRole,
 } from '@epde/shared';
@@ -24,6 +25,15 @@ import { PrismaService } from '../prisma/prisma.service';
  */
 @Injectable()
 export class DashboardRepository {
+  /** ConditionFound → numeric score for averaging. Default 3 (FAIR) for unknown values. */
+  private static readonly CONDITION_SCORES: Record<ConditionFound, number> = {
+    EXCELLENT: 5,
+    GOOD: 4,
+    FAIR: 3,
+    POOR: 2,
+    CRITICAL: 1,
+  };
+
   constructor(private readonly prisma: PrismaService) {}
 
   async getAdminStats() {
@@ -247,7 +257,9 @@ export class DashboardRepository {
   async getProblematicCategories() {
     const logs = await this.prisma.taskLog.findMany({
       where: {
-        result: { in: ['NEEDS_ATTENTION', 'NEEDS_REPAIR', 'NEEDS_URGENT_REPAIR'] },
+        result: {
+          in: [TaskResult.NEEDS_ATTENTION, TaskResult.NEEDS_REPAIR, TaskResult.NEEDS_URGENT_REPAIR],
+        },
       },
       select: {
         task: {
@@ -379,14 +391,6 @@ export class DashboardRepository {
     if (planIds.length === 0) return [];
     const since = subMonths(startOfMonth(new Date()), months - 1);
 
-    const conditionScores: Record<string, number> = {
-      EXCELLENT: 5,
-      GOOD: 4,
-      FAIR: 3,
-      POOR: 2,
-      CRITICAL: 1,
-    };
-
     const logs = await this.prisma.taskLog.findMany({
       where: {
         task: { maintenancePlanId: { in: planIds } },
@@ -411,7 +415,9 @@ export class DashboardRepository {
       const bucket = buckets.get(key);
       if (bucket) {
         if (!bucket.has(catName)) bucket.set(catName, []);
-        bucket.get(catName)!.push(conditionScores[log.conditionFound] ?? 3);
+        bucket
+          .get(catName)!
+          .push(DashboardRepository.CONDITION_SCORES[log.conditionFound as ConditionFound] ?? 3);
       }
     }
 
@@ -495,14 +501,6 @@ export class DashboardRepository {
       },
     });
 
-    const conditionScores: Record<string, number> = {
-      EXCELLENT: 5,
-      GOOD: 4,
-      FAIR: 3,
-      POOR: 2,
-      CRITICAL: 1,
-    };
-
     const catMap = new Map<
       string,
       {
@@ -530,7 +528,10 @@ export class DashboardRepository {
         entry.overdueTasks++;
       }
       if (task.taskLogs[0]) {
-        entry.conditionScores.push(conditionScores[task.taskLogs[0].conditionFound] ?? 3);
+        entry.conditionScores.push(
+          DashboardRepository.CONDITION_SCORES[task.taskLogs[0].conditionFound as ConditionFound] ??
+            3,
+        );
       }
     }
 

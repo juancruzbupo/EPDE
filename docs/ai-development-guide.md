@@ -60,6 +60,8 @@
 48. **Factory vs local function en API files** — Funciones en `packages/shared/src/api/*.ts` son factories platform-agnostic (web + mobile). Funciones locales en `apps/*/src/lib/api/*.ts` son role-specific (admin-only) o platform-specific. Criterio: si ambas apps consumen el endpoint, va en shared; si solo una, queda local
 49. **Chart colors via CSS tokens, no hardcoded** — Web charts usan `useChartColors()` que lee `--chart-1` a `--chart-5` de CSS (soporta dark mode). Mobile usa `CHART_TOKENS_LIGHT` de `@epde/shared`. NUNCA hardcodear hex en componentes de chart. Status-specific colors (budget pipeline) usan tokens semanticos (`var(--destructive)`)
 50. **Analytics queries con `staleTime: 5 * 60_000`** — Los hooks `useAdminAnalytics()` y `useClientAnalytics()` usan staleTime de 5 minutos (mayor al default global de 2 min) porque analytics es data agregada que cambia lentamente. El service backend paraleliza todas las queries con `Promise.all`
+51. **Inline DTOs en API wrappers DEBEN usar shared schema types** — Cuando un Zod schema ya define el input (`CreateTaskInput`, `UpdateTaskInput`, `RespondBudgetInput`, `ReorderTasksInput`), las funciones en `apps/*/src/lib/api/*.ts` y hooks DEBEN importar ese tipo de `@epde/shared`. Si el wire format difiere del Zod-inferred (e.g. `string` vs `Date` por `z.coerce`), usar `z.input<typeof schema>` o documentar via JSDoc referenciando el schema como SSoT de validacion
+52. **`cleanDatabase()` en E2E setup DEBE incluir TODAS las tablas** — Al agregar un nuevo modelo en `schema.prisma`, agregar su nombre a la lista en `apps/api/src/test/setup.ts`. Incluir logging tables (`AuthAuditLog`, `TaskAuditLog`) aunque tengan FK CASCADE — la limpieza explicita evita asumir el comportamiento de cascade
 
 ### NUNCA
 

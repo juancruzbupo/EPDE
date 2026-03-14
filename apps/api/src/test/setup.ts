@@ -64,6 +64,7 @@ export async function cleanDatabase(prisma: PrismaService): Promise<void> {
     'TaskTemplate',
     'CategoryTemplate',
     'Category',
+    'AuthAuditLog',
     'User',
   ];
   await prisma.$executeRawUnsafe(`TRUNCATE TABLE "${tableNames.join('", "')}" CASCADE`);

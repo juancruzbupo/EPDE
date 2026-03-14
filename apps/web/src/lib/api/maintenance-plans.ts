@@ -35,7 +35,10 @@ export const {
   addTaskNote,
 } = queries;
 
-// Admin-only
+/**
+ * Admin-only mutations. Wire-format DTOs (string dates) — validation SSoT
+ * lives in `@epde/shared/schemas/task.ts` (createTaskSchema, updateTaskSchema).
+ */
 export async function updatePlan(
   id: string,
   dto: { name?: string; status?: PlanStatus },

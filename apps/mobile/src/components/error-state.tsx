@@ -2,6 +2,11 @@ import { Pressable, Text, View } from 'react-native';
 
 import { TYPE } from '@/lib/fonts';
 
+/**
+ * Mobile ErrorState — intentionally more flexible than web's version:
+ * - `onRetry` is optional (some screens can't retry, e.g. offline fallbacks)
+ * - `message` is optional (sensible default for generic load failures)
+ */
 interface ErrorStateProps {
   onRetry?: () => void;
   message?: string;

@@ -18,6 +18,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   isLoading: true,
 
+  /** Web login: authApi.login returns `{ user, message }` — destructures `.user`.
+   * (Mobile's authApi.login returns `UserPublic` directly because token storage is internal.) */
   login: async (email, password) => {
     const result = await authApi.login(email, password);
     set({ user: result.user, isAuthenticated: true });

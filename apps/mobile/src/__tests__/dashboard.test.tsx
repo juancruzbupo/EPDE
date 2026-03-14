@@ -1,4 +1,3 @@
-import type { ClientDashboardStats, UpcomingTask } from '@epde/shared';
 import { render } from '@testing-library/react-native';
 import React from 'react';
 
@@ -22,10 +21,29 @@ jest.mock('date-fns/locale', () => ({
 
 const mockUseClientDashboardStats = jest.fn();
 const mockUseClientUpcomingTasks = jest.fn();
+const mockUseClientAnalytics = jest.fn();
 
 jest.mock('@/hooks/use-dashboard', () => ({
-  useClientDashboardStats: (...args: unknown[]) => mockUseClientDashboardStats(...args),
-  useClientUpcomingTasks: (...args: unknown[]) => mockUseClientUpcomingTasks(...args),
+  useClientDashboardStats: (...args) => mockUseClientDashboardStats(...args),
+  useClientUpcomingTasks: (...args) => mockUseClientUpcomingTasks(...args),
+  useClientAnalytics: (...args) => mockUseClientAnalytics(...args),
+}));
+
+// Mock chart components to avoid react-native-svg issues in test environment
+jest.mock('@/components/charts/mini-donut-chart', () => ({
+  MiniDonutChart: () => null,
+}));
+jest.mock('@/components/charts/mini-bar-chart', () => ({
+  MiniBarChart: () => null,
+}));
+jest.mock('@/components/charts/mini-trend-chart', () => ({
+  MiniTrendChart: () => null,
+}));
+jest.mock('@/components/charts/chart-card', () => ({
+  ChartCard: ({ children }) => children,
+}));
+jest.mock('@/components/charts/category-breakdown-list', () => ({
+  CategoryBreakdownList: () => null,
 }));
 
 // ---------------------------------------------------------------------------
@@ -38,7 +56,7 @@ import DashboardScreen from '@/app/(tabs)/index';
 // Fixtures
 // ---------------------------------------------------------------------------
 
-const mockStats: ClientDashboardStats = {
+const mockStats = {
   totalProperties: 3,
   pendingTasks: 5,
   overdueTasks: 1,
@@ -48,7 +66,7 @@ const mockStats: ClientDashboardStats = {
   openServices: 1,
 };
 
-const mockTasks: UpcomingTask[] = [
+const mockTasks = [
   {
     id: 'task-1',
     name: 'Revisar caldera',
@@ -73,15 +91,19 @@ const mockTasks: UpcomingTask[] = [
   },
 ];
 
+const mockAnalytics = {
+  conditionDistribution: [],
+  completionTrend: [],
+  costHistory: [],
+  categoryBreakdown: [],
+};
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 /** Default query return shape for "loading finished, no error" scenarios. */
-function queryResult<T>(
-  data: T | undefined,
-  overrides?: Partial<{ isLoading: boolean; error: Error | null }>,
-) {
+function queryResult(data, overrides) {
   return {
     data,
     isLoading: false,
@@ -98,6 +120,7 @@ function queryResult<T>(
 describe('DashboardScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseClientAnalytics.mockReturnValue(queryResult(mockAnalytics));
   });
 
   // 1. Renders stats and tasks when data is available
@@ -121,7 +144,7 @@ describe('DashboardScreen', () => {
     expect(getAllByText('1').length).toBeGreaterThanOrEqual(1); // overdueTasks
 
     // Section heading
-    expect(getByText('Próximas Tareas')).toBeTruthy();
+    expect(getByText('Proximas Tareas')).toBeTruthy();
 
     // Task cards
     expect(getByText('Revisar caldera')).toBeTruthy();
@@ -138,7 +161,7 @@ describe('DashboardScreen', () => {
     const { getByText } = render(<DashboardScreen />);
 
     expect(getByText('Mi Panel')).toBeTruthy();
-    expect(getByText('Próximas Tareas')).toBeTruthy();
+    expect(getByText('Proximas Tareas')).toBeTruthy();
     expect(getByText('Sin tareas proximas')).toBeTruthy();
     expect(getByText('No hay tareas de mantenimiento programadas por ahora.')).toBeTruthy();
   });

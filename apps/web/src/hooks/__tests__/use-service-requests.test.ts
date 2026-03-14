@@ -78,6 +78,17 @@ describe('useServiceRequest', () => {
       }),
     );
   });
+
+  it('disables query when id is empty', () => {
+    renderHook(() => useServiceRequest(''));
+
+    expect(useQuery).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: [QUERY_KEYS.serviceRequests, ''],
+        enabled: false,
+      }),
+    );
+  });
 });
 
 describe('useCreateServiceRequest', () => {
@@ -127,5 +138,15 @@ describe('useUpdateServiceStatus', () => {
       queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardActivity],
     });
     expect(toast.success).toHaveBeenCalledWith('Estado actualizado');
+  });
+
+  it('shows error toast on error', () => {
+    renderHook(() => useUpdateServiceStatus());
+
+    const config = vi.mocked(useMutation).mock.calls[0][0];
+    (config.onError as (err: Error) => void)(new Error('fail'));
+
+    expect(getErrorMessage).toHaveBeenCalledWith(expect.any(Error), 'Error al actualizar estado');
+    expect(toast.error).toHaveBeenCalled();
   });
 });

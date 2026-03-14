@@ -1,5 +1,6 @@
 import type { AxiosInstance } from 'axios';
 
+import type { RespondBudgetInput } from '../schemas/budget';
 import type { ApiResponse, BudgetRequestPublic, PaginatedResponse } from '../types';
 import type { BudgetStatus } from '../types/enums';
 
@@ -52,12 +53,7 @@ export function createBudgetQueries(apiClient: AxiosInstance) {
 
     async respondToBudget(
       id: string,
-      dto: {
-        lineItems: { description: string; quantity: number; unitPrice: number }[];
-        estimatedDays?: number;
-        notes?: string;
-        validUntil?: string;
-      },
+      dto: RespondBudgetInput,
     ): Promise<ApiResponse<BudgetRequestPublic>> {
       const { data } = await apiClient.post(`/budgets/${id}/respond`, dto);
       return data;
