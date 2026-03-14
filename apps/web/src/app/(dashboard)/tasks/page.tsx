@@ -9,22 +9,32 @@ import {
   TASK_STATUS_VARIANT,
   TaskStatus,
 } from '@epde/shared';
-import { Calendar, CheckSquare, MapPin } from 'lucide-react';
+import { Calendar, CheckSquare, ChevronDown, ChevronRight, MapPin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { FilterSelect } from '@/components/filter-select';
 import { PageHeader } from '@/components/page-header';
+import { SearchInput } from '@/components/search-input';
 import { Badge } from '@/components/ui/badge';
 import { PageTransition } from '@/components/ui/page-transition';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useDebounce } from '@/hooks/use-debounce';
 import { useAllTasks } from '@/hooks/use-plans';
 
-const statusOptions = [
-  { value: 'all', label: 'Todos los estados' },
-  ...Object.entries(TASK_STATUS_LABELS).map(([value, label]) => ({ value, label })),
+/** Display order: actionable items first. */
+const STATUS_ORDER: TaskStatus[] = [
+  TaskStatus.OVERDUE,
+  TaskStatus.PENDING,
+  TaskStatus.UPCOMING,
+  TaskStatus.COMPLETED,
+];
+
+const priorityOptions = [
+  { value: 'all', label: 'Todas las prioridades' },
+  ...Object.entries(TASK_PRIORITY_LABELS).map(([value, label]) => ({ value, label })),
 ];
 
 function TaskRow({ task, onClick }: { task: TaskListItem; onClick: () => void }) {
@@ -35,14 +45,9 @@ function TaskRow({ task, onClick }: { task: TaskListItem; onClick: () => void })
     >
       <div className="mb-1.5 flex items-start justify-between gap-2">
         <span className="leading-tight font-medium">{task.name}</span>
-        <div className="flex shrink-0 items-center gap-1.5">
-          <Badge variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'} className="text-xs">
-            {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
-          </Badge>
-          <Badge variant={TASK_STATUS_VARIANT[task.status] ?? 'secondary'} className="text-xs">
-            {TASK_STATUS_LABELS[task.status] ?? task.status}
-          </Badge>
-        </div>
+        <Badge variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'} className="text-xs">
+          {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
+        </Badge>
       </div>
 
       <p className="text-muted-foreground mb-2 text-xs">{task.category.name}</p>
@@ -82,15 +87,86 @@ function TaskRowSkeleton() {
   );
 }
 
+function StatusSection({
+  status,
+  tasks,
+  defaultOpen,
+  onTaskClick,
+}: {
+  status: TaskStatus;
+  tasks: TaskListItem[];
+  defaultOpen: boolean;
+  onTaskClick: (task: TaskListItem) => void;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  if (tasks.length === 0) return null;
+
+  return (
+    <div>
+      <button
+        onClick={() => setOpen(!open)}
+        className="focus-visible:ring-ring/50 mb-2 flex w-full items-center gap-2 rounded py-1 text-left focus-visible:ring-[3px] focus-visible:outline-none"
+      >
+        {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+        <Badge variant={TASK_STATUS_VARIANT[status] ?? 'secondary'}>
+          {TASK_STATUS_LABELS[status]}
+        </Badge>
+        <span className="text-muted-foreground text-sm">{tasks.length}</span>
+      </button>
+      {open && (
+        <div className="space-y-2">
+          {tasks.map((task) => (
+            <TaskRow key={task.id} task={task} onClick={() => onTaskClick(task)} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function TasksPage() {
   const router = useRouter();
-  const [status, setStatus] = useState<TaskStatus | 'all'>('all');
-  const {
-    data: tasks,
-    isLoading,
-    isError,
-    refetch,
-  } = useAllTasks(status === 'all' ? undefined : status);
+  const [search, setSearch] = useState('');
+  const [priority, setPriority] = useState('all');
+  const debouncedSearch = useDebounce(search);
+
+  const { data: tasks, isLoading, isError, refetch } = useAllTasks();
+
+  const filtered = useMemo(() => {
+    if (!tasks) return [];
+    let result = tasks;
+
+    if (priority !== 'all') {
+      result = result.filter((t) => t.priority === priority);
+    }
+
+    if (debouncedSearch) {
+      const q = debouncedSearch.toLowerCase();
+      result = result.filter(
+        (t) =>
+          t.name.toLowerCase().includes(q) ||
+          t.category.name.toLowerCase().includes(q) ||
+          t.maintenancePlan.property.address.toLowerCase().includes(q) ||
+          t.maintenancePlan.property.city.toLowerCase().includes(q),
+      );
+    }
+
+    return result;
+  }, [tasks, priority, debouncedSearch]);
+
+  const grouped = useMemo(() => {
+    const map = new Map<TaskStatus, TaskListItem[]>();
+    for (const s of STATUS_ORDER) map.set(s, []);
+    for (const task of filtered) {
+      map.get(task.status)?.push(task);
+    }
+    return map;
+  }, [filtered]);
+
+  const handleTaskClick = (task: TaskListItem) => {
+    router.push(`/properties/${task.maintenancePlan.property.id}`);
+  };
 
   return (
     <PageTransition>
@@ -99,12 +175,17 @@ export default function TasksPage() {
         description="Seguimiento de todas las tareas de mantenimiento de tus propiedades."
       />
 
-      <div className="mb-4">
+      <div className="mb-4 flex flex-wrap gap-3">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Buscar tarea, categoría o dirección..."
+        />
         <FilterSelect
-          value={status}
-          onChange={(v) => setStatus(v as TaskStatus | 'all')}
-          options={statusOptions}
-          placeholder="Estado"
+          value={priority}
+          onChange={setPriority}
+          options={priorityOptions}
+          placeholder="Prioridad"
         />
       </div>
 
@@ -120,26 +201,28 @@ export default function TasksPage() {
           onRetry={refetch}
           className="justify-center py-24"
         />
-      ) : !tasks || tasks.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <EmptyState
           icon={CheckSquare}
           title="Sin tareas"
           message={
-            status === 'all'
-              ? 'No hay tareas registradas todavía.'
-              : `No hay tareas con estado "${TASK_STATUS_LABELS[status as TaskStatus] ?? status}".`
+            debouncedSearch || priority !== 'all'
+              ? 'No se encontraron tareas con esos filtros.'
+              : 'No hay tareas registradas todavía.'
           }
         />
       ) : (
-        <div className="space-y-2">
-          <p className="text-muted-foreground mb-3 text-sm">
-            {tasks.length} tarea{tasks.length !== 1 ? 's' : ''}
+        <div className="space-y-6">
+          <p className="text-muted-foreground text-sm">
+            {filtered.length} tarea{filtered.length !== 1 ? 's' : ''}
           </p>
-          {tasks.map((task) => (
-            <TaskRow
-              key={task.id}
-              task={task}
-              onClick={() => router.push(`/properties/${task.maintenancePlan.property.id}`)}
+          {STATUS_ORDER.map((status) => (
+            <StatusSection
+              key={status}
+              status={status}
+              tasks={grouped.get(status) ?? []}
+              defaultOpen={status !== TaskStatus.COMPLETED}
+              onTaskClick={handleTaskClick}
             />
           ))}
         </div>
