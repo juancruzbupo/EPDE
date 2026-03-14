@@ -1,6 +1,11 @@
 'use client';
 
-import { formatARS, type RespondBudgetInput, respondBudgetSchema } from '@epde/shared';
+import {
+  type BudgetLineItemPublic,
+  formatARS,
+  type RespondBudgetInput,
+  respondBudgetSchema,
+} from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, Trash2 } from 'lucide-react';
 import { useFieldArray, useForm } from 'react-hook-form';
@@ -16,9 +21,16 @@ interface RespondBudgetDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   budgetId: string;
+  /** Pre-fill line items when re-quoting an already-QUOTED budget. */
+  initialLineItems?: BudgetLineItemPublic[];
 }
 
-export function RespondBudgetDialog({ open, onOpenChange, budgetId }: RespondBudgetDialogProps) {
+export function RespondBudgetDialog({
+  open,
+  onOpenChange,
+  budgetId,
+  initialLineItems,
+}: RespondBudgetDialogProps) {
   const respondToBudget = useRespondToBudget();
 
   const {
@@ -31,7 +43,13 @@ export function RespondBudgetDialog({ open, onOpenChange, budgetId }: RespondBud
   } = useForm<RespondBudgetInput>({
     resolver: zodResolver(respondBudgetSchema),
     defaultValues: {
-      lineItems: [{ description: '', quantity: 1, unitPrice: 0 }],
+      lineItems: initialLineItems?.length
+        ? initialLineItems.map((li) => ({
+            description: li.description,
+            quantity: Number(li.quantity),
+            unitPrice: Number(li.unitPrice),
+          }))
+        : [{ description: '', quantity: 1, unitPrice: 0 }],
     },
   });
 

@@ -1,12 +1,22 @@
-import type { BudgetRequestPublic, BudgetStatus } from '@epde/shared';
+import type {
+  BudgetRequestPublic,
+  BudgetStatus,
+  CreateBudgetCommentInput,
+  EditBudgetRequestInput,
+} from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
 
 import {
+  addBudgetAttachments,
   type BudgetFilters,
+  createBudgetComment,
   createBudgetRequest,
+  editBudgetRequest,
   getBudget,
+  getBudgetAuditLog,
+  getBudgetComments,
   getBudgets,
   updateBudgetStatus,
 } from '@/lib/api/budgets';
@@ -48,6 +58,22 @@ export function useCreateBudgetRequest() {
   });
 }
 
+export function useEditBudgetRequest() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, ...dto }: { id: string } & EditBudgetRequestInput) =>
+      editBudgetRequest(id, dto),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
+      Alert.alert('Éxito', 'Presupuesto actualizado');
+    },
+    onError: (err) => {
+      Alert.alert('Error', getErrorMessage(err, 'Error al actualizar presupuesto'));
+    },
+  });
+}
+
 export function useUpdateBudgetStatus() {
   const queryClient = useQueryClient();
 
@@ -78,6 +104,69 @@ export function useUpdateBudgetStatus() {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
       invalidateClientDashboard(queryClient);
+    },
+  });
+}
+
+// ─── Audit Log ─────────────────────────────────────────────
+
+export function useBudgetAuditLog(budgetId: string) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.budgets, budgetId, QUERY_KEYS.budgetAuditLog],
+    queryFn: ({ signal }) => getBudgetAuditLog(budgetId, signal).then((r) => r.data),
+    enabled: !!budgetId,
+  });
+}
+
+// ─── Comments ──────────────────────────────────────────────
+
+export function useBudgetComments(budgetId: string) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.budgets, budgetId, QUERY_KEYS.budgetComments],
+    queryFn: ({ signal }) => getBudgetComments(budgetId, signal).then((r) => r.data),
+    enabled: !!budgetId,
+  });
+}
+
+export function useAddBudgetComment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ budgetId, ...dto }: { budgetId: string } & CreateBudgetCommentInput) =>
+      createBudgetComment(budgetId, dto),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.budgets, variables.budgetId, QUERY_KEYS.budgetComments],
+      });
+      Alert.alert('Éxito', 'Comentario agregado');
+    },
+    onError: (err) => {
+      Alert.alert('Error', getErrorMessage(err, 'Error al agregar comentario'));
+    },
+  });
+}
+
+// ─── Attachments ───────────────────────────────────────────
+
+export function useAddBudgetAttachments() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      budgetId,
+      attachments,
+    }: {
+      budgetId: string;
+      attachments: { url: string; fileName: string }[];
+    }) => addBudgetAttachments(budgetId, { attachments }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.budgets, variables.budgetId],
+      });
+      Alert.alert('Éxito', 'Adjuntos agregados');
+    },
+    onError: (err) => {
+      Alert.alert('Error', getErrorMessage(err, 'Error al agregar adjuntos'));
     },
   });
 }

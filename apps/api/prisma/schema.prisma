@@ -64,6 +64,7 @@ enum BudgetStatus {
   REJECTED
   IN_PROGRESS
   COMPLETED
+  EXPIRED
 }
 
 enum ServiceUrgency {
@@ -161,6 +162,8 @@ model User {
   taskNotes       TaskNote[]
   taskAuditLogs   TaskAuditLog[]
   budgetRequests  BudgetRequest[]
+  budgetAuditLogs BudgetAuditLog[] @relation("BudgetAuditLogs")
+  budgetComments  BudgetComment[]  @relation("BudgetComments")
   serviceRequests ServiceRequest[]
   notifications   Notification[]
   authAuditLogs   AuthAuditLog[]
@@ -334,10 +337,13 @@ model BudgetRequest {
   updatedAt   DateTime     @updatedAt
   deletedAt   DateTime?
 
-  property  Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  requester User              @relation(fields: [requestedBy], references: [id])
-  lineItems BudgetLineItem[]
-  response  BudgetResponse?
+  property    Property           @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  requester   User               @relation(fields: [requestedBy], references: [id])
+  lineItems   BudgetLineItem[]
+  response    BudgetResponse?
+  auditLogs   BudgetAuditLog[]
+  comments    BudgetComment[]
+  attachments BudgetAttachment[]
 
   @@index([propertyId])
   @@index([propertyId, deletedAt])
@@ -369,6 +375,47 @@ model BudgetResponse {
   respondedAt     DateTime  @default(now())
 
   budgetRequest BudgetRequest @relation(fields: [budgetRequestId], references: [id], onDelete: Cascade)
+}
+
+model BudgetAuditLog {
+  id        String   @id @default(uuid())
+  budgetId  String
+  userId    String
+  action    String   @db.VarChar(50)
+  before    Json
+  after     Json
+  changedAt DateTime @default(now())
+
+  budget BudgetRequest @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  user   User          @relation("BudgetAuditLogs", fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([budgetId, changedAt])
+  @@index([userId, changedAt])
+}
+
+model BudgetComment {
+  id        String   @id @default(uuid())
+  budgetId  String
+  userId    String
+  content   String   @db.VarChar(2000)
+  createdAt DateTime @default(now())
+
+  budget BudgetRequest @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  user   User          @relation("BudgetComments", fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([budgetId, createdAt])
+}
+
+model BudgetAttachment {
+  id        String   @id @default(uuid())
+  budgetId  String
+  url       String
+  fileName  String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+
+  budget BudgetRequest @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+
+  @@index([budgetId])
 }
 
 model ServiceRequest {

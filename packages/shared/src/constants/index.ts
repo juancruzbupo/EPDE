@@ -55,7 +55,14 @@ export const BUDGET_STATUS_LABELS = {
   REJECTED: 'Rechazado',
   IN_PROGRESS: 'En Progreso',
   COMPLETED: 'Completado',
+  EXPIRED: 'Expirado',
 } satisfies Record<BudgetStatus, string>;
+
+export const BUDGET_TERMINAL_STATUSES: readonly BudgetStatus[] = [
+  'COMPLETED',
+  'REJECTED',
+  'EXPIRED',
+] as const;
 
 export const SERVICE_STATUS_LABELS = {
   OPEN: 'Abierto',
@@ -208,6 +215,9 @@ export const QUERY_KEYS = {
   dashboardClientUpcoming: 'client-upcoming',
   dashboardAnalytics: 'analytics',
   dashboardClientAnalytics: 'client-analytics',
+  // Budget sub-keys
+  budgetAuditLog: 'budget-audit-log',
+  budgetComments: 'budget-comments',
   // Notifications sub-keys
   notificationsUnreadCount: 'unread-count',
 } as const;

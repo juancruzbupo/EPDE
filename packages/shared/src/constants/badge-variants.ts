@@ -29,6 +29,7 @@ export const BUDGET_STATUS_VARIANT = {
   REJECTED: 'destructive',
   IN_PROGRESS: 'default',
   COMPLETED: 'success',
+  EXPIRED: 'outline',
 } satisfies Record<BudgetStatus, BadgeVariant>;
 
 export const SERVICE_STATUS_VARIANT = {

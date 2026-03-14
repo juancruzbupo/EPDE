@@ -3,7 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { BudgetRequest, Prisma } from '@prisma/client';
 
 import {
-  BudgetNotPendingError,
+  BudgetNotEditableError,
+  BudgetNotQuotableError,
   BudgetVersionConflictError,
 } from '../common/exceptions/domain.exceptions';
 import {
@@ -30,6 +31,7 @@ const BUDGET_DETAIL_INCLUDE = {
   ...BUDGET_LIST_INCLUDE,
   lineItems: true,
   response: true,
+  attachments: true,
 };
 
 @Injectable()
@@ -74,13 +76,16 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
   }
 
   /**
-   * Responds to a budget request within a transaction.
+   * Responds to (or re-quotes) a budget request within a transaction.
    *
-   * Domain exceptions (BudgetNotPendingError, BudgetVersionConflictError) are
+   * Domain exceptions (BudgetNotQuotableError, BudgetVersionConflictError) are
    * thrown inside the transaction intentionally — TOCTOU safety requires the
    * status/version check to be atomic with the write operations. The service
    * layer performs a fast-fail pre-check, but the authoritative validation
    * lives here to prevent race conditions.
+   *
+   * When re-quoting (status is QUOTED), existing line items and response are
+   * deleted before creating the new ones.
    */
   async respondToBudget(
     id: string,
@@ -97,11 +102,20 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
     return this.prisma.$transaction(async (tx) => {
       // Re-check status + version inside transaction for TOCTOU safety
       const budget = await tx.budgetRequest.findUnique({ where: { id } });
-      if (!budget || budget.status !== BudgetStatus.PENDING) {
-        throw new BudgetNotPendingError();
+      if (
+        !budget ||
+        (budget.status !== BudgetStatus.PENDING && budget.status !== BudgetStatus.QUOTED)
+      ) {
+        throw new BudgetNotQuotableError();
       }
       if (budget.version !== expectedVersion) {
         throw new BudgetVersionConflictError();
+      }
+
+      // Re-quoting: delete existing line items + response before creating new ones
+      if (budget.status === BudgetStatus.QUOTED) {
+        await tx.budgetLineItem.deleteMany({ where: { budgetRequestId: id } });
+        await tx.budgetResponse.deleteMany({ where: { budgetRequestId: id } });
       }
 
       await tx.budgetLineItem.createMany({
@@ -127,20 +141,65 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
       return tx.budgetRequest.update({
         where: { id },
         data: { status: 'QUOTED', updatedBy: response.updatedBy, version: { increment: 1 } },
-        include: {
-          property: {
-            select: {
-              id: true,
-              address: true,
-              city: true,
-              user: { select: { id: true, name: true } },
-            },
-          },
-          requester: { select: { id: true, name: true } },
-          lineItems: true,
-          response: true,
-        },
+        include: BUDGET_DETAIL_INCLUDE,
       });
     });
+  }
+
+  /**
+   * Edits a budget request within a transaction (PENDING only, TOCTOU-safe).
+   */
+  async editBudgetRequest(
+    id: string,
+    expectedVersion: number,
+    data: { title?: string; description?: string | null },
+    updatedBy: string,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      const budget = await tx.budgetRequest.findUnique({ where: { id } });
+      if (!budget || budget.status !== BudgetStatus.PENDING) {
+        throw new BudgetNotEditableError();
+      }
+      if (budget.version !== expectedVersion) {
+        throw new BudgetVersionConflictError();
+      }
+
+      return tx.budgetRequest.update({
+        where: { id },
+        data: { ...data, updatedBy, version: { increment: 1 } },
+        include: BUDGET_DETAIL_INCLUDE,
+      });
+    });
+  }
+
+  /**
+   * Finds QUOTED budgets whose validUntil date has passed.
+   * Used by the budget expiration scheduler.
+   */
+  async findExpiredQuotedBudgets() {
+    const now = new Date();
+    return this.prisma.budgetRequest.findMany({
+      where: {
+        status: BudgetStatus.QUOTED,
+        deletedAt: null,
+        response: { validUntil: { lt: now } },
+      },
+      include: {
+        response: true,
+        requester: { select: { id: true, name: true } },
+      },
+    });
+  }
+
+  /**
+   * Batch-expire budgets (scheduler use). Increments version for safety.
+   */
+  async expireBudgets(ids: string[]) {
+    if (ids.length === 0) return 0;
+    const result = await this.prisma.budgetRequest.updateMany({
+      where: { id: { in: ids }, status: BudgetStatus.QUOTED },
+      data: { status: BudgetStatus.EXPIRED },
+    });
+    return result.count;
   }
 }

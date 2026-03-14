@@ -34,6 +34,10 @@ import {
 } from '@/components/ui/table';
 import { useBudget, useUpdateBudgetStatus } from '@/hooks/use-budgets';
 
+import { BudgetAttachments } from './budget-attachments';
+import { BudgetComments } from './budget-comments';
+import { BudgetTimeline } from './budget-timeline';
+import { EditBudgetDialog } from './edit-budget-dialog';
 import { RespondBudgetDialog } from './respond-budget-dialog';
 
 type ConfirmAction = BudgetStatus | null;
@@ -67,6 +71,7 @@ interface BudgetDetailProps {
 
 export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetailProps) {
   const [respondOpen, setRespondOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
 
   const { data, isError, refetch } = useBudget(id, { initialData });
@@ -235,15 +240,28 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
         </Card>
       )}
 
+      {/* Actions card */}
       {(isAdmin &&
         (budget.status === BudgetStatus.PENDING ||
+          budget.status === BudgetStatus.QUOTED ||
           budget.status === BudgetStatus.APPROVED ||
           budget.status === BudgetStatus.IN_PROGRESS)) ||
-      (isClient && budget.status === BudgetStatus.QUOTED) ? (
+      (isClient &&
+        (budget.status === BudgetStatus.PENDING || budget.status === BudgetStatus.QUOTED)) ? (
         <Card>
           <CardContent className="flex gap-2 p-4">
+            {isClient && budget.status === BudgetStatus.PENDING && (
+              <Button variant="outline" onClick={() => setEditOpen(true)}>
+                Editar
+              </Button>
+            )}
             {isAdmin && budget.status === BudgetStatus.PENDING && (
               <Button onClick={() => setRespondOpen(true)}>Cotizar</Button>
+            )}
+            {isAdmin && budget.status === BudgetStatus.QUOTED && (
+              <Button variant="outline" onClick={() => setRespondOpen(true)}>
+                Re-cotizar
+              </Button>
             )}
             {isClient && budget.status === BudgetStatus.QUOTED && (
               <>
@@ -270,7 +288,31 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
         </Card>
       ) : null}
 
-      <RespondBudgetDialog open={respondOpen} onOpenChange={setRespondOpen} budgetId={id} />
+      {/* Attachments */}
+      {'attachments' in budget && (
+        <BudgetAttachments
+          attachments={(budget as BudgetRequestPublic & { attachments: never[] }).attachments ?? []}
+          budgetStatus={budget.status}
+        />
+      )}
+
+      {/* Comments */}
+      <BudgetComments budgetId={id} budgetStatus={budget.status} />
+
+      {/* Timeline */}
+      <BudgetTimeline budgetId={id} />
+
+      {/* Dialogs */}
+      <RespondBudgetDialog
+        open={respondOpen}
+        onOpenChange={setRespondOpen}
+        budgetId={id}
+        initialLineItems={budget.status === BudgetStatus.QUOTED ? budget.lineItems : undefined}
+      />
+
+      {budget.status === BudgetStatus.PENDING && (
+        <EditBudgetDialog open={editOpen} onOpenChange={setEditOpen} budget={budget} />
+      )}
 
       <ConfirmDialog
         open={!!confirmAction}

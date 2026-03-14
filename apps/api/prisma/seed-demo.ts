@@ -634,8 +634,8 @@ const TASK_DEFS: TaskDef[] = [
   },
   {
     name: 'Service de aire acondicionado',
-    taskType: 'MAINTENANCE',
-    professionalRequirement: 'REQUIRES_PROFESSIONAL',
+    taskType: 'CLEANING',
+    professionalRequirement: 'PROFESSIONAL_REQUIRED',
     technicalDescription:
       'Limpieza de evaporador y condensador, carga de gas si necesario, verificación eléctrica.',
     priority: 'HIGH',
@@ -1761,7 +1761,165 @@ export async function seedDemo(prisma: PrismaClient) {
       respondedAt: monthsAgo(2),
     },
   });
+  // —— Audit logs, comentarios y adjuntos de presupuestos de María ——
+
+  // Budget 1 (COMPLETED): full lifecycle audit trail
+  await prisma.budgetAuditLog.createMany({
+    data: [
+      {
+        budgetId: budget1.id,
+        userId: maria.id,
+        action: 'created',
+        before: {},
+        after: { status: 'PENDING', title: budget1.title },
+        changedAt: monthsAgo(6),
+      },
+      {
+        budgetId: budget1.id,
+        userId: admin.id,
+        action: 'quoted',
+        before: { status: 'PENDING' },
+        after: { status: 'QUOTED', totalAmount: 64600 },
+        changedAt: monthsAgo(6),
+      },
+      {
+        budgetId: budget1.id,
+        userId: maria.id,
+        action: 'approved',
+        before: { status: 'QUOTED' },
+        after: { status: 'APPROVED' },
+        changedAt: monthsAgo(5),
+      },
+      {
+        budgetId: budget1.id,
+        userId: admin.id,
+        action: 'in-progress',
+        before: { status: 'APPROVED' },
+        after: { status: 'IN_PROGRESS' },
+        changedAt: monthsAgo(5),
+      },
+      {
+        budgetId: budget1.id,
+        userId: admin.id,
+        action: 'completed',
+        before: { status: 'IN_PROGRESS' },
+        after: { status: 'COMPLETED' },
+        changedAt: monthsAgo(4),
+      },
+    ],
+  });
+  await prisma.budgetComment.createMany({
+    data: [
+      {
+        budgetId: budget1.id,
+        userId: maria.id,
+        content: '¿Pueden pasar un sábado? De lunes a viernes trabajo.',
+        createdAt: monthsAgo(6),
+      },
+      {
+        budgetId: budget1.id,
+        userId: admin.id,
+        content: 'Sí, podemos coordinar para el sábado siguiente a la aprobación.',
+        createdAt: monthsAgo(6),
+      },
+      {
+        budgetId: budget1.id,
+        userId: admin.id,
+        content: 'Trabajo finalizado. Sellado completo, garantía 2 años.',
+        createdAt: monthsAgo(4),
+      },
+    ],
+  });
+  await prisma.budgetAttachment.createMany({
+    data: [
+      {
+        budgetId: budget1.id,
+        url: 'https://storage.example.com/babeta-antes.jpg',
+        fileName: 'babeta-antes.jpg',
+        createdAt: monthsAgo(6),
+      },
+      {
+        budgetId: budget1.id,
+        url: 'https://storage.example.com/babeta-despues.jpg',
+        fileName: 'babeta-despues.jpg',
+        createdAt: monthsAgo(4),
+      },
+    ],
+  });
+
+  // Budget 2 (IN_PROGRESS): partial lifecycle
+  await prisma.budgetAuditLog.createMany({
+    data: [
+      {
+        budgetId: budget2.id,
+        userId: maria.id,
+        action: 'created',
+        before: {},
+        after: { status: 'PENDING', title: budget2.title },
+        changedAt: monthsAgo(3),
+      },
+      {
+        budgetId: budget2.id,
+        userId: admin.id,
+        action: 'quoted',
+        before: { status: 'PENDING' },
+        after: { status: 'QUOTED', totalAmount: 332000 },
+        changedAt: monthsAgo(2),
+      },
+      {
+        budgetId: budget2.id,
+        userId: maria.id,
+        action: 'approved',
+        before: { status: 'QUOTED' },
+        after: { status: 'APPROVED' },
+        changedAt: monthsAgo(2),
+      },
+      {
+        budgetId: budget2.id,
+        userId: admin.id,
+        action: 'in-progress',
+        before: { status: 'APPROVED' },
+        after: { status: 'IN_PROGRESS' },
+        changedAt: monthsAgo(1),
+      },
+    ],
+  });
+  await prisma.budgetComment.createMany({
+    data: [
+      {
+        budgetId: budget2.id,
+        userId: maria.id,
+        content: 'La humedad en el muro sur empeoró con las últimas lluvias. Adjunto foto.',
+        createdAt: monthsAgo(3),
+      },
+      {
+        budgetId: budget2.id,
+        userId: admin.id,
+        content:
+          'Entendido, recomendamos inyección hidrófuga con resina poliuretánica. Enviamos cotización.',
+        createdAt: monthsAgo(2),
+      },
+    ],
+  });
+  await prisma.budgetAttachment.createMany({
+    data: [
+      {
+        budgetId: budget2.id,
+        url: 'https://storage.example.com/humedad-muro-sur.jpg',
+        fileName: 'humedad-muro-sur.jpg',
+        createdAt: monthsAgo(3),
+      },
+      {
+        budgetId: budget2.id,
+        url: 'https://storage.example.com/informe-humedad.pdf',
+        fileName: 'informe-humedad-diagnostico.pdf',
+        createdAt: monthsAgo(2),
+      },
+    ],
+  });
+
   console.log('  ✓ 2 presupuestos (1 completado, 1 en progreso)');
+  console.log('  ✓ 9 audit logs + 5 comentarios + 4 adjuntos en presupuestos');
 
   // —— Solicitud de servicio de María ——
   const service1 = await prisma.serviceRequest.create({
@@ -2080,7 +2238,39 @@ export async function seedDemo(prisma: PrismaClient) {
       respondedAt: daysAgo(20),
     },
   });
+  // —— Audit logs y comentarios del presupuesto de Carlos ——
+  await prisma.budgetAuditLog.createMany({
+    data: [
+      {
+        budgetId: budget3.id,
+        userId: carlos.id,
+        action: 'created',
+        before: {},
+        after: { status: 'PENDING', title: budget3.title },
+        changedAt: monthsAgo(1),
+      },
+      {
+        budgetId: budget3.id,
+        userId: admin.id,
+        action: 'quoted',
+        before: { status: 'PENDING' },
+        after: { status: 'QUOTED', totalAmount: 23000 },
+        changedAt: daysAgo(20),
+      },
+    ],
+  });
+  await prisma.budgetComment.create({
+    data: {
+      budgetId: budget3.id,
+      userId: carlos.id,
+      content:
+        'El disyuntor diferencial salta a veces, quiero verificar si la puesta a tierra está bien.',
+      createdAt: monthsAgo(1),
+    },
+  });
+
   console.log('  ✓ 1 presupuesto (cotizado, pendiente de aprobación)');
+  console.log('  ✓ 2 audit logs + 1 comentario en presupuesto');
 
   // —— Notificaciones de Carlos ——
   await prisma.notification.createMany({
@@ -2196,6 +2386,9 @@ export async function seedDemo(prisma: PrismaClient) {
   Tareas:       ${3 * TASK_DEFS.length} (${TASK_DEFS.length} × 3 propiedades)
   Task Logs:    ${mariaLogCount + 14} (María: ${mariaLogCount}, Carlos: 14, Laura: 0)
   Presupuestos: 3 (COMPLETED, IN_PROGRESS, QUOTED)
+  Audit Logs:   11 (5 + 4 + 2 presup.)
+  Comentarios:  6 (3 + 2 + 1 presup.)
+  Adjuntos:     4 (2 + 2 presup.)
   Servicios:    1 (IN_PROGRESS)
   Notific.:     7
 

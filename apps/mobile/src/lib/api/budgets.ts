@@ -9,4 +9,14 @@ import { apiClient } from '../api-client';
 export type { BudgetFilters } from '@epde/shared';
 
 const queries = createBudgetQueries(apiClient);
-export const { getBudgets, getBudget, createBudgetRequest, updateBudgetStatus } = queries;
+export const {
+  getBudgets,
+  getBudget,
+  createBudgetRequest,
+  updateBudgetStatus,
+  editBudgetRequest,
+  getBudgetAuditLog,
+  getBudgetComments,
+  createBudgetComment,
+  addBudgetAttachments,
+} = queries;

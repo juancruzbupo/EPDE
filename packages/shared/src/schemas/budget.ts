@@ -66,3 +66,47 @@ export const budgetFiltersSchema = z.object({
 });
 
 export type BudgetFiltersInput = z.infer<typeof budgetFiltersSchema>;
+
+// ─── Edit Budget Request (client, PENDING only) ────────
+
+export const editBudgetRequestSchema = z.object({
+  title: z
+    .string()
+    .min(3, 'El título debe tener al menos 3 caracteres')
+    .max(200, 'El título no puede superar 200 caracteres')
+    .optional(),
+  description: z
+    .string()
+    .max(2000, 'La descripción no puede superar 2000 caracteres')
+    .nullable()
+    .optional(),
+});
+
+export type EditBudgetRequestInput = z.infer<typeof editBudgetRequestSchema>;
+
+// ─── Budget Comment ────────────────────────────────────
+
+export const createBudgetCommentSchema = z.object({
+  content: z
+    .string()
+    .min(1, 'El comentario es requerido')
+    .max(2000, 'El comentario no puede superar 2000 caracteres'),
+});
+
+export type CreateBudgetCommentInput = z.infer<typeof createBudgetCommentSchema>;
+
+// ─── Budget Attachments ────────────────────────────────
+
+export const addBudgetAttachmentsSchema = z.object({
+  attachments: z
+    .array(
+      z.object({
+        url: z.string().url('URL inválida'),
+        fileName: z.string().min(1, 'Nombre de archivo requerido').max(255),
+      }),
+    )
+    .min(1, 'Debe agregar al menos un archivo')
+    .max(10, 'Máximo 10 archivos por vez'),
+});
+
+export type AddBudgetAttachmentsInput = z.infer<typeof addBudgetAttachmentsSchema>;

@@ -1,0 +1,78 @@
+'use client';
+
+import type { BudgetRequestPublic, EditBudgetRequestInput } from '@epde/shared';
+import { editBudgetRequestSchema } from '@epde/shared';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { useEditBudgetRequest } from '@/hooks/use-budgets';
+
+interface EditBudgetDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  budget: BudgetRequestPublic;
+}
+
+export function EditBudgetDialog({ open, onOpenChange, budget }: EditBudgetDialogProps) {
+  const editMutation = useEditBudgetRequest();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<EditBudgetRequestInput>({
+    resolver: zodResolver(editBudgetRequestSchema),
+    defaultValues: {
+      title: budget.title,
+      description: budget.description ?? '',
+    },
+  });
+
+  const onSubmit = handleSubmit((data) => {
+    editMutation.mutate(
+      { id: budget.id, ...data },
+      {
+        onSuccess: () => {
+          onOpenChange(false);
+        },
+      },
+    );
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Editar presupuesto</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="edit-title">Título</Label>
+            <Input id="edit-title" {...register('title')} />
+            {errors.title && <p className="text-destructive text-sm">{errors.title.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-description">Descripción</Label>
+            <Textarea id="edit-description" {...register('description')} rows={3} />
+            {errors.description && (
+              <p className="text-destructive text-sm">{errors.description.message}</p>
+            )}
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={editMutation.isPending}>
+              {editMutation.isPending ? 'Guardando...' : 'Guardar'}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

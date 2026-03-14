@@ -3,10 +3,17 @@
  * Map these to HTTP exceptions in the service/controller layer.
  */
 
-export class BudgetNotPendingError extends Error {
-  readonly name = 'BudgetNotPendingError';
+export class BudgetNotQuotableError extends Error {
+  readonly name = 'BudgetNotQuotableError';
   constructor() {
-    super('Solo se puede cotizar un presupuesto pendiente');
+    super('Solo se puede cotizar un presupuesto pendiente o cotizado');
+  }
+}
+
+export class BudgetNotEditableError extends Error {
+  readonly name = 'BudgetNotEditableError';
+  constructor() {
+    super('Solo se puede editar un presupuesto pendiente');
   }
 }
 

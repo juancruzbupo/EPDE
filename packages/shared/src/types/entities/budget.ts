@@ -44,4 +44,33 @@ export type BudgetRequestPublic = Serialized<BudgetRequest> & {
   requester: UserBriefWithEmail;
   lineItems: BudgetLineItemPublic[];
   response: BudgetResponsePublic | null;
+  attachments: BudgetAttachmentPublic[];
 };
+
+export interface BudgetAuditLogPublic {
+  id: string;
+  budgetId: string;
+  userId: string;
+  action: string;
+  before: Record<string, unknown>;
+  after: Record<string, unknown>;
+  changedAt: string;
+  user: { id: string; name: string };
+}
+
+export interface BudgetCommentPublic {
+  id: string;
+  budgetId: string;
+  userId: string;
+  content: string;
+  createdAt: string;
+  user: { id: string; name: string };
+}
+
+export interface BudgetAttachmentPublic {
+  id: string;
+  budgetId: string;
+  url: string;
+  fileName: string;
+  createdAt: string;
+}

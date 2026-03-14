@@ -62,6 +62,7 @@ export const BudgetStatus = {
   REJECTED: 'REJECTED',
   IN_PROGRESS: 'IN_PROGRESS',
   COMPLETED: 'COMPLETED',
+  EXPIRED: 'EXPIRED',
 } as const;
 export type BudgetStatus = (typeof BudgetStatus)[keyof typeof BudgetStatus];
 
