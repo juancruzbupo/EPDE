@@ -40,9 +40,54 @@ export const updateServiceStatusSchema = z.object({
       message: 'Estado inválido',
     },
   ),
+  note: z.string().max(500, 'La nota no puede superar 500 caracteres').optional(),
 });
 
 export type UpdateServiceStatusInput = z.infer<typeof updateServiceStatusSchema>;
+
+// ─── Edit Service Request ────────────────────────────────
+
+export const editServiceRequestSchema = z.object({
+  title: z
+    .string()
+    .min(3, 'El título debe tener al menos 3 caracteres')
+    .max(200, 'El título no puede superar 200 caracteres')
+    .optional(),
+  description: z
+    .string()
+    .min(10, 'La descripción debe tener al menos 10 caracteres')
+    .max(2000, 'La descripción no puede superar 2000 caracteres')
+    .optional(),
+});
+
+export type EditServiceRequestInput = z.infer<typeof editServiceRequestSchema>;
+
+// ─── Service Request Comments ────────────────────────────
+
+export const createServiceRequestCommentSchema = z.object({
+  content: z
+    .string()
+    .min(1, 'El comentario no puede estar vacío')
+    .max(2000, 'El comentario no puede superar 2000 caracteres'),
+});
+
+export type CreateServiceRequestCommentInput = z.infer<typeof createServiceRequestCommentSchema>;
+
+// ─── Service Request Attachments ─────────────────────────
+
+export const addServiceRequestAttachmentsSchema = z.object({
+  attachments: z
+    .array(
+      z.object({
+        url: z.string().url('URL inválida'),
+        fileName: z.string().min(1).max(255, 'Nombre de archivo muy largo'),
+      }),
+    )
+    .min(1, 'Debe incluir al menos un adjunto')
+    .max(10, 'Máximo 10 adjuntos por envío'),
+});
+
+export type AddServiceRequestAttachmentsInput = z.infer<typeof addServiceRequestAttachmentsSchema>;
 
 // ─── Service Request Filters ────────────────────────────
 

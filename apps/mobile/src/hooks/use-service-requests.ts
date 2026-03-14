@@ -5,7 +5,11 @@ import { Alert } from 'react-native';
 
 import {
   createServiceRequest,
+  createServiceRequestComment,
+  editServiceRequest,
   getServiceRequest,
+  getServiceRequestAuditLog,
+  getServiceRequestComments,
   getServiceRequests,
   type ServiceRequestFilters,
 } from '@/lib/api/service-requests';
@@ -44,6 +48,57 @@ export function useCreateServiceRequest() {
     },
     onError: (err) => {
       Alert.alert('Error', getErrorMessage(err, 'Error al crear solicitud'));
+    },
+  });
+}
+
+export function useEditServiceRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...dto }: { id: string; title?: string; description?: string }) =>
+      editServiceRequest(id, dto),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
+      Alert.alert('Éxito', 'Solicitud actualizada');
+    },
+    onError: (err) => {
+      Alert.alert('Error', getErrorMessage(err, 'Error al editar solicitud'));
+    },
+  });
+}
+
+// ─── Audit Log ──────────────────────────────────────────
+
+export function useServiceRequestAuditLog(id: string) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.serviceRequests, id, QUERY_KEYS.serviceRequestAuditLog],
+    queryFn: ({ signal }) => getServiceRequestAuditLog(id, signal).then((r) => r.data),
+    enabled: !!id,
+  });
+}
+
+// ─── Comments ───────────────────────────────────────────
+
+export function useServiceRequestComments(id: string) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.serviceRequests, id, QUERY_KEYS.serviceRequestComments],
+    queryFn: ({ signal }) => getServiceRequestComments(id, signal).then((r) => r.data),
+    enabled: !!id,
+  });
+}
+
+export function useAddServiceRequestComment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ serviceRequestId, content }: { serviceRequestId: string; content: string }) =>
+      createServiceRequestComment(serviceRequestId, { content }),
+    onSuccess: (_, { serviceRequestId }) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.serviceRequests, serviceRequestId, QUERY_KEYS.serviceRequestComments],
+      });
+    },
+    onError: (err) => {
+      Alert.alert('Error', getErrorMessage(err, 'Error al agregar comentario'));
     },
   });
 }

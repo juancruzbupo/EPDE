@@ -10,7 +10,16 @@ import {
 } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { AlertTriangle, AlignLeft, ArrowLeft, Calendar, FileText, Home, User } from 'lucide-react';
+import {
+  AlertTriangle,
+  AlignLeft,
+  ArrowLeft,
+  Calendar,
+  FileText,
+  Home,
+  Pencil,
+  User,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -21,7 +30,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { useServiceRequest, useUpdateServiceStatus } from '@/hooks/use-service-requests';
+
+import { EditServiceRequestDialog } from './edit-service-request-dialog';
+import { ServiceRequestAttachments } from './service-request-attachments';
+import { ServiceRequestComments } from './service-request-comments';
+import { ServiceRequestTimeline } from './service-request-timeline';
 
 const STATUS_TRANSITIONS: Partial<Record<ServiceStatus, ServiceStatus>> = {
   [ServiceStatus.OPEN]: ServiceStatus.IN_REVIEW,
@@ -40,15 +55,23 @@ const TRANSITION_LABELS: Partial<Record<ServiceStatus, string>> = {
 interface ServiceRequestDetailProps {
   id: string;
   isAdmin: boolean;
+  isClient: boolean;
   initialData?: ServiceRequestPublic;
 }
 
-export function ServiceRequestDetail({ id, isAdmin, initialData }: ServiceRequestDetailProps) {
+export function ServiceRequestDetail({
+  id,
+  isAdmin,
+  isClient,
+  initialData,
+}: ServiceRequestDetailProps) {
   const { data, isError, refetch } = useServiceRequest(id, { initialData });
   const updateStatus = useUpdateServiceStatus();
 
   const [statusConfirm, setStatusConfirm] = useState<ServiceStatus | null>(null);
+  const [statusNote, setStatusNote] = useState('');
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
 
   const request = data;
 
@@ -59,6 +82,7 @@ export function ServiceRequestDetail({ id, isAdmin, initialData }: ServiceReques
   if (!request) return null;
 
   const nextStatus = STATUS_TRANSITIONS[request.status];
+  const canEdit = isClient && request.status === ServiceStatus.OPEN;
 
   return (
     <div>
@@ -66,12 +90,20 @@ export function ServiceRequestDetail({ id, isAdmin, initialData }: ServiceReques
         title={request.title}
         description={`Solicitud #${request.id.slice(0, 8)}`}
         action={
-          <Button variant="outline" asChild>
-            <Link href="/service-requests">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Volver
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            {canEdit && (
+              <Button variant="outline" onClick={() => setEditOpen(true)}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Editar
+              </Button>
+            )}
+            <Button variant="outline" asChild>
+              <Link href="/service-requests">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Volver
+              </Link>
+            </Button>
+          </div>
         }
       />
 
@@ -173,13 +205,28 @@ export function ServiceRequestDetail({ id, isAdmin, initialData }: ServiceReques
 
         {isAdmin && nextStatus && (
           <Card>
-            <CardContent className="flex gap-2 p-4">
+            <CardContent className="space-y-3 p-4">
+              <Textarea
+                value={statusNote}
+                onChange={(e) => setStatusNote(e.target.value)}
+                placeholder="Nota opcional para el cambio de estado..."
+                rows={2}
+              />
               <Button onClick={() => setStatusConfirm(nextStatus)}>
                 {TRANSITION_LABELS[nextStatus]}
               </Button>
             </CardContent>
           </Card>
         )}
+
+        <ServiceRequestAttachments
+          attachments={request.attachments}
+          serviceRequestStatus={request.status}
+        />
+
+        <ServiceRequestComments serviceRequestId={id} serviceRequestStatus={request.status} />
+
+        <ServiceRequestTimeline serviceRequestId={id} />
       </div>
 
       <Dialog open={!!previewPhoto} onOpenChange={() => setPreviewPhoto(null)}>
@@ -202,13 +249,26 @@ export function ServiceRequestDetail({ id, isAdmin, initialData }: ServiceReques
         onConfirm={() => {
           if (statusConfirm) {
             updateStatus.mutate(
-              { id, status: statusConfirm },
-              { onSuccess: () => setStatusConfirm(null) },
+              { id, status: statusConfirm, note: statusNote.trim() || undefined },
+              {
+                onSuccess: () => {
+                  setStatusConfirm(null);
+                  setStatusNote('');
+                },
+              },
             );
           }
         }}
         isLoading={updateStatus.isPending}
       />
+
+      {canEdit && (
+        <EditServiceRequestDialog
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          serviceRequest={request}
+        />
+      )}
     </div>
   );
 }

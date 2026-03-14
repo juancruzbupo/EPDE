@@ -1,5 +1,8 @@
 import type {
+  AddServiceRequestAttachmentsInput,
+  CreateServiceRequestCommentInput,
   CreateServiceRequestInput,
+  EditServiceRequestInput,
   ServiceRequestFiltersInput,
   ServiceUser,
   UpdateServiceStatusInput,
@@ -12,9 +15,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { InvalidServiceStatusTransitionError } from '../common/exceptions/domain.exceptions';
+import {
+  InvalidServiceStatusTransitionError,
+  ServiceRequestNotEditableError,
+} from '../common/exceptions/domain.exceptions';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { PropertiesRepository } from '../properties/properties.repository';
+import { ServiceRequestAttachmentsRepository } from './service-request-attachments.repository';
+import { ServiceRequestAuditLogRepository } from './service-request-audit-log.repository';
+import { ServiceRequestCommentsRepository } from './service-request-comments.repository';
 import {
   ServiceRequestsRepository,
   type ServiceRequestWithDetails,
@@ -28,12 +37,17 @@ const VALID_TRANSITIONS: Record<string, ServiceStatus> = {
   [ServiceStatus.RESOLVED]: ServiceStatus.CLOSED,
 };
 
+const TERMINAL_STATUSES: ServiceStatus[] = [ServiceStatus.RESOLVED, ServiceStatus.CLOSED];
+
 @Injectable()
 export class ServiceRequestsService {
   constructor(
     private readonly serviceRequestsRepository: ServiceRequestsRepository,
     private readonly propertiesRepository: PropertiesRepository,
     private readonly notificationsHandler: NotificationsHandlerService,
+    private readonly auditLogRepository: ServiceRequestAuditLogRepository,
+    private readonly commentsRepository: ServiceRequestCommentsRepository,
+    private readonly attachmentsRepository: ServiceRequestAttachmentsRepository,
   ) {}
 
   async listRequests(filters: ServiceRequestFiltersInput, currentUser: ServiceUser) {
@@ -82,6 +96,20 @@ export class ServiceRequestsService {
       photoUrls: dto.photoUrls,
     });
 
+    // Audit log: created
+    void this.auditLogRepository.createAuditLog(
+      result!.id,
+      userId,
+      'created',
+      {},
+      {
+        title: dto.title,
+        description: dto.description,
+        urgency,
+        photoCount: dto.photoUrls?.length ?? 0,
+      },
+    );
+
     void this.notificationsHandler.handleServiceCreated({
       serviceRequestId: result!.id,
       title: dto.title,
@@ -90,6 +118,51 @@ export class ServiceRequestsService {
     });
 
     return result;
+  }
+
+  async editServiceRequest(id: string, dto: EditServiceRequestInput, currentUser: ServiceUser) {
+    const request = await this.serviceRequestsRepository.findByIdWithDetails(id);
+    if (!request) {
+      throw new NotFoundException('Solicitud de servicio no encontrada');
+    }
+
+    this.assertAccess(request, currentUser);
+
+    if (currentUser.role !== UserRole.CLIENT) {
+      throw new ForbiddenException('Solo el cliente puede editar la solicitud');
+    }
+
+    try {
+      const updated = await this.serviceRequestsRepository.editServiceRequest(
+        id,
+        dto,
+        currentUser.id,
+      );
+
+      if (!updated) {
+        throw new ServiceRequestNotEditableError();
+      }
+
+      // Audit log: edited
+      const before: Record<string, unknown> = {};
+      const after: Record<string, unknown> = {};
+      if (dto.title && dto.title !== request.title) {
+        before.title = request.title;
+        after.title = dto.title;
+      }
+      if (dto.description && dto.description !== request.description) {
+        before.description = request.description;
+        after.description = dto.description;
+      }
+      void this.auditLogRepository.createAuditLog(id, currentUser.id, 'edited', before, after);
+
+      return updated;
+    } catch (e) {
+      if (e instanceof ServiceRequestNotEditableError) {
+        throw new BadRequestException(e.message);
+      }
+      throw e;
+    }
   }
 
   async updateStatus(id: string, dto: UpdateServiceStatusInput, currentUser: ServiceUser) {
@@ -126,7 +199,23 @@ export class ServiceRequestsService {
         },
         requester: { select: { id: true, name: true } },
         photos: true,
+        attachments: true,
       },
+    );
+
+    // Audit log: status transition with optional admin note
+    const auditAfter: Record<string, unknown> = {
+      status: dto.status,
+    };
+    if (dto.note) {
+      auditAfter.note = dto.note;
+    }
+    void this.auditLogRepository.createAuditLog(
+      id,
+      currentUser.id,
+      dto.status.toLowerCase().replace('_', '-'),
+      { status: request.status },
+      auditAfter,
     );
 
     void this.notificationsHandler.handleServiceStatusChanged({
@@ -138,6 +227,64 @@ export class ServiceRequestsService {
     });
 
     return updated;
+  }
+
+  // ─── Audit Log ──────────────────────────────────────────
+
+  async getAuditLog(id: string, currentUser: ServiceUser) {
+    const request = await this.serviceRequestsRepository.findByIdWithDetails(id);
+    if (!request) {
+      throw new NotFoundException('Solicitud de servicio no encontrada');
+    }
+    this.assertAccess(request, currentUser);
+    return this.auditLogRepository.findByServiceRequestId(id);
+  }
+
+  // ─── Comments ───────────────────────────────────────────
+
+  async getComments(id: string, currentUser: ServiceUser) {
+    const request = await this.serviceRequestsRepository.findByIdWithDetails(id);
+    if (!request) {
+      throw new NotFoundException('Solicitud de servicio no encontrada');
+    }
+    this.assertAccess(request, currentUser);
+    return this.commentsRepository.findByServiceRequestId(id);
+  }
+
+  async addComment(id: string, dto: CreateServiceRequestCommentInput, currentUser: ServiceUser) {
+    const request = await this.serviceRequestsRepository.findByIdWithDetails(id);
+    if (!request) {
+      throw new NotFoundException('Solicitud de servicio no encontrada');
+    }
+    this.assertAccess(request, currentUser);
+
+    if (TERMINAL_STATUSES.includes(request.status as ServiceStatus)) {
+      throw new BadRequestException('No se puede comentar en una solicitud cerrada o resuelta');
+    }
+
+    return this.commentsRepository.createComment(id, currentUser.id, dto.content);
+  }
+
+  // ─── Attachments ────────────────────────────────────────
+
+  async addAttachments(
+    id: string,
+    dto: AddServiceRequestAttachmentsInput,
+    currentUser: ServiceUser,
+  ) {
+    const request = await this.serviceRequestsRepository.findByIdWithDetails(id);
+    if (!request) {
+      throw new NotFoundException('Solicitud de servicio no encontrada');
+    }
+    this.assertAccess(request, currentUser);
+
+    if (TERMINAL_STATUSES.includes(request.status as ServiceStatus)) {
+      throw new BadRequestException(
+        'No se pueden agregar adjuntos a una solicitud cerrada o resuelta',
+      );
+    }
+
+    return this.attachmentsRepository.addAttachments(id, dto.attachments);
   }
 
   private assertAccess(request: ServiceRequestWithDetails, currentUser: ServiceUser): void {

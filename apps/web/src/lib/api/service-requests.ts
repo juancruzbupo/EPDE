@@ -6,13 +6,23 @@ import { apiClient } from '../api-client';
 export type { ServiceRequestFilters, ServiceRequestPublic } from '@epde/shared';
 
 const queries = createServiceRequestQueries(apiClient);
-export const { getServiceRequests, getServiceRequest, createServiceRequest } = queries;
+export const {
+  getServiceRequests,
+  getServiceRequest,
+  createServiceRequest,
+  editServiceRequest,
+  getServiceRequestAuditLog,
+  getServiceRequestComments,
+  createServiceRequestComment,
+  addServiceRequestAttachments,
+} = queries;
 
 // Admin-only
 export async function updateServiceStatus(
   id: string,
   status: ServiceStatus,
+  note?: string,
 ): Promise<ApiResponse<ServiceRequestPublic>> {
-  const { data } = await apiClient.patch(`/service-requests/${id}/status`, { status });
+  const { data } = await apiClient.patch(`/service-requests/${id}/status`, { status, note });
   return data;
 }

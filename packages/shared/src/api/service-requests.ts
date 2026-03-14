@@ -1,6 +1,18 @@
 import type { AxiosInstance } from 'axios';
 
-import type { ApiResponse, PaginatedResponse, ServiceRequestPublic } from '../types';
+import type {
+  AddServiceRequestAttachmentsInput,
+  CreateServiceRequestCommentInput,
+  EditServiceRequestInput,
+} from '../schemas/service-request';
+import type {
+  ApiResponse,
+  PaginatedResponse,
+  ServiceRequestAttachmentPublic,
+  ServiceRequestAuditLogPublic,
+  ServiceRequestCommentPublic,
+  ServiceRequestPublic,
+} from '../types';
 import type { ServiceStatus, ServiceUrgency } from '../types/enums';
 
 export interface ServiceRequestFilters {
@@ -45,6 +57,52 @@ export function createServiceRequestQueries(apiClient: AxiosInstance) {
       photoUrls?: string[];
     }): Promise<ApiResponse<ServiceRequestPublic>> {
       const { data } = await apiClient.post('/service-requests', dto);
+      return data;
+    },
+
+    async editServiceRequest(
+      id: string,
+      dto: EditServiceRequestInput,
+    ): Promise<ApiResponse<ServiceRequestPublic>> {
+      const { data } = await apiClient.patch(`/service-requests/${id}`, dto);
+      return data;
+    },
+
+    // --- Audit Log ---
+
+    async getServiceRequestAuditLog(
+      id: string,
+      signal?: AbortSignal,
+    ): Promise<ApiResponse<ServiceRequestAuditLogPublic[]>> {
+      const { data } = await apiClient.get(`/service-requests/${id}/audit-log`, { signal });
+      return data;
+    },
+
+    // --- Comments ---
+
+    async getServiceRequestComments(
+      id: string,
+      signal?: AbortSignal,
+    ): Promise<ApiResponse<ServiceRequestCommentPublic[]>> {
+      const { data } = await apiClient.get(`/service-requests/${id}/comments`, { signal });
+      return data;
+    },
+
+    async createServiceRequestComment(
+      id: string,
+      dto: CreateServiceRequestCommentInput,
+    ): Promise<ApiResponse<ServiceRequestCommentPublic>> {
+      const { data } = await apiClient.post(`/service-requests/${id}/comments`, dto);
+      return data;
+    },
+
+    // --- Attachments ---
+
+    async addServiceRequestAttachments(
+      id: string,
+      dto: AddServiceRequestAttachmentsInput,
+    ): Promise<ApiResponse<ServiceRequestAttachmentPublic[]>> {
+      const { data } = await apiClient.post(`/service-requests/${id}/attachments`, dto);
       return data;
     },
   };

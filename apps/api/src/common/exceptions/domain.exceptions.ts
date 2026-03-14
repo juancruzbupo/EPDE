@@ -70,6 +70,13 @@ export class InvalidServiceStatusTransitionError extends Error {
   }
 }
 
+export class ServiceRequestNotEditableError extends Error {
+  readonly name = 'ServiceRequestNotEditableError';
+  constructor() {
+    super('Solo se puede editar una solicitud abierta');
+  }
+}
+
 export class PropertyAccessDeniedError extends Error {
   readonly name = 'PropertyAccessDeniedError';
   constructor() {

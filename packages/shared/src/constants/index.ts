@@ -64,6 +64,11 @@ export const BUDGET_TERMINAL_STATUSES: readonly BudgetStatus[] = [
   'EXPIRED',
 ] as const;
 
+export const SERVICE_REQUEST_TERMINAL_STATUSES: readonly ServiceStatus[] = [
+  'RESOLVED',
+  'CLOSED',
+] as const;
+
 export const SERVICE_STATUS_LABELS = {
   OPEN: 'Abierto',
   IN_REVIEW: 'En Revisión',
@@ -218,6 +223,9 @@ export const QUERY_KEYS = {
   // Budget sub-keys
   budgetAuditLog: 'budget-audit-log',
   budgetComments: 'budget-comments',
+  // Service request sub-keys
+  serviceRequestAuditLog: 'service-request-audit-log',
+  serviceRequestComments: 'service-request-comments',
   // Notifications sub-keys
   notificationsUnreadCount: 'unread-count',
 } as const;

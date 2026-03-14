@@ -162,11 +162,13 @@ model User {
   taskNotes       TaskNote[]
   taskAuditLogs   TaskAuditLog[]
   budgetRequests  BudgetRequest[]
-  budgetAuditLogs BudgetAuditLog[] @relation("BudgetAuditLogs")
-  budgetComments  BudgetComment[]  @relation("BudgetComments")
-  serviceRequests ServiceRequest[]
-  notifications   Notification[]
-  authAuditLogs   AuthAuditLog[]
+  budgetAuditLogs         BudgetAuditLog[]         @relation("BudgetAuditLogs")
+  budgetComments          BudgetComment[]          @relation("BudgetComments")
+  serviceRequests         ServiceRequest[]
+  serviceRequestAuditLogs ServiceRequestAuditLog[] @relation("ServiceRequestAuditLogs")
+  serviceRequestComments  ServiceRequestComment[]  @relation("ServiceRequestComments")
+  notifications           Notification[]
+  authAuditLogs           AuthAuditLog[]
 
   @@index([email])
   @@index([role, deletedAt])
@@ -432,9 +434,12 @@ model ServiceRequest {
   updatedAt   DateTime       @updatedAt
   deletedAt   DateTime?
 
-  property  Property              @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  requester User                  @relation(fields: [requestedBy], references: [id])
-  photos    ServiceRequestPhoto[]
+  property    Property                      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  requester   User                          @relation(fields: [requestedBy], references: [id])
+  photos      ServiceRequestPhoto[]
+  auditLogs   ServiceRequestAuditLog[]
+  comments    ServiceRequestComment[]
+  attachments ServiceRequestAttachment[]
 
   @@index([propertyId])
   @@index([propertyId, deletedAt])
@@ -447,6 +452,47 @@ model ServiceRequestPhoto {
   id               String   @id @default(uuid())
   serviceRequestId String
   url              String
+  createdAt        DateTime @default(now())
+
+  serviceRequest ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+
+  @@index([serviceRequestId])
+}
+
+model ServiceRequestAuditLog {
+  id               String   @id @default(uuid())
+  serviceRequestId String
+  userId           String
+  action           String   @db.VarChar(50)
+  before           Json
+  after            Json
+  changedAt        DateTime @default(now())
+
+  serviceRequest ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+  user           User           @relation("ServiceRequestAuditLogs", fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([serviceRequestId, changedAt])
+  @@index([userId, changedAt])
+}
+
+model ServiceRequestComment {
+  id               String   @id @default(uuid())
+  serviceRequestId String
+  userId           String
+  content          String   @db.VarChar(2000)
+  createdAt        DateTime @default(now())
+
+  serviceRequest ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+  user           User           @relation("ServiceRequestComments", fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([serviceRequestId, createdAt])
+}
+
+model ServiceRequestAttachment {
+  id               String   @id @default(uuid())
+  serviceRequestId String
+  url              String
+  fileName         String   @db.VarChar(255)
   createdAt        DateTime @default(now())
 
   serviceRequest ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)

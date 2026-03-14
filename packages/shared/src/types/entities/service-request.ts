@@ -26,4 +26,33 @@ export type ServiceRequestPublic = Serialized<ServiceRequest> & {
   property: PropertyBriefWithOwner;
   requester: UserBriefWithEmail;
   photos: ServiceRequestPhotoPublic[];
+  attachments: ServiceRequestAttachmentPublic[];
 };
+
+export interface ServiceRequestAuditLogPublic {
+  id: string;
+  serviceRequestId: string;
+  userId: string;
+  action: string;
+  before: Record<string, unknown>;
+  after: Record<string, unknown>;
+  changedAt: string;
+  user: { id: string; name: string };
+}
+
+export interface ServiceRequestCommentPublic {
+  id: string;
+  serviceRequestId: string;
+  userId: string;
+  content: string;
+  createdAt: string;
+  user: { id: string; name: string };
+}
+
+export interface ServiceRequestAttachmentPublic {
+  id: string;
+  serviceRequestId: string;
+  url: string;
+  fileName: string;
+  createdAt: string;
+}

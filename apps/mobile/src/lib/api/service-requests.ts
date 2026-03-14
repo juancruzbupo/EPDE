@@ -9,4 +9,13 @@ import { apiClient } from '../api-client';
 export type { ServiceRequestFilters } from '@epde/shared';
 
 const queries = createServiceRequestQueries(apiClient);
-export const { getServiceRequests, getServiceRequest, createServiceRequest } = queries;
+export const {
+  getServiceRequests,
+  getServiceRequest,
+  createServiceRequest,
+  editServiceRequest,
+  getServiceRequestAuditLog,
+  getServiceRequestComments,
+  createServiceRequestComment,
+  addServiceRequestAttachments,
+} = queries;

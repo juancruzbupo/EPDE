@@ -1,16 +1,25 @@
-import { format } from 'date-fns';
+import type {
+  ServiceRequestAttachmentPublic,
+  ServiceRequestAuditLogPublic,
+  ServiceRequestCommentPublic,
+} from '@epde/shared';
+import { SERVICE_REQUEST_TERMINAL_STATUSES, ServiceStatus } from '@epde/shared';
+import { format, formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Dimensions,
   Image,
+  Linking,
   Modal,
   Pressable,
   RefreshControl,
   ScrollView,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -19,19 +28,130 @@ import { CollapsibleSection } from '@/components/collapsible-section';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { ServiceStatusBadge, UrgencyBadge } from '@/components/status-badge';
-import { useServiceRequest } from '@/hooks/use-service-requests';
+import {
+  useAddServiceRequestComment,
+  useEditServiceRequest,
+  useServiceRequest,
+  useServiceRequestAuditLog,
+  useServiceRequestComments,
+} from '@/hooks/use-service-requests';
 import { useSlideIn } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
+import { haptics } from '@/lib/haptics';
 import { defaultScreenOptions } from '@/lib/screen-options';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+// ─── Sub-components ─────────────────────────────────────────
+
+function AuditLogEntry({ entry }: { entry: ServiceRequestAuditLogPublic }) {
+  const ACTION_LABELS: Record<string, string> = {
+    created: 'Creó la solicitud',
+    edited: 'Editó la solicitud',
+    'in-review': 'Pasó a revisión',
+    'in-progress': 'Marcó en progreso',
+    resolved: 'Marcó como resuelta',
+    closed: 'Cerró la solicitud',
+  };
+
+  const note = (entry.after as Record<string, unknown>)?.note as string | undefined;
+
+  return (
+    <View className="border-border border-b py-2">
+      <Text style={TYPE.labelMd} className="text-foreground">
+        {ACTION_LABELS[entry.action] ?? entry.action}
+      </Text>
+      {note && (
+        <Text style={TYPE.bodySm} className="text-foreground mt-0.5 italic">
+          {note}
+        </Text>
+      )}
+      <Text style={TYPE.bodySm} className="text-muted-foreground">
+        {entry.user.name} ·{' '}
+        {formatDistanceToNow(new Date(entry.changedAt), { addSuffix: true, locale: es })}
+      </Text>
+    </View>
+  );
+}
+
+function CommentItem({ comment }: { comment: ServiceRequestCommentPublic }) {
+  return (
+    <View className="border-border border-b py-2">
+      <View className="flex-row items-center justify-between">
+        <Text style={TYPE.labelMd} className="text-foreground">
+          {comment.user.name}
+        </Text>
+        <Text style={TYPE.bodySm} className="text-muted-foreground">
+          {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: es })}
+        </Text>
+      </View>
+      <Text style={TYPE.bodyMd} className="text-foreground mt-1">
+        {comment.content}
+      </Text>
+    </View>
+  );
+}
+
+function AttachmentItem({ attachment }: { attachment: ServiceRequestAttachmentPublic }) {
+  return (
+    <Pressable
+      onPress={() => Linking.openURL(attachment.url)}
+      className="border-border border-b py-2"
+    >
+      <Text style={TYPE.labelMd} className="text-primary" numberOfLines={1}>
+        {attachment.fileName}
+      </Text>
+      <Text style={TYPE.bodySm} className="text-muted-foreground">
+        {formatDistanceToNow(new Date(attachment.createdAt), { addSuffix: true, locale: es })}
+      </Text>
+    </Pressable>
+  );
+}
+
+// ─── Main Screen ────────────────────────────────────────────
 
 export default function ServiceRequestDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const contentStyle = useSlideIn('bottom');
   const { data: request, isLoading, error, refetch } = useServiceRequest(id);
+  const editRequest = useEditServiceRequest();
+  const { data: auditLog } = useServiceRequestAuditLog(id);
+  const { data: comments } = useServiceRequestComments(id);
+  const addComment = useAddServiceRequestComment();
+
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
+  const [commentText, setCommentText] = useState('');
+
+  const isTerminal = request
+    ? SERVICE_REQUEST_TERMINAL_STATUSES.includes(request.status as never)
+    : false;
+
+  const handleEdit = () => {
+    if (!request) return;
+    haptics.light();
+    Alert.prompt(
+      'Editar Título',
+      'Ingresá el nuevo título:',
+      (newTitle) => {
+        if (newTitle?.trim()) {
+          editRequest.mutate({ id, title: newTitle.trim() });
+        }
+      },
+      'plain-text',
+      request.title,
+    );
+  };
+
+  const handleAddComment = () => {
+    const trimmed = commentText.trim();
+    if (!trimmed) return;
+    haptics.light();
+    addComment.mutate(
+      { serviceRequestId: id, content: trimmed },
+      { onSuccess: () => setCommentText('') },
+    );
+  };
 
   if (isLoading) {
     return (
@@ -117,6 +237,19 @@ export default function ServiceRequestDetailScreen() {
               </Text>
             </View>
           </View>
+
+          {/* Edit button for OPEN status */}
+          {request.status === ServiceStatus.OPEN && (
+            <Pressable
+              onPress={handleEdit}
+              disabled={editRequest.isPending}
+              className="bg-primary mt-3 items-center rounded-lg py-2"
+            >
+              <Text style={TYPE.labelLg} className="text-primary-foreground">
+                Editar
+              </Text>
+            </Pressable>
+          )}
         </View>
 
         {/* Photos */}
@@ -139,6 +272,67 @@ export default function ServiceRequestDetailScreen() {
             </ScrollView>
           </CollapsibleSection>
         )}
+
+        {/* Attachments */}
+        {request.attachments && request.attachments.length > 0 && (
+          <CollapsibleSection title="Adjuntos" count={request.attachments.length}>
+            <View className="border-border bg-card rounded-xl border px-3">
+              {request.attachments.map((att) => (
+                <AttachmentItem key={att.id} attachment={att} />
+              ))}
+            </View>
+          </CollapsibleSection>
+        )}
+
+        {/* Comments */}
+        <CollapsibleSection title="Comentarios" count={comments?.length}>
+          <View className="border-border bg-card rounded-xl border px-3">
+            {comments && comments.length > 0 ? (
+              comments.map((c) => <CommentItem key={c.id} comment={c} />)
+            ) : (
+              <Text style={TYPE.bodyMd} className="text-muted-foreground py-3">
+                Sin comentarios
+              </Text>
+            )}
+          </View>
+
+          {/* Add comment form */}
+          {!isTerminal && (
+            <View className="mt-2 flex-row items-end gap-2">
+              <TextInput
+                value={commentText}
+                onChangeText={setCommentText}
+                placeholder="Escribí un comentario..."
+                placeholderTextColor={COLORS.mutedForeground}
+                multiline
+                style={[TYPE.bodyMd, { maxHeight: 80, flex: 1 }]}
+                className="border-border bg-card text-foreground rounded-lg border px-3 py-2"
+              />
+              <Pressable
+                onPress={handleAddComment}
+                disabled={!commentText.trim() || addComment.isPending}
+                className="bg-primary rounded-lg px-4 py-2"
+              >
+                <Text style={TYPE.labelMd} className="text-primary-foreground">
+                  Enviar
+                </Text>
+              </Pressable>
+            </View>
+          )}
+        </CollapsibleSection>
+
+        {/* Audit log / timeline */}
+        <CollapsibleSection title="Historial" count={auditLog?.length} defaultOpen={false}>
+          <View className="border-border bg-card rounded-xl border px-3">
+            {auditLog && auditLog.length > 0 ? (
+              auditLog.map((entry) => <AuditLogEntry key={entry.id} entry={entry} />)
+            ) : (
+              <Text style={TYPE.bodyMd} className="text-muted-foreground py-3">
+                Sin historial
+              </Text>
+            )}
+          </View>
+        </CollapsibleSection>
       </Animated.ScrollView>
 
       {/* Full-screen photo preview */}

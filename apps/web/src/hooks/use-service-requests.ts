@@ -5,7 +5,11 @@ import { toast } from 'sonner';
 
 import {
   createServiceRequest,
+  createServiceRequestComment,
+  editServiceRequest,
   getServiceRequest,
+  getServiceRequestAuditLog,
+  getServiceRequestComments,
   getServiceRequests,
   type ServiceRequestFilters,
   updateServiceStatus,
@@ -47,11 +51,26 @@ export function useCreateServiceRequest() {
   });
 }
 
+export function useEditServiceRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...dto }: { id: string; title?: string; description?: string }) =>
+      editServiceRequest(id, dto),
+    onSuccess: () => {
+      toast.success('Solicitud actualizada');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al editar solicitud'));
+    },
+  });
+}
+
 export function useUpdateServiceStatus() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: ServiceStatus }) =>
-      updateServiceStatus(id, status),
+    mutationFn: ({ id, status, note }: { id: string; status: ServiceStatus; note?: string }) =>
+      updateServiceStatus(id, status, note),
     onSuccess: () => {
       toast.success('Estado actualizado');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
@@ -59,6 +78,45 @@ export function useUpdateServiceStatus() {
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al actualizar estado'));
+    },
+  });
+}
+
+// ─── Audit Log ──────────────────────────────────────────
+
+export function useServiceRequestAuditLog(serviceRequestId: string) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.serviceRequests, serviceRequestId, QUERY_KEYS.serviceRequestAuditLog],
+    queryFn: ({ signal }) =>
+      getServiceRequestAuditLog(serviceRequestId, signal).then((r) => r.data),
+    enabled: !!serviceRequestId,
+  });
+}
+
+// ─── Comments ───────────────────────────────────────────
+
+export function useServiceRequestComments(serviceRequestId: string) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.serviceRequests, serviceRequestId, QUERY_KEYS.serviceRequestComments],
+    queryFn: ({ signal }) =>
+      getServiceRequestComments(serviceRequestId, signal).then((r) => r.data),
+    enabled: !!serviceRequestId,
+  });
+}
+
+export function useAddServiceRequestComment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ serviceRequestId, content }: { serviceRequestId: string; content: string }) =>
+      createServiceRequestComment(serviceRequestId, { content }),
+    onSuccess: (_, { serviceRequestId }) => {
+      toast.success('Comentario agregado');
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.serviceRequests, serviceRequestId, QUERY_KEYS.serviceRequestComments],
+      });
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al agregar comentario'));
     },
   });
 }

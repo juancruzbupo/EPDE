@@ -1937,6 +1937,76 @@ export async function seedDemo(prisma: PrismaClient) {
   });
   console.log('  ✓ 1 solicitud de servicio (evaluación estructural en progreso)');
 
+  // —— Audit logs, comentarios y adjuntos de la solicitud de María ——
+  await prisma.serviceRequestAuditLog.createMany({
+    data: [
+      {
+        serviceRequestId: service1.id,
+        userId: maria.id,
+        action: 'created',
+        before: {},
+        after: { title: service1.title, urgency: 'HIGH', photoCount: 0 },
+        changedAt: monthsAgo(4),
+      },
+      {
+        serviceRequestId: service1.id,
+        userId: admin.id,
+        action: 'in-review',
+        before: { status: 'OPEN' },
+        after: { status: 'IN_REVIEW', note: 'Derivamos al ingeniero estructural de confianza' },
+        changedAt: monthsAgo(3.5),
+      },
+      {
+        serviceRequestId: service1.id,
+        userId: admin.id,
+        action: 'in-progress',
+        before: { status: 'IN_REVIEW' },
+        after: { status: 'IN_PROGRESS', note: 'El ing. Martínez confirmó la visita para el lunes' },
+        changedAt: monthsAgo(3),
+      },
+    ],
+  });
+  await prisma.serviceRequestComment.createMany({
+    data: [
+      {
+        serviceRequestId: service1.id,
+        userId: maria.id,
+        content:
+          'La grieta parece estar creciendo más rápido en los últimos meses, sobre todo después de las lluvias.',
+        createdAt: monthsAgo(4),
+      },
+      {
+        serviceRequestId: service1.id,
+        userId: admin.id,
+        content: 'María, agendamos la visita del Ing. Martínez. Te avisamos cuando confirme fecha.',
+        createdAt: monthsAgo(3.5),
+      },
+      {
+        serviceRequestId: service1.id,
+        userId: maria.id,
+        content: 'Perfecto, estoy disponible cualquier día de la semana por la mañana.',
+        createdAt: monthsAgo(3.2),
+      },
+    ],
+  });
+  await prisma.serviceRequestAttachment.createMany({
+    data: [
+      {
+        serviceRequestId: service1.id,
+        url: 'https://example.com/docs/informe-preliminar-grieta.pdf',
+        fileName: 'Informe preliminar — grieta muro norte.pdf',
+        createdAt: monthsAgo(3),
+      },
+      {
+        serviceRequestId: service1.id,
+        url: 'https://example.com/docs/presupuesto-reparacion-estructural.pdf',
+        fileName: 'Presupuesto reparación estructural.pdf',
+        createdAt: monthsAgo(2.5),
+      },
+    ],
+  });
+  console.log('  ✓ 3 audit logs + 3 comentarios + 2 adjuntos en solicitud de servicio');
+
   // —— Notificaciones de María ——
   await prisma.notification.createMany({
     data: [
@@ -2272,6 +2342,41 @@ export async function seedDemo(prisma: PrismaClient) {
   console.log('  ✓ 1 presupuesto (cotizado, pendiente de aprobación)');
   console.log('  ✓ 2 audit logs + 1 comentario en presupuesto');
 
+  // —— Solicitud de servicio de Carlos (OPEN — editable) ——
+  const service2 = await prisma.serviceRequest.create({
+    data: {
+      propertyId: carlosProp.id,
+      requestedBy: carlos.id,
+      title: 'Revisión de disyuntor diferencial',
+      description:
+        'El disyuntor diferencial de la cocina salta ocasionalmente sin causa aparente. Necesito que un electricista revise el circuito completo.',
+      urgency: 'MEDIUM',
+      status: 'OPEN',
+      createdAt: daysAgo(3),
+      createdBy: carlos.id,
+    },
+  });
+  await prisma.serviceRequestAuditLog.create({
+    data: {
+      serviceRequestId: service2.id,
+      userId: carlos.id,
+      action: 'created',
+      before: {},
+      after: { title: service2.title, urgency: 'MEDIUM', photoCount: 0 },
+      changedAt: daysAgo(3),
+    },
+  });
+  await prisma.serviceRequestComment.create({
+    data: {
+      serviceRequestId: service2.id,
+      userId: carlos.id,
+      content: 'Pasa sobre todo cuando prendo el horno eléctrico y el microondas al mismo tiempo.',
+      createdAt: daysAgo(3),
+    },
+  });
+  console.log('  ✓ 1 solicitud de servicio (OPEN, editable)');
+  console.log('  ✓ 1 audit log + 1 comentario en solicitud');
+
   // —— Notificaciones de Carlos ——
   await prisma.notification.createMany({
     data: [
@@ -2389,7 +2494,10 @@ export async function seedDemo(prisma: PrismaClient) {
   Audit Logs:   11 (5 + 4 + 2 presup.)
   Comentarios:  6 (3 + 2 + 1 presup.)
   Adjuntos:     4 (2 + 2 presup.)
-  Servicios:    1 (IN_PROGRESS)
+  Servicios:    2 (IN_PROGRESS, OPEN)
+  SR Audit Logs: 4 (3 + 1)
+  SR Comentarios: 4 (3 + 1)
+  SR Adjuntos:  2
   Notific.:     7
 
   👤 María González  (maria.gonzalez@demo.com / Demo123!)

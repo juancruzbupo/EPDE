@@ -24,6 +24,7 @@ const SERVICE_REQUEST_LIST_INCLUDE = {
 const SERVICE_REQUEST_DETAIL_INCLUDE = {
   ...SERVICE_REQUEST_LIST_INCLUDE,
   photos: true,
+  attachments: true,
 } as const;
 
 export type ServiceRequestWithDetails = ServiceRequest & {
@@ -74,6 +75,53 @@ export class ServiceRequestsRepository extends BaseRepository<ServiceRequest, 's
       id,
       SERVICE_REQUEST_DETAIL_INCLUDE,
     ) as Promise<ServiceRequestWithDetails | null>;
+  }
+
+  /**
+   * Edit a service request — only allowed when status is OPEN.
+   * Uses a transaction with a status check to prevent TOCTOU race conditions.
+   */
+  async editServiceRequest(
+    id: string,
+    data: { title?: string; description?: string },
+    updatedBy: string,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      const current = await tx.serviceRequest.findUnique({
+        where: { id, deletedAt: null },
+        select: { status: true, title: true, description: true },
+      });
+
+      if (!current || current.status !== ServiceStatus.OPEN) {
+        return null;
+      }
+
+      return tx.serviceRequest.update({
+        where: { id },
+        data: { ...data, updatedBy },
+        include: SERVICE_REQUEST_DETAIL_INCLUDE,
+      });
+    });
+  }
+
+  /** Find RESOLVED requests older than the given date (for auto-close scheduler). */
+  async findStaleResolvedRequests(olderThan: Date) {
+    return this.prisma.serviceRequest.findMany({
+      where: {
+        status: ServiceStatus.RESOLVED,
+        deletedAt: null,
+        updatedAt: { lt: olderThan },
+      },
+      select: { id: true, title: true, requestedBy: true },
+    });
+  }
+
+  /** Batch-close resolved requests by IDs. */
+  async closeRequests(ids: string[]) {
+    return this.prisma.serviceRequest.updateMany({
+      where: { id: { in: ids } },
+      data: { status: ServiceStatus.CLOSED },
+    });
   }
 
   async createWithPhotos(data: {

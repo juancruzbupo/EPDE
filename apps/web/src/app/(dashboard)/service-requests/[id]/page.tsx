@@ -22,6 +22,9 @@ export default async function ServiceRequestDetailPage({ params }: Props) {
   if (!data?.data) notFound();
 
   const isAdmin = user?.role === UserRole.ADMIN;
+  const isClient = user?.role === UserRole.CLIENT;
 
-  return <ServiceRequestDetail id={id} isAdmin={isAdmin} initialData={data.data} />;
+  return (
+    <ServiceRequestDetail id={id} isAdmin={isAdmin} isClient={isClient} initialData={data.data} />
+  );
 }
