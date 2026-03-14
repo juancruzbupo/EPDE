@@ -58,6 +58,8 @@
 46. **Detail hooks aceptan `initialData`** — Todo hook de detalle (`useBudget`, `useProperty`, `useServiceRequest`, etc.) DEBE aceptar `options?: { initialData?: T }` y pasarlo a `useQuery`. Permite que pantallas de lista pasen data cargada al navegar a detalle, evitando flash de loading. Aplica a web y mobile
 47. **`@Throttle` en mutation endpoints** — Todo `@Post()` de creacion DEBE tener `@Throttle({ medium: { limit: 5, ttl: 60_000 } })`. El global de 5 req/s es muy permisivo para mutations. Auth y upload usan limits propios mas estrictos. Reads usan solo el throttle global
 48. **Factory vs local function en API files** — Funciones en `packages/shared/src/api/*.ts` son factories platform-agnostic (web + mobile). Funciones locales en `apps/*/src/lib/api/*.ts` son role-specific (admin-only) o platform-specific. Criterio: si ambas apps consumen el endpoint, va en shared; si solo una, queda local
+49. **Chart colors via CSS tokens, no hardcoded** — Web charts usan `useChartColors()` que lee `--chart-1` a `--chart-5` de CSS (soporta dark mode). Mobile usa `CHART_TOKENS_LIGHT` de `@epde/shared`. NUNCA hardcodear hex en componentes de chart. Status-specific colors (budget pipeline) usan tokens semanticos (`var(--destructive)`)
+50. **Analytics queries con `staleTime: 5 * 60_000`** — Los hooks `useAdminAnalytics()` y `useClientAnalytics()` usan staleTime de 5 minutos (mayor al default global de 2 min) porque analytics es data agregada que cambia lentamente. El service backend paraleliza todas las queries con `Promise.all`
 
 ### NUNCA
 

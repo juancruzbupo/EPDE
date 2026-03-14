@@ -1,6 +1,6 @@
 import type { AxiosInstance } from 'axios';
 
-import type { ApiResponse, ClientDashboardStats, UpcomingTask } from '../types';
+import type { ApiResponse, ClientAnalytics, ClientDashboardStats, UpcomingTask } from '../types';
 
 /**
  * Creates query functions for the client dashboard.
@@ -19,6 +19,11 @@ export function createDashboardQueries(apiClient: AxiosInstance) {
 
     async getClientUpcomingTasks(signal?: AbortSignal): Promise<ApiResponse<UpcomingTask[]>> {
       const { data } = await apiClient.get('/dashboard/client-upcoming', { signal });
+      return data;
+    },
+
+    async getClientAnalytics(signal?: AbortSignal): Promise<ApiResponse<ClientAnalytics>> {
+      const { data } = await apiClient.get('/dashboard/client-analytics', { signal });
       return data;
     },
   };

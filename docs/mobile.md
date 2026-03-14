@@ -18,6 +18,7 @@ App nativa para clientes (rol `CLIENT`) construida con Expo + React Native. Repl
 | Image Picker   | expo-image-picker                              | 17      |
 | Animaciones    | react-native-reanimated                        | 4.1     |
 | Gestos         | react-native-gesture-handler                   | 2.28    |
+| Charts (SVG)   | react-native-svg                               | 16      |
 | Haptics        | expo-haptics                                   | 15      |
 | Tipografia     | @expo-google-fonts (DM Sans, DM Serif Display) | -       |
 | Shared         | @epde/shared (workspace)                       | -       |
@@ -67,8 +68,14 @@ apps/mobile/
       create-service-request-modal.tsx # Modal crear solicitud (con fotos)
       complete-task-modal.tsx         # Modal completar tarea (con foto)
       error-boundary.tsx             # Error boundary (class component)
+    charts/
+      chart-card.tsx                 # Wrapper con loading/empty states
+      mini-donut-chart.tsx           # Donut SVG (condicion distribution)
+      mini-bar-chart.tsx             # Barras SVG animadas (costos)
+      mini-trend-chart.tsx           # Linea SVG (tendencia condicion)
+      category-breakdown-list.tsx    # Lista con progress bars + condition dots
     hooks/
-      use-dashboard.ts               # Stats y tareas proximas
+      use-dashboard.ts               # Stats, tareas proximas y analytics
       use-properties.ts              # CRUD propiedades (infinite scroll)
       use-budgets.ts                 # CRUD presupuestos + status
       use-notifications.ts           # Notificaciones + unread count
@@ -85,9 +92,10 @@ apps/mobile/
       haptics.ts                     # Wrapper de expo-haptics (light/medium/success/selection)
       animations.ts                  # Presets reanimated (TIMING, SPRING, useSlideIn, useFadeIn)
       colors.ts                      # Design tokens JS (para APIs no-NativeWind: navigation, etc.)
+      chart-colors.ts                # Tokens de color para charts SVG (CHART_TOKENS_LIGHT)
       screen-options.ts              # defaultScreenOptions + defaultTabBarOptions compartidos
       api/
-        dashboard.ts                 # GET /dashboard/client-stats, client-upcoming
+        dashboard.ts                 # GET /dashboard/client-stats, client-upcoming, client-analytics
         properties.ts                # GET /properties
         budgets.ts                   # GET/POST /budgets, PATCH status
         notifications.ts             # GET /notifications, mark read
@@ -200,9 +208,14 @@ const apiClient = axios.create({
 
 - **HealthCard**: barra de progreso animada con porcentaje de salud del mantenimiento y label de estado (Excelente/Bueno/Necesita atencion/Critico)
 - 3 tarjetas de estadisticas compactas (vencidas, pendientes, completadas del mes)
+- **Charts de analytics** (degradacion graceful — se muestran solo si analytics carga):
+  - `MiniDonutChart`: distribucion de condicion general (SVG donut con leyenda)
+  - `MiniTrendChart`: evolucion mensual de condicion (linea SVG con area)
+  - `MiniBarChart`: gastos de mantenimiento por mes (barras SVG animadas con reanimated)
+  - `CategoryBreakdownList`: progreso y condicion por categoria (progress bars + dots)
 - Boton rapido a solicitudes de servicio
 - Lista de tareas proximas con `AnimatedListItem` (entrada animada + haptics)
-- Pull-to-refresh
+- Pull-to-refresh (refresca stats + tasks + analytics)
 - Usa `FlatList` con `ListHeaderComponent` para renderizado virtualizado eficiente
 
 ### Propiedades

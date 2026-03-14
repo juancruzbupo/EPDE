@@ -2,17 +2,26 @@ import type { UpcomingTask } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useRouter } from 'expo-router';
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
 
 import { AnimatedListItem } from '@/components/animated-list-item';
 import { AnimatedStatCard } from '@/components/animated-stat-card';
+import { CategoryBreakdownList } from '@/components/charts/category-breakdown-list';
+import { ChartCard } from '@/components/charts/chart-card';
+import { MiniBarChart } from '@/components/charts/mini-bar-chart';
+import { MiniDonutChart } from '@/components/charts/mini-donut-chart';
+import { MiniTrendChart } from '@/components/charts/mini-trend-chart';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { HealthCard } from '@/components/health-card';
 import { StatCardSkeleton } from '@/components/skeleton-placeholder';
 import { PriorityBadge } from '@/components/status-badge';
-import { useClientDashboardStats, useClientUpcomingTasks } from '@/hooks/use-dashboard';
+import {
+  useClientAnalytics,
+  useClientDashboardStats,
+  useClientUpcomingTasks,
+} from '@/hooks/use-dashboard';
 import { TYPE } from '@/lib/fonts';
 
 const TaskCard = memo(function TaskCard({ task, index }: { task: UpcomingTask; index: number }) {
@@ -40,7 +49,7 @@ const TaskCard = memo(function TaskCard({ task, index }: { task: UpcomingTask; i
           <Text style={TYPE.bodySm} className="text-muted-foreground">
             {task.nextDueDate
               ? formatDistanceToNow(new Date(task.nextDueDate), { addSuffix: true, locale: es })
-              : 'Según detección'}
+              : 'Segun deteccion'}
           </Text>
         </View>
       </Pressable>
@@ -62,13 +71,38 @@ export default function DashboardScreen() {
     error: tasksError,
     refetch: refetchTasks,
   } = useClientUpcomingTasks();
+  const {
+    data: analytics,
+    isLoading: analyticsLoading,
+    refetch: refetchAnalytics,
+  } = useClientAnalytics();
 
   const isLoading = statsLoading || tasksLoading;
 
   const onRefresh = useCallback(() => {
     refetchStats();
     refetchTasks();
-  }, [refetchStats, refetchTasks]);
+    refetchAnalytics();
+  }, [refetchStats, refetchTasks, refetchAnalytics]);
+
+  // Compute average condition trend across all categories
+  const conditionTrendData = useMemo(() => {
+    const trend = analytics?.conditionTrend ?? [];
+    if (trend.length === 0) return [];
+
+    return trend.map((point) => {
+      const values = Object.values(point.categories);
+      const avg = values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+      return { label: point.label, value: Math.round(avg * 10) / 10 };
+    });
+  }, [analytics?.conditionTrend]);
+
+  const costHistoryData = useMemo(() => {
+    return (analytics?.costHistory ?? []).map((p) => ({
+      label: p.label,
+      value: p.value,
+    }));
+  }, [analytics?.costHistory]);
 
   if ((statsError || tasksError) && !stats && !tasks) {
     return <ErrorState onRetry={onRefresh} message="No se pudieron cargar los datos del panel." />;
@@ -81,6 +115,7 @@ export default function DashboardScreen() {
           Mi Panel
         </Text>
 
+        {/* Stats section */}
         {statsLoading && !stats ? (
           <View className="mb-6">
             <StatCardSkeleton />
@@ -110,6 +145,47 @@ export default function DashboardScreen() {
           </View>
         ) : null}
 
+        {/* Charts section — graceful degradation: only show if analytics available or loading */}
+        <ChartCard
+          title="Condicion General"
+          description="Distribucion del estado de tus tareas"
+          isLoading={analyticsLoading && !analytics}
+          isEmpty={(analytics?.conditionDistribution ?? []).length === 0}
+          emptyMessage="Sin datos de condicion"
+        >
+          <MiniDonutChart data={analytics?.conditionDistribution ?? []} />
+        </ChartCard>
+
+        <ChartCard
+          title="Evolucion de Condicion"
+          description="Promedio mensual de todas las categorias"
+          isLoading={analyticsLoading && !analytics}
+          isEmpty={conditionTrendData.length === 0}
+          emptyMessage="Sin historial de condicion"
+        >
+          <MiniTrendChart data={conditionTrendData} />
+        </ChartCard>
+
+        <ChartCard
+          title="Gastos del Ultimo Ano"
+          description="Costos de mantenimiento por mes"
+          isLoading={analyticsLoading && !analytics}
+          isEmpty={costHistoryData.length === 0}
+          emptyMessage="Sin gastos registrados"
+        >
+          <MiniBarChart data={costHistoryData} />
+        </ChartCard>
+
+        <ChartCard
+          title="Estado por Categoria"
+          description="Progreso y condicion por area"
+          isLoading={analyticsLoading && !analytics}
+          isEmpty={(analytics?.categoryBreakdown ?? []).length === 0}
+          emptyMessage="Sin categorias registradas"
+        >
+          <CategoryBreakdownList data={analytics?.categoryBreakdown ?? []} />
+        </ChartCard>
+
         {/* Quick actions */}
         <Pressable
           onPress={() => router.push('/service-requests' as never)}
@@ -129,11 +205,11 @@ export default function DashboardScreen() {
         </Pressable>
 
         <Text style={TYPE.titleLg} className="text-foreground mb-3">
-          Próximas Tareas
+          Proximas Tareas
         </Text>
       </View>
     ),
-    [stats, statsLoading, router],
+    [stats, statsLoading, analytics, analyticsLoading, conditionTrendData, costHistoryData, router],
   );
 
   const renderTask = useCallback(

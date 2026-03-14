@@ -206,6 +206,8 @@ export const QUERY_KEYS = {
   dashboardActivity: 'activity',
   dashboardClientStats: 'client-stats',
   dashboardClientUpcoming: 'client-upcoming',
+  dashboardAnalytics: 'analytics',
+  dashboardClientAnalytics: 'client-analytics',
   // Notifications sub-keys
   notificationsUnreadCount: 'unread-count',
 } as const;

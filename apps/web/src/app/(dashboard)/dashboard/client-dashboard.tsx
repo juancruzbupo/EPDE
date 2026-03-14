@@ -6,15 +6,22 @@ import { es } from 'date-fns/locale';
 import { motion } from 'framer-motion';
 import {
   AlertTriangle,
+  BarChart3,
   CheckCircle,
   ChevronRight,
   Clock,
   FileText,
-  Home,
+  PieChart,
+  TrendingUp,
   Wrench,
 } from 'lucide-react';
 import Link from 'next/link';
 
+import { CategoryBreakdown } from '@/components/charts/category-breakdown';
+import { ChartCard } from '@/components/charts/chart-card';
+import { ConditionDonutChart } from '@/components/charts/condition-donut-chart';
+import { ConditionTrendChart } from '@/components/charts/condition-trend-chart';
+import { CostHistoryChart } from '@/components/charts/cost-history-chart';
 import { ErrorState } from '@/components/error-state';
 import { HealthCard } from '@/components/health-card';
 import { PageHeader } from '@/components/page-header';
@@ -23,7 +30,11 @@ import { AnimatedNumber } from '@/components/ui/animated-number';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
-import { useClientDashboardStats, useClientUpcomingTasks } from '@/hooks/use-dashboard';
+import {
+  useClientAnalytics,
+  useClientDashboardStats,
+  useClientUpcomingTasks,
+} from '@/hooks/use-dashboard';
 import { FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM, useMotionPreference } from '@/lib/motion';
 
 export function ClientDashboard({ userName }: { userName: string }) {
@@ -39,6 +50,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
     isError: upcomingError,
     refetch: refetchUpcoming,
   } = useClientUpcomingTasks();
+  const { data: analytics, isLoading: analyticsLoading } = useClientAnalytics();
   const { shouldAnimate } = useMotionPreference();
 
   const Wrapper = shouldAnimate ? motion.div : 'div';
@@ -51,6 +63,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
         description="Resumen de tus propiedades y tareas"
       />
 
+      {/* Row 1 — HealthCard */}
       {statsLoading ? (
         <div className="mb-4">
           <Card>
@@ -69,86 +82,127 @@ export function ClientDashboard({ userName }: { userName: string }) {
         </div>
       ) : null}
 
-      <Wrapper
-        key={statsLoading ? 'loading' : 'loaded'}
-        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-        {...(shouldAnimate
-          ? { variants: STAGGER_CONTAINER, initial: 'hidden', animate: 'visible' }
-          : {})}
-      >
-        {statsLoading ? (
-          Array.from({ length: 6 }).map((_, i) => (
-            <Item key={`skel-${i}`} {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
-              <Card>
-                <CardContent className="p-6">
-                  <SkeletonShimmer className="h-20 w-full" />
-                </CardContent>
-              </Card>
-            </Item>
-          ))
-        ) : statsError ? (
-          <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
-            <ErrorState
-              message="No se pudieron cargar las estadísticas"
-              onRetry={refetchStats}
-              className="col-span-full"
-            />
-          </Item>
-        ) : stats ? (
-          <>
+      {/* Row 2 — StatCards + Condition Donut */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Wrapper
+          key={statsLoading ? 'loading' : 'loaded'}
+          className="grid gap-4 sm:grid-cols-2 lg:col-span-2"
+          {...(shouldAnimate
+            ? { variants: STAGGER_CONTAINER, initial: 'hidden', animate: 'visible' }
+            : {})}
+        >
+          {statsLoading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <Item key={`skel-${i}`} {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
+                <Card>
+                  <CardContent className="p-6">
+                    <SkeletonShimmer className="h-20 w-full" />
+                  </CardContent>
+                </Card>
+              </Item>
+            ))
+          ) : statsError ? (
             <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
-              <StatCard
-                title="Propiedades"
-                value={<AnimatedNumber value={stats.totalProperties} />}
-                icon={Home}
+              <ErrorState
+                message="No se pudieron cargar las estadísticas"
+                onRetry={refetchStats}
+                className="col-span-full"
               />
             </Item>
-            <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
-              <StatCard
-                title="Tareas Pendientes"
-                value={<AnimatedNumber value={stats.pendingTasks} />}
-                icon={Clock}
-              />
-            </Item>
-            <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
-              <StatCard
-                title="Tareas Vencidas"
-                value={<AnimatedNumber value={stats.overdueTasks} />}
-                icon={AlertTriangle}
-                className={stats.overdueTasks > 0 ? 'border-destructive/30 bg-destructive/10' : ''}
-              />
-            </Item>
-            <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
-              <StatCard
-                title="Completadas este mes"
-                value={<AnimatedNumber value={stats.completedThisMonth} />}
-                icon={CheckCircle}
-              />
-            </Item>
-            <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
-              <StatCard
-                title="Presupuestos"
-                value={<AnimatedNumber value={stats.pendingBudgets} />}
-                icon={FileText}
-              />
-            </Item>
-            <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
-              <StatCard
-                title="Servicios Abiertos"
-                value={<AnimatedNumber value={stats.openServices} />}
-                icon={Wrench}
-              />
-            </Item>
-          </>
-        ) : null}
-      </Wrapper>
+          ) : stats ? (
+            <>
+              <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
+                <StatCard
+                  title="Tareas Pendientes"
+                  value={<AnimatedNumber value={stats.pendingTasks} />}
+                  icon={Clock}
+                />
+              </Item>
+              <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
+                <StatCard
+                  title="Tareas Vencidas"
+                  value={<AnimatedNumber value={stats.overdueTasks} />}
+                  icon={AlertTriangle}
+                  className={
+                    stats.overdueTasks > 0 ? 'border-destructive/30 bg-destructive/10' : ''
+                  }
+                />
+              </Item>
+              <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
+                <StatCard
+                  title="Presupuestos"
+                  value={<AnimatedNumber value={stats.pendingBudgets} />}
+                  icon={FileText}
+                />
+              </Item>
+              <Item {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
+                <StatCard
+                  title="Servicios Abiertos"
+                  value={<AnimatedNumber value={stats.openServices} />}
+                  icon={Wrench}
+                />
+              </Item>
+            </>
+          ) : null}
+        </Wrapper>
 
+        <ChartCard
+          title="Condición General"
+          isLoading={analyticsLoading}
+          isEmpty={!analytics?.conditionDistribution.length}
+          emptyIcon={<PieChart className="h-8 w-8" />}
+          height={240}
+        >
+          {analytics && <ConditionDonutChart data={analytics.conditionDistribution} />}
+        </ChartCard>
+      </div>
+
+      {/* Row 3 — Condition Trend + Cost History */}
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <ChartCard
+          title="Evolución de Condición"
+          description="Promedio por categoría — últimos 6 meses"
+          isLoading={analyticsLoading}
+          isEmpty={!analytics?.conditionTrend.some((p) => Object.keys(p.categories).length > 0)}
+          emptyIcon={<TrendingUp className="h-8 w-8" />}
+          height={280}
+        >
+          {analytics && <ConditionTrendChart data={analytics.conditionTrend} />}
+        </ChartCard>
+
+        <ChartCard
+          title="Historial de Gastos"
+          description="Últimos 12 meses"
+          isLoading={analyticsLoading}
+          isEmpty={!analytics?.costHistory.some((p) => p.value > 0)}
+          emptyIcon={<BarChart3 className="h-8 w-8" />}
+          height={280}
+        >
+          {analytics && <CostHistoryChart data={analytics.costHistory} />}
+        </ChartCard>
+      </div>
+
+      {/* Row 4 — Category Breakdown */}
+      <div className="mt-6">
+        <ChartCard
+          title="Estado por Categoría"
+          isLoading={analyticsLoading}
+          isEmpty={!analytics?.categoryBreakdown.length}
+          emptyIcon={<BarChart3 className="h-8 w-8" />}
+          emptyMessage="Sin categorías con tareas asignadas"
+        >
+          {analytics && <CategoryBreakdown data={analytics.categoryBreakdown} />}
+        </ChartCard>
+      </div>
+
+      {/* Row 5 — Upcoming Tasks */}
       <motion.div
+        className="mt-6"
         {...(shouldAnimate ? { variants: FADE_IN_UP, initial: 'hidden', animate: 'visible' } : {})}
       >
-        <Card className="mt-6">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Próximas Tareas</CardTitle>
+            <CardTitle className="type-title-md">Próximas Tareas</CardTitle>
           </CardHeader>
           <CardContent>
             {upcomingLoading ? (

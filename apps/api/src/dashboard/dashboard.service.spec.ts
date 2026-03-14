@@ -1,4 +1,4 @@
-import { ActivityType, TaskStatus } from '@epde/shared';
+import { ActivityType, ConditionFound, TaskStatus } from '@epde/shared';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { DashboardRepository } from './dashboard.repository';
@@ -11,6 +11,20 @@ const mockDashboardRepository = {
   getClientTaskStats: jest.fn(),
   getClientBudgetAndServiceCounts: jest.fn(),
   getClientUpcomingTasks: jest.fn(),
+  // Analytics methods
+  getCompletionTrend: jest.fn(),
+  getConditionDistribution: jest.fn(),
+  getProblematicCategories: jest.fn(),
+  getBudgetPipeline: jest.fn(),
+  getCategoryCosts: jest.fn(),
+  getAvgBudgetResponseDays: jest.fn(),
+  getTotalMaintenanceCost: jest.fn(),
+  getCompletionRate: jest.fn(),
+  getClientConditionTrend: jest.fn(),
+  getClientCostHistory: jest.fn(),
+  getClientHealthScore: jest.fn(),
+  getClientConditionDistribution: jest.fn(),
+  getClientCategoryBreakdown: jest.fn(),
 };
 
 describe('DashboardService', () => {
@@ -271,6 +285,102 @@ describe('DashboardService', () => {
       const result = await service.getClientUpcomingTasks('user-1');
 
       expect(result).toEqual([]);
+    });
+  });
+
+  describe('getAdminAnalytics', () => {
+    it('should return all analytics fields from parallel queries', async () => {
+      const mockTrend = [{ month: '2026-01', label: 'Ene', value: 5 }];
+      const mockCondition = [{ condition: ConditionFound.GOOD, count: 3, label: 'Bueno' }];
+      const mockCategories = [
+        { categoryName: 'Electricidad', issueCount: 2, totalInspections: 10 },
+      ];
+      const mockPipeline = [{ status: 'PENDING', count: 4, label: 'Pendiente', totalAmount: 1000 }];
+      const mockCosts = [{ month: '2026-01', label: 'Ene', categories: { Electricidad: 500 } }];
+
+      repository.getCompletionTrend.mockResolvedValue(mockTrend);
+      repository.getConditionDistribution.mockResolvedValue(mockCondition);
+      repository.getProblematicCategories.mockResolvedValue(mockCategories);
+      repository.getBudgetPipeline.mockResolvedValue(mockPipeline);
+      repository.getCategoryCosts.mockResolvedValue(mockCosts);
+      repository.getAvgBudgetResponseDays.mockResolvedValue(3.5);
+      repository.getTotalMaintenanceCost.mockResolvedValue(15000);
+      repository.getCompletionRate.mockResolvedValue(72);
+
+      const result = await service.getAdminAnalytics();
+
+      expect(result.completionTrend).toEqual(mockTrend);
+      expect(result.conditionDistribution).toEqual(mockCondition);
+      expect(result.problematicCategories).toEqual(mockCategories);
+      expect(result.budgetPipeline).toEqual(mockPipeline);
+      expect(result.categoryCosts).toEqual(mockCosts);
+      expect(result.avgBudgetResponseDays).toBe(3.5);
+      expect(result.totalMaintenanceCost).toBe(15000);
+      expect(result.completionRate).toBe(72);
+      expect(repository.getCompletionTrend).toHaveBeenCalledWith(6);
+      expect(repository.getCategoryCosts).toHaveBeenCalledWith(6);
+    });
+  });
+
+  describe('getClientAnalytics', () => {
+    it('should resolve planIds then query analytics in parallel', async () => {
+      const planIds = ['plan-1', 'plan-2'];
+      repository.getClientPropertyAndPlanIds.mockResolvedValue({
+        propertyIds: ['prop-1'],
+        planIds,
+      });
+
+      const mockTrend = [{ month: '2026-01', label: 'Ene', categories: { Electricidad: 4.2 } }];
+      const mockCost = [{ month: '2026-01', label: 'Ene', value: 300 }];
+      const mockHealth = { healthScore: 75, healthLabel: 'Bueno' };
+      const mockCondDist = [{ condition: ConditionFound.EXCELLENT, count: 5, label: 'Excelente' }];
+      const mockBreakdown = [
+        {
+          categoryName: 'Plomería',
+          totalTasks: 4,
+          completedTasks: 3,
+          overdueTasks: 0,
+          avgCondition: 4.5,
+        },
+      ];
+
+      repository.getClientConditionTrend.mockResolvedValue(mockTrend);
+      repository.getClientCostHistory.mockResolvedValue(mockCost);
+      repository.getClientHealthScore.mockResolvedValue(mockHealth);
+      repository.getClientConditionDistribution.mockResolvedValue(mockCondDist);
+      repository.getClientCategoryBreakdown.mockResolvedValue(mockBreakdown);
+
+      const result = await service.getClientAnalytics('user-1');
+
+      expect(repository.getClientPropertyAndPlanIds).toHaveBeenCalledWith('user-1');
+      expect(repository.getClientConditionTrend).toHaveBeenCalledWith(planIds, 6);
+      expect(repository.getClientCostHistory).toHaveBeenCalledWith(planIds, 12);
+      expect(result.conditionTrend).toEqual(mockTrend);
+      expect(result.costHistory).toEqual(mockCost);
+      expect(result.healthScore).toBe(75);
+      expect(result.healthLabel).toBe('Bueno');
+      expect(result.conditionDistribution).toEqual(mockCondDist);
+      expect(result.categoryBreakdown).toEqual(mockBreakdown);
+    });
+
+    it('should handle user with no properties', async () => {
+      repository.getClientPropertyAndPlanIds.mockResolvedValue({
+        propertyIds: [],
+        planIds: [],
+      });
+      repository.getClientConditionTrend.mockResolvedValue([]);
+      repository.getClientCostHistory.mockResolvedValue([]);
+      repository.getClientHealthScore.mockResolvedValue({
+        healthScore: 0,
+        healthLabel: 'Sin datos',
+      });
+      repository.getClientConditionDistribution.mockResolvedValue([]);
+      repository.getClientCategoryBreakdown.mockResolvedValue([]);
+
+      const result = await service.getClientAnalytics('user-no-props');
+
+      expect(result.healthScore).toBe(0);
+      expect(result.categoryBreakdown).toEqual([]);
     });
   });
 });

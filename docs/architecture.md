@@ -172,16 +172,16 @@ feature/
 
 #### Excepciones al Module Pattern
 
-| Modulo      | Excepcion                    | Justificacion                                                                             |
-| ----------- | ---------------------------- | ----------------------------------------------------------------------------------------- |
-| `users`     | Sin controller               | Modulo internal-only. Consumido por `auth` y `clients`. No expone endpoints REST propios. |
-| `upload`    | Sin repository               | Infraestructura (S3/R2), no domain entity. Service accede directamente a S3Client.        |
-| `scheduler` | Sin controller ni repository | Cron jobs puros. Consume services de otros modulos via DI.                                |
-| `dashboard` | Sin repository propio        | Agregacion cross-entity. DashboardRepository hace queries directas a Prisma para stats.   |
-| `email`     | Sin controller ni repository | Servicio transversal. Envia emails via Resend SDK. Consumido por queues.                  |
-| `redis`     | Sin controller               | Infraestructura global. Provee RedisService y DistributedLockService.                     |
-| `health`    | Sin service ni repository    | Infraestructura. Controller directo con @nestjs/terminus checks.                          |
-| `metrics`   | Sin controller ni repository | Infraestructura. Interceptor + service para OpenTelemetry.                                |
+| Modulo      | Excepcion                    | Justificacion                                                                                                                                                                                                               |
+| ----------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `users`     | Sin controller               | Modulo internal-only. Consumido por `auth` y `clients`. No expone endpoints REST propios.                                                                                                                                   |
+| `upload`    | Sin repository               | Infraestructura (S3/R2), no domain entity. Service accede directamente a S3Client.                                                                                                                                          |
+| `scheduler` | Sin controller ni repository | Cron jobs puros. Consume services de otros modulos via DI.                                                                                                                                                                  |
+| `dashboard` | Sin repository propio        | Agregacion cross-entity. DashboardRepository hace queries directas a Prisma para stats y analytics (15+ metodos: trends, distributions, pipeline, costs, health score). Service usa `Promise.all` para paralelizar queries. |
+| `email`     | Sin controller ni repository | Servicio transversal. Envia emails via Resend SDK. Consumido por queues.                                                                                                                                                    |
+| `redis`     | Sin controller               | Infraestructura global. Provee RedisService y DistributedLockService.                                                                                                                                                       |
+| `health`    | Sin service ni repository    | Infraestructura. Controller directo con @nestjs/terminus checks.                                                                                                                                                            |
+| `metrics`   | Sin controller ni repository | Infraestructura. Interceptor + service para OpenTelemetry.                                                                                                                                                                  |
 
 ### 4. Guard Composition
 

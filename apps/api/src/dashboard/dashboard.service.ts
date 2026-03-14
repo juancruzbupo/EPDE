@@ -1,3 +1,4 @@
+import type { AdminAnalytics, ClientAnalytics } from '@epde/shared';
 import { ActivityType } from '@epde/shared';
 import { Injectable } from '@nestjs/common';
 
@@ -81,5 +82,60 @@ export class DashboardService {
       categoryName: t.category.name,
       maintenancePlanId: t.maintenancePlan.id,
     }));
+  }
+
+  async getAdminAnalytics(): Promise<AdminAnalytics> {
+    const [
+      completionTrend,
+      conditionDistribution,
+      problematicCategories,
+      budgetPipeline,
+      categoryCosts,
+      avgBudgetResponseDays,
+      totalMaintenanceCost,
+      completionRate,
+    ] = await Promise.all([
+      this.dashboardRepository.getCompletionTrend(6),
+      this.dashboardRepository.getConditionDistribution(),
+      this.dashboardRepository.getProblematicCategories(),
+      this.dashboardRepository.getBudgetPipeline(),
+      this.dashboardRepository.getCategoryCosts(6),
+      this.dashboardRepository.getAvgBudgetResponseDays(),
+      this.dashboardRepository.getTotalMaintenanceCost(),
+      this.dashboardRepository.getCompletionRate(),
+    ]);
+
+    return {
+      completionTrend,
+      conditionDistribution,
+      problematicCategories,
+      budgetPipeline,
+      categoryCosts,
+      avgBudgetResponseDays,
+      totalMaintenanceCost,
+      completionRate,
+    };
+  }
+
+  async getClientAnalytics(userId: string): Promise<ClientAnalytics> {
+    const { planIds } = await this.dashboardRepository.getClientPropertyAndPlanIds(userId);
+
+    const [conditionTrend, costHistory, healthData, conditionDistribution, categoryBreakdown] =
+      await Promise.all([
+        this.dashboardRepository.getClientConditionTrend(planIds, 6),
+        this.dashboardRepository.getClientCostHistory(planIds, 12),
+        this.dashboardRepository.getClientHealthScore(planIds),
+        this.dashboardRepository.getClientConditionDistribution(planIds),
+        this.dashboardRepository.getClientCategoryBreakdown(planIds),
+      ]);
+
+    return {
+      conditionTrend,
+      costHistory,
+      healthScore: healthData.healthScore,
+      healthLabel: healthData.healthLabel,
+      conditionDistribution,
+      categoryBreakdown,
+    };
   }
 }

@@ -27,6 +27,13 @@ export class DashboardController {
     return { data };
   }
 
+  @Get('analytics')
+  @Roles(UserRole.ADMIN)
+  async getAnalytics() {
+    const data = await this.dashboardService.getAdminAnalytics();
+    return { data };
+  }
+
   @Get('client-stats')
   @Roles(UserRole.CLIENT)
   async getClientStats(@CurrentUser() user: CurrentUserPayload) {
@@ -38,6 +45,13 @@ export class DashboardController {
   @Roles(UserRole.CLIENT)
   async getClientUpcoming(@CurrentUser() user: CurrentUserPayload) {
     const data = await this.dashboardService.getClientUpcomingTasks(user.id);
+    return { data };
+  }
+
+  @Get('client-analytics')
+  @Roles(UserRole.CLIENT)
+  async getClientAnalytics(@CurrentUser() user: CurrentUserPayload) {
+    const data = await this.dashboardService.getClientAnalytics(user.id);
     return { data };
   }
 }

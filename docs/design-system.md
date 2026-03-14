@@ -65,8 +65,34 @@ El proyecto usa Tailwind CSS 4 con `@theme inline` en `globals.css`. Los tokens 
   --destructive: #c45b4b;
   --border: #e8ddd3;
   --ring: #c4704b;
-  /* ... sidebar, chart tokens ... */
+  /* Chart tokens (5 colores para series de datos) */
+  --chart-1: #c4704b;  /* primary/terracotta */
+  --chart-2: #6b9b7a;  /* success/green */
+  --chart-3: #c4a030;  /* warning/amber */
+  --chart-4: #5b8ec4;  /* info/blue */
+  --chart-5: #9b6bc4;  /* accent/purple */
+  /* ... sidebar tokens ... */
 }
+
+### Charts
+
+Web usa **Recharts** (~45kb gzipped) para visualizaciones SVG. Mobile usa **react-native-svg** con componentes SVG custom (sin dependencia de libreria de charts).
+
+**Colores de charts**: 5 CSS custom properties (`--chart-1` a `--chart-5`) con variantes light/dark. El hook `useChartColors()` lee los valores en runtime y escucha cambios de tema via `MutationObserver`. Mobile usa `CHART_TOKENS_LIGHT` de `@epde/shared` (siempre light mode).
+
+**Componentes web** (`components/charts/`):
+- `ChartCard` — wrapper con titulo, descripcion, skeleton loading y empty state
+- `ChartTooltip` — tooltip custom que respeta design tokens (bg-popover, border-border)
+- `CompletionTrendChart` — area chart (tendencia de completitud 6 meses)
+- `ConditionDonutChart` — pie/donut con % OK en el centro
+- `ProblematicCategoriesChart` — barras horizontales
+- `BudgetPipelineChart` — barras verticales con color por status
+- `CategoryCostsChart` — area apilada por categoria
+- `ConditionTrendChart` — multi-linea (condicion 1-5 por categoria)
+- `CostHistoryChart` — barras con linea de referencia promedio
+- `CategoryBreakdown` — lista con progress bars y dots de condicion
+
+**Componentes mobile** (`components/charts/`): `MiniDonutChart`, `MiniBarChart`, `MiniTrendChart`, `CategoryBreakdownList` — todos `memo()`'d, respetan `useReducedMotion()`, usan Reanimated para animaciones
 ```
 
 ### Tipografia

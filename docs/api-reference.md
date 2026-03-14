@@ -415,12 +415,14 @@ Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
 
 ### Dashboard
 
-| Metodo | Ruta                         | Auth | Rol    | Descripcion                 |
-| ------ | ---------------------------- | ---- | ------ | --------------------------- |
-| GET    | `/dashboard/stats`           | Si   | ADMIN  | Estadisticas admin          |
-| GET    | `/dashboard/activity`        | Si   | ADMIN  | Actividad reciente          |
-| GET    | `/dashboard/client-stats`    | Si   | CLIENT | Estadisticas del cliente    |
-| GET    | `/dashboard/client-upcoming` | Si   | CLIENT | Tareas proximas del cliente |
+| Metodo | Ruta                          | Auth | Rol    | Descripcion                 |
+| ------ | ----------------------------- | ---- | ------ | --------------------------- |
+| GET    | `/dashboard/stats`            | Si   | ADMIN  | Estadisticas admin          |
+| GET    | `/dashboard/activity`         | Si   | ADMIN  | Actividad reciente          |
+| GET    | `/dashboard/analytics`        | Si   | ADMIN  | Analytics admin (charts)    |
+| GET    | `/dashboard/client-stats`     | Si   | CLIENT | Estadisticas del cliente    |
+| GET    | `/dashboard/client-upcoming`  | Si   | CLIENT | Tareas proximas del cliente |
+| GET    | `/dashboard/client-analytics` | Si   | CLIENT | Analytics cliente (charts)  |
 
 **Respuesta stats (ADMIN):**
 
@@ -445,6 +447,46 @@ Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
   "completedThisMonth": 2,
   "pendingBudgets": 1,
   "openServices": 0
+}
+```
+
+**Respuesta analytics (ADMIN):**
+
+```json
+{
+  "completionTrend": [{ "month": "2026-01", "label": "Ene", "value": 5 }],
+  "conditionDistribution": [{ "condition": "GOOD", "count": 3, "label": "Bueno" }],
+  "problematicCategories": [
+    { "categoryName": "Electricidad", "issueCount": 2, "totalInspections": 10 }
+  ],
+  "budgetPipeline": [
+    { "status": "PENDING", "count": 4, "label": "Pendiente", "totalAmount": 1000 }
+  ],
+  "categoryCosts": [{ "month": "2026-01", "label": "Ene", "categories": { "Electricidad": 500 } }],
+  "avgBudgetResponseDays": 3.5,
+  "totalMaintenanceCost": 15000,
+  "completionRate": 72
+}
+```
+
+**Respuesta analytics (CLIENT):**
+
+```json
+{
+  "conditionTrend": [{ "month": "2026-01", "label": "Ene", "categories": { "Electricidad": 4.2 } }],
+  "costHistory": [{ "month": "2026-01", "label": "Ene", "value": 300 }],
+  "healthScore": 75,
+  "healthLabel": "Bueno",
+  "conditionDistribution": [{ "condition": "EXCELLENT", "count": 5, "label": "Excelente" }],
+  "categoryBreakdown": [
+    {
+      "categoryName": "Plomeria",
+      "totalTasks": 4,
+      "completedTasks": 3,
+      "overdueTasks": 0,
+      "avgCondition": 4.5
+    }
+  ]
 }
 ```
 

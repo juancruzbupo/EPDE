@@ -1,10 +1,10 @@
-import type { ActivityItem, ApiResponse, DashboardStats } from '@epde/shared';
+import type { ActivityItem, AdminAnalytics, ApiResponse, DashboardStats } from '@epde/shared';
 import { createDashboardQueries } from '@epde/shared';
 
 import { apiClient } from '../api-client';
 
 const queries = createDashboardQueries(apiClient);
-export const { getClientDashboardStats, getClientUpcomingTasks } = queries;
+export const { getClientDashboardStats, getClientUpcomingTasks, getClientAnalytics } = queries;
 
 // Admin-only
 export async function getDashboardStats(
@@ -18,5 +18,12 @@ export async function getDashboardActivity(
   signal?: AbortSignal,
 ): Promise<ApiResponse<ActivityItem[]>> {
   const { data } = await apiClient.get('/dashboard/activity', { signal });
+  return data;
+}
+
+export async function getAdminAnalytics(
+  signal?: AbortSignal,
+): Promise<ApiResponse<AdminAnalytics>> {
+  const { data } = await apiClient.get('/dashboard/analytics', { signal });
   return data;
 }

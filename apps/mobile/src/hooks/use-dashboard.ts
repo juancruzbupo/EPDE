@@ -1,7 +1,11 @@
 import { QUERY_KEYS } from '@epde/shared';
 import { useQuery } from '@tanstack/react-query';
 
-import { getClientDashboardStats, getClientUpcomingTasks } from '@/lib/api/dashboard';
+import {
+  getClientAnalytics,
+  getClientDashboardStats,
+  getClientUpcomingTasks,
+} from '@/lib/api/dashboard';
 
 export function useClientDashboardStats() {
   return useQuery({
@@ -14,5 +18,13 @@ export function useClientUpcomingTasks() {
   return useQuery({
     queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientUpcoming],
     queryFn: ({ signal }) => getClientUpcomingTasks(signal).then((r) => r.data),
+  });
+}
+
+export function useClientAnalytics() {
+  return useQuery({
+    queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientAnalytics],
+    queryFn: ({ signal }) => getClientAnalytics(signal).then((r) => r.data),
+    staleTime: 5 * 60_000,
   });
 }
