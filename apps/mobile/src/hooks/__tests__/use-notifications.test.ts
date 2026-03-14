@@ -112,7 +112,7 @@ describe('useMarkAsRead', () => {
     renderHook(() => useMarkAsRead());
 
     const config = (useMutation as jest.Mock).mock.calls[0][0];
-    config.onError(new Error('fail'), 'notif-1', { previousCount: 5 });
+    config.onError(new Error('fail'), 'notif-1', { prev: 5 });
 
     expect(mockSetQueryData).toHaveBeenCalledWith(
       [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
@@ -157,7 +157,7 @@ describe('useMarkAllAsRead', () => {
     renderHook(() => useMarkAllAsRead());
 
     const config = (useMutation as jest.Mock).mock.calls[0][0];
-    config.onError(new Error('fail'), undefined, { previousCount: 10 });
+    config.onError(new Error('fail'), undefined, { prev: 10 });
 
     expect(mockSetQueryData).toHaveBeenCalledWith(
       [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],

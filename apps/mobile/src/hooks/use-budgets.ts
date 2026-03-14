@@ -23,10 +23,11 @@ export function useBudgets(filters: Omit<BudgetFilters, 'cursor'> = {}) {
   });
 }
 
-export function useBudget(id: string) {
+export function useBudget(id: string, options?: { initialData?: BudgetRequestPublic }) {
   return useQuery({
     queryKey: [QUERY_KEYS.budgets, id],
     queryFn: ({ signal }) => getBudget(id, signal).then((r) => r.data),
+    initialData: options?.initialData,
     enabled: !!id,
   });
 }

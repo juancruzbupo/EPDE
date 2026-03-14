@@ -1,3 +1,4 @@
+import type { ServiceRequestPublic } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
@@ -22,10 +23,11 @@ export function useServiceRequests(filters: Omit<ServiceRequestFilters, 'cursor'
   });
 }
 
-export function useServiceRequest(id: string) {
+export function useServiceRequest(id: string, options?: { initialData?: ServiceRequestPublic }) {
   return useQuery({
     queryKey: [QUERY_KEYS.serviceRequests, id],
     queryFn: ({ signal }) => getServiceRequest(id, signal).then((r) => r.data),
+    initialData: options?.initialData,
     enabled: !!id,
   });
 }

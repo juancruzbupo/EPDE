@@ -1,3 +1,4 @@
+import type { PropertyPublic } from '@epde/shared';
 import { QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
@@ -14,10 +15,11 @@ export function useProperties(filters: Omit<PropertyFilters, 'cursor'> = {}) {
   });
 }
 
-export function useProperty(id: string) {
+export function useProperty(id: string, options?: { initialData?: PropertyPublic }) {
   return useQuery({
     queryKey: [QUERY_KEYS.properties, id],
     queryFn: ({ signal }) => getProperty(id, signal).then((r) => r.data),
+    initialData: options?.initialData,
     enabled: !!id,
   });
 }

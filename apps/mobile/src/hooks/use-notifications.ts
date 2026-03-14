@@ -40,7 +40,7 @@ export function useMarkAsRead() {
       await queryClient.cancelQueries({
         queryKey: [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
       });
-      const previousCount = queryClient.getQueryData<number>([
+      const prev = queryClient.getQueryData<number>([
         QUERY_KEYS.notifications,
         QUERY_KEYS.notificationsUnreadCount,
       ]);
@@ -48,17 +48,17 @@ export function useMarkAsRead() {
         [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
         (old) => (old && old > 0 ? old - 1 : 0),
       );
-      return { previousCount };
+      return { prev };
     },
 
     onError: (_err, _id, context) => {
-      if (context?.previousCount !== undefined) {
+      Alert.alert('Error', getErrorMessage(_err, 'Error al marcar notificación'));
+      if (context?.prev !== undefined) {
         queryClient.setQueryData(
           [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
-          context.previousCount,
+          context.prev,
         );
       }
-      Alert.alert('Error', getErrorMessage(_err, 'Error al marcar notificación'));
     },
 
     onSettled: () => {
@@ -77,22 +77,22 @@ export function useMarkAllAsRead() {
       await queryClient.cancelQueries({
         queryKey: [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
       });
-      const previousCount = queryClient.getQueryData<number>([
+      const prev = queryClient.getQueryData<number>([
         QUERY_KEYS.notifications,
         QUERY_KEYS.notificationsUnreadCount,
       ]);
       queryClient.setQueryData([QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount], 0);
-      return { previousCount };
+      return { prev };
     },
 
     onError: (_err, _vars, context) => {
-      if (context?.previousCount !== undefined) {
+      Alert.alert('Error', getErrorMessage(_err, 'Error al marcar notificaciones'));
+      if (context?.prev !== undefined) {
         queryClient.setQueryData(
           [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
-          context.previousCount,
+          context.prev,
         );
       }
-      Alert.alert('Error', getErrorMessage(_err, 'Error al marcar notificaciones'));
     },
 
     onSettled: () => {
