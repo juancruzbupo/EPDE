@@ -11,23 +11,187 @@ import {
 } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { CheckCircle, ClipboardList } from 'lucide-react';
+import {
+  AlertTriangle,
+  CheckCircle,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  ClipboardList,
+  Clock,
+  Timer,
+} from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { ErrorState } from '@/components/error-state';
-import { FilterSelect } from '@/components/filter-select';
+import { SearchInput } from '@/components/search-input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useDebounce } from '@/hooks/use-debounce';
 import { usePlan } from '@/hooks/use-plans';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
+import { cn } from '@/lib/utils';
 
 import { CompleteTaskDialog } from './complete-task-dialog';
 import { TaskDetailSheet } from './task-detail-sheet';
 
+const STATUS_ICONS = {
+  [TaskStatus.OVERDUE]: AlertTriangle,
+  [TaskStatus.PENDING]: Clock,
+  [TaskStatus.UPCOMING]: Timer,
+  [TaskStatus.COMPLETED]: CheckCircle2,
+} as const;
+
+const STATUS_COLORS = {
+  [TaskStatus.OVERDUE]: 'text-destructive',
+  [TaskStatus.PENDING]: 'text-amber-600',
+  [TaskStatus.UPCOMING]: 'text-blue-600',
+  [TaskStatus.COMPLETED]: 'text-emerald-600',
+} as const;
+
+const STATUS_ORDER: TaskStatus[] = [
+  TaskStatus.OVERDUE,
+  TaskStatus.PENDING,
+  TaskStatus.UPCOMING,
+  TaskStatus.COMPLETED,
+];
+
+const SHOW_SEARCH_THRESHOLD = 5;
+
 interface PlanViewerProps {
   planId: string;
+}
+
+function StatusSummary({ tasks }: { tasks: TaskPublic[] }) {
+  const counts = useMemo(() => {
+    const map = new Map<TaskStatus, number>();
+    for (const s of STATUS_ORDER) map.set(s, 0);
+    for (const t of tasks) map.set(t.status, (map.get(t.status) ?? 0) + 1);
+    return map;
+  }, [tasks]);
+
+  return (
+    <div className="flex flex-wrap gap-3">
+      {STATUS_ORDER.map((status) => {
+        const count = counts.get(status) ?? 0;
+        if (count === 0) return null;
+        const Icon = STATUS_ICONS[status];
+        const color = STATUS_COLORS[status];
+        return (
+          <div key={status} className="flex items-center gap-1.5 text-sm">
+            <Icon className={cn('h-4 w-4', color)} />
+            <span className={cn('font-medium', color)}>{count}</span>
+            <span className="text-muted-foreground">{TASK_STATUS_LABELS[status]}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function CategorySection({
+  categoryName,
+  tasks,
+  defaultOpen,
+  onTaskClick,
+  onComplete,
+}: {
+  categoryName: string;
+  tasks: TaskPublic[];
+  defaultOpen: boolean;
+  onTaskClick: (task: TaskPublic) => void;
+  onComplete: (task: TaskPublic) => void;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  const canComplete = (status: TaskStatus) =>
+    status === TaskStatus.PENDING ||
+    status === TaskStatus.UPCOMING ||
+    status === TaskStatus.OVERDUE;
+
+  return (
+    <div>
+      <button
+        onClick={() => setOpen(!open)}
+        className="focus-visible:ring-ring/50 mb-2 flex w-full items-center gap-2 rounded py-1 text-left focus-visible:ring-[3px] focus-visible:outline-none"
+      >
+        {open ? (
+          <ChevronDown className="text-muted-foreground h-4 w-4" />
+        ) : (
+          <ChevronRight className="text-muted-foreground h-4 w-4" />
+        )}
+        <span className="text-sm font-medium">{categoryName}</span>
+        <span className="text-muted-foreground text-sm">({tasks.length})</span>
+      </button>
+      {open && (
+        <div className="space-y-1.5 pl-6">
+          {tasks.map((task) => {
+            const isOverdue = task.nextDueDate ? new Date(task.nextDueDate) < new Date() : false;
+
+            return (
+              <button
+                key={task.id}
+                onClick={() => onTaskClick(task)}
+                className="bg-card hover:bg-muted/40 w-full rounded-lg border p-3 text-left transition-colors"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1 flex items-start gap-2">
+                      <span className="text-sm leading-tight font-medium">{task.name}</span>
+                      <Badge
+                        variant={TASK_STATUS_VARIANT[task.status] ?? 'secondary'}
+                        className="shrink-0 text-xs"
+                      >
+                        {TASK_STATUS_LABELS[task.status] ?? task.status}
+                      </Badge>
+                    </div>
+                    <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
+                      <Badge
+                        variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'}
+                        className="text-xs"
+                      >
+                        {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
+                      </Badge>
+                      <span className="text-muted-foreground/40">·</span>
+                      <span>
+                        {RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}
+                      </span>
+                      <span className="text-muted-foreground/40">·</span>
+                      <span className={isOverdue ? 'text-destructive font-medium' : ''}>
+                        {task.nextDueDate
+                          ? formatDistanceToNow(new Date(task.nextDueDate), {
+                              addSuffix: true,
+                              locale: es,
+                            })
+                          : 'Según detección'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {canComplete(task.status) && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onComplete(task);
+                      }}
+                    >
+                      <CheckCircle className="mr-1 h-3.5 w-3.5" />
+                      Completar
+                    </Button>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function PlanViewer({ planId }: PlanViewerProps) {
@@ -35,26 +199,31 @@ export function PlanViewer({ planId }: PlanViewerProps) {
 
   const [selectedTask, setSelectedTask] = useState<TaskPublic | null>(null);
   const [completingTask, setCompletingTask] = useState<TaskPublic | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [priorityFilter, setPriorityFilter] = useState('all');
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search);
 
-  const categories = useMemo(() => {
-    if (!plan?.tasks) return [];
-    const unique = new Map<string, string>();
-    plan.tasks.forEach((t) => unique.set(t.category.id, t.category.name));
-    return Array.from(unique, ([value, label]) => ({ value, label }));
-  }, [plan?.tasks]);
+  const tasks = plan?.tasks ?? [];
 
-  const filteredTasks = useMemo(() => {
-    if (!plan?.tasks) return [];
-    return plan.tasks.filter((t) => {
-      if (categoryFilter !== 'all' && t.category.id !== categoryFilter) return false;
-      if (statusFilter !== 'all' && t.status !== statusFilter) return false;
-      if (priorityFilter !== 'all' && t.priority !== priorityFilter) return false;
-      return true;
-    });
-  }, [plan?.tasks, categoryFilter, statusFilter, priorityFilter]);
+  const filtered = useMemo(() => {
+    if (!debouncedSearch) return tasks;
+    const q = debouncedSearch.toLowerCase();
+    return tasks.filter(
+      (t) => t.name.toLowerCase().includes(q) || t.category.name.toLowerCase().includes(q),
+    );
+  }, [tasks, debouncedSearch]);
+
+  const grouped = useMemo(() => {
+    const map = new Map<string, { name: string; tasks: TaskPublic[] }>();
+    for (const task of filtered) {
+      const existing = map.get(task.category.id);
+      if (existing) {
+        existing.tasks.push(task);
+      } else {
+        map.set(task.category.id, { name: task.category.name, tasks: [task] });
+      }
+    }
+    return Array.from(map.values());
+  }, [filtered]);
 
   if (isLoading) {
     return (
@@ -83,16 +252,10 @@ export function PlanViewer({ planId }: PlanViewerProps) {
 
   if (!plan) return null;
 
-  const tasks = plan.tasks ?? [];
-  const canComplete = (status: string) =>
-    status === TaskStatus.PENDING ||
-    status === TaskStatus.UPCOMING ||
-    status === TaskStatus.OVERDUE;
-
   return (
     <>
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader>
           <div>
             <CardTitle className="text-lg">{plan.name}</CardTitle>
             <Badge variant="outline" className="mt-1">
@@ -101,116 +264,45 @@ export function PlanViewer({ planId }: PlanViewerProps) {
           </div>
         </CardHeader>
         <CardContent>
-          {tasks.length > 0 && (
-            <div className="mb-4 flex flex-wrap gap-3">
-              <FilterSelect
-                placeholder="Categoría"
-                value={categoryFilter}
-                onChange={setCategoryFilter}
-                options={categories}
-              />
-              <FilterSelect
-                placeholder="Estado"
-                value={statusFilter}
-                onChange={setStatusFilter}
-                options={Object.entries(TASK_STATUS_LABELS).map(([value, label]) => ({
-                  value,
-                  label,
-                }))}
-              />
-              <FilterSelect
-                placeholder="Prioridad"
-                value={priorityFilter}
-                onChange={setPriorityFilter}
-                options={Object.entries(TASK_PRIORITY_LABELS).map(([value, label]) => ({
-                  value,
-                  label,
-                }))}
-              />
-            </div>
-          )}
-
-          {filteredTasks.length === 0 ? (
+          {tasks.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-8">
               <ClipboardList className="text-muted-foreground/50 h-8 w-8" />
-              <p className="text-muted-foreground text-sm">
-                {tasks.length === 0
-                  ? 'No hay tareas en este plan.'
-                  : 'No hay tareas que coincidan con los filtros.'}
-              </p>
+              <p className="text-muted-foreground text-sm">No hay tareas en este plan.</p>
             </div>
           ) : (
-            <div className="space-y-2">
-              {filteredTasks.map((task) => {
-                const isOverdue = task.nextDueDate
-                  ? new Date(task.nextDueDate) < new Date()
-                  : false;
-                return (
-                  <div
-                    key={task.id}
-                    className="hover:bg-accent focus-visible:ring-ring/50 flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors focus-visible:ring-[3px] focus-visible:outline-none"
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => setSelectedTask(task)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        setSelectedTask(task);
-                      }
-                    }}
-                  >
-                    <div className="flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-medium">{task.name}</span>
-                        <Badge
-                          variant={TASK_STATUS_VARIANT[task.status] ?? 'secondary'}
-                          className="text-xs"
-                        >
-                          {TASK_STATUS_LABELS[task.status] ?? task.status}
-                        </Badge>
-                      </div>
-                      <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
-                        <Badge variant="outline">{task.category.name}</Badge>
-                        <Badge
-                          variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'}
-                          className="text-xs"
-                        >
-                          {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
-                        </Badge>
-                        <span className="text-muted-foreground">
-                          {RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}
-                        </span>
-                        <span
-                          className={
-                            isOverdue ? 'text-destructive font-medium' : 'text-muted-foreground'
-                          }
-                        >
-                          {task.nextDueDate
-                            ? formatDistanceToNow(new Date(task.nextDueDate), {
-                                addSuffix: true,
-                                locale: es,
-                              })
-                            : 'Según detección'}
-                        </span>
-                      </div>
-                    </div>
+            <div className="space-y-4">
+              <StatusSummary tasks={tasks} />
 
-                    {canComplete(task.status) && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setCompletingTask(task);
-                        }}
-                      >
-                        <CheckCircle className="mr-1 h-3.5 w-3.5" />
-                        Completar
-                      </Button>
-                    )}
-                  </div>
-                );
-              })}
+              {tasks.length >= SHOW_SEARCH_THRESHOLD && (
+                <SearchInput
+                  value={search}
+                  onChange={setSearch}
+                  placeholder="Buscar tarea o categoría..."
+                />
+              )}
+
+              {filtered.length === 0 ? (
+                <p className="text-muted-foreground py-4 text-center text-sm">
+                  No se encontraron tareas con esa búsqueda.
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-muted-foreground text-sm">
+                    {filtered.length} tarea{filtered.length !== 1 ? 's' : ''}
+                    {grouped.length > 1 && ` en ${grouped.length} categorías`}
+                  </p>
+                  {grouped.map((group) => (
+                    <CategorySection
+                      key={group.name}
+                      categoryName={group.name}
+                      tasks={group.tasks}
+                      defaultOpen
+                      onTaskClick={setSelectedTask}
+                      onComplete={setCompletingTask}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </CardContent>
