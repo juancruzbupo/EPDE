@@ -131,6 +131,32 @@ describe('useMarkAsRead', () => {
       queryKey: [QUERY_KEYS.notifications],
     });
   });
+
+  it('handles onMutate when count is zero', async () => {
+    mockGetQueryData.mockReturnValue(0);
+    mockCancelQueries.mockResolvedValue(undefined);
+
+    renderHook(() => useMarkAsRead());
+
+    const config = (useMutation as jest.Mock).mock.calls[0][0];
+    await config.onMutate('notif-1');
+
+    // Extract the setQueryData callback and verify Math.max(0, 0-1) = 0
+    const setQueryDataCallback = mockSetQueryData.mock.calls[0][1];
+    const result = setQueryDataCallback(0);
+
+    expect(result).toBe(0);
+  });
+
+  it('handles onError when context is undefined', () => {
+    renderHook(() => useMarkAsRead());
+
+    const config = (useMutation as jest.Mock).mock.calls[0][0];
+    config.onError(new Error('fail'), 'notif-1', undefined);
+
+    expect(Alert.alert).toHaveBeenCalled();
+    expect(mockSetQueryData).not.toHaveBeenCalled();
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -175,5 +201,15 @@ describe('useMarkAllAsRead', () => {
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
       queryKey: [QUERY_KEYS.notifications],
     });
+  });
+
+  it('handles onError when context is undefined', () => {
+    renderHook(() => useMarkAllAsRead());
+
+    const config = (useMutation as jest.Mock).mock.calls[0][0];
+    config.onError(new Error('fail'), undefined, undefined);
+
+    expect(Alert.alert).toHaveBeenCalled();
+    expect(mockSetQueryData).not.toHaveBeenCalled();
   });
 });

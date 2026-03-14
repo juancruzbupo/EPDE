@@ -12,6 +12,7 @@ import {
 } from '@epde/shared';
 import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -45,6 +46,7 @@ export class ServiceRequestsController {
 
   @Post()
   @Roles(UserRole.CLIENT)
+  @Throttle({ medium: { limit: 5, ttl: 60_000 } })
   async createRequest(
     @Body(new ZodValidationPipe(createServiceRequestSchema)) dto: CreateServiceRequestInput,
     @CurrentUser() user: CurrentUserPayload,

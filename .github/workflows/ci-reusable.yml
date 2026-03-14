@@ -11,6 +11,10 @@ on:
         description: 'Enforce spec files for modified services (PRs only)'
         type: boolean
         default: false
+      run-web-e2e:
+        description: 'Run Playwright web E2E tests'
+        type: boolean
+        default: false
     secrets:
       TURBO_TOKEN:
         required: false
@@ -105,6 +109,14 @@ jobs:
 
       - name: E2E tests
         run: pnpm --filter @epde/api test:e2e
+
+      - name: Install Playwright browsers
+        if: inputs.run-web-e2e
+        run: pnpm --filter @epde/web exec playwright install --with-deps chromium
+
+      - name: Web E2E tests (Playwright)
+        if: inputs.run-web-e2e
+        run: pnpm --filter @epde/web test:e2e
 
       - name: Frontend coverage check
         if: inputs.run-coverage

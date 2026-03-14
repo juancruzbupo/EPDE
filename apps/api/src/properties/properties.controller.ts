@@ -22,6 +22,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -55,6 +56,7 @@ export class PropertiesController {
 
   @Post()
   @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 5, ttl: 60_000 } })
   async createProperty(
     @Body(new ZodValidationPipe(createPropertySchema)) dto: CreatePropertyInput,
     @CurrentUser() user: CurrentUserPayload,

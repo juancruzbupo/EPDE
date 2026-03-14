@@ -2,18 +2,23 @@
 /**
  * check-entity-drift.mjs
  *
- * Detects drift between Prisma scalar fields and TypeScript entity interfaces.
+ * Detects drift between Prisma fields and TypeScript entity interfaces.
  *
  * For each of the 6 main models it:
  *   1. Extracts scalar field names from schema.prisma (skips relation fields,
  *      @@-directives and comment lines).
- *   2. Reads the corresponding entity .ts file and extracts the property names
+ *   2. Extracts relation field names from schema.prisma (fields whose type
+ *      resolves to another Prisma model).
+ *   3. Reads the corresponding entity .ts file and extracts the property names
  *      declared on the primary interface (the one that matches the model name).
- *   3. Reports every field that exists in Prisma but is absent from the interface.
+ *   4. Reports every scalar field that exists in Prisma but is absent from the
+ *      interface.
+ *   5. Reports every relation field that exists in Prisma, is NOT listed in
+ *      KNOWN_RELATION_OMISSIONS, but is absent from the interface.
  *
- * Fields listed in KNOWN_OMISSIONS for a given model are intentional gaps and
- * are silently skipped.  Fields contributed by BaseEntity / SoftDeletable are
- * resolved automatically.
+ * Fields listed in KNOWN_OMISSIONS (scalar) or KNOWN_RELATION_OMISSIONS
+ * (relation) for a given model are intentional gaps and are silently skipped.
+ * Fields contributed by BaseEntity / SoftDeletable are resolved automatically.
  *
  * Exits 0 when clean, 1 when drift is found.
  *
@@ -49,7 +54,7 @@ const MODEL_TO_FILE = {
 };
 
 /**
- * Fields that are intentionally absent from the TypeScript interface.
+ * Scalar fields that are intentionally absent from the TypeScript interface.
  * Key = Prisma model name, value = Set of field names to ignore.
  *
  * Add entries here whenever a field is deliberately excluded from the public
@@ -58,6 +63,61 @@ const MODEL_TO_FILE = {
 const KNOWN_OMISSIONS = {
   // passwordHash is stripped via UserPublic = Omit<User, 'passwordHash'>
   User: new Set(['passwordHash']),
+};
+
+/**
+ * Relation fields that are intentionally absent from the base TypeScript
+ * interface.  These relations are typically exposed via *Public types
+ * (e.g. PropertyPublic includes `user` and `maintenancePlan`) but are
+ * deliberately omitted from the base entity interface.
+ *
+ * Common patterns:
+ *   - Inverse relation arrays (e.g. User.properties Property[]) are never on
+ *     the base interface because they are not columns — they are virtual.
+ *   - Forward relations (e.g. Property.user User) are usually surfaced only on
+ *     the *Public type to keep the base interface close to the DB row shape.
+ *
+ * Key = Prisma model name, value = Set of relation field names to ignore.
+ */
+const KNOWN_RELATION_OMISSIONS = {
+  User: new Set([
+    'properties',
+    'taskLogs',
+    'taskNotes',
+    'taskAuditLogs',
+    'budgetRequests',
+    'serviceRequests',
+    'notifications',
+    'authAuditLogs',
+  ]),
+  Property: new Set([
+    'user',
+    'maintenancePlan',
+    'budgetRequests',
+    'serviceRequests',
+  ]),
+  MaintenancePlan: new Set([
+    'property',
+    'tasks',
+  ]),
+  Task: new Set([
+    'maintenancePlan',
+    'category',
+    'taskLogs',
+    'taskNotes',
+    'auditLogs',
+  ]),
+  BudgetRequest: new Set([
+    'property',
+    'requester',
+    'lineItems',
+    'response',
+  ]),
+  ServiceRequest: new Set([
+    'property',
+    'requester',
+    'photos',
+  ]),
 };
 
 // ─── Well-known mixin fields ──────────────────────────────────────────────────
@@ -149,6 +209,37 @@ function extractPrismaScalarFields(blockText, allModelNames) {
       fields.push(fieldName);
     }
     // Ignore fields that are neither scalar nor relation (shouldn't occur in valid schemas)
+  }
+
+  return fields;
+}
+
+/**
+ * Given the body text of a Prisma model block, return the relation field names.
+ *
+ * A field is a relation when its type token (after stripping `?` and `[]`)
+ * matches the name of another Prisma model.  This is the inverse of the
+ * scalar filter in extractPrismaScalarFields.
+ */
+function extractPrismaRelationFields(blockText, allModelNames) {
+  const fields = [];
+
+  for (const raw of blockText.split('\n')) {
+    const line = raw.trim();
+
+    // Skip blanks, comments, block-level attributes
+    if (!line || line.startsWith('//') || line.startsWith('@@')) continue;
+
+    // Field line format: `fieldName TypeName[?|[]] @...`
+    const parts = line.split(/\s+/);
+    if (parts.length < 2) continue;
+
+    const fieldName = parts[0];
+    const rawType = parts[1].replace(/[?\[\]]/g, '');
+
+    if (allModelNames.has(rawType)) {
+      fields.push(fieldName);
+    }
   }
 
   return fields;
@@ -266,14 +357,29 @@ for (const [modelName, entityFile] of Object.entries(MODEL_TO_FILE)) {
 
   const omissions = KNOWN_OMISSIONS[modelName] ?? new Set();
 
-  const missing = prismaFields.filter(
+  const missingScalar = prismaFields.filter(
     (f) => !interfaceFields.has(f) && !omissions.has(f),
   );
 
-  if (missing.length > 0) {
+  if (missingScalar.length > 0) {
     issues.push({
       model: modelName,
-      problem: `Fields in Prisma but missing from interface ${modelName}: ${missing.join(', ')}`,
+      problem: `Scalar fields in Prisma but missing from interface ${modelName}: ${missingScalar.join(', ')}`,
+    });
+  }
+
+  // ── Relation field check ──────────────────────────────────────────────────
+  const prismaRelations = extractPrismaRelationFields(block, allModelNames);
+  const relationOmissions = KNOWN_RELATION_OMISSIONS[modelName] ?? new Set();
+
+  const missingRelation = prismaRelations.filter(
+    (f) => !interfaceFields.has(f) && !relationOmissions.has(f),
+  );
+
+  if (missingRelation.length > 0) {
+    issues.push({
+      model: modelName,
+      problem: `Relation fields in Prisma but missing from interface ${modelName}: ${missingRelation.join(', ')} (add to KNOWN_RELATION_OMISSIONS if intentional)`,
     });
   }
 }
@@ -285,7 +391,7 @@ const modelCount = Object.keys(MODEL_TO_FILE).length;
 console.log(`\nEntity drift check — ${modelCount} models checked\n`);
 
 if (issues.length === 0) {
-  console.log('✓ No drift detected. All Prisma scalar fields present in entity interfaces.\n');
+  console.log('✓ No drift detected. All Prisma scalar and relation fields accounted for in entity interfaces.\n');
   process.exit(0);
 } else {
   console.error(`⚠ Entity drift — ${issues.length} issue(s) found:\n`);
@@ -293,7 +399,7 @@ if (issues.length === 0) {
     console.error(`  • ${model}: ${problem}`);
   }
   console.error(
-    '\nFix: add the missing fields to the entity interface, or add them to KNOWN_OMISSIONS if the omission is intentional.\n',
+    '\nFix: add the missing fields to the entity interface, or add them to KNOWN_OMISSIONS (scalar) / KNOWN_RELATION_OMISSIONS (relation) if the omission is intentional.\n',
   );
   process.exit(1);
 }

@@ -30,6 +30,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import type { z } from 'zod';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -100,6 +101,7 @@ export class MaintenancePlansController {
 
   @Post(':id/tasks')
   @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 5, ttl: 60_000 } })
   async addTask(
     @Param('id', ParseUUIDPipe) planId: string,
     @Body(new ZodValidationPipe(createTaskBodySchema)) dto: CreateTaskBody,
@@ -154,6 +156,7 @@ export class MaintenancePlansController {
 
   @Post(':id/tasks/:taskId/complete')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  @Throttle({ medium: { limit: 5, ttl: 60_000 } })
   async completeTask(
     @Param('taskId', ParseUUIDPipe) taskId: string,
     @Body(new ZodValidationPipe(completeTaskSchema)) dto: CompleteTaskInput,
@@ -176,6 +179,7 @@ export class MaintenancePlansController {
 
   @Post(':id/tasks/:taskId/notes')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  @Throttle({ medium: { limit: 5, ttl: 60_000 } })
   async addTaskNote(
     @Param('taskId', ParseUUIDPipe) taskId: string,
     @Body(new ZodValidationPipe(createTaskNoteSchema)) dto: CreateTaskNoteInput,

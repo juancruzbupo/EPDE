@@ -56,6 +56,8 @@
 44. **ErrorState en detail pages con initialData** — Todo componente detail que use `initialData` de RSC DEBE destructurar `isError` + `refetch` del hook y mostrar `<ErrorState>` cuando `isError && !data`. Previene que el usuario vea data stale sin feedback cuando la revalidacion falla
 45. **`onError` en optimistic updates: feedback primero, restore despues** — En mutations con `onMutate` optimistic, el `onError` DEBE mostrar feedback al usuario PRIMERO (`Alert.alert` en mobile, `toast.error` en web) y restaurar el estado previo DESPUES. El usuario debe ver el error inmediatamente; la restauracion de estado es invisible. Variable de contexto: `prev` (no `previousCount`, `previousData`, etc.) para consistencia mobile ↔ web
 46. **Detail hooks aceptan `initialData`** — Todo hook de detalle (`useBudget`, `useProperty`, `useServiceRequest`, etc.) DEBE aceptar `options?: { initialData?: T }` y pasarlo a `useQuery`. Permite que pantallas de lista pasen data cargada al navegar a detalle, evitando flash de loading. Aplica a web y mobile
+47. **`@Throttle` en mutation endpoints** — Todo `@Post()` de creacion DEBE tener `@Throttle({ medium: { limit: 5, ttl: 60_000 } })`. El global de 5 req/s es muy permisivo para mutations. Auth y upload usan limits propios mas estrictos. Reads usan solo el throttle global
+48. **Factory vs local function en API files** — Funciones en `packages/shared/src/api/*.ts` son factories platform-agnostic (web + mobile). Funciones locales en `apps/*/src/lib/api/*.ts` son role-specific (admin-only) o platform-specific. Criterio: si ambas apps consumen el endpoint, va en shared; si solo una, queda local
 
 ### NUNCA
 

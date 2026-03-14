@@ -2,6 +2,7 @@ import type { CreateCategoryInput, UpdateCategoryInput } from '@epde/shared';
 import { createCategorySchema, updateCategorySchema, UserRole } from '@epde/shared';
 import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { Roles } from '../common/decorators/roles.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
@@ -22,6 +23,7 @@ export class CategoriesController {
 
   @Post()
   @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 5, ttl: 60_000 } })
   async createCategory(
     @Body(new ZodValidationPipe(createCategorySchema)) dto: CreateCategoryInput,
   ) {

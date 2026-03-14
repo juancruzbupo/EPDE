@@ -155,6 +155,36 @@ describe('useCompleteTask', () => {
       expect.any(Function),
     );
   });
+
+  it('handles onMutate when plan is undefined', async () => {
+    mockGetQueryData.mockReturnValue(undefined);
+    mockCancelQueries.mockResolvedValue(undefined);
+
+    renderHook(() => useCompleteTask());
+
+    const config = (useMutation as jest.Mock).mock.calls[0][0];
+    const variables = { planId: 'plan-1', taskId: 'task-1' };
+
+    await config.onMutate(variables);
+
+    // Extract the setQueryData callback and call it with undefined
+    const setQueryDataCallback = mockSetQueryData.mock.calls[0][1];
+    const result = setQueryDataCallback(undefined);
+
+    expect(result).toBeUndefined();
+  });
+
+  it('handles onError when context is undefined', () => {
+    renderHook(() => useCompleteTask());
+
+    const config = (useMutation as jest.Mock).mock.calls[0][0];
+    const variables = { planId: 'plan-1', taskId: 'task-1' };
+
+    config.onError(new Error('fail'), variables, undefined);
+
+    expect(mockSetQueryData).not.toHaveBeenCalled();
+    expect(Alert.alert).toHaveBeenCalled();
+  });
 });
 
 describe('useAddTaskNote', () => {
@@ -187,6 +217,49 @@ describe('useAddTaskNote', () => {
       [QUERY_KEYS.taskNotes, 'plan-1', 'task-1'],
       previousNotes,
     );
+    expect(Alert.alert).toHaveBeenCalled();
+  });
+
+  it('handles onMutate when user is null', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { useAuthStore } = require('@/stores/auth-store');
+    useAuthStore.getState.mockReturnValue({ user: null });
+    mockCancelQueries.mockResolvedValue(undefined);
+    mockGetQueryData.mockReturnValue([]);
+
+    renderHook(() => useAddTaskNote());
+
+    const config = (useMutation as jest.Mock).mock.calls[0][0];
+    const variables = { planId: 'plan-1', taskId: 'task-1', content: 'New note' };
+
+    await config.onMutate(variables);
+
+    expect(mockSetQueryData).toHaveBeenCalledWith(
+      [QUERY_KEYS.taskNotes, 'plan-1', 'task-1'],
+      expect.any(Function),
+    );
+
+    // Call the setQueryData callback to verify fallback values
+    const setQueryDataCallback = mockSetQueryData.mock.calls[0][1];
+    const result = setQueryDataCallback([]);
+
+    expect(result[0]).toEqual(
+      expect.objectContaining({
+        content: 'New note',
+        author: { id: '', name: '' },
+      }),
+    );
+  });
+
+  it('handles onError when context is undefined', () => {
+    renderHook(() => useAddTaskNote());
+
+    const config = (useMutation as jest.Mock).mock.calls[0][0];
+    const variables = { planId: 'plan-1', taskId: 'task-1', content: 'New note' };
+
+    config.onError(new Error('fail'), variables, undefined);
+
+    expect(mockSetQueryData).not.toHaveBeenCalled();
     expect(Alert.alert).toHaveBeenCalled();
   });
 });

@@ -17,6 +17,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { Roles } from '../common/decorators/roles.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
@@ -45,6 +46,7 @@ export class ClientsController {
 
   @Post()
   @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 5, ttl: 60_000 } })
   async createClient(@Body(new ZodValidationPipe(createClientSchema)) dto: CreateClientInput) {
     const data = await this.clientsService.createClient(dto);
     return { data, message: 'Cliente creado e invitación enviada' };
@@ -52,6 +54,7 @@ export class ClientsController {
 
   @Post(':id/reinvite')
   @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 5, ttl: 60_000 } })
   async reinviteClient(@Param('id', ParseUUIDPipe) id: string) {
     const data = await this.clientsService.reinviteClient(id);
     return { data, message: 'Invitación reenviada' };

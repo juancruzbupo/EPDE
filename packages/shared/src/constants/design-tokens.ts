@@ -99,6 +99,22 @@ export const TASK_TYPE_TOKENS_DARK = {
 
 export type TaskTypeTokens = typeof TASK_TYPE_TOKENS_LIGHT;
 
+/** Professional requirement color tokens — light mode */
+export const PROFESSIONAL_REQ_TOKENS_LIGHT = {
+  ownerCanDo: '#6b9b7a',
+  professionalRecommended: '#c4a030',
+  professionalRequired: '#c45b4b',
+} as const;
+
+/** Professional requirement color tokens — dark mode */
+export const PROFESSIONAL_REQ_TOKENS_DARK = {
+  ownerCanDo: '#7ab588',
+  professionalRecommended: '#d4b050',
+  professionalRequired: '#c45b4b',
+} as const;
+
+export type ProfessionalReqTokens = typeof PROFESSIONAL_REQ_TOKENS_LIGHT;
+
 /** Chart color tokens — light mode */
 export const CHART_TOKENS_LIGHT = {
   chart1: '#c4704b',

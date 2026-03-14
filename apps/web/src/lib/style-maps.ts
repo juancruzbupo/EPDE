@@ -1,6 +1,7 @@
 /**
- * Platform-specific color class maps for task type and professional requirement styling.
- * Badge variant mappings live in @epde/shared — import directly from there.
+ * Platform-specific Tailwind class maps for task type and professional requirement styling.
+ * Hex token SSoT lives in @epde/shared (TASK_TYPE_TOKENS_LIGHT/DARK, PROFESSIONAL_REQ_TOKENS_LIGHT/DARK).
+ * Badge variant mappings also live in @epde/shared — import directly from there.
  */
 
 import type { ProfessionalRequirement, TaskType } from '@epde/shared';

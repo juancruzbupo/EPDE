@@ -1,5 +1,8 @@
-// Client-only query hooks — plan mutations (update, add task, reorder)
-// are admin-only and live in apps/web/src/hooks/use-plans.ts.
+/**
+ * Client-only query hooks for maintenance plans and tasks.
+ * Plan mutations (update, add task, reorder) are admin-only and live
+ * exclusively in apps/web/src/hooks/use-plans.ts.
+ */
 import type { TaskStatus } from '@epde/shared';
 import { QUERY_KEYS } from '@epde/shared';
 import { useQuery } from '@tanstack/react-query';

@@ -3,6 +3,14 @@ import type { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 
+/**
+ * AuthAuditService — Justified direct PrismaService usage.
+ *
+ * This service directly injects PrismaService instead of going through a
+ * repository, because audit logging is fire-and-forget infrastructure that
+ * does not participate in business transactions. The ESLint exemption is
+ * configured in eslint.config.mjs.
+ */
 @Injectable()
 export class AuthAuditService {
   private readonly logger = new Logger('AuthAudit');
