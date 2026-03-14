@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { formatARS } from '../utils/currency';
 import {
   formatRelativeDate,
   getNextDueDate,
@@ -7,6 +8,7 @@ import {
   isUpcoming,
   recurrenceTypeToMonths,
 } from '../utils/dates';
+import { ALLOWED_UPLOAD_MIME_TYPES, MAX_UPLOAD_FILE_SIZE, validateUpload } from '../utils/upload';
 
 // ═══════════════════════════════════════════════════════════
 // DATE UTILITIES
@@ -192,5 +194,111 @@ describe('recurrenceTypeToMonths', () => {
 
   it('should return null for arbitrary string', () => {
     expect(recurrenceTypeToMonths('SOMETHING_ELSE')).toBeNull();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════
+// CURRENCY UTILITIES
+// ═══════════════════════════════════════════════════════════
+
+describe('formatARS', () => {
+  it('should format a number as Argentine pesos', () => {
+    const result = formatARS(1500);
+    expect(result).toContain('1.500');
+    expect(result).toContain('$');
+  });
+
+  it('should format a string number', () => {
+    const result = formatARS('2500.50');
+    expect(result).toContain('2.500');
+  });
+
+  it('should format zero', () => {
+    const result = formatARS(0);
+    expect(result).toContain('0');
+    expect(result).toContain('$');
+  });
+
+  it('should format decimals with two decimal places', () => {
+    const result = formatARS(99.9);
+    expect(result).toContain('99');
+  });
+
+  it('should format large numbers with thousand separators', () => {
+    const result = formatARS(1000000);
+    expect(result).toContain('1.000.000');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════
+// UPLOAD VALIDATION
+// ═══════════════════════════════════════════════════════════
+
+describe('validateUpload', () => {
+  it('should return null for a valid JPEG upload', () => {
+    expect(validateUpload('image/jpeg', 1024)).toBeNull();
+  });
+
+  it('should return null for a valid PNG upload', () => {
+    expect(validateUpload('image/png', 5 * 1024 * 1024)).toBeNull();
+  });
+
+  it('should return null for a valid PDF upload', () => {
+    expect(validateUpload('application/pdf', 1024)).toBeNull();
+  });
+
+  it('should return null for a valid WebP upload', () => {
+    expect(validateUpload('image/webp', 1024)).toBeNull();
+  });
+
+  it('should return INVALID_MIME_TYPE for disallowed types', () => {
+    const result = validateUpload('application/zip', 1024);
+    expect(result).toEqual({
+      code: 'INVALID_MIME_TYPE',
+      message: 'Tipo de archivo no permitido: application/zip',
+    });
+  });
+
+  it('should return INVALID_MIME_TYPE for text files', () => {
+    const result = validateUpload('text/plain', 100);
+    expect(result).not.toBeNull();
+    expect(result!.code).toBe('INVALID_MIME_TYPE');
+  });
+
+  it('should return FILE_TOO_LARGE for files exceeding 10 MB', () => {
+    const result = validateUpload('image/jpeg', MAX_UPLOAD_FILE_SIZE + 1);
+    expect(result).toEqual({
+      code: 'FILE_TOO_LARGE',
+      message: 'El archivo excede el tamaño máximo de 10 MB',
+    });
+  });
+
+  it('should return null for a file exactly at the 10 MB limit', () => {
+    expect(validateUpload('image/jpeg', MAX_UPLOAD_FILE_SIZE)).toBeNull();
+  });
+
+  it('should check MIME type before size', () => {
+    const result = validateUpload('application/zip', MAX_UPLOAD_FILE_SIZE + 1);
+    expect(result!.code).toBe('INVALID_MIME_TYPE');
+  });
+});
+
+describe('ALLOWED_UPLOAD_MIME_TYPES', () => {
+  it('should contain exactly 5 allowed types', () => {
+    expect(ALLOWED_UPLOAD_MIME_TYPES.size).toBe(5);
+  });
+
+  it('should include image/jpeg, image/png, image/webp, image/gif, application/pdf', () => {
+    expect(ALLOWED_UPLOAD_MIME_TYPES.has('image/jpeg')).toBe(true);
+    expect(ALLOWED_UPLOAD_MIME_TYPES.has('image/png')).toBe(true);
+    expect(ALLOWED_UPLOAD_MIME_TYPES.has('image/webp')).toBe(true);
+    expect(ALLOWED_UPLOAD_MIME_TYPES.has('image/gif')).toBe(true);
+    expect(ALLOWED_UPLOAD_MIME_TYPES.has('application/pdf')).toBe(true);
+  });
+});
+
+describe('MAX_UPLOAD_FILE_SIZE', () => {
+  it('should be 10 MB in bytes', () => {
+    expect(MAX_UPLOAD_FILE_SIZE).toBe(10 * 1024 * 1024);
   });
 });

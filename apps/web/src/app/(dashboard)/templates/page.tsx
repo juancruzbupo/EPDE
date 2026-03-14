@@ -1,13 +1,6 @@
 'use client';
 
 import type { CategoryTemplate, TaskTemplate } from '@epde/shared';
-import {
-  PRIORITY_VARIANT,
-  PROFESSIONAL_REQUIREMENT_LABELS,
-  RECURRENCE_TYPE_LABELS,
-  TASK_PRIORITY_LABELS,
-  TASK_TYPE_LABELS,
-} from '@epde/shared';
 import { ChevronDown, ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -20,22 +13,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageTransition } from '@/components/ui/page-transition';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
   useCategoryTemplates,
   useDeleteCategoryTemplate,
   useDeleteTaskTemplate,
 } from '@/hooks/use-category-templates';
-import { PROFESSIONAL_REQ_COLORS, TASK_TYPE_COLORS } from '@/lib/style-maps';
 
 import { CategoryTemplateDialog } from './category-template-dialog';
 import { TaskTemplateDialog } from './task-template-dialog';
+import { TaskTemplateTable } from './task-template-table';
 
 export default function TemplatesPage() {
   const { data: categories, isLoading, isError, refetch } = useCategoryTemplates();
@@ -60,6 +45,18 @@ export default function TemplatesPage() {
       else next.add(id);
       return next;
     });
+  };
+
+  const handleEditTask = (categoryId: string, task: TaskTemplate) => {
+    setTaskDialogCategoryId(categoryId);
+    setEditingTask(task);
+    setTaskDialogOpen(true);
+  };
+
+  const handleAddTask = (categoryId: string) => {
+    setTaskDialogCategoryId(categoryId);
+    setEditingTask(null);
+    setTaskDialogOpen(true);
   };
 
   return (
@@ -123,15 +120,7 @@ export default function TemplatesPage() {
                       </Badge>
                     </button>
                     <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setTaskDialogCategoryId(cat.id);
-                          setEditingTask(null);
-                          setTaskDialogOpen(true);
-                        }}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => handleAddTask(cat.id)}>
                         <Plus className="mr-1 h-3 w-3" />
                         Tarea
                       </Button>
@@ -161,77 +150,11 @@ export default function TemplatesPage() {
 
                 {isExpanded && cat.tasks.length > 0 && (
                   <CardContent className="pt-0">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>#</TableHead>
-                          <TableHead>Nombre</TableHead>
-                          <TableHead>Tipo</TableHead>
-                          <TableHead>Profesional</TableHead>
-                          <TableHead>Prioridad</TableHead>
-                          <TableHead>Recurrencia</TableHead>
-                          <TableHead className="w-20">Acciones</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {cat.tasks.map((task) => (
-                          <TableRow key={task.id}>
-                            <TableCell className="text-muted-foreground text-xs">
-                              {task.displayOrder}
-                            </TableCell>
-                            <TableCell className="font-medium">{task.name}</TableCell>
-                            <TableCell>
-                              <span
-                                className={`rounded px-1.5 py-0.5 text-xs ${TASK_TYPE_COLORS[task.taskType] ?? ''}`}
-                              >
-                                {TASK_TYPE_LABELS[task.taskType] ?? task.taskType}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              <span
-                                className={`rounded px-1.5 py-0.5 text-xs ${PROFESSIONAL_REQ_COLORS[task.professionalRequirement] ?? ''}`}
-                              >
-                                {PROFESSIONAL_REQUIREMENT_LABELS[task.professionalRequirement] ??
-                                  task.professionalRequirement}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              <Badge
-                                variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'}
-                                className="text-xs"
-                              >
-                                {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-muted-foreground text-sm">
-                              {RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex gap-1">
-                                <button
-                                  onClick={() => {
-                                    setTaskDialogCategoryId(cat.id);
-                                    setEditingTask(task);
-                                    setTaskDialogOpen(true);
-                                  }}
-                                  className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded p-1 focus-visible:ring-[3px] focus-visible:outline-none"
-                                  aria-label="Editar tarea"
-                                >
-                                  <Pencil className="h-3.5 w-3.5" />
-                                </button>
-                                <button
-                                  onClick={() => setDeleteTaskId(task.id)}
-                                  className="text-muted-foreground hover:text-destructive focus-visible:ring-ring/50 rounded p-1 focus-visible:ring-[3px] focus-visible:outline-none"
-                                  aria-label="Eliminar tarea"
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                    <TaskTemplateTable
+                      tasks={cat.tasks}
+                      onEdit={(task) => handleEditTask(cat.id, task)}
+                      onDelete={setDeleteTaskId}
+                    />
                   </CardContent>
                 )}
 

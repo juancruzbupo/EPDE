@@ -1,6 +1,5 @@
 'use client';
 
-import type { TaskTemplate } from '@epde/shared';
 import {
   createTaskSchema,
   PROFESSIONAL_REQUIREMENT_LABELS,
@@ -10,10 +9,11 @@ import {
   TASK_TYPE_LABELS,
 } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { FormSelect } from '@/components/form-select';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -25,11 +25,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useCategories } from '@/hooks/use-categories';
-import { useCategoryTemplates } from '@/hooks/use-category-templates';
 import { useAddTask } from '@/hooks/use-plans';
 import { useUpdateTask } from '@/hooks/use-task-operations';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
+
+import { useTaskTemplates } from './use-task-templates';
 
 type TaskFormValues = z.input<typeof createTaskSchema>;
 
@@ -44,8 +44,6 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
   const isEdit = !!task;
   const addTask = useAddTask();
   const updateTask = useUpdateTask();
-  const { data: categories, isLoading: categoriesLoading } = useCategories();
-  const { data: categoryTemplates } = useCategoryTemplates();
   const [useCustomName, setUseCustomName] = useState(false);
 
   const {
@@ -67,33 +65,12 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
   const recurrenceType = watch('recurrenceType');
   const watchedCategoryId = watch('categoryId');
 
-  // Match Category → CategoryTemplate by name to get available TaskTemplates
-  const taskTemplates = useMemo(() => {
-    if (!watchedCategoryId || !categories || !categoryTemplates) return [];
-    const categoryName = categories.find((c) => c.id === watchedCategoryId)?.name;
-    if (!categoryName) return [];
-    const match = categoryTemplates.find((ct) => ct.name === categoryName);
-    return match?.tasks ?? [];
-  }, [watchedCategoryId, categories, categoryTemplates]);
+  const { categories, categoriesLoading, taskTemplates, applyTemplate } = useTaskTemplates(
+    watchedCategoryId,
+    setValue,
+  );
 
   const hasTemplates = taskTemplates.length > 0 && !isEdit;
-
-  const applyTemplate = useCallback(
-    (template: TaskTemplate) => {
-      setValue('name', template.name);
-      setValue('taskType', template.taskType as TaskFormValues['taskType']);
-      setValue(
-        'professionalRequirement',
-        template.professionalRequirement as TaskFormValues['professionalRequirement'],
-      );
-      setValue('priority', template.priority as TaskFormValues['priority']);
-      setValue('recurrenceType', template.recurrenceType as TaskFormValues['recurrenceType']);
-      if (template.recurrenceMonths) setValue('recurrenceMonths', template.recurrenceMonths);
-      setValue('technicalDescription', template.technicalDescription ?? '');
-      setValue('estimatedDurationMinutes', template.estimatedDurationMinutes ?? undefined);
-    },
-    [setValue],
-  );
 
   const handleTemplateSelect = useCallback(
     (templateId: string) => {
@@ -164,6 +141,7 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <input type="hidden" {...register('maintenancePlanId')} />
 
+          {/* Category select — uses dynamic list, not label map */}
           <div className="space-y-2">
             <Label htmlFor="task-category">Categoría</Label>
             <Select
@@ -195,6 +173,7 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
             )}
           </div>
 
+          {/* Name — template select or free-text input */}
           <div className="space-y-2">
             <Label htmlFor="task-name">Nombre</Label>
             {hasTemplates && !useCustomName ? (
@@ -253,45 +232,22 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="task-priority">Prioridad</Label>
-              <Select
-                value={watch('priority') ?? 'MEDIUM'}
-                onValueChange={(v) => setValue('priority', v as TaskFormValues['priority'])}
-              >
-                <SelectTrigger id="task-priority">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(TASK_PRIORITY_LABELS).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="task-recurrence">Recurrencia</Label>
-              <Select
-                value={watch('recurrenceType') ?? 'ANNUAL'}
-                onValueChange={(v) =>
-                  setValue('recurrenceType', v as TaskFormValues['recurrenceType'])
-                }
-              >
-                <SelectTrigger id="task-recurrence">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(RECURRENCE_TYPE_LABELS).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <FormSelect
+              id="task-priority"
+              label="Prioridad"
+              value={watch('priority') ?? 'MEDIUM'}
+              onValueChange={(v) => setValue('priority', v as TaskFormValues['priority'])}
+              options={TASK_PRIORITY_LABELS}
+            />
+            <FormSelect
+              id="task-recurrence"
+              label="Recurrencia"
+              value={watch('recurrenceType') ?? 'ANNUAL'}
+              onValueChange={(v) =>
+                setValue('recurrenceType', v as TaskFormValues['recurrenceType'])
+              }
+              options={RECURRENCE_TYPE_LABELS}
+            />
           </div>
 
           {recurrenceType === RecurrenceType.CUSTOM && (
@@ -308,48 +264,22 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
           )}
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="task-type">Tipo de tarea</Label>
-              <Select
-                value={watch('taskType') ?? 'INSPECTION'}
-                onValueChange={(v) => setValue('taskType', v as TaskFormValues['taskType'])}
-              >
-                <SelectTrigger id="task-type">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(TASK_TYPE_LABELS).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="task-professional">Requerimiento profesional</Label>
-              <Select
-                value={watch('professionalRequirement') ?? 'OWNER_CAN_DO'}
-                onValueChange={(v) =>
-                  setValue(
-                    'professionalRequirement',
-                    v as TaskFormValues['professionalRequirement'],
-                  )
-                }
-              >
-                <SelectTrigger id="task-professional">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(PROFESSIONAL_REQUIREMENT_LABELS).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <FormSelect
+              id="task-type"
+              label="Tipo de tarea"
+              value={watch('taskType') ?? 'INSPECTION'}
+              onValueChange={(v) => setValue('taskType', v as TaskFormValues['taskType'])}
+              options={TASK_TYPE_LABELS}
+            />
+            <FormSelect
+              id="task-professional"
+              label="Requerimiento profesional"
+              value={watch('professionalRequirement') ?? 'OWNER_CAN_DO'}
+              onValueChange={(v) =>
+                setValue('professionalRequirement', v as TaskFormValues['professionalRequirement'])
+              }
+              options={PROFESSIONAL_REQUIREMENT_LABELS}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -357,7 +287,6 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
               <Label htmlFor="task-technical-desc">Descripción técnica (opcional)</Label>
               <Input id="task-technical-desc" {...register('technicalDescription')} />
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="task-duration">Duración estimada (min, opcional)</Label>
               <Input
