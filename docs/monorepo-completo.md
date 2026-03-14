@@ -43,7 +43,7 @@ epde/
 │   ├── api/                          # ── @epde/api ──────────────────────
 │   │   ├── prisma/
 │   │   │   ├── schema.prisma         # 15 modelos, 17 enums
-│   │   │   ├── seed.ts               # Admin + 10 categorias default
+│   │   │   ├── seed.ts               # Admin + 13 categorias default + FK linkage
 │   │   │   └── migrations/
 │   │   ├── src/
 │   │   │   ├── main.ts               # Bootstrap (Helmet, CORS, Swagger, Cookies)

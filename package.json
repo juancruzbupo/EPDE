@@ -18,7 +18,8 @@
     "db:seed": "pnpm --filter @epde/api exec prisma db seed",
     "db:studio": "pnpm --filter @epde/api exec prisma studio",
     "db:generate": "pnpm --filter @epde/api exec prisma generate",
-    "check:schema-drift": "node scripts/check-schema-drift.mjs"
+    "check:schema-drift": "node scripts/check-schema-drift.mjs",
+    "check:docs-drift": "node scripts/check-docs-drift.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^19",

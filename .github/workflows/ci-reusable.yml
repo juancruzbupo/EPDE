@@ -88,6 +88,9 @@ jobs:
       - name: Entity drift check
         run: node scripts/check-entity-drift.mjs
 
+      - name: Docs drift check
+        run: pnpm check:docs-drift
+
       - name: Lint
         run: pnpm lint
 

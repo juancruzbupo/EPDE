@@ -3,7 +3,7 @@ import { ConflictException, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { EmailQueueService } from '../email/email-queue.service';
+import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { ClientsRepository } from './clients.repository';
 import { ClientsService } from './clients.service';
 describe('ClientsService', () => {
@@ -17,8 +17,8 @@ describe('ClientsService', () => {
     update: jest.Mock;
     softDelete: jest.Mock;
   };
-  let emailQueueService: {
-    enqueueInvite: jest.Mock;
+  let notificationsHandler: {
+    handleClientInvited: jest.Mock;
   };
   let jwtService: {
     sign: jest.Mock;
@@ -35,8 +35,8 @@ describe('ClientsService', () => {
       softDelete: jest.fn(),
     };
 
-    emailQueueService = {
-      enqueueInvite: jest.fn(),
+    notificationsHandler = {
+      handleClientInvited: jest.fn(),
     };
 
     jwtService = {
@@ -47,7 +47,7 @@ describe('ClientsService', () => {
       providers: [
         ClientsService,
         { provide: ClientsRepository, useValue: clientsRepository },
-        { provide: EmailQueueService, useValue: emailQueueService },
+        { provide: NotificationsHandlerService, useValue: notificationsHandler },
         { provide: JwtService, useValue: jwtService },
       ],
     }).compile();
@@ -178,7 +178,7 @@ describe('ClientsService', () => {
       };
       clientsRepository.create.mockResolvedValue(createdClient);
       jwtService.sign.mockReturnValue('invite-token-123');
-      emailQueueService.enqueueInvite.mockResolvedValue(undefined);
+      notificationsHandler.handleClientInvited.mockResolvedValue(undefined);
 
       const result = await service.createClient(dto);
 
@@ -195,11 +195,11 @@ describe('ClientsService', () => {
         { sub: 'client-new', email: dto.email, purpose: 'invite' },
         { expiresIn: '24h' },
       );
-      expect(emailQueueService.enqueueInvite).toHaveBeenCalledWith(
-        dto.email,
-        dto.name,
-        'invite-token-123',
-      );
+      expect(notificationsHandler.handleClientInvited).toHaveBeenCalledWith({
+        email: dto.email,
+        name: dto.name,
+        token: 'invite-token-123',
+      });
     });
 
     it('should throw ConflictException if email already exists and not deleted', async () => {
@@ -234,7 +234,7 @@ describe('ClientsService', () => {
       };
       clientsRepository.update.mockResolvedValue(reactivatedClient);
       jwtService.sign.mockReturnValue('reactivate-token');
-      emailQueueService.enqueueInvite.mockResolvedValue(undefined);
+      notificationsHandler.handleClientInvited.mockResolvedValue(undefined);
 
       const result = await service.createClient(dto);
 

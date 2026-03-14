@@ -227,7 +227,7 @@ Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
 }
 ```
 
-**Nota:** En el frontend, al seleccionar una categoria con plantillas (CategoryTemplate), se muestra un selector de TaskTemplate que auto-completa todos los campos. El admin puede sobreescribir cualquier valor.
+**Nota:** En el frontend, al seleccionar una categoria vinculada a un CategoryTemplate (via FK `categoryTemplateId`), se muestra un selector de TaskTemplate que auto-completa todos los campos. El admin puede sobreescribir cualquier valor.
 
 ---
 

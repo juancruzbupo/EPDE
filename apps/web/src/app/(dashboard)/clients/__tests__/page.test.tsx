@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 vi.mock('@/hooks/use-clients', () => ({
   useClients: vi.fn(),
   useDeleteClient: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
+  useReinviteClient: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
 }));
 
 vi.mock('next/navigation', () => ({

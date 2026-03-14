@@ -19,6 +19,7 @@ User ─1:N─ Property ─1:1─ MaintenancePlan ─1:N─ Task
   └─1:N─ Notification
 
 Category ─1:N─ Task
+    └─N:1─ CategoryTemplate (FK: categoryTemplateId, nullable, onDelete: SetNull)
 
 CategoryTemplate ─1:N─ TaskTemplate
 ```
@@ -243,18 +244,19 @@ CategoryTemplate ─1:N─ TaskTemplate
 
 ### Category
 
-| Campo       | Tipo      | Notas                          |
-| ----------- | --------- | ------------------------------ |
-| id          | UUID      | PK                             |
-| name        | String    | @@unique([name, deletedAt])    |
-| description | String?   |                                |
-| icon        | String?   | Nombre de icono Lucide         |
-| order       | Int       | Para ordenamiento (default: 0) |
-| deletedAt   | DateTime? | Soft delete                    |
+| Campo              | Tipo      | Notas                                     |
+| ------------------ | --------- | ----------------------------------------- |
+| id                 | UUID      | PK                                        |
+| name               | String    | @@unique([name, deletedAt])               |
+| description        | String?   |                                           |
+| icon               | String?   | Nombre de icono Lucide                    |
+| order              | Int       | Para ordenamiento (default: 0)            |
+| categoryTemplateId | String?   | FK → CategoryTemplate (onDelete: SetNull) |
+| deletedAt          | DateTime? | Soft delete                               |
 
 **Indices:** `[deletedAt]`
 **Soft delete:** Si — via Prisma extension (misma mecanica que User, Property, Task). El unique compuesto `[name, deletedAt]` permite recrear categorias con el mismo nombre si la anterior fue soft-deleted.
-**Categorias por defecto (seed):** Estructura, Techos y Cubiertas, Instalación Eléctrica, Instalación Sanitaria, Gas y Calefacción, Aberturas, Pintura y Revestimientos, Jardín y Exteriores, Climatización (los nombres coinciden con los 9 CategoryTemplates para que el TaskDialog pueda matchear por nombre)
+**Categorias por defecto (seed):** Estructura, Techos y Cubiertas, Instalación Eléctrica, Instalación Sanitaria, Gas y Calefacción, Aberturas, Pintura y Revestimientos, Jardín y Exteriores, Climatización, Humedad e Impermeabilización, Seguridad contra Incendio, Control de Plagas, Pisos y Contrapisos (13 categorias, vinculadas a CategoryTemplates via FK)
 
 ### Task
 
@@ -499,8 +501,8 @@ En el backend se usa `Prisma.Decimal` para aritmetica. Los valores se serializan
 El seed (`prisma/seed.ts`) crea:
 
 1. Usuario admin: `admin@epde.com` / password configurable via `SEED_ADMIN_PASSWORD` (default: `Admin123!`, warning si usa default)
-2. 10 categorias de mantenimiento por defecto
-3. 9 CategoryTemplates con 45 TaskTemplates (nomenclador de tareas)
+2. 13 categorias de mantenimiento por defecto (vinculadas a CategoryTemplates via FK)
+3. 13 CategoryTemplates con 65 TaskTemplates (nomenclador de tareas)
 4. Datos demo (`prisma/seed-demo.ts`) — 3 usuarios cliente con propiedades, planes, tareas, historial, presupuestos, solicitudes y notificaciones
 
 ### Seed Demo
@@ -519,7 +521,7 @@ El seed demo (`prisma/seed-demo.ts`) crea un dataset realista con 3 perfiles de 
 
 **María González** (uso intensivo, historial rico):
 
-- 48 tareas (mezcla de estados: completadas, pendientes, vencidas)
+- 71 tareas (mezcla de estados: completadas, pendientes, vencidas)
 - 51 task logs en 4 ciclos + 2 detecciones (grieta activa, humedad ascendente)
 - 2 presupuestos: 1 COMPLETED (impermeabilización $185.000), 1 IN_PROGRESS (tratamiento humedad $280.000)
 - 1 solicitud de servicio IN_PROGRESS (evaluación estructural)
@@ -527,14 +529,14 @@ El seed demo (`prisma/seed-demo.ts`) crea un dataset realista con 3 perfiles de 
 
 **Carlos Rodríguez** (uso parcial, priorizó seguridad):
 
-- 48 tareas (mayoría pendientes, priorizó gas y eléctrica)
+- 71 tareas (mayoría pendientes, priorizó gas y eléctrica)
 - 14 task logs en 3 meses de actividad parcial
 - 1 presupuesto QUOTED (puesta a tierra $95.000, pendiente de aprobación)
 - 2 notificaciones
 
 **Laura Fernández** (onboarding limpio):
 
-- 48 tareas (todas pendientes, sin historial)
+- 71 tareas (todas pendientes, sin historial)
 - Sin presupuestos, solicitudes ni historial
 - 1 notificación de bienvenida
 
@@ -545,8 +547,8 @@ El seed demo (`prisma/seed-demo.ts`) crea un dataset realista con 3 perfiles de 
 | Usuarios       | 4 (1 admin + 3 clientes)             |
 | Propiedades    | 3                                    |
 | Planes         | 3 (todos ACTIVE)                     |
-| Categorías     | 9 (compartidas entre planes)         |
-| Tareas         | 144 (48 × 3 propiedades)             |
+| Categorías     | 13 (compartidas entre planes)        |
+| Tareas         | 213 (71 × 3 propiedades)             |
 | Task Logs      | 65 (María: 51, Carlos: 14, Laura: 0) |
 | Presupuestos   | 3 (COMPLETED, IN_PROGRESS, QUOTED)   |
 | Solicitudes    | 1 (IN_PROGRESS)                      |

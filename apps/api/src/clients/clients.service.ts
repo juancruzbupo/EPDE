@@ -1,19 +1,17 @@
 import type { ClientFiltersInput, CreateClientInput, UpdateClientInput } from '@epde/shared';
 import { UserRole, UserStatus } from '@epde/shared';
-import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { DuplicateClientEmailError } from '../common/exceptions/domain.exceptions';
-import { EmailQueueService } from '../email/email-queue.service';
+import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { ClientsRepository } from './clients.repository';
 
 @Injectable()
 export class ClientsService {
-  private readonly logger = new Logger(ClientsService.name);
-
   constructor(
     private readonly clientsRepository: ClientsRepository,
-    private readonly emailQueueService: EmailQueueService,
+    private readonly notificationsHandler: NotificationsHandlerService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -76,15 +74,11 @@ export class ClientsService {
       { expiresIn: '24h' },
     );
 
-    // Non-blocking: client is created even if email queue is down.
-    // Admin can re-invite later from the client detail page.
-    try {
-      await this.emailQueueService.enqueueInvite(client.email, client.name, token);
-    } catch (error) {
-      this.logger.error(
-        `Failed to enqueue invite email for ${client.email}: ${(error as Error).message}`,
-      );
-    }
+    void this.notificationsHandler.handleClientInvited({
+      email: client.email,
+      name: client.name,
+      token,
+    });
 
     const { passwordHash: _passwordHash, ...clientWithoutPassword } = client;
     return clientWithoutPassword;
@@ -104,7 +98,11 @@ export class ClientsService {
       { expiresIn: '24h' },
     );
 
-    await this.emailQueueService.enqueueInvite(client.email, client.name, token);
+    void this.notificationsHandler.handleClientInvited({
+      email: client.email,
+      name: client.name,
+      token,
+    });
 
     const { passwordHash: _passwordHash, ...clientWithoutPassword } = client;
     return clientWithoutPassword;

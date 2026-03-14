@@ -49,7 +49,7 @@
 37. **Rutas estaticas antes de parametrizadas** — En NestJS controllers, las rutas estaticas (`@Patch('read-all')`, `@Patch('reorder/batch')`) DEBEN declararse antes de las rutas parametrizadas (`@Patch(':id/read')`, `@Patch(':id')`). Si no, NestJS matchea el segmento estatico como parametro UUID y falla con 400
 38. **Axios generics en vez de `as` casts** — Preferir `apiClient.post<{ data: T }>(url, body)` en vez de `const res = ... ; return res.data as T`. Los generics permiten que TypeScript infiera el tipo de `data` sin type assertions inseguras
 39. **API factory return types explícitos con `ApiResponse<T>`** — Toda funcion en `packages/shared/src/api/*.ts` DEBE tener return type explicito: `Promise<ApiResponse<T>>` para detalle/mutacion, `Promise<ApiResponse<null>>` para deletes, `Promise<PaginatedResponse<T>>` para listas paginadas. NUNCA usar `Promise<{ data: T }>` inline — usar siempre los type aliases de `../types`
-40. **Template auto-fill en creacion de tareas** — El TaskDialog matchea `Category.name` → `CategoryTemplate.name` para mostrar un selector de `TaskTemplate` en vez de texto libre para el nombre. Al seleccionar una plantilla se auto-completan: `taskType`, `professionalRequirement`, `priority`, `recurrenceType`, `recurrenceMonths`, `technicalDescription`, `estimatedDurationMinutes`. El admin puede sobreescribir cualquier campo. En modo edicion el nombre es siempre texto libre
+40. **Template auto-fill en creacion de tareas** — El TaskDialog usa `Category.categoryTemplateId` (FK) para buscar el `CategoryTemplate` asociado y mostrar un selector de `TaskTemplate` en vez de texto libre para el nombre. Al seleccionar una plantilla se auto-completan: `taskType`, `professionalRequirement`, `priority`, `recurrenceType`, `recurrenceMonths`, `technicalDescription`, `estimatedDurationMinutes`. El admin puede sobreescribir cualquier campo. En modo edicion el nombre es siempre texto libre
 41. **Domain exceptions para TODA regla de negocio** — Ownership checks, transiciones de estado, validaciones de unicidad: SIEMPRE lanzar domain exception (`XxxError extends Error` en `common/exceptions/domain.exceptions.ts`) y mapear a HTTP en el mismo service via try/catch. NUNCA lanzar `ForbiddenException`/`ConflictException` directamente desde logica de negocio — los services deben ser transport-agnostic. Excepciones existentes: `PropertyAccessDeniedError`, `PlanAccessDeniedError`, `TaskAccessDeniedError`, `BudgetAccessDeniedError`, `DuplicateClientEmailError`, `InvalidBudgetTransitionError`, `InvalidServiceStatusTransitionError`, `TaskNotCompletableError`, `CategoryHasReferencingTasksError`, `UserAlreadyHasPasswordError`
 42. **Enum constants en tests** — Usar `TaskPriority.MEDIUM` en vez de `'MEDIUM'`, `RecurrenceType.ANNUAL` en vez de `'ANNUAL'` en fixtures de test. El helper `TEST_TASK_DEFAULTS` en `test/helpers/test-task-defaults.ts` centraliza valores comunes para evitar drift
 43. **Entity drift check en CI** — El script `scripts/check-entity-drift.mjs` verifica que los campos de los 6 modelos principales de Prisma coincidan con las interfaces en `packages/shared/src/types/entities/`. Se ejecuta automaticamente en CI despues del schema drift check. Al agregar un campo en `schema.prisma`, actualizar tambien la interface en shared
@@ -601,20 +601,31 @@ export class UploadController {
 // ALLOWED_FOLDERS: uploads, properties, tasks, service-requests, budgets
 ```
 
-### 3.8 Event-Driven
+### 3.8 Side-Effects (NotificationsHandlerService)
 
 ```typescript
-// NotificationsListener — CADA handler con try-catch
-@OnEvent('budget.created')
-async handleBudgetCreated(payload: BudgetCreatedEvent) {
+// Centralized side-effect handler — fire-and-forget pattern
+// Domain services inject NotificationsHandlerService, NOT EmailQueueService/NotificationQueueService directly.
+
+// In the domain service (e.g. BudgetsService):
+void this.notificationsHandler.handleBudgetCreated({
+  budgetId, title, requesterId, propertyId,
+});
+
+// In NotificationsHandlerService — each method catches its own errors:
+async handleBudgetCreated(payload: { budgetId: string; title: string; ... }): Promise<void> {
   try {
-    await this.notificationsRepo.create({ ... });
-    await this.emailService.send({ ... });
+    await this.notificationQueueService.enqueueBatch([...]);
   } catch (error) {
-    this.logger.error('Error handling budget.created', error.stack);
+    this.logger.error(`Error handling budget.created: ${error.message}`, error.stack);
     // NO propagar — el error no debe afectar al emisor
   }
 }
+
+// Adding a new side-effect:
+// 1. Add handleXxxYyy() method in NotificationsHandlerService
+// 2. Inject NotificationsHandlerService in the target domain service
+// 3. Call: void this.notificationsHandler.handleXxxYyy({...}) after the DB write
 ```
 
 ### 3.9 Test Pattern

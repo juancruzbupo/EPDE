@@ -208,6 +208,21 @@ export class NotificationsHandlerService {
     }
   }
 
+  async handleClientInvited(payload: {
+    email: string;
+    name: string;
+    token: string;
+  }): Promise<void> {
+    try {
+      await this.emailQueueService.enqueueInvite(payload.email, payload.name, payload.token);
+    } catch (error) {
+      this.logger.error(
+        `Error handling client.invited for ${payload.email}: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+    }
+  }
+
   /**
    * Bulk task reminder handler — used by TaskReminderService (scheduler).
    * Uses direct DB writes (NotificationsService) instead of BullMQ queue

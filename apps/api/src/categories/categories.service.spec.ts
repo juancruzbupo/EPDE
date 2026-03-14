@@ -1,6 +1,7 @@
 import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { CategoryTemplatesRepository } from '../category-templates/category-templates.repository';
 import { CategoriesRepository } from './categories.repository';
 import { CategoriesService } from './categories.service';
 
@@ -28,7 +29,11 @@ describe('CategoriesService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [CategoriesService, { provide: CategoriesRepository, useValue: repository }],
+      providers: [
+        CategoriesService,
+        { provide: CategoriesRepository, useValue: repository },
+        { provide: CategoryTemplatesRepository, useValue: { findByName: jest.fn() } },
+      ],
     }).compile();
 
     service = module.get<CategoriesService>(CategoriesService);
