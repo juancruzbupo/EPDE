@@ -3,7 +3,6 @@
 import { UserRole } from '@epde/shared';
 import {
   CheckSquare,
-  ClipboardList,
   FileText,
   Home,
   LayoutDashboard,
@@ -23,7 +22,6 @@ const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Clientes', href: '/clients', icon: Users, adminOnly: true },
   { label: 'Propiedades', href: '/properties', icon: Home },
-  { label: 'Planes', href: '/maintenance-plans', icon: ClipboardList },
   { label: 'Tareas', href: '/tasks', icon: CheckSquare },
   { label: 'Presupuestos', href: '/budgets', icon: FileText },
   { label: 'Servicios', href: '/service-requests', icon: Wrench },
