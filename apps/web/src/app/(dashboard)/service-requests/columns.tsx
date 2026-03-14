@@ -39,7 +39,7 @@ export const serviceRequestColumns: ColumnDef<ServiceRequestPublic>[] = [
     cell: ({ row }) => {
       const urgency = row.original.urgency;
       return (
-        <Badge variant={URGENCY_VARIANT[urgency] ?? 'outline'}>
+        <Badge variant={URGENCY_VARIANT[urgency] ?? 'secondary'}>
           {SERVICE_URGENCY_LABELS[urgency] ?? urgency}
         </Badge>
       );

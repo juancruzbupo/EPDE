@@ -23,7 +23,10 @@ import {
 } from '@nestjs/common';
 import type { Task } from '@prisma/client';
 
-import { TaskNotCompletableError } from '../common/exceptions/domain.exceptions';
+import {
+  TaskAccessDeniedError,
+  TaskNotCompletableError,
+} from '../common/exceptions/domain.exceptions';
 import { MaintenancePlansRepository } from '../maintenance-plans/maintenance-plans.repository';
 import { TaskAuditLogRepository } from './task-audit-log.repository';
 import { TasksRepository } from './tasks.repository';
@@ -50,11 +53,18 @@ export class TaskLifecycleService {
     const task = await this.tasksRepository.findById(taskId);
     if (!task) throw new NotFoundException('Tarea no encontrada');
 
-    if (user?.role === UserRole.CLIENT) {
-      const plan = await this.plansRepository.findWithProperty(task.maintenancePlanId);
-      if (plan?.property?.userId !== user.id) {
-        throw new ForbiddenException('No tenés acceso a esta tarea');
+    try {
+      if (user?.role === UserRole.CLIENT) {
+        const plan = await this.plansRepository.findWithProperty(task.maintenancePlanId);
+        if (plan?.property?.userId !== user.id) {
+          throw new TaskAccessDeniedError();
+        }
       }
+    } catch (error) {
+      if (error instanceof TaskAccessDeniedError) {
+        throw new ForbiddenException(error.message);
+      }
+      throw error;
     }
 
     return task;

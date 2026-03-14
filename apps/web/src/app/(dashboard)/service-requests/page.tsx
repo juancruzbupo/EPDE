@@ -54,7 +54,7 @@ export default function ServiceRequestsPage() {
     <PageTransition>
       <PageHeader
         title="Solicitudes de Servicio"
-        description="Gestion de solicitudes de servicio"
+        description="Gestión de solicitudes de servicio"
         action={
           user?.role === UserRole.CLIENT ? (
             <Button onClick={() => setCreateOpen(true)}>

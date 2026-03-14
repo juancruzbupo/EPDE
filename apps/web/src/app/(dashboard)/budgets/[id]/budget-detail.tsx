@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { ErrorState } from '@/components/error-state';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -68,7 +69,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
   const [respondOpen, setRespondOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
 
-  const { data } = useBudget(id, { initialData });
+  const { data, isError, refetch } = useBudget(id, { initialData });
   const updateStatus = useUpdateBudgetStatus();
 
   const budget = data;
@@ -78,6 +79,10 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
     updateStatus.mutate({ id, status: confirmAction }, { onSuccess: () => setConfirmAction(null) });
   };
 
+  if (isError && !budget)
+    return (
+      <ErrorState message="No se pudo cargar el presupuesto" onRetry={refetch} className="py-24" />
+    );
   if (!budget) return null;
 
   const hasResponse = budget.status !== BudgetStatus.PENDING && budget.lineItems.length > 0;
@@ -100,7 +105,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg">Información del presupuesto</CardTitle>
-          <Badge variant={BUDGET_STATUS_VARIANT[budget.status] ?? 'outline'}>
+          <Badge variant={BUDGET_STATUS_VARIANT[budget.status] ?? 'secondary'}>
             {BUDGET_STATUS_LABELS[budget.status] ?? budget.status}
           </Badge>
         </CardHeader>

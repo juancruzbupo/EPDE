@@ -18,11 +18,9 @@ import {
   updateTaskTemplate,
 } from '@/lib/api/category-templates';
 
-const QUERY_KEY = [QUERY_KEYS.categoryTemplates];
-
 export function useCategoryTemplates() {
   return useQuery({
-    queryKey: QUERY_KEY,
+    queryKey: [QUERY_KEYS.categoryTemplates],
     queryFn: ({ signal }) => getCategoryTemplates(signal).then((r) => r.data),
   });
 }
@@ -33,7 +31,7 @@ export function useCreateCategoryTemplate() {
     mutationFn: (dto: CreateCategoryTemplateInput) => createCategoryTemplate(dto),
     onSuccess: () => {
       toast.success('Categoría template creada');
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.categoryTemplates] });
     },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al crear categoría template')),
   });
@@ -46,7 +44,7 @@ export function useUpdateCategoryTemplate() {
       updateCategoryTemplate(id, dto),
     onSuccess: () => {
       toast.success('Categoría template actualizada');
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.categoryTemplates] });
     },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al actualizar categoría template')),
   });
@@ -58,7 +56,7 @@ export function useDeleteCategoryTemplate() {
     mutationFn: deleteCategoryTemplate,
     onSuccess: () => {
       toast.success('Categoría template eliminada');
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.categoryTemplates] });
     },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al eliminar categoría template')),
   });
@@ -71,7 +69,7 @@ export function useCreateTaskTemplate() {
       createTaskTemplate(categoryId, dto),
     onSuccess: () => {
       toast.success('Tarea template creada');
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.categoryTemplates] });
     },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al crear tarea template')),
   });
@@ -84,7 +82,7 @@ export function useUpdateTaskTemplate() {
       updateTaskTemplate(id, dto),
     onSuccess: () => {
       toast.success('Tarea template actualizada');
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.categoryTemplates] });
     },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al actualizar tarea template')),
   });
@@ -96,7 +94,7 @@ export function useDeleteTaskTemplate() {
     mutationFn: deleteTaskTemplate,
     onSuccess: () => {
       toast.success('Tarea template eliminada');
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.categoryTemplates] });
     },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al eliminar tarea template')),
   });

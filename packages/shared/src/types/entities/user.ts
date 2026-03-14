@@ -13,4 +13,5 @@ export interface User extends BaseEntity, SoftDeletable {
 
 export type UserPublic = Serialized<Omit<User, 'passwordHash'>>;
 
+/** Client-facing user type — omits `deletedAt` since clients should never see soft-delete metadata */
 export type ClientPublic = Serialized<Omit<User, 'passwordHash' | 'deletedAt'>>;

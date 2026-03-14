@@ -93,11 +93,11 @@ export type NotificationType = (typeof NotificationType)[keyof typeof Notificati
 // ─── Dashboard Activity ─────────────────────────────────
 
 export const ActivityType = {
-  CLIENT_CREATED: 'client_created',
-  PROPERTY_CREATED: 'property_created',
-  TASK_COMPLETED: 'task_completed',
-  BUDGET_REQUESTED: 'budget_requested',
-  SERVICE_REQUESTED: 'service_requested',
+  CLIENT_CREATED: 'CLIENT_CREATED',
+  PROPERTY_CREATED: 'PROPERTY_CREATED',
+  TASK_COMPLETED: 'TASK_COMPLETED',
+  BUDGET_REQUESTED: 'BUDGET_REQUESTED',
+  SERVICE_REQUESTED: 'SERVICE_REQUESTED',
 } as const;
 export type ActivityType = (typeof ActivityType)[keyof typeof ActivityType];
 

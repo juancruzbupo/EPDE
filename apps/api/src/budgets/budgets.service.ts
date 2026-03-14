@@ -76,8 +76,15 @@ export class BudgetsService {
       throw new NotFoundException('Propiedad no encontrada');
     }
 
-    if (property.userId !== userId) {
-      throw new ForbiddenException('No tenés acceso a esta propiedad');
+    try {
+      if (property.userId !== userId) {
+        throw new BudgetAccessDeniedError('ownership');
+      }
+    } catch (error) {
+      if (error instanceof BudgetAccessDeniedError) {
+        throw new ForbiddenException(error.message);
+      }
+      throw error;
     }
 
     const budget = await this.budgetsRepository.create(

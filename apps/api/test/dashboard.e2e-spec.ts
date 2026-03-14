@@ -1,4 +1,13 @@
-import { PlanStatus, TaskStatus, UserRole, UserStatus } from '@epde/shared';
+import {
+  PlanStatus,
+  ProfessionalRequirement,
+  RecurrenceType,
+  TaskPriority,
+  TaskStatus,
+  TaskType,
+  UserRole,
+  UserStatus,
+} from '@epde/shared';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 
@@ -146,10 +155,10 @@ describe('DashboardController (e2e)', () => {
           maintenancePlanId: plan.id,
           categoryId: testData.category.id,
           name: 'Secret Task',
-          taskType: 'INSPECTION',
-          priority: 'HIGH',
-          professionalRequirement: 'PROFESSIONAL_REQUIRED',
-          recurrenceType: 'ANNUAL',
+          taskType: TaskType.INSPECTION,
+          priority: TaskPriority.HIGH,
+          professionalRequirement: ProfessionalRequirement.PROFESSIONAL_REQUIRED,
+          recurrenceType: RecurrenceType.ANNUAL,
           nextDueDate: new Date(Date.now() + 86400000), // tomorrow
           status: TaskStatus.PENDING,
           order: 0,

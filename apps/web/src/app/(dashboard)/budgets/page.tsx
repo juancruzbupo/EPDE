@@ -46,7 +46,7 @@ export default function BudgetsPage() {
     <PageTransition>
       <PageHeader
         title="Presupuestos"
-        description="Gestion de presupuestos"
+        description="Gestión de presupuestos"
         action={
           user?.role === UserRole.CLIENT ? (
             <Button onClick={() => setCreateOpen(true)}>

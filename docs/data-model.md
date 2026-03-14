@@ -254,7 +254,7 @@ CategoryTemplate ─1:N─ TaskTemplate
 
 **Indices:** `[deletedAt]`
 **Soft delete:** Si — via Prisma extension (misma mecanica que User, Property, Task). El unique compuesto `[name, deletedAt]` permite recrear categorias con el mismo nombre si la anterior fue soft-deleted.
-**Categorias por defecto (seed):** Electricidad, Plomeria, Pintura, Techos y Cubiertas, Jardin y Exteriores, Climatizacion, Seguridad, Limpieza General, Estructural, Aberturas
+**Categorias por defecto (seed):** Estructura, Techos y Cubiertas, Instalación Eléctrica, Instalación Sanitaria, Gas y Calefacción, Aberturas, Pintura y Revestimientos, Jardín y Exteriores, Climatización (los nombres coinciden con los 9 CategoryTemplates para que el TaskDialog pueda matchear por nombre)
 
 ### Task
 

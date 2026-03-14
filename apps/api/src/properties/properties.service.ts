@@ -7,6 +7,7 @@ import type {
 import { UserRole } from '@epde/shared';
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 
+import { PropertyAccessDeniedError } from '../common/exceptions/domain.exceptions';
 import { PropertiesRepository } from './properties.repository';
 
 @Injectable()
@@ -32,9 +33,7 @@ export class PropertiesService {
       throw new NotFoundException('Propiedad no encontrada');
     }
 
-    if (currentUser.role === UserRole.CLIENT && property.userId !== currentUser.id) {
-      throw new ForbiddenException('No tenés acceso a esta propiedad');
-    }
+    this.assertOwnership(property.userId, currentUser);
 
     return property;
   }
@@ -57,9 +56,7 @@ export class PropertiesService {
       throw new NotFoundException('Propiedad no encontrada');
     }
 
-    if (currentUser.role === UserRole.CLIENT && property.userId !== currentUser.id) {
-      throw new ForbiddenException('No tenés acceso a esta propiedad');
-    }
+    this.assertOwnership(property.userId, currentUser);
 
     return this.propertiesRepository.update(id, { ...dto, updatedBy: currentUser.id });
   }
@@ -70,11 +67,22 @@ export class PropertiesService {
       throw new NotFoundException('Propiedad no encontrada');
     }
 
-    if (currentUser.role === UserRole.CLIENT && property.userId !== currentUser.id) {
-      throw new ForbiddenException('No tenés acceso a esta propiedad');
-    }
+    this.assertOwnership(property.userId, currentUser);
 
     await this.propertiesRepository.softDelete(id);
     return { data: null, message: 'Propiedad eliminada' };
+  }
+
+  private assertOwnership(propertyUserId: string, currentUser: ServiceUser) {
+    try {
+      if (currentUser.role === UserRole.CLIENT && propertyUserId !== currentUser.id) {
+        throw new PropertyAccessDeniedError();
+      }
+    } catch (error) {
+      if (error instanceof PropertyAccessDeniedError) {
+        throw new ForbiddenException(error.message);
+      }
+      throw error;
+    }
   }
 }

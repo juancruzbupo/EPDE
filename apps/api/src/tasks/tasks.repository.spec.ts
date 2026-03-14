@@ -1,4 +1,4 @@
-import { TASKS_MAX_TAKE, TaskStatus } from '@epde/shared';
+import { RecurrenceType, TASKS_MAX_TAKE, TaskStatus } from '@epde/shared';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { TasksRepository } from './tasks.repository';
@@ -40,7 +40,7 @@ describe('TasksRepository', () => {
         where: {
           nextDueDate: { lt: expect.any(Date) },
           status: { notIn: [TaskStatus.COMPLETED, TaskStatus.OVERDUE] },
-          recurrenceType: { not: 'ON_DETECTION' },
+          recurrenceType: { not: RecurrenceType.ON_DETECTION },
         },
         data: { status: TaskStatus.OVERDUE },
       });
@@ -56,7 +56,7 @@ describe('TasksRepository', () => {
           where: {
             nextDueDate: { gte: expect.any(Date), lte: expect.any(Date) },
             status: { not: TaskStatus.COMPLETED },
-            recurrenceType: { not: 'ON_DETECTION' },
+            recurrenceType: { not: RecurrenceType.ON_DETECTION },
           },
         }),
       );
@@ -78,7 +78,7 @@ describe('TasksRepository', () => {
           where: {
             nextDueDate: { lt: expect.any(Date) },
             status: TaskStatus.OVERDUE,
-            recurrenceType: { not: 'ON_DETECTION' },
+            recurrenceType: { not: RecurrenceType.ON_DETECTION },
           },
         }),
       );

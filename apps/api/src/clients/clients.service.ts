@@ -3,6 +3,7 @@ import { UserRole, UserStatus } from '@epde/shared';
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
+import { DuplicateClientEmailError } from '../common/exceptions/domain.exceptions';
 import { EmailQueueService } from '../email/email-queue.service';
 import { ClientsRepository } from './clients.repository';
 
@@ -50,7 +51,14 @@ export class ClientsService {
         deletedAt: null,
       });
     } else if (existing) {
-      throw new ConflictException('Ya existe un usuario con ese email');
+      try {
+        throw new DuplicateClientEmailError();
+      } catch (error) {
+        if (error instanceof DuplicateClientEmailError) {
+          throw new ConflictException(error.message);
+        }
+        throw error;
+      }
     } else {
       client = await this.clientsRepository.create({
         email: dto.email,

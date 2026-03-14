@@ -1,4 +1,11 @@
-import { TaskStatus, UserRole } from '@epde/shared';
+import {
+  ProfessionalRequirement,
+  RecurrenceType,
+  TaskPriority,
+  TaskStatus,
+  TaskType,
+  UserRole,
+} from '@epde/shared';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -51,10 +58,10 @@ describe('TaskLifecycleService', () => {
       const dto = {
         categoryId: 'cat-1',
         name: 'Inspección',
-        recurrenceType: 'ANNUAL' as const,
-        priority: 'MEDIUM' as const,
-        taskType: 'INSPECTION' as const,
-        professionalRequirement: 'OWNER_CAN_DO' as const,
+        recurrenceType: RecurrenceType.ANNUAL,
+        priority: TaskPriority.MEDIUM,
+        taskType: TaskType.INSPECTION,
+        professionalRequirement: ProfessionalRequirement.OWNER_CAN_DO,
       };
       const createdTask = { id: 'task-1', name: 'Inspección', order: 1 };
 
@@ -79,10 +86,10 @@ describe('TaskLifecycleService', () => {
           {
             categoryId: 'cat-1',
             name: 'Test',
-            taskType: 'INSPECTION' as const,
-            professionalRequirement: 'OWNER_CAN_DO' as const,
-            recurrenceType: 'ANNUAL' as const,
-            priority: 'MEDIUM' as const,
+            taskType: TaskType.INSPECTION,
+            professionalRequirement: ProfessionalRequirement.OWNER_CAN_DO,
+            recurrenceType: RecurrenceType.ANNUAL,
+            priority: TaskPriority.MEDIUM,
           },
           'user-1',
         ),
@@ -168,7 +175,7 @@ describe('TaskLifecycleService', () => {
       const task = {
         id: taskId,
         status: TaskStatus.PENDING,
-        recurrenceType: 'ANNUAL',
+        recurrenceType: RecurrenceType.ANNUAL,
         recurrenceMonths: 12,
         nextDueDate: new Date('2025-01-01'),
         maintenancePlanId: 'plan-1',
@@ -207,7 +214,7 @@ describe('TaskLifecycleService', () => {
       const task = {
         id: taskId,
         status: TaskStatus.OVERDUE,
-        recurrenceType: 'ON_DETECTION',
+        recurrenceType: RecurrenceType.ON_DETECTION,
         recurrenceMonths: null,
         nextDueDate: null,
         maintenancePlanId: 'plan-1',
@@ -234,7 +241,7 @@ describe('TaskLifecycleService', () => {
         id: 'task-1',
         status: TaskStatus.COMPLETED,
         maintenancePlanId: 'plan-1',
-        recurrenceType: 'ANNUAL',
+        recurrenceType: RecurrenceType.ANNUAL,
         nextDueDate: new Date(),
         recurrenceMonths: 12,
       };

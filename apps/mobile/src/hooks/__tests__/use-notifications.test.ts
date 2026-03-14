@@ -149,7 +149,7 @@ describe('useMarkAllAsRead', () => {
 
     expect(mockSetQueryData).toHaveBeenCalledWith(
       [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
-      expect.any(Function),
+      0,
     );
   });
 

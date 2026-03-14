@@ -163,7 +163,7 @@ export function PlanViewer({ planId }: PlanViewerProps) {
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-medium">{task.name}</span>
                         <Badge
-                          variant={TASK_STATUS_VARIANT[task.status] ?? 'outline'}
+                          variant={TASK_STATUS_VARIANT[task.status] ?? 'secondary'}
                           className="text-xs"
                         >
                           {TASK_STATUS_LABELS[task.status] ?? task.status}

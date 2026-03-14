@@ -62,3 +62,31 @@ export class InvalidServiceStatusTransitionError extends Error {
     super(`No se puede cambiar el estado de ${currentStatus} a ${targetStatus}`);
   }
 }
+
+export class PropertyAccessDeniedError extends Error {
+  readonly name = 'PropertyAccessDeniedError';
+  constructor() {
+    super('No tenés acceso a esta propiedad');
+  }
+}
+
+export class PlanAccessDeniedError extends Error {
+  readonly name = 'PlanAccessDeniedError';
+  constructor() {
+    super('No tenés acceso a este plan');
+  }
+}
+
+export class TaskAccessDeniedError extends Error {
+  readonly name = 'TaskAccessDeniedError';
+  constructor() {
+    super('No tenés acceso a esta tarea');
+  }
+}
+
+export class DuplicateClientEmailError extends Error {
+  readonly name = 'DuplicateClientEmailError';
+  constructor() {
+    super('Ya existe un usuario con ese email');
+  }
+}

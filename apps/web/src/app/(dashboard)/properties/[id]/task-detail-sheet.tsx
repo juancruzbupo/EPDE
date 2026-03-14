@@ -51,7 +51,7 @@ export function TaskDetailSheet({
         <SheetHeader className="px-6 pb-4">
           <SheetTitle className="text-lg leading-tight">{task.name}</SheetTitle>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <Badge variant={TASK_STATUS_VARIANT[task.status] ?? 'outline'}>
+            <Badge variant={TASK_STATUS_VARIANT[task.status] ?? 'secondary'}>
               {TASK_STATUS_LABELS[task.status] ?? task.status}
             </Badge>
             <Badge variant="outline">{task.category.name}</Badge>

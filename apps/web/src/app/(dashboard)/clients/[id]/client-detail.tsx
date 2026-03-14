@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { ErrorState } from '@/components/error-state';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -30,7 +31,7 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
   const [editing, setEditing] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const { data } = useClient(id, { initialData });
+  const { data, isError, refetch } = useClient(id, { initialData });
   const updateClient = useUpdateClient();
   const deleteClient = useDeleteClient();
 
@@ -49,6 +50,10 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
     updateClient.mutate({ id, ...formData }, { onSuccess: () => setEditing(false) });
   };
 
+  if (isError && !client)
+    return (
+      <ErrorState message="No se pudo cargar el cliente" onRetry={refetch} className="py-24" />
+    );
   if (!client) return null;
 
   return (

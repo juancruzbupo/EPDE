@@ -1,3 +1,4 @@
+import { RecurrenceType, TaskStatus } from '@epde/shared';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { MetricsService } from '../metrics/metrics.service';
@@ -56,7 +57,7 @@ describe('TaskSafetyService', () => {
       const staleTask = {
         id: 'task-1',
         recurrenceMonths: 12,
-        recurrenceType: 'ANNUAL',
+        recurrenceType: RecurrenceType.ANNUAL,
         nextDueDate: new Date('2025-01-01'),
       };
       mockTasksRepository.findStaleCompleted.mockResolvedValueOnce([staleTask]);
@@ -68,7 +69,7 @@ describe('TaskSafetyService', () => {
       expect(mockTasksRepository.updateDueDateAndStatus).toHaveBeenCalledWith(
         'task-1',
         expect.any(Date),
-        'PENDING',
+        TaskStatus.PENDING,
       );
     });
 
@@ -76,7 +77,7 @@ describe('TaskSafetyService', () => {
       const taskWithoutDueDate = {
         id: 'task-no-date',
         recurrenceMonths: 12,
-        recurrenceType: 'ANNUAL',
+        recurrenceType: RecurrenceType.ANNUAL,
         nextDueDate: null,
       };
       mockTasksRepository.findStaleCompleted.mockResolvedValueOnce([taskWithoutDueDate]);
@@ -94,13 +95,13 @@ describe('TaskSafetyService', () => {
       const task1 = {
         id: 'task-fail',
         recurrenceMonths: 12,
-        recurrenceType: 'ANNUAL',
+        recurrenceType: RecurrenceType.ANNUAL,
         nextDueDate: new Date('2025-01-01'),
       };
       const task2 = {
         id: 'task-success',
         recurrenceMonths: 12,
-        recurrenceType: 'ANNUAL',
+        recurrenceType: RecurrenceType.ANNUAL,
         nextDueDate: new Date('2025-01-01'),
       };
 
@@ -122,7 +123,7 @@ describe('TaskSafetyService', () => {
       expect(mockTasksRepository.updateDueDateAndStatus).toHaveBeenCalledWith(
         'task-success',
         expect.any(Date),
-        'PENDING',
+        TaskStatus.PENDING,
       );
     });
   });

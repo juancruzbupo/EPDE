@@ -24,10 +24,7 @@ import { useAllTasks } from '@/hooks/use-plans';
 
 const statusOptions = [
   { value: 'all', label: 'Todos los estados' },
-  { value: TaskStatus.OVERDUE, label: 'Vencidas' },
-  { value: TaskStatus.UPCOMING, label: 'Próximas' },
-  { value: TaskStatus.PENDING, label: 'Pendientes' },
-  { value: TaskStatus.COMPLETED, label: 'Completadas' },
+  ...Object.entries(TASK_STATUS_LABELS).map(([value, label]) => ({ value, label })),
 ];
 
 function TaskRow({ task, onClick }: { task: TaskListItem; onClick: () => void }) {

@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { ErrorState } from '@/components/error-state';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -43,7 +44,7 @@ interface ServiceRequestDetailProps {
 }
 
 export function ServiceRequestDetail({ id, isAdmin, initialData }: ServiceRequestDetailProps) {
-  const { data } = useServiceRequest(id, { initialData });
+  const { data, isError, refetch } = useServiceRequest(id, { initialData });
   const updateStatus = useUpdateServiceStatus();
 
   const [statusConfirm, setStatusConfirm] = useState<ServiceStatus | null>(null);
@@ -51,6 +52,10 @@ export function ServiceRequestDetail({ id, isAdmin, initialData }: ServiceReques
 
   const request = data;
 
+  if (isError && !request)
+    return (
+      <ErrorState message="No se pudo cargar la solicitud" onRetry={refetch} className="py-24" />
+    );
   if (!request) return null;
 
   const nextStatus = STATUS_TRANSITIONS[request.status];
@@ -110,7 +115,7 @@ export function ServiceRequestDetail({ id, isAdmin, initialData }: ServiceReques
                     Urgencia
                   </dt>
                   <dd>
-                    <Badge variant={URGENCY_VARIANT[request.urgency] ?? 'outline'}>
+                    <Badge variant={URGENCY_VARIANT[request.urgency] ?? 'secondary'}>
                       {SERVICE_URGENCY_LABELS[request.urgency] ?? request.urgency}
                     </Badge>
                   </dd>

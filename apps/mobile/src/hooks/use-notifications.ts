@@ -81,10 +81,7 @@ export function useMarkAllAsRead() {
         QUERY_KEYS.notifications,
         QUERY_KEYS.notificationsUnreadCount,
       ]);
-      queryClient.setQueryData<number>(
-        [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
-        () => 0,
-      );
+      queryClient.setQueryData([QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount], 0);
       return { previousCount };
     },
 

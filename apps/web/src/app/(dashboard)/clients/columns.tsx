@@ -42,7 +42,7 @@ export function clientColumns({
       accessorKey: 'status',
       header: 'Estado',
       cell: ({ row }) => (
-        <Badge variant={CLIENT_STATUS_VARIANT[row.original.status] ?? 'outline'}>
+        <Badge variant={CLIENT_STATUS_VARIANT[row.original.status] ?? 'secondary'}>
           {USER_STATUS_LABELS[row.original.status] ?? row.original.status}
         </Badge>
       ),

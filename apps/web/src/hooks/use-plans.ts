@@ -42,6 +42,7 @@ export function useUpdatePlan() {
     onSuccess: (_data, vars) => {
       toast.success('Plan actualizado');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, vars.id] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, 'list'] });
     },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al actualizar plan')),
   });

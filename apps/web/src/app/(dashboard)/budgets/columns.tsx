@@ -37,7 +37,7 @@ export const budgetColumns: ColumnDef<BudgetRequestPublic>[] = [
     cell: ({ row }) => {
       const status = row.original.status;
       return (
-        <Badge variant={BUDGET_STATUS_VARIANT[status] ?? 'outline'}>
+        <Badge variant={BUDGET_STATUS_VARIANT[status] ?? 'secondary'}>
           {BUDGET_STATUS_LABELS[status] ?? status}
         </Badge>
       );
