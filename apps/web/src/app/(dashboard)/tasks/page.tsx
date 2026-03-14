@@ -6,23 +6,34 @@ import {
   PRIORITY_VARIANT,
   TASK_PRIORITY_LABELS,
   TASK_STATUS_LABELS,
-  TASK_STATUS_VARIANT,
+  TaskPriority,
   TaskStatus,
 } from '@epde/shared';
-import { Calendar, CheckSquare, ChevronDown, ChevronRight, MapPin } from 'lucide-react';
+import {
+  AlertTriangle,
+  Calendar,
+  CheckCircle2,
+  CheckSquare,
+  ChevronDown,
+  ChevronRight,
+  Clock,
+  MapPin,
+  Timer,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
-import { FilterSelect } from '@/components/filter-select';
 import { PageHeader } from '@/components/page-header';
 import { SearchInput } from '@/components/search-input';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { PageTransition } from '@/components/ui/page-transition';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useAllTasks } from '@/hooks/use-plans';
+import { cn } from '@/lib/utils';
 
 /** Display order: actionable items first. */
 const STATUS_ORDER: TaskStatus[] = [
@@ -32,36 +43,88 @@ const STATUS_ORDER: TaskStatus[] = [
   TaskStatus.COMPLETED,
 ];
 
-const priorityOptions = [
-  { value: 'all', label: 'Todas las prioridades' },
-  ...Object.entries(TASK_PRIORITY_LABELS).map(([value, label]) => ({ value, label })),
+const STATUS_ICONS = {
+  [TaskStatus.OVERDUE]: AlertTriangle,
+  [TaskStatus.PENDING]: Clock,
+  [TaskStatus.UPCOMING]: Timer,
+  [TaskStatus.COMPLETED]: CheckCircle2,
+} as const;
+
+const STATUS_COLORS = {
+  [TaskStatus.OVERDUE]: 'text-destructive',
+  [TaskStatus.PENDING]: 'text-amber-600',
+  [TaskStatus.UPCOMING]: 'text-blue-600',
+  [TaskStatus.COMPLETED]: 'text-emerald-600',
+} as const;
+
+const INITIAL_VISIBLE = 5;
+
+const PRIORITY_OPTIONS: { value: TaskPriority | 'all'; label: string }[] = [
+  { value: 'all', label: 'Todas' },
+  { value: TaskPriority.HIGH, label: 'Alta' },
+  { value: TaskPriority.MEDIUM, label: 'Media' },
+  { value: TaskPriority.LOW, label: 'Baja' },
 ];
+
+function StatCard({
+  status,
+  count,
+  active,
+  onClick,
+}: {
+  status: TaskStatus;
+  count: number;
+  active: boolean;
+  onClick: () => void;
+}) {
+  const Icon = STATUS_ICONS[status];
+  const color = STATUS_COLORS[status];
+
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        'bg-card flex flex-1 items-center gap-3 rounded-lg border p-3 text-left transition-all',
+        active ? 'ring-primary ring-2' : 'hover:bg-muted/40',
+      )}
+    >
+      <Icon className={cn('h-5 w-5 shrink-0', color)} />
+      <div className="min-w-0">
+        <p className={cn('text-xl leading-none font-semibold', color)}>{count}</p>
+        <p className="text-muted-foreground mt-0.5 text-xs">{TASK_STATUS_LABELS[status]}</p>
+      </div>
+    </button>
+  );
+}
 
 function TaskRow({ task, onClick }: { task: TaskListItem; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="bg-card hover:bg-muted/40 w-full rounded-lg border p-4 text-left transition-colors"
+      className="bg-card hover:bg-muted/40 w-full rounded-lg border p-3 text-left transition-colors"
     >
-      <div className="mb-1.5 flex items-start justify-between gap-2">
-        <span className="leading-tight font-medium">{task.name}</span>
+      <div className="mb-1 flex items-start justify-between gap-2">
+        <span className="text-sm leading-tight font-medium">{task.name}</span>
         <Badge variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'} className="text-xs">
           {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
         </Badge>
       </div>
 
-      <p className="text-muted-foreground mb-2 text-xs">{task.category.name}</p>
-
-      <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+      <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
+        <span>{task.category.name}</span>
+        <span className="text-muted-foreground/40">·</span>
         <span className="flex items-center gap-1">
           <MapPin className="h-3 w-3" />
           {task.maintenancePlan.property.address}, {task.maintenancePlan.property.city}
         </span>
         {task.nextDueDate && (
-          <span className="flex items-center gap-1">
-            <Calendar className="h-3 w-3" />
-            {formatRelativeDate(new Date(task.nextDueDate))}
-          </span>
+          <>
+            <span className="text-muted-foreground/40">·</span>
+            <span className="flex items-center gap-1">
+              <Calendar className="h-3 w-3" />
+              {formatRelativeDate(new Date(task.nextDueDate))}
+            </span>
+          </>
         )}
       </div>
     </button>
@@ -70,18 +133,15 @@ function TaskRow({ task, onClick }: { task: TaskListItem; onClick: () => void })
 
 function TaskRowSkeleton() {
   return (
-    <div className="bg-card rounded-lg border p-4">
-      <div className="mb-1.5 flex items-start justify-between">
-        <Skeleton className="h-5 w-48" />
-        <div className="flex gap-1.5">
-          <Skeleton className="h-5 w-14 rounded-full" />
-          <Skeleton className="h-5 w-16 rounded-full" />
-        </div>
+    <div className="bg-card rounded-lg border p-3">
+      <div className="mb-1 flex items-start justify-between">
+        <Skeleton className="h-4 w-48" />
+        <Skeleton className="h-5 w-14 rounded-full" />
       </div>
-      <Skeleton className="mb-2 h-3 w-24" />
-      <div className="flex gap-3">
-        <Skeleton className="h-3 w-40" />
+      <div className="flex gap-2">
         <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-3 w-32" />
+        <Skeleton className="h-3 w-16" />
       </div>
     </div>
   );
@@ -99,8 +159,14 @@ function StatusSection({
   onTaskClick: (task: TaskListItem) => void;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  const [showAll, setShowAll] = useState(false);
 
   if (tasks.length === 0) return null;
+
+  const visibleTasks = showAll ? tasks : tasks.slice(0, INITIAL_VISIBLE);
+  const hasMore = tasks.length > INITIAL_VISIBLE;
+  const Icon = STATUS_ICONS[status];
+  const color = STATUS_COLORS[status];
 
   return (
     <div>
@@ -108,17 +174,36 @@ function StatusSection({
         onClick={() => setOpen(!open)}
         className="focus-visible:ring-ring/50 mb-2 flex w-full items-center gap-2 rounded py-1 text-left focus-visible:ring-[3px] focus-visible:outline-none"
       >
-        {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-        <Badge variant={TASK_STATUS_VARIANT[status] ?? 'secondary'}>
-          {TASK_STATUS_LABELS[status]}
-        </Badge>
-        <span className="text-muted-foreground text-sm">{tasks.length}</span>
+        {open ? (
+          <ChevronDown className="text-muted-foreground h-4 w-4" />
+        ) : (
+          <ChevronRight className="text-muted-foreground h-4 w-4" />
+        )}
+        <Icon className={cn('h-4 w-4', color)} />
+        <span className="text-sm font-medium">{TASK_STATUS_LABELS[status]}</span>
+        <span className="text-muted-foreground text-sm">({tasks.length})</span>
       </button>
       {open && (
-        <div className="space-y-2">
-          {tasks.map((task) => (
+        <div className="space-y-1.5 pl-6">
+          {visibleTasks.map((task) => (
             <TaskRow key={task.id} task={task} onClick={() => onTaskClick(task)} />
           ))}
+          {hasMore && !showAll && (
+            <button
+              onClick={() => setShowAll(true)}
+              className="text-primary hover:text-primary/80 w-full py-2 text-center text-sm font-medium"
+            >
+              Ver {tasks.length - INITIAL_VISIBLE} más
+            </button>
+          )}
+          {hasMore && showAll && (
+            <button
+              onClick={() => setShowAll(false)}
+              className="text-primary hover:text-primary/80 w-full py-2 text-center text-sm font-medium"
+            >
+              Ver menos
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -128,7 +213,8 @@ function StatusSection({
 export default function TasksPage() {
   const router = useRouter();
   const [search, setSearch] = useState('');
-  const [priority, setPriority] = useState('all');
+  const [priority, setPriority] = useState<TaskPriority | 'all'>('all');
+  const [activeStatus, setActiveStatus] = useState<TaskStatus | null>(null);
   const debouncedSearch = useDebounce(search);
 
   const { data: tasks, isLoading, isError, refetch } = useAllTasks();
@@ -164,8 +250,15 @@ export default function TasksPage() {
     return map;
   }, [filtered]);
 
+  /** Tasks to display — all or filtered by clicked stat card. */
+  const displayStatuses = activeStatus ? [activeStatus] : STATUS_ORDER;
+
   const handleTaskClick = (task: TaskListItem) => {
     router.push(`/properties/${task.maintenancePlan.property.id}`);
+  };
+
+  const toggleStatus = (status: TaskStatus) => {
+    setActiveStatus((prev) => (prev === status ? null : status));
   };
 
   return (
@@ -175,25 +268,62 @@ export default function TasksPage() {
         description="Seguimiento de todas las tareas de mantenimiento de tus propiedades."
       />
 
-      <div className="mb-4 flex flex-wrap gap-3">
+      {/* Stat cards */}
+      {!isLoading && !isError && tasks && tasks.length > 0 && (
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {STATUS_ORDER.map((status) => (
+            <StatCard
+              key={status}
+              status={status}
+              count={grouped.get(status)?.length ?? 0}
+              active={activeStatus === status}
+              onClick={() => toggleStatus(status)}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Filters */}
+      <div className="mb-4 flex flex-wrap items-center gap-3">
         <SearchInput
           value={search}
           onChange={setSearch}
           placeholder="Buscar tarea, categoría o dirección..."
         />
-        <FilterSelect
-          value={priority}
-          onChange={setPriority}
-          options={priorityOptions}
-          placeholder="Prioridad"
-        />
+        <div className="flex gap-1">
+          {PRIORITY_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => setPriority(opt.value)}
+              className={cn(
+                'rounded-full px-3 py-1 text-xs font-medium transition-colors',
+                priority === opt.value
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80',
+              )}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {isLoading ? (
-        <div className="space-y-2">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <TaskRowSkeleton key={i} />
-          ))}
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-3">
+                  <Skeleton className="h-10 w-full" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <div className="space-y-1.5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <TaskRowSkeleton key={i} />
+            ))}
+          </div>
         </div>
       ) : isError ? (
         <ErrorState
@@ -206,17 +336,17 @@ export default function TasksPage() {
           icon={CheckSquare}
           title="Sin tareas"
           message={
-            debouncedSearch || priority !== 'all'
+            debouncedSearch || priority !== 'all' || activeStatus
               ? 'No se encontraron tareas con esos filtros.'
               : 'No hay tareas registradas todavía.'
           }
         />
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <p className="text-muted-foreground text-sm">
             {filtered.length} tarea{filtered.length !== 1 ? 's' : ''}
           </p>
-          {STATUS_ORDER.map((status) => (
+          {displayStatuses.map((status) => (
             <StatusSection
               key={status}
               status={status}
