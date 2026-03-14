@@ -50,6 +50,13 @@ export class ClientsController {
     return { data, message: 'Cliente creado e invitación enviada' };
   }
 
+  @Post(':id/reinvite')
+  @Roles(UserRole.ADMIN)
+  async reinviteClient(@Param('id', ParseUUIDPipe) id: string) {
+    const data = await this.clientsService.reinviteClient(id);
+    return { data, message: 'Invitación reenviada' };
+  }
+
   @Patch(':id')
   @Roles(UserRole.ADMIN)
   async updateClient(

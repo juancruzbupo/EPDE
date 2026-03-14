@@ -1,6 +1,6 @@
 import type { ClientFiltersInput, CreateClientInput, UpdateClientInput } from '@epde/shared';
 import { UserRole, UserStatus } from '@epde/shared';
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { DuplicateClientEmailError } from '../common/exceptions/domain.exceptions';
@@ -9,6 +9,8 @@ import { ClientsRepository } from './clients.repository';
 
 @Injectable()
 export class ClientsService {
+  private readonly logger = new Logger(ClientsService.name);
+
   constructor(
     private readonly clientsRepository: ClientsRepository,
     private readonly emailQueueService: EmailQueueService,
@@ -67,6 +69,34 @@ export class ClientsService {
         role: UserRole.CLIENT,
         status: UserStatus.INVITED,
       });
+    }
+
+    const token = this.jwtService.sign(
+      { sub: client.id, email: client.email, purpose: 'invite' },
+      { expiresIn: '24h' },
+    );
+
+    // Non-blocking: client is created even if email queue is down.
+    // Admin can re-invite later from the client detail page.
+    try {
+      await this.emailQueueService.enqueueInvite(client.email, client.name, token);
+    } catch (error) {
+      this.logger.error(
+        `Failed to enqueue invite email for ${client.email}: ${(error as Error).message}`,
+      );
+    }
+
+    const { passwordHash: _passwordHash, ...clientWithoutPassword } = client;
+    return clientWithoutPassword;
+  }
+
+  async reinviteClient(id: string) {
+    const client = await this.clientsRepository.findById(id);
+    if (!client || client.role !== UserRole.CLIENT) {
+      throw new NotFoundException('Cliente no encontrado');
+    }
+    if (client.status !== UserStatus.INVITED) {
+      throw new ConflictException('Solo se puede reinvitar a clientes en estado INVITED');
     }
 
     const token = this.jwtService.sign(

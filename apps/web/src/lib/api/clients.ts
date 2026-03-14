@@ -5,4 +5,5 @@ import { apiClient } from '../api-client';
 export type { ClientFilters, ClientPublic } from '@epde/shared';
 
 const queries = createClientQueries(apiClient);
-export const { getClients, getClient, createClient, updateClient, deleteClient } = queries;
+export const { getClients, getClient, createClient, updateClient, reinviteClient, deleteClient } =
+  queries;

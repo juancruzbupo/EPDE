@@ -50,6 +50,11 @@ export function createClientQueries(apiClient: AxiosInstance) {
       return data;
     },
 
+    async reinviteClient(id: string): Promise<ApiResponse<ClientPublic>> {
+      const { data } = await apiClient.post(`/clients/${id}/reinvite`);
+      return data;
+    },
+
     async deleteClient(id: string): Promise<ApiResponse<null>> {
       const { data } = await apiClient.delete(`/clients/${id}`);
       return data;

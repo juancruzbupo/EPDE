@@ -38,10 +38,17 @@ import { RedisModule } from '../redis/redis.module';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
         const redisUrl = config.get<string>('REDIS_URL') ?? 'redis://localhost:6379';
+        const parsed = new URL(redisUrl);
+        const useTls = parsed.protocol === 'rediss:';
+
         return {
           connection: {
-            url: redisUrl,
-            ...(redisUrl.startsWith('rediss://') && {
+            host: parsed.hostname,
+            port: parseInt(parsed.port || '6379', 10),
+            password: parsed.password || undefined,
+            username: parsed.username !== 'default' ? parsed.username : undefined,
+            maxRetriesPerRequest: null,
+            ...(useTls && {
               tls: { rejectUnauthorized: true },
             }),
           },

@@ -14,7 +14,7 @@ import { PageHeader } from '@/components/page-header';
 import { SearchInput } from '@/components/search-input';
 import { Button } from '@/components/ui/button';
 import { PageTransition } from '@/components/ui/page-transition';
-import { useClients, useDeleteClient } from '@/hooks/use-clients';
+import { useClients, useDeleteClient, useReinviteClient } from '@/hooks/use-clients';
 import { useDebounce } from '@/hooks/use-debounce';
 
 import { clientColumns } from './columns';
@@ -34,6 +34,7 @@ export default function ClientsPage() {
 
   const debouncedSearch = useDebounce(search);
   const deleteClient = useDeleteClient();
+  const reinviteClient = useReinviteClient();
 
   const filters = useMemo(
     () => ({
@@ -84,7 +85,10 @@ export default function ClientsPage() {
       )}
 
       <DataTable
-        columns={clientColumns({ onDelete: setDeleteId })}
+        columns={clientColumns({
+          onDelete: setDeleteId,
+          onReinvite: (id) => reinviteClient.mutate(id),
+        })}
         data={allClients}
         isLoading={isLoading}
         hasMore={hasNextPage}

@@ -4,7 +4,7 @@ import { CLIENT_STATUS_VARIANT, USER_STATUS_LABELS } from '@epde/shared';
 import { ColumnDef } from '@tanstack/react-table';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { MoreHorizontal, Trash2 } from 'lucide-react';
+import { MailPlus, MoreHorizontal, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
@@ -19,8 +19,10 @@ import type { ClientPublic } from '@/lib/api/clients';
 
 export function clientColumns({
   onDelete,
+  onReinvite,
 }: {
   onDelete: (id: string) => void;
+  onReinvite: (id: string) => void;
 }): ColumnDef<ClientPublic>[] {
   return [
     {
@@ -68,6 +70,17 @@ export function clientColumns({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            {row.original.status === 'INVITED' && (
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onReinvite(row.original.id);
+                }}
+              >
+                <MailPlus className="mr-2 h-4 w-4" />
+                Reenviar invitación
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem
               className="text-destructive"
               onClick={(e) => {

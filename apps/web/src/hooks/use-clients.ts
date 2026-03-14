@@ -9,6 +9,7 @@ import {
   deleteClient,
   getClient,
   getClients,
+  reinviteClient,
   updateClient,
 } from '@/lib/api/clients';
 import { invalidateDashboard } from '@/lib/invalidate-dashboard';
@@ -81,6 +82,20 @@ export function useClientSearch(search: string) {
       return result.data;
     },
     enabled: debouncedSearch.length > 0,
+  });
+}
+
+export function useReinviteClient() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: reinviteClient,
+    onSuccess: () => {
+      toast.success('Invitación reenviada');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.clients] });
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al reenviar invitación'));
+    },
   });
 }
 
