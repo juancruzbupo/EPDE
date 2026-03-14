@@ -42,6 +42,7 @@ export function useUpdateCategory() {
       description?: string;
       icon?: string;
       order?: number;
+      categoryTemplateId?: string | null;
     }) => updateCategory(id, dto),
     onSuccess: () => {
       toast.success('Categoría actualizada');

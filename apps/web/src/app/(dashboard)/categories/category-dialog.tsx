@@ -3,13 +3,21 @@
 import { type CreateCategoryInput, createCategorySchema } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useCreateCategory, useUpdateCategory } from '@/hooks/use-categories';
+import { useCategoryTemplates } from '@/hooks/use-category-templates';
 import type { CategoryPublic } from '@/lib/api/categories';
 
 interface CategoryDialogProps {
@@ -22,11 +30,13 @@ export function CategoryDialog({ open, onOpenChange, category }: CategoryDialogP
   const isEdit = !!category;
   const createCategory = useCreateCategory();
   const updateCategory = useUpdateCategory();
+  const { data: categoryTemplates } = useCategoryTemplates();
 
   const {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
   } = useForm<CreateCategoryInput>({
     resolver: zodResolver(createCategorySchema),
@@ -39,9 +49,10 @@ export function CategoryDialog({ open, onOpenChange, category }: CategoryDialogP
         description: category.description ?? '',
         icon: category.icon ?? '',
         order: category.order,
+        categoryTemplateId: category.categoryTemplateId ?? undefined,
       });
     } else {
-      reset({ name: '', description: '', icon: '', order: 0 });
+      reset({ name: '', description: '', icon: '', order: 0, categoryTemplateId: undefined });
     }
   }, [category, reset]);
 
@@ -88,6 +99,32 @@ export function CategoryDialog({ open, onOpenChange, category }: CategoryDialogP
               <Label htmlFor="cat-order">Orden</Label>
               <Input id="cat-order" type="number" min={0} {...register('order')} />
             </div>
+          </div>
+          <div className="space-y-2">
+            <Label>Plantilla vinculada (opcional)</Label>
+            <Controller
+              control={control}
+              name="categoryTemplateId"
+              render={({ field }) => (
+                <Select
+                  value={field.value ?? '__none__'}
+                  onValueChange={(v) => field.onChange(v === '__none__' ? null : v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sin plantilla" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">Sin plantilla</SelectItem>
+                    {categoryTemplates?.map((ct) => (
+                      <SelectItem key={ct.id} value={ct.id}>
+                        {ct.icon && <span className="mr-1">{ct.icon}</span>}
+                        {ct.name} ({ct.tasks.length} tareas)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

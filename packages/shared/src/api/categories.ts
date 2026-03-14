@@ -22,6 +22,7 @@ export function createCategoryQueries(apiClient: AxiosInstance) {
       description?: string;
       icon?: string;
       order?: number;
+      categoryTemplateId?: string | null;
     }): Promise<ApiResponse<CategoryPublic>> {
       const { data } = await apiClient.post('/categories', dto);
       return data;
@@ -29,7 +30,13 @@ export function createCategoryQueries(apiClient: AxiosInstance) {
 
     async updateCategory(
       id: string,
-      dto: { name?: string; description?: string; icon?: string; order?: number },
+      dto: {
+        name?: string;
+        description?: string;
+        icon?: string;
+        order?: number;
+        categoryTemplateId?: string | null;
+      },
     ): Promise<ApiResponse<CategoryPublic>> {
       const { data } = await apiClient.patch(`/categories/${id}`, dto);
       return data;

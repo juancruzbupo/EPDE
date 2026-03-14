@@ -19,12 +19,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useCategories, useDeleteCategory } from '@/hooks/use-categories';
+import { useCategoryTemplates } from '@/hooks/use-category-templates';
 import type { CategoryPublic } from '@/lib/api/categories';
 
 import { CategoryDialog } from './category-dialog';
 
 export default function CategoriesPage() {
   const { data: categories, isLoading, isError, refetch } = useCategories();
+  const { data: categoryTemplates } = useCategoryTemplates();
   const deleteCategory = useDeleteCategory();
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -58,6 +60,7 @@ export default function CategoriesPage() {
                 <TableHead>Ícono</TableHead>
                 <TableHead>Nombre</TableHead>
                 <TableHead>Descripción</TableHead>
+                <TableHead>Plantilla</TableHead>
                 <TableHead className="w-24">Acciones</TableHead>
               </TableRow>
             </TableHeader>
@@ -65,7 +68,7 @@ export default function CategoriesPage() {
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 5 }).map((_, j) => (
+                    {Array.from({ length: 6 }).map((_, j) => (
                       <TableCell key={j}>
                         <Skeleton className="h-5 w-full" />
                       </TableCell>
@@ -74,7 +77,7 @@ export default function CategoriesPage() {
                 ))
               ) : isError ? (
                 <TableRow>
-                  <TableCell colSpan={5}>
+                  <TableCell colSpan={6}>
                     <ErrorState
                       message="No se pudieron cargar las categorías"
                       onRetry={refetch}
@@ -90,6 +93,12 @@ export default function CategoriesPage() {
                     <TableCell className="font-medium">{cat.name}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {cat.description ?? '—'}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {cat.categoryTemplateId
+                        ? (categoryTemplates?.find((ct) => ct.id === cat.categoryTemplateId)
+                            ?.name ?? '—')
+                        : '—'}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
@@ -116,7 +125,7 @@ export default function CategoriesPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center">
+                  <TableCell colSpan={6} className="h-24 text-center">
                     No se encontraron categorías
                   </TableCell>
                 </TableRow>

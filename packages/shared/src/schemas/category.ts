@@ -10,6 +10,7 @@ export const createCategorySchema = z.object({
   description: z.string().max(500, 'La descripción no puede superar 500 caracteres').optional(),
   icon: z.string().max(50).optional(),
   order: z.coerce.number().int().min(0).optional(),
+  categoryTemplateId: z.string().uuid().nullable().optional(),
 });
 
 export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
@@ -23,6 +24,7 @@ export const updateCategorySchema = z.object({
   description: z.string().max(500, 'La descripción no puede superar 500 caracteres').optional(),
   icon: z.string().max(50).optional(),
   order: z.coerce.number().int().min(0).optional(),
+  categoryTemplateId: z.string().uuid().nullable().optional(),
 });
 
 export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;

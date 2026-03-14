@@ -17,9 +17,9 @@ export function useTaskTemplates(
 
   const taskTemplates = useMemo(() => {
     if (!watchedCategoryId || !categories || !categoryTemplates) return [];
-    const categoryName = categories.find((c) => c.id === watchedCategoryId)?.name;
-    if (!categoryName) return [];
-    const match = categoryTemplates.find((ct) => ct.name === categoryName);
+    const category = categories.find((c) => c.id === watchedCategoryId);
+    if (!category?.categoryTemplateId) return [];
+    const match = categoryTemplates.find((ct) => ct.id === category.categoryTemplateId);
     return match?.tasks ?? [];
   }, [watchedCategoryId, categories, categoryTemplates]);
 

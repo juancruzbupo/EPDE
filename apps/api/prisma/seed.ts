@@ -16,7 +16,7 @@ const prisma = new PrismaClient();
 const BCRYPT_SALT_ROUNDS = 12;
 
 // Names MUST match CategoryTemplate names in TEMPLATE_SEED_DATA
-// so the TaskDialog can match Category → CategoryTemplate → TaskTemplate[].
+// so the FK linkage can be established during seeding.
 const CATEGORY_DEFAULTS = [
   { name: 'Estructura', icon: 'building', order: 1 },
   { name: 'Techos y Cubiertas', icon: 'home', order: 2 },
@@ -27,6 +27,10 @@ const CATEGORY_DEFAULTS = [
   { name: 'Pintura y Revestimientos', icon: 'paintbrush', order: 7 },
   { name: 'Jardín y Exteriores', icon: 'trees', order: 8 },
   { name: 'Climatización', icon: 'thermometer', order: 9 },
+  { name: 'Humedad e Impermeabilización', icon: 'droplet', order: 10 },
+  { name: 'Seguridad contra Incendio', icon: 'fire-extinguisher', order: 11 },
+  { name: 'Control de Plagas', icon: 'bug', order: 12 },
+  { name: 'Pisos y Contrapisos', icon: 'layers', order: 13 },
 ];
 
 // Rename categories from old names to match template names (for existing DBs)
@@ -143,6 +147,20 @@ async function main() {
   } else {
     console.log(`Category templates already exist (${existingTemplates}), skipping`);
   }
+
+  // Link categories to their matching templates via FK
+  const allTemplates = await prisma.categoryTemplate.findMany({ select: { id: true, name: true } });
+  const templatesByName = new Map(allTemplates.map((t) => [t.name, t.id]));
+  for (const cat of CATEGORY_DEFAULTS) {
+    const templateId = templatesByName.get(cat.name);
+    if (templateId) {
+      await prisma.category.updateMany({
+        where: { name: cat.name, deletedAt: null, categoryTemplateId: null },
+        data: { categoryTemplateId: templateId },
+      });
+    }
+  }
+  console.log('Category → CategoryTemplate FK linkage synced');
 
   // Create demo data (3 users with properties, tasks, logs, budgets, etc.)
   const existingDemoUser = await prisma.user.findUnique({

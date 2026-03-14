@@ -6,6 +6,7 @@ export interface Category extends SoftDeletable {
   description: string | null;
   icon: string | null;
   order: number;
+  categoryTemplateId: string | null;
 }
 
 export type CategoryPublic = Omit<Category, 'deletedAt'>;

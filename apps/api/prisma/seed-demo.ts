@@ -59,7 +59,7 @@ const ids = {
 // CATEGORÍAS (globales, compartidas entre propiedades)
 // ============================================================================
 
-// Names MUST match CATEGORY_DEFAULTS in seed.ts / TEMPLATE_SEED_DATA in shared
+// Names MUST match CATEGORY_DEFAULTS in seed.ts / TEMPLATE_SEED_DATA in shared (FK linked at seed time)
 const CATEGORIES = [
   { name: 'Estructura', icon: '🏗', description: 'Control estructural de la vivienda' },
   {
@@ -102,9 +102,29 @@ const CATEGORIES = [
     icon: '🌳',
     description: 'Perímetro, veredas, raíces, desagües de patio',
   },
+  {
+    name: 'Humedad e Impermeabilización',
+    icon: '💧',
+    description: 'Control de humedad, impermeabilización y aislación hidrófuga',
+  },
+  {
+    name: 'Seguridad contra Incendio',
+    icon: '🧯',
+    description: 'Detección de humo, matafuegos y prevención de incendios',
+  },
+  {
+    name: 'Control de Plagas',
+    icon: '🐛',
+    description: 'Prevención y control de plagas urbanas',
+  },
+  {
+    name: 'Pisos y Contrapisos',
+    icon: '🧱',
+    description: 'Estado de pisos, contrapisos, juntas y nivelación',
+  },
 ] as const;
 
-// —— Definición completa de las 51 tareas del template ———————————————————————
+// —— Definición completa de las 71 tareas del template ———————————————————————
 
 interface TaskDef {
   name: string;
@@ -119,7 +139,7 @@ interface TaskDef {
 }
 
 const TASK_DEFS: TaskDef[] = [
-  // —— 0. ESTRUCTURA (8 tareas) ——
+  // —— 0. ESTRUCTURA (10 tareas) ——
   {
     name: 'Inspección visual de vigas y columnas',
     taskType: 'INSPECTION',
@@ -212,7 +232,7 @@ const TASK_DEFS: TaskDef[] = [
     categoryIndex: 0,
   },
 
-  // —— 1. TECHOS Y CUBIERTAS (9 tareas) ——
+  // —— 1. TECHOS Y CUBIERTAS (10 tareas) ——
   {
     name: 'Limpieza de canaletas',
     taskType: 'CLEANING',
@@ -386,7 +406,7 @@ const TASK_DEFS: TaskDef[] = [
     categoryIndex: 2,
   },
 
-  // —— 3. INSTALACIÓN SANITARIA (6 tareas) ——
+  // —— 3. INSTALACIÓN SANITARIA (8 tareas) ——
   {
     name: 'Revisión de pérdidas en griferías',
     taskType: 'INSPECTION',
@@ -513,7 +533,7 @@ const TASK_DEFS: TaskDef[] = [
     categoryIndex: 4,
   },
 
-  // —— 5. GAS Y CALEFACCIÓN (3 tareas) ——
+  // —— 5. GAS Y CALEFACCIÓN (4 tareas) ——
   {
     name: 'Revisión de artefactos a gas',
     taskType: 'INSPECTION',
@@ -720,6 +740,253 @@ const TASK_DEFS: TaskDef[] = [
     estimatedDurationMinutes: 30,
     categoryIndex: 8,
   },
+
+  // —— Extra tasks for existing categories ——
+
+  // Estructura — missing tasks
+  {
+    name: 'Control de humedad ascendente en cimientos',
+    taskType: 'INSPECTION',
+    professionalRequirement: 'PROFESSIONAL_RECOMMENDED',
+    technicalDescription: 'Inspeccionar base de muros buscando humedad ascendente por capilaridad.',
+    priority: 'HIGH',
+    recurrenceType: 'ANNUAL',
+    recurrenceMonths: 12,
+    estimatedDurationMinutes: 45,
+    categoryIndex: 0,
+  },
+  {
+    name: 'Evaluación estructural integral quinquenal',
+    taskType: 'EVALUATION',
+    professionalRequirement: 'PROFESSIONAL_REQUIRED',
+    technicalDescription: 'Evaluación completa del estado estructural por ingeniero matriculado.',
+    priority: 'HIGH',
+    recurrenceType: 'CUSTOM',
+    recurrenceMonths: 60,
+    estimatedDurationMinutes: 240,
+    categoryIndex: 0,
+  },
+
+  // Techos — missing tasks
+  {
+    name: 'Reemplazo integral de membrana asfáltica',
+    taskType: 'TREATMENT',
+    professionalRequirement: 'PROFESSIONAL_REQUIRED',
+    technicalDescription: 'Reemplazo completo de membrana asfáltica en techos planos.',
+    priority: 'HIGH',
+    recurrenceType: 'CUSTOM',
+    recurrenceMonths: 120,
+    estimatedDurationMinutes: 480,
+    categoryIndex: 1,
+  },
+
+  // Sanitaria — missing tasks
+  {
+    name: 'Verificación de termotanque y ánodo de sacrificio',
+    taskType: 'INSPECTION',
+    professionalRequirement: 'PROFESSIONAL_RECOMMENDED',
+    technicalDescription: 'Inspeccionar termotanque: ánodo, válvula de seguridad, conexiones.',
+    priority: 'MEDIUM',
+    recurrenceType: 'ANNUAL',
+    recurrenceMonths: 12,
+    estimatedDurationMinutes: 45,
+    categoryIndex: 3,
+  },
+  {
+    name: 'Mantenimiento de cámara séptica',
+    taskType: 'CLEANING',
+    professionalRequirement: 'PROFESSIONAL_REQUIRED',
+    technicalDescription: 'Vaciado y limpieza de cámara séptica por servicio atmosférico.',
+    priority: 'HIGH',
+    recurrenceType: 'CUSTOM',
+    recurrenceMonths: 24,
+    estimatedDurationMinutes: 120,
+    categoryIndex: 3,
+  },
+
+  // Gas — missing tasks
+  {
+    name: 'Revisión periódica obligatoria NAG-226',
+    taskType: 'EVALUATION',
+    professionalRequirement: 'PROFESSIONAL_REQUIRED',
+    technicalDescription:
+      'Inspección obligatoria de toda la instalación de gas por gasista matriculado.',
+    priority: 'URGENT',
+    recurrenceType: 'CUSTOM',
+    recurrenceMonths: 24,
+    estimatedDurationMinutes: 90,
+    categoryIndex: 5,
+  },
+
+  // —— 9. HUMEDAD E IMPERMEABILIZACIÓN (4 tareas) ——
+  {
+    name: 'Inspección de manchas y eflorescencias',
+    taskType: 'INSPECTION',
+    professionalRequirement: 'OWNER_CAN_DO',
+    technicalDescription:
+      'Recorrer muros buscando manchas de humedad, eflorescencias y desprendimientos.',
+    priority: 'HIGH',
+    recurrenceType: 'BIANNUAL',
+    recurrenceMonths: 6,
+    estimatedDurationMinutes: 30,
+    categoryIndex: 9,
+  },
+  {
+    name: 'Control de muros enterrados y subsuelos',
+    taskType: 'INSPECTION',
+    professionalRequirement: 'PROFESSIONAL_RECOMMENDED',
+    technicalDescription:
+      'Inspeccionar muros de sótano. Verificar impermeabilización y filtraciones.',
+    priority: 'HIGH',
+    recurrenceType: 'ANNUAL',
+    recurrenceMonths: 12,
+    estimatedDurationMinutes: 60,
+    categoryIndex: 9,
+  },
+  {
+    name: 'Verificación de impermeabilización en baños y cocina',
+    taskType: 'INSPECTION',
+    professionalRequirement: 'OWNER_CAN_DO',
+    technicalDescription: 'Verificar sellados en duchas, bañeras y mesadas. Buscar filtraciones.',
+    priority: 'MEDIUM',
+    recurrenceType: 'ANNUAL',
+    recurrenceMonths: 12,
+    estimatedDurationMinutes: 30,
+    categoryIndex: 9,
+  },
+  {
+    name: 'Control de ventilación para prevención de condensación',
+    taskType: 'INSPECTION',
+    professionalRequirement: 'OWNER_CAN_DO',
+    technicalDescription:
+      'Verificar extractores y ventilación natural en baños, cocina y lavadero.',
+    priority: 'MEDIUM',
+    recurrenceType: 'BIANNUAL',
+    recurrenceMonths: 6,
+    estimatedDurationMinutes: 20,
+    categoryIndex: 9,
+  },
+
+  // —— 10. SEGURIDAD CONTRA INCENDIO (3 tareas) ——
+  {
+    name: 'Verificación de detectores de humo',
+    taskType: 'TEST',
+    professionalRequirement: 'OWNER_CAN_DO',
+    technicalDescription:
+      'Presionar botón de test de cada detector. Reemplazar baterías si no funciona.',
+    priority: 'HIGH',
+    recurrenceType: 'MONTHLY',
+    recurrenceMonths: 1,
+    estimatedDurationMinutes: 10,
+    categoryIndex: 10,
+  },
+  {
+    name: 'Control y recarga de matafuegos',
+    taskType: 'INSPECTION',
+    professionalRequirement: 'PROFESSIONAL_REQUIRED',
+    technicalDescription:
+      'Verificar presión, manguera, precinto y vencimiento. Recargar si corresponde.',
+    priority: 'HIGH',
+    recurrenceType: 'ANNUAL',
+    recurrenceMonths: 12,
+    estimatedDurationMinutes: 30,
+    categoryIndex: 10,
+  },
+  {
+    name: 'Revisión de instalación eléctrica como fuente de ignición',
+    taskType: 'INSPECTION',
+    professionalRequirement: 'PROFESSIONAL_RECOMMENDED',
+    technicalDescription: 'Verificar cables, empalmes, tableros — riesgos eléctricos de incendio.',
+    priority: 'HIGH',
+    recurrenceType: 'ANNUAL',
+    recurrenceMonths: 12,
+    estimatedDurationMinutes: 45,
+    categoryIndex: 10,
+  },
+
+  // —— 11. CONTROL DE PLAGAS (4 tareas) ——
+  {
+    name: 'Inspección general de indicios de plagas',
+    taskType: 'INSPECTION',
+    professionalRequirement: 'OWNER_CAN_DO',
+    technicalDescription:
+      'Buscar excrementos, roeduras, nidos, cucarachas y otros indicios de plagas.',
+    priority: 'MEDIUM',
+    recurrenceType: 'QUARTERLY',
+    recurrenceMonths: 3,
+    estimatedDurationMinutes: 30,
+    categoryIndex: 11,
+  },
+  {
+    name: 'Control preventivo de termitas',
+    taskType: 'INSPECTION',
+    professionalRequirement: 'PROFESSIONAL_RECOMMENDED',
+    technicalDescription: 'Inspeccionar marcos de madera y estructuras buscando daño por termitas.',
+    priority: 'HIGH',
+    recurrenceType: 'ANNUAL',
+    recurrenceMonths: 12,
+    estimatedDurationMinutes: 60,
+    categoryIndex: 11,
+  },
+  {
+    name: 'Desinsectación preventiva',
+    taskType: 'TREATMENT',
+    professionalRequirement: 'PROFESSIONAL_REQUIRED',
+    technicalDescription: 'Aplicación profesional de insecticida en perímetro y puntos críticos.',
+    priority: 'MEDIUM',
+    recurrenceType: 'BIANNUAL',
+    recurrenceMonths: 6,
+    estimatedDurationMinutes: 90,
+    categoryIndex: 11,
+  },
+  {
+    name: 'Desratización preventiva',
+    taskType: 'TREATMENT',
+    professionalRequirement: 'PROFESSIONAL_REQUIRED',
+    technicalDescription:
+      'Colocación de estaciones de cebo y sellado de posibles ingresos de roedores.',
+    priority: 'MEDIUM',
+    recurrenceType: 'BIANNUAL',
+    recurrenceMonths: 6,
+    estimatedDurationMinutes: 60,
+    categoryIndex: 11,
+  },
+
+  // —— 12. PISOS Y CONTRAPISOS (3 tareas) ——
+  {
+    name: 'Inspección general de pisos',
+    taskType: 'INSPECTION',
+    professionalRequirement: 'OWNER_CAN_DO',
+    technicalDescription: 'Verificar baldosas flojas, desniveles, fisuras y desgaste excesivo.',
+    priority: 'MEDIUM',
+    recurrenceType: 'ANNUAL',
+    recurrenceMonths: 12,
+    estimatedDurationMinutes: 30,
+    categoryIndex: 12,
+  },
+  {
+    name: 'Verificación de contrapiso y nivelación',
+    taskType: 'INSPECTION',
+    professionalRequirement: 'PROFESSIONAL_RECOMMENDED',
+    technicalDescription:
+      'Verificar hundimientos o levantamientos. Controlar pendientes hacia desagües.',
+    priority: 'MEDIUM',
+    recurrenceType: 'CUSTOM',
+    recurrenceMonths: 24,
+    estimatedDurationMinutes: 45,
+    categoryIndex: 12,
+  },
+  {
+    name: 'Sellado de juntas de dilatación en pisos',
+    taskType: 'SEALING',
+    professionalRequirement: 'OWNER_CAN_DO',
+    technicalDescription: 'Renovar sellador en juntas de dilatación de pisos.',
+    priority: 'LOW',
+    recurrenceType: 'CUSTOM',
+    recurrenceMonths: 24,
+    estimatedDurationMinutes: 45,
+    categoryIndex: 12,
+  },
 ];
 
 // ============================================================================
@@ -892,7 +1159,7 @@ export async function seedDemo(prisma: PrismaClient) {
     },
     monthsAgo(18),
   );
-  console.log(`  ✓ Propiedad: ${mariaProp.address} (${mariaProp.city}) — 51 tareas`);
+  console.log(`  ✓ Propiedad: ${mariaProp.address} (${mariaProp.city}) — 71 tareas`);
 
   // —— Task Logs para María (historial rico de 18 meses) ——
 
@@ -1613,7 +1880,7 @@ export async function seedDemo(prisma: PrismaClient) {
     },
     monthsAgo(6),
   );
-  console.log(`  ✓ Propiedad: ${carlosProp.address} (${carlosProp.city}) — 51 tareas`);
+  console.log(`  ✓ Propiedad: ${carlosProp.address} (${carlosProp.city}) — 71 tareas`);
 
   // —— Task Logs para Carlos (1 ciclo parcial) ——
   const carlosCycle1 = monthsAgo(3);
@@ -1896,7 +2163,7 @@ export async function seedDemo(prisma: PrismaClient) {
     monthsAgo(1),
   );
   console.log(
-    `  ✓ Propiedad: ${lauraProp.address} (${lauraProp.city}) — 51 tareas (todas pendientes)`,
+    `  ✓ Propiedad: ${lauraProp.address} (${lauraProp.city}) — 71 tareas (todas pendientes)`,
   );
   console.log('  ✓ Sin historial, presupuestos ni solicitudes');
 
@@ -1907,7 +2174,7 @@ export async function seedDemo(prisma: PrismaClient) {
       type: 'SYSTEM',
       title: 'Bienvenida a EPDE',
       message:
-        'Tu plan de mantenimiento preventivo fue creado con 51 tareas. Revisá las tareas próximas en tu panel.',
+        'Tu plan de mantenimiento preventivo fue creado con 71 tareas. Revisá las tareas próximas en tu panel.',
       read: true,
       createdAt: monthsAgo(1),
     },

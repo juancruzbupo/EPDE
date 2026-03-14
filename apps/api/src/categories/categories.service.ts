@@ -6,12 +6,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { CategoryTemplatesRepository } from '../category-templates/category-templates.repository';
 import { CategoryHasReferencingTasksError } from '../common/exceptions/domain.exceptions';
 import { CategoriesRepository } from './categories.repository';
 
 @Injectable()
 export class CategoriesService {
-  constructor(private readonly categoriesRepository: CategoriesRepository) {}
+  constructor(
+    private readonly categoriesRepository: CategoriesRepository,
+    private readonly categoryTemplatesRepository: CategoryTemplatesRepository,
+  ) {}
 
   async findAll() {
     return this.categoriesRepository.findAll();
@@ -30,6 +34,14 @@ export class CategoriesService {
     if (existing) {
       throw new ConflictException('Ya existe una categoría con ese nombre');
     }
+
+    if (dto.categoryTemplateId) {
+      const template = await this.categoryTemplatesRepository.findById(dto.categoryTemplateId);
+      if (!template) {
+        throw new NotFoundException('Plantilla de categoría no encontrada');
+      }
+    }
+
     return this.categoriesRepository.create(dto);
   }
 
@@ -43,6 +55,13 @@ export class CategoriesService {
       const existing = await this.categoriesRepository.findByName(dto.name);
       if (existing && existing.id !== id) {
         throw new ConflictException('Ya existe una categoría con ese nombre');
+      }
+    }
+
+    if (dto.categoryTemplateId) {
+      const template = await this.categoryTemplatesRepository.findById(dto.categoryTemplateId);
+      if (!template) {
+        throw new NotFoundException('Plantilla de categoría no encontrada');
       }
     }
 

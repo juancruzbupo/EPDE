@@ -212,19 +212,22 @@ model MaintenancePlan {
 }
 
 model Category {
-  id          String    @id @default(uuid())
-  name        String    @db.VarChar(100)
-  description String?   @db.VarChar(500)
-  icon        String?   @db.VarChar(50)
-  order       Int       @default(0)
-  deletedAt   DateTime?
+  id                 String            @id @default(uuid())
+  name               String            @db.VarChar(100)
+  description        String?           @db.VarChar(500)
+  icon               String?           @db.VarChar(50)
+  order              Int               @default(0)
+  deletedAt          DateTime?
+  categoryTemplateId String?
 
-  tasks Task[]
+  tasks            Task[]
+  categoryTemplate CategoryTemplate? @relation(fields: [categoryTemplateId], references: [id], onDelete: SetNull)
 
   // PostgreSQL unique: (name, null) = (name, null) prevents duplicate active categories.
   // Soft-deleted categories (deletedAt != null) are each treated as distinct.
   @@unique([name, deletedAt])
   @@index([deletedAt])
+  @@index([categoryTemplateId])
 }
 
 model Task {
@@ -430,6 +433,7 @@ model CategoryTemplate {
   description  String?        @db.VarChar(500)
   displayOrder Int            @default(0)
   tasks        TaskTemplate[]
+  categories   Category[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
