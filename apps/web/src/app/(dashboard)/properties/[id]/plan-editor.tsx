@@ -7,6 +7,7 @@ import {
   TASK_PRIORITY_LABELS,
   TASK_STATUS_LABELS,
   TASK_STATUS_VARIANT,
+  TaskPriority,
   TaskStatus,
 } from '@epde/shared';
 import {
@@ -59,6 +60,13 @@ const STATUS_ORDER: TaskStatus[] = [
 ];
 
 const SHOW_SEARCH_THRESHOLD = 5;
+
+const PRIORITY_OPTIONS: { value: TaskPriority | 'all'; label: string }[] = [
+  { value: 'all', label: 'Todas' },
+  { value: TaskPriority.HIGH, label: 'Alta' },
+  { value: TaskPriority.MEDIUM, label: 'Media' },
+  { value: TaskPriority.LOW, label: 'Baja' },
+];
 
 interface PlanEditorProps {
   planId: string;
@@ -187,17 +195,24 @@ export function PlanEditor({ planId }: PlanEditorProps) {
   const [editingTask, setEditingTask] = useState<TaskPublic | null>(null);
   const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [priority, setPriority] = useState<TaskPriority | 'all'>('all');
   const debouncedSearch = useDebounce(search);
 
   const tasks = plan?.tasks ?? [];
 
   const filtered = useMemo(() => {
-    if (!debouncedSearch) return tasks;
-    const q = debouncedSearch.toLowerCase();
-    return tasks.filter(
-      (t) => t.name.toLowerCase().includes(q) || t.category.name.toLowerCase().includes(q),
-    );
-  }, [tasks, debouncedSearch]);
+    let result = tasks;
+    if (priority !== 'all') {
+      result = result.filter((t) => t.priority === priority);
+    }
+    if (debouncedSearch) {
+      const q = debouncedSearch.toLowerCase();
+      result = result.filter(
+        (t) => t.name.toLowerCase().includes(q) || t.category.name.toLowerCase().includes(q),
+      );
+    }
+    return result;
+  }, [tasks, priority, debouncedSearch]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, { name: string; tasks: TaskPublic[] }>();
@@ -263,13 +278,31 @@ export function PlanEditor({ planId }: PlanEditorProps) {
           <div className="space-y-4">
             <StatusSummary tasks={tasks} />
 
-            {tasks.length >= SHOW_SEARCH_THRESHOLD && (
-              <SearchInput
-                value={search}
-                onChange={setSearch}
-                placeholder="Buscar tarea o categoría..."
-              />
-            )}
+            <div className="flex flex-wrap items-center gap-3">
+              {tasks.length >= SHOW_SEARCH_THRESHOLD && (
+                <SearchInput
+                  value={search}
+                  onChange={setSearch}
+                  placeholder="Buscar tarea o categoría..."
+                />
+              )}
+              <div className="flex gap-1">
+                {PRIORITY_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setPriority(opt.value)}
+                    className={cn(
+                      'rounded-full px-3 py-1 text-xs font-medium transition-colors',
+                      priority === opt.value
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80',
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             {filtered.length === 0 ? (
               <p className="text-muted-foreground py-4 text-center text-sm">
