@@ -1,6 +1,6 @@
 'use client';
 
-import type { TaskListItem } from '@epde/shared';
+import type { TaskListItem, TaskPublic } from '@epde/shared';
 import {
   formatRelativeDate,
   PRIORITY_VARIANT,
@@ -20,7 +20,6 @@ import {
   MapPin,
   Timer,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
 import { EmptyState } from '@/components/empty-state';
@@ -33,7 +32,11 @@ import { PageTransition } from '@/components/ui/page-transition';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useAllTasks } from '@/hooks/use-plans';
+import { useTaskDetail } from '@/hooks/use-task-operations';
 import { cn } from '@/lib/utils';
+
+import { CompleteTaskDialog } from '../properties/[id]/complete-task-dialog';
+import { TaskDetailSheet } from '../properties/[id]/task-detail-sheet';
 
 /** Display order: actionable items first. */
 const STATUS_ORDER: TaskStatus[] = [
@@ -211,13 +214,22 @@ function StatusSection({
 }
 
 export default function TasksPage() {
-  const router = useRouter();
   const [search, setSearch] = useState('');
   const [priority, setPriority] = useState<TaskPriority | 'all'>('all');
   const [activeStatus, setActiveStatus] = useState<TaskStatus | null>(null);
   const debouncedSearch = useDebounce(search);
 
+  // Task detail sheet state
+  const [selectedTask, setSelectedTask] = useState<TaskListItem | null>(null);
+  const [completingTask, setCompletingTask] = useState<TaskPublic | null>(null);
+
   const { data: tasks, isLoading, isError, refetch } = useAllTasks();
+
+  // Fetch full task detail when a task is selected
+  const { data: taskDetail } = useTaskDetail(
+    selectedTask?.maintenancePlan.id ?? '',
+    selectedTask?.id ?? '',
+  );
 
   const filtered = useMemo(() => {
     if (!tasks) return [];
@@ -254,7 +266,7 @@ export default function TasksPage() {
   const displayStatuses = activeStatus ? [activeStatus] : STATUS_ORDER;
 
   const handleTaskClick = (task: TaskListItem) => {
-    router.push(`/properties/${task.maintenancePlan.property.id}`);
+    setSelectedTask(task);
   };
 
   const toggleStatus = (status: TaskStatus) => {
@@ -357,6 +369,27 @@ export default function TasksPage() {
           ))}
         </div>
       )}
+
+      {/* Task detail sheet — loads full task detail on demand */}
+      <TaskDetailSheet
+        open={!!selectedTask}
+        onOpenChange={(open) => {
+          if (!open) setSelectedTask(null);
+        }}
+        task={taskDetail ?? null}
+        planId={selectedTask?.maintenancePlan.id ?? ''}
+        onComplete={(task) => {
+          setSelectedTask(null);
+          setCompletingTask(task);
+        }}
+      />
+
+      <CompleteTaskDialog
+        open={!!completingTask}
+        onOpenChange={() => setCompletingTask(null)}
+        task={completingTask}
+        planId={selectedTask?.maintenancePlan.id ?? completingTask?.maintenancePlanId ?? ''}
+      />
     </PageTransition>
   );
 }

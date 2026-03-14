@@ -36,7 +36,7 @@ const TaskCard = memo(function TaskCard({ task }: { task: TaskListItem }) {
   return (
     <Pressable
       className="border-border bg-card mb-3 rounded-xl border p-3"
-      onPress={() => router.push(`/property/${task.maintenancePlan.property.id}` as never)}
+      onPress={() => router.push(`/task/${task.maintenancePlan.id}/${task.id}` as never)}
     >
       <View className="mb-1 flex-row items-start justify-between gap-2">
         <Text style={TYPE.titleSm} className="text-foreground flex-1" numberOfLines={2}>
