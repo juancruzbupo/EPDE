@@ -291,6 +291,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
       {/* Attachments */}
       {'attachments' in budget && (
         <BudgetAttachments
+          budgetId={id}
           attachments={(budget as BudgetRequestPublic & { attachments: never[] }).attachments ?? []}
           budgetStatus={budget.status}
         />

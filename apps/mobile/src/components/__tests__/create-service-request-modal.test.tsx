@@ -21,6 +21,10 @@ jest.mock('@/hooks/use-upload', () => ({
   useUploadFile: () => ({ mutate: jest.fn(), isPending: false }),
 }));
 
+jest.mock('@/hooks/use-plans', () => ({
+  useAllTasks: () => ({ data: [] }),
+}));
+
 jest.mock('@/hooks/use-properties', () => ({
   useProperties: () => ({
     data: {

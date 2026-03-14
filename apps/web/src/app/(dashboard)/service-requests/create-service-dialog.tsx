@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useAllTasks } from '@/hooks/use-plans';
 import { useProperties } from '@/hooks/use-properties';
 import { useCreateServiceRequest } from '@/hooks/use-service-requests';
 import { useUploadFile } from '@/hooks/use-upload';
@@ -36,6 +37,8 @@ interface PhotoPreview {
   file: File;
   preview: string;
 }
+
+const NONE_VALUE = '__none__';
 
 export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogProps) {
   const createServiceRequest = useCreateServiceRequest();
@@ -52,6 +55,8 @@ export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogP
     handleSubmit,
     control,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<CreateServiceRequestInput>({
     resolver: zodResolver(createServiceRequestSchema),
@@ -59,6 +64,19 @@ export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogP
       urgency: ServiceUrgency.MEDIUM,
     },
   });
+
+  const selectedPropertyId = watch('propertyId');
+
+  // Fetch tasks for the selected property
+  const { data: propertyTasks } = useAllTasks(
+    selectedPropertyId ? { propertyId: selectedPropertyId } : undefined,
+  );
+  const tasks = selectedPropertyId ? (propertyTasks ?? []) : [];
+
+  // Clear taskId when property changes
+  useEffect(() => {
+    setValue('taskId', undefined);
+  }, [selectedPropertyId, setValue]);
 
   // Cleanup Object URLs on unmount to prevent memory leaks
   const photosRef = useRef(photos);
@@ -147,6 +165,34 @@ export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogP
               <p className="text-destructive text-sm">{errors.propertyId.message}</p>
             )}
           </div>
+
+          {selectedPropertyId && tasks.length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="taskId">Tarea relacionada (opcional)</Label>
+              <Controller
+                control={control}
+                name="taskId"
+                render={({ field }) => (
+                  <Select
+                    value={field.value ?? NONE_VALUE}
+                    onValueChange={(v) => field.onChange(v === NONE_VALUE ? undefined : v)}
+                  >
+                    <SelectTrigger id="taskId" className="w-full">
+                      <SelectValue placeholder="Seleccionar tarea" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NONE_VALUE}>Ninguna</SelectItem>
+                      {tasks.map((task) => (
+                        <SelectItem key={task.id} value={task.id}>
+                          {task.category.name} — {task.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="title">Título</Label>

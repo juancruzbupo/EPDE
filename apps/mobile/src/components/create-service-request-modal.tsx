@@ -1,8 +1,8 @@
-import type { CreateServiceRequestInput, PropertyPublic } from '@epde/shared';
+import type { CreateServiceRequestInput, PropertyPublic, TaskListItem } from '@epde/shared';
 import { createServiceRequestSchema, ServiceUrgency } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   ActivityIndicator,
@@ -20,6 +20,7 @@ import {
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useAllTasks } from '@/hooks/use-plans';
 import { useProperties } from '@/hooks/use-properties';
 import { useCreateServiceRequest } from '@/hooks/use-service-requests';
 import { useUploadFile } from '@/hooks/use-upload';
@@ -65,9 +66,21 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
   });
 
   const selectedPropertyId = watch('propertyId');
+  const selectedTaskId = watch('taskId');
   const urgency = watch('urgency') ?? 'MEDIUM';
   const isSubmitting = createRequest.isPending;
   const canSubmit = isValid && uploadingCount === 0 && photos.every((p) => p.uploadedUrl);
+
+  // Fetch tasks for the selected property
+  const { data: propertyTasks } = useAllTasks(
+    selectedPropertyId ? { propertyId: selectedPropertyId } : undefined,
+  );
+  const tasks = selectedPropertyId ? (propertyTasks ?? []) : [];
+
+  // Clear taskId when property changes
+  useEffect(() => {
+    setValue('taskId', undefined);
+  }, [selectedPropertyId, setValue]);
 
   const pickImage = () => {
     if (photos.length >= 5) {
@@ -147,6 +160,7 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
     createRequest.mutate(
       {
         propertyId: data.propertyId,
+        taskId: data.taskId,
         title: data.title.trim(),
         description: data.description.trim(),
         urgency: data.urgency,
@@ -278,6 +292,65 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
             </Text>
           )}
           {!errors.propertyId && <View className="mb-4" />}
+
+          {/* Task selector — shown when property has tasks */}
+          {selectedPropertyId && tasks.length > 0 && (
+            <>
+              <Text style={TYPE.labelLg} className="text-foreground mb-2">
+                Tarea relacionada (opcional)
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 8, marginBottom: 16 }}
+              >
+                <Pressable
+                  onPress={() => setValue('taskId', undefined)}
+                  className={`rounded-xl border px-4 py-2 ${
+                    !selectedTaskId ? 'bg-primary border-primary' : 'border-border bg-card'
+                  }`}
+                >
+                  <Text
+                    style={TYPE.labelMd}
+                    className={!selectedTaskId ? 'text-primary-foreground' : 'text-foreground'}
+                  >
+                    Ninguna
+                  </Text>
+                </Pressable>
+                {tasks.map((task: TaskListItem) => (
+                  <Pressable
+                    key={task.id}
+                    onPress={() => setValue('taskId', task.id, { shouldValidate: true })}
+                    className={`rounded-xl border px-4 py-2 ${
+                      selectedTaskId === task.id
+                        ? 'bg-primary border-primary'
+                        : 'border-border bg-card'
+                    }`}
+                  >
+                    <Text
+                      style={TYPE.labelMd}
+                      className={
+                        selectedTaskId === task.id ? 'text-primary-foreground' : 'text-foreground'
+                      }
+                      numberOfLines={1}
+                    >
+                      {task.name}
+                    </Text>
+                    <Text
+                      style={TYPE.bodySm}
+                      className={
+                        selectedTaskId === task.id
+                          ? 'text-primary-foreground/70'
+                          : 'text-muted-foreground'
+                      }
+                    >
+                      {task.category.name}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </>
+          )}
 
           {/* Title */}
           <Text style={TYPE.labelLg} className="text-foreground mb-2">

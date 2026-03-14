@@ -4,6 +4,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 import { toast } from 'sonner';
 
 import {
+  addServiceRequestAttachments,
   createServiceRequest,
   createServiceRequestComment,
   editServiceRequest,
@@ -117,6 +118,30 @@ export function useAddServiceRequestComment() {
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al agregar comentario'));
+    },
+  });
+}
+
+// ─── Attachments ───────────────────────────────────────────
+
+export function useAddServiceRequestAttachments() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      serviceRequestId,
+      attachments,
+    }: {
+      serviceRequestId: string;
+      attachments: { url: string; fileName: string }[];
+    }) => addServiceRequestAttachments(serviceRequestId, { attachments }),
+    onSuccess: (_data, variables) => {
+      toast.success('Adjuntos agregados');
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.serviceRequests, variables.serviceRequestId],
+      });
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al agregar adjuntos'));
     },
   });
 }

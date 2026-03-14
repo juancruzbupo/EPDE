@@ -66,7 +66,7 @@ const TaskCard = memo(function TaskCard({ task }: { task: TaskListItem }) {
 export default function TasksScreen() {
   const [statusFilter, setStatusFilter] = useState<TaskStatus | undefined>(undefined);
 
-  const { data: tasks, isLoading, error, refetch } = useAllTasks(statusFilter);
+  const { data: tasks, isLoading, error, refetch } = useAllTasks({ status: statusFilter });
 
   if (error && !tasks) {
     return <ErrorState onRetry={refetch} />;

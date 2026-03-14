@@ -88,9 +88,25 @@ describe('ServiceRequestsRepository', () => {
       expect(mockTx.serviceRequest.findUnique).toHaveBeenCalledWith({
         where: { id: 'sr-1' },
         include: {
-          property: { select: { id: true, address: true, city: true } },
-          requester: { select: { id: true, name: true } },
+          property: {
+            select: {
+              id: true,
+              address: true,
+              city: true,
+              userId: true,
+              user: { select: { id: true, name: true } },
+            },
+          },
+          requester: { select: { id: true, name: true, email: true } },
+          task: {
+            select: {
+              id: true,
+              name: true,
+              category: { select: { id: true, name: true, icon: true } },
+            },
+          },
           photos: true,
+          attachments: true,
         },
       });
     });

@@ -263,6 +263,7 @@ model Task {
   taskLogs        TaskLog[]
   taskNotes       TaskNote[]
   auditLogs       TaskAuditLog[]
+  serviceRequests ServiceRequest[]
 
   @@index([maintenancePlanId])
   @@index([maintenancePlanId, status])
@@ -424,6 +425,7 @@ model ServiceRequest {
   id          String         @id @default(uuid())
   propertyId  String
   requestedBy String
+  taskId      String?
   title       String         @db.VarChar(200)
   description String         @db.VarChar(2000)
   urgency     ServiceUrgency @default(MEDIUM)
@@ -436,6 +438,7 @@ model ServiceRequest {
 
   property    Property                      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   requester   User                          @relation(fields: [requestedBy], references: [id])
+  task        Task?                         @relation(fields: [taskId], references: [id], onDelete: SetNull)
   photos      ServiceRequestPhoto[]
   auditLogs   ServiceRequestAuditLog[]
   comments    ServiceRequestComment[]
@@ -446,6 +449,7 @@ model ServiceRequest {
   @@index([requestedBy, status])
   @@index([status])
   @@index([status, urgency])
+  @@index([taskId])
 }
 
 model ServiceRequestPhoto {

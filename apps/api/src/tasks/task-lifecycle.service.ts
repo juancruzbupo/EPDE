@@ -70,8 +70,8 @@ export class TaskLifecycleService {
     return task;
   }
 
-  async listAllTasks(userId?: string, status?: string, take?: number) {
-    return this.tasksRepository.findAllForList(userId, status, take);
+  async listAllTasks(userId?: string, status?: string, take?: number, propertyId?: string) {
+    return this.tasksRepository.findAllForList(userId, status, take, propertyId);
   }
 
   async addTask(

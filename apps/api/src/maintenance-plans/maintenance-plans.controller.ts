@@ -77,7 +77,12 @@ export class MaintenancePlansController {
     @Query(new ZodValidationPipe(listTasksQuerySchema)) query: ListTasksQueryInput,
   ) {
     const userId = user.role === UserRole.CLIENT ? user.id : undefined;
-    const data = await this.taskLifecycle.listAllTasks(userId, query.status, query.take);
+    const data = await this.taskLifecycle.listAllTasks(
+      userId,
+      query.status,
+      query.take,
+      query.propertyId,
+    );
     return { data };
   }
 

@@ -8,6 +8,12 @@ import {
 } from '../common/repositories/base.repository';
 import { PrismaService } from '../prisma/prisma.service';
 
+const TASK_BRIEF_SELECT = {
+  id: true,
+  name: true,
+  category: { select: { id: true, name: true, icon: true } },
+} as const;
+
 const SERVICE_REQUEST_LIST_INCLUDE = {
   property: {
     select: {
@@ -19,6 +25,7 @@ const SERVICE_REQUEST_LIST_INCLUDE = {
     },
   },
   requester: { select: { id: true, name: true, email: true } },
+  task: { select: TASK_BRIEF_SELECT },
 } as const;
 
 const SERVICE_REQUEST_DETAIL_INCLUDE = {
@@ -124,9 +131,19 @@ export class ServiceRequestsRepository extends BaseRepository<ServiceRequest, 's
     });
   }
 
+  /** Check that a task belongs to a property (via its maintenance plan). */
+  async taskBelongsToProperty(taskId: string, propertyId: string): Promise<boolean> {
+    const task = await this.prisma.task.findFirst({
+      where: { id: taskId, deletedAt: null, maintenancePlan: { propertyId } },
+      select: { id: true },
+    });
+    return !!task;
+  }
+
   async createWithPhotos(data: {
     propertyId: string;
     requestedBy: string;
+    taskId?: string;
     title: string;
     description: string;
     urgency: ServiceUrgency;
@@ -139,6 +156,7 @@ export class ServiceRequestsRepository extends BaseRepository<ServiceRequest, 's
           data: {
             propertyId: data.propertyId,
             requestedBy: data.requestedBy,
+            taskId: data.taskId ?? null,
             createdBy: data.createdBy,
             title: data.title,
             description: data.description,
@@ -158,11 +176,7 @@ export class ServiceRequestsRepository extends BaseRepository<ServiceRequest, 's
 
         return tx.serviceRequest.findUnique({
           where: { id: serviceRequest.id },
-          include: {
-            property: { select: { id: true, address: true, city: true } },
-            requester: { select: { id: true, name: true } },
-            photos: true,
-          },
+          include: SERVICE_REQUEST_DETAIL_INCLUDE,
         });
       },
       { timeout: 30000 },

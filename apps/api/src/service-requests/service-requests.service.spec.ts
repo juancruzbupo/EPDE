@@ -5,6 +5,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { PropertiesRepository } from '../properties/properties.repository';
+import { ServiceRequestAttachmentsRepository } from './service-request-attachments.repository';
+import { ServiceRequestAuditLogRepository } from './service-request-audit-log.repository';
+import { ServiceRequestCommentsRepository } from './service-request-comments.repository';
 import { ServiceRequestsRepository } from './service-requests.repository';
 import { ServiceRequestsService } from './service-requests.service';
 
@@ -22,6 +25,19 @@ const mockPropertiesRepository = {
 const mockNotificationsHandler = {
   handleServiceCreated: jest.fn().mockResolvedValue(undefined),
   handleServiceStatusChanged: jest.fn().mockResolvedValue(undefined),
+};
+
+const mockAuditLogRepository = {
+  createAuditLog: jest.fn().mockResolvedValue(undefined),
+};
+
+const mockCommentsRepository = {
+  findByServiceRequestId: jest.fn(),
+  createComment: jest.fn(),
+};
+
+const mockAttachmentsRepository = {
+  addAttachments: jest.fn(),
 };
 
 const adminUser = { id: 'admin-1', role: UserRole.ADMIN };
@@ -62,6 +78,9 @@ describe('ServiceRequestsService', () => {
         { provide: ServiceRequestsRepository, useValue: mockServiceRequestsRepository },
         { provide: PropertiesRepository, useValue: mockPropertiesRepository },
         { provide: NotificationsHandlerService, useValue: mockNotificationsHandler },
+        { provide: ServiceRequestAuditLogRepository, useValue: mockAuditLogRepository },
+        { provide: ServiceRequestCommentsRepository, useValue: mockCommentsRepository },
+        { provide: ServiceRequestAttachmentsRepository, useValue: mockAttachmentsRepository },
       ],
     }).compile();
 
@@ -201,6 +220,7 @@ describe('ServiceRequestsService', () => {
         propertyId: 'prop-1',
         requestedBy: 'client-1',
         createdBy: 'client-1',
+        taskId: undefined,
         title: 'Humedad en pared',
         description: 'Se detectó humedad en la pared del living',
         urgency: 'MEDIUM',
@@ -285,6 +305,7 @@ describe('ServiceRequestsService', () => {
           },
           requester: { select: { id: true, name: true } },
           photos: true,
+          attachments: true,
         },
       );
       expect(notificationsHandler.handleServiceStatusChanged).toHaveBeenCalledWith({

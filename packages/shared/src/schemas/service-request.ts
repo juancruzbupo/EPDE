@@ -12,6 +12,7 @@ import {
 
 export const createServiceRequestSchema = z.object({
   propertyId: z.string().uuid('ID de propiedad inválido'),
+  taskId: z.string().uuid('ID de tarea inválido').optional(),
   title: z
     .string()
     .min(3, 'El título debe tener al menos 3 caracteres')

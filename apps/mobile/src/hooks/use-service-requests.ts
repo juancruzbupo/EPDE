@@ -4,6 +4,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 import { Alert } from 'react-native';
 
 import {
+  addServiceRequestAttachments,
   createServiceRequest,
   createServiceRequestComment,
   editServiceRequest,
@@ -99,6 +100,30 @@ export function useAddServiceRequestComment() {
     },
     onError: (err) => {
       Alert.alert('Error', getErrorMessage(err, 'Error al agregar comentario'));
+    },
+  });
+}
+
+// ─── Attachments ───────────────────────────────────────────
+
+export function useAddServiceRequestAttachments() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      serviceRequestId,
+      attachments,
+    }: {
+      serviceRequestId: string;
+      attachments: { url: string; fileName: string }[];
+    }) => addServiceRequestAttachments(serviceRequestId, { attachments }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.serviceRequests, variables.serviceRequestId],
+      });
+      Alert.alert('Éxito', 'Adjuntos agregados');
+    },
+    onError: (err) => {
+      Alert.alert('Error', getErrorMessage(err, 'Error al agregar adjuntos'));
     },
   });
 }

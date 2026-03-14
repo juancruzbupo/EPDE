@@ -83,7 +83,12 @@ describe('MaintenancePlansController', () => {
 
       const result = await controller.listAllTasks(clientUser, { status: undefined, take: 20 });
 
-      expect(mockTaskLifecycle.listAllTasks).toHaveBeenCalledWith('client-1', undefined, 20);
+      expect(mockTaskLifecycle.listAllTasks).toHaveBeenCalledWith(
+        'client-1',
+        undefined,
+        20,
+        undefined,
+      );
       expect(result).toEqual({ data: tasks });
     });
 
@@ -97,6 +102,7 @@ describe('MaintenancePlansController', () => {
         undefined,
         TaskStatus.PENDING,
         50,
+        undefined,
       );
     });
   });

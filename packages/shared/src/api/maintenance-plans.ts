@@ -29,11 +29,11 @@ export function createMaintenancePlanQueries(apiClient: AxiosInstance) {
     },
 
     async getAllTasks(
-      status?: TaskStatus,
+      params?: { status?: TaskStatus; propertyId?: string },
       signal?: AbortSignal,
     ): Promise<ApiResponse<TaskListItem[]>> {
       const { data } = await apiClient.get('/maintenance-plans/tasks', {
-        params: status ? { status } : {},
+        params: params ?? {},
         signal,
       });
       return data;

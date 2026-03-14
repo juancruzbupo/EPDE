@@ -5,12 +5,19 @@ import type { PropertyBriefWithOwner, Serialized, UserBriefWithEmail } from './c
 export interface ServiceRequest extends BaseEntity, SoftDeletable {
   propertyId: string;
   requestedBy: string;
+  taskId: string | null;
   title: string;
   description: string;
   urgency: ServiceUrgency;
   status: ServiceStatus;
   createdBy: string | null;
   updatedBy: string | null;
+}
+
+export interface ServiceRequestTaskBrief {
+  id: string;
+  name: string;
+  category: { id: string; name: string; icon: string | null };
 }
 
 export interface ServiceRequestPhoto {
@@ -25,6 +32,7 @@ export type ServiceRequestPhotoPublic = Serialized<Omit<ServiceRequestPhoto, 'se
 export type ServiceRequestPublic = Serialized<ServiceRequest> & {
   property: PropertyBriefWithOwner;
   requester: UserBriefWithEmail;
+  task: ServiceRequestTaskBrief | null;
   photos: ServiceRequestPhotoPublic[];
   attachments: ServiceRequestAttachmentPublic[];
 };

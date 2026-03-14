@@ -83,6 +83,11 @@ export class ServiceRequestsService {
       throw new ForbiddenException('No tenés acceso a esta propiedad');
     }
 
+    // If a task is linked, validate it belongs to the same property
+    if (dto.taskId) {
+      await this.validateTaskBelongsToProperty(dto.taskId, dto.propertyId);
+    }
+
     // Zod applies default('MEDIUM'), so urgency is always present after validation
     const urgency = dto.urgency ?? ServiceUrgency.MEDIUM;
 
@@ -90,6 +95,7 @@ export class ServiceRequestsService {
       propertyId: dto.propertyId,
       requestedBy: userId,
       createdBy: userId,
+      taskId: dto.taskId,
       title: dto.title,
       description: dto.description,
       urgency,
@@ -106,6 +112,7 @@ export class ServiceRequestsService {
         title: dto.title,
         description: dto.description,
         urgency,
+        taskId: dto.taskId ?? null,
         photoCount: dto.photoUrls?.length ?? 0,
       },
     );
@@ -285,6 +292,14 @@ export class ServiceRequestsService {
     }
 
     return this.attachmentsRepository.addAttachments(id, dto.attachments);
+  }
+
+  /** Validate that the given task belongs to the property (via its maintenance plan). */
+  private async validateTaskBelongsToProperty(taskId: string, propertyId: string): Promise<void> {
+    const belongs = await this.serviceRequestsRepository.taskBelongsToProperty(taskId, propertyId);
+    if (!belongs) {
+      throw new BadRequestException('La tarea no pertenece a esta propiedad');
+    }
   }
 
   private assertAccess(request: ServiceRequestWithDetails, currentUser: ServiceUser): void {

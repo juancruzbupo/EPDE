@@ -19,6 +19,7 @@ import {
   Home,
   Pencil,
   User,
+  Wrench,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -164,6 +165,17 @@ export function ServiceRequestDetail({
                     })}
                   </dd>
                 </div>
+                {request.task && (
+                  <div className="space-y-1">
+                    <dt className="text-muted-foreground flex items-center gap-1.5">
+                      <Wrench className="h-3.5 w-3.5" />
+                      Tarea relacionada
+                    </dt>
+                    <dd className="font-medium">
+                      {request.task.category.name} — {request.task.name}
+                    </dd>
+                  </div>
+                )}
                 <div className="space-y-1 sm:col-span-2">
                   <dt className="text-muted-foreground flex items-center gap-1.5">
                     <AlignLeft className="h-3.5 w-3.5" />
@@ -220,6 +232,7 @@ export function ServiceRequestDetail({
         )}
 
         <ServiceRequestAttachments
+          serviceRequestId={id}
           attachments={request.attachments}
           serviceRequestStatus={request.status}
         />

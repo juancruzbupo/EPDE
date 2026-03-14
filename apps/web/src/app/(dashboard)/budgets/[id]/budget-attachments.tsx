@@ -4,9 +4,13 @@ import type { BudgetAttachmentPublic } from '@epde/shared';
 import { BUDGET_TERMINAL_STATUSES } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Download, Paperclip } from 'lucide-react';
+import { Download, Loader2, Paperclip, Upload } from 'lucide-react';
+import { useRef, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAddBudgetAttachments } from '@/hooks/use-budgets';
+import { useUploadFile } from '@/hooks/use-upload';
 
 function AttachmentItem({ attachment }: { attachment: BudgetAttachmentPublic }) {
   return (
@@ -29,19 +33,67 @@ function AttachmentItem({ attachment }: { attachment: BudgetAttachmentPublic }) 
 }
 
 interface BudgetAttachmentsProps {
+  budgetId: string;
   attachments: BudgetAttachmentPublic[];
   budgetStatus: string;
 }
 
-export function BudgetAttachments({ attachments, budgetStatus }: BudgetAttachmentsProps) {
+export function BudgetAttachments({ budgetId, attachments, budgetStatus }: BudgetAttachmentsProps) {
   const isTerminal = BUDGET_TERMINAL_STATUSES.includes(budgetStatus as never);
+  const uploadFile = useUploadFile();
+  const addAttachments = useAddBudgetAttachments();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+
+    setIsUploading(true);
+    try {
+      const uploaded: { url: string; fileName: string }[] = [];
+      for (const file of files) {
+        const url = await uploadFile.mutateAsync({ file, folder: 'budgets' });
+        uploaded.push({ url, fileName: file.name });
+      }
+      await addAttachments.mutateAsync({ budgetId, attachments: uploaded });
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   if (!attachments.length && isTerminal) return null;
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg">Adjuntos</CardTitle>
+        {!isTerminal && (
+          <>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*,application/pdf"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isUploading}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {isUploading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Upload className="mr-2 h-4 w-4" />
+              )}
+              {isUploading ? 'Subiendo...' : 'Adjuntar archivo'}
+            </Button>
+          </>
+        )}
       </CardHeader>
       <CardContent>
         {attachments.length > 0 ? (

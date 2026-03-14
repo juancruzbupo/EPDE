@@ -19,10 +19,10 @@ export function usePlans() {
   });
 }
 
-export function useAllTasks(status?: TaskStatus) {
+export function useAllTasks(params?: { status?: TaskStatus; propertyId?: string }) {
   return useQuery({
-    queryKey: [QUERY_KEYS.plans, 'tasks', status ?? 'all'],
-    queryFn: ({ signal }) => getAllTasks(status, signal).then((r) => r.data),
+    queryKey: [QUERY_KEYS.plans, 'tasks', params?.status ?? 'all', params?.propertyId ?? 'all'],
+    queryFn: ({ signal }) => getAllTasks(params, signal).then((r) => r.data),
   });
 }
 

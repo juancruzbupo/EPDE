@@ -6,6 +6,7 @@ import type {
 import { SERVICE_REQUEST_TERMINAL_STATUSES, ServiceStatus } from '@epde/shared';
 import { format, formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -29,12 +30,14 @@ import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { ServiceStatusBadge, UrgencyBadge } from '@/components/status-badge';
 import {
+  useAddServiceRequestAttachments,
   useAddServiceRequestComment,
   useEditServiceRequest,
   useServiceRequest,
   useServiceRequestAuditLog,
   useServiceRequestComments,
 } from '@/hooks/use-service-requests';
+import { useUploadFile } from '@/hooks/use-upload';
 import { useSlideIn } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
@@ -119,6 +122,9 @@ export default function ServiceRequestDetailScreen() {
   const { data: auditLog } = useServiceRequestAuditLog(id);
   const { data: comments } = useServiceRequestComments(id);
   const addComment = useAddServiceRequestComment();
+  const uploadFile = useUploadFile();
+  const addAttachments = useAddServiceRequestAttachments();
+  const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
 
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
@@ -151,6 +157,31 @@ export default function ServiceRequestDetailScreen() {
       { serviceRequestId: id, content: trimmed },
       { onSuccess: () => setCommentText('') },
     );
+  };
+
+  const handleAddAttachment = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Permiso requerido', 'Se necesita acceso a la galería.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.8 });
+    if (result.canceled || !result.assets[0]) return;
+
+    const asset = result.assets[0];
+    const fileName = asset.uri.split('/').pop() ?? 'adjunto.jpg';
+
+    setIsUploadingAttachment(true);
+    try {
+      const url = await uploadFile.mutateAsync({ uri: asset.uri, folder: 'service-requests' });
+      await addAttachments.mutateAsync({
+        serviceRequestId: id,
+        attachments: [{ url, fileName }],
+      });
+      haptics.success();
+    } finally {
+      setIsUploadingAttachment(false);
+    }
   };
 
   if (isLoading) {
@@ -236,6 +267,16 @@ export default function ServiceRequestDetailScreen() {
                 {format(new Date(request.createdAt), 'd MMM yyyy', { locale: es })}
               </Text>
             </View>
+            {request.task && (
+              <View className="flex-row justify-between">
+                <Text style={TYPE.bodyMd} className="text-muted-foreground">
+                  Tarea
+                </Text>
+                <Text style={TYPE.labelLg} className="text-foreground" numberOfLines={1}>
+                  {request.task.category.name} — {request.task.name}
+                </Text>
+              </View>
+            )}
           </View>
 
           {/* Edit button for OPEN status */}
@@ -274,15 +315,33 @@ export default function ServiceRequestDetailScreen() {
         )}
 
         {/* Attachments */}
-        {request.attachments && request.attachments.length > 0 && (
-          <CollapsibleSection title="Adjuntos" count={request.attachments.length}>
-            <View className="border-border bg-card rounded-xl border px-3">
-              {request.attachments.map((att) => (
-                <AttachmentItem key={att.id} attachment={att} />
-              ))}
-            </View>
-          </CollapsibleSection>
-        )}
+        <CollapsibleSection title="Adjuntos" count={request.attachments?.length}>
+          <View className="border-border bg-card rounded-xl border px-3">
+            {request.attachments && request.attachments.length > 0 ? (
+              request.attachments.map((att) => <AttachmentItem key={att.id} attachment={att} />)
+            ) : (
+              <Text style={TYPE.bodyMd} className="text-muted-foreground py-3">
+                Sin adjuntos
+              </Text>
+            )}
+          </View>
+
+          {!isTerminal && (
+            <Pressable
+              onPress={handleAddAttachment}
+              disabled={isUploadingAttachment}
+              className="bg-primary mt-2 items-center rounded-lg py-2"
+            >
+              {isUploadingAttachment ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={TYPE.labelMd} className="text-primary-foreground">
+                  Adjuntar archivo
+                </Text>
+              )}
+            </Pressable>
+          )}
+        </CollapsibleSection>
 
         {/* Comments */}
         <CollapsibleSection title="Comentarios" count={comments?.length}>

@@ -51,6 +51,7 @@ export function createServiceRequestQueries(apiClient: AxiosInstance) {
 
     async createServiceRequest(dto: {
       propertyId: string;
+      taskId?: string;
       title: string;
       description: string;
       urgency?: ServiceUrgency;

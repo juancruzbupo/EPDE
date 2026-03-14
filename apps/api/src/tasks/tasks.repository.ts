@@ -13,13 +13,22 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
     super(prisma, 'task', true);
   }
 
-  async findAllForList(userId?: string, status?: string, take = 200) {
+  async findAllForList(userId?: string, status?: string, take = 200, propertyId?: string) {
     // Cap at TASKS_MAX_TAKE to prevent runaway queries. Default 200 covers any realistic single-user portfolio.
     const safeTake = Math.min(take, TASKS_MAX_TAKE);
     return this.model.findMany({
       where: {
         ...(status && status !== 'all' ? { status: status as TaskStatus } : {}),
-        ...(userId ? { maintenancePlan: { property: { userId } } } : {}),
+        ...(userId || propertyId
+          ? {
+              maintenancePlan: {
+                property: {
+                  ...(userId ? { userId } : {}),
+                  ...(propertyId ? { id: propertyId } : {}),
+                },
+              },
+            }
+          : {}),
       },
       include: {
         category: { select: { id: true, name: true, icon: true } },

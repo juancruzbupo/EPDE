@@ -7,6 +7,7 @@ import { PLAN_STATUS_VALUES, TASK_STATUS_VALUES } from '../types/enums';
 
 export const listTasksQuerySchema = z.object({
   status: z.enum(TASK_STATUS_VALUES).optional(),
+  propertyId: z.string().uuid().optional(),
   take: z.coerce.number().int().min(1).max(TASKS_MAX_TAKE).default(200),
 });
 

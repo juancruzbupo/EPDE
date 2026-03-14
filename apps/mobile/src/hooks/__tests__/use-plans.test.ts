@@ -34,22 +34,22 @@ describe('usePlans', () => {
 });
 
 describe('useAllTasks', () => {
-  it('uses "all" in queryKey when no status provided', () => {
+  it('uses "all" in queryKey when no params provided', () => {
     renderHook(() => useAllTasks());
 
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: [QUERY_KEYS.plans, 'tasks', 'all'],
+        queryKey: [QUERY_KEYS.plans, 'tasks', 'all', 'all'],
       }),
     );
   });
 
   it('includes status in queryKey when provided', () => {
-    renderHook(() => useAllTasks('PENDING'));
+    renderHook(() => useAllTasks({ status: 'PENDING' }));
 
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: [QUERY_KEYS.plans, 'tasks', 'PENDING'],
+        queryKey: [QUERY_KEYS.plans, 'tasks', 'PENDING', 'all'],
       }),
     );
   });

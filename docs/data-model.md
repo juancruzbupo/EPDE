@@ -11,6 +11,8 @@ User ─1:N─ Property ─1:1─ MaintenancePlan ─1:N─ Task
   │                │         └─1:1─ BudgetResponse
   │                │
   │                └─1:N─ ServiceRequest ─1:N─ ServiceRequestPhoto
+  │                                │
+  │                                └─N:1─ Task (FK: taskId, nullable, onDelete: SetNull)
   │
   ├─1:N─ TaskLog
   ├─1:N─ TaskNote
@@ -362,24 +364,25 @@ CategoryTemplate ─1:N─ TaskTemplate
 
 ### ServiceRequest
 
-| Campo       | Tipo           | Notas                                       |
-| ----------- | -------------- | ------------------------------------------- |
-| id          | UUID           | PK                                          |
-| propertyId  | String         | FK → Property                               |
-| requestedBy | String         | FK → User                                   |
-| title       | String         |                                             |
-| description | String         | Requerido (min 10 chars)                    |
-| urgency     | ServiceUrgency | Default: MEDIUM                             |
-| status      | ServiceStatus  | Default: OPEN                               |
-| updatedBy   | String?        | ID del usuario que realizo el ultimo cambio |
-| createdBy   | String?        | Auditoria                                   |
-| createdAt   | DateTime       |                                             |
-| updatedAt   | DateTime       |                                             |
-| deletedAt   | DateTime?      | Soft delete                                 |
+| Campo       | Tipo           | Notas                                        |
+| ----------- | -------------- | -------------------------------------------- |
+| id          | UUID           | PK                                           |
+| propertyId  | String         | FK → Property                                |
+| requestedBy | String         | FK → User                                    |
+| taskId      | String?        | FK → Task (opcional, vincula a tarea origen) |
+| title       | String         |                                              |
+| description | String         | Requerido (min 10 chars)                     |
+| urgency     | ServiceUrgency | Default: MEDIUM                              |
+| status      | ServiceStatus  | Default: OPEN                                |
+| updatedBy   | String?        | ID del usuario que realizo el ultimo cambio  |
+| createdBy   | String?        | Auditoria                                    |
+| createdAt   | DateTime       |                                              |
+| updatedAt   | DateTime       |                                              |
+| deletedAt   | DateTime?      | Soft delete                                  |
 
-**Indices:** `propertyId`, `status`, `[propertyId, deletedAt]`, `[requestedBy, status]`, `[status, urgency]`
+**Indices:** `propertyId`, `status`, `taskId`, `[propertyId, deletedAt]`, `[requestedBy, status]`, `[status, urgency]`
 **Soft delete:** Si — via Prisma extension
-**Relaciones:** `property`, `requester`, `photos`
+**Relaciones:** `property`, `requester`, `task`, `photos`
 
 ### ServiceRequestPhoto
 
@@ -470,6 +473,7 @@ const INCLUDE = {
 - `BudgetResponse` → cascade on delete de `BudgetRequest`
 - `ServiceRequest` → cascade on delete de `Property`
 - `ServiceRequestPhoto` → cascade on delete de `ServiceRequest`
+- `ServiceRequest.taskId` → SetNull on delete de `Task`
 - `Notification` → cascade on delete de `User`
 - `TaskTemplate` → cascade on delete de `CategoryTemplate`
 

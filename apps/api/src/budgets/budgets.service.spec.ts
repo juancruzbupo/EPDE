@@ -4,6 +4,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { PropertiesRepository } from '../properties/properties.repository';
+import { BudgetAttachmentsRepository } from './budget-attachments.repository';
+import { BudgetAuditLogRepository } from './budget-audit-log.repository';
+import { BudgetCommentsRepository } from './budget-comments.repository';
 import { BudgetsRepository } from './budgets.repository';
 import { BudgetsService } from './budgets.service';
 
@@ -53,6 +56,15 @@ describe('BudgetsService', () => {
         { provide: BudgetsRepository, useValue: budgetsRepository },
         { provide: PropertiesRepository, useValue: propertiesRepository },
         { provide: NotificationsHandlerService, useValue: notificationsHandler },
+        {
+          provide: BudgetAuditLogRepository,
+          useValue: { createAuditLog: jest.fn().mockResolvedValue(undefined) },
+        },
+        {
+          provide: BudgetCommentsRepository,
+          useValue: { findByBudgetId: jest.fn(), createComment: jest.fn() },
+        },
+        { provide: BudgetAttachmentsRepository, useValue: { addAttachments: jest.fn() } },
       ],
     }).compile();
 
@@ -181,6 +193,7 @@ describe('BudgetsService', () => {
           requester: { select: { id: true, name: true } },
           lineItems: true,
           response: true,
+          attachments: true,
         },
       );
       expect(notificationsHandler.handleBudgetCreated).toHaveBeenCalledWith({
