@@ -54,6 +54,8 @@
 42. **Enum constants en tests** — Usar `TaskPriority.MEDIUM` en vez de `'MEDIUM'`, `RecurrenceType.ANNUAL` en vez de `'ANNUAL'` en fixtures de test. El helper `TEST_TASK_DEFAULTS` en `test/helpers/test-task-defaults.ts` centraliza valores comunes para evitar drift
 43. **Entity drift check en CI** — El script `scripts/check-entity-drift.mjs` verifica que los campos de los 6 modelos principales de Prisma coincidan con las interfaces en `packages/shared/src/types/entities/`. Se ejecuta automaticamente en CI despues del schema drift check. Al agregar un campo en `schema.prisma`, actualizar tambien la interface en shared
 44. **ErrorState en detail pages con initialData** — Todo componente detail que use `initialData` de RSC DEBE destructurar `isError` + `refetch` del hook y mostrar `<ErrorState>` cuando `isError && !data`. Previene que el usuario vea data stale sin feedback cuando la revalidacion falla
+45. **`onError` en optimistic updates: feedback primero, restore despues** — En mutations con `onMutate` optimistic, el `onError` DEBE mostrar feedback al usuario PRIMERO (`Alert.alert` en mobile, `toast.error` en web) y restaurar el estado previo DESPUES. El usuario debe ver el error inmediatamente; la restauracion de estado es invisible. Variable de contexto: `prev` (no `previousCount`, `previousData`, etc.) para consistencia mobile ↔ web
+46. **Detail hooks aceptan `initialData`** — Todo hook de detalle (`useBudget`, `useProperty`, `useServiceRequest`, etc.) DEBE aceptar `options?: { initialData?: T }` y pasarlo a `useQuery`. Permite que pantallas de lista pasen data cargada al navegar a detalle, evitando flash de loading. Aplica a web y mobile
 
 ### NUNCA
 
@@ -724,11 +726,12 @@ export function useBudgets(filters: BudgetFilters) {
   });
 }
 
-// Detalle con enable condicional
-export function useBudget(id: string) {
+// Detalle con enable condicional + initialData opcional (para pasar data de lista al navegar a detalle)
+export function useBudget(id: string, options?: { initialData?: BudgetRequestPublic }) {
   return useQuery({
     queryKey: [QUERY_KEYS.budgets, id],
-    queryFn: ({ signal }) => getBudget(id, signal),
+    queryFn: ({ signal }) => getBudget(id, signal).then((r) => r.data),
+    initialData: options?.initialData,
     enabled: !!id,
   });
 }
@@ -1066,16 +1069,65 @@ Items de actividad con icon circle + card border:
 
 ## 5. Mobile (`@epde/mobile`) — Expo
 
-### 5.1 Hook Pattern (Infinite Scroll)
+### 5.1 Hook Pattern (Infinite Scroll + Detail + Mutation)
 
 ```typescript
 // apps/mobile/src/hooks/use-budgets.ts
-export function useBudgets(filters: BudgetFilters = {}) {
+
+// Lista con infinite scroll (mobile es CLIENT-only, filters default a {})
+export function useBudgets(filters: Omit<BudgetFilters, 'cursor'> = {}) {
   return useInfiniteQuery({
-    queryKey: ['budgets', filters],
-    queryFn: ({ pageParam }) => getBudgets({ ...filters, cursor: pageParam }),
-    getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.nextCursor : undefined),
+    queryKey: [QUERY_KEYS.budgets, filters],
+    queryFn: ({ pageParam, signal }) => getBudgets({ ...filters, cursor: pageParam }, signal),
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
+    maxPages: 10,
+  });
+}
+
+// Detalle con initialData opcional (mismo patron que web §4.1)
+export function useBudget(id: string, options?: { initialData?: BudgetRequestPublic }) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.budgets, id],
+    queryFn: ({ signal }) => getBudget(id, signal).then((r) => r.data),
+    initialData: options?.initialData,
+    enabled: !!id,
+  });
+}
+
+// Mutation con optimistic update — onError: feedback PRIMERO, restore DESPUES
+export function useMarkAsRead() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: markAsRead,
+    onMutate: async () => {
+      await queryClient.cancelQueries({
+        queryKey: [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
+      });
+      const prev = queryClient.getQueryData<number>([
+        QUERY_KEYS.notifications,
+        QUERY_KEYS.notificationsUnreadCount,
+      ]);
+      if (prev !== undefined) {
+        queryClient.setQueryData(
+          [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
+          Math.max(0, prev - 1),
+        );
+      }
+      return { prev };
+    },
+    onError: (_err, _id, context) => {
+      Alert.alert('Error', getErrorMessage(_err, 'Error al marcar notificación')); // feedback primero
+      if (context?.prev !== undefined) {
+        queryClient.setQueryData(
+          [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
+          context.prev,
+        ); // restore despues
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.notifications] });
+    },
   });
 }
 ```
@@ -1299,6 +1351,7 @@ pnpm test       # Todos los tests pasan
 | `console.log(token)`                                                 | No loguear tokens                                                                   |
 | `Float` en Prisma para montos                                        | `Decimal(14,2)`                                                                     |
 | `onError` ausente en `useMutation`                                   | `onError: (err) => toast.error(getErrorMessage(err, 'fallback'))`                   |
+| `onError` que restaura estado antes de mostrar feedback              | Feedback primero (`Alert.alert`/`toast.error`), restore despues                     |
 | `set-password` sin verificar `purpose` claim                         | `if (payload.purpose !== 'invite') throw Unauthorized`                              |
 | Logout: API call primero, luego limpiar estado                       | Limpiar estado local PRIMERO, luego API call                                        |
 | `useQueryClient()` duplicado (store + componente)                    | `queryClient` singleton desde `lib/query-client.ts`                                 |
