@@ -18,6 +18,7 @@ describe('BudgetsService', () => {
     findByIdWithDetails: jest.Mock;
     create: jest.Mock;
     update: jest.Mock;
+    updateStatusAtomic: jest.Mock;
     respondToBudget: jest.Mock;
   };
   let propertiesRepository: { findOwnership: jest.Mock };

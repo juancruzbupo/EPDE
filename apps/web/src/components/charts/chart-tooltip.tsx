@@ -18,8 +18,8 @@ export function ChartTooltip({ active, payload, label, formatter }: ChartTooltip
     <div className="bg-popover border-border text-popover-foreground rounded-lg border p-3 shadow-lg">
       {label && <p className="type-label-md text-foreground mb-1">{label}</p>}
       <div className="space-y-1">
-        {payload.map((entry, i) => (
-          <div key={i} className="flex items-center gap-2">
+        {payload.map((entry) => (
+          <div key={entry.name} className="flex items-center gap-2">
             <span
               className="inline-block h-2.5 w-2.5 rounded-full"
               style={{ backgroundColor: entry.color }}

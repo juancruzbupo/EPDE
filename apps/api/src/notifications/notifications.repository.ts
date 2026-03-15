@@ -75,8 +75,11 @@ export class NotificationsRepository extends BaseRepository<Notification, 'notif
   }
 
   async findTodayReminderTaskIds(): Promise<Set<string>> {
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
+    // Argentina is UTC-3 (no DST). Calculate midnight AR in UTC.
+    const AR_OFFSET_MS = 3 * 60 * 60 * 1000;
+    const nowAR = new Date(Date.now() - AR_OFFSET_MS);
+    nowAR.setUTCHours(0, 0, 0, 0);
+    const todayStart = new Date(nowAR.getTime() + AR_OFFSET_MS);
 
     const existing = await this.writeModel.findMany({
       where: {

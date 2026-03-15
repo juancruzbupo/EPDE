@@ -192,6 +192,8 @@ export default function TaskDetailScreen() {
         {/* Complete task button */}
         {!isCompleted && (
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Completar tarea"
             onPress={() => setCompleteModalVisible(true)}
             className="bg-primary mb-4 items-center rounded-xl py-3"
           >
@@ -231,6 +233,8 @@ export default function TaskDetailScreen() {
               className="border-border bg-card text-foreground flex-1 rounded-xl border px-3 py-2"
             />
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Enviar nota"
               onPress={handleAddNote}
               disabled={!noteContent.trim() || addNote.isPending}
               className={`rounded-xl px-4 py-2.5 ${noteContent.trim() ? 'bg-primary' : 'bg-muted'}`}

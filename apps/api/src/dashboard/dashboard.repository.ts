@@ -4,7 +4,6 @@ import {
   CONDITION_FOUND_LABELS,
   type ConditionFound,
   ServiceStatus,
-  TaskResult,
   TaskStatus,
   UserRole,
 } from '@epde/shared';
@@ -255,98 +254,81 @@ export class DashboardRepository {
   }
 
   async getProblematicCategories() {
-    const logs = await this.prisma.taskLog.findMany({
-      where: {
-        result: {
-          in: [TaskResult.NEEDS_ATTENTION, TaskResult.NEEDS_REPAIR, TaskResult.NEEDS_URGENT_REPAIR],
-        },
-      },
-      select: {
-        task: {
-          select: { category: { select: { name: true } } },
-        },
-      },
-    });
+    const rows = await this.prisma.$queryRaw<
+      { categoryName: string; totalInspections: bigint; issueCount: bigint }[]
+    >(
+      Prisma.sql`
+        SELECT c.name AS "categoryName",
+               COUNT(*)::bigint AS "totalInspections",
+               COUNT(*) FILTER (WHERE tl.result IN ('NEEDS_ATTENTION', 'NEEDS_REPAIR', 'NEEDS_URGENT_REPAIR'))::bigint AS "issueCount"
+        FROM "TaskLog" tl
+        JOIN "Task" t ON tl."taskId" = t.id AND t."deletedAt" IS NULL
+        JOIN "Category" c ON t."categoryId" = c.id
+        GROUP BY c.name
+        HAVING COUNT(*) FILTER (WHERE tl.result IN ('NEEDS_ATTENTION', 'NEEDS_REPAIR', 'NEEDS_URGENT_REPAIR')) > 0
+        ORDER BY COUNT(*) FILTER (WHERE tl.result IN ('NEEDS_ATTENTION', 'NEEDS_REPAIR', 'NEEDS_URGENT_REPAIR')) DESC
+        LIMIT 5
+      `,
+    );
 
-    const countByCategory = new Map<string, number>();
-    for (const log of logs) {
-      const name = log.task.category.name;
-      countByCategory.set(name, (countByCategory.get(name) ?? 0) + 1);
-    }
-
-    const totalByCat = await this.prisma.taskLog.findMany({
-      select: { task: { select: { category: { select: { name: true } } } } },
-    });
-    const totalMap = new Map<string, number>();
-    for (const log of totalByCat) {
-      const name = log.task.category.name;
-      totalMap.set(name, (totalMap.get(name) ?? 0) + 1);
-    }
-
-    return [...countByCategory.entries()]
-      .map(([categoryName, issueCount]) => ({
-        categoryName,
-        issueCount,
-        totalInspections: totalMap.get(categoryName) ?? 0,
-      }))
-      .sort((a, b) => b.issueCount - a.issueCount)
-      .slice(0, 5);
+    return rows.map((r) => ({
+      categoryName: r.categoryName,
+      issueCount: Number(r.issueCount),
+      totalInspections: Number(r.totalInspections),
+    }));
   }
 
   async getBudgetPipeline() {
-    const groups = await this.prisma.softDelete.budgetRequest.groupBy({
-      by: ['status'],
-      _count: true,
-    });
+    const rows = await this.prisma.$queryRaw<
+      { status: string; count: bigint; totalAmount: number | null }[]
+    >(
+      Prisma.sql`
+        SELECT br.status,
+               COUNT(*)::bigint AS count,
+               COALESCE(SUM(resp."totalAmount"), 0)::float AS "totalAmount"
+        FROM "BudgetRequest" br
+        LEFT JOIN "BudgetResponse" resp ON resp."budgetRequestId" = br.id
+        WHERE br."deletedAt" IS NULL
+        GROUP BY br.status
+      `,
+    );
 
-    const amountByStatus = new Map<string, number>();
-    const responses = await this.prisma.budgetResponse.findMany({
-      select: {
-        totalAmount: true,
-        budgetRequest: { select: { status: true, deletedAt: true } },
-      },
-    });
-    for (const r of responses) {
-      if (r.budgetRequest.deletedAt) continue;
-      const status = r.budgetRequest.status;
-      amountByStatus.set(status, (amountByStatus.get(status) ?? 0) + Number(r.totalAmount));
-    }
-
-    return groups.map((g) => ({
-      status: g.status,
-      count: g._count,
-      label: BUDGET_STATUS_LABELS[g.status] ?? g.status,
-      totalAmount: amountByStatus.get(g.status) ?? 0,
+    return rows.map((r) => ({
+      status: r.status as BudgetStatus,
+      count: Number(r.count),
+      label: BUDGET_STATUS_LABELS[r.status as BudgetStatus] ?? r.status,
+      totalAmount: r.totalAmount ?? 0,
     }));
   }
 
   async getCategoryCosts(months: number) {
     const since = subMonths(startOfMonth(new Date()), months - 1);
 
-    const logs = await this.prisma.taskLog.findMany({
-      where: {
-        cost: { not: null },
-        completedAt: { gte: since },
-      },
-      select: {
-        completedAt: true,
-        cost: true,
-        task: { select: { category: { select: { name: true } } } },
-      },
-    });
-
+    // Pre-build empty month buckets so months with no costs still appear
     const buckets = new Map<string, Record<string, number>>();
     for (let i = 0; i < months; i++) {
       const d = subMonths(new Date(), months - 1 - i);
       buckets.set(format(d, 'yyyy-MM'), {});
     }
 
-    for (const log of logs) {
-      const key = format(log.completedAt, 'yyyy-MM');
-      const catName = log.task.category.name;
-      const bucket = buckets.get(key);
+    const rows = await this.prisma.$queryRaw<{ month: string; category: string; total: number }[]>(
+      Prisma.sql`
+        SELECT to_char(tl."completedAt", 'YYYY-MM') AS month,
+               c.name AS category,
+               SUM(tl.cost)::float AS total
+        FROM "TaskLog" tl
+        JOIN "Task" t ON tl."taskId" = t.id
+        JOIN "Category" c ON t."categoryId" = c.id
+        WHERE tl.cost IS NOT NULL AND tl."completedAt" >= ${since}
+        GROUP BY 1, 2
+        ORDER BY 1
+      `,
+    );
+
+    for (const row of rows) {
+      const bucket = buckets.get(row.month);
       if (bucket) {
-        bucket[catName] = (bucket[catName] ?? 0) + Number(log.cost);
+        bucket[row.category] = row.total;
       }
     }
 

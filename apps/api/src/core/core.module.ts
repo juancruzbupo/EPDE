@@ -24,6 +24,15 @@ import { RedisModule } from '../redis/redis.module';
     ]),
     LoggerModule.forRoot({
       pinoHttp: {
+        redact: {
+          paths: [
+            'req.headers.authorization',
+            'req.headers.cookie',
+            'req.body.password',
+            'req.body.token',
+          ],
+          remove: true,
+        },
         autoLogging: {
           ignore: (req: IncomingMessage) => req.url === '/api/v1/health',
         },

@@ -1,6 +1,6 @@
 'use client';
 
-import type { BudgetPipeline } from '@epde/shared';
+import { type BudgetPipeline, formatARSCompact } from '@epde/shared';
 import {
   Bar,
   BarChart,
@@ -20,12 +20,7 @@ interface BudgetPipelineChartProps {
   data: BudgetPipeline[];
 }
 
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-    maximumFractionDigits: 0,
-  }).format(value);
+const formatCurrency = (v: number) => formatARSCompact(v);
 
 export function BudgetPipelineChart({ data }: BudgetPipelineChartProps) {
   const colors = useChartColors();
@@ -83,8 +78,8 @@ export function BudgetPipelineChart({ data }: BudgetPipelineChartProps) {
           isAnimationActive={shouldAnimate}
           animationDuration={800}
         >
-          {chartData.map((entry, i) => (
-            <Cell key={i} fill={entry.fill} />
+          {chartData.map((entry) => (
+            <Cell key={entry.status} fill={entry.fill} />
           ))}
         </Bar>
       </BarChart>

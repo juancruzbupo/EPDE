@@ -47,6 +47,8 @@ const ServiceRequestCard = memo(function ServiceRequestCard({
 
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Solicitud: ${request.title}`}
       className="border-border bg-card mb-3 rounded-xl border p-4"
       onPress={() => router.push(`/service-requests/${request.id}` as never)}
     >
@@ -137,6 +139,8 @@ export default function ServiceRequestsScreen() {
           <View className="mb-4">
             <View className="mb-3 flex-row items-center justify-between">
               <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Nueva solicitud de servicio"
                 onPress={() => setCreateModalVisible(true)}
                 className="bg-primary rounded-xl px-4 py-2"
               >

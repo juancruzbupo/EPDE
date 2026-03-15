@@ -219,7 +219,7 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
           style={{ paddingTop: insets.top }}
           className="border-border flex-row items-center justify-between border-b px-4 py-3"
         >
-          <Pressable onPress={handleClose}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Cancelar" onPress={handleClose}>
             <Text style={TYPE.labelLg} className="text-muted-foreground">
               Cancelar
             </Text>
@@ -227,7 +227,12 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
           <Text style={TYPE.titleMd} className="text-foreground">
             Nueva Solicitud
           </Text>
-          <Pressable onPress={handleSubmit(onSubmit)} disabled={!canSubmit || isSubmitting}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Crear solicitud"
+            onPress={handleSubmit(onSubmit)}
+            disabled={!canSubmit || isSubmitting}
+          >
             <Text
               style={TYPE.titleMd}
               className={!canSubmit || isSubmitting ? 'text-muted-foreground' : 'text-primary'}
@@ -440,7 +445,7 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
             contentContainerStyle={{ gap: 8, marginBottom: 16 }}
           >
             {photos.map((photo, index) => (
-              <View key={index} className="relative">
+              <View key={photo.uri} className="relative">
                 <Image source={{ uri: photo.uri }} className="h-24 w-24 rounded-xl" />
                 {!photo.uploadedUrl && (
                   <View className="absolute inset-0 h-24 w-24 items-center justify-center rounded-xl bg-black/40">

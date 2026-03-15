@@ -1,6 +1,6 @@
 import type { NotificationPublic, NotificationType } from '@epde/shared';
 import { formatRelativeDate, NOTIFICATION_TYPE_LABELS } from '@epde/shared';
-import { useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import { ActivityIndicator, FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
 
 import { AnimatedListItem } from '@/components/animated-list-item';
@@ -24,7 +24,7 @@ const NOTIF_TYPE_ICONS: Record<NotificationType, string> = {
   SYSTEM: '\u{1F514}',
 };
 
-function NotificationCard({
+const NotificationCard = memo(function NotificationCard({
   notification,
   onPress,
 }: {
@@ -36,6 +36,8 @@ function NotificationCard({
 
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={notification.title}
       onPress={onPress}
       className={`border-border mb-2 rounded-xl border p-3 ${notification.read ? 'bg-card' : 'bg-primary/5 border-primary/20'}`}
     >
@@ -67,7 +69,7 @@ function NotificationCard({
       </View>
     </Pressable>
   );
-}
+});
 
 export default function NotificationsScreen() {
   const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
@@ -154,6 +156,8 @@ export default function NotificationsScreen() {
             </Text>
             {(unreadCount ?? 0) > 0 && (
               <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Marcar todas como leidas"
                 onPress={handleMarkAllAsRead}
                 disabled={markAllAsRead.isPending}
                 className="bg-card border-border rounded-xl border px-3 py-1.5"

@@ -29,6 +29,8 @@ const TaskCard = memo(function TaskCard({ task, index }: { task: UpcomingTask; i
   return (
     <AnimatedListItem index={index}>
       <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`Tarea: ${task.name}`}
         className="border-border bg-card mb-3 rounded-xl border p-3"
         onPress={() => router.push(`/property/${task.propertyId}` as never)}
       >
@@ -181,6 +183,8 @@ export default function DashboardScreen() {
 
         {/* Quick actions */}
         <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Solicitudes de Servicio"
           onPress={() => router.push('/service-requests' as never)}
           className="border-border bg-card mb-6 flex-row items-center justify-between rounded-xl border p-3"
         >

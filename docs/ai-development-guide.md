@@ -76,6 +76,9 @@
 64. **Upper bounds en Zod schemas** — Arrays: `.max(50-500)`. Decimal fields: `.max(999_999_999)`. Search strings: `.max(200)`. Cursor: `.uuid()`. NUNCA dejar arrays/numbers/strings sin upper bound — vector de DoS
 65. **`@Throttle` en TODOS los mutation endpoints** — POST, PATCH, DELETE. Reads usan solo throttle global. Pattern: `@Throttle({ medium: { limit: 10, ttl: 60_000 } })`. CREATE usa `limit: 5`
 66. **Soft-delete cascade** — Al soft-delete una entidad padre (Property), tambien soft-delete los hijos activos (BudgetRequest, ServiceRequest) en la misma transaccion. `onDelete: Cascade` solo aplica a hard deletes
+67. **Dashboard queries con `$queryRaw` o `groupBy`** — Queries de agregacion (conteos, sumas, promedios) DEBEN usar `$queryRaw` con `GROUP BY` o Prisma `groupBy`. NUNCA cargar tablas enteras en memoria para agregar en JS
+68. **PII masking en logs** — Emails se logean truncados (`maskEmail()`): `use***@domain.com`. Pino tiene `redact` configurado para headers de auth/cookies. NUNCA logear emails, tokens o passwords completos
+69. **Timezone Argentina (UTC-3) en dedup de reminders** — `findTodayReminderTaskIds` calcula medianoche AR en UTC con offset fijo (Argentina no tiene DST). No usar `setHours(0,0,0,0)` que depende del timezone del server
 
 ### NUNCA
 

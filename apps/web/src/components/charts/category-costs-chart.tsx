@@ -1,6 +1,6 @@
 'use client';
 
-import type { CategoryCostPoint } from '@epde/shared';
+import { type CategoryCostPoint, formatARSCompact } from '@epde/shared';
 import { useMemo } from 'react';
 import {
   Area,
@@ -21,12 +21,7 @@ interface CategoryCostsChartProps {
   data: CategoryCostPoint[];
 }
 
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-    maximumFractionDigits: 0,
-  }).format(value);
+const formatCurrency = (v: number) => formatARSCompact(v);
 
 export function CategoryCostsChart({ data }: CategoryCostsChartProps) {
   const colors = useChartColors();

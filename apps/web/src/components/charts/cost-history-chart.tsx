@@ -1,6 +1,6 @@
 'use client';
 
-import type { TimeSeriesPoint } from '@epde/shared';
+import { formatARSCompact, type TimeSeriesPoint } from '@epde/shared';
 import { useMemo } from 'react';
 import {
   Bar,
@@ -22,12 +22,7 @@ interface CostHistoryChartProps {
   data: TimeSeriesPoint[];
 }
 
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-    maximumFractionDigits: 0,
-  }).format(value);
+const formatCurrency = (v: number) => formatARSCompact(v);
 
 export function CostHistoryChart({ data }: CostHistoryChartProps) {
   const colors = useChartColors();

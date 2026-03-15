@@ -106,7 +106,7 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
           style={{ paddingTop: insets.top }}
           className="border-border flex-row items-center justify-between border-b px-4 py-3"
         >
-          <Pressable onPress={handleClose}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Cancelar" onPress={handleClose}>
             <Text style={TYPE.labelLg} className="text-muted-foreground">
               Cancelar
             </Text>
@@ -114,7 +114,12 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
           <Text style={TYPE.titleMd} className="text-foreground">
             Nuevo Presupuesto
           </Text>
-          <Pressable onPress={handleSubmit(onSubmit)} disabled={!isValid || isSubmitting}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Crear presupuesto"
+            onPress={handleSubmit(onSubmit)}
+            disabled={!isValid || isSubmitting}
+          >
             <Text
               style={TYPE.titleMd}
               className={!isValid || isSubmitting ? 'text-muted-foreground' : 'text-primary'}

@@ -252,7 +252,7 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
           style={{ paddingTop: insets.top }}
           className="border-border flex-row items-center justify-between border-b px-4 py-3"
         >
-          <Pressable onPress={handleClose}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Cancelar" onPress={handleClose}>
             <Text style={TYPE.labelLg} className="text-muted-foreground">
               Cancelar
             </Text>
@@ -261,6 +261,8 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
             Completar Tarea
           </Text>
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Confirmar completacion"
             onPress={handleSubmit}
             disabled={!canSubmit || isSubmitting || (isUploading && !uploadedUrl)}
           >

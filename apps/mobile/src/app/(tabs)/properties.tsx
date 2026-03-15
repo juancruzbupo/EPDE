@@ -36,6 +36,8 @@ const PropertyCard = memo(function PropertyCard({ property }: { property: Proper
 
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Propiedad: ${property.address}`}
       className="border-border bg-card mb-3 rounded-xl border p-3"
       onPress={() => router.push(`/property/${property.id}` as never)}
     >

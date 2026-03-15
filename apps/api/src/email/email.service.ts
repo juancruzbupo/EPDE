@@ -3,6 +3,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
 
+/** Mask email for logging — shows first 3 chars + domain only. */
+function maskEmail(email: string): string {
+  const [local, domain] = email.split('@');
+  return `${local?.slice(0, 3)}***@${domain ?? 'unknown'}`;
+}
+
 const BUDGET_STATUS_LABELS: Record<string, string> = {
   APPROVED: 'aprobado',
   REJECTED: 'rechazado',
@@ -83,7 +89,7 @@ export class EmailService {
       `),
     });
 
-    this.logger.log(`Email de invitación enviado a ${to}`);
+    this.logger.log(`Email de invitación enviado a ${maskEmail(to)}`);
   }
 
   async sendTaskReminderEmail(
@@ -144,7 +150,7 @@ export class EmailService {
       `),
     });
 
-    this.logger.log(`Email de recordatorio enviado a ${to} para tarea "${taskName}"`);
+    this.logger.log(`Email de recordatorio enviado a ${maskEmail(to)} para tarea "${taskName}"`);
   }
 
   async sendBudgetQuotedEmail(
@@ -180,7 +186,7 @@ export class EmailService {
       `),
     });
 
-    this.logger.log(`Email de presupuesto cotizado enviado a ${to}`);
+    this.logger.log(`Email de presupuesto cotizado enviado a ${maskEmail(to)}`);
   }
 
   async sendBudgetStatusEmail(
@@ -211,6 +217,6 @@ export class EmailService {
       `),
     });
 
-    this.logger.log(`Email de estado de presupuesto enviado a ${to}`);
+    this.logger.log(`Email de estado de presupuesto enviado a ${maskEmail(to)}`);
   }
 }

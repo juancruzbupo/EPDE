@@ -35,6 +35,8 @@ const BudgetCard = memo(function BudgetCard({ budget }: { budget: BudgetRequestP
 
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Presupuesto: ${budget.title}`}
       className="border-border bg-card mb-3 rounded-xl border p-3"
       onPress={() => router.push(`/budget/${budget.id}` as never)}
     >
@@ -121,6 +123,8 @@ export default function BudgetsScreen() {
                 Presupuestos
               </Text>
               <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Nuevo presupuesto"
                 onPress={() => setCreateModalVisible(true)}
                 className="bg-primary rounded-xl px-4 py-2"
               >

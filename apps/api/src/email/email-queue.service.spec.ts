@@ -32,7 +32,7 @@ describe('EmailQueueService', () => {
           name: 'Juan',
           token: 'invite-token',
         },
-        { jobId: 'invite:client@test.com:invite-token' },
+        { jobId: 'invite:client@test.com:te-token' },
       );
     });
   });

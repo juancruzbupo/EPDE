@@ -4,6 +4,12 @@ import { Queue } from 'bullmq';
 
 import { EMAIL_QUEUE, EmailJobData } from './email-queue.processor';
 
+/** Mask email for logging — shows first 3 chars + domain only. */
+function maskEmail(email: string): string {
+  const [local, domain] = email.split('@');
+  return `${local?.slice(0, 3)}***@${domain ?? 'unknown'}`;
+}
+
 @Injectable()
 export class EmailQueueService {
   private readonly logger = new Logger(EmailQueueService.name);
@@ -14,9 +20,9 @@ export class EmailQueueService {
     await this.emailQueue.add(
       'invite',
       { type: 'invite', to, name, token },
-      { jobId: `invite:${to}:${token}` },
+      { jobId: `invite:${to}:${token.slice(-8)}` },
     );
-    this.logger.log(`Enqueued invite email for ${to}`);
+    this.logger.log(`Enqueued invite email for ${maskEmail(to)}`);
   }
 
   async enqueueTaskReminder(opts: {
@@ -44,7 +50,7 @@ export class EmailQueueService {
       },
       { jobId: `taskReminder:${opts.to}:${opts.taskId}:${dueDateStr}` },
     );
-    this.logger.log(`Enqueued task reminder email for ${opts.to}`);
+    this.logger.log(`Enqueued task reminder email for ${maskEmail(opts.to)}`);
   }
 
   async enqueueBudgetQuoted(
@@ -66,7 +72,7 @@ export class EmailQueueService {
       },
       { jobId: `budgetQuoted:${to}:${budgetId}` },
     );
-    this.logger.log(`Enqueued budget quoted email for ${to}`);
+    this.logger.log(`Enqueued budget quoted email for ${maskEmail(to)}`);
   }
 
   async enqueueBudgetStatus(
@@ -88,6 +94,6 @@ export class EmailQueueService {
       },
       { jobId: `budgetStatus:${to}:${budgetId}:${newStatus}` },
     );
-    this.logger.log(`Enqueued budget status email for ${to}`);
+    this.logger.log(`Enqueued budget status email for ${maskEmail(to)}`);
   }
 }

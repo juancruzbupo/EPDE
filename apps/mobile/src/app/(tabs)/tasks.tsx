@@ -52,6 +52,8 @@ const TaskCard = memo(function TaskCard({ task }: { task: TaskListItem }) {
 
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Tarea: ${task.name}`}
       className="border-border bg-card mb-3 rounded-xl border p-3"
       onPress={() => router.push(`/task/${task.maintenancePlan.id}/${task.id}` as never)}
     >

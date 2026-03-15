@@ -1,6 +1,6 @@
 'use client';
 
-import { formatRelativeDate } from '@epde/shared';
+import { formatARSCompact, formatRelativeDate } from '@epde/shared';
 import { motion } from 'framer-motion';
 import {
   Activity,
@@ -24,6 +24,7 @@ import { ConditionDonutChart } from '@/components/charts/condition-donut-chart';
 import { ProblematicCategoriesChart } from '@/components/charts/problematic-categories-chart';
 import { ErrorState } from '@/components/error-state';
 import { PageHeader } from '@/components/page-header';
+import { SectionErrorBoundary } from '@/components/section-error-boundary';
 import { StatCard } from '@/components/stat-card';
 import { AnimatedNumber } from '@/components/ui/animated-number';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,12 +32,7 @@ import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { useAdminAnalytics, useDashboardActivity, useDashboardStats } from '@/hooks/use-dashboard';
 import { FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM, useMotionPreference } from '@/lib/motion';
 
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-    maximumFractionDigits: 0,
-  }).format(value);
+const formatCurrency = (v: number) => formatARSCompact(v);
 
 export function AdminDashboard() {
   const {
@@ -131,53 +127,61 @@ export function AdminDashboard() {
 
       {/* Row 2 — Completion Trend + Condition Distribution */}
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <ChartCard
-          title="Tareas Completadas"
-          description="Últimos 6 meses"
-          className="lg:col-span-2"
-          isLoading={analyticsLoading}
-          isEmpty={!analytics?.completionTrend.length}
-          emptyIcon={<TrendingUp className="h-8 w-8" />}
-          height={280}
-        >
-          {analytics && <CompletionTrendChart data={analytics.completionTrend} />}
-        </ChartCard>
+        <SectionErrorBoundary>
+          <ChartCard
+            title="Tareas Completadas"
+            description="Últimos 6 meses"
+            className="lg:col-span-2"
+            isLoading={analyticsLoading}
+            isEmpty={!analytics?.completionTrend.length}
+            emptyIcon={<TrendingUp className="h-8 w-8" />}
+            height={280}
+          >
+            {analytics && <CompletionTrendChart data={analytics.completionTrend} />}
+          </ChartCard>
+        </SectionErrorBoundary>
 
-        <ChartCard
-          title="Condiciones"
-          description="Distribución de inspecciones"
-          isLoading={analyticsLoading}
-          isEmpty={!analytics?.conditionDistribution.length}
-          emptyIcon={<PieChart className="h-8 w-8" />}
-          height={280}
-        >
-          {analytics && <ConditionDonutChart data={analytics.conditionDistribution} />}
-        </ChartCard>
+        <SectionErrorBoundary>
+          <ChartCard
+            title="Condiciones"
+            description="Distribución de inspecciones"
+            isLoading={analyticsLoading}
+            isEmpty={!analytics?.conditionDistribution.length}
+            emptyIcon={<PieChart className="h-8 w-8" />}
+            height={280}
+          >
+            {analytics && <ConditionDonutChart data={analytics.conditionDistribution} />}
+          </ChartCard>
+        </SectionErrorBoundary>
       </div>
 
       {/* Row 3 — Categorías + Pipeline + Métricas */}
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <ChartCard
-          title="Categorías Problemáticas"
-          description="Top 5 por incidencias"
-          isLoading={analyticsLoading}
-          isEmpty={!analytics?.problematicCategories.length}
-          emptyIcon={<BarChart3 className="h-8 w-8" />}
-          height={280}
-        >
-          {analytics && <ProblematicCategoriesChart data={analytics.problematicCategories} />}
-        </ChartCard>
+        <SectionErrorBoundary>
+          <ChartCard
+            title="Categorías Problemáticas"
+            description="Top 5 por incidencias"
+            isLoading={analyticsLoading}
+            isEmpty={!analytics?.problematicCategories.length}
+            emptyIcon={<BarChart3 className="h-8 w-8" />}
+            height={280}
+          >
+            {analytics && <ProblematicCategoriesChart data={analytics.problematicCategories} />}
+          </ChartCard>
+        </SectionErrorBoundary>
 
-        <ChartCard
-          title="Pipeline de Presupuestos"
-          description="Por estado"
-          isLoading={analyticsLoading}
-          isEmpty={!analytics?.budgetPipeline.length}
-          emptyIcon={<FileText className="h-8 w-8" />}
-          height={280}
-        >
-          {analytics && <BudgetPipelineChart data={analytics.budgetPipeline} />}
-        </ChartCard>
+        <SectionErrorBoundary>
+          <ChartCard
+            title="Pipeline de Presupuestos"
+            description="Por estado"
+            isLoading={analyticsLoading}
+            isEmpty={!analytics?.budgetPipeline.length}
+            emptyIcon={<FileText className="h-8 w-8" />}
+            height={280}
+          >
+            {analytics && <BudgetPipelineChart data={analytics.budgetPipeline} />}
+          </ChartCard>
+        </SectionErrorBoundary>
 
         <ChartCard title="Métricas Clave" isLoading={analyticsLoading} isEmpty={false} height={280}>
           {analytics && (
@@ -224,16 +228,18 @@ export function AdminDashboard() {
 
       {/* Row 4 — Category Costs */}
       <div className="mt-6">
-        <ChartCard
-          title="Costos por Categoría"
-          description="Últimos 6 meses"
-          isLoading={analyticsLoading}
-          isEmpty={!analytics?.categoryCosts.some((c) => Object.keys(c.categories).length > 0)}
-          emptyIcon={<DollarSign className="h-8 w-8" />}
-          height={300}
-        >
-          {analytics && <CategoryCostsChart data={analytics.categoryCosts} />}
-        </ChartCard>
+        <SectionErrorBoundary>
+          <ChartCard
+            title="Costos por Categoría"
+            description="Últimos 6 meses"
+            isLoading={analyticsLoading}
+            isEmpty={!analytics?.categoryCosts.some((c) => Object.keys(c.categories).length > 0)}
+            emptyIcon={<DollarSign className="h-8 w-8" />}
+            height={300}
+          >
+            {analytics && <CategoryCostsChart data={analytics.categoryCosts} />}
+          </ChartCard>
+        </SectionErrorBoundary>
       </div>
 
       {/* Row 5 — Activity */}
