@@ -2,8 +2,18 @@
 
 import type { PropertyPublic } from '@epde/shared';
 import { PROPERTY_TYPE_LABELS } from '@epde/shared';
-import { ArrowLeft, Building, Calendar, ClipboardList, MapPin, Ruler, User } from 'lucide-react';
+import {
+  ArrowLeft,
+  Building,
+  Calendar,
+  ClipboardList,
+  MapPin,
+  Pencil,
+  Ruler,
+  User,
+} from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProperty } from '@/hooks/use-properties';
 
+import { EditPropertyDialog } from './edit-property-dialog';
 import { PlanEditor } from './plan-editor';
 import { PlanViewer } from './plan-viewer';
 
@@ -24,6 +35,7 @@ interface PropertyDetailProps {
 export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps) {
   const { data } = useProperty(id, { initialData });
   const property = data;
+  const [editOpen, setEditOpen] = useState(false);
 
   if (!property) return null;
 
@@ -33,12 +45,20 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
         title={property.address}
         description={`${property.city} — ${PROPERTY_TYPE_LABELS[property.type] ?? property.type}`}
         action={
-          <Button variant="outline" asChild>
-            <Link href="/properties">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Volver
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" asChild>
+              <Link href="/properties">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Volver
+              </Link>
+            </Button>
+            {isAdmin && (
+              <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Editar
+              </Button>
+            )}
+          </div>
         }
       />
 
@@ -121,6 +141,10 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
           )}
         </TabsContent>
       </Tabs>
+
+      {isAdmin && (
+        <EditPropertyDialog open={editOpen} onOpenChange={setEditOpen} property={property} />
+      )}
     </div>
   );
 }

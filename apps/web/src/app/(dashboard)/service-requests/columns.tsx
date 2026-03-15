@@ -54,6 +54,11 @@ export const serviceRequestColumns: ColumnDef<ServiceRequestPublic>[] = [
     ),
   },
   {
+    id: 'requester',
+    header: 'Solicitante',
+    cell: ({ row }) => row.original.requester.name,
+  },
+  {
     accessorKey: 'createdAt',
     header: 'Fecha',
     cell: ({ row }) => formatRelativeDate(new Date(row.original.createdAt)),

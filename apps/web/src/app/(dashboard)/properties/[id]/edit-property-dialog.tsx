@@ -1,0 +1,133 @@
+'use client';
+
+import type { PropertyPublic, UpdatePropertyInput } from '@epde/shared';
+import { PROPERTY_TYPE_LABELS, updatePropertySchema } from '@epde/shared';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useUpdateProperty } from '@/hooks/use-properties';
+
+interface EditPropertyDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  property: PropertyPublic;
+}
+
+export function EditPropertyDialog({ open, onOpenChange, property }: EditPropertyDialogProps) {
+  const updateMutation = useUpdateProperty();
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<UpdatePropertyInput>({
+    resolver: zodResolver(updatePropertySchema),
+    defaultValues: {
+      address: property.address,
+      city: property.city,
+      type: property.type,
+      yearBuilt: property.yearBuilt ?? undefined,
+      squareMeters: property.squareMeters ?? undefined,
+    },
+  });
+
+  const onSubmit = handleSubmit((data) => {
+    updateMutation.mutate(
+      { id: property.id, ...data },
+      {
+        onSuccess: () => {
+          onOpenChange(false);
+        },
+      },
+    );
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Editar propiedad</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="edit-address">Dirección</Label>
+            <Input id="edit-address" {...register('address')} />
+            {errors.address && <p className="text-destructive text-sm">{errors.address.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-city">Ciudad</Label>
+            <Input id="edit-city" {...register('city')} />
+            {errors.city && <p className="text-destructive text-sm">{errors.city.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-type">Tipo</Label>
+            <Select
+              defaultValue={property.type}
+              onValueChange={(v) => setValue('type', v as UpdatePropertyInput['type'])}
+            >
+              <SelectTrigger id="edit-type">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(PROPERTY_TYPE_LABELS).map(([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-year">Año de construcción</Label>
+              <Input
+                id="edit-year"
+                type="number"
+                {...register('yearBuilt', {
+                  setValueAs: (v: string) => (v === '' ? undefined : Number(v)),
+                })}
+              />
+              {errors.yearBuilt && (
+                <p className="text-destructive text-sm">{errors.yearBuilt.message}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-sqm">Metros cuadrados</Label>
+              <Input
+                id="edit-sqm"
+                type="number"
+                step="0.1"
+                {...register('squareMeters', {
+                  setValueAs: (v: string) => (v === '' ? undefined : Number(v)),
+                })}
+              />
+              {errors.squareMeters && (
+                <p className="text-destructive text-sm">{errors.squareMeters.message}</p>
+              )}
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={updateMutation.isPending}>
+              {updateMutation.isPending ? 'Guardando...' : 'Guardar'}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

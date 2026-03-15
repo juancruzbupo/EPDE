@@ -4,7 +4,14 @@
 // TODO [ROADMAP]: Migrate to expo-image for caching, progressive loading, and optimization.
 
 import type { TaskLogPublic, TaskNotePublic } from '@epde/shared';
-import { formatRelativeDate, RECURRENCE_TYPE_LABELS, TaskStatus } from '@epde/shared';
+import {
+  CONDITION_FOUND_LABELS,
+  formatRelativeDate,
+  PROFESSIONAL_REQUIREMENT_LABELS,
+  RECURRENCE_TYPE_LABELS,
+  TASK_TYPE_LABELS,
+  TaskStatus,
+} from '@epde/shared';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Stack, useLocalSearchParams } from 'expo-router';
@@ -170,6 +177,32 @@ export default function TaskDetailScreen() {
             </View>
             <View className="flex-row justify-between">
               <Text style={TYPE.bodyMd} className="text-muted-foreground">
+                Tipo de tarea
+              </Text>
+              <Text style={TYPE.labelLg} className="text-foreground">
+                {TASK_TYPE_LABELS[task.taskType]}
+              </Text>
+            </View>
+            <View className="flex-row justify-between">
+              <Text style={TYPE.bodyMd} className="text-muted-foreground">
+                Profesional
+              </Text>
+              <Text style={TYPE.labelLg} className="text-foreground">
+                {PROFESSIONAL_REQUIREMENT_LABELS[task.professionalRequirement]}
+              </Text>
+            </View>
+            {task.estimatedDurationMinutes != null && (
+              <View className="flex-row justify-between">
+                <Text style={TYPE.bodyMd} className="text-muted-foreground">
+                  Duración estimada
+                </Text>
+                <Text style={TYPE.labelLg} className="text-foreground">
+                  {task.estimatedDurationMinutes} minutos
+                </Text>
+              </View>
+            )}
+            <View className="flex-row justify-between">
+              <Text style={TYPE.bodyMd} className="text-muted-foreground">
                 Proxima fecha
               </Text>
               <Text style={TYPE.labelLg} className="text-foreground">
@@ -188,6 +221,35 @@ export default function TaskDetailScreen() {
             </View>
           </View>
         </View>
+
+        {/* Technical description */}
+        {task.technicalDescription ? (
+          <CollapsibleSection title="Descripción técnica">
+            <View className="border-border bg-card rounded-xl border px-4 py-3">
+              <Text style={TYPE.bodyMd} className="text-foreground leading-relaxed">
+                {task.technicalDescription}
+              </Text>
+            </View>
+          </CollapsibleSection>
+        ) : null}
+
+        {/* Last completion */}
+        {logs && logs.length > 0 && (
+          <View className="border-border bg-card mb-4 rounded-xl border p-4">
+            <Text style={TYPE.labelLg} className="text-muted-foreground mb-1">
+              Última completación
+            </Text>
+            <Text style={TYPE.bodyMd} className="text-foreground">
+              {format(new Date(logs[0].completedAt), 'd MMM yyyy', { locale: es })}
+            </Text>
+            <Text style={TYPE.bodyMd} className="text-foreground">
+              Condición: {CONDITION_FOUND_LABELS[logs[0].conditionFound]}
+            </Text>
+            <Text style={TYPE.bodySm} className="text-muted-foreground">
+              Por: {logs[0].user.name}
+            </Text>
+          </View>
+        )}
 
         {/* Complete task button */}
         {!isCompleted && (

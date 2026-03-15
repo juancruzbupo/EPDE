@@ -1,6 +1,6 @@
 'use client';
 
-import { PROPERTY_TYPE_LABELS } from '@epde/shared';
+import { PLAN_STATUS_LABELS, PLAN_STATUS_VARIANT, PROPERTY_TYPE_LABELS } from '@epde/shared';
 import { ColumnDef } from '@tanstack/react-table';
 import Link from 'next/link';
 
@@ -38,11 +38,26 @@ export function propertyColumns({ isAdmin }: { isAdmin: boolean }): ColumnDef<Pr
     });
   }
 
-  cols.push({
-    accessorKey: 'yearBuilt',
-    header: 'Año',
-    cell: ({ row }) => row.original.yearBuilt ?? '—',
-  });
+  cols.push(
+    {
+      id: 'plan',
+      header: 'Plan',
+      cell: ({ row }) => {
+        const plan = row.original.maintenancePlan;
+        if (!plan) return <span className="text-muted-foreground">Sin plan</span>;
+        return (
+          <Badge variant={PLAN_STATUS_VARIANT[plan.status] ?? 'secondary'}>
+            {PLAN_STATUS_LABELS[plan.status] ?? plan.status}
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: 'yearBuilt',
+      header: 'Año',
+      cell: ({ row }) => row.original.yearBuilt ?? '—',
+    },
+  );
 
   return cols;
 }

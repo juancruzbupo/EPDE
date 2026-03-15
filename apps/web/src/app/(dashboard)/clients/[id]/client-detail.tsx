@@ -3,12 +3,14 @@
 import type { ClientPublic } from '@epde/shared';
 import {
   formatRelativeDate,
+  PLAN_STATUS_LABELS,
+  PLAN_STATUS_VARIANT,
   type UpdateClientInput,
   updateClientSchema,
   USER_STATUS_LABELS,
 } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, Calendar, Mail, Phone, Trash2, User as UserIcon } from 'lucide-react';
+import { ArrowLeft, Calendar, Home, Mail, Phone, Trash2, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -23,6 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useClient, useDeleteClient, useUpdateClient } from '@/hooks/use-clients';
+import { useProperties } from '@/hooks/use-properties';
 
 interface ClientDetailProps {
   id: string;
@@ -150,6 +153,19 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
         </CardContent>
       </Card>
 
+      {/* ─── Properties Section ─────────────────────────────── */}
+      <ClientPropertiesSection clientId={client.id} />
+
+      {/* ─── Budgets Section ──────────────────────────────────
+       *  BudgetFilters does not support `userId` — needs backend support.
+       *  Skipping until the API adds userId filtering for budgets.
+       * ───────────────────────────────────────────────────── */}
+
+      {/* ─── Service Requests Section ─────────────────────────
+       *  ServiceRequestFilters does not support `userId` — needs backend support.
+       *  Skipping until the API adds userId filtering for service requests.
+       * ───────────────────────────────────────────────────── */}
+
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
@@ -163,5 +179,57 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
         isLoading={deleteClient.isPending}
       />
     </div>
+  );
+}
+
+// ─── Client Properties Section ─────────────────────────────
+
+function ClientPropertiesSection({ clientId }: { clientId: string }) {
+  const { data: propertiesData } = useProperties({ userId: clientId });
+  const properties = propertiesData?.pages.flatMap((p) => p.data) ?? [];
+  const displayProperties = properties.slice(0, 5);
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Home className="h-4 w-4" />
+          Propiedades
+          {properties.length > 0 && (
+            <Badge variant="secondary" className="ml-1">
+              {properties.length}
+            </Badge>
+          )}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {displayProperties.length === 0 ? (
+          <p className="text-muted-foreground text-sm">Sin propiedades</p>
+        ) : (
+          <ul className="divide-y">
+            {displayProperties.map((prop) => (
+              <li
+                key={prop.id}
+                className="flex items-center justify-between py-2 first:pt-0 last:pb-0"
+              >
+                <Link
+                  href={`/properties/${prop.id}`}
+                  className="text-sm font-medium hover:underline"
+                >
+                  {prop.address}, {prop.city}
+                </Link>
+                {prop.maintenancePlan ? (
+                  <Badge variant={PLAN_STATUS_VARIANT[prop.maintenancePlan.status] ?? 'secondary'}>
+                    {PLAN_STATUS_LABELS[prop.maintenancePlan.status] ?? prop.maintenancePlan.status}
+                  </Badge>
+                ) : (
+                  <span className="text-muted-foreground text-xs">Sin plan</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
   );
 }

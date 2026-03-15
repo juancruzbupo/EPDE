@@ -16,7 +16,12 @@ import { AnimatedListItem } from '@/components/animated-list-item';
 import { CompleteTaskModal } from '@/components/complete-task-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
-import { PriorityBadge, PropertyTypeBadge, TaskStatusBadge } from '@/components/status-badge';
+import {
+  PlanStatusBadge,
+  PriorityBadge,
+  PropertyTypeBadge,
+  TaskStatusBadge,
+} from '@/components/status-badge';
 import { SwipeableRow } from '@/components/swipeable-row';
 import { usePlan } from '@/hooks/use-plans';
 import { useProperty } from '@/hooks/use-properties';
@@ -180,9 +185,14 @@ export default function PropertyDetailScreen() {
             </Animated.View>
 
             {/* Plan section title */}
-            <Text style={TYPE.titleLg} className="text-foreground mb-3">
-              Plan de Mantenimiento
-            </Text>
+            <View className="mb-3 flex-row items-center justify-between">
+              <Text style={TYPE.titleLg} className="text-foreground">
+                {property?.maintenancePlan?.name ?? 'Plan de Mantenimiento'}
+              </Text>
+              {property?.maintenancePlan?.status && (
+                <PlanStatusBadge status={property.maintenancePlan.status} />
+              )}
+            </View>
 
             {!planId && (
               <EmptyState
