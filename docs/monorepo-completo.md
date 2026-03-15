@@ -720,12 +720,14 @@ Las variantes de Badge se importan directamente desde `@epde/shared` (SSoT web +
 
 | Constante                | Entidad      | Valores                                        |
 | ------------------------ | ------------ | ---------------------------------------------- |
-| `TASK_STATUS_VARIANT`    | Tareas       | PENDING, UPCOMING, OVERDUE, COMPLETED          |
+| `TASK_STATUS_VARIANT`    | Tareas       | PENDING, UPCOMING, OVERDUE, COMPLETED (\*)     |
 | `PRIORITY_VARIANT`       | Tareas       | LOW, MEDIUM, HIGH, URGENT                      |
 | `BUDGET_STATUS_VARIANT`  | Presupuestos | 6 estados con colores                          |
 | `URGENCY_VARIANT`        | Solicitudes  | LOW, MEDIUM, HIGH, URGENT                      |
 | `SERVICE_STATUS_VARIANT` | Solicitudes  | OPEN, IN_REVIEW, IN_PROGRESS, RESOLVED, CLOSED |
 | `CLIENT_STATUS_VARIANT`  | Clientes     | INVITED, ACTIVE, INACTIVE                      |
+
+(\*) **Modelo ciclico de tareas:** Al completar una tarea, el server crea un `TaskLog` con la metadata de completacion y resetea el status a `PENDING` con nueva `nextDueDate` segun recurrencia. Las tareas nunca quedan en estado `COMPLETED` en la DB — el historial vive en `TaskLog`. El frontend NO usa optimistic update para completar; muestra la fecha de reprogramacion en el feedback.
 
 Color maps locales en `lib/style-maps.ts` (web): `TASK_TYPE_COLORS` (CSS tokens) y `PROFESSIONAL_REQ_COLORS`. El Badge web incluye variante `success` para estados terminales positivos (COMPLETED, APPROVED, RESOLVED).
 
@@ -1022,7 +1024,7 @@ pnpm dev:mobile       # Expo dev server
 pnpm build            # Build completo
 pnpm lint             # ESLint
 pnpm typecheck        # TypeScript check
-pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo) — ~1160 tests total
+pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo) — ~1212 tests total
 
 # Tests E2E (requiere DB + Redis)
 pnpm --filter @epde/api test:e2e

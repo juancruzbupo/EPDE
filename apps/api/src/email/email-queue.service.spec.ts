@@ -41,16 +41,16 @@ describe('EmailQueueService', () => {
     it('should serialize Date to ISO string before enqueuing', async () => {
       const dueDate = new Date('2026-04-15T12:00:00.000Z');
 
-      await service.enqueueTaskReminder(
-        'client@test.com',
-        'Juan',
-        'task-uuid-1',
-        'Revisión HVAC',
-        'Av. Corrientes 1234',
+      await service.enqueueTaskReminder({
+        to: 'client@test.com',
+        name: 'Juan',
+        taskId: 'task-uuid-1',
+        taskName: 'Revisión HVAC',
+        propertyAddress: 'Av. Corrientes 1234',
         dueDate,
-        'Climatización',
-        false,
-      );
+        categoryName: 'Climatización',
+        isOverdue: false,
+      });
 
       expect(mockQueue.add).toHaveBeenCalledWith(
         'taskReminder',

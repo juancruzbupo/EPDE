@@ -30,7 +30,11 @@ export const queryClient = new QueryClient({
       gcTime: 24 * 60 * 60_000, // 24 hours — offline support
       retry: (failureCount, error) => {
         const status = (error as { response?: { status?: number } })?.response?.status;
+        // Retry 429 (rate-limited) and 503 (service unavailable) with backoff
+        if (status === 429 || status === 503) return failureCount < 2;
+        // Skip all other client errors (4xx)
         if (status && status < 500) return false;
+        // Retry server errors once
         return failureCount < 1;
       },
       refetchOnReconnect: true,

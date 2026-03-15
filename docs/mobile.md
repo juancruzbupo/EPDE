@@ -298,9 +298,10 @@ const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuer
 Mutations con actualizacion optimista para UX instantanea:
 
 - Aprobar/rechazar presupuesto
-- Completar tarea
 - Marcar notificacion como leida
 - Rollback automatico en caso de error
+
+> **Nota:** Completar tarea NO usa optimistic update. El server resetea el status a PENDING con nueva fecha (modelo ciclico de mantenimiento preventivo). El feedback al usuario muestra la fecha de reprogramacion en el Alert.
 
 ### Upload de Imagenes
 

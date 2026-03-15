@@ -1,4 +1,4 @@
-import { QUERY_KEYS, TaskStatus } from '@epde/shared';
+import { QUERY_KEYS } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
 import { toast } from 'sonner';
@@ -130,37 +130,19 @@ describe('useCompleteTask', () => {
     actionTaken: 'INSPECTION_ONLY' as const,
   };
 
-  it('applies optimistic update in onMutate', async () => {
-    const currentPlan = { id: 'plan-1', tasks: [{ id: 'task-1', status: TaskStatus.PENDING }] };
-    mockGetQueryData.mockReturnValue(currentPlan);
-    mockCancelQueries.mockResolvedValue(undefined);
-
+  it('does not apply optimistic update (cyclic model resets to PENDING)', () => {
     renderHook(() => useCompleteTask());
 
     const config = vi.mocked(useMutation).mock.calls[0][0];
-    await (config.onMutate as (v: typeof variables) => Promise<unknown>)(variables);
-
-    expect(mockCancelQueries).toHaveBeenCalledWith({
-      queryKey: [QUERY_KEYS.plans, 'plan-1'],
-    });
-    expect(mockSetQueryData).toHaveBeenCalledWith(
-      [QUERY_KEYS.plans, 'plan-1'],
-      expect.any(Function),
-    );
+    expect(config.onMutate).toBeUndefined();
   });
 
-  it('rolls back and shows error toast on error', () => {
-    const previousPlan = { id: 'plan-1', tasks: [{ id: 'task-1', status: TaskStatus.PENDING }] };
+  it('shows error toast on error', () => {
     renderHook(() => useCompleteTask());
 
     const config = vi.mocked(useMutation).mock.calls[0][0];
-    (config.onError as (err: Error, vars: typeof variables, ctx: unknown) => void)(
-      new Error('fail'),
-      variables,
-      { previousPlan },
-    );
+    (config.onError as (err: Error) => void)(new Error('fail'));
 
-    expect(mockSetQueryData).toHaveBeenCalledWith([QUERY_KEYS.plans, 'plan-1'], previousPlan);
     expect(toast.error).toHaveBeenCalled();
   });
 

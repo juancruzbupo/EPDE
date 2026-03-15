@@ -152,7 +152,7 @@ describe('NotificationsHandlerService', () => {
       await service.handleServiceStatusChanged({
         serviceRequestId: 'sr-1',
         title: 'Goteras',
-        oldStatus: 'PENDING',
+        oldStatus: 'OPEN',
         newStatus: 'IN_REVIEW',
         requesterId: 'user-1',
       });

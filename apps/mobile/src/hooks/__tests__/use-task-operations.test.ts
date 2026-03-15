@@ -122,56 +122,20 @@ describe('useCompleteTask', () => {
     });
   });
 
-  it('rolls back optimistic update on error', () => {
-    const previousPlan = { id: 'plan-1', tasks: [{ id: 'task-1', status: 'PENDING' }] };
+  it('does not apply optimistic update (cyclic model resets to PENDING)', () => {
     renderHook(() => useCompleteTask());
 
     const config = (useMutation as jest.Mock).mock.calls[0][0];
-    const variables = { planId: 'plan-1', taskId: 'task-1' };
+    expect(config.onMutate).toBeUndefined();
+  });
 
-    config.onError(new Error('fail'), variables, { previousPlan });
+  it('shows error alert on error', () => {
+    renderHook(() => useCompleteTask());
 
-    expect(mockSetQueryData).toHaveBeenCalledWith([QUERY_KEYS.plans, 'plan-1'], previousPlan);
+    const config = (useMutation as jest.Mock).mock.calls[0][0];
+    config.onError(new Error('fail'));
+
     expect(Alert.alert).toHaveBeenCalled();
-  });
-
-  it('applies optimistic update in onMutate', async () => {
-    const currentPlan = { id: 'plan-1', tasks: [{ id: 'task-1', status: 'PENDING' }] };
-    mockGetQueryData.mockReturnValue(currentPlan);
-    mockCancelQueries.mockResolvedValue(undefined);
-
-    renderHook(() => useCompleteTask());
-
-    const config = (useMutation as jest.Mock).mock.calls[0][0];
-    const variables = { planId: 'plan-1', taskId: 'task-1' };
-
-    await config.onMutate(variables);
-
-    expect(mockCancelQueries).toHaveBeenCalledWith({
-      queryKey: [QUERY_KEYS.plans, 'plan-1'],
-    });
-    expect(mockSetQueryData).toHaveBeenCalledWith(
-      [QUERY_KEYS.plans, 'plan-1'],
-      expect.any(Function),
-    );
-  });
-
-  it('handles onMutate when plan is undefined', async () => {
-    mockGetQueryData.mockReturnValue(undefined);
-    mockCancelQueries.mockResolvedValue(undefined);
-
-    renderHook(() => useCompleteTask());
-
-    const config = (useMutation as jest.Mock).mock.calls[0][0];
-    const variables = { planId: 'plan-1', taskId: 'task-1' };
-
-    await config.onMutate(variables);
-
-    // Extract the setQueryData callback and call it with undefined
-    const setQueryDataCallback = mockSetQueryData.mock.calls[0][1];
-    const result = setQueryDataCallback(undefined);
-
-    expect(result).toBeUndefined();
   });
 
   it('handles onError when context is undefined', () => {

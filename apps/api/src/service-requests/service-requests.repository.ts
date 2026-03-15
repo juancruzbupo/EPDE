@@ -55,15 +55,15 @@ export class ServiceRequestsRepository extends BaseRepository<ServiceRequest, 's
   async findRequests(params: {
     cursor?: string;
     take?: number;
-    status?: string;
-    urgency?: string;
+    status?: ServiceStatus;
+    urgency?: ServiceUrgency;
     propertyId?: string;
     userId?: string;
   }): Promise<PaginatedResult<ServiceRequest>> {
     const where: Prisma.ServiceRequestWhereInput = {};
 
-    if (params.status) where.status = params.status as Prisma.EnumServiceStatusFilter;
-    if (params.urgency) where.urgency = params.urgency as Prisma.EnumServiceUrgencyFilter;
+    if (params.status) where.status = params.status;
+    if (params.urgency) where.urgency = params.urgency;
     if (params.propertyId) where.propertyId = params.propertyId;
     if (params.userId) where.requestedBy = params.userId;
 

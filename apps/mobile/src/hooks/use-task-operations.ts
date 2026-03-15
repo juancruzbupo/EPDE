@@ -1,5 +1,4 @@
-import type { CompleteTaskInput, PlanPublic, TaskNotePublic } from '@epde/shared';
-import { TaskStatus } from '@epde/shared';
+import type { CompleteTaskInput, TaskNotePublic } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
@@ -38,6 +37,9 @@ export function useTaskNotes(planId: string, taskId: string) {
   });
 }
 
+/** Completes a task and shows rescheduling feedback.
+ *  No optimistic status change — the server resets status to PENDING with a new nextDueDate
+ *  (preventive maintenance model: tasks are cyclic, completion = reschedule). */
 export function useCompleteTask() {
   const queryClient = useQueryClient();
 
@@ -51,36 +53,23 @@ export function useCompleteTask() {
       taskId: string;
     } & CompleteTaskInput) => completeTask(planId, taskId, dto),
 
-    onMutate: async (variables) => {
-      await queryClient.cancelQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
-
-      const previousPlan = queryClient.getQueryData<PlanPublic>([
-        QUERY_KEYS.plans,
-        variables.planId,
-      ]);
-
-      queryClient.setQueryData<PlanPublic>([QUERY_KEYS.plans, variables.planId], (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          tasks: old.tasks.map((t) =>
-            t.id === variables.taskId ? { ...t, status: TaskStatus.COMPLETED } : t,
-          ),
-        };
-      });
-
-      return { previousPlan };
-    },
-
-    onSuccess: () => {
-      Alert.alert('Éxito', 'Tarea marcada como completada');
-    },
-
-    onError: (_err, variables, context) => {
-      if (context?.previousPlan) {
-        queryClient.setQueryData([QUERY_KEYS.plans, variables.planId], context.previousPlan);
+    onSuccess: (response) => {
+      const nextDueDate = (response as { data?: { task?: { nextDueDate?: string } } })?.data?.task
+        ?.nextDueDate;
+      if (nextDueDate) {
+        const formatted = new Date(nextDueDate).toLocaleDateString('es-AR', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        });
+        Alert.alert('Tarea completada', `Reprogramada para el ${formatted}`);
+      } else {
+        Alert.alert('Éxito', 'Tarea completada');
       }
-      Alert.alert('Error', getErrorMessage(_err, 'Error al completar tarea'));
+    },
+
+    onError: (err) => {
+      Alert.alert('Error', getErrorMessage(err, 'Error al completar tarea'));
     },
 
     onSettled: (_data, _error, variables) => {

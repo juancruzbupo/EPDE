@@ -1,3 +1,4 @@
+import { BudgetStatus, ServiceStatus } from '@epde/shared';
 import { Injectable, Logger } from '@nestjs/common';
 
 import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
@@ -97,12 +98,12 @@ export class NotificationsHandlerService {
   async handleBudgetStatusChanged(payload: {
     budgetId: string;
     title: string;
-    oldStatus: string;
-    newStatus: string;
+    oldStatus: BudgetStatus;
+    newStatus: BudgetStatus;
     requesterId: string;
   }): Promise<void> {
     try {
-      const statusMessages: Record<string, string> = {
+      const statusMessages: Partial<Record<BudgetStatus, string>> = {
         APPROVED: 'fue aprobado',
         REJECTED: 'fue rechazado',
         IN_PROGRESS: 'está en progreso',
@@ -179,12 +180,12 @@ export class NotificationsHandlerService {
   async handleServiceStatusChanged(payload: {
     serviceRequestId: string;
     title: string;
-    oldStatus: string;
-    newStatus: string;
+    oldStatus: ServiceStatus;
+    newStatus: ServiceStatus;
     requesterId: string;
   }): Promise<void> {
     try {
-      const statusMessages: Record<string, string> = {
+      const statusMessages: Partial<Record<ServiceStatus, string>> = {
         IN_REVIEW: 'está en revisión',
         IN_PROGRESS: 'está en progreso',
         RESOLVED: 'fue resuelta',
@@ -251,18 +252,7 @@ export class NotificationsHandlerService {
       const [notificationCount, emailResults] = await Promise.all([
         this.notificationsService.createNotifications(payload.notifications),
         Promise.allSettled(
-          payload.emails.map((e) =>
-            this.emailQueueService.enqueueTaskReminder(
-              e.to,
-              e.name,
-              e.taskId,
-              e.taskName,
-              e.propertyAddress,
-              e.dueDate,
-              e.categoryName,
-              e.isOverdue,
-            ),
-          ),
+          payload.emails.map((e) => this.emailQueueService.enqueueTaskReminder(e)),
         ),
       ]);
       const failedEmails = emailResults.filter((r) => r.status === 'rejected').length;

@@ -19,32 +19,32 @@ export class EmailQueueService {
     this.logger.log(`Enqueued invite email for ${to}`);
   }
 
-  async enqueueTaskReminder(
-    to: string,
-    name: string,
-    taskId: string,
-    taskName: string,
-    propertyAddress: string,
-    dueDate: Date,
-    categoryName: string,
-    isOverdue: boolean,
-  ): Promise<void> {
-    const dueDateStr = dueDate.toISOString().slice(0, 10);
+  async enqueueTaskReminder(opts: {
+    to: string;
+    name: string;
+    taskId: string;
+    taskName: string;
+    propertyAddress: string;
+    dueDate: Date;
+    categoryName: string;
+    isOverdue: boolean;
+  }): Promise<void> {
+    const dueDateStr = opts.dueDate.toISOString().slice(0, 10);
     await this.emailQueue.add(
       'taskReminder',
       {
         type: 'taskReminder',
-        to,
-        name,
-        taskName,
-        propertyAddress,
-        dueDate: dueDate.toISOString(),
-        categoryName,
-        isOverdue,
+        to: opts.to,
+        name: opts.name,
+        taskName: opts.taskName,
+        propertyAddress: opts.propertyAddress,
+        dueDate: opts.dueDate.toISOString(),
+        categoryName: opts.categoryName,
+        isOverdue: opts.isOverdue,
       },
-      { jobId: `taskReminder:${to}:${taskId}:${dueDateStr}` },
+      { jobId: `taskReminder:${opts.to}:${opts.taskId}:${dueDateStr}` },
     );
-    this.logger.log(`Enqueued task reminder email for ${to}`);
+    this.logger.log(`Enqueued task reminder email for ${opts.to}`);
   }
 
   async enqueueBudgetQuoted(

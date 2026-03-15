@@ -31,5 +31,6 @@ export interface PropertyBrief {
 }
 
 export interface PropertyBriefWithOwner extends PropertyBrief {
+  userId: string;
   user: UserBrief;
 }

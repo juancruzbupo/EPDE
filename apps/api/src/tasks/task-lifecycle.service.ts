@@ -47,11 +47,17 @@ export class TaskLifecycleService {
   /**
    * Verifies that the given user has access to the task.
    * ADMINs always pass. CLIENTs must own the property the task belongs to.
+   * When `planId` is provided, also validates the task belongs to that plan
+   * (prevents IDOR via mismatched plan/task IDs in nested routes).
    * Throws NotFoundException if task doesn't exist, ForbiddenException if access denied.
    */
-  async verifyTaskAccess(taskId: string, user?: ServiceUser): Promise<Task> {
+  async verifyTaskAccess(taskId: string, user?: ServiceUser, planId?: string): Promise<Task> {
     const task = await this.tasksRepository.findById(taskId);
     if (!task) throw new NotFoundException('Tarea no encontrada');
+
+    if (planId && task.maintenancePlanId !== planId) {
+      throw new NotFoundException('Tarea no encontrada en este plan');
+    }
 
     try {
       if (user?.role === UserRole.CLIENT) {
@@ -165,8 +171,14 @@ export class TaskLifecycleService {
     return this.tasksRepository.findByPlanId(planId);
   }
 
-  async completeTask(taskId: string, userId: string, dto: CompleteTaskInput, user?: ServiceUser) {
-    const task = await this.verifyTaskAccess(taskId, user);
+  async completeTask(
+    taskId: string,
+    userId: string,
+    dto: CompleteTaskInput,
+    user?: ServiceUser,
+    planId?: string,
+  ) {
+    const task = await this.verifyTaskAccess(taskId, user, planId);
 
     try {
       const COMPLETABLE_STATUSES: TaskStatus[] = [

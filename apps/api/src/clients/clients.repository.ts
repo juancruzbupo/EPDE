@@ -1,4 +1,4 @@
-import { UserRole } from '@epde/shared';
+import { UserRole, UserStatus } from '@epde/shared';
 import { Injectable } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 
@@ -27,12 +27,12 @@ export class ClientsRepository extends BaseRepository<User, 'user'> {
     cursor?: string;
     take?: number;
     search?: string;
-    status?: string;
+    status?: UserStatus;
   }): Promise<PaginatedResult<User>> {
     const where: Prisma.UserWhereInput = { role: UserRole.CLIENT };
 
     if (params.status) {
-      where.status = params.status as Prisma.EnumUserStatusFilter;
+      where.status = params.status;
     }
 
     if (params.search) {

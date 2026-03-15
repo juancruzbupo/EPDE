@@ -9,7 +9,7 @@ import { getErrorMessage, QUERY_KEYS, TaskStatus } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import type { PlanPublic, TaskNotePublic } from '@/lib/api/maintenance-plans';
+import type { TaskNotePublic } from '@/lib/api/maintenance-plans';
 import {
   addTaskNote,
   completeTask,
@@ -105,6 +105,9 @@ export function useTaskNotes(planId: string, taskId: string) {
   });
 }
 
+/** Completes a task and shows rescheduling feedback.
+ *  No optimistic status change — the server resets status to PENDING with a new nextDueDate
+ *  (preventive maintenance model: tasks are cyclic, completion = reschedule). */
 export function useCompleteTask() {
   const queryClient = useQueryClient();
 
@@ -118,34 +121,23 @@ export function useCompleteTask() {
       taskId: string;
     } & CompleteTaskInput) => completeTask(planId, taskId, dto),
 
-    onMutate: async (variables) => {
-      await queryClient.cancelQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
-
-      const previousPlan = queryClient.getQueryData<PlanPublic>([
-        QUERY_KEYS.plans,
-        variables.planId,
-      ]);
-
-      queryClient.setQueryData<PlanPublic>([QUERY_KEYS.plans, variables.planId], (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          tasks: old.tasks.map((t) =>
-            t.id === variables.taskId ? { ...t, status: TaskStatus.COMPLETED } : t,
-          ),
-        };
-      });
-
-      return { previousPlan };
+    onSuccess: (response) => {
+      const nextDueDate = (response as { data?: { task?: { nextDueDate?: string } } })?.data?.task
+        ?.nextDueDate;
+      if (nextDueDate) {
+        const formatted = new Date(nextDueDate).toLocaleDateString('es-AR', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        });
+        toast.success(`Tarea completada. Próxima: ${formatted}`);
+      } else {
+        toast.success('Tarea completada');
+      }
     },
 
-    onSuccess: () => toast.success('Tarea completada'),
-
-    onError: (_err, variables, context) => {
-      toast.error(getErrorMessage(_err, 'Error al completar tarea'));
-      if (context?.previousPlan) {
-        queryClient.setQueryData([QUERY_KEYS.plans, variables.planId], context.previousPlan);
-      }
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al completar tarea'));
     },
 
     onSettled: (_data, _error, variables) => {

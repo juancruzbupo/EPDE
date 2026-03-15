@@ -43,14 +43,14 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
   async findBudgets(params: {
     cursor?: string;
     take?: number;
-    status?: string;
+    status?: BudgetStatus;
     propertyId?: string;
     userId?: string;
   }): Promise<PaginatedResult<BudgetRequest>> {
     const where: Prisma.BudgetRequestWhereInput = {};
 
     if (params.status) {
-      where.status = params.status as Prisma.EnumBudgetStatusFilter;
+      where.status = params.status;
     }
 
     if (params.propertyId) {

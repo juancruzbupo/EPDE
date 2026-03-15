@@ -189,9 +189,9 @@ describe('MaintenancePlansController', () => {
       mockTaskLifecycle.verifyTaskAccess.mockResolvedValue({ id: taskId });
       mockTaskNotes.getTaskDetail.mockResolvedValue(task);
 
-      const result = await controller.getTaskDetail(taskId, clientUser);
+      const result = await controller.getTaskDetail(planId, taskId, clientUser);
 
-      expect(mockTaskLifecycle.verifyTaskAccess).toHaveBeenCalledWith(taskId, clientUser);
+      expect(mockTaskLifecycle.verifyTaskAccess).toHaveBeenCalledWith(taskId, clientUser, planId);
       expect(mockTaskNotes.getTaskDetail).toHaveBeenCalledWith(taskId);
       expect(result).toEqual({ data: task });
     });
@@ -203,13 +203,14 @@ describe('MaintenancePlansController', () => {
       const completedTask = { id: taskId, status: 'COMPLETED' };
       mockTaskLifecycle.completeTask.mockResolvedValue(completedTask);
 
-      const result = await controller.completeTask(taskId, dto as any, clientUser);
+      const result = await controller.completeTask(planId, taskId, dto as any, clientUser);
 
       expect(mockTaskLifecycle.completeTask).toHaveBeenCalledWith(
         taskId,
         clientUser.id,
         dto,
         clientUser,
+        planId,
       );
       expect(result).toEqual({ data: completedTask, message: 'Tarea completada' });
     });
@@ -221,9 +222,9 @@ describe('MaintenancePlansController', () => {
       mockTaskLifecycle.verifyTaskAccess.mockResolvedValue({ id: taskId });
       mockTaskNotes.getTaskLogs.mockResolvedValue(logs);
 
-      const result = await controller.getTaskLogs(taskId, adminUser);
+      const result = await controller.getTaskLogs(planId, taskId, adminUser);
 
-      expect(mockTaskLifecycle.verifyTaskAccess).toHaveBeenCalledWith(taskId, adminUser);
+      expect(mockTaskLifecycle.verifyTaskAccess).toHaveBeenCalledWith(taskId, adminUser, planId);
       expect(mockTaskNotes.getTaskLogs).toHaveBeenCalledWith(taskId);
       expect(result).toEqual({ data: logs });
     });
@@ -236,9 +237,9 @@ describe('MaintenancePlansController', () => {
       mockTaskLifecycle.verifyTaskAccess.mockResolvedValue({ id: taskId });
       mockTaskNotes.addTaskNote.mockResolvedValue(note);
 
-      const result = await controller.addTaskNote(taskId, dto as any, clientUser);
+      const result = await controller.addTaskNote(planId, taskId, dto as any, clientUser);
 
-      expect(mockTaskLifecycle.verifyTaskAccess).toHaveBeenCalledWith(taskId, clientUser);
+      expect(mockTaskLifecycle.verifyTaskAccess).toHaveBeenCalledWith(taskId, clientUser, planId);
       expect(mockTaskNotes.addTaskNote).toHaveBeenCalledWith(taskId, clientUser.id, dto);
       expect(result).toEqual({ data: note, message: 'Nota agregada' });
     });
@@ -250,9 +251,9 @@ describe('MaintenancePlansController', () => {
       mockTaskLifecycle.verifyTaskAccess.mockResolvedValue({ id: taskId });
       mockTaskNotes.getTaskNotes.mockResolvedValue(notes);
 
-      const result = await controller.getTaskNotes(taskId, clientUser);
+      const result = await controller.getTaskNotes(planId, taskId, clientUser);
 
-      expect(mockTaskLifecycle.verifyTaskAccess).toHaveBeenCalledWith(taskId, clientUser);
+      expect(mockTaskLifecycle.verifyTaskAccess).toHaveBeenCalledWith(taskId, clientUser, planId);
       expect(mockTaskNotes.getTaskNotes).toHaveBeenCalledWith(taskId);
       expect(result).toEqual({ data: notes });
     });

@@ -151,10 +151,11 @@ export class MaintenancePlansController {
   @Get(':id/tasks/:taskId')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async getTaskDetail(
+    @Param('id', ParseUUIDPipe) planId: string,
     @Param('taskId', ParseUUIDPipe) taskId: string,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    await this.taskLifecycle.verifyTaskAccess(taskId, user);
+    await this.taskLifecycle.verifyTaskAccess(taskId, user, planId);
     const data = await this.taskNotes.getTaskDetail(taskId);
     return { data };
   }
@@ -163,21 +164,23 @@ export class MaintenancePlansController {
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   @Throttle({ medium: { limit: 5, ttl: 60_000 } })
   async completeTask(
+    @Param('id', ParseUUIDPipe) planId: string,
     @Param('taskId', ParseUUIDPipe) taskId: string,
     @Body(new ZodValidationPipe(completeTaskSchema)) dto: CompleteTaskInput,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const data = await this.taskLifecycle.completeTask(taskId, user.id, dto, user);
+    const data = await this.taskLifecycle.completeTask(taskId, user.id, dto, user, planId);
     return { data, message: 'Tarea completada' };
   }
 
   @Get(':id/tasks/:taskId/logs')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async getTaskLogs(
+    @Param('id', ParseUUIDPipe) planId: string,
     @Param('taskId', ParseUUIDPipe) taskId: string,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    await this.taskLifecycle.verifyTaskAccess(taskId, user);
+    await this.taskLifecycle.verifyTaskAccess(taskId, user, planId);
     const data = await this.taskNotes.getTaskLogs(taskId);
     return { data };
   }
@@ -186,11 +189,12 @@ export class MaintenancePlansController {
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   @Throttle({ medium: { limit: 5, ttl: 60_000 } })
   async addTaskNote(
+    @Param('id', ParseUUIDPipe) planId: string,
     @Param('taskId', ParseUUIDPipe) taskId: string,
     @Body(new ZodValidationPipe(createTaskNoteSchema)) dto: CreateTaskNoteInput,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    await this.taskLifecycle.verifyTaskAccess(taskId, user);
+    await this.taskLifecycle.verifyTaskAccess(taskId, user, planId);
     const data = await this.taskNotes.addTaskNote(taskId, user.id, dto);
     return { data, message: 'Nota agregada' };
   }
@@ -198,10 +202,11 @@ export class MaintenancePlansController {
   @Get(':id/tasks/:taskId/notes')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async getTaskNotes(
+    @Param('id', ParseUUIDPipe) planId: string,
     @Param('taskId', ParseUUIDPipe) taskId: string,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    await this.taskLifecycle.verifyTaskAccess(taskId, user);
+    await this.taskLifecycle.verifyTaskAccess(taskId, user, planId);
     const data = await this.taskNotes.getTaskNotes(taskId);
     return { data };
   }
