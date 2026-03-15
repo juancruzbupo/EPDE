@@ -13,7 +13,7 @@ export const completeTaskSchema = z.object({
   executor: z.enum(TASK_EXECUTOR_VALUES),
   actionTaken: z.enum(ACTION_TAKEN_VALUES),
   completedAt: z.coerce.date().optional(),
-  cost: z.coerce.number().min(0, 'El costo debe ser positivo').optional(),
+  cost: z.coerce.number().min(0, 'El costo debe ser positivo').max(999_999_999).optional(),
   note: z.string().max(500, 'Máximo 500 caracteres').optional(),
   photoUrl: z.string().url('URL de foto inválida').optional(),
 });

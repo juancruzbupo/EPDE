@@ -1,7 +1,5 @@
 import type { BudgetRequestPublic, BudgetStatus } from '@epde/shared';
-import { formatARS } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatARS, formatRelativeDate } from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { memo, useCallback, useState } from 'react';
 import {
@@ -60,7 +58,7 @@ const BudgetCard = memo(function BudgetCard({ budget }: { budget: BudgetRequestP
           </Text>
         )}
         <Text style={TYPE.bodySm} className="text-muted-foreground">
-          {formatDistanceToNow(new Date(budget.createdAt), { addSuffix: true, locale: es })}
+          {formatRelativeDate(new Date(budget.createdAt))}
         </Text>
       </View>
     </Pressable>

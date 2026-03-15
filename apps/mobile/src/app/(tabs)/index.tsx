@@ -1,6 +1,5 @@
 import type { UpcomingTask } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatRelativeDate } from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { memo, useCallback, useMemo } from 'react';
 import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
@@ -47,9 +46,7 @@ const TaskCard = memo(function TaskCard({ task, index }: { task: UpcomingTask; i
             {task.categoryName}
           </Text>
           <Text style={TYPE.bodySm} className="text-muted-foreground">
-            {task.nextDueDate
-              ? formatDistanceToNow(new Date(task.nextDueDate), { addSuffix: true, locale: es })
-              : 'Segun deteccion'}
+            {task.nextDueDate ? formatRelativeDate(new Date(task.nextDueDate)) : 'Segun deteccion'}
           </Text>
         </View>
       </Pressable>

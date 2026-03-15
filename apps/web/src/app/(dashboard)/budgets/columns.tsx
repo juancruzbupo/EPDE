@@ -1,9 +1,7 @@
 'use client';
 
-import { BUDGET_STATUS_LABELS, BUDGET_STATUS_VARIANT } from '@epde/shared';
+import { BUDGET_STATUS_LABELS, BUDGET_STATUS_VARIANT, formatRelativeDate } from '@epde/shared';
 import { ColumnDef } from '@tanstack/react-table';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
 import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
@@ -58,10 +56,6 @@ export const budgetColumns: ColumnDef<BudgetRequestPublic>[] = [
   {
     accessorKey: 'createdAt',
     header: 'Fecha',
-    cell: ({ row }) =>
-      formatDistanceToNow(new Date(row.original.createdAt), {
-        addSuffix: true,
-        locale: es,
-      }),
+    cell: ({ row }) => formatRelativeDate(new Date(row.original.createdAt)),
   },
 ];

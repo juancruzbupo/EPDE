@@ -40,12 +40,12 @@ export const updateTaskTemplateSchema = createTaskTemplateSchema.partial();
 export type UpdateTaskTemplateInput = z.infer<typeof updateTaskTemplateSchema>;
 
 export const reorderTemplatesSchema = z.object({
-  ids: z.array(z.string().min(1)).min(1, 'Debe incluir al menos un ID'),
+  ids: z.array(z.string().uuid()).min(1, 'Debe incluir al menos un ID').max(500),
 });
 export type ReorderTemplatesInput = z.infer<typeof reorderTemplatesSchema>;
 
 export const categoryTemplateFiltersSchema = z.object({
-  cursor: z.string().optional(),
+  cursor: z.string().uuid().optional(),
   take: z.coerce.number().int().min(1).max(PAGINATION_MAX_TAKE).default(PAGINATION_DEFAULT_TAKE),
 });
 export type CategoryTemplateFiltersInput = z.infer<typeof categoryTemplateFiltersSchema>;

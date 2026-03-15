@@ -1,9 +1,7 @@
 'use client';
 
 import type { NotificationType } from '@epde/shared';
-import { NOTIFICATION_TYPE_LABELS } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatRelativeDate, NOTIFICATION_TYPE_LABELS } from '@epde/shared';
 import { Bell, CheckCheck, Clock, FileText, Wrench } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -102,10 +100,7 @@ export default function NotificationsPage() {
                   </div>
                   <p className="text-muted-foreground mt-0.5 text-sm">{n.message}</p>
                   <span className="text-muted-foreground mt-1 text-xs">
-                    {formatDistanceToNow(new Date(n.createdAt), {
-                      addSuffix: true,
-                      locale: es,
-                    })}
+                    {formatRelativeDate(new Date(n.createdAt))}
                   </span>
                 </div>
               </li>

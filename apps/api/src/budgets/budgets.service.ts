@@ -235,23 +235,11 @@ export class BudgetsService {
       throw error;
     }
 
-    const updated = await this.budgetsRepository.update(
+    const updated = await this.budgetsRepository.updateStatusAtomic(
       id,
-      { status: dto.status, updatedBy: currentUser.id },
-      {
-        property: {
-          select: {
-            id: true,
-            address: true,
-            city: true,
-            user: { select: { id: true, name: true } },
-          },
-        },
-        requester: { select: { id: true, name: true } },
-        lineItems: true,
-        response: true,
-        attachments: true,
-      },
+      dto.status,
+      budget.version,
+      currentUser.id,
     );
 
     void this.auditLogRepository.createAuditLog(

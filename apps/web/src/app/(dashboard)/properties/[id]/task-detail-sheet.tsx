@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  formatRelativeDate,
   PRIORITY_VARIANT,
   RECURRENCE_TYPE_LABELS,
   TASK_PRIORITY_LABELS,
@@ -8,8 +9,6 @@ import {
   TASK_STATUS_VARIANT,
   TaskStatus,
 } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { Calendar, CheckCircle, RotateCcw } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
@@ -86,12 +85,7 @@ export function TaskDetailSheet({
                     <>
                       {new Date(task.nextDueDate).toLocaleDateString('es-AR')}
                       <span className="text-muted-foreground ml-1 text-xs font-normal">
-                        (
-                        {formatDistanceToNow(new Date(task.nextDueDate), {
-                          addSuffix: true,
-                          locale: es,
-                        })}
-                        )
+                        ({formatRelativeDate(new Date(task.nextDueDate))})
                       </span>
                     </>
                   ) : (

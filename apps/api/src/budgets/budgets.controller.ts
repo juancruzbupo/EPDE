@@ -118,6 +118,7 @@ export class BudgetsController {
 
   @Patch(':id/status')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async updateStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updateBudgetStatusSchema)) dto: UpdateBudgetStatusInput,
@@ -129,6 +130,7 @@ export class BudgetsController {
 
   @Patch(':id')
   @Roles(UserRole.CLIENT)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async editBudgetRequest(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(editBudgetRequestSchema)) dto: EditBudgetRequestInput,

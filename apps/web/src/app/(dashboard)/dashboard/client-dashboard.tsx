@@ -1,8 +1,6 @@
 'use client';
 
-import { PRIORITY_VARIANT, TASK_PRIORITY_LABELS } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatRelativeDate, PRIORITY_VARIANT, TASK_PRIORITY_LABELS } from '@epde/shared';
 import { motion } from 'framer-motion';
 import {
   AlertTriangle,
@@ -249,10 +247,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
                                 <span>·</span>
                                 <span className={isOverdue ? 'text-destructive font-medium' : ''}>
                                   {task.nextDueDate
-                                    ? formatDistanceToNow(new Date(task.nextDueDate), {
-                                        addSuffix: true,
-                                        locale: es,
-                                      })
+                                    ? formatRelativeDate(new Date(task.nextDueDate))
                                     : 'Según detección'}
                                 </span>
                               </div>

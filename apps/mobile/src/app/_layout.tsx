@@ -58,6 +58,7 @@ function AuthGate() {
       const firstSegment = path?.split('/')[0];
       if (firstSegment && !allowedPaths.includes(firstSegment)) {
         console.warn(`Blocked unrecognized deep link path: ${path}`);
+        router.replace('/(tabs)');
       }
     };
     const sub = Linking.addEventListener('url', handleDeepLink);

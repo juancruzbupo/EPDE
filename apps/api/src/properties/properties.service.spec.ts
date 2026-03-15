@@ -12,7 +12,7 @@ const mockPropertiesRepository = {
   findOwnership: jest.fn(),
   createWithPlan: jest.fn(),
   update: jest.fn(),
-  softDelete: jest.fn(),
+  softDeleteWithCascade: jest.fn(),
 };
 
 const adminUser = { id: 'admin-1', role: UserRole.ADMIN };
@@ -227,22 +227,22 @@ describe('PropertiesService', () => {
   describe('deleteProperty', () => {
     it('should soft delete property when ADMIN', async () => {
       repository.findById.mockResolvedValue(mockProperty);
-      repository.softDelete.mockResolvedValue(undefined);
+      repository.softDeleteWithCascade.mockResolvedValue(undefined);
 
       const result = await service.deleteProperty('prop-1', adminUser);
 
       expect(repository.findById).toHaveBeenCalledWith('prop-1');
-      expect(repository.softDelete).toHaveBeenCalledWith('prop-1');
+      expect(repository.softDeleteWithCascade).toHaveBeenCalledWith('prop-1');
       expect(result).toEqual({ data: null, message: 'Propiedad eliminada' });
     });
 
     it('should soft delete property when CLIENT is the owner', async () => {
       repository.findById.mockResolvedValue(mockProperty);
-      repository.softDelete.mockResolvedValue(undefined);
+      repository.softDeleteWithCascade.mockResolvedValue(undefined);
 
       const result = await service.deleteProperty('prop-1', clientUser);
 
-      expect(repository.softDelete).toHaveBeenCalledWith('prop-1');
+      expect(repository.softDeleteWithCascade).toHaveBeenCalledWith('prop-1');
       expect(result).toEqual({ data: null, message: 'Propiedad eliminada' });
     });
 

@@ -1,10 +1,13 @@
 'use client';
 
 import type { ClientPublic } from '@epde/shared';
-import { type UpdateClientInput, updateClientSchema, USER_STATUS_LABELS } from '@epde/shared';
+import {
+  formatRelativeDate,
+  type UpdateClientInput,
+  updateClientSchema,
+  USER_STATUS_LABELS,
+} from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { ArrowLeft, Calendar, Mail, Phone, Trash2, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -139,12 +142,7 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
                     <Calendar className="h-3.5 w-3.5" />
                     Fecha de creación
                   </dt>
-                  <dd className="font-medium">
-                    {formatDistanceToNow(new Date(client.createdAt), {
-                      addSuffix: true,
-                      locale: es,
-                    })}
-                  </dd>
+                  <dd className="font-medium">{formatRelativeDate(new Date(client.createdAt))}</dd>
                 </div>
               </dl>
             </div>

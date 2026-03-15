@@ -1,7 +1,5 @@
 import type { NotificationPublic, NotificationType } from '@epde/shared';
-import { NOTIFICATION_TYPE_LABELS } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatRelativeDate, NOTIFICATION_TYPE_LABELS } from '@epde/shared';
 import { useCallback } from 'react';
 import { ActivityIndicator, FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
 
@@ -62,10 +60,7 @@ function NotificationCard({
               {typeLabel}
             </Text>
             <Text style={TYPE.bodySm} className="text-muted-foreground">
-              {formatDistanceToNow(new Date(notification.createdAt), {
-                addSuffix: true,
-                locale: es,
-              })}
+              {formatRelativeDate(new Date(notification.createdAt))}
             </Text>
           </View>
         </View>

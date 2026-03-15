@@ -23,7 +23,10 @@ function isTokenExpired(token: string): boolean {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname === '/' || PUBLIC_PATHS.some((path) => pathname.startsWith(path))) {
+  if (
+    pathname === '/' ||
+    PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(path + '/'))
+  ) {
     return NextResponse.next();
   }
 

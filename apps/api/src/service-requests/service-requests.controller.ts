@@ -83,6 +83,7 @@ export class ServiceRequestsController {
 
   @Post(':id/comments')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async addComment(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(createServiceRequestCommentSchema))
@@ -95,6 +96,7 @@ export class ServiceRequestsController {
 
   @Post(':id/attachments')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async addAttachments(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(addServiceRequestAttachmentsSchema))
@@ -108,6 +110,7 @@ export class ServiceRequestsController {
   /** Edit service request — must be declared BEFORE :id/status to avoid route collision */
   @Patch(':id')
   @Roles(UserRole.CLIENT)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async editRequest(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(editServiceRequestSchema)) dto: EditServiceRequestInput,
@@ -119,6 +122,7 @@ export class ServiceRequestsController {
 
   @Patch(':id/status')
   @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async updateStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updateServiceStatusSchema)) dto: UpdateServiceStatusInput,

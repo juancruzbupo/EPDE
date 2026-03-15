@@ -17,7 +17,7 @@ export const createPropertySchema = z.object({
     .max(200, 'La ciudad no puede superar 200 caracteres'),
   type: z.enum(PROPERTY_TYPE_VALUES).default(PropertyType.HOUSE),
   yearBuilt: z.coerce.number().int().min(1800).max(2100).optional(),
-  squareMeters: z.coerce.number().positive().optional(),
+  squareMeters: z.coerce.number().positive().max(99_999).optional(),
 });
 
 export type CreatePropertyInput = z.infer<typeof createPropertySchema>;
@@ -37,13 +37,13 @@ export const updatePropertySchema = z.object({
     .optional(),
   type: z.enum(PROPERTY_TYPE_VALUES).optional(),
   yearBuilt: z.coerce.number().int().min(1800).max(2100).optional(),
-  squareMeters: z.coerce.number().positive().optional(),
+  squareMeters: z.coerce.number().positive().max(99_999).optional(),
 });
 
 export type UpdatePropertyInput = z.infer<typeof updatePropertySchema>;
 
 export const propertyFiltersSchema = z.object({
-  search: z.string().optional(),
+  search: z.string().max(200).optional(),
   userId: z.string().uuid().optional(),
   city: z.string().optional(),
   type: z.enum(PROPERTY_TYPE_VALUES).optional(),

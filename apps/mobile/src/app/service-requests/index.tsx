@@ -1,7 +1,5 @@
 import type { ServiceRequestPublic, ServiceStatus, ServiceUrgency } from '@epde/shared';
-import { SERVICE_URGENCY_LABELS } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatRelativeDate, SERVICE_URGENCY_LABELS } from '@epde/shared';
 import { Stack, useRouter } from 'expo-router';
 import { memo, useCallback, useState } from 'react';
 import {
@@ -64,7 +62,7 @@ const ServiceRequestCard = memo(function ServiceRequestCard({
       <View className="flex-row items-center justify-between">
         <UrgencyBadge urgency={request.urgency} />
         <Text style={TYPE.bodySm} className="text-muted-foreground">
-          {formatDistanceToNow(new Date(request.createdAt), { addSuffix: true, locale: es })}
+          {formatRelativeDate(new Date(request.createdAt))}
         </Text>
       </View>
     </Pressable>

@@ -33,7 +33,7 @@ export const updateClientSchema = z.object({
 export type UpdateClientInput = z.infer<typeof updateClientSchema>;
 
 export const clientFiltersSchema = z.object({
-  search: z.string().optional(),
+  search: z.string().max(200).optional(),
   status: z.enum(USER_STATUS_VALUES).optional(),
   cursor: z.string().uuid().optional(),
   take: z.coerce.number().int().min(1).max(PAGINATION_MAX_TAKE).default(PAGINATION_DEFAULT_TAKE),

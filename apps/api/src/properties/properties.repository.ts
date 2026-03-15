@@ -103,6 +103,25 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
     });
   }
 
+  /**
+   * Soft-delete property and cascade to active budgets + service requests.
+   * onDelete: Cascade only applies to hard deletes; soft-delete requires explicit cascade.
+   */
+  async softDeleteWithCascade(id: string) {
+    const now = new Date();
+    await this.prisma.$transaction([
+      this.prisma.property.update({ where: { id }, data: { deletedAt: now } }),
+      this.prisma.budgetRequest.updateMany({
+        where: { propertyId: id, deletedAt: null },
+        data: { deletedAt: now },
+      }),
+      this.prisma.serviceRequest.updateMany({
+        where: { propertyId: id, deletedAt: null },
+        data: { deletedAt: now },
+      }),
+    ]);
+  }
+
   async findByUserId(userId: string) {
     return this.model.findMany({
       where: { userId },

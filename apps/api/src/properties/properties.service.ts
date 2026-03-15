@@ -69,7 +69,7 @@ export class PropertiesService {
 
     this.assertOwnership(property.userId, currentUser);
 
-    await this.propertiesRepository.softDelete(id);
+    await this.propertiesRepository.softDeleteWithCascade(id);
     return { data: null, message: 'Propiedad eliminada' };
   }
 

@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  formatRelativeDate,
   PLAN_STATUS_LABELS,
   PRIORITY_VARIANT,
   RECURRENCE_TYPE_LABELS,
@@ -10,8 +11,6 @@ import {
   TaskPriority,
   TaskStatus,
 } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { CheckCircle, ChevronDown, ChevronRight, ClipboardList } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
@@ -140,10 +139,7 @@ function CategorySection({
                       <span className="text-muted-foreground/40">·</span>
                       <span className={isOverdue ? 'text-destructive font-medium' : ''}>
                         {task.nextDueDate
-                          ? formatDistanceToNow(new Date(task.nextDueDate), {
-                              addSuffix: true,
-                              locale: es,
-                            })
+                          ? formatRelativeDate(new Date(task.nextDueDate))
                           : 'Según detección'}
                       </span>
                     </div>

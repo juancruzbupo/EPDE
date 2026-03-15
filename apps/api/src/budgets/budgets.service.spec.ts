@@ -37,6 +37,7 @@ describe('BudgetsService', () => {
       findByIdWithDetails: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      updateStatusAtomic: jest.fn(),
       respondToBudget: jest.fn(),
     };
 
@@ -325,13 +326,14 @@ describe('BudgetsService', () => {
         id: 'budget-1',
         title: 'Test Budget',
         status: BudgetStatus.QUOTED,
+        version: 2,
         requestedBy: 'client-1',
         property: { userId: clientUser.id },
       };
       budgetsRepository.findByIdWithDetails.mockResolvedValue(budget);
 
-      const updatedBudget = { ...budget, status: BudgetStatus.APPROVED };
-      budgetsRepository.update.mockResolvedValue(updatedBudget);
+      const updatedBudget = { ...budget, status: BudgetStatus.APPROVED, version: 3 };
+      budgetsRepository.updateStatusAtomic.mockResolvedValue(updatedBudget);
 
       const result = await service.updateStatus(
         'budget-1',
@@ -340,10 +342,11 @@ describe('BudgetsService', () => {
       );
 
       expect(result).toEqual(updatedBudget);
-      expect(budgetsRepository.update).toHaveBeenCalledWith(
+      expect(budgetsRepository.updateStatusAtomic).toHaveBeenCalledWith(
         'budget-1',
-        { status: BudgetStatus.APPROVED, updatedBy: 'client-1' },
-        expect.any(Object),
+        BudgetStatus.APPROVED,
+        2,
+        'client-1',
       );
       expect(notificationsHandler.handleBudgetStatusChanged).toHaveBeenCalledWith({
         budgetId: 'budget-1',
@@ -359,13 +362,14 @@ describe('BudgetsService', () => {
         id: 'budget-1',
         title: 'Test Budget',
         status: BudgetStatus.APPROVED,
+        version: 3,
         requestedBy: 'client-1',
         property: { userId: 'client-1' },
       };
       budgetsRepository.findByIdWithDetails.mockResolvedValue(budget);
 
-      const updatedBudget = { ...budget, status: BudgetStatus.IN_PROGRESS };
-      budgetsRepository.update.mockResolvedValue(updatedBudget);
+      const updatedBudget = { ...budget, status: BudgetStatus.IN_PROGRESS, version: 4 };
+      budgetsRepository.updateStatusAtomic.mockResolvedValue(updatedBudget);
 
       const result = await service.updateStatus(
         'budget-1',
@@ -374,10 +378,11 @@ describe('BudgetsService', () => {
       );
 
       expect(result).toEqual(updatedBudget);
-      expect(budgetsRepository.update).toHaveBeenCalledWith(
+      expect(budgetsRepository.updateStatusAtomic).toHaveBeenCalledWith(
         'budget-1',
-        { status: BudgetStatus.IN_PROGRESS, updatedBy: 'admin-1' },
-        expect.any(Object),
+        BudgetStatus.IN_PROGRESS,
+        3,
+        'admin-1',
       );
       expect(notificationsHandler.handleBudgetStatusChanged).toHaveBeenCalledWith({
         budgetId: 'budget-1',
@@ -403,7 +408,7 @@ describe('BudgetsService', () => {
         service.updateStatus('budget-1', { status: BudgetStatus.APPROVED }, adminUser),
       ).rejects.toThrow(ForbiddenException);
 
-      expect(budgetsRepository.update).not.toHaveBeenCalled();
+      expect(budgetsRepository.updateStatusAtomic).not.toHaveBeenCalled();
     });
 
     it('should throw NotFoundException when budget not found', async () => {

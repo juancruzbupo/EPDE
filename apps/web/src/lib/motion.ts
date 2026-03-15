@@ -58,17 +58,6 @@ export const STAGGER_ITEM: Variants = {
   visible: { opacity: 1, y: 0, transition: { duration: MOTION_DURATION.normal, ease: EASE_OUT } },
 };
 
-export const MICRO_BOUNCE: Variants = {
-  tap: { scale: 0.95, transition: { duration: MOTION_DURATION.fast } },
-};
-
-export const PULSE_ONCE: Variants = {
-  pulse: {
-    scale: [1, 1.08, 1],
-    transition: { duration: 0.3, ease: EASE_OUT },
-  },
-};
-
 // --- Reduced motion ---
 
 const EMPTY_VARIANTS: Variants = {

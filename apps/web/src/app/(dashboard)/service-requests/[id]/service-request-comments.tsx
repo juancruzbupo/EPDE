@@ -1,9 +1,7 @@
 'use client';
 
 import type { ServiceRequestCommentPublic } from '@epde/shared';
-import { isServiceRequestTerminal } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatRelativeDate, isServiceRequestTerminal } from '@epde/shared';
 import { Send } from 'lucide-react';
 import { useState } from 'react';
 
@@ -21,7 +19,7 @@ function CommentItem({ comment }: { comment: ServiceRequestCommentPublic }) {
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium">{comment.user.name}</span>
         <span className="text-muted-foreground text-xs">
-          {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: es })}
+          {formatRelativeDate(new Date(comment.createdAt))}
         </span>
       </div>
       <p className="text-sm">{comment.content}</p>

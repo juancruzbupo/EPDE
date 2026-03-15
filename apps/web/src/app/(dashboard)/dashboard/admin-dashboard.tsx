@@ -1,7 +1,6 @@
 'use client';
 
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatRelativeDate } from '@epde/shared';
 import { motion } from 'framer-motion';
 import {
   Activity,
@@ -275,10 +274,7 @@ export function AdminDashboard() {
                         <div className="flex-1">
                           <span className="text-sm font-medium">{item.description}</span>
                           <span className="text-muted-foreground mt-0.5 block text-xs">
-                            {formatDistanceToNow(new Date(item.timestamp), {
-                              addSuffix: true,
-                              locale: es,
-                            })}
+                            {formatRelativeDate(new Date(item.timestamp))}
                           </span>
                         </div>
                       </li>

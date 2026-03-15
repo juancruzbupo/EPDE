@@ -217,10 +217,13 @@ Badge variants (desde `@epde/shared`): `TASK_STATUS_VARIANT`, `BUDGET_STATUS_VAR
 
 Color maps locales (desde `lib/style-maps.ts`):
 
-| Export                    | Entidad   | Descripcion                                                    |
-| ------------------------- | --------- | -------------------------------------------------------------- |
-| `TASK_TYPE_COLORS`        | Templates | CSS variable tokens (`bg-task-*/15 text-task-*`) con dark mode |
-| `PROFESSIONAL_REQ_COLORS` | Templates | Clases bg+text por req. profesional                            |
+| Export                    | Entidad   | Descripcion                                                      |
+| ------------------------- | --------- | ---------------------------------------------------------------- |
+| `TASK_TYPE_COLORS`        | Templates | CSS variable tokens (`bg-task-*/15 text-task-*`) con dark mode   |
+| `PROFESSIONAL_REQ_COLORS` | Templates | Clases bg+text por req. profesional                              |
+| `TASK_STATUS_ORDER`       | Tareas    | Orden de display: OVERDUE, PENDING, UPCOMING, COMPLETED          |
+| `TASK_STATUS_ICONS`       | Tareas    | Lucide icons por status (AlertTriangle, Clock, Timer, Check)     |
+| `TASK_STATUS_COLORS`      | Tareas    | Clases text-color por status (destructive, amber, blue, emerald) |
 
 ## Componentes UI (shadcn/ui)
 

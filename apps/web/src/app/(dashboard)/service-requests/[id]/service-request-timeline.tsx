@@ -1,8 +1,7 @@
 'use client';
 
 import type { ServiceRequestAuditLogPublic } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatRelativeDate } from '@epde/shared';
 import { CheckCircle, Clock, Edit, Eye, FileText, Play, XCircle } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,8 +30,7 @@ function TimelineEntry({ entry }: { entry: ServiceRequestAuditLogPublic }) {
         <p className="text-sm font-medium">{config.label}</p>
         {note && <p className="text-muted-foreground text-sm italic">{note}</p>}
         <p className="text-muted-foreground text-xs">
-          {entry.user.name} ·{' '}
-          {formatDistanceToNow(new Date(entry.changedAt), { addSuffix: true, locale: es })}
+          {entry.user.name} · {formatRelativeDate(new Date(entry.changedAt))}
         </p>
       </div>
     </div>

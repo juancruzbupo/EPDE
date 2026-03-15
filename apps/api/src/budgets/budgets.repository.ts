@@ -192,13 +192,38 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
   }
 
   /**
-   * Batch-expire budgets (scheduler use). Increments version for safety.
+   * Atomic status update with optimistic locking (TOCTOU-safe).
+   * Re-checks status + version inside transaction before updating.
+   */
+  async updateStatusAtomic(
+    id: string,
+    newStatus: BudgetStatus,
+    expectedVersion: number,
+    updatedBy: string,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      const budget = await tx.budgetRequest.findUnique({ where: { id } });
+      if (!budget) return null;
+      if (budget.version !== expectedVersion) {
+        throw new BudgetVersionConflictError();
+      }
+
+      return tx.budgetRequest.update({
+        where: { id },
+        data: { status: newStatus, updatedBy, version: { increment: 1 } },
+        include: BUDGET_DETAIL_INCLUDE,
+      });
+    });
+  }
+
+  /**
+   * Batch-expire budgets (scheduler use). Increments version for consistency.
    */
   async expireBudgets(ids: string[]) {
     if (ids.length === 0) return 0;
     const result = await this.prisma.budgetRequest.updateMany({
       where: { id: { in: ids }, status: BudgetStatus.QUOTED },
-      data: { status: BudgetStatus.EXPIRED },
+      data: { status: BudgetStatus.EXPIRED, version: { increment: 1 } },
     });
     return result.count;
   }

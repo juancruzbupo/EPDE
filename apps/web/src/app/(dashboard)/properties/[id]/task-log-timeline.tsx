@@ -3,11 +3,10 @@
 import {
   ACTION_TAKEN_LABELS,
   CONDITION_FOUND_LABELS,
+  formatRelativeDate,
   TASK_EXECUTOR_LABELS,
   TASK_RESULT_LABELS,
 } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { History } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
@@ -53,10 +52,7 @@ export function TaskLogTimeline({ planId, taskId }: TaskLogTimelineProps) {
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">{log.user.name}</span>
               <span className="text-muted-foreground text-xs">
-                {formatDistanceToNow(new Date(log.completedAt), {
-                  addSuffix: true,
-                  locale: es,
-                })}
+                {formatRelativeDate(new Date(log.completedAt))}
               </span>
             </div>
 

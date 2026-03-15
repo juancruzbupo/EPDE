@@ -1,14 +1,13 @@
 'use client';
 
 import {
+  formatRelativeDate,
   SERVICE_STATUS_LABELS,
   SERVICE_STATUS_VARIANT,
   SERVICE_URGENCY_LABELS,
   URGENCY_VARIANT,
 } from '@epde/shared';
 import { ColumnDef } from '@tanstack/react-table';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
 import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
@@ -57,10 +56,6 @@ export const serviceRequestColumns: ColumnDef<ServiceRequestPublic>[] = [
   {
     accessorKey: 'createdAt',
     header: 'Fecha',
-    cell: ({ row }) =>
-      formatDistanceToNow(new Date(row.original.createdAt), {
-        addSuffix: true,
-        locale: es,
-      }),
+    cell: ({ row }) => formatRelativeDate(new Date(row.original.createdAt)),
   },
 ];

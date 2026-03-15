@@ -4,8 +4,8 @@ import type {
   BudgetCommentPublic,
   BudgetLineItemPublic,
 } from '@epde/shared';
-import { BudgetStatus, formatARS, isBudgetTerminal } from '@epde/shared';
-import { format, formatDistanceToNow } from 'date-fns';
+import { BudgetStatus, formatARS, formatRelativeDate, isBudgetTerminal } from '@epde/shared';
+import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
@@ -78,8 +78,7 @@ function AuditLogEntry({ entry }: { entry: BudgetAuditLogPublic }) {
         {ACTION_LABELS[entry.action] ?? entry.action}
       </Text>
       <Text style={TYPE.bodySm} className="text-muted-foreground">
-        {entry.user.name} ·{' '}
-        {formatDistanceToNow(new Date(entry.changedAt), { addSuffix: true, locale: es })}
+        {entry.user.name} · {formatRelativeDate(new Date(entry.changedAt))}
       </Text>
     </View>
   );
@@ -93,7 +92,7 @@ function CommentItem({ comment }: { comment: BudgetCommentPublic }) {
           {comment.user.name}
         </Text>
         <Text style={TYPE.bodySm} className="text-muted-foreground">
-          {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: es })}
+          {formatRelativeDate(new Date(comment.createdAt))}
         </Text>
       </View>
       <Text style={TYPE.bodyMd} className="text-foreground mt-1">
@@ -113,7 +112,7 @@ function AttachmentItem({ attachment }: { attachment: BudgetAttachmentPublic }) 
         {attachment.fileName}
       </Text>
       <Text style={TYPE.bodySm} className="text-muted-foreground">
-        {formatDistanceToNow(new Date(attachment.createdAt), { addSuffix: true, locale: es })}
+        {formatRelativeDate(new Date(attachment.createdAt))}
       </Text>
     </Pressable>
   );

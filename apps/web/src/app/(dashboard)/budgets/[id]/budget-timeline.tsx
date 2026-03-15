@@ -1,8 +1,7 @@
 'use client';
 
 import type { BudgetAuditLogPublic } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatRelativeDate } from '@epde/shared';
 import {
   CheckCircle,
   Clock,
@@ -43,8 +42,7 @@ function TimelineEntry({ entry }: { entry: BudgetAuditLogPublic }) {
       <div className="flex-1 space-y-0.5 pt-0.5">
         <p className="text-sm font-medium">{config.label}</p>
         <p className="text-muted-foreground text-xs">
-          {entry.user.name} ·{' '}
-          {formatDistanceToNow(new Date(entry.changedAt), { addSuffix: true, locale: es })}
+          {entry.user.name} · {formatRelativeDate(new Date(entry.changedAt))}
         </p>
       </div>
     </div>

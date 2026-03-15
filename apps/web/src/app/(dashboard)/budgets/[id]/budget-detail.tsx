@@ -1,9 +1,13 @@
 'use client';
 
 import type { BudgetRequestPublic } from '@epde/shared';
-import { BUDGET_STATUS_LABELS, BUDGET_STATUS_VARIANT, BudgetStatus, formatARS } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import {
+  BUDGET_STATUS_LABELS,
+  BUDGET_STATUS_VARIANT,
+  BudgetStatus,
+  formatARS,
+  formatRelativeDate,
+} from '@epde/shared';
 import {
   AlignLeft,
   ArrowLeft,
@@ -145,12 +149,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
                   <Calendar className="h-3.5 w-3.5" />
                   Fecha
                 </dt>
-                <dd className="font-medium">
-                  {formatDistanceToNow(new Date(budget.createdAt), {
-                    addSuffix: true,
-                    locale: es,
-                  })}
-                </dd>
+                <dd className="font-medium">{formatRelativeDate(new Date(budget.createdAt))}</dd>
               </div>
               {budget.description && (
                 <div className="space-y-1 sm:col-span-2">

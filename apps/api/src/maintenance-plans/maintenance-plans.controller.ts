@@ -95,6 +95,7 @@ export class MaintenancePlansController {
 
   @Patch(':id')
   @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async updatePlan(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updatePlanSchema)) dto: UpdatePlanInput,
@@ -119,6 +120,7 @@ export class MaintenancePlansController {
   // Static segment MUST be before :taskId to avoid NestJS matching "reorder" as a UUID
   @Patch(':id/tasks/reorder')
   @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async reorderTasks(
     @Param('id', ParseUUIDPipe) planId: string,
     @Body(new ZodValidationPipe(reorderTasksSchema)) dto: ReorderTasksInput,
@@ -129,6 +131,7 @@ export class MaintenancePlansController {
 
   @Patch(':id/tasks/:taskId')
   @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async updateTask(
     @Param('id', ParseUUIDPipe) planId: string,
     @Param('taskId', ParseUUIDPipe) taskId: string,
@@ -141,6 +144,7 @@ export class MaintenancePlansController {
 
   @Delete(':id/tasks/:taskId')
   @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async removeTask(
     @Param('id', ParseUUIDPipe) planId: string,
     @Param('taskId', ParseUUIDPipe) taskId: string,

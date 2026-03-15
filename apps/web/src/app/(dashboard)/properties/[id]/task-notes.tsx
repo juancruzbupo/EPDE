@@ -1,8 +1,6 @@
 'use client';
 
-import { createTaskNoteSchema } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { createTaskNoteSchema, formatRelativeDate } from '@epde/shared';
 import { MessageSquare, Send } from 'lucide-react';
 import { useState } from 'react';
 
@@ -73,10 +71,7 @@ export function TaskNotes({ planId, taskId }: TaskNotesProps) {
               <div className="flex items-center justify-between text-sm">
                 <span className="font-medium">{note.author.name}</span>
                 <span className="text-muted-foreground text-xs">
-                  {formatDistanceToNow(new Date(note.createdAt), {
-                    addSuffix: true,
-                    locale: es,
-                  })}
+                  {formatRelativeDate(new Date(note.createdAt))}
                 </span>
               </div>
               <p className="mt-1.5 text-sm leading-relaxed">{note.content}</p>

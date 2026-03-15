@@ -1,9 +1,7 @@
 'use client';
 
-import { CLIENT_STATUS_VARIANT, USER_STATUS_LABELS } from '@epde/shared';
+import { CLIENT_STATUS_VARIANT, formatRelativeDate, USER_STATUS_LABELS } from '@epde/shared';
 import { ColumnDef } from '@tanstack/react-table';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { MailPlus, MoreHorizontal, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -52,8 +50,7 @@ export function clientColumns({
     {
       accessorKey: 'createdAt',
       header: 'Fecha',
-      cell: ({ row }) =>
-        formatDistanceToNow(new Date(row.original.createdAt), { addSuffix: true, locale: es }),
+      cell: ({ row }) => formatRelativeDate(new Date(row.original.createdAt)),
     },
     {
       id: 'actions',

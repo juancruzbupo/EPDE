@@ -13,14 +13,22 @@
  * benefit from offline support without additional configuration.
  */
 import NetInfo from '@react-native-community/netinfo';
-import { QueryClient } from '@tanstack/react-query';
-import { onlineManager } from '@tanstack/react-query';
+import { focusManager, onlineManager, QueryClient } from '@tanstack/react-query';
+import { AppState, type AppStateStatus } from 'react-native';
 
 // Sync online/offline status with React Query
 onlineManager.setEventListener((setOnline) => {
   return NetInfo.addEventListener((state) => {
     setOnline(!!state.isConnected);
   });
+});
+
+// Refetch stale queries when app returns to foreground
+focusManager.setEventListener((setFocused) => {
+  const sub = AppState.addEventListener('change', (state: AppStateStatus) => {
+    setFocused(state === 'active');
+  });
+  return () => sub.remove();
 });
 
 export const queryClient = new QueryClient({

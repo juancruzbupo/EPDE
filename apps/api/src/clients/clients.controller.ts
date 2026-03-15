@@ -62,6 +62,7 @@ export class ClientsController {
 
   @Patch(':id')
   @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async updateClient(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updateClientSchema)) dto: UpdateClientInput,

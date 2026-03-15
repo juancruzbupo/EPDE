@@ -4,8 +4,8 @@
 // TODO [ROADMAP]: Migrate to expo-image for caching, progressive loading, and optimization.
 
 import type { TaskLogPublic, TaskNotePublic } from '@epde/shared';
-import { RECURRENCE_TYPE_LABELS, TaskStatus } from '@epde/shared';
-import { format, formatDistanceToNow } from 'date-fns';
+import { formatRelativeDate, RECURRENCE_TYPE_LABELS, TaskStatus } from '@epde/shared';
+import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
@@ -56,7 +56,7 @@ function NoteItem({ note }: { note: TaskNotePublic }) {
           {note.author.name}
         </Text>
         <Text style={TYPE.bodySm} className="text-muted-foreground">
-          {formatDistanceToNow(new Date(note.createdAt), { addSuffix: true, locale: es })}
+          {formatRelativeDate(new Date(note.createdAt))}
         </Text>
       </View>
       <Text style={TYPE.bodyMd} className="text-foreground mt-1">

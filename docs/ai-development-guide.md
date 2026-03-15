@@ -73,6 +73,9 @@
 61. **Options object para funciones con 4+ params** — Funciones con 4 o más parametros DEBEN usar un options object con propiedades nombradas en vez de parametros posicionales. Mejora legibilidad y previene errores de ordenamiento
 62. **Sanitizar filenames en uploads** — `file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 100)`. NUNCA usar filename crudo del cliente en keys de storage o URLs publicas
 63. **`ListFooterComponent` en FlatLists paginadas** — Todo FlatList con `onEndReached` DEBE mostrar `<ActivityIndicator>` cuando `isFetchingNextPage` es true. Pattern: `ListFooterComponent={isFetchingNextPage ? <View className="items-center py-4"><ActivityIndicator size="small" /></View> : null}`
+64. **Upper bounds en Zod schemas** — Arrays: `.max(50-500)`. Decimal fields: `.max(999_999_999)`. Search strings: `.max(200)`. Cursor: `.uuid()`. NUNCA dejar arrays/numbers/strings sin upper bound — vector de DoS
+65. **`@Throttle` en TODOS los mutation endpoints** — POST, PATCH, DELETE. Reads usan solo throttle global. Pattern: `@Throttle({ medium: { limit: 10, ttl: 60_000 } })`. CREATE usa `limit: 5`
+66. **Soft-delete cascade** — Al soft-delete una entidad padre (Property), tambien soft-delete los hijos activos (BudgetRequest, ServiceRequest) en la misma transaccion. `onDelete: Cascade` solo aplica a hard deletes
 
 ### NUNCA
 
@@ -478,16 +481,24 @@ try {
 
 **Excepciones existentes:**
 
-| Exception                             | Usada en                      | HTTP mapping |
-| ------------------------------------- | ----------------------------- | ------------ |
-| `BudgetNotPendingError`               | `budgets.service.ts`          | BadRequest   |
-| `BudgetVersionConflictError`          | `budgets.service.ts`          | Conflict     |
-| `CategoryHasReferencingTasksError`    | `categories.service.ts`       | BadRequest   |
-| `TaskNotCompletableError`             | `task-lifecycle.service.ts`   | BadRequest   |
-| `InvalidBudgetTransitionError`        | `budgets.service.ts`          | BadRequest   |
-| `UserAlreadyHasPasswordError`         | `auth.service.ts`             | BadRequest   |
-| `BudgetAccessDeniedError`             | `budgets.service.ts`          | Forbidden    |
-| `InvalidServiceStatusTransitionError` | `service-requests.service.ts` | BadRequest   |
+| Exception                             | Usada en                       | HTTP mapping |
+| ------------------------------------- | ------------------------------ | ------------ |
+| `BudgetNotPendingError`               | `budgets.service.ts`           | BadRequest   |
+| `BudgetVersionConflictError`          | `budgets.service.ts`           | Conflict     |
+| `CategoryHasReferencingTasksError`    | `categories.service.ts`        | BadRequest   |
+| `TaskNotCompletableError`             | `task-lifecycle.service.ts`    | BadRequest   |
+| `InvalidBudgetTransitionError`        | `budgets.service.ts`           | BadRequest   |
+| `UserAlreadyHasPasswordError`         | `auth.service.ts`              | BadRequest   |
+| `BudgetAccessDeniedError`             | `budgets.service.ts`           | Forbidden    |
+| `InvalidServiceStatusTransitionError` | `service-requests.service.ts`  | BadRequest   |
+| `ServiceRequestNotEditableError`      | `service-requests.service.ts`  | BadRequest   |
+| `ServiceRequestAccessDeniedError`     | `service-requests.service.ts`  | Forbidden    |
+| `ServiceRequestTerminalError`         | `service-requests.service.ts`  | BadRequest   |
+| `TaskPropertyMismatchError`           | `service-requests.service.ts`  | BadRequest   |
+| `PropertyAccessDeniedError`           | `properties.service.ts`        | Forbidden    |
+| `PlanAccessDeniedError`               | `maintenance-plans.service.ts` | Forbidden    |
+| `TaskAccessDeniedError`               | `task-lifecycle.service.ts`    | Forbidden    |
+| `DuplicateClientEmailError`           | `clients.service.ts`           | Conflict     |
 
 **Regla:** los repositories NUNCA importan `@nestjs/common` exceptions. Solo lanzan `Error` subclasses de dominio.
 

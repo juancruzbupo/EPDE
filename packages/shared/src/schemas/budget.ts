@@ -23,12 +23,15 @@ const budgetLineItemSchema = z.object({
     .string()
     .min(1, 'La descripción es requerida')
     .max(500, 'La descripción no puede superar 500 caracteres'),
-  quantity: z.coerce.number().positive('La cantidad debe ser mayor a 0'),
-  unitPrice: z.coerce.number().nonnegative('El precio unitario no puede ser negativo'),
+  quantity: z.coerce.number().positive('La cantidad debe ser mayor a 0').max(999_999),
+  unitPrice: z.coerce
+    .number()
+    .nonnegative('El precio unitario no puede ser negativo')
+    .max(999_999_999),
 });
 
 export const respondBudgetSchema = z.object({
-  lineItems: z.array(budgetLineItemSchema).min(1, 'Debe agregar al menos un ítem'),
+  lineItems: z.array(budgetLineItemSchema).min(1, 'Debe agregar al menos un ítem').max(50),
   estimatedDays: z.coerce
     .number()
     .int()

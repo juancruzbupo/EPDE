@@ -1,9 +1,7 @@
 'use client';
 
 import type { ServiceRequestAttachmentPublic } from '@epde/shared';
-import { isServiceRequestTerminal } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatRelativeDate, isServiceRequestTerminal } from '@epde/shared';
 import { Download, Loader2, Paperclip, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
 
@@ -24,7 +22,7 @@ function AttachmentItem({ attachment }: { attachment: ServiceRequestAttachmentPu
       <div className="flex-1 overflow-hidden">
         <p className="truncate text-sm font-medium">{attachment.fileName}</p>
         <p className="text-muted-foreground text-xs">
-          {formatDistanceToNow(new Date(attachment.createdAt), { addSuffix: true, locale: es })}
+          {formatRelativeDate(new Date(attachment.createdAt))}
         </p>
       </div>
       <Download className="text-muted-foreground h-4 w-4 shrink-0" />

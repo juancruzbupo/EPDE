@@ -1,5 +1,6 @@
 'use client';
 
+import { setPasswordSchema } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
@@ -12,17 +13,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { setPassword } from '@/lib/auth';
 
-const schema = z
-  .object({
-    newPassword: z
-      .string()
-      .min(8, 'La contraseña debe tener al menos 8 caracteres')
-      .max(128, 'La contraseña no puede superar 128 caracteres')
-      .regex(/[A-Z]/, 'Debe contener al menos una mayúscula')
-      .regex(/[a-z]/, 'Debe contener al menos una minúscula')
-      .regex(/[0-9]/, 'Debe contener al menos un número'),
-    confirmPassword: z.string(),
-  })
+/** Extends shared password rules with client-side confirmPassword refinement. */
+const schema = setPasswordSchema
+  .pick({ newPassword: true })
+  .extend({ confirmPassword: z.string() })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: 'Las contraseñas no coinciden',
     path: ['confirmPassword'],

@@ -2,14 +2,13 @@
 
 import type { ServiceRequestPublic } from '@epde/shared';
 import {
+  formatRelativeDate,
   SERVICE_STATUS_LABELS,
   SERVICE_STATUS_VARIANT,
   SERVICE_URGENCY_LABELS,
   ServiceStatus,
   URGENCY_VARIANT,
 } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
 import {
   AlertTriangle,
   AlignLeft,
@@ -158,12 +157,7 @@ export function ServiceRequestDetail({
                     <Calendar className="h-3.5 w-3.5" />
                     Fecha de creación
                   </dt>
-                  <dd className="font-medium">
-                    {formatDistanceToNow(new Date(request.createdAt), {
-                      addSuffix: true,
-                      locale: es,
-                    })}
-                  </dd>
+                  <dd className="font-medium">{formatRelativeDate(new Date(request.createdAt))}</dd>
                 </div>
                 {request.task && (
                   <div className="space-y-1">

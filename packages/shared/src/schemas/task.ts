@@ -84,12 +84,14 @@ export const updateTaskWithRecurrenceSchema = updateTaskSchema.superRefine(custo
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
 
 export const reorderTasksSchema = z.object({
-  tasks: z.array(
-    z.object({
-      id: z.string().uuid(),
-      order: z.number().int().min(0),
-    }),
-  ),
+  tasks: z
+    .array(
+      z.object({
+        id: z.string().uuid(),
+        order: z.number().int().min(0),
+      }),
+    )
+    .max(500),
 });
 
 export type ReorderTasksInput = z.infer<typeof reorderTasksSchema>;

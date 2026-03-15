@@ -1,7 +1,5 @@
 import type { TaskPublic } from '@epde/shared';
-import { TaskStatus } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatRelativeDate, TaskStatus } from '@epde/shared';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import {
@@ -63,9 +61,7 @@ function TaskCard({ task, planId }: { task: TaskPublic; planId: string }) {
       <View className="ml-4 flex-row items-center justify-between">
         <TaskStatusBadge status={task.status} />
         <Text style={TYPE.bodySm} className="text-muted-foreground">
-          {task.nextDueDate
-            ? formatDistanceToNow(new Date(task.nextDueDate), { addSuffix: true, locale: es })
-            : 'Según detección'}
+          {task.nextDueDate ? formatRelativeDate(new Date(task.nextDueDate)) : 'Según detección'}
         </Text>
       </View>
     </Pressable>

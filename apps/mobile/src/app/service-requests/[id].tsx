@@ -3,8 +3,8 @@ import type {
   ServiceRequestAuditLogPublic,
   ServiceRequestCommentPublic,
 } from '@epde/shared';
-import { isServiceRequestTerminal, ServiceStatus } from '@epde/shared';
-import { format, formatDistanceToNow } from 'date-fns';
+import { formatRelativeDate, isServiceRequestTerminal, ServiceStatus } from '@epde/shared';
+import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams } from 'expo-router';
@@ -71,8 +71,7 @@ function AuditLogEntry({ entry }: { entry: ServiceRequestAuditLogPublic }) {
         </Text>
       )}
       <Text style={TYPE.bodySm} className="text-muted-foreground">
-        {entry.user.name} ·{' '}
-        {formatDistanceToNow(new Date(entry.changedAt), { addSuffix: true, locale: es })}
+        {entry.user.name} · {formatRelativeDate(new Date(entry.changedAt))}
       </Text>
     </View>
   );
@@ -86,7 +85,7 @@ function CommentItem({ comment }: { comment: ServiceRequestCommentPublic }) {
           {comment.user.name}
         </Text>
         <Text style={TYPE.bodySm} className="text-muted-foreground">
-          {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: es })}
+          {formatRelativeDate(new Date(comment.createdAt))}
         </Text>
       </View>
       <Text style={TYPE.bodyMd} className="text-foreground mt-1">
@@ -106,7 +105,7 @@ function AttachmentItem({ attachment }: { attachment: ServiceRequestAttachmentPu
         {attachment.fileName}
       </Text>
       <Text style={TYPE.bodySm} className="text-muted-foreground">
-        {formatDistanceToNow(new Date(attachment.createdAt), { addSuffix: true, locale: es })}
+        {formatRelativeDate(new Date(attachment.createdAt))}
       </Text>
     </Pressable>
   );

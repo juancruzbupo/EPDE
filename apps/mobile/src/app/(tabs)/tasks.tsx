@@ -1,7 +1,5 @@
 import type { TaskPriority, TaskStatus } from '@epde/shared';
-import { TASK_STATUS_LABELS, TaskStatus as TS } from '@epde/shared';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatRelativeDate, TASK_STATUS_LABELS, TaskStatus as TS } from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { memo, useCallback, useMemo, useState } from 'react';
 import {
@@ -74,7 +72,7 @@ const TaskCard = memo(function TaskCard({ task }: { task: TaskListItem }) {
         {task.nextDueDate && (
           <Text>
             {' · '}
-            {formatDistanceToNow(new Date(task.nextDueDate), { addSuffix: true, locale: es })}
+            {formatRelativeDate(new Date(task.nextDueDate))}
           </Text>
         )}
       </Text>
