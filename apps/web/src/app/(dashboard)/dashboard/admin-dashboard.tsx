@@ -15,6 +15,7 @@ import {
   Users,
   Wrench,
 } from 'lucide-react';
+import Link from 'next/link';
 
 import { BudgetPipelineChart } from '@/components/charts/budget-pipeline-chart';
 import { CategoryCostsChart } from '@/components/charts/category-costs-chart';
@@ -124,6 +125,31 @@ export function AdminDashboard() {
           </>
         ) : null}
       </Wrapper>
+
+      {/* Acciones Rápidas */}
+      <div className="mt-6 grid gap-3 sm:grid-cols-3">
+        <Link
+          href="/budgets?status=PENDING"
+          className="bg-card hover:bg-accent flex items-center gap-3 rounded-lg border p-4 transition-colors"
+        >
+          <FileText className="text-muted-foreground h-5 w-5 shrink-0" />
+          <span className="text-sm font-medium">Presupuestos por responder</span>
+        </Link>
+        <Link
+          href="/service-requests?status=OPEN"
+          className="bg-card hover:bg-accent flex items-center gap-3 rounded-lg border p-4 transition-colors"
+        >
+          <Wrench className="text-muted-foreground h-5 w-5 shrink-0" />
+          <span className="text-sm font-medium">Servicios abiertos</span>
+        </Link>
+        <Link
+          href="/clients?status=INVITED"
+          className="bg-card hover:bg-accent flex items-center gap-3 rounded-lg border p-4 transition-colors"
+        >
+          <Users className="text-muted-foreground h-5 w-5 shrink-0" />
+          <span className="text-sm font-medium">Clientes por activar</span>
+        </Link>
+      </div>
 
       {/* Row 2 — Completion Trend + Condition Distribution */}
       <div className="mt-6 grid gap-6 lg:grid-cols-3">

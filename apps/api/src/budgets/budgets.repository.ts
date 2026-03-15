@@ -45,6 +45,7 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
     take?: number;
     status?: BudgetStatus;
     propertyId?: string;
+    search?: string;
     userId?: string;
   }): Promise<PaginatedResult<BudgetRequest>> {
     const where: Prisma.BudgetRequestWhereInput = {};
@@ -59,6 +60,13 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
 
     if (params.userId) {
       where.requestedBy = params.userId;
+    }
+
+    if (params.search) {
+      where.OR = [
+        { title: { contains: params.search, mode: 'insensitive' } },
+        { property: { address: { contains: params.search, mode: 'insensitive' } } },
+      ];
     }
 
     const findParams: FindManyParams = {

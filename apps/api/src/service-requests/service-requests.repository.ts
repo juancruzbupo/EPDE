@@ -58,6 +58,7 @@ export class ServiceRequestsRepository extends BaseRepository<ServiceRequest, 's
     status?: ServiceStatus;
     urgency?: ServiceUrgency;
     propertyId?: string;
+    search?: string;
     userId?: string;
   }): Promise<PaginatedResult<ServiceRequest>> {
     const where: Prisma.ServiceRequestWhereInput = {};
@@ -66,6 +67,13 @@ export class ServiceRequestsRepository extends BaseRepository<ServiceRequest, 's
     if (params.urgency) where.urgency = params.urgency;
     if (params.propertyId) where.propertyId = params.propertyId;
     if (params.userId) where.requestedBy = params.userId;
+
+    if (params.search) {
+      where.OR = [
+        { title: { contains: params.search, mode: 'insensitive' } },
+        { property: { address: { contains: params.search, mode: 'insensitive' } } },
+      ];
+    }
 
     const findParams: FindManyParams = {
       cursor: params.cursor,

@@ -10,9 +10,11 @@ import { DataTable } from '@/components/data-table/data-table';
 import { ErrorState } from '@/components/error-state';
 import { FilterSelect } from '@/components/filter-select';
 import { PageHeader } from '@/components/page-header';
+import { SearchInput } from '@/components/search-input';
 import { Button } from '@/components/ui/button';
 import { PageTransition } from '@/components/ui/page-transition';
 import { useBudgets } from '@/hooks/use-budgets';
+import { useDebounce } from '@/hooks/use-debounce';
 import type { BudgetRequestPublic } from '@/lib/api/budgets';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -27,14 +29,18 @@ const statusOptions = Object.entries(BUDGET_STATUS_LABELS).map(([value, label]) 
 export default function BudgetsPage() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
+  const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all');
   const [createOpen, setCreateOpen] = useState(false);
 
+  const debouncedSearch = useDebounce(search);
+
   const filters = useMemo(
     () => ({
+      search: debouncedSearch || undefined,
       status: status === 'all' ? undefined : (status as BudgetStatus),
     }),
-    [status],
+    [debouncedSearch, status],
   );
 
   const { data, isLoading, isError, refetch, hasNextPage, fetchNextPage } = useBudgets(filters);
@@ -58,6 +64,11 @@ export default function BudgetsPage() {
       />
 
       <div className="mb-4 flex flex-wrap gap-3">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Buscar por título o dirección..."
+        />
         <FilterSelect
           value={status}
           onChange={setStatus}

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -41,6 +42,8 @@ export default function SetPasswordScreen() {
   const { token } = useLocalSearchParams<{ token: string }>();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     control,
@@ -60,6 +63,7 @@ export default function SetPasswordScreen() {
     setIsLoading(true);
     try {
       await setPassword(token, data.newPassword);
+      Alert.alert('Éxito', 'Contraseña configurada exitosamente');
       router.replace('/(auth)/login');
     } catch {
       setError('Token inválido o expirado.');
@@ -92,21 +96,46 @@ export default function SetPasswordScreen() {
             control={control}
             name="newPassword"
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3"
-                style={TYPE.bodyLg}
-                placeholder="••••••••"
-                placeholderTextColor={COLORS.mutedForeground}
-                secureTextEntry
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-              />
+              <View className="relative">
+                <TextInput
+                  className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3 pr-12"
+                  style={TYPE.bodyLg}
+                  placeholder="••••••••"
+                  placeholderTextColor={COLORS.mutedForeground}
+                  secureTextEntry={!showPassword}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+                <Pressable
+                  onPress={() => setShowPassword(!showPassword)}
+                  className="absolute top-3 right-3"
+                  hitSlop={8}
+                >
+                  <Text className="text-muted-foreground text-sm">
+                    {showPassword ? 'Ocultar' : 'Mostrar'}
+                  </Text>
+                </Pressable>
+              </View>
             )}
           />
           {errors.newPassword && (
             <Text className="text-destructive mb-2 text-xs">{errors.newPassword.message}</Text>
           )}
+          <View className="mt-1 mb-2 space-y-0.5">
+            <Text style={TYPE.bodySm} className="text-muted-foreground">
+              Mínimo 8 caracteres
+            </Text>
+            <Text style={TYPE.bodySm} className="text-muted-foreground">
+              Al menos una mayúscula
+            </Text>
+            <Text style={TYPE.bodySm} className="text-muted-foreground">
+              Al menos una minúscula
+            </Text>
+            <Text style={TYPE.bodySm} className="text-muted-foreground">
+              Al menos un número
+            </Text>
+          </View>
 
           <Text style={TYPE.labelLg} className="text-foreground mt-3 mb-1.5">
             Confirmar Contraseña
@@ -115,16 +144,27 @@ export default function SetPasswordScreen() {
             control={control}
             name="confirmPassword"
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3"
-                style={TYPE.bodyLg}
-                placeholder="••••••••"
-                placeholderTextColor={COLORS.mutedForeground}
-                secureTextEntry
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-              />
+              <View className="relative">
+                <TextInput
+                  className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3 pr-12"
+                  style={TYPE.bodyLg}
+                  placeholder="••••••••"
+                  placeholderTextColor={COLORS.mutedForeground}
+                  secureTextEntry={!showConfirmPassword}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+                <Pressable
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute top-3 right-3"
+                  hitSlop={8}
+                >
+                  <Text className="text-muted-foreground text-sm">
+                    {showConfirmPassword ? 'Ocultar' : 'Mostrar'}
+                  </Text>
+                </Pressable>
+              </View>
             )}
           />
           {errors.confirmPassword && (

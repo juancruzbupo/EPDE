@@ -58,6 +58,7 @@ export class ServiceRequestsService {
       status: filters.status,
       urgency: filters.urgency,
       propertyId: filters.propertyId,
+      search: filters.search,
       userId: currentUser.role === UserRole.CLIENT ? currentUser.id : undefined,
     });
   }

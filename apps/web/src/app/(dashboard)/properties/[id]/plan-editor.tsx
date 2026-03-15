@@ -2,6 +2,7 @@
 
 import {
   PLAN_STATUS_LABELS,
+  PlanStatus,
   PRIORITY_VARIANT,
   RECURRENCE_TYPE_LABELS,
   TASK_PRIORITY_LABELS,
@@ -10,7 +11,7 @@ import {
   TaskPriority,
   TaskStatus,
 } from '@epde/shared';
-import { ChevronDown, ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Archive, ChevronDown, ChevronRight, Pencil, Play, Plus, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { ConfirmDialog } from '@/components/confirm-dialog';
@@ -21,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks/use-debounce';
-import { usePlan } from '@/hooks/use-plans';
+import { usePlan, useUpdatePlan } from '@/hooks/use-plans';
 import { useRemoveTask } from '@/hooks/use-task-operations';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
 import { TASK_STATUS_COLORS, TASK_STATUS_ICONS, TASK_STATUS_ORDER } from '@/lib/style-maps';
@@ -160,10 +161,12 @@ function CategorySection({
 export function PlanEditor({ planId }: PlanEditorProps) {
   const { data: plan, isLoading, isError, refetch } = usePlan(planId);
   const removeTask = useRemoveTask();
+  const updatePlan = useUpdatePlan();
 
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskPublic | null>(null);
   const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
+  const [statusTransition, setStatusTransition] = useState<PlanStatus | null>(null);
   const [search, setSearch] = useState('');
   const [priority, setPriority] = useState<TaskPriority | 'all'>('all');
   const debouncedSearch = useDebounce(search);
@@ -224,9 +227,29 @@ export function PlanEditor({ planId }: PlanEditorProps) {
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle className="text-lg">{plan.name}</CardTitle>
-          <Badge variant="outline" className="mt-1">
-            {PLAN_STATUS_LABELS[plan.status] ?? plan.status}
-          </Badge>
+          <div className="mt-1 flex items-center gap-2">
+            <Badge variant="outline">{PLAN_STATUS_LABELS[plan.status] ?? plan.status}</Badge>
+            {plan.status === PlanStatus.DRAFT && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setStatusTransition(PlanStatus.ACTIVE)}
+              >
+                <Play className="mr-1.5 h-3.5 w-3.5" />
+                Activar Plan
+              </Button>
+            )}
+            {plan.status === PlanStatus.ACTIVE && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setStatusTransition(PlanStatus.ARCHIVED)}
+              >
+                <Archive className="mr-1.5 h-3.5 w-3.5" />
+                Archivar Plan
+              </Button>
+            )}
+          </div>
         </div>
         <Button
           size="sm"
@@ -324,6 +347,26 @@ export function PlanEditor({ planId }: PlanEditorProps) {
           }
         }}
         isLoading={removeTask.isPending}
+      />
+
+      <ConfirmDialog
+        open={!!statusTransition}
+        onOpenChange={() => setStatusTransition(null)}
+        title={statusTransition === PlanStatus.ACTIVE ? 'Activar plan' : 'Archivar plan'}
+        description={
+          statusTransition === PlanStatus.ACTIVE
+            ? '¿Estás seguro de que querés activar este plan?'
+            : '¿Estás seguro de que querés archivar este plan? Esta acción no se puede deshacer.'
+        }
+        onConfirm={() => {
+          if (statusTransition) {
+            updatePlan.mutate(
+              { id: planId, status: statusTransition },
+              { onSuccess: () => setStatusTransition(null) },
+            );
+          }
+        }}
+        isLoading={updatePlan.isPending}
       />
     </Card>
   );

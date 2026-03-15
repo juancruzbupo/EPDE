@@ -64,6 +64,7 @@ export type UpdateBudgetStatusInput = z.infer<typeof updateBudgetStatusSchema>;
 export const budgetFiltersSchema = z.object({
   status: z.enum(BUDGET_STATUS_VALUES).optional(),
   propertyId: z.string().uuid().optional(),
+  search: z.string().max(200).optional(),
   cursor: z.string().uuid().optional(),
   take: z.coerce.number().int().min(1).max(PAGINATION_MAX_TAKE).default(PAGINATION_DEFAULT_TAKE),
 });

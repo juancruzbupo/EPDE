@@ -113,7 +113,14 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
                         <User className="h-3.5 w-3.5" />
                         Cliente
                       </dt>
-                      <dd className="font-medium">{property.user.name}</dd>
+                      <dd className="font-medium">
+                        <Link
+                          href={`/clients/${property.user.id}`}
+                          className="text-primary hover:underline"
+                        >
+                          {property.user.name}
+                        </Link>
+                      </dd>
                     </div>
                   )}
                 </dl>

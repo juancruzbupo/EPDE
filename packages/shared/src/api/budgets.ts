@@ -19,6 +19,7 @@ import type { BudgetStatus } from '../types/enums';
 export interface BudgetFilters {
   status?: BudgetStatus;
   propertyId?: string;
+  search?: string;
   cursor?: string;
   take?: number;
 }

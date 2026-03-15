@@ -10,8 +10,10 @@ import { DataTable } from '@/components/data-table/data-table';
 import { ErrorState } from '@/components/error-state';
 import { FilterSelect } from '@/components/filter-select';
 import { PageHeader } from '@/components/page-header';
+import { SearchInput } from '@/components/search-input';
 import { Button } from '@/components/ui/button';
 import { PageTransition } from '@/components/ui/page-transition';
+import { useDebounce } from '@/hooks/use-debounce';
 import { useServiceRequests } from '@/hooks/use-service-requests';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -32,16 +34,20 @@ export default function ServiceRequestsPage() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
 
+  const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all');
   const [urgency, setUrgency] = useState('all');
   const [createOpen, setCreateOpen] = useState(false);
 
+  const debouncedSearch = useDebounce(search);
+
   const filters = useMemo(
     () => ({
+      search: debouncedSearch || undefined,
       status: status === 'all' ? undefined : (status as ServiceStatus),
       urgency: urgency === 'all' ? undefined : (urgency as ServiceUrgency),
     }),
-    [status, urgency],
+    [debouncedSearch, status, urgency],
   );
 
   const { data, isLoading, isError, refetch, hasNextPage, fetchNextPage } =
@@ -66,6 +72,11 @@ export default function ServiceRequestsPage() {
       />
 
       <div className="mb-4 flex flex-wrap gap-3">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Buscar por título o dirección..."
+        />
         <FilterSelect
           value={status}
           onChange={setStatus}

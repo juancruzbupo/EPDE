@@ -49,6 +49,7 @@ export class BudgetsService {
       take: filters.take,
       status: filters.status,
       propertyId: filters.propertyId,
+      search: filters.search,
       userId: currentUser.role === UserRole.CLIENT ? currentUser.id : undefined,
     });
   }

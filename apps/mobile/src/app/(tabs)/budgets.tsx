@@ -9,6 +9,7 @@ import {
   RefreshControl,
   ScrollView,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 
@@ -18,6 +19,8 @@ import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { BudgetStatusBadge } from '@/components/status-badge';
 import { useBudgets } from '@/hooks/use-budgets';
+import { useDebounce } from '@/hooks/use-debounce';
+import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 
 const FILTERS = [
@@ -68,13 +71,21 @@ const BudgetCard = memo(function BudgetCard({ budget }: { budget: BudgetRequestP
 });
 
 export default function BudgetsScreen() {
+  const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<BudgetStatus | undefined>(undefined);
   const [createModalVisible, setCreateModalVisible] = useState(false);
+  const debouncedSearch = useDebounce(search);
+
+  const filters = {
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    ...(statusFilter ? { status: statusFilter } : {}),
+  };
 
   const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useBudgets(statusFilter ? { status: statusFilter } : {});
+    useBudgets(filters);
 
   const budgets = data?.pages.flatMap((page) => page.data) ?? [];
+  const hasActiveFilters = !!debouncedSearch || !!statusFilter;
 
   if (error && !data) {
     return <ErrorState onRetry={refetch} />;
@@ -133,6 +144,27 @@ export default function BudgetsScreen() {
                 </Text>
               </Pressable>
             </View>
+
+            {/* Search */}
+            <View className="border-border bg-card mb-3 flex-row items-center rounded-lg border px-3">
+              <Text className="text-muted-foreground mr-2">🔍</Text>
+              <TextInput
+                style={TYPE.bodyMd}
+                className="text-foreground flex-1 py-2.5"
+                placeholder="Buscar por título o dirección..."
+                placeholderTextColor={COLORS.mutedForeground}
+                value={search}
+                onChangeText={setSearch}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+              {search.length > 0 && (
+                <Pressable onPress={() => setSearch('')}>
+                  <Text className="text-muted-foreground text-lg">✕</Text>
+                </Pressable>
+              )}
+            </View>
+
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -168,7 +200,11 @@ export default function BudgetsScreen() {
           !isLoading ? (
             <EmptyState
               title="Sin presupuestos"
-              message="Crea tu primer presupuesto para solicitar una cotizacion."
+              message={
+                hasActiveFilters
+                  ? 'No se encontraron presupuestos con esos filtros.'
+                  : 'Crea tu primer presupuesto para solicitar una cotizacion.'
+              }
             />
           ) : null
         }

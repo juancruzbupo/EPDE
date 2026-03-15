@@ -21,6 +21,7 @@ export default function LoginScreen() {
   const login = useAuthStore((s) => s.login);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     control,
@@ -89,16 +90,27 @@ export default function LoginScreen() {
             control={control}
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3"
-                style={TYPE.bodyLg}
-                placeholder="••••••"
-                placeholderTextColor={COLORS.mutedForeground}
-                secureTextEntry
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-              />
+              <View className="relative">
+                <TextInput
+                  className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3 pr-12"
+                  style={TYPE.bodyLg}
+                  placeholder="••••••"
+                  placeholderTextColor={COLORS.mutedForeground}
+                  secureTextEntry={!showPassword}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+                <Pressable
+                  onPress={() => setShowPassword(!showPassword)}
+                  className="absolute top-3 right-3"
+                  hitSlop={8}
+                >
+                  <Text className="text-muted-foreground text-sm">
+                    {showPassword ? 'Ocultar' : 'Mostrar'}
+                  </Text>
+                </Pressable>
+              </View>
             )}
           />
           {errors.password && (

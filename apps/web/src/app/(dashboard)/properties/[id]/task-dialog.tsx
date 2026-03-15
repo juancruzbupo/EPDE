@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { useAddTask } from '@/hooks/use-plans';
 import { useUpdateTask } from '@/hooks/use-task-operations';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
@@ -228,7 +229,7 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
 
           <div className="space-y-2">
             <Label htmlFor="task-description">Descripción (opcional)</Label>
-            <Input id="task-description" {...register('description')} />
+            <Textarea id="task-description" rows={3} {...register('description')} />
           </div>
 
           <div className="grid grid-cols-2 gap-4">

@@ -9,6 +9,7 @@ import {
   RefreshControl,
   ScrollView,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 
@@ -17,7 +18,9 @@ import { CreateServiceRequestModal } from '@/components/create-service-request-m
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { ServiceStatusBadge, UrgencyBadge } from '@/components/status-badge';
+import { useDebounce } from '@/hooks/use-debounce';
 import { useServiceRequests } from '@/hooks/use-service-requests';
+import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { defaultScreenOptions } from '@/lib/screen-options';
 
@@ -72,11 +75,14 @@ const ServiceRequestCard = memo(function ServiceRequestCard({
 });
 
 export default function ServiceRequestsScreen() {
+  const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<ServiceStatus | undefined>(undefined);
   const [urgencyFilter, setUrgencyFilter] = useState<ServiceUrgency | undefined>(undefined);
   const [createModalVisible, setCreateModalVisible] = useState(false);
+  const debouncedSearch = useDebounce(search);
 
   const filters = {
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
     ...(statusFilter ? { status: statusFilter } : {}),
     ...(urgencyFilter ? { urgency: urgencyFilter } : {}),
   };
@@ -85,6 +91,7 @@ export default function ServiceRequestsScreen() {
     useServiceRequests(filters);
 
   const requests = data?.pages.flatMap((page) => page.data) ?? [];
+  const hasActiveFilters = !!debouncedSearch || !!statusFilter || !!urgencyFilter;
 
   const onRefresh = useCallback(() => {
     refetch();
@@ -149,6 +156,27 @@ export default function ServiceRequestsScreen() {
                 </Text>
               </Pressable>
             </View>
+
+            {/* Search */}
+            <View className="border-border bg-card mb-3 flex-row items-center rounded-lg border px-3">
+              <Text className="text-muted-foreground mr-2">🔍</Text>
+              <TextInput
+                style={TYPE.bodyMd}
+                className="text-foreground flex-1 py-2.5"
+                placeholder="Buscar por título o dirección..."
+                placeholderTextColor={COLORS.mutedForeground}
+                value={search}
+                onChangeText={setSearch}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+              {search.length > 0 && (
+                <Pressable onPress={() => setSearch('')}>
+                  <Text className="text-muted-foreground text-lg">✕</Text>
+                </Pressable>
+              )}
+            </View>
+
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -211,7 +239,11 @@ export default function ServiceRequestsScreen() {
           !isLoading ? (
             <EmptyState
               title="Sin solicitudes"
-              message="Crea una solicitud para reportar un problema o pedir asistencia."
+              message={
+                hasActiveFilters
+                  ? 'No se encontraron solicitudes con esos filtros.'
+                  : 'Crea una solicitud para reportar un problema o pedir asistencia.'
+              }
             />
           ) : null
         }
