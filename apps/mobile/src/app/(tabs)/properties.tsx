@@ -78,18 +78,6 @@ export default function PropertiesScreen() {
 
   const properties = data?.pages.flatMap((page) => page.data) ?? [];
 
-  if (error && !data) {
-    return <ErrorState onRetry={refetch} />;
-  }
-
-  if (isLoading && !data) {
-    return (
-      <View className="bg-background flex-1 items-center justify-center">
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
-
   const onRefresh = useCallback(() => {
     refetch();
   }, [refetch]);
@@ -101,6 +89,18 @@ export default function PropertiesScreen() {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const hasActiveFilters = !!debouncedSearch || !!typeFilter;
+
+  if (error && !data) {
+    return <ErrorState onRetry={refetch} />;
+  }
+
+  if (isLoading && !data) {
+    return (
+      <View className="bg-background flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   return (
     <FlatList

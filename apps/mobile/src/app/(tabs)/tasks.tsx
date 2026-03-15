@@ -128,6 +128,12 @@ export default function TasksScreen() {
     return counts;
   }, [tasks]);
 
+  const onRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  const hasActiveFilters = !!statusFilter || !!priorityFilter || !!debouncedSearch;
+
   if (error && !tasks) {
     return <ErrorState onRetry={refetch} />;
   }
@@ -139,12 +145,6 @@ export default function TasksScreen() {
       </View>
     );
   }
-
-  const onRefresh = useCallback(() => {
-    refetch();
-  }, [refetch]);
-
-  const hasActiveFilters = !!statusFilter || !!priorityFilter || !!debouncedSearch;
 
   return (
     <View className="bg-background flex-1">

@@ -104,10 +104,6 @@ export default function DashboardScreen() {
     }));
   }, [analytics?.costHistory]);
 
-  if ((statsError || tasksError) && !stats && !tasks) {
-    return <ErrorState onRetry={onRefresh} message="No se pudieron cargar los datos del panel." />;
-  }
-
   const ListHeader = useCallback(
     () => (
       <View>
@@ -218,6 +214,10 @@ export default function DashboardScreen() {
     ),
     [],
   );
+
+  if ((statsError || tasksError) && !stats && !tasks) {
+    return <ErrorState onRetry={onRefresh} message="No se pudieron cargar los datos del panel." />;
+  }
 
   return (
     <FlatList

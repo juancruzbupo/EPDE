@@ -14,7 +14,6 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -69,7 +68,6 @@ function AuthGate() {
 }
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const checkAuth = useAuthStore((s) => s.checkAuth);
 
   const [fontsLoaded, fontError] = useFonts({
@@ -101,7 +99,7 @@ export default function RootLayout() {
           persistOptions={{ persister: asyncStoragePersister }}
         >
           <AuthGate />
-          <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+          <StatusBar style="auto" />
         </PersistQueryClientProvider>
       </ErrorBoundary>
     </GestureHandlerRootView>
