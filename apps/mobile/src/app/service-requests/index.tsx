@@ -1,4 +1,5 @@
-import type { ServiceRequestPublic, ServiceStatus } from '@epde/shared';
+import type { ServiceRequestPublic, ServiceStatus, ServiceUrgency } from '@epde/shared';
+import { SERVICE_URGENCY_LABELS } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Stack, useRouter } from 'expo-router';
@@ -25,11 +26,19 @@ import { defaultScreenOptions } from '@/lib/screen-options';
 const STATUS_FILTERS = [
   { key: undefined, label: 'Todos' },
   { key: 'OPEN', label: 'Abiertos' },
-  { key: 'IN_REVIEW', label: 'En Revision' },
+  { key: 'IN_REVIEW', label: 'En Revisión' },
   { key: 'IN_PROGRESS', label: 'En Progreso' },
   { key: 'RESOLVED', label: 'Resueltos' },
   { key: 'CLOSED', label: 'Cerrados' },
 ] as const;
+
+const URGENCY_FILTERS: { key: ServiceUrgency | undefined; label: string }[] = [
+  { key: undefined, label: 'Todas' },
+  { key: 'URGENT', label: SERVICE_URGENCY_LABELS.URGENT },
+  { key: 'HIGH', label: SERVICE_URGENCY_LABELS.HIGH },
+  { key: 'MEDIUM', label: SERVICE_URGENCY_LABELS.MEDIUM },
+  { key: 'LOW', label: SERVICE_URGENCY_LABELS.LOW },
+];
 
 const ServiceRequestCard = memo(function ServiceRequestCard({
   request,
@@ -64,10 +73,16 @@ const ServiceRequestCard = memo(function ServiceRequestCard({
 
 export default function ServiceRequestsScreen() {
   const [statusFilter, setStatusFilter] = useState<ServiceStatus | undefined>(undefined);
+  const [urgencyFilter, setUrgencyFilter] = useState<ServiceUrgency | undefined>(undefined);
   const [createModalVisible, setCreateModalVisible] = useState(false);
 
+  const filters = {
+    ...(statusFilter ? { status: statusFilter } : {}),
+    ...(urgencyFilter ? { urgency: urgencyFilter } : {}),
+  };
+
   const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useServiceRequests(statusFilter ? { status: statusFilter } : {});
+    useServiceRequests(filters);
 
   const requests = data?.pages.flatMap((page) => page.data) ?? [];
 
@@ -147,6 +162,33 @@ export default function ServiceRequestsScreen() {
                     style={TYPE.labelMd}
                     className={
                       statusFilter === f.key ? 'text-primary-foreground' : 'text-foreground'
+                    }
+                  >
+                    {f.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+
+            {/* Urgency filter */}
+            <Text style={TYPE.labelMd} className="text-muted-foreground mt-3 mb-1">
+              Urgencia
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ gap: 8 }}
+            >
+              {URGENCY_FILTERS.map((f) => (
+                <Pressable
+                  key={f.label}
+                  onPress={() => setUrgencyFilter(f.key)}
+                  className={`rounded-full px-3 py-1.5 ${urgencyFilter === f.key ? 'bg-primary' : 'bg-card border-border border'}`}
+                >
+                  <Text
+                    style={TYPE.labelMd}
+                    className={
+                      urgencyFilter === f.key ? 'text-primary-foreground' : 'text-foreground'
                     }
                   >
                     {f.label}

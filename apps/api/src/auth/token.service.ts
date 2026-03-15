@@ -62,9 +62,9 @@ export class TokenService {
 
   /**
    * Generate a new token pair. Creates a new token family on login.
-   * If Redis is unavailable, logs a warning and returns tokens without persisting the family.
-   * The refresh token rotation will fail gracefully in that case (session won't be rotatable
-   * until Redis recovers), but login itself succeeds — availability over strict consistency.
+   * FAIL-FAST: without Redis, token revocation is impossible — issuing tokens
+   * without persistence is a security risk. Both login and refresh fail consistently
+   * when Redis is unavailable.
    */
   async generateTokenPair(user: { id: string; email: string; role: string }): Promise<TokenPair> {
     const family = randomUUID();
@@ -82,10 +82,11 @@ export class TokenService {
         JSON.stringify({ userId: user.id, generation }),
       );
     } catch (error) {
-      this.logger.warn(
-        `Redis unavailable during token generation for user ${user.id}: ${(error as Error).message}. ` +
-          `Tokens issued but refresh rotation will not work until Redis recovers.`,
+      this.logger.error(
+        `Redis unavailable during token generation for user ${user.id}: ${(error as Error).message}`,
+        (error as Error).stack,
       );
+      throw new ServiceUnavailableException('Auth service temporarily unavailable');
     }
 
     return { accessToken, refreshToken };

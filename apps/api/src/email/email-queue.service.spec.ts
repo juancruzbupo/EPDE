@@ -24,12 +24,16 @@ describe('EmailQueueService', () => {
     it('should call queue.add with jobName "invite" and correct data', async () => {
       await service.enqueueInvite('client@test.com', 'Juan', 'invite-token');
 
-      expect(mockQueue.add).toHaveBeenCalledWith('invite', {
-        type: 'invite',
-        to: 'client@test.com',
-        name: 'Juan',
-        token: 'invite-token',
-      });
+      expect(mockQueue.add).toHaveBeenCalledWith(
+        'invite',
+        {
+          type: 'invite',
+          to: 'client@test.com',
+          name: 'Juan',
+          token: 'invite-token',
+        },
+        { jobId: 'invite:client@test.com:invite-token' },
+      );
     });
   });
 
@@ -40,6 +44,7 @@ describe('EmailQueueService', () => {
       await service.enqueueTaskReminder(
         'client@test.com',
         'Juan',
+        'task-uuid-1',
         'Revisión HVAC',
         'Av. Corrientes 1234',
         dueDate,
@@ -53,6 +58,7 @@ describe('EmailQueueService', () => {
           type: 'taskReminder',
           dueDate: dueDate.toISOString(),
         }),
+        { jobId: 'taskReminder:client@test.com:task-uuid-1:2026-04-15' },
       );
       // Verify the date is a string, not a Date object
       const call = mockQueue.add.mock.calls[0][1] as { dueDate: unknown };
@@ -64,14 +70,18 @@ describe('EmailQueueService', () => {
     it('should call queue.add with jobName "budgetQuoted" and correct data', async () => {
       await service.enqueueBudgetQuoted('client@test.com', 'Juan', 'Pintura', 150000, 'budget-1');
 
-      expect(mockQueue.add).toHaveBeenCalledWith('budgetQuoted', {
-        type: 'budgetQuoted',
-        to: 'client@test.com',
-        name: 'Juan',
-        budgetTitle: 'Pintura',
-        totalAmount: 150000,
-        budgetId: 'budget-1',
-      });
+      expect(mockQueue.add).toHaveBeenCalledWith(
+        'budgetQuoted',
+        {
+          type: 'budgetQuoted',
+          to: 'client@test.com',
+          name: 'Juan',
+          budgetTitle: 'Pintura',
+          totalAmount: 150000,
+          budgetId: 'budget-1',
+        },
+        { jobId: 'budgetQuoted:client@test.com:budget-1' },
+      );
     });
   });
 
@@ -85,14 +95,18 @@ describe('EmailQueueService', () => {
         'budget-1',
       );
 
-      expect(mockQueue.add).toHaveBeenCalledWith('budgetStatus', {
-        type: 'budgetStatus',
-        to: 'client@test.com',
-        name: 'Juan',
-        budgetTitle: 'Pintura',
-        newStatus: 'APPROVED',
-        budgetId: 'budget-1',
-      });
+      expect(mockQueue.add).toHaveBeenCalledWith(
+        'budgetStatus',
+        {
+          type: 'budgetStatus',
+          to: 'client@test.com',
+          name: 'Juan',
+          budgetTitle: 'Pintura',
+          newStatus: 'APPROVED',
+          budgetId: 'budget-1',
+        },
+        { jobId: 'budgetStatus:client@test.com:budget-1:APPROVED' },
+      );
     });
   });
 });

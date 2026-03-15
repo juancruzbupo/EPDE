@@ -23,13 +23,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Build Docker image
         run: docker build -f apps/api/Dockerfile -t epde-api:scan .
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.31.0
+        uses: aquasecurity/trivy-action@76071ef0d7ec797419534a183b498b4d6366cf37 # 0.31.0
         with:
           image-ref: 'epde-api:scan'
           format: 'sarif'
@@ -37,20 +37,20 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Upload Trivy scan results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@9792ccaef0455e446c567163589397e8c3ac2e0d # v3
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
 
       - name: Generate SBOM
-        uses: anchore/sbom-action@v0.18.2
+        uses: anchore/sbom-action@f325610c9f50a54015d37c8d16cb3b0e2c8f4de0 # v0.18.0
         with:
           image: 'epde-api:scan'
           format: 'spdx-json'
           output-file: 'sbom.spdx.json'
 
       - name: Upload SBOM
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: sbom
           path: sbom.spdx.json

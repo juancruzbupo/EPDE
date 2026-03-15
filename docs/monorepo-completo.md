@@ -885,8 +885,9 @@ Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `
 
 ### Formato de Respuesta
 
-**Paginada**: `{ data: T[], nextCursor: string|null, hasMore: boolean, total: number }`
-**Singular**: Objeto directo (sin wrapper)
+**Paginada (listas)**: `{ data: T[], nextCursor: string|null, hasMore: boolean, total: number }`
+**Singular (GET detail)**: `{ data: T }`
+**Mutación (POST/PATCH/DELETE)**: `{ data: T | null, message: string }`
 **Error**: `{ statusCode: number, message: string|string[], error: string }`
 
 ---
@@ -923,7 +924,7 @@ uses: ci-reusable.yml (sin coverage ni spec enforcement) + deploy jobs
 | API     | 75         | 60       | 65        | 75    |
 | Shared  | 80         | 65       | 75        | 80    |
 | Web     | 70         | 70       | 65        | 70    |
-| Mobile  | 60         | 40       | 50        | 60    |
+| Mobile  | 60         | 42       | 50        | 60    |
 
 ### GitHub Actions CD
 
@@ -1021,7 +1022,7 @@ pnpm dev:mobile       # Expo dev server
 pnpm build            # Build completo
 pnpm lint             # ESLint
 pnpm typecheck        # TypeScript check
-pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo) — ~875 tests total
+pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo) — ~1160 tests total
 
 # Tests E2E (requiere DB + Redis)
 pnpm --filter @epde/api test:e2e

@@ -71,6 +71,7 @@ export class TaskReminderService {
       const emails: Array<{
         to: string;
         name: string;
+        taskId: string;
         taskName: string;
         propertyAddress: string;
         dueDate: Date;
@@ -105,6 +106,7 @@ export class TaskReminderService {
         emails.push({
           to: owner.email,
           name: owner.name,
+          taskId: task.id,
           taskName: task.name,
           propertyAddress: property.address,
           dueDate: task.nextDueDate,

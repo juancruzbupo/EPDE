@@ -11,6 +11,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { addTask, getAllTasks, getPlan, getPlans, updatePlan } from '@/lib/api/maintenance-plans';
+import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 
 export function usePlans() {
   return useQuery({
@@ -43,6 +44,7 @@ export function useUpdatePlan() {
       toast.success('Plan actualizado');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, vars.id] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, 'list'] });
+      invalidateDashboard(queryClient);
     },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al actualizar plan')),
   });

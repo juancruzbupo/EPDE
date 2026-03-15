@@ -13,10 +13,14 @@ function getDevApiUrl(): string {
   // On native device, extract the dev server host IP from Expo
   const hostUri = Constants.expoConfig?.hostUri;
   const host = hostUri?.split(':')[0];
-  if (host) return `http://${host}:3001/api/v1`;
 
-  // Fallback
-  return 'http://localhost:3001/api/v1';
+  if (!host) {
+    console.warn(
+      '[API] Expo hostUri unavailable — falling back to localhost. Physical device will fail.',
+    );
+  }
+
+  return `http://${host || 'localhost'}:3001/api/v1`;
 }
 
 const API_BASE_URL = __DEV__

@@ -12,6 +12,11 @@ vi.mock('next/navigation', () => ({
   }),
 }));
 vi.mock('@/lib/server-api', () => ({ serverFetch: vi.fn() }));
+vi.mock('@/lib/server-auth', () => ({
+  getServerUser: vi
+    .fn()
+    .mockResolvedValue({ id: 'admin-1', role: 'ADMIN', email: 'admin@test.com' }),
+}));
 vi.mock('../client-detail', () => ({
   ClientDetail: (props: Record<string, unknown>) => (
     <div data-testid="client-detail" data-props={JSON.stringify(props)} />

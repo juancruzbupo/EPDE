@@ -87,13 +87,12 @@ describe('TokenService', () => {
       );
     });
 
-    it('should return tokens even when Redis setex fails (graceful degradation)', async () => {
+    it('should throw ServiceUnavailableException when Redis setex fails (fail-fast)', async () => {
       mockRedisService.setex.mockRejectedValue(new Error('Redis connection refused'));
 
-      const result = await service.generateTokenPair(TEST_USER);
-
-      expect(result.accessToken).toBeDefined();
-      expect(result.refreshToken).toBeDefined();
+      await expect(service.generateTokenPair(TEST_USER)).rejects.toThrow(
+        ServiceUnavailableException,
+      );
     });
   });
 

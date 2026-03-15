@@ -1,0 +1,17 @@
+name: Nightly E2E & Coverage
+
+on:
+  schedule:
+    - cron: '0 4 * * *' # Daily at 4:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci-reusable.yml
+    with:
+      run-coverage: true
+      run-web-e2e: true
+      # TODO [ROADMAP]: run-mobile-e2e — requires Detox setup
+    secrets:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}

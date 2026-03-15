@@ -147,7 +147,11 @@ describe('TaskReminderService', () => {
           expect.objectContaining({ userId: 'user-1', type: 'TASK_REMINDER' }),
         ]),
         emails: expect.arrayContaining([
-          expect.objectContaining({ to: 'owner@test.com', taskName: 'Test Task' }),
+          expect.objectContaining({
+            to: 'owner@test.com',
+            taskId: 'task-1',
+            taskName: 'Test Task',
+          }),
         ]),
       });
     });

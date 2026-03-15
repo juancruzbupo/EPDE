@@ -1,7 +1,6 @@
-import type { SoftDeletable } from '../index';
+import type { BaseEntity, SoftDeletable } from '../index';
 
-export interface Category extends SoftDeletable {
-  id: string;
+export interface Category extends BaseEntity, SoftDeletable {
   name: string;
   description: string | null;
   icon: string | null;

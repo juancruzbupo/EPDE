@@ -239,6 +239,7 @@ export class NotificationsHandlerService {
     emails: Array<{
       to: string;
       name: string;
+      taskId: string;
       taskName: string;
       propertyAddress: string;
       dueDate: Date;
@@ -254,6 +255,7 @@ export class NotificationsHandlerService {
             this.emailQueueService.enqueueTaskReminder(
               e.to,
               e.name,
+              e.taskId,
               e.taskName,
               e.propertyAddress,
               e.dueDate,

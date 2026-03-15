@@ -58,6 +58,8 @@ export function useCreateBudgetRequest() {
   });
 }
 
+/** Edits budget details (title/description) — does NOT invalidate dashboard.
+ *  Only status transitions affect dashboard counters (see useUpdateBudgetStatus). */
 export function useEditBudgetRequest() {
   const queryClient = useQueryClient();
   return useMutation({

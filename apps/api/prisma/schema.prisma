@@ -222,6 +222,8 @@ model Category {
   description        String?           @db.VarChar(500)
   icon               String?           @db.VarChar(50)
   order              Int               @default(0)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
   deletedAt          DateTime?
   categoryTemplateId String?
 

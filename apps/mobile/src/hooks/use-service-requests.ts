@@ -53,6 +53,8 @@ export function useCreateServiceRequest() {
   });
 }
 
+/** Edits service request details (title/description) — does NOT invalidate dashboard.
+ *  Only status transitions affect dashboard counters. */
 export function useEditServiceRequest() {
   const queryClient = useQueryClient();
   return useMutation({

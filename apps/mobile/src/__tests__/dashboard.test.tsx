@@ -24,9 +24,9 @@ const mockUseClientUpcomingTasks = jest.fn();
 const mockUseClientAnalytics = jest.fn();
 
 jest.mock('@/hooks/use-dashboard', () => ({
-  useClientDashboardStats: (...args) => mockUseClientDashboardStats(...args),
-  useClientUpcomingTasks: (...args) => mockUseClientUpcomingTasks(...args),
-  useClientAnalytics: (...args) => mockUseClientAnalytics(...args),
+  useClientDashboardStats: () => mockUseClientDashboardStats(),
+  useClientUpcomingTasks: () => mockUseClientUpcomingTasks(),
+  useClientAnalytics: () => mockUseClientAnalytics(),
 }));
 
 // Mock chart components to avoid react-native-svg issues in test environment
@@ -39,8 +39,9 @@ jest.mock('@/components/charts/mini-bar-chart', () => ({
 jest.mock('@/components/charts/mini-trend-chart', () => ({
   MiniTrendChart: () => null,
 }));
+const ChartCardMock = ({ children }: { children: React.ReactNode }) => children;
 jest.mock('@/components/charts/chart-card', () => ({
-  ChartCard: ({ children }) => children,
+  ChartCard: ChartCardMock,
 }));
 jest.mock('@/components/charts/category-breakdown-list', () => ({
   CategoryBreakdownList: () => null,
@@ -103,7 +104,7 @@ const mockAnalytics = {
 // ---------------------------------------------------------------------------
 
 /** Default query return shape for "loading finished, no error" scenarios. */
-function queryResult(data, overrides) {
+function queryResult(data: unknown, overrides?: Record<string, unknown>) {
   return {
     data,
     isLoading: false,
