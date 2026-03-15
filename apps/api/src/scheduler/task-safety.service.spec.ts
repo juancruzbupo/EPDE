@@ -58,7 +58,7 @@ describe('TaskSafetyService', () => {
         id: 'task-1',
         recurrenceMonths: 12,
         recurrenceType: RecurrenceType.ANNUAL,
-        nextDueDate: new Date('2025-01-01'),
+        nextDueDate: new Date(Date.now() - 30 * 86_400_000),
       };
       mockTasksRepository.findStaleCompleted.mockResolvedValueOnce([staleTask]);
       mockLockService.withLock.mockImplementation(async (_key, _ttl, fn) => {
@@ -96,13 +96,13 @@ describe('TaskSafetyService', () => {
         id: 'task-fail',
         recurrenceMonths: 12,
         recurrenceType: RecurrenceType.ANNUAL,
-        nextDueDate: new Date('2025-01-01'),
+        nextDueDate: new Date(Date.now() - 30 * 86_400_000),
       };
       const task2 = {
         id: 'task-success',
         recurrenceMonths: 12,
         recurrenceType: RecurrenceType.ANNUAL,
-        nextDueDate: new Date('2025-01-01'),
+        nextDueDate: new Date(Date.now() - 30 * 86_400_000),
       };
 
       mockTasksRepository.findStaleCompleted.mockResolvedValueOnce([task1, task2]);

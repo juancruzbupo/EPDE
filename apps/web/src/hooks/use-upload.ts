@@ -4,6 +4,14 @@ import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api-client';
 
+/**
+ * Web upload hook — accepts a `File` object and validates MIME + size client-side
+ * via `validateUpload()` before uploading. Server also validates magic bytes.
+ *
+ * Platform note: the mobile counterpart (`apps/mobile/src/hooks/use-upload.ts`)
+ * accepts `{ uri: string, folder }` instead of `{ file: File, folder }` because
+ * React Native doesn't expose the Web File API.
+ */
 export function useUploadFile() {
   return useMutation({
     mutationFn: async ({ file, folder }: { file: File; folder: string }) => {

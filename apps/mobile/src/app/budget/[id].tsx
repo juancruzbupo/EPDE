@@ -4,7 +4,7 @@ import type {
   BudgetCommentPublic,
   BudgetLineItemPublic,
 } from '@epde/shared';
-import { BUDGET_TERMINAL_STATUSES, BudgetStatus, formatARS } from '@epde/shared';
+import { BudgetStatus, formatARS, isBudgetTerminal } from '@epde/shared';
 import { format, formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Stack, useLocalSearchParams } from 'expo-router';
@@ -133,7 +133,7 @@ export default function BudgetDetailScreen() {
 
   const [commentText, setCommentText] = useState('');
 
-  const isTerminal = budget ? BUDGET_TERMINAL_STATUSES.includes(budget.status as never) : false;
+  const isTerminal = budget ? isBudgetTerminal(budget.status) : false;
 
   const handleApprove = () => {
     haptics.medium();

@@ -69,6 +69,16 @@ export const SERVICE_REQUEST_TERMINAL_STATUSES: readonly ServiceStatus[] = [
   'CLOSED',
 ] as const;
 
+/** Type-safe terminal status check — avoids `as never` at call sites. */
+export function isBudgetTerminal(status: string): boolean {
+  return (BUDGET_TERMINAL_STATUSES as readonly string[]).includes(status);
+}
+
+/** Type-safe terminal status check — avoids `as never` at call sites. */
+export function isServiceRequestTerminal(status: string): boolean {
+  return (SERVICE_REQUEST_TERMINAL_STATUSES as readonly string[]).includes(status);
+}
+
 export const SERVICE_STATUS_LABELS = {
   OPEN: 'Abierto',
   IN_REVIEW: 'En Revisión',

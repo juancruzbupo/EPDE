@@ -1,4 +1,4 @@
-import { CHART_TOKENS_LIGHT } from '@epde/shared';
+import { CHART_TOKENS_LIGHT, DESIGN_TOKENS_LIGHT } from '@epde/shared';
 
 export const CHART_COLORS = [
   CHART_TOKENS_LIGHT.chart1,
@@ -13,7 +13,7 @@ export const CONDITION_COLORS: Record<string, string> = {
   GOOD: CHART_TOKENS_LIGHT.chart3,
   FAIR: CHART_TOKENS_LIGHT.chart4,
   POOR: CHART_TOKENS_LIGHT.chart5,
-  CRITICAL: '#c45b4b',
+  CRITICAL: DESIGN_TOKENS_LIGHT.destructive,
 };
 
 export const CONDITION_LABELS: Record<string, string> = {

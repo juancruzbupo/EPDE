@@ -1,7 +1,7 @@
 'use client';
 
 import type { BudgetCommentPublic } from '@epde/shared';
-import { BUDGET_TERMINAL_STATUSES } from '@epde/shared';
+import { isBudgetTerminal } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Send } from 'lucide-react';
@@ -36,7 +36,7 @@ export function BudgetComments({ budgetId, budgetStatus }: BudgetCommentsProps) 
   const addComment = useAddBudgetComment();
   const [content, setContent] = useState('');
 
-  const isTerminal = BUDGET_TERMINAL_STATUSES.includes(budgetStatus as never);
+  const isTerminal = isBudgetTerminal(budgetStatus);
 
   const handleSubmit = () => {
     if (!content.trim()) return;

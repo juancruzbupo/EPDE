@@ -177,7 +177,7 @@ describe('TaskLifecycleService', () => {
         status: TaskStatus.PENDING,
         recurrenceType: RecurrenceType.ANNUAL,
         recurrenceMonths: 12,
-        nextDueDate: new Date('2025-01-01'),
+        nextDueDate: new Date(Date.now() - 30 * 86_400_000),
         maintenancePlanId: 'plan-1',
       };
       const completionResult = { task: { id: taskId }, log: { id: 'log-1' } };

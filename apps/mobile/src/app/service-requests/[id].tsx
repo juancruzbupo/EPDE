@@ -3,7 +3,7 @@ import type {
   ServiceRequestAuditLogPublic,
   ServiceRequestCommentPublic,
 } from '@epde/shared';
-import { SERVICE_REQUEST_TERMINAL_STATUSES, ServiceStatus } from '@epde/shared';
+import { isServiceRequestTerminal, ServiceStatus } from '@epde/shared';
 import { format, formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import * as ImagePicker from 'expo-image-picker';
@@ -129,9 +129,7 @@ export default function ServiceRequestDetailScreen() {
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
 
-  const isTerminal = request
-    ? SERVICE_REQUEST_TERMINAL_STATUSES.includes(request.status as never)
-    : false;
+  const isTerminal = request ? isServiceRequestTerminal(request.status) : false;
 
   const handleEdit = () => {
     if (!request) return;

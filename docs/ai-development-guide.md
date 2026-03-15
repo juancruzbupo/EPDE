@@ -62,6 +62,7 @@
 50. **Analytics queries con `staleTime: 5 * 60_000`** — Los hooks `useAdminAnalytics()` y `useClientAnalytics()` usan staleTime de 5 minutos (mayor al default global de 2 min) porque analytics es data agregada que cambia lentamente. El service backend paraleliza todas las queries con `Promise.all`
 51. **Inline DTOs en API wrappers DEBEN usar shared schema types** — Cuando un Zod schema ya define el input (`CreateTaskInput`, `UpdateTaskInput`, `RespondBudgetInput`, `ReorderTasksInput`), las funciones en `apps/*/src/lib/api/*.ts` y hooks DEBEN importar ese tipo de `@epde/shared`. Si el wire format difiere del Zod-inferred (e.g. `string` vs `Date` por `z.coerce`), usar `z.input<typeof schema>` o documentar via JSDoc referenciando el schema como SSoT de validacion
 52. **`cleanDatabase()` en E2E setup DEBE incluir TODAS las tablas** — Al agregar un nuevo modelo en `schema.prisma`, agregar su nombre a la lista en `apps/api/src/test/setup.ts`. Incluir logging tables (`AuthAuditLog`, `TaskAuditLog`) aunque tengan FK CASCADE — la limpieza explicita evita asumir el comportamiento de cascade
+53. **Terminal status checks via helpers, no `.includes()` directo** — Usar `isBudgetTerminal(status)` e `isServiceRequestTerminal(status)` de `@epde/shared` en vez de `BUDGET_TERMINAL_STATUSES.includes(status as never)`. Los helpers encapsulan el cast de `readonly` array y eliminan `as never` en call sites. Definidos en `packages/shared/src/constants/index.ts`
 
 ### NUNCA
 
@@ -1281,7 +1282,7 @@ El QueryClient de mobile difiere de web para soportar uso offline durante inspec
 | --------- | ---------- | -------- | --------- | ----- | --------------------------------------------------------------------------------------------------------------------- |
 | API       | 75         | 60       | 65        | 75    | Core de negocio — mayor rigor. Jest + ts-jest permite coverage preciso                                                |
 | Web       | 70         | 70       | 65        | 70    | Pages excluidas del coverage (`page.tsx`, `layout.tsx`, `ui/**`). Hooks y componentes custom cubren el grueso         |
-| Mobile    | 55         | 35       | 45        | 55    | jest-expo + react-native-reanimated mocks limitan cobertura de branches. Animaciones y gestures no son unit-testables |
+| Mobile    | 60         | 42       | 50        | 60    | jest-expo + react-native-reanimated mocks limitan cobertura de branches. Animaciones y gestures no son unit-testables |
 
 Los thresholds se bumpen progresivamente al subir la cobertura real. El floor actual refleja la complejidad de cada runner, no una decision arbitraria. API > Web > Mobile es intencional.
 

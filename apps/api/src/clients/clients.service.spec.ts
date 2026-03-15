@@ -218,7 +218,7 @@ describe('ClientsService', () => {
         id: 'deleted-1',
         email: dto.email,
         name: 'Old Name',
-        deletedAt: new Date('2025-01-01'),
+        deletedAt: new Date(Date.now() - 30 * 86_400_000),
         passwordHash: 'old-hash',
       };
       clientsRepository.findByEmailIncludingDeleted.mockResolvedValue(deletedUser);

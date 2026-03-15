@@ -37,7 +37,7 @@ describe('formatRelativeDate', () => {
   });
 
   it('should return a string for a date far in the past', () => {
-    const oldDate = new Date('2025-01-01T00:00:00Z');
+    const oldDate = new Date(Date.now() - 90 * 86_400_000);
     const result = formatRelativeDate(oldDate);
     expect(typeof result).toBe('string');
     expect(result.length).toBeGreaterThan(0);

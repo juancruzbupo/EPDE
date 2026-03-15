@@ -1,7 +1,7 @@
 'use client';
 
 import type { ServiceRequestCommentPublic } from '@epde/shared';
-import { SERVICE_REQUEST_TERMINAL_STATUSES } from '@epde/shared';
+import { isServiceRequestTerminal } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Send } from 'lucide-react';
@@ -42,7 +42,7 @@ export function ServiceRequestComments({
   const addComment = useAddServiceRequestComment();
   const [content, setContent] = useState('');
 
-  const isTerminal = SERVICE_REQUEST_TERMINAL_STATUSES.includes(serviceRequestStatus as never);
+  const isTerminal = isServiceRequestTerminal(serviceRequestStatus);
 
   const handleSubmit = () => {
     if (!content.trim()) return;

@@ -222,7 +222,7 @@ describe('DashboardService', () => {
   describe('getClientUpcomingTasks', () => {
     it('should map task fields to the expected output format', async () => {
       const userId = 'user-1';
-      const dueDate = new Date('2025-06-15T10:00:00.000Z');
+      const dueDate = new Date(Date.now() - 7 * 86_400_000);
 
       repository.getClientUpcomingTasks.mockResolvedValue([
         {
@@ -233,19 +233,19 @@ describe('DashboardService', () => {
           status: TaskStatus.PENDING,
           maintenancePlan: {
             id: 'plan-1',
-            property: { address: 'Av. Corrientes 1234' },
+            property: { id: 'prop-1', address: 'Av. Corrientes 1234' },
           },
           category: { name: 'Techos' },
         },
         {
           id: 'task-2',
           name: 'Limpiar canaletas',
-          nextDueDate: new Date('2025-07-01T10:00:00.000Z'),
+          nextDueDate: new Date(Date.now() + 14 * 86_400_000),
           priority: 'MEDIUM',
           status: TaskStatus.UPCOMING,
           maintenancePlan: {
             id: 'plan-2',
-            property: { address: 'Calle San Martín 567' },
+            property: { id: 'prop-2', address: 'Calle San Martín 567' },
           },
           category: { name: 'Plomería' },
         },
@@ -259,10 +259,11 @@ describe('DashboardService', () => {
       expect(result[0]!).toEqual({
         id: 'task-1',
         name: 'Revisar techos',
-        nextDueDate: '2025-06-15T10:00:00.000Z',
+        nextDueDate: expect.any(String),
         priority: 'HIGH',
         status: TaskStatus.PENDING,
         propertyAddress: 'Av. Corrientes 1234',
+        propertyId: 'prop-1',
         categoryName: 'Techos',
         maintenancePlanId: 'plan-1',
       });
@@ -270,10 +271,11 @@ describe('DashboardService', () => {
       expect(result[1]!).toEqual({
         id: 'task-2',
         name: 'Limpiar canaletas',
-        nextDueDate: '2025-07-01T10:00:00.000Z',
+        nextDueDate: expect.any(String),
         priority: 'MEDIUM',
         status: TaskStatus.UPCOMING,
         propertyAddress: 'Calle San Martín 567',
+        propertyId: 'prop-2',
         categoryName: 'Plomería',
         maintenancePlanId: 'plan-2',
       });

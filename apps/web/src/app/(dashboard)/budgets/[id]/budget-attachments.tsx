@@ -1,7 +1,7 @@
 'use client';
 
 import type { BudgetAttachmentPublic } from '@epde/shared';
-import { BUDGET_TERMINAL_STATUSES } from '@epde/shared';
+import { isBudgetTerminal } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Download, Loader2, Paperclip, Upload } from 'lucide-react';
@@ -39,7 +39,7 @@ interface BudgetAttachmentsProps {
 }
 
 export function BudgetAttachments({ budgetId, attachments, budgetStatus }: BudgetAttachmentsProps) {
-  const isTerminal = BUDGET_TERMINAL_STATUSES.includes(budgetStatus as never);
+  const isTerminal = isBudgetTerminal(budgetStatus);
   const uploadFile = useUploadFile();
   const addAttachments = useAddBudgetAttachments();
   const fileInputRef = useRef<HTMLInputElement>(null);

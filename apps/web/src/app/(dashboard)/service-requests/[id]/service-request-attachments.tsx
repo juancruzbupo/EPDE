@@ -1,7 +1,7 @@
 'use client';
 
 import type { ServiceRequestAttachmentPublic } from '@epde/shared';
-import { SERVICE_REQUEST_TERMINAL_STATUSES } from '@epde/shared';
+import { isServiceRequestTerminal } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Download, Loader2, Paperclip, Upload } from 'lucide-react';
@@ -43,7 +43,7 @@ export function ServiceRequestAttachments({
   attachments,
   serviceRequestStatus,
 }: ServiceRequestAttachmentsProps) {
-  const isTerminal = SERVICE_REQUEST_TERMINAL_STATUSES.includes(serviceRequestStatus as never);
+  const isTerminal = isServiceRequestTerminal(serviceRequestStatus);
   const uploadFile = useUploadFile();
   const addAttachments = useAddServiceRequestAttachments();
   const fileInputRef = useRef<HTMLInputElement>(null);
