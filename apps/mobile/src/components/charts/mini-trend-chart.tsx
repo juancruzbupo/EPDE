@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import Svg, { Circle, Polygon, Polyline, Text as SvgText } from 'react-native-svg';
 
 import { CHART_COLORS } from '@/lib/chart-colors';
+import { COLORS } from '@/lib/colors';
 
 interface MiniTrendChartProps {
   data: Array<{ label: string; value: number }>;
@@ -76,7 +77,7 @@ export const MiniTrendChart = memo(function MiniTrendChart({
             x={points[i].x}
             y={height - 4}
             textAnchor="middle"
-            fill="#666"
+            fill={COLORS.mutedForeground}
             fontSize={10}
             fontFamily="DMSans_500Medium"
           >

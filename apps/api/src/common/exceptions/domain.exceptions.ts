@@ -98,6 +98,31 @@ export class TaskAccessDeniedError extends Error {
   }
 }
 
+export class ServiceRequestAccessDeniedError extends Error {
+  readonly name = 'ServiceRequestAccessDeniedError';
+  constructor(reason: 'ownership' | 'role' = 'ownership') {
+    super(
+      reason === 'ownership'
+        ? 'No tenés acceso a esta solicitud'
+        : 'Solo el cliente puede realizar esta acción',
+    );
+  }
+}
+
+export class ServiceRequestTerminalError extends Error {
+  readonly name = 'ServiceRequestTerminalError';
+  constructor(action: string) {
+    super(`No se puede ${action} en una solicitud cerrada o resuelta`);
+  }
+}
+
+export class TaskPropertyMismatchError extends Error {
+  readonly name = 'TaskPropertyMismatchError';
+  constructor() {
+    super('La tarea no pertenece a esta propiedad');
+  }
+}
+
 export class DuplicateClientEmailError extends Error {
   readonly name = 'DuplicateClientEmailError';
   constructor() {

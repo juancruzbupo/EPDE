@@ -10,6 +10,7 @@ import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 
 import { TIMING, useReducedMotion } from '@/lib/animations';
 import { CHART_COLORS } from '@/lib/chart-colors';
+import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
@@ -116,7 +117,7 @@ export const MiniBarChart = memo(function MiniBarChart({ data, height = 150 }: M
               x={x}
               y={height - 4}
               textAnchor="middle"
-              fill="#666"
+              fill={COLORS.mutedForeground}
               fontSize={10}
               fontFamily="DMSans_500Medium"
             >

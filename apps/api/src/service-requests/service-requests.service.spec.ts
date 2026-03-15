@@ -266,7 +266,7 @@ describe('ServiceRequestsService', () => {
         ForbiddenException,
       );
       await expect(service.createRequest(createDto, 'client-2')).rejects.toThrow(
-        'No tenés acceso a esta propiedad',
+        'No tenés acceso a esta solicitud',
       );
     });
 

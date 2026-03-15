@@ -155,6 +155,13 @@ export default function BudgetsScreen() {
             </ScrollView>
           </View>
         }
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <View className="items-center py-4">
+              <ActivityIndicator size="small" />
+            </View>
+          ) : null
+        }
         ListEmptyComponent={
           !isLoading ? (
             <EmptyState

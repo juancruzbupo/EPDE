@@ -12,16 +12,7 @@ import {
 } from '@epde/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import {
-  AlertTriangle,
-  CheckCircle,
-  CheckCircle2,
-  ChevronDown,
-  ChevronRight,
-  ClipboardList,
-  Clock,
-  Timer,
-} from 'lucide-react';
+import { CheckCircle, ChevronDown, ChevronRight, ClipboardList } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { ErrorState } from '@/components/error-state';
@@ -33,31 +24,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks/use-debounce';
 import { usePlan } from '@/hooks/use-plans';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
+import { TASK_STATUS_COLORS, TASK_STATUS_ICONS, TASK_STATUS_ORDER } from '@/lib/style-maps';
 import { cn } from '@/lib/utils';
 
 import { CompleteTaskDialog } from './complete-task-dialog';
 import { TaskDetailSheet } from './task-detail-sheet';
-
-const STATUS_ICONS = {
-  [TaskStatus.OVERDUE]: AlertTriangle,
-  [TaskStatus.PENDING]: Clock,
-  [TaskStatus.UPCOMING]: Timer,
-  [TaskStatus.COMPLETED]: CheckCircle2,
-} as const;
-
-const STATUS_COLORS = {
-  [TaskStatus.OVERDUE]: 'text-destructive',
-  [TaskStatus.PENDING]: 'text-amber-600',
-  [TaskStatus.UPCOMING]: 'text-blue-600',
-  [TaskStatus.COMPLETED]: 'text-emerald-600',
-} as const;
-
-const STATUS_ORDER: TaskStatus[] = [
-  TaskStatus.OVERDUE,
-  TaskStatus.PENDING,
-  TaskStatus.UPCOMING,
-  TaskStatus.COMPLETED,
-];
 
 const SHOW_SEARCH_THRESHOLD = 5;
 
@@ -75,18 +46,18 @@ interface PlanViewerProps {
 function StatusSummary({ tasks }: { tasks: TaskPublic[] }) {
   const counts = useMemo(() => {
     const map = new Map<TaskStatus, number>();
-    for (const s of STATUS_ORDER) map.set(s, 0);
+    for (const s of TASK_STATUS_ORDER) map.set(s, 0);
     for (const t of tasks) map.set(t.status, (map.get(t.status) ?? 0) + 1);
     return map;
   }, [tasks]);
 
   return (
     <div className="flex flex-wrap gap-3">
-      {STATUS_ORDER.map((status) => {
+      {TASK_STATUS_ORDER.map((status) => {
         const count = counts.get(status) ?? 0;
         if (count === 0) return null;
-        const Icon = STATUS_ICONS[status];
-        const color = STATUS_COLORS[status];
+        const Icon = TASK_STATUS_ICONS[status];
+        const color = TASK_STATUS_COLORS[status];
         return (
           <div key={status} className="flex items-center gap-1.5 text-sm">
             <Icon className={cn('h-4 w-4', color)} />

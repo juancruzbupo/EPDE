@@ -10,6 +10,7 @@ import Animated, {
 
 import { AnimatedListItem } from '@/components/animated-list-item';
 import { TIMING, useReducedMotion } from '@/lib/animations';
+import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 
 interface CategoryBreakdownListProps {
@@ -62,7 +63,7 @@ const ConditionDots = memo(function ConditionDots({ avgCondition }: { avgConditi
             width: 6,
             height: 6,
             borderRadius: 3,
-            backgroundColor: i <= filled ? getConditionDotColor(filled) : '#e5e5e5',
+            backgroundColor: i <= filled ? getConditionDotColor(filled) : COLORS.border,
           }}
         />
       ))}
@@ -71,15 +72,15 @@ const ConditionDots = memo(function ConditionDots({ avgCondition }: { avgConditi
 });
 
 function getConditionDotColor(level: number): string {
-  if (level >= 4) return '#6b9b7a'; // green
-  if (level >= 3) return '#d4a843'; // yellow
-  return '#c45b4b'; // red
+  if (level >= 4) return COLORS.success;
+  if (level >= 3) return COLORS.warning;
+  return COLORS.destructive;
 }
 
 function getProgressColor(percent: number): string {
-  if (percent > 80) return '#6b9b7a'; // green / success
-  if (percent >= 50) return '#c4704b'; // primary / terracotta
-  return '#c45b4b'; // destructive
+  if (percent > 80) return COLORS.success;
+  if (percent >= 50) return COLORS.primary;
+  return COLORS.destructive;
 }
 
 const CategoryRow = memo(function CategoryRow({

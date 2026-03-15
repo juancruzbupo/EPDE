@@ -22,6 +22,7 @@ import { PriorityBadge, TaskStatusBadge } from '@/components/status-badge';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useAllTasks } from '@/hooks/use-plans';
 import type { TaskListItem } from '@/lib/api/maintenance-plans';
+import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 
 const PRIORITY_FILTERS: { key: TaskPriority | undefined; label: string }[] = [
@@ -199,7 +200,7 @@ export default function TasksScreen() {
                 style={TYPE.bodyMd}
                 className="text-foreground flex-1 py-2.5"
                 placeholder="Buscar tarea, categoría o dirección..."
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={COLORS.mutedForeground}
                 value={search}
                 onChangeText={setSearch}
                 autoCapitalize="none"

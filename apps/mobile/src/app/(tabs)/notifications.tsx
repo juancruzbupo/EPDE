@@ -171,6 +171,13 @@ export default function NotificationsScreen() {
           </View>
         </View>
       }
+      ListFooterComponent={
+        isFetchingNextPage ? (
+          <View className="items-center py-4">
+            <ActivityIndicator size="small" />
+          </View>
+        ) : null
+      }
       ListEmptyComponent={
         !isLoading ? (
           <EmptyState title="Sin notificaciones" message="No tienes avisos por el momento." />

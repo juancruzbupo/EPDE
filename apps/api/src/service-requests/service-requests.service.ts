@@ -7,7 +7,7 @@ import type {
   ServiceUser,
   UpdateServiceStatusInput,
 } from '@epde/shared';
-import { ServiceStatus, ServiceUrgency, UserRole } from '@epde/shared';
+import { isServiceRequestTerminal, ServiceStatus, ServiceUrgency, UserRole } from '@epde/shared';
 import {
   BadRequestException,
   ForbiddenException,
@@ -17,7 +17,10 @@ import {
 
 import {
   InvalidServiceStatusTransitionError,
+  ServiceRequestAccessDeniedError,
   ServiceRequestNotEditableError,
+  ServiceRequestTerminalError,
+  TaskPropertyMismatchError,
 } from '../common/exceptions/domain.exceptions';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { PropertiesRepository } from '../properties/properties.repository';
@@ -36,8 +39,6 @@ const VALID_TRANSITIONS: Record<string, ServiceStatus> = {
   [ServiceStatus.IN_PROGRESS]: ServiceStatus.RESOLVED,
   [ServiceStatus.RESOLVED]: ServiceStatus.CLOSED,
 };
-
-const TERMINAL_STATUSES: ServiceStatus[] = [ServiceStatus.RESOLVED, ServiceStatus.CLOSED];
 
 @Injectable()
 export class ServiceRequestsService {
@@ -79,8 +80,15 @@ export class ServiceRequestsService {
       throw new NotFoundException('Propiedad no encontrada');
     }
 
-    if (property.userId !== userId) {
-      throw new ForbiddenException('No tenés acceso a esta propiedad');
+    try {
+      if (property.userId !== userId) {
+        throw new ServiceRequestAccessDeniedError('ownership');
+      }
+    } catch (error) {
+      if (error instanceof ServiceRequestAccessDeniedError) {
+        throw new ForbiddenException(error.message);
+      }
+      throw error;
     }
 
     // If a task is linked, validate it belongs to the same property
@@ -135,8 +143,15 @@ export class ServiceRequestsService {
 
     this.assertAccess(request, currentUser);
 
-    if (currentUser.role !== UserRole.CLIENT) {
-      throw new ForbiddenException('Solo el cliente puede editar la solicitud');
+    try {
+      if (currentUser.role !== UserRole.CLIENT) {
+        throw new ServiceRequestAccessDeniedError('role');
+      }
+    } catch (error) {
+      if (error instanceof ServiceRequestAccessDeniedError) {
+        throw new ForbiddenException(error.message);
+      }
+      throw error;
     }
 
     try {
@@ -265,8 +280,15 @@ export class ServiceRequestsService {
     }
     this.assertAccess(request, currentUser);
 
-    if (TERMINAL_STATUSES.includes(request.status as ServiceStatus)) {
-      throw new BadRequestException('No se puede comentar en una solicitud cerrada o resuelta');
+    try {
+      if (isServiceRequestTerminal(request.status)) {
+        throw new ServiceRequestTerminalError('comentar');
+      }
+    } catch (error) {
+      if (error instanceof ServiceRequestTerminalError) {
+        throw new BadRequestException(error.message);
+      }
+      throw error;
     }
 
     return this.commentsRepository.createComment(id, currentUser.id, dto.content);
@@ -285,10 +307,15 @@ export class ServiceRequestsService {
     }
     this.assertAccess(request, currentUser);
 
-    if (TERMINAL_STATUSES.includes(request.status as ServiceStatus)) {
-      throw new BadRequestException(
-        'No se pueden agregar adjuntos a una solicitud cerrada o resuelta',
-      );
+    try {
+      if (isServiceRequestTerminal(request.status)) {
+        throw new ServiceRequestTerminalError('agregar adjuntos');
+      }
+    } catch (error) {
+      if (error instanceof ServiceRequestTerminalError) {
+        throw new BadRequestException(error.message);
+      }
+      throw error;
     }
 
     return this.attachmentsRepository.addAttachments(id, dto.attachments);
@@ -298,13 +325,13 @@ export class ServiceRequestsService {
   private async validateTaskBelongsToProperty(taskId: string, propertyId: string): Promise<void> {
     const belongs = await this.serviceRequestsRepository.taskBelongsToProperty(taskId, propertyId);
     if (!belongs) {
-      throw new BadRequestException('La tarea no pertenece a esta propiedad');
+      throw new BadRequestException(new TaskPropertyMismatchError().message);
     }
   }
 
   private assertAccess(request: ServiceRequestWithDetails, currentUser: ServiceUser): void {
     if (currentUser.role === UserRole.CLIENT && request.property?.userId !== currentUser.id) {
-      throw new ForbiddenException('No tenés acceso a esta solicitud');
+      throw new ForbiddenException(new ServiceRequestAccessDeniedError('ownership').message);
     }
   }
 }

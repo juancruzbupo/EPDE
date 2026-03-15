@@ -37,7 +37,8 @@ export class UploadService {
       throw new Error('Upload no configurado. Configure las variables R2_* en .env');
     }
 
-    const key = `${folder}/${randomUUID()}-${file.originalname}`;
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 100);
+    const key = `${folder}/${randomUUID()}-${safeName}`;
 
     await this.s3.send(
       new PutObjectCommand({

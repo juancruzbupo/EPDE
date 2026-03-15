@@ -71,6 +71,8 @@
 59. **JSDoc en hooks que omiten dashboard invalidation** — Si un hook de mutación (useEditXxx) NO llama `invalidateDashboard()`/`invalidateClientDashboard()`, DEBE tener JSDoc explicando por qué (e.g. "solo edita título/descripción, no afecta conteos del dashboard")
 60. **`verifyTaskAccess` siempre recibe planId** — Todo endpoint nested bajo `/maintenance-plans/:id/tasks/:taskId` DEBE extraer `planId` con `@Param('id', ParseUUIDPipe)` y pasarlo a `verifyTaskAccess(taskId, user, planId)`. Previene IDOR donde un usuario accede a tareas de un plan ajeno
 61. **Options object para funciones con 4+ params** — Funciones con 4 o más parametros DEBEN usar un options object con propiedades nombradas en vez de parametros posicionales. Mejora legibilidad y previene errores de ordenamiento
+62. **Sanitizar filenames en uploads** — `file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 100)`. NUNCA usar filename crudo del cliente en keys de storage o URLs publicas
+63. **`ListFooterComponent` en FlatLists paginadas** — Todo FlatList con `onEndReached` DEBE mostrar `<ActivityIndicator>` cuando `isFetchingNextPage` es true. Pattern: `ListFooterComponent={isFetchingNextPage ? <View className="items-center py-4"><ActivityIndicator size="small" /></View> : null}`
 
 ### NUNCA
 

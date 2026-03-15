@@ -331,7 +331,7 @@ export default function ServiceRequestDetailScreen() {
               className="bg-primary mt-2 items-center rounded-lg py-2"
             >
               {isUploadingAttachment ? (
-                <ActivityIndicator size="small" color="#fff" />
+                <ActivityIndicator size="small" color={COLORS.primaryForeground} />
               ) : (
                 <Text style={TYPE.labelMd} className="text-primary-foreground">
                   Adjuntar archivo

@@ -9,17 +9,7 @@ import {
   TaskPriority,
   TaskStatus,
 } from '@epde/shared';
-import {
-  AlertTriangle,
-  Calendar,
-  CheckCircle2,
-  CheckSquare,
-  ChevronDown,
-  ChevronRight,
-  Clock,
-  MapPin,
-  Timer,
-} from 'lucide-react';
+import { Calendar, CheckSquare, ChevronDown, ChevronRight, MapPin } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { EmptyState } from '@/components/empty-state';
@@ -33,32 +23,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useAllTasks } from '@/hooks/use-plans';
 import { useTaskDetail } from '@/hooks/use-task-operations';
+import { TASK_STATUS_COLORS, TASK_STATUS_ICONS, TASK_STATUS_ORDER } from '@/lib/style-maps';
 import { cn } from '@/lib/utils';
 
 import { CompleteTaskDialog } from '../properties/[id]/complete-task-dialog';
 import { TaskDetailSheet } from '../properties/[id]/task-detail-sheet';
-
-/** Display order: actionable items first. */
-const STATUS_ORDER: TaskStatus[] = [
-  TaskStatus.OVERDUE,
-  TaskStatus.PENDING,
-  TaskStatus.UPCOMING,
-  TaskStatus.COMPLETED,
-];
-
-const STATUS_ICONS = {
-  [TaskStatus.OVERDUE]: AlertTriangle,
-  [TaskStatus.PENDING]: Clock,
-  [TaskStatus.UPCOMING]: Timer,
-  [TaskStatus.COMPLETED]: CheckCircle2,
-} as const;
-
-const STATUS_COLORS = {
-  [TaskStatus.OVERDUE]: 'text-destructive',
-  [TaskStatus.PENDING]: 'text-amber-600',
-  [TaskStatus.UPCOMING]: 'text-blue-600',
-  [TaskStatus.COMPLETED]: 'text-emerald-600',
-} as const;
 
 const INITIAL_VISIBLE = 5;
 
@@ -80,8 +49,8 @@ function StatCard({
   active: boolean;
   onClick: () => void;
 }) {
-  const Icon = STATUS_ICONS[status];
-  const color = STATUS_COLORS[status];
+  const Icon = TASK_STATUS_ICONS[status];
+  const color = TASK_STATUS_COLORS[status];
 
   return (
     <button
@@ -168,8 +137,8 @@ function StatusSection({
 
   const visibleTasks = showAll ? tasks : tasks.slice(0, INITIAL_VISIBLE);
   const hasMore = tasks.length > INITIAL_VISIBLE;
-  const Icon = STATUS_ICONS[status];
-  const color = STATUS_COLORS[status];
+  const Icon = TASK_STATUS_ICONS[status];
+  const color = TASK_STATUS_COLORS[status];
 
   return (
     <div>
@@ -255,7 +224,7 @@ export default function TasksPage() {
 
   const grouped = useMemo(() => {
     const map = new Map<TaskStatus, TaskListItem[]>();
-    for (const s of STATUS_ORDER) map.set(s, []);
+    for (const s of TASK_STATUS_ORDER) map.set(s, []);
     for (const task of filtered) {
       map.get(task.status)?.push(task);
     }
@@ -263,7 +232,7 @@ export default function TasksPage() {
   }, [filtered]);
 
   /** Tasks to display — all or filtered by clicked stat card. */
-  const displayStatuses = activeStatus ? [activeStatus] : STATUS_ORDER;
+  const displayStatuses = activeStatus ? [activeStatus] : TASK_STATUS_ORDER;
 
   const handleTaskClick = (task: TaskListItem) => {
     setSelectedTask(task);
@@ -283,7 +252,7 @@ export default function TasksPage() {
       {/* Stat cards */}
       {!isLoading && !isError && tasks && tasks.length > 0 && (
         <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {STATUS_ORDER.map((status) => (
+          {TASK_STATUS_ORDER.map((status) => (
             <StatCard
               key={status}
               status={status}

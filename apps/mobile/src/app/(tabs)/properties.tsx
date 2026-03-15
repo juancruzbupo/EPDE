@@ -19,6 +19,7 @@ import { ErrorState } from '@/components/error-state';
 import { PropertyTypeBadge } from '@/components/status-badge';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useProperties } from '@/hooks/use-properties';
+import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 
 const TYPE_FILTERS: { key: PropertyType | undefined; label: string }[] = [
@@ -132,7 +133,7 @@ export default function PropertiesScreen() {
               style={TYPE.bodyMd}
               className="text-foreground flex-1 py-2.5"
               placeholder="Buscar por dirección o ciudad..."
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={COLORS.mutedForeground}
               value={search}
               onChangeText={setSearch}
               autoCapitalize="none"
@@ -169,6 +170,13 @@ export default function PropertiesScreen() {
             ))}
           </ScrollView>
         </View>
+      }
+      ListFooterComponent={
+        isFetchingNextPage ? (
+          <View className="items-center py-4">
+            <ActivityIndicator size="small" />
+          </View>
+        ) : null
       }
       ListEmptyComponent={
         !isLoading ? (

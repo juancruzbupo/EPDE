@@ -4,6 +4,7 @@ import { Text, View } from 'react-native';
 import Svg, { Circle, G, Text as SvgText } from 'react-native-svg';
 
 import { CONDITION_COLORS, CONDITION_LABELS } from '@/lib/chart-colors';
+import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 
 interface MiniDonutChartProps {
@@ -25,7 +26,7 @@ export const MiniDonutChart = memo(function MiniDonutChart({
             cx={size / 2}
             cy={size / 2}
             r={size / 2 - 20}
-            stroke="#e5e5e5"
+            stroke={COLORS.border}
             strokeWidth={16}
             fill="none"
           />
@@ -33,7 +34,7 @@ export const MiniDonutChart = memo(function MiniDonutChart({
             x={size / 2}
             y={size / 2 + 5}
             textAnchor="middle"
-            fill="#999"
+            fill={COLORS.mutedForeground}
             fontSize={14}
             fontFamily="DMSans_500Medium"
           >
@@ -64,7 +65,7 @@ export const MiniDonutChart = memo(function MiniDonutChart({
 
       return {
         condition: d.condition,
-        color: CONDITION_COLORS[d.condition] ?? '#999',
+        color: CONDITION_COLORS[d.condition] ?? COLORS.mutedForeground,
         dashArray: `${dashLength} ${gap}`,
         dashOffset: offset,
         count: d.count,
@@ -94,7 +95,7 @@ export const MiniDonutChart = memo(function MiniDonutChart({
           x={size / 2}
           y={size / 2 - 4}
           textAnchor="middle"
-          fill="#1a1a1a"
+          fill={COLORS.foreground}
           fontSize={24}
           fontWeight="bold"
           fontFamily="DMSans_700Bold"
@@ -105,7 +106,7 @@ export const MiniDonutChart = memo(function MiniDonutChart({
           x={size / 2}
           y={size / 2 + 16}
           textAnchor="middle"
-          fill="#666"
+          fill={COLORS.mutedForeground}
           fontSize={12}
           fontFamily="DMSans_500Medium"
         >
@@ -124,7 +125,7 @@ export const MiniDonutChart = memo(function MiniDonutChart({
                   width: 8,
                   height: 8,
                   borderRadius: 4,
-                  backgroundColor: CONDITION_COLORS[d.condition] ?? '#999',
+                  backgroundColor: CONDITION_COLORS[d.condition] ?? COLORS.mutedForeground,
                 }}
               />
               <Text style={TYPE.labelSm} className="text-muted-foreground">
