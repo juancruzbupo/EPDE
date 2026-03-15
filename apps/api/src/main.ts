@@ -18,6 +18,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   app.useLogger(app.get(Logger));
   app.enableShutdownHooks();
+  app.getHttpAdapter().getInstance().set('trust proxy', 1);
 
   const configService = app.get(ConfigService);
   const nodeEnv = configService.get<string>('NODE_ENV');
@@ -68,7 +69,7 @@ async function bootstrap() {
     credentials: true,
   });
 
-  if (nodeEnv !== 'production') {
+  if (nodeEnv === 'development') {
     const config = new DocumentBuilder()
       .setTitle('EPDE API')
       .setDescription('API de la plataforma de mantenimiento preventivo para viviendas')

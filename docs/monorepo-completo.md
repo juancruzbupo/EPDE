@@ -13,7 +13,7 @@ Documento exhaustivo que describe la estructura, tecnologias, patrones de diseno
 | App    | Workspace      | Tecnologia              | Puerto | Descripcion                        |
 | ------ | -------------- | ----------------------- | ------ | ---------------------------------- |
 | API    | `@epde/api`    | NestJS 11               | 3001   | REST API con auth, RBAC, eventos   |
-| Web    | `@epde/web`    | Next.js 15.5            | 3000   | Panel admin + portal cliente (SPA) |
+| Web    | `@epde/web`    | Next.js 15.3            | 3000   | Panel admin + portal cliente (SPA) |
 | Mobile | `@epde/mobile` | Expo 54 + React Native  | 8081   | App nativa para clientes           |
 | Shared | `@epde/shared` | TypeScript + Zod + tsup | —      | Tipos, schemas, constantes, utils  |
 
@@ -42,7 +42,7 @@ epde/
 ├── apps/
 │   ├── api/                          # ── @epde/api ──────────────────────
 │   │   ├── prisma/
-│   │   │   ├── schema.prisma         # 15 modelos, 17 enums
+│   │   │   ├── schema.prisma         # 23 modelos, 17 enums
 │   │   │   ├── seed.ts               # Admin + 13 categorias default + FK linkage
 │   │   │   └── migrations/
 │   │   ├── src/
@@ -108,7 +108,7 @@ epde/
 │   │   │   │       ├── service-requests/  # Solicitudes
 │   │   │   │       └── notifications/     # Notificaciones
 │   │   │   ├── components/
-│   │   │   │   ├── ui/               # 18 componentes shadcn/ui
+│   │   │   │   ├── ui/               # 23 componentes shadcn/ui
 │   │   │   │   ├── data-table/       # DataTable wrapper (TanStack Table)
 │   │   │   │   ├── layout/           # Header, Sidebar
 │   │   │   │   └── landing/          # landing-page.tsx (composicion) + sections/ (11 archivos) + landing-data.ts
@@ -644,7 +644,7 @@ NUNCA usar hex literals en estos archivos — importar siempre desde `DESIGN_TOK
 
 ### Componentes UI (Web — shadcn/ui)
 
-18 componentes instalados, estilo **new-york**:
+23 componentes instalados, estilo **new-york**:
 
 | Componente | Uso principal                                              |
 | ---------- | ---------------------------------------------------------- |
@@ -785,7 +785,7 @@ const form = useForm<MyInput>({
 
 PostgreSQL 16, ORM Prisma 6, Docker Compose para desarrollo.
 
-### Modelo de Datos (15 modelos)
+### Modelo de Datos (23 modelos)
 
 ```
 User ─1:N─ Property ─1:1─ MaintenancePlan ─1:N─ Task ─1:N─ TaskAuditLog
@@ -806,7 +806,7 @@ CategoryTemplate ─1:N─ TaskTemplate
 **Nota:** `TaskAuditLog` registra el historial de cambios de cada tarea (before/after snapshot).
 `CategoryTemplate`/`TaskTemplate` son plantillas de configuracion inicial — no estan en el diagrama principal.
 
-### Enums (11)
+### Enums (17)
 
 `UserRole`, `UserStatus`, `PropertyType`, `PlanStatus`, `TaskPriority`, `RecurrenceType`, `TaskStatus`, `BudgetStatus`, `ServiceUrgency`, `ServiceStatus`, `NotificationType`
 

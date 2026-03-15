@@ -79,6 +79,8 @@
 67. **Dashboard queries con `$queryRaw` o `groupBy`** — Queries de agregacion (conteos, sumas, promedios) DEBEN usar `$queryRaw` con `GROUP BY` o Prisma `groupBy`. NUNCA cargar tablas enteras en memoria para agregar en JS
 68. **PII masking en logs** — Emails se logean truncados (`maskEmail()`): `use***@domain.com`. Pino tiene `redact` configurado para headers de auth/cookies. NUNCA logear emails, tokens o passwords completos
 69. **Timezone Argentina (UTC-3) en dedup de reminders** — `findTodayReminderTaskIds` calcula medianoche AR en UTC con offset fijo (Argentina no tiene DST). No usar `setHours(0,0,0,0)` que depende del timezone del server
+70. **Multer `limits.fileSize`** — `FileInterceptor` DEBE incluir `{ limits: { fileSize: MAX_SIZE } }` para abortar uploads mid-stream. NUNCA depender solo de checks post-buffer (file ya esta en memoria)
+71. **`trust proxy` en produccion** — `app.set('trust proxy', 1)` DEBE estar en main.ts para que `req.ip` refleje la IP del cliente real detras de reverse proxies (Render, Cloudflare, etc.)
 
 ### NUNCA
 

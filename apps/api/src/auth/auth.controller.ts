@@ -63,7 +63,7 @@ export class AuthController {
       httpOnly: true,
       secure: this.isProduction || this.cookieSameSite === 'none',
       sameSite: this.cookieSameSite,
-      path: '/',
+      path: '/api',
       maxAge: 15 * 60 * 1000, // 15 minutes — must match JWT_EXPIRATION
     };
   }
