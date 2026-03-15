@@ -33,7 +33,7 @@
     "husky": "^9",
     "lint-staged": "^15",
     "prettier": "^3.5",
-    "prettier-plugin-tailwindcss": "^0.6",
+    "prettier-plugin-tailwindcss": "^0.7",
     "turbo": "^2",
     "typescript": "^5.7"
   },
