@@ -25,6 +25,7 @@ import { CollapsibleSection } from '@/components/collapsible-section';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { BudgetStatusBadge } from '@/components/status-badge';
+import { TextInputModal } from '@/components/text-input-modal';
 import {
   useAddBudgetComment,
   useBudget,
@@ -131,6 +132,7 @@ export default function BudgetDetailScreen() {
   const addComment = useAddBudgetComment();
 
   const [commentText, setCommentText] = useState('');
+  const [editTitleVisible, setEditTitleVisible] = useState(false);
 
   const isTerminal = budget ? isBudgetTerminal(budget.status) : false;
 
@@ -160,17 +162,7 @@ export default function BudgetDetailScreen() {
   const handleEdit = () => {
     if (!budget) return;
     haptics.light();
-    Alert.prompt(
-      'Editar Título',
-      'Ingresá el nuevo título:',
-      (newTitle) => {
-        if (newTitle?.trim()) {
-          editBudget.mutate({ id, title: newTitle.trim() });
-        }
-      },
-      'plain-text',
-      budget.title,
-    );
+    setEditTitleVisible(true);
   };
 
   const handleAddComment = () => {
@@ -422,6 +414,15 @@ export default function BudgetDetailScreen() {
           </View>
         </CollapsibleSection>
       </Animated.ScrollView>
+
+      <TextInputModal
+        visible={editTitleVisible}
+        title="Editar Título"
+        placeholder="Nuevo título"
+        defaultValue={budget.title}
+        onSubmit={(newTitle) => editBudget.mutate({ id, title: newTitle })}
+        onClose={() => setEditTitleVisible(false)}
+      />
     </View>
   );
 }

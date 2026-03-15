@@ -74,7 +74,14 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
-  const { register, handleSubmit, setValue, reset, control } = useForm<CompleteTaskInput>({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    control,
+    formState: { errors },
+  } = useForm<CompleteTaskInput>({
     resolver: zodResolver(completeTaskSchema),
   });
 
@@ -140,61 +147,81 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
           <DialogTitle>Completar: {task.name}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <Controller
-            control={control}
-            name="result"
-            render={({ field }) => (
-              <LabelSelect
-                label="Resultado"
-                labels={TASK_RESULT_LABELS}
-                value={field.value}
-                onChange={field.onChange}
-                placeholder="¿Cómo resultó?"
-              />
+          <div>
+            <Controller
+              control={control}
+              name="result"
+              render={({ field }) => (
+                <LabelSelect
+                  label="Resultado"
+                  labels={TASK_RESULT_LABELS}
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="¿Cómo resultó?"
+                />
+              )}
+            />
+            {errors.result && (
+              <p className="text-destructive mt-1 text-sm">{errors.result.message}</p>
             )}
-          />
+          </div>
 
-          <Controller
-            control={control}
-            name="conditionFound"
-            render={({ field }) => (
-              <LabelSelect
-                label="Condición encontrada"
-                labels={CONDITION_FOUND_LABELS}
-                value={field.value}
-                onChange={field.onChange}
-                placeholder="Estado general"
-              />
+          <div>
+            <Controller
+              control={control}
+              name="conditionFound"
+              render={({ field }) => (
+                <LabelSelect
+                  label="Condición encontrada"
+                  labels={CONDITION_FOUND_LABELS}
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Estado general"
+                />
+              )}
+            />
+            {errors.conditionFound && (
+              <p className="text-destructive mt-1 text-sm">{errors.conditionFound.message}</p>
             )}
-          />
+          </div>
 
-          <Controller
-            control={control}
-            name="executor"
-            render={({ field }) => (
-              <LabelSelect
-                label="¿Quién lo hizo?"
-                labels={TASK_EXECUTOR_LABELS}
-                value={field.value}
-                onChange={field.onChange}
-                placeholder="Ejecutor"
-              />
+          <div>
+            <Controller
+              control={control}
+              name="executor"
+              render={({ field }) => (
+                <LabelSelect
+                  label="¿Quién lo hizo?"
+                  labels={TASK_EXECUTOR_LABELS}
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Ejecutor"
+                />
+              )}
+            />
+            {errors.executor && (
+              <p className="text-destructive mt-1 text-sm">{errors.executor.message}</p>
             )}
-          />
+          </div>
 
-          <Controller
-            control={control}
-            name="actionTaken"
-            render={({ field }) => (
-              <LabelSelect
-                label="Acción realizada"
-                labels={ACTION_TAKEN_LABELS}
-                value={field.value}
-                onChange={field.onChange}
-                placeholder="¿Qué se hizo?"
-              />
+          <div>
+            <Controller
+              control={control}
+              name="actionTaken"
+              render={({ field }) => (
+                <LabelSelect
+                  label="Acción realizada"
+                  labels={ACTION_TAKEN_LABELS}
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="¿Qué se hizo?"
+                />
+              )}
+            />
+            {errors.actionTaken && (
+              <p className="text-destructive mt-1 text-sm">{errors.actionTaken.message}</p>
             )}
-          />
+          </div>
 
           <div className="space-y-2">
             <Label>Costo (opcional)</Label>

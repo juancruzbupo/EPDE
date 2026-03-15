@@ -1,5 +1,6 @@
 import type { NotificationPublic, NotificationType } from '@epde/shared';
 import { formatRelativeDate, NOTIFICATION_TYPE_LABELS } from '@epde/shared';
+import { useRouter } from 'expo-router';
 import { memo, useCallback } from 'react';
 import { ActivityIndicator, FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
 
@@ -71,7 +72,17 @@ const NotificationCard = memo(function NotificationCard({
   );
 });
 
+function getNotificationRoute(n: NotificationPublic): string | null {
+  const d = n.data as Record<string, string> | null;
+  if (!d) return null;
+  if (n.type === 'BUDGET_UPDATE' && d.budgetId) return `/budget/${d.budgetId}`;
+  if (n.type === 'SERVICE_UPDATE' && d.serviceRequestId)
+    return `/service-requests/${d.serviceRequestId}`;
+  return null;
+}
+
 export default function NotificationsScreen() {
+  const router = useRouter();
   const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useNotifications();
   const { data: unreadCount } = useUnreadCount();
@@ -107,6 +118,8 @@ export default function NotificationsScreen() {
       haptics.light();
       markAsRead.mutate(notification.id);
     }
+    const route = getNotificationRoute(notification);
+    if (route) router.push(route as never);
   };
 
   const handleMarkAllAsRead = () => {

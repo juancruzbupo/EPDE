@@ -29,6 +29,7 @@ import { CollapsibleSection } from '@/components/collapsible-section';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { ServiceStatusBadge, UrgencyBadge } from '@/components/status-badge';
+import { TextInputModal } from '@/components/text-input-modal';
 import {
   useAddServiceRequestAttachments,
   useAddServiceRequestComment,
@@ -127,23 +128,14 @@ export default function ServiceRequestDetailScreen() {
 
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
+  const [editTitleVisible, setEditTitleVisible] = useState(false);
 
   const isTerminal = request ? isServiceRequestTerminal(request.status) : false;
 
   const handleEdit = () => {
     if (!request) return;
     haptics.light();
-    Alert.prompt(
-      'Editar Título',
-      'Ingresá el nuevo título:',
-      (newTitle) => {
-        if (newTitle?.trim()) {
-          editRequest.mutate({ id, title: newTitle.trim() });
-        }
-      },
-      'plain-text',
-      request.title,
-    );
+    setEditTitleVisible(true);
   };
 
   const handleAddComment = () => {
@@ -390,6 +382,15 @@ export default function ServiceRequestDetailScreen() {
           </View>
         </CollapsibleSection>
       </Animated.ScrollView>
+
+      <TextInputModal
+        visible={editTitleVisible}
+        title="Editar Título"
+        placeholder="Nuevo título"
+        defaultValue={request.title}
+        onSubmit={(newTitle) => editRequest.mutate({ id, title: newTitle })}
+        onClose={() => setEditTitleVisible(false)}
+      />
 
       {/* Full-screen photo preview */}
       <Modal visible={!!previewPhoto} transparent animationType="fade">

@@ -32,7 +32,7 @@ const TaskCard = memo(function TaskCard({ task, index }: { task: UpcomingTask; i
         accessibilityRole="button"
         accessibilityLabel={`Tarea: ${task.name}`}
         className="border-border bg-card mb-3 rounded-xl border p-3"
-        onPress={() => router.push(`/property/${task.propertyId}` as never)}
+        onPress={() => router.push(`/task/${task.maintenancePlanId}/${task.id}` as never)}
       >
         <View className="mb-1 flex-row items-center justify-between">
           <Text style={TYPE.titleSm} className="text-foreground flex-1" numberOfLines={1}>
@@ -136,6 +136,10 @@ export default function DashboardScreen() {
               />
               <AnimatedStatCard title="Pendientes" value={stats.pendingTasks} index={1} />
               <AnimatedStatCard title="Completadas" value={stats.completedThisMonth} index={2} />
+            </View>
+            <View className="mt-3 flex-row gap-3">
+              <AnimatedStatCard title="Presupuestos" value={stats.pendingBudgets} index={3} />
+              <AnimatedStatCard title="Servicios" value={stats.openServices} index={4} />
             </View>
           </View>
         ) : null}

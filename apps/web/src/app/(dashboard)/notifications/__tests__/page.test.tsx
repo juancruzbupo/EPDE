@@ -121,7 +121,7 @@ describe('NotificationsPage', () => {
     } as unknown as ReturnType<typeof useNotifications>);
 
     render(<NotificationsPage />);
-    expect(screen.getByText('No tenés notificaciones')).toBeInTheDocument();
+    expect(screen.getByText('No tenés notificaciones por ahora.')).toBeInTheDocument();
   });
 
   it('renders page title and notification data', () => {

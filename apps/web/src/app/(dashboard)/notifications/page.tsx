@@ -3,8 +3,10 @@
 import type { NotificationType } from '@epde/shared';
 import { formatRelativeDate, NOTIFICATION_TYPE_LABELS } from '@epde/shared';
 import { Bell, CheckCheck, Clock, FileText, Wrench } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
+import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
@@ -21,7 +23,19 @@ const typeIcons: Record<NotificationType, typeof Bell> = {
   SYSTEM: Bell,
 };
 
+function getNotificationHref(n: NotificationPublic): string | null {
+  const d = n.data as Record<string, string> | null;
+  if (!d) return null;
+  if (n.type === 'BUDGET_UPDATE' && d.budgetId) return `/budgets/${d.budgetId}`;
+  if (n.type === 'SERVICE_UPDATE' && d.serviceRequestId)
+    return `/service-requests/${d.serviceRequestId}`;
+  // TASK_REMINDER: navigate to property (task detail is inside property view)
+  if (n.type === 'TASK_REMINDER' && d.taskId) return `/tasks`;
+  return null;
+}
+
 export default function NotificationsPage() {
+  const router = useRouter();
   const { data, isLoading, isError, refetch, hasNextPage, fetchNextPage } = useNotifications();
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
@@ -32,6 +46,8 @@ export default function NotificationsPage() {
     if (!notification.read) {
       markAsRead.mutate(notification.id);
     }
+    const href = getNotificationHref(notification);
+    if (href) router.push(href);
   };
 
   return (
@@ -64,7 +80,7 @@ export default function NotificationsPage() {
           className="justify-center py-24"
         />
       ) : allNotifications.length === 0 ? (
-        <p className="text-muted-foreground py-12 text-center text-sm">No tenés notificaciones</p>
+        <EmptyState title="Sin notificaciones" message="No tenés notificaciones por ahora." />
       ) : (
         <ul className="space-y-2">
           {allNotifications.map((n) => {
