@@ -1,4 +1,10 @@
-import type { PlanStatus, RecurrenceType, TaskPriority, TaskStatus } from '../enums';
+import type {
+  PlanStatus,
+  PropertySector,
+  RecurrenceType,
+  TaskPriority,
+  TaskStatus,
+} from '../enums';
 import type { BaseEntity } from '../index';
 import type { PropertyBrief, Serialized, UserBriefWithEmail } from './common';
 import type { TaskPublic } from './task';
@@ -34,6 +40,7 @@ export interface TaskListItem {
   name: string;
   status: TaskStatus;
   priority: TaskPriority;
+  sector: PropertySector | null;
   nextDueDate: string | null;
   recurrenceType: RecurrenceType;
   category: { id: string; name: string; icon: string | null };

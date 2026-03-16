@@ -8,6 +8,7 @@ import type {
   NotificationType,
   PlanStatus,
   ProfessionalRequirement,
+  PropertySector,
   PropertyType,
   RecurrenceType,
   ServiceStatus,
@@ -94,6 +95,18 @@ export const PROPERTY_TYPE_LABELS = {
   COUNTRY_HOUSE: 'Casa de Campo',
   OTHER: 'Otro',
 } satisfies Record<PropertyType, string>;
+
+export const PROPERTY_SECTOR_LABELS = {
+  EXTERIOR: 'Exterior / Fachada',
+  ROOF: 'Techo / Cubierta',
+  TERRACE: 'Terraza / Balcón',
+  INTERIOR: 'Interior general',
+  KITCHEN: 'Cocina',
+  BATHROOM: 'Baño',
+  BASEMENT: 'Subsuelo / Cimientos',
+  GARDEN: 'Jardín / Perímetro',
+  INSTALLATIONS: 'Instalaciones centrales',
+} satisfies Record<PropertySector, string>;
 
 export const RECURRENCE_TYPE_LABELS = {
   MONTHLY: 'Mensual',

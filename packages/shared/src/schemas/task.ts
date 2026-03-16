@@ -3,6 +3,7 @@ import { z } from 'zod';
 import {
   PROFESSIONAL_REQUIREMENT_VALUES,
   ProfessionalRequirement,
+  PROPERTY_SECTOR_VALUES,
   RECURRENCE_TYPE_VALUES,
   RecurrenceType,
   TASK_PRIORITY_VALUES,
@@ -39,6 +40,7 @@ function customRecurrenceRefine(
 export const createTaskSchema = z.object({
   maintenancePlanId: z.string().uuid('ID de plan inválido'),
   categoryId: z.string().uuid('ID de categoría inválido'),
+  sector: z.enum(PROPERTY_SECTOR_VALUES).optional(),
   name: z
     .string()
     .min(2, 'El nombre debe tener al menos 2 caracteres')
@@ -62,6 +64,7 @@ export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 
 export const updateTaskSchema = z.object({
   categoryId: z.string().uuid('ID de categoría inválido').optional(),
+  sector: z.enum(PROPERTY_SECTOR_VALUES).optional().nullable(),
   name: z
     .string()
     .min(2, 'El nombre debe tener al menos 2 caracteres')

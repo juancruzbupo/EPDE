@@ -143,6 +143,18 @@ enum ActionTaken {
   NO_ACTION
 }
 
+enum PropertySector {
+  EXTERIOR
+  ROOF
+  TERRACE
+  INTERIOR
+  KITCHEN
+  BATHROOM
+  BASEMENT
+  GARDEN
+  INSTALLATIONS
+}
+
 // ─── Models ──────────────────────────────────────────────
 
 model User {
@@ -244,6 +256,7 @@ model Task {
   id                       String                  @id @default(uuid())
   maintenancePlanId        String
   categoryId               String
+  sector                   PropertySector?
   name                     String                  @db.VarChar(200)
   description              String?                 @db.VarChar(2000)
   priority                 TaskPriority            @default(MEDIUM)
@@ -278,6 +291,8 @@ model Task {
   @@index([status, nextDueDate])
   @@index([status, deletedAt])
   @@index([categoryId])
+  @@index([sector])
+  @@index([maintenancePlanId, sector])
   @@index([nextDueDate, status])
   @@index([maintenancePlanId, deletedAt, status])
 }

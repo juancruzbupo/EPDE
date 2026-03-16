@@ -167,6 +167,21 @@ export const ActionTaken = {
 } as const;
 export type ActionTaken = (typeof ActionTaken)[keyof typeof ActionTaken];
 
+// ─── Property Sectors (zones of a house) ──────────────────
+
+export const PropertySector = {
+  EXTERIOR: 'EXTERIOR',
+  ROOF: 'ROOF',
+  TERRACE: 'TERRACE',
+  INTERIOR: 'INTERIOR',
+  KITCHEN: 'KITCHEN',
+  BATHROOM: 'BATHROOM',
+  BASEMENT: 'BASEMENT',
+  GARDEN: 'GARDEN',
+  INSTALLATIONS: 'INSTALLATIONS',
+} as const;
+export type PropertySector = (typeof PropertySector)[keyof typeof PropertySector];
+
 // ─── Enum Value Arrays (for Zod schemas) ─────────────────
 
 export const TASK_TYPE_VALUES = Object.values(TaskType) as [TaskType, ...TaskType[]];
@@ -214,6 +229,10 @@ export const ACTION_TAKEN_VALUES = Object.values(ActionTaken) as [ActionTaken, .
 export const NOTIFICATION_TYPE_VALUES = Object.values(NotificationType) as [
   NotificationType,
   ...NotificationType[],
+];
+export const PROPERTY_SECTOR_VALUES = Object.values(PropertySector) as [
+  PropertySector,
+  ...PropertySector[],
 ];
 export const ACTIVITY_TYPE_VALUES = Object.values(ActivityType) as [
   ActivityType,

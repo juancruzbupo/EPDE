@@ -2,6 +2,7 @@ import type {
   ActionTaken,
   ConditionFound,
   ProfessionalRequirement,
+  PropertySector,
   RecurrenceType,
   TaskExecutor,
   TaskPriority,
@@ -15,6 +16,7 @@ import type { Serialized } from './common';
 export interface Task extends BaseEntity, SoftDeletable {
   maintenancePlanId: string;
   categoryId: string;
+  sector: PropertySector | null;
   name: string;
   description: string | null;
   priority: TaskPriority;
