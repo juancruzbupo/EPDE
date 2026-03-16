@@ -5,6 +5,7 @@ import {
   formatRelativeDate,
   PRIORITY_VARIANT,
   PROFESSIONAL_REQUIREMENT_LABELS,
+  PROPERTY_SECTOR_LABELS,
   RECURRENCE_TYPE_LABELS,
   TASK_PRIORITY_LABELS,
   TASK_STATUS_LABELS,
@@ -71,6 +72,9 @@ export function TaskDetailSheet({
               {TASK_STATUS_LABELS[task.status] ?? task.status}
             </Badge>
             <Badge variant="outline">{task.category.name}</Badge>
+            {task.sector && (
+              <Badge variant="outline">{PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}</Badge>
+            )}
             <Badge variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'} className="text-xs">
               {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
             </Badge>

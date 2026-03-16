@@ -8,6 +8,7 @@ import {
   CONDITION_FOUND_LABELS,
   formatRelativeDate,
   PROFESSIONAL_REQUIREMENT_LABELS,
+  PROPERTY_SECTOR_LABELS,
   RECURRENCE_TYPE_LABELS,
   TASK_TYPE_LABELS,
   TaskStatus,
@@ -219,6 +220,16 @@ export default function TaskDetailScreen() {
                 {task.category.name}
               </Text>
             </View>
+            {task.sector && (
+              <View className="flex-row justify-between">
+                <Text style={TYPE.bodyMd} className="text-muted-foreground">
+                  Sector
+                </Text>
+                <Text style={TYPE.labelLg} className="text-foreground">
+                  {PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}
+                </Text>
+              </View>
+            )}
           </View>
         </View>
 

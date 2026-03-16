@@ -1,5 +1,5 @@
 import type { TaskPublic } from '@epde/shared';
-import { formatRelativeDate, TaskStatus } from '@epde/shared';
+import { formatRelativeDate, PROPERTY_SECTOR_LABELS, TaskStatus } from '@epde/shared';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import {
@@ -64,7 +64,14 @@ function TaskCard({ task, planId }: { task: TaskPublic; planId: string }) {
         <PriorityBadge priority={task.priority} />
       </View>
       <View className="ml-4 flex-row items-center justify-between">
-        <TaskStatusBadge status={task.status} />
+        <View className="flex-row items-center gap-2">
+          <TaskStatusBadge status={task.status} />
+          {task.sector && (
+            <Text style={TYPE.labelMd} className="text-muted-foreground">
+              {PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}
+            </Text>
+          )}
+        </View>
         <Text style={TYPE.bodySm} className="text-muted-foreground">
           {task.nextDueDate ? formatRelativeDate(new Date(task.nextDueDate)) : 'Según detección'}
         </Text>
