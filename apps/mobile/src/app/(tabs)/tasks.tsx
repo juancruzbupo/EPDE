@@ -31,8 +31,9 @@ const PRIORITY_FILTERS: { key: TaskPriority | undefined; label: string }[] = [
   { key: 'LOW', label: 'Baja' },
 ];
 
-/** Status order for stat cards: actionable first. */
-const STAT_STATUSES: TaskStatus[] = [TS.OVERDUE, TS.PENDING, TS.UPCOMING, TS.COMPLETED];
+/** Status order for stat cards: actionable first.
+ * COMPLETED excluded — tasks recycle back to PENDING after completion (tracked via TaskLog). */
+const STAT_STATUSES: TaskStatus[] = [TS.OVERDUE, TS.PENDING, TS.UPCOMING];
 
 const STAT_COLORS: Record<TaskStatus, string> = {
   [TS.OVERDUE]: 'text-red-600',

@@ -19,6 +19,7 @@ export interface ServiceRequestFilters {
   status?: ServiceStatus;
   urgency?: ServiceUrgency;
   propertyId?: string;
+  userId?: string;
   search?: string;
   cursor?: string;
   take?: number;

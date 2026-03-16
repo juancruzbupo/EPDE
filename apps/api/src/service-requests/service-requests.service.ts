@@ -59,7 +59,7 @@ export class ServiceRequestsService {
       urgency: filters.urgency,
       propertyId: filters.propertyId,
       search: filters.search,
-      userId: currentUser.role === UserRole.CLIENT ? currentUser.id : undefined,
+      userId: currentUser.role === UserRole.CLIENT ? currentUser.id : (filters.userId ?? undefined),
     });
   }
 

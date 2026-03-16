@@ -39,6 +39,21 @@ export function clientColumns({
       cell: ({ row }) => row.original.phone || '—',
     },
     {
+      id: 'properties',
+      header: 'Propiedades',
+      cell: ({ row }) => {
+        const count = (row.original as ClientPublic & { _count?: { properties: number } })._count
+          ?.properties;
+        return count != null ? (
+          <Badge variant="secondary" className="text-xs">
+            {count}
+          </Badge>
+        ) : (
+          '—'
+        );
+      },
+    },
+    {
       accessorKey: 'status',
       header: 'Estado',
       cell: ({ row }) => (
@@ -48,8 +63,25 @@ export function clientColumns({
       ),
     },
     {
+      id: 'lastLogin',
+      header: 'Último acceso',
+      cell: ({ row }) => {
+        const lastLogin = (row.original as ClientPublic & { lastLoginAt?: string | null })
+          .lastLoginAt;
+        if (!lastLogin) return <span className="text-muted-foreground text-xs">Nunca</span>;
+        const daysAgo = Math.floor(
+          (Date.now() - new Date(lastLogin).getTime()) / (1000 * 60 * 60 * 24),
+        );
+        const color =
+          daysAgo <= 7 ? 'text-success' : daysAgo <= 30 ? 'text-amber-600' : 'text-destructive';
+        return (
+          <span className={`text-xs ${color}`}>{formatRelativeDate(new Date(lastLogin))}</span>
+        );
+      },
+    },
+    {
       accessorKey: 'createdAt',
-      header: 'Fecha',
+      header: 'Creado',
       cell: ({ row }) => formatRelativeDate(new Date(row.original.createdAt)),
     },
     {

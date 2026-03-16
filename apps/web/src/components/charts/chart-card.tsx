@@ -1,6 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { ExternalLink } from 'lucide-react';
+import Link from 'next/link';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
@@ -17,6 +19,8 @@ interface ChartCardProps {
   height?: number;
   className?: string;
   action?: React.ReactNode;
+  /** If provided, renders a drill-down link in the card header. */
+  href?: string;
 }
 
 export function ChartCard({
@@ -30,6 +34,7 @@ export function ChartCard({
   height = 300,
   className,
   action,
+  href,
 }: ChartCardProps) {
   const { shouldAnimate } = useMotionPreference();
   const Wrapper = shouldAnimate ? motion.div : 'div';
@@ -47,7 +52,18 @@ export function ChartCard({
               <p className="type-body-sm text-muted-foreground mt-1">{description}</p>
             )}
           </div>
-          {action}
+          <div className="flex items-center gap-2">
+            {action}
+            {href && (
+              <Link
+                href={href}
+                className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs transition-colors"
+              >
+                Ver detalle
+                <ExternalLink className="h-3 w-3" />
+              </Link>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (

@@ -1,0 +1,88 @@
+'use client';
+
+import { CheckCircle, Circle, Home, ListChecks } from 'lucide-react';
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+interface WelcomeCardProps {
+  userName: string;
+  hasProperties: boolean;
+  hasActivePlan: boolean;
+  hasCompletedTasks: boolean;
+}
+
+export function WelcomeCard({
+  userName,
+  hasProperties,
+  hasActivePlan,
+  hasCompletedTasks,
+}: WelcomeCardProps) {
+  const steps = [
+    { label: 'Tu propiedad fue registrada', done: hasProperties },
+    { label: 'Tu plan de mantenimiento está activo', done: hasActivePlan },
+    { label: 'Completá tu primera tarea cuando llegue la fecha', done: hasCompletedTasks },
+  ];
+
+  const completedSteps = steps.filter((s) => s.done).length;
+
+  return (
+    <Card className="border-primary/20 bg-primary/5 mb-6">
+      <CardHeader>
+        <CardTitle className="type-title-lg">Bienvenido/a, {userName}</CardTitle>
+        <p className="type-body-md text-muted-foreground">
+          Tu sistema de mantenimiento preventivo está siendo configurado. Seguí estos pasos:
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-3">
+          {steps.map((step) => (
+            <div key={step.label} className="flex items-center gap-3">
+              {step.done ? (
+                <CheckCircle className="text-success h-5 w-5 shrink-0" />
+              ) : (
+                <Circle className="text-muted-foreground h-5 w-5 shrink-0" />
+              )}
+              <span
+                className={`text-sm ${step.done ? 'text-muted-foreground line-through' : 'text-foreground font-medium'}`}
+              >
+                {step.label}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <p className="type-body-sm text-muted-foreground">
+          {completedSteps} de {steps.length} completados
+        </p>
+
+        <div className="flex gap-2">
+          {hasProperties ? (
+            <Button asChild size="sm">
+              <Link href="/properties">
+                <Home className="mr-2 h-4 w-4" />
+                Ver mi propiedad
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild size="sm" variant="outline" disabled>
+              <span>
+                <Home className="mr-2 h-4 w-4" />
+                Esperando registro de propiedad
+              </span>
+            </Button>
+          )}
+          {hasActivePlan && (
+            <Button asChild size="sm" variant="outline">
+              <Link href="/tasks">
+                <ListChecks className="mr-2 h-4 w-4" />
+                Ver tareas
+              </Link>
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

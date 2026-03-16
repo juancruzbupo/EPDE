@@ -42,6 +42,9 @@ export class AuthService {
   async login(user: { id: string; email: string; role: string }, meta?: LoginMeta) {
     const { accessToken, refreshToken } = await this.tokenService.generateTokenPair(user);
 
+    // Track last login timestamp (fire-and-forget — don't block login on failure)
+    void this.usersService.update(user.id, { lastLoginAt: new Date() }).catch(() => {});
+
     const fullUser = await this.usersService.findById(user.id);
     const { passwordHash: _passwordHash, ...userWithoutPassword } = fullUser;
 

@@ -2,15 +2,29 @@
 
 import type { ClientPublic } from '@epde/shared';
 import {
+  BUDGET_STATUS_LABELS,
+  BUDGET_STATUS_VARIANT,
   formatRelativeDate,
   PLAN_STATUS_LABELS,
   PLAN_STATUS_VARIANT,
+  SERVICE_STATUS_LABELS,
+  SERVICE_STATUS_VARIANT,
   type UpdateClientInput,
   updateClientSchema,
   USER_STATUS_LABELS,
 } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, Calendar, Home, Mail, Phone, Trash2, User as UserIcon } from 'lucide-react';
+import {
+  ArrowLeft,
+  Calendar,
+  FileText,
+  Home,
+  Mail,
+  Phone,
+  Trash2,
+  User as UserIcon,
+  Wrench,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -24,8 +38,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useBudgets } from '@/hooks/use-budgets';
 import { useClient, useDeleteClient, useUpdateClient } from '@/hooks/use-clients';
 import { useProperties } from '@/hooks/use-properties';
+import { useServiceRequests } from '@/hooks/use-service-requests';
 
 interface ClientDetailProps {
   id: string;
@@ -147,6 +164,21 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
                   </dt>
                   <dd className="font-medium">{formatRelativeDate(new Date(client.createdAt))}</dd>
                 </div>
+                <div className="space-y-1">
+                  <dt className="text-muted-foreground flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5" />
+                    Último acceso
+                  </dt>
+                  <dd className="font-medium">
+                    {(client as ClientPublic & { lastLoginAt?: string | null }).lastLoginAt
+                      ? formatRelativeDate(
+                          new Date(
+                            (client as ClientPublic & { lastLoginAt?: string | null }).lastLoginAt!,
+                          ),
+                        )
+                      : 'Nunca'}
+                  </dd>
+                </div>
               </dl>
             </div>
           )}
@@ -156,15 +188,11 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
       {/* ─── Properties Section ─────────────────────────────── */}
       <ClientPropertiesSection clientId={client.id} />
 
-      {/* ─── Budgets Section ──────────────────────────────────
-       *  BudgetFilters does not support `userId` — needs backend support.
-       *  Skipping until the API adds userId filtering for budgets.
-       * ───────────────────────────────────────────────────── */}
+      {/* ─── Budgets Section ─────────────────────────────────── */}
+      <ClientBudgetsSection clientId={client.id} clientName={client.name} />
 
-      {/* ─── Service Requests Section ─────────────────────────
-       *  ServiceRequestFilters does not support `userId` — needs backend support.
-       *  Skipping until the API adds userId filtering for service requests.
-       * ───────────────────────────────────────────────────── */}
+      {/* ─── Service Requests Section ─────────────────────────── */}
+      <ClientServiceRequestsSection clientId={client.id} clientName={client.name} />
 
       <ConfirmDialog
         open={deleteOpen}
@@ -225,6 +253,130 @@ function ClientPropertiesSection({ clientId }: { clientId: string }) {
                 ) : (
                   <span className="text-muted-foreground text-xs">Sin plan</span>
                 )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Client Budgets Section ─────────────────────────────
+
+function ClientBudgetsSection({ clientId, clientName }: { clientId: string; clientName: string }) {
+  const { data, isLoading } = useBudgets({ userId: clientId, take: 5 });
+  const budgets = data?.pages.flatMap((p) => p.data) ?? [];
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <FileText className="h-4 w-4" />
+          Presupuestos
+          {budgets.length > 0 && (
+            <Badge variant="secondary" className="ml-1">
+              {budgets.length}
+            </Badge>
+          )}
+        </CardTitle>
+        <Link
+          href={`/budgets?search=${encodeURIComponent(clientName)}`}
+          className="text-muted-foreground hover:text-foreground text-xs transition-colors"
+        >
+          Ver todos
+        </Link>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="space-y-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-8 w-full" />
+            ))}
+          </div>
+        ) : budgets.length === 0 ? (
+          <p className="text-muted-foreground text-sm">Sin presupuestos</p>
+        ) : (
+          <ul className="divide-y">
+            {budgets.map((b) => (
+              <li
+                key={b.id}
+                className="flex items-center justify-between py-2 first:pt-0 last:pb-0"
+              >
+                <Link href={`/budgets/${b.id}`} className="text-sm font-medium hover:underline">
+                  {b.title}
+                </Link>
+                <Badge variant={BUDGET_STATUS_VARIANT[b.status] ?? 'secondary'} className="text-xs">
+                  {BUDGET_STATUS_LABELS[b.status] ?? b.status}
+                </Badge>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Client Service Requests Section ────────────────────
+
+function ClientServiceRequestsSection({
+  clientId,
+  clientName,
+}: {
+  clientId: string;
+  clientName: string;
+}) {
+  const { data, isLoading } = useServiceRequests({ userId: clientId, take: 5 });
+  const requests = data?.pages.flatMap((p) => p.data) ?? [];
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Wrench className="h-4 w-4" />
+          Solicitudes de Servicio
+          {requests.length > 0 && (
+            <Badge variant="secondary" className="ml-1">
+              {requests.length}
+            </Badge>
+          )}
+        </CardTitle>
+        <Link
+          href={`/service-requests?search=${encodeURIComponent(clientName)}`}
+          className="text-muted-foreground hover:text-foreground text-xs transition-colors"
+        >
+          Ver todos
+        </Link>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="space-y-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-8 w-full" />
+            ))}
+          </div>
+        ) : requests.length === 0 ? (
+          <p className="text-muted-foreground text-sm">Sin solicitudes</p>
+        ) : (
+          <ul className="divide-y">
+            {requests.map((sr) => (
+              <li
+                key={sr.id}
+                className="flex items-center justify-between py-2 first:pt-0 last:pb-0"
+              >
+                <Link
+                  href={`/service-requests/${sr.id}`}
+                  className="text-sm font-medium hover:underline"
+                >
+                  {sr.title}
+                </Link>
+                <Badge
+                  variant={SERVICE_STATUS_VARIANT[sr.status] ?? 'secondary'}
+                  className="text-xs"
+                >
+                  {SERVICE_STATUS_LABELS[sr.status] ?? sr.status}
+                </Badge>
               </li>
             ))}
           </ul>

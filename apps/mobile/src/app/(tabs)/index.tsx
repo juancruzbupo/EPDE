@@ -16,12 +16,14 @@ import { ErrorState } from '@/components/error-state';
 import { HealthCard } from '@/components/health-card';
 import { StatCardSkeleton } from '@/components/skeleton-placeholder';
 import { PriorityBadge } from '@/components/status-badge';
+import { WelcomeCard } from '@/components/welcome-card';
 import {
   useClientAnalytics,
   useClientDashboardStats,
   useClientUpcomingTasks,
 } from '@/hooks/use-dashboard';
 import { TYPE } from '@/lib/fonts';
+import { useAuthStore } from '@/stores/auth-store';
 
 const TaskCard = memo(function TaskCard({ task, index }: { task: UpcomingTask; index: number }) {
   const router = useRouter();
@@ -64,6 +66,7 @@ const CHART_MONTH_OPTIONS = [
 
 export default function DashboardScreen() {
   const router = useRouter();
+  const userName = useAuthStore((s) => s.user?.name ?? '');
   const [chartMonths, setChartMonths] = useState(6);
   const {
     data: stats,
@@ -116,6 +119,17 @@ export default function DashboardScreen() {
         <Text style={TYPE.displayLg} className="text-foreground mb-4">
           Mi Panel
         </Text>
+
+        {/* Welcome Card — shown until client has tasks */}
+        {stats &&
+          stats.completedThisMonth === 0 &&
+          stats.pendingTasks + stats.overdueTasks === 0 && (
+            <WelcomeCard
+              userName={userName}
+              hasProperties={stats.totalProperties > 0}
+              hasActivePlan={stats.upcomingTasks > 0}
+            />
+          )}
 
         {/* Stats section */}
         {statsLoading && !stats ? (

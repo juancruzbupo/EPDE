@@ -205,6 +205,7 @@ export function AdminDashboard() {
             isEmpty={!analytics?.completionTrend.length}
             emptyIcon={<TrendingUp className="h-8 w-8" />}
             height={280}
+            href="/tasks"
           >
             {analytics && <CompletionTrendChart data={analytics.completionTrend} />}
           </ChartCard>
@@ -234,6 +235,7 @@ export function AdminDashboard() {
             isEmpty={!analytics?.problematicCategories.length}
             emptyIcon={<BarChart3 className="h-8 w-8" />}
             height={280}
+            href="/categories"
           >
             {analytics && <ProblematicCategoriesChart data={analytics.problematicCategories} />}
           </ChartCard>
@@ -247,6 +249,7 @@ export function AdminDashboard() {
             isEmpty={!analytics?.budgetPipeline.length}
             emptyIcon={<FileText className="h-8 w-8" />}
             height={280}
+            href="/budgets"
           >
             {analytics && <BudgetPipelineChart data={analytics.budgetPipeline} />}
           </ChartCard>
@@ -305,6 +308,7 @@ export function AdminDashboard() {
             isEmpty={!analytics?.categoryCosts.some((c) => Object.keys(c.categories).length > 0)}
             emptyIcon={<DollarSign className="h-8 w-8" />}
             height={300}
+            href="/tasks"
           >
             {analytics && <CategoryCostsChart data={analytics.categoryCosts} />}
           </ChartCard>

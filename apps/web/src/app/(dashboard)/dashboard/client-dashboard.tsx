@@ -29,6 +29,7 @@ import { AnimatedNumber } from '@/components/ui/animated-number';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
+import { WelcomeCard } from '@/components/welcome-card';
 import {
   useClientAnalytics,
   useClientDashboardStats,
@@ -62,6 +63,16 @@ export function ClientDashboard({ userName }: { userName: string }) {
         title={`Bienvenido, ${userName}`}
         description="Resumen de tus propiedades y tareas"
       />
+
+      {/* Welcome Card — shown until client completes their first task */}
+      {stats && stats.completedThisMonth === 0 && stats.pendingTasks + stats.overdueTasks === 0 && (
+        <WelcomeCard
+          userName={userName}
+          hasProperties={stats.totalProperties > 0}
+          hasActivePlan={stats.upcomingTasks > 0}
+          hasCompletedTasks={false}
+        />
+      )}
 
       {/* Row 1 — HealthCard */}
       {statsLoading ? (
