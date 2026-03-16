@@ -1115,6 +1115,7 @@ export async function seedDemo(prisma: PrismaClient) {
       role: 'CLIENT',
       status: 'ACTIVE',
       createdAt: monthsAgo(18),
+      lastLoginAt: daysAgo(2),
     },
   });
 
@@ -1931,11 +1932,13 @@ export async function seedDemo(prisma: PrismaClient) {
         'Grieta en muro norte creció de 0.3mm a 1.2mm en 12 meses. Necesito evaluación de ingeniero estructural para determinar causa y acción correctiva.',
       urgency: 'HIGH',
       status: 'IN_PROGRESS',
+      assignedToName: 'Ing. Juan Martínez — Estructural',
+      firstResponseAt: monthsAgo(3),
       createdAt: monthsAgo(4),
       createdBy: maria.id,
     },
   });
-  console.log('  ✓ 1 solicitud de servicio (evaluación estructural en progreso)');
+  console.log('  ✓ 1 solicitud de servicio (evaluación estructural en progreso, asignada)');
 
   // —— Audit logs, comentarios y adjuntos de la solicitud de María ——
   await prisma.serviceRequestAuditLog.createMany({
@@ -2065,6 +2068,7 @@ export async function seedDemo(prisma: PrismaClient) {
       role: 'CLIENT',
       status: 'ACTIVE',
       createdAt: monthsAgo(6),
+      lastLoginAt: daysAgo(8),
     },
   });
 
@@ -2418,6 +2422,7 @@ export async function seedDemo(prisma: PrismaClient) {
       role: 'CLIENT',
       status: 'ACTIVE',
       createdAt: monthsAgo(1),
+      lastLoginAt: daysAgo(1),
     },
   });
 
@@ -2477,6 +2482,95 @@ export async function seedDemo(prisma: PrismaClient) {
   console.log('  ✓ 1 notificación de bienvenida');
 
   // ————————————————————————————————————————————————————————————————————————
+  // PLANTILLAS DE COTIZACIÓN
+  // ————————————————————————————————————————————————————————————————————————
+
+  await prisma.quoteTemplate.create({
+    data: {
+      name: 'Reparación de techo',
+      createdBy: admin.id,
+      items: {
+        create: [
+          {
+            description: 'Mano de obra — techista',
+            quantity: 1,
+            unitPrice: 35000,
+            displayOrder: 0,
+          },
+          {
+            description: 'Sellador poliuretánico x 300ml',
+            quantity: 2,
+            unitPrice: 8500,
+            displayOrder: 1,
+          },
+          {
+            description: 'Membrana autoadhesiva 1m',
+            quantity: 3,
+            unitPrice: 4200,
+            displayOrder: 2,
+          },
+        ],
+      },
+    },
+  });
+
+  await prisma.quoteTemplate.create({
+    data: {
+      name: 'Mantenimiento eléctrico general',
+      createdBy: admin.id,
+      items: {
+        create: [
+          {
+            description: 'Inspección de tablero eléctrico',
+            quantity: 1,
+            unitPrice: 15000,
+            displayOrder: 0,
+          },
+          {
+            description: 'Ajuste de conexiones y terminales',
+            quantity: 1,
+            unitPrice: 12000,
+            displayOrder: 1,
+          },
+          {
+            description: 'Prueba de disyuntores y térmica',
+            quantity: 1,
+            unitPrice: 8000,
+            displayOrder: 2,
+          },
+          { description: 'Informe técnico', quantity: 1, unitPrice: 5000, displayOrder: 3 },
+        ],
+      },
+    },
+  });
+
+  await prisma.quoteTemplate.create({
+    data: {
+      name: 'Tratamiento de humedad',
+      createdBy: admin.id,
+      items: {
+        create: [
+          {
+            description: 'Inyección de barrera química (por metro)',
+            quantity: 5,
+            unitPrice: 18000,
+            displayOrder: 0,
+          },
+          { description: 'Revoque hidrófugo', quantity: 8, unitPrice: 6500, displayOrder: 1 },
+          {
+            description: 'Pintura antihumedad (2 manos)',
+            quantity: 8,
+            unitPrice: 3200,
+            displayOrder: 2,
+          },
+        ],
+      },
+    },
+  });
+
+  console.log('  ✓ 3 plantillas de cotización');
+
+  // ————————————————————————————————————————————————————————————————————————
   // RESUMEN
   // ————————————————————————————————————————————————————————————————————————
 
@@ -2494,10 +2588,11 @@ export async function seedDemo(prisma: PrismaClient) {
   Audit Logs:   11 (5 + 4 + 2 presup.)
   Comentarios:  6 (3 + 2 + 1 presup.)
   Adjuntos:     4 (2 + 2 presup.)
-  Servicios:    2 (IN_PROGRESS, OPEN)
+  Servicios:    2 (IN_PROGRESS con SLA tracking, OPEN)
   SR Audit Logs: 4 (3 + 1)
   SR Comentarios: 4 (3 + 1)
   SR Adjuntos:  2
+  Quote Tmpl:   3 (techo, eléctrico, humedad)
   Notific.:     7
 
   👤 María González  (maria.gonzalez@demo.com / Demo123!)

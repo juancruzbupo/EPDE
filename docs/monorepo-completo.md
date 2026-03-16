@@ -42,13 +42,13 @@ epde/
 ├── apps/
 │   ├── api/                          # ── @epde/api ──────────────────────
 │   │   ├── prisma/
-│   │   │   ├── schema.prisma         # 23 modelos, 17 enums
+│   │   │   ├── schema.prisma         # 26 modelos, 17 enums
 │   │   │   ├── seed.ts               # Admin + 13 categorias default + FK linkage
 │   │   │   └── migrations/
 │   │   ├── src/
 │   │   │   ├── main.ts               # Bootstrap (Helmet, CORS, Swagger, Cookies)
 │   │   │   ├── instrument.ts         # OpenTelemetry + Sentry instrumentation
-│   │   │   ├── app.module.ts         # Root module (imports CoreModule + 13 feature modules)
+│   │   │   ├── app.module.ts         # Root module (imports CoreModule + 15 feature modules)
 │   │   │   ├── core/                # CoreModule (@Global) — agrupa infra: Sentry, Config, Throttler, Logger, BullMQ, Prisma, Redis, Health, Metrics
 │   │   │   ├── auth/                 # JWT + Local strategy + Token Rotation (Redis)
 │   │   │   │   ├── token.service.ts # Token pairs, rotation, blacklist, reuse detection
@@ -62,6 +62,7 @@ epde/
 │   │   │   ├── budgets/              # Presupuestos (ciclo completo)
 │   │   │   ├── service-requests/     # Solicitudes + fotos
 │   │   │   ├── task-templates/        # Templates de tareas por categoria
+│   │   │   ├── quote-templates/      # Templates de cotizacion reutilizables (CRUD)
 │   │   │   ├── category-templates/   # Templates de categorias
 │   │   │   ├── notifications/        # Sistema de notificaciones (NotificationsHandlerService + BullMQ queues)
 │   │   │   ├── dashboard/            # Estadisticas agregadas (DashboardRepository standalone — queries multi-modelo)
@@ -790,7 +791,7 @@ const form = useForm<MyInput>({
 
 PostgreSQL 16, ORM Prisma 6, Docker Compose para desarrollo.
 
-### Modelo de Datos (23 modelos)
+### Modelo de Datos (26 modelos)
 
 ```
 User ─1:N─ Property ─1:1─ MaintenancePlan ─1:N─ Task ─1:N─ TaskAuditLog
@@ -806,10 +807,14 @@ User ─1:N─ Property ─1:1─ MaintenancePlan ─1:N─ Task ─1:N─ TaskA
 
 Category ─1:N─ Task
 CategoryTemplate ─1:N─ TaskTemplate
+QuoteTemplate ─1:N─ QuoteTemplateItem
+User ─1:N─ PushToken
 ```
 
 **Nota:** `TaskAuditLog` registra el historial de cambios de cada tarea (before/after snapshot).
 `CategoryTemplate`/`TaskTemplate` son plantillas de configuracion inicial — no estan en el diagrama principal.
+`QuoteTemplate`/`QuoteTemplateItem` son plantillas de cotizacion reutilizables para el admin.
+`PushToken` almacena device tokens para push notifications (Expo Push API).
 
 ### Enums (17)
 
@@ -876,19 +881,20 @@ Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `
 | Auth       | JWT cookies (web) / Bearer (mobile)                                             |
 | Rate limit | 5/s, 30/10s, 5/min (login, refresh), 3/s+20/min (upload), 3/hora (set-password) |
 
-### Endpoints (17 grupos)
+### Endpoints (18 grupos)
 
 1. **Health** — `GET /health` (DB + Redis via @nestjs/terminus)
 2. **Auth** — login, refresh, logout, me, set-password
-3. **Clients** — CRUD (ADMIN only)
-4. **Properties** — CRUD + filtro por rol
+3. **Clients** — CRUD (ADMIN only) + bulk-reinvite + bulk-delete
+4. **Properties** — CRUD + filtro por rol + expenses + photos
 5. **Categories** — CRUD
 6. **Maintenance Plans** — CRUD + tareas + complete + notes + reorder
 7. **Budgets** — CRUD + respond + status changes
 8. **Service Requests** — CRUD + status changes (linear state machine: OPEN → IN_REVIEW → IN_PROGRESS → RESOLVED → CLOSED, enforced via `InvalidServiceStatusTransitionError`)
-9. **Notifications** — list, unread-count, mark-read, mark-all-read
+9. **Notifications** — list, unread-count, mark-read, mark-all-read + push-token register/unregister
 10. **Upload** — multipart/form-data a R2
-11. **Dashboard** — stats, upcoming-tasks, recent-activity
+11. **Dashboard** — stats, upcoming-tasks, recent-activity, analytics (incl. SLA metrics)
+12. **Quote Templates** — CRUD (ADMIN only) — plantillas de cotizacion reutilizables
 
 ### Formato de Respuesta
 
