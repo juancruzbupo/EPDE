@@ -1,6 +1,12 @@
 'use client';
 
-import { formatRelativeDate, PRIORITY_VARIANT, TASK_PRIORITY_LABELS } from '@epde/shared';
+import {
+  formatRelativeDate,
+  PRIORITY_VARIANT,
+  PROPERTY_SECTOR_LABELS,
+  type PropertySector,
+  TASK_PRIORITY_LABELS,
+} from '@epde/shared';
 import { motion } from 'framer-motion';
 import {
   AlertTriangle,
@@ -223,6 +229,56 @@ export function ClientDashboard({ userName }: { userName: string }) {
           {analytics && <CategoryBreakdown data={analytics.categoryBreakdown} />}
         </ChartCard>
       </div>
+
+      {/* Row 4b — Sector Breakdown */}
+      {analytics && analytics.sectorBreakdown.length > 0 && (
+        <div className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="type-title-md">Estado por Sector</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {analytics.sectorBreakdown.map((s) => {
+                  const label = PROPERTY_SECTOR_LABELS[s.sector as PropertySector] ?? s.sector;
+                  const pctOk =
+                    s.total > 0 ? Math.round(((s.total - s.overdue) / s.total) * 100) : 100;
+                  return (
+                    <Link
+                      key={s.sector}
+                      href={`/tasks?sector=${s.sector}`}
+                      className="bg-muted/40 hover:bg-muted rounded-lg p-3 transition-colors"
+                    >
+                      <div className="mb-1 flex items-center justify-between">
+                        <span className="text-sm font-medium">{label}</span>
+                        <span
+                          className={`text-xs font-medium ${
+                            s.overdue > 0 ? 'text-destructive' : 'text-success'
+                          }`}
+                        >
+                          {pctOk}%
+                        </span>
+                      </div>
+                      <div className="bg-muted h-1.5 overflow-hidden rounded-full">
+                        <div
+                          className={`h-full rounded-full ${s.overdue > 0 ? 'bg-destructive' : 'bg-success'}`}
+                          style={{ width: `${pctOk}%` }}
+                        />
+                      </div>
+                      <p className="text-muted-foreground mt-1 text-xs">
+                        {s.total} tarea{s.total !== 1 ? 's' : ''}
+                        {s.overdue > 0
+                          ? ` · ${s.overdue} vencida${s.overdue !== 1 ? 's' : ''}`
+                          : ''}
+                      </p>
+                    </Link>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Row 5 — Upcoming Tasks */}
       <motion.div

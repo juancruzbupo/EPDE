@@ -1,5 +1,10 @@
 import type { TaskPriority, TaskStatus } from '@epde/shared';
-import { formatRelativeDate, TASK_STATUS_LABELS, TaskStatus as TS } from '@epde/shared';
+import {
+  formatRelativeDate,
+  PROPERTY_SECTOR_LABELS,
+  TASK_STATUS_LABELS,
+  TaskStatus as TS,
+} from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { memo, useCallback, useMemo, useState } from 'react';
 import {
@@ -70,6 +75,7 @@ const TaskCard = memo(function TaskCard({ task }: { task: TaskListItem }) {
       </View>
       <Text style={TYPE.bodySm} className="text-muted-foreground mb-1">
         {task.category.name}
+        {task.sector && ` · ${PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}`}
       </Text>
       <Text style={TYPE.bodySm} className="text-muted-foreground">
         {task.maintenancePlan.property.address}, {task.maintenancePlan.property.city}
