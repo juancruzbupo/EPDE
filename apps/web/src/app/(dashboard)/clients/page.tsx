@@ -4,7 +4,7 @@ import type { UserStatus } from '@epde/shared';
 import { USER_STATUS_LABELS } from '@epde/shared';
 import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { DataTable } from '@/components/data-table/data-table';
@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { PageTransition } from '@/components/ui/page-transition';
 import { useClients, useDeleteClient, useReinviteClient } from '@/hooks/use-clients';
 import { useDebounce } from '@/hooks/use-debounce';
+import { useUrlFilters } from '@/hooks/use-url-filters';
 
 import { clientColumns } from './columns';
 import { InviteClientDialog } from './invite-client-dialog';
@@ -27,12 +28,17 @@ const statusOptions = Object.entries(USER_STATUS_LABELS).map(([value, label]) =>
 
 export default function ClientsPage() {
   const router = useRouter();
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('all');
+  const [urlParams, setUrlParams] = useUrlFilters();
+  const [search, setSearch] = useState(urlParams.get('search') ?? '');
+  const [status, setStatus] = useState(urlParams.get('status') ?? 'all');
   const [inviteOpen, setInviteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const debouncedSearch = useDebounce(search);
+
+  useEffect(() => {
+    setUrlParams({ search: debouncedSearch, status });
+  }, [debouncedSearch, status, setUrlParams]);
   const deleteClient = useDeleteClient();
   const reinviteClient = useReinviteClient();
 

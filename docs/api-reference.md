@@ -13,7 +13,7 @@ Todas las rutas requieren autenticacion JWT excepto las marcadas con `@Public()`
 - **Refresh token**: cookie HttpOnly `refresh_token`, expira en 7 dias. Contiene `family` UUID + `generation` counter
 - Ambos se envian automaticamente con `withCredentials: true`
 - Web usa singleton pattern para deduplicar refreshes concurrentes (multiples 401 = 1 solo refresh)
-- El frontend intercepta 401 y refresca automaticamente
+- El frontend intercepta 401 y refresca automaticamente. En 403 (rol revocado mid-session), fuerza logout sin intentar refresh
 - Token state almacenado en Redis (families, blacklist)
 - El JTI es obligatorio en todos los access tokens — tokens sin JTI son rechazados
 

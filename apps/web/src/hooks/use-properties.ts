@@ -54,6 +54,7 @@ export function useUpdateProperty() {
     onSuccess: () => {
       toast.success('Propiedad actualizada');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
+      invalidateDashboard(queryClient);
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al actualizar propiedad'));

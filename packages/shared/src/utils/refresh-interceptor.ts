@@ -37,9 +37,17 @@ export function attachRefreshInterceptor(options: RefreshInterceptorOptions): vo
     async (error: AxiosError) => {
       const originalRequest = error.config as RetryableConfig | undefined;
 
+      const status = error.response?.status;
+
+      // 403 = role revoked mid-session → force logout (no refresh attempt)
+      if (status === 403 && !skipUrls.some((url) => originalRequest?.url?.includes(url))) {
+        await onRefreshFail();
+        return Promise.reject(error);
+      }
+
       if (
         !originalRequest ||
-        error.response?.status !== 401 ||
+        status !== 401 ||
         originalRequest._retry ||
         skipUrls.some((url) => originalRequest.url?.includes(url))
       ) {

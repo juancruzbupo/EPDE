@@ -3,7 +3,7 @@
 import type { ServiceStatus, ServiceUrgency } from '@epde/shared';
 import { SERVICE_STATUS_LABELS, SERVICE_URGENCY_LABELS, UserRole } from '@epde/shared';
 import { Plus } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 
 import { DataTable } from '@/components/data-table/data-table';
@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { PageTransition } from '@/components/ui/page-transition';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useServiceRequests } from '@/hooks/use-service-requests';
+import { useUrlFilters } from '@/hooks/use-url-filters';
 import { useAuthStore } from '@/stores/auth-store';
 
 import { serviceRequestColumns } from './columns';
@@ -32,15 +33,15 @@ const urgencyOptions = Object.entries(SERVICE_URGENCY_LABELS).map(([value, label
 
 function ServiceRequestsPageContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const [urlParams, setUrlParams] = useUrlFilters();
   const user = useAuthStore((s) => s.user);
 
-  const [search, setSearch] = useState(searchParams.get('search') ?? '');
+  const [search, setSearch] = useState(urlParams.get('search') ?? '');
   const [status, setStatus] = useState<ServiceStatus | 'all'>(
-    (searchParams.get('status') as ServiceStatus) || 'all',
+    (urlParams.get('status') as ServiceStatus) || 'all',
   );
   const [urgency, setUrgency] = useState<ServiceUrgency | 'all'>(
-    (searchParams.get('urgency') as ServiceUrgency) || 'all',
+    (urlParams.get('urgency') as ServiceUrgency) || 'all',
   );
   const [createOpen, setCreateOpen] = useState(false);
 
@@ -48,13 +49,8 @@ function ServiceRequestsPageContent() {
 
   // Sync state to URL when filters change
   useEffect(() => {
-    const params = new URLSearchParams();
-    if (debouncedSearch) params.set('search', debouncedSearch);
-    if (status && status !== 'all') params.set('status', status);
-    if (urgency && urgency !== 'all') params.set('urgency', urgency);
-    const qs = params.toString();
-    router.replace(qs ? `?${qs}` : '?', { scroll: false });
-  }, [debouncedSearch, status, urgency, router]);
+    setUrlParams({ search: debouncedSearch, status, urgency });
+  }, [debouncedSearch, status, urgency, setUrlParams]);
 
   const filters = useMemo(
     () => ({

@@ -19,7 +19,7 @@ import {
   Trees,
   Zap,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 /** Curated map of icons used by category templates (seed data). */
 const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
@@ -48,6 +48,7 @@ function renderCategoryIcon(iconName: string | null): React.ReactNode {
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ErrorState } from '@/components/error-state';
 import { PageHeader } from '@/components/page-header';
+import { SearchInput } from '@/components/search-input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { PageTransition } from '@/components/ui/page-transition';
@@ -62,6 +63,7 @@ import {
 } from '@/components/ui/table';
 import { useCategories, useDeleteCategory } from '@/hooks/use-categories';
 import { useCategoryTemplates } from '@/hooks/use-category-templates';
+import { useDebounce } from '@/hooks/use-debounce';
 import type { CategoryPublic } from '@/lib/api/categories';
 
 import { CategoryDialog } from './category-dialog';
@@ -71,9 +73,18 @@ export default function CategoriesPage() {
   const { data: categoryTemplates } = useCategoryTemplates();
   const deleteCategory = useDeleteCategory();
 
+  const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<CategoryPublic | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const debouncedSearch = useDebounce(search);
+  const filtered = useMemo(() => {
+    if (!categories) return [];
+    if (!debouncedSearch) return categories;
+    const q = debouncedSearch.toLowerCase();
+    return categories.filter((c) => c.name.toLowerCase().includes(q));
+  }, [categories, debouncedSearch]);
 
   return (
     <PageTransition>
@@ -92,6 +103,10 @@ export default function CategoriesPage() {
           </Button>
         }
       />
+
+      <div className="mb-4">
+        <SearchInput value={search} onChange={setSearch} placeholder="Buscar categoría..." />
+      </div>
 
       <Card>
         <CardContent className="p-0">
@@ -127,8 +142,8 @@ export default function CategoriesPage() {
                     />
                   </TableCell>
                 </TableRow>
-              ) : categories && categories.length > 0 ? (
-                categories.map((cat) => (
+              ) : filtered.length > 0 ? (
+                filtered.map((cat) => (
                   <TableRow key={cat.id}>
                     <TableCell>{cat.order}</TableCell>
                     <TableCell>{renderCategoryIcon(cat.icon ?? null)}</TableCell>

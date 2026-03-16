@@ -407,17 +407,17 @@ pnpm --filter @epde/api test:e2e
 
 ### CI
 
-GitHub Actions ejecuta en orden: lint → typecheck → build → **schema drift check** (falla el build si hay drift) → test → test:e2e → frontend coverage check. Los services PostgreSQL 16 y Redis 7 se levantan como containers en CI.
+GitHub Actions ejecuta en orden: lint → typecheck → build → **schema drift check** (falla el build si hay drift) → test → test:e2e → **integration tests** → **web E2E (Playwright)** → frontend coverage check. Los services PostgreSQL 16 y Redis 7 se levantan como containers en CI. Web E2E y coverage se habilitan via inputs (`run-web-e2e`, `run-coverage`) en `ci-reusable.yml`.
 
 **Umbrales de coverage:**
 
 | Package | Statements | Branches | Functions | Lines |
 | ------- | ---------- | -------- | --------- | ----- |
 | API     | 75         | 60       | 65        | 75    |
-| Web     | 50         | 35       | 50        | 50    |
-| Mobile  | 50         | 32       | 40        | 50    |
+| Web     | 70         | 70       | 65        | 70    |
+| Mobile  | 65         | 55       | 55        | 65    |
 
-Web excluye de coverage: `src/app/**/page.tsx`, `src/app/**/layout.tsx`, `src/components/ui/**` (pages son thin wrappers, ui es shadcn generado).
+Web excluye de coverage: `src/components/ui/**` (shadcn generado).
 
 ### CD
 
@@ -427,6 +427,7 @@ Deploy automatico via GitHub Actions:
   - CI checks: lint + typecheck + build + test + E2E (postgres + redis services)
   - API → Render (trigger via deploy hook URL). `docker-entrypoint.sh` ejecuta migraciones y seed condicional al iniciar
   - Web → Vercel (`vercel deploy --prebuilt --prod`). `apps/web/vercel.json` configura build commands del monorepo
+  - **verify-deploy**: Health check job (depende de deploy-api + deploy-web) — verifica API `/api/v1/health` y accesibilidad web con 5 reintentos cada 15s
 - **Infraestructura actual (free tier):**
   - Web: Vercel (Hobby) — auto-deploy en push
   - API: Render (Free) — Docker con `apps/api/Dockerfile`

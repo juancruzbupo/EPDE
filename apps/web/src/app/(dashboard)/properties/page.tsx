@@ -4,7 +4,7 @@ import type { PropertyType } from '@epde/shared';
 import { PROPERTY_TYPE_LABELS, UserRole } from '@epde/shared';
 import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { DataTable } from '@/components/data-table/data-table';
 import { ErrorState } from '@/components/error-state';
@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { PageTransition } from '@/components/ui/page-transition';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useProperties } from '@/hooks/use-properties';
+import { useUrlFilters } from '@/hooks/use-url-filters';
 import { useAuthStore } from '@/stores/auth-store';
 
 import { propertyColumns } from './columns';
@@ -27,14 +28,19 @@ const typeOptions = Object.entries(PROPERTY_TYPE_LABELS).map(([value, label]) =>
 
 export default function PropertiesPage() {
   const router = useRouter();
+  const [urlParams, setUrlParams] = useUrlFilters();
   const user = useAuthStore((s) => s.user);
   const isAdmin = user?.role === UserRole.ADMIN;
 
-  const [search, setSearch] = useState('');
-  const [type, setType] = useState('all');
+  const [search, setSearch] = useState(urlParams.get('search') ?? '');
+  const [type, setType] = useState(urlParams.get('type') ?? 'all');
   const [createOpen, setCreateOpen] = useState(false);
 
   const debouncedSearch = useDebounce(search);
+
+  useEffect(() => {
+    setUrlParams({ search: debouncedSearch, type });
+  }, [debouncedSearch, type, setUrlParams]);
 
   const filters = useMemo(
     () => ({

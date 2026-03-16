@@ -106,6 +106,7 @@ export function useAddServiceRequestComment() {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.serviceRequests, serviceRequestId, QUERY_KEYS.serviceRequestComments],
       });
+      Alert.alert('Éxito', 'Comentario agregado');
     },
     onError: (err) => {
       Alert.alert('Error', getErrorMessage(err, 'Error al agregar comentario'));

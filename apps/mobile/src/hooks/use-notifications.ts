@@ -8,6 +8,7 @@ import {
   markAllAsRead,
   markAsRead,
 } from '@/lib/api/notifications';
+import { haptics } from '@/lib/haptics';
 
 export function useNotifications() {
   return useInfiniteQuery({
@@ -51,6 +52,10 @@ export function useMarkAsRead() {
       return { prev };
     },
 
+    onSuccess: () => {
+      haptics.success();
+    },
+
     onError: (_err, _id, context) => {
       Alert.alert('Error', getErrorMessage(_err, 'Error al marcar notificación'));
       if (context?.prev !== undefined) {
@@ -83,6 +88,10 @@ export function useMarkAllAsRead() {
       ]);
       queryClient.setQueryData([QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount], 0);
       return { prev };
+    },
+
+    onSuccess: () => {
+      haptics.success();
     },
 
     onError: (_err, _vars, context) => {

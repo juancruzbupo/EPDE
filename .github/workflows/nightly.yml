@@ -11,7 +11,8 @@ jobs:
     with:
       run-coverage: true
       run-web-e2e: true
-      # TODO [ROADMAP]: run-mobile-e2e — requires Detox setup
+      # Mobile E2E: Detox scaffold ready (apps/mobile/.detoxrc.js + e2e/).
+      # Enable run-mobile-e2e once Detox + EAS Build are integrated in CI runner.
     secrets:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}

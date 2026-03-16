@@ -516,7 +516,7 @@ const apiClient = axios.create({
 
 **Compartido (web + mobile):**
 
-- `attachRefreshInterceptor()` de `@epde/shared` para refresh en 401
+- `attachRefreshInterceptor()` de `@epde/shared` para refresh en 401 + logout forzado en 403 (rol revocado mid-session)
 - Singleton pattern para deduplicar refreshes concurrentes
 - `signal: AbortSignal` en todas las query functions para cancelacion
 
@@ -721,14 +721,16 @@ Skeletons estructurados que reflejan el layout real: PageHeader (titulo + descri
 
 Las variantes de Badge se importan directamente desde `@epde/shared` (SSoT web + mobile):
 
-| Constante                | Entidad      | Valores                                        |
-| ------------------------ | ------------ | ---------------------------------------------- |
-| `TASK_STATUS_VARIANT`    | Tareas       | PENDING, UPCOMING, OVERDUE, COMPLETED (\*)     |
-| `PRIORITY_VARIANT`       | Tareas       | LOW, MEDIUM, HIGH, URGENT                      |
-| `BUDGET_STATUS_VARIANT`  | Presupuestos | 6 estados con colores                          |
-| `URGENCY_VARIANT`        | Solicitudes  | LOW, MEDIUM, HIGH, URGENT                      |
-| `SERVICE_STATUS_VARIANT` | Solicitudes  | OPEN, IN_REVIEW, IN_PROGRESS, RESOLVED, CLOSED |
-| `CLIENT_STATUS_VARIANT`  | Clientes     | INVITED, ACTIVE, INACTIVE                      |
+| Constante             | Entidad | Valores                                    |
+| --------------------- | ------- | ------------------------------------------ |
+| `TASK_STATUS_VARIANT` | Tareas  | PENDING, UPCOMING, OVERDUE, COMPLETED (\*) |
+
+> **Nota display:** `TASK_STATUS_ORDER` (stat cards, agrupacion) solo incluye OVERDUE, PENDING, UPCOMING — COMPLETED esta excluido porque las tareas nunca permanecen en ese estado.
+> | `PRIORITY_VARIANT` | Tareas | LOW, MEDIUM, HIGH, URGENT |
+> | `BUDGET_STATUS_VARIANT` | Presupuestos | 6 estados con colores |
+> | `URGENCY_VARIANT` | Solicitudes | LOW, MEDIUM, HIGH, URGENT |
+> | `SERVICE_STATUS_VARIANT` | Solicitudes | OPEN, IN_REVIEW, IN_PROGRESS, RESOLVED, CLOSED |
+> | `CLIENT_STATUS_VARIANT` | Clientes | INVITED, ACTIVE, INACTIVE |
 
 (\*) **Modelo ciclico de tareas:** Al completar una tarea, el server crea un `TaskLog` con la metadata de completacion y resetea el status a `PENDING` con nueva `nextDueDate` segun recurrencia. Las tareas nunca quedan en estado `COMPLETED` en la DB — el historial vive en `TaskLog`. El frontend NO usa optimistic update para completar; muestra la fecha de reprogramacion en el feedback.
 
@@ -911,12 +913,12 @@ Arquitectura de workflows: `ci-reusable.yml` contiene todos los steps de CI. Los
 
 ```yaml
 # ci-reusable.yml (workflow_call)
-Jobs: build → schema-drift → lint → typecheck → test → test:e2e → coverage (opcional) → upload coverage artifacts (opcional, 14 dias) → spec enforcement (opcional)
+Jobs: build → schema-drift → lint → typecheck → test → test:e2e → integration tests → web E2E (Playwright, opcional) → coverage (opcional) → upload coverage artifacts (opcional, 14 dias) → spec enforcement (opcional)
 Services: PostgreSQL 16 Alpine, Redis 7 Alpine
-Inputs: run-coverage (bool), enforce-specs (bool)
+Inputs: run-coverage (bool), enforce-specs (bool), run-web-e2e (bool)
 
 # ci.yml (push/PR a main/develop)
-uses: ci-reusable.yml con run-coverage: true, enforce-specs: true
+uses: ci-reusable.yml con run-coverage: true, enforce-specs: true, run-web-e2e: true
 
 # cd.yml / cd-staging.yml
 uses: ci-reusable.yml (sin coverage ni spec enforcement) + deploy jobs
@@ -929,7 +931,7 @@ uses: ci-reusable.yml (sin coverage ni spec enforcement) + deploy jobs
 | API     | 75         | 60       | 65        | 75    |
 | Shared  | 80         | 65       | 75        | 80    |
 | Web     | 70         | 70       | 65        | 70    |
-| Mobile  | 60         | 42       | 50        | 60    |
+| Mobile  | 65         | 55       | 55        | 65    |
 
 ### GitHub Actions CD
 
@@ -938,9 +940,11 @@ Pipeline de deploy real — ambos pipelines reusan `ci-reusable.yml` como gate:
 - **Produccion** (`cd.yml`): trigger en push a `main`
   - `deploy-api`: Render deploy hook (`curl -X POST $RENDER_DEPLOY_HOOK_URL`) — Render detecta el Dockerfile y deploya
   - `deploy-web`: Vercel CLI → `vercel pull` → `vercel build --prod` → `vercel deploy --prebuilt --prod`
+  - `verify-deploy`: Health check post-deploy — verifica API `/api/v1/health` y accesibilidad web (5 reintentos, 15s entre intentos)
 - **Staging** (`cd-staging.yml`): trigger en push a `develop`
   - `deploy-api`: Render deploy hook (`RENDER_DEPLOY_HOOK_URL_STAGING`)
   - `deploy-web`: Vercel CLI con `VERCEL_PROJECT_ID_STAGING`
+  - `verify-deploy`: Mismo patron de health check que produccion
 - Usa `environment: production/staging` con secrets dedicados por environment
 - Archivos de deploy: `apps/api/Dockerfile` (multi-stage), `render.yaml` (staging config), `.dockerignore`
 

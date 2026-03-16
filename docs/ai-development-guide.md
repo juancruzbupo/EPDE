@@ -1307,8 +1307,8 @@ El QueryClient de mobile difiere de web para soportar uso offline durante inspec
 | Workspace | Statements | Branches | Functions | Lines | Rationale                                                                                                             |
 | --------- | ---------- | -------- | --------- | ----- | --------------------------------------------------------------------------------------------------------------------- |
 | API       | 75         | 60       | 65        | 75    | Core de negocio — mayor rigor. Jest + ts-jest permite coverage preciso                                                |
-| Web       | 70         | 70       | 65        | 70    | Pages excluidas del coverage (`page.tsx`, `layout.tsx`, `ui/**`). Hooks y componentes custom cubren el grueso         |
-| Mobile    | 60         | 42       | 50        | 60    | jest-expo + react-native-reanimated mocks limitan cobertura de branches. Animaciones y gestures no son unit-testables |
+| Web       | 70         | 70       | 65        | 70    | Solo `ui/**` (shadcn generado) excluido del coverage. Pages, hooks y componentes custom incluidos                     |
+| Mobile    | 65         | 55       | 55        | 65    | jest-expo + react-native-reanimated mocks limitan cobertura de branches. Animaciones y gestures no son unit-testables |
 
 Los thresholds se bumpen progresivamente al subir la cobertura real. El floor actual refleja la complejidad de cada runner, no una decision arbitraria. API > Web > Mobile es intencional.
 

@@ -73,16 +73,36 @@ describe('attachRefreshInterceptor', () => {
     return { clientFn };
   }
 
-  it('ignores non-401 errors (400, 403, 500)', async () => {
+  it('ignores non-401/non-403 errors (400, 500)', async () => {
     setup();
     const handler = mockClient.getErrorHandler();
 
-    for (const status of [400, 403, 500]) {
+    for (const status of [400, 500]) {
       const error = mockClient.createError(status);
       await expect(handler(error)).rejects.toBe(error);
     }
 
     expect(doRefresh).not.toHaveBeenCalled();
+    expect(onRefreshFail).not.toHaveBeenCalled();
+  });
+
+  it('calls onRefreshFail on 403 without attempting refresh (role revoked)', async () => {
+    setup();
+    const handler = mockClient.getErrorHandler();
+    const error = mockClient.createError(403, '/api/resource');
+
+    await expect(handler(error)).rejects.toBe(error);
+    expect(onRefreshFail).toHaveBeenCalledOnce();
+    expect(doRefresh).not.toHaveBeenCalled();
+  });
+
+  it('skips 403 handling for skipUrls', async () => {
+    setup();
+    const handler = mockClient.getErrorHandler();
+    const error = mockClient.createError(403, '/auth/login');
+
+    await expect(handler(error)).rejects.toBe(error);
+    expect(onRefreshFail).not.toHaveBeenCalled();
   });
 
   it('ignores 401 on /auth/login (default skipUrl)', async () => {

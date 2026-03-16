@@ -30,12 +30,12 @@ import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { defaultScreenOptions } from '@/lib/screen-options';
 
-type StatusFilter = 'ALL' | 'UPCOMING' | 'OVERDUE';
+type StatusFilter = 'ALL' | typeof TaskStatus.UPCOMING | typeof TaskStatus.OVERDUE;
 
 const FILTERS: { key: StatusFilter; label: string }[] = [
   { key: 'ALL', label: 'Todas' },
-  { key: 'UPCOMING', label: 'Próximas' },
-  { key: 'OVERDUE', label: 'Vencidas' },
+  { key: TaskStatus.UPCOMING, label: 'Próximas' },
+  { key: TaskStatus.OVERDUE, label: 'Vencidas' },
 ];
 
 function TaskCard({ task, planId }: { task: TaskPublic; planId: string }) {

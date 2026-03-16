@@ -110,6 +110,9 @@ jobs:
       - name: E2E tests
         run: pnpm --filter @epde/api test:e2e
 
+      - name: Integration tests
+        run: pnpm --filter @epde/api test:integration
+
       - name: Install Playwright browsers
         if: inputs.run-web-e2e
         run: pnpm --filter @epde/web exec playwright install --with-deps chromium

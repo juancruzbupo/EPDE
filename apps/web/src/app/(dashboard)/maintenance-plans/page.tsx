@@ -4,14 +4,16 @@ import type { PlanListItem } from '@epde/shared';
 import { PLAN_STATUS_LABELS, PLAN_STATUS_VARIANT, PlanStatus } from '@epde/shared';
 import { ChevronDown, ChevronRight, ClipboardList, Home, MapPin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { Suspense, useMemo, useState } from 'react';
 
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { PageHeader } from '@/components/page-header';
+import { SearchInput } from '@/components/search-input';
 import { Badge } from '@/components/ui/badge';
 import { PageTransition } from '@/components/ui/page-transition';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useDebounce } from '@/hooks/use-debounce';
 import { usePlans } from '@/hooks/use-plans';
 
 /** Display order: actionable first, archived last. */
@@ -100,18 +102,32 @@ function StatusSection({
   );
 }
 
-export default function PlansPage() {
+function MaintenancePlansPageContent() {
   const router = useRouter();
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search);
   const { data: plans, isLoading, isError, refetch } = usePlans();
+
+  const filtered = useMemo(() => {
+    if (!plans) return [];
+    if (!debouncedSearch) return plans;
+    const q = debouncedSearch.toLowerCase();
+    return plans.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.property.address.toLowerCase().includes(q) ||
+        p.property.city.toLowerCase().includes(q),
+    );
+  }, [plans, debouncedSearch]);
 
   const grouped = useMemo(() => {
     const map = new Map<PlanStatus, PlanListItem[]>();
     for (const s of STATUS_ORDER) map.set(s, []);
-    for (const plan of plans ?? []) {
+    for (const plan of filtered) {
       map.get(plan.status)?.push(plan);
     }
     return map;
-  }, [plans]);
+  }, [filtered]);
 
   const handlePlanClick = (plan: PlanListItem) => {
     router.push(`/properties/${plan.property.id}`);
@@ -123,6 +139,14 @@ export default function PlansPage() {
         title="Planes de Mantenimiento"
         description="Todos los planes de mantenimiento de tus propiedades."
       />
+
+      <div className="mb-4">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Buscar plan, dirección o ciudad..."
+        />
+      </div>
 
       {isLoading ? (
         <div className="space-y-1.5">
@@ -136,7 +160,7 @@ export default function PlansPage() {
           onRetry={refetch}
           className="justify-center py-24"
         />
-      ) : !plans || plans.length === 0 ? (
+      ) : !plans || filtered.length === 0 ? (
         <EmptyState
           icon={Home}
           title="Sin planes"
@@ -145,7 +169,7 @@ export default function PlansPage() {
       ) : (
         <div className="space-y-4">
           <p className="text-muted-foreground text-sm">
-            {plans.length} plan{plans.length !== 1 ? 'es' : ''}
+            {filtered.length} plan{filtered.length !== 1 ? 'es' : ''}
           </p>
           {STATUS_ORDER.map((status) => (
             <StatusSection
@@ -159,5 +183,13 @@ export default function PlansPage() {
         </div>
       )}
     </PageTransition>
+  );
+}
+
+export default function MaintenancePlansPage() {
+  return (
+    <Suspense fallback={<div className="text-muted-foreground py-24 text-center">Cargando...</div>}>
+      <MaintenancePlansPageContent />
+    </Suspense>
   );
 }
