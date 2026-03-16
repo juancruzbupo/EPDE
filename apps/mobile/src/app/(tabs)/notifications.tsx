@@ -92,6 +92,16 @@ export default function NotificationsScreen() {
 
   const notifications = data?.pages.flatMap((page) => page.data) ?? [];
 
+  const onRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  const onEndReached = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
   if (error && !data) {
     return <ErrorState onRetry={refetch} />;
   }
@@ -103,16 +113,6 @@ export default function NotificationsScreen() {
       </View>
     );
   }
-
-  const onRefresh = useCallback(() => {
-    refetch();
-  }, [refetch]);
-
-  const onEndReached = useCallback(() => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleNotificationPress = (notification: NotificationPublic) => {
     if (!notification.read) {
