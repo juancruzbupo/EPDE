@@ -5,6 +5,7 @@ import { UserLookupRepository } from '../common/repositories/user-lookup.reposit
 import { EmailQueueService } from '../email/email-queue.service';
 import { NotificationQueueService } from './notification-queue.service';
 import { NotificationsService } from './notifications.service';
+import { PushService } from './push.service';
 
 /**
  * Centralized extension point for domain side-effects (notifications, emails, etc.).
@@ -34,7 +35,15 @@ export class NotificationsHandlerService {
     private readonly notificationsService: NotificationsService,
     private readonly usersRepository: UserLookupRepository,
     private readonly emailQueueService: EmailQueueService,
+    private readonly pushService: PushService,
   ) {}
+
+  /** Send push notification to specific users (fire-and-forget, catches errors). */
+  private sendPush(userIds: string[], title: string, body: string, data?: Record<string, string>) {
+    void this.pushService.sendToUsers(userIds, { title, body, data }).catch((err) => {
+      this.logger.error(`Push notification failed: ${err}`);
+    });
+  }
 
   async handleBudgetCreated(payload: {
     budgetId: string;
@@ -69,12 +78,19 @@ export class NotificationsHandlerService {
     totalAmount: number;
   }): Promise<void> {
     try {
+      const notifTitle = 'Presupuesto cotizado';
+      const notifMsg = `Tu presupuesto "${payload.title}" fue cotizado por $${payload.totalAmount.toLocaleString('es-AR')}`;
+
       await this.notificationQueueService.enqueue({
         userId: payload.requesterId,
         type: 'BUDGET_UPDATE',
-        title: 'Presupuesto cotizado',
-        message: `Tu presupuesto "${payload.title}" fue cotizado por $${payload.totalAmount.toLocaleString('es-AR')}`,
+        title: notifTitle,
+        message: notifMsg,
         data: { budgetId: payload.budgetId },
+      });
+
+      this.sendPush([payload.requesterId], notifTitle, notifMsg, {
+        budgetId: payload.budgetId,
       });
 
       const requester = await this.usersRepository.findEmailInfo(payload.requesterId);

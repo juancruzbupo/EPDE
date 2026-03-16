@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 
 import * as authApi from '@/lib/auth';
+import { unregisterPushToken } from '@/lib/push-notifications';
 import { queryClient } from '@/lib/query-client';
 import { tokenService } from '@/lib/token-service';
 
@@ -33,6 +34,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     queryClient.cancelQueries();
     queryClient.clear();
     set({ user: null, isAuthenticated: false });
+
+    // Deregister push token (fire-and-forget)
+    void unregisterPushToken().catch(() => {});
 
     try {
       await authApi.logout();

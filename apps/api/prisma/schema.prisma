@@ -171,6 +171,7 @@ model User {
   notifications           Notification[]
   authAuditLogs           AuthAuditLog[]
   quoteTemplates          QuoteTemplate[]          @relation("QuoteTemplateCreator")
+  pushTokens              PushToken[]
 
   @@index([email])
   @@index([role, deletedAt])
@@ -255,6 +256,7 @@ model Task {
   updatedBy                String?
   taskType                 TaskType                @default(INSPECTION)
   professionalRequirement  ProfessionalRequirement @default(OWNER_CAN_DO)
+  assignedToName           String?                 @db.VarChar(200)
   technicalDescription     String?                 @db.VarChar(1000)
   estimatedDurationMinutes Int?
   createdAt                DateTime                @default(now())
@@ -434,6 +436,7 @@ model ServiceRequest {
   description String         @db.VarChar(2000)
   urgency          ServiceUrgency @default(MEDIUM)
   status           ServiceStatus  @default(OPEN)
+  assignedToName   String?        @db.VarChar(200)
   firstResponseAt  DateTime?
   resolvedAt       DateTime?
   createdBy        String?
@@ -603,4 +606,16 @@ model AuthAuditLog {
 
   @@index([userId, createdAt])
   @@index([event, createdAt])
+}
+
+model PushToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique @db.VarChar(500)
+  platform  String   @db.VarChar(10) // 'ios' | 'android' | 'web'
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

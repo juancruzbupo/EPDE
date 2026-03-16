@@ -77,4 +77,32 @@ export class ClientsController {
   async deleteClient(@Param('id', ParseUUIDPipe) id: string) {
     return this.clientsService.deleteClient(id);
   }
+
+  @Post('bulk-reinvite')
+  @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 5, ttl: 60_000 } })
+  async bulkReinvite(@Body() body: { ids: string[] }) {
+    const results = await Promise.allSettled(
+      body.ids.map((id) => this.clientsService.reinviteClient(id)),
+    );
+    const succeeded = results.filter((r) => r.status === 'fulfilled').length;
+    return {
+      data: { succeeded, total: body.ids.length },
+      message: `${succeeded} invitaciones reenviadas`,
+    };
+  }
+
+  @Post('bulk-delete')
+  @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 5, ttl: 60_000 } })
+  async bulkDelete(@Body() body: { ids: string[] }) {
+    const results = await Promise.allSettled(
+      body.ids.map((id) => this.clientsService.deleteClient(id)),
+    );
+    const succeeded = results.filter((r) => r.status === 'fulfilled').length;
+    return {
+      data: { succeeded, total: body.ids.length },
+      message: `${succeeded} clientes eliminados`,
+    };
+  }
 }

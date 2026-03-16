@@ -1,6 +1,16 @@
 import type { CurrentUser as CurrentUserPayload, CursorPaginationInput } from '@epde/shared';
 import { cursorPaginationSchema, UserRole } from '@epde/shared';
-import { Controller, Get, Param, ParseUUIDPipe, Patch, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 
@@ -8,12 +18,16 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { NotificationsService } from './notifications.service';
+import { PushService } from './push.service';
 
 @ApiTags('Notificaciones')
 @ApiBearerAuth()
 @Controller('notifications')
 export class NotificationsController {
-  constructor(private readonly notificationsService: NotificationsService) {}
+  constructor(
+    private readonly notificationsService: NotificationsService,
+    private readonly pushService: PushService,
+  ) {}
 
   @Get()
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
@@ -49,5 +63,22 @@ export class NotificationsController {
   ) {
     const data = await this.notificationsService.markAsRead(id, user.id);
     return { data, message: 'Notificación marcada como leída' };
+  }
+
+  @Post('push-token')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  async registerPushToken(
+    @Body() body: { token: string; platform: string },
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    await this.pushService.registerToken(user.id, body.token, body.platform);
+    return { data: null, message: 'Push token registrado' };
+  }
+
+  @Delete('push-token')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  async removePushToken(@Body() body: { token: string }) {
+    await this.pushService.removeToken(body.token);
+    return { data: null, message: 'Push token eliminado' };
   }
 }

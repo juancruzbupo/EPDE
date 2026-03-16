@@ -10,6 +10,8 @@ import { NotificationsController } from './notifications.controller';
 import { NotificationsRepository } from './notifications.repository';
 import { NotificationsService } from './notifications.service';
 import { NotificationsHandlerService } from './notifications-handler.service';
+import { PushService } from './push.service';
+import { PushTokensRepository } from './push-tokens.repository';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { NotificationsHandlerService } from './notifications-handler.service';
     NotificationQueueService,
     NotificationQueueProcessor,
     UserLookupRepository,
+    PushService,
+    PushTokensRepository,
   ],
   exports: [
     NotificationsService,
@@ -39,6 +43,7 @@ import { NotificationsHandlerService } from './notifications-handler.service';
     NotificationsHandlerService,
     NotificationsRepository,
     UserLookupRepository,
+    PushService,
   ],
 })
 export class NotificationsModule {}

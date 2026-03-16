@@ -17,12 +17,10 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { ErrorBoundary } from '@/components/error-boundary';
+import { registerForPushNotifications } from '@/lib/push-notifications';
 import { queryClient } from '@/lib/query-client';
 import { asyncStoragePersister } from '@/lib/query-persister';
 import { useAuthStore } from '@/stores/auth-store';
-
-// TODO [ROADMAP]: Push notifications — requires expo-notifications,
-// backend FCM/APNs integration, and user preference management.
 
 SplashScreen.preventAutoHideAsync();
 
@@ -43,6 +41,13 @@ function AuthGate() {
       router.replace('/(tabs)');
     }
   }, [isAuthenticated, isLoading, segments, router]);
+
+  // Register push notifications when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      void registerForPushNotifications();
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const handleDeepLink = (event: { url: string }) => {
