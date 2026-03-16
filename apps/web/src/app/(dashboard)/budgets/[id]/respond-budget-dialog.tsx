@@ -14,6 +14,13 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useRespondToBudget } from '@/hooks/use-budgets';
 import { useQuoteTemplates } from '@/hooks/use-quote-templates';
@@ -23,13 +30,9 @@ interface RespondBudgetDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   budgetId: string;
-  /** Pre-fill line items when re-quoting an already-QUOTED budget. */
   initialLineItems?: BudgetLineItemPublic[];
-  /** Pre-fill estimated days when re-quoting. */
   initialEstimatedDays?: number | null;
-  /** Pre-fill valid-until date when re-quoting. */
   initialValidUntil?: string | null;
-  /** Pre-fill notes when re-quoting. */
   initialNotes?: string | null;
 }
 
@@ -68,19 +71,29 @@ export function RespondBudgetDialog({
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'lineItems',
-  });
+  const { fields, append, remove } = useFieldArray({ control, name: 'lineItems' });
 
   const watchedLineItems = watch('lineItems');
-
   const total =
     watchedLineItems?.reduce((sum, item) => {
       const qty = Number(item.quantity) || 0;
       const price = Number(item.unitPrice) || 0;
       return sum + qty * price;
     }, 0) ?? 0;
+
+  const handleTemplateSelect = (templateId: string) => {
+    const template = quoteTemplates?.find((t: QuoteTemplatePublic) => t.id === templateId);
+    if (template) {
+      while (fields.length > 0) remove(0);
+      template.items.forEach((item: QuoteTemplatePublic['items'][number]) =>
+        append({
+          description: item.description,
+          quantity: Number(item.quantity),
+          unitPrice: Number(item.unitPrice),
+        }),
+      );
+    }
+  };
 
   const onSubmit = (data: RespondBudgetInput) => {
     respondToBudget.mutate(
@@ -99,45 +112,48 @@ export function RespondBudgetDialog({
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Cotizar Presupuesto</DialogTitle>
+          <p className="text-muted-foreground text-sm">
+            Detallá los items, cantidades y precios de la cotización.
+          </p>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Quote Template Selector */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* ─── Template selector ─── */}
           {quoteTemplates && quoteTemplates.length > 0 && (
-            <div className="space-y-2">
-              <Label>Usar plantilla</Label>
-              <select
-                className="border-border bg-background text-foreground w-full rounded-md border px-3 py-2 text-sm"
-                defaultValue=""
-                onChange={(e) => {
-                  const template = quoteTemplates.find(
-                    (t: QuoteTemplatePublic) => t.id === e.target.value,
-                  );
-                  if (template) {
-                    // Remove existing items and replace with template
-                    while (fields.length > 0) remove(0);
-                    template.items.forEach((item: QuoteTemplatePublic['items'][number]) =>
-                      append({
-                        description: item.description,
-                        quantity: Number(item.quantity),
-                        unitPrice: Number(item.unitPrice),
-                      }),
-                    );
-                  }
-                }}
-              >
-                <option value="">Seleccionar plantilla...</option>
-                {quoteTemplates.map((t: QuoteTemplatePublic) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name} ({t.items.length} items)
-                  </option>
-                ))}
-              </select>
+            <div className="space-y-1.5">
+              <Label className="text-muted-foreground">Usar plantilla</Label>
+              <Select onValueChange={handleTemplateSelect}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Cargar items desde plantilla..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {quoteTemplates.map((t: QuoteTemplatePublic) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.name} ({t.items.length} items)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-muted-foreground text-xs">
+                Reemplaza los items actuales con los de la plantilla seleccionada.
+              </p>
             </div>
           )}
 
-          {/* Line Items */}
-          <div className="space-y-3">
-            <Label>Items</Label>
+          {/* ─── Line Items ─── */}
+          <fieldset className="space-y-3">
+            <legend className="text-foreground mb-1 text-sm font-semibold">
+              Items <span className="text-destructive">*</span>
+            </legend>
+
+            {/* Header row */}
+            <div className="text-muted-foreground grid grid-cols-[1fr_70px_90px_90px_36px] gap-2 text-xs">
+              <span>Descripción</span>
+              <span>Cant.</span>
+              <span>P. Unitario</span>
+              <span>Subtotal</span>
+              <span />
+            </div>
+
             {fields.map((field, index) => {
               const qty = Number(watchedLineItems?.[index]?.quantity) || 0;
               const price = Number(watchedLineItems?.[index]?.unitPrice) || 0;
@@ -146,39 +162,36 @@ export function RespondBudgetDialog({
               return (
                 <div
                   key={field.id}
-                  className="grid grid-cols-[1fr_80px_100px_100px_40px] items-start gap-2"
+                  className="grid grid-cols-[1fr_70px_90px_90px_36px] items-start gap-2"
                 >
                   <div>
                     <Input
-                      placeholder="Descripcion"
+                      placeholder="Descripción del item"
+                      className="h-9 text-sm"
                       {...register(`lineItems.${index}.description`)}
                     />
                     {errors.lineItems?.[index]?.description && (
-                      <p className="text-destructive mt-1 text-xs">
+                      <p className="text-destructive mt-0.5 text-xs">
                         {errors.lineItems[index].description.message}
                       </p>
                     )}
                   </div>
-                  <div>
-                    <Input
-                      type="number"
-                      placeholder="Cant."
-                      min={1}
-                      max={99999}
-                      {...register(`lineItems.${index}.quantity`)}
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      type="number"
-                      placeholder="P. Unit."
-                      min={0}
-                      max={999999999}
-                      step="0.01"
-                      {...register(`lineItems.${index}.unitPrice`)}
-                    />
-                  </div>
-                  <div className="text-muted-foreground flex h-9 items-center px-2 text-sm">
+                  <Input
+                    type="number"
+                    placeholder="1"
+                    min={1}
+                    className="h-9 text-sm"
+                    {...register(`lineItems.${index}.quantity`)}
+                  />
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    min={0}
+                    step="0.01"
+                    className="h-9 text-sm"
+                    {...register(`lineItems.${index}.unitPrice`)}
+                  />
+                  <div className="text-muted-foreground flex h-9 items-center text-sm tabular-nums">
                     {formatARS(subtotal)}
                   </div>
                   <Button
@@ -188,70 +201,86 @@ export function RespondBudgetDialog({
                     onClick={() => remove(index)}
                     disabled={fields.length === 1}
                     className="h-9 w-9 p-0"
+                    aria-label="Eliminar item"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               );
             })}
+
             {errors.lineItems?.root && (
-              <p className="text-destructive text-sm">{errors.lineItems.root.message}</p>
+              <p className="text-destructive text-xs">{errors.lineItems.root.message}</p>
             )}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => append({ description: '', quantity: 1, unitPrice: 0 })}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Agregar item
-            </Button>
-          </div>
 
-          {/* Total */}
-          <div className="flex justify-end border-t pt-3">
-            <p className="text-lg font-semibold">Total: {formatARS(total)}</p>
-          </div>
-
-          {/* Extra fields */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="estimatedDays">Días estimados</Label>
-              <Input
-                id="estimatedDays"
-                type="number"
-                min={1}
-                max={365}
-                {...register('estimatedDays', {
-                  setValueAs: (v: string) => (v === '' ? undefined : Number(v)),
-                })}
-              />
-              {errors.estimatedDays && (
-                <p className="text-destructive text-sm">{errors.estimatedDays.message}</p>
-              )}
+            <div className="flex items-center justify-between">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => append({ description: '', quantity: 1, unitPrice: 0 })}
+              >
+                <Plus className="mr-1.5 h-3.5 w-3.5" />
+                Agregar item
+              </Button>
+              <p className="text-foreground text-base font-semibold tabular-nums">
+                Total: {formatARS(total)}
+              </p>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="validUntil">Válido hasta</Label>
-              <Input
-                id="validUntil"
-                type="date"
-                {...register('validUntil', {
-                  setValueAs: (v: string) => (v === '' ? undefined : v),
-                })}
-              />
-              {errors.validUntil && (
-                <p className="text-destructive text-sm">{errors.validUntil.message}</p>
-              )}
+          </fieldset>
+
+          {/* ─── Condiciones ─── */}
+          <fieldset className="space-y-3">
+            <legend className="text-foreground mb-1 text-sm font-semibold">Condiciones</legend>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="estimatedDays" className="text-muted-foreground">
+                  Días estimados
+                </Label>
+                <Input
+                  id="estimatedDays"
+                  type="number"
+                  min={1}
+                  max={365}
+                  placeholder="Ej: 5"
+                  {...register('estimatedDays', {
+                    setValueAs: (v: string) => (v === '' ? undefined : Number(v)),
+                  })}
+                />
+                {errors.estimatedDays && (
+                  <p className="text-destructive text-xs">{errors.estimatedDays.message}</p>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="validUntil" className="text-muted-foreground">
+                  Válido hasta
+                </Label>
+                <Input
+                  id="validUntil"
+                  type="date"
+                  {...register('validUntil', {
+                    setValueAs: (v: string) => (v === '' ? undefined : v),
+                  })}
+                />
+                <p className="text-muted-foreground text-xs">Fecha límite de la cotización.</p>
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notas (opcional)</Label>
-            <Textarea id="notes" {...register('notes')} />
-            {errors.notes && <p className="text-destructive text-sm">{errors.notes.message}</p>}
-          </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="notes" className="text-muted-foreground">
+                Notas
+              </Label>
+              <Textarea
+                id="notes"
+                rows={2}
+                placeholder="Ej: Incluye materiales y mano de obra. Garantía 2 años."
+                {...register('notes')}
+              />
+            </div>
+          </fieldset>
 
-          <div className="flex justify-end gap-2">
+          {/* ─── Actions ─── */}
+          <div className="border-border flex justify-end gap-2 border-t pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
