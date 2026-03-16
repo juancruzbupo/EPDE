@@ -88,6 +88,16 @@ export default function BudgetsScreen() {
   const budgets = data?.pages.flatMap((page) => page.data) ?? [];
   const hasActiveFilters = !!debouncedSearch || !!statusFilter;
 
+  const onRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  const onEndReached = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
   if (error && !data) {
     return <ErrorState onRetry={refetch} />;
   }
@@ -99,16 +109,6 @@ export default function BudgetsScreen() {
       </View>
     );
   }
-
-  const onRefresh = useCallback(() => {
-    refetch();
-  }, [refetch]);
-
-  const onEndReached = useCallback(() => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <View className="bg-background flex-1">

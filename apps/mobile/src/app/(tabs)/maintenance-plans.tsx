@@ -68,6 +68,10 @@ export default function MaintenancePlansScreen() {
     );
   }, [plans, debouncedSearch]);
 
+  const onRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
   if (error && !plans) {
     return <ErrorState onRetry={refetch} />;
   }
@@ -79,10 +83,6 @@ export default function MaintenancePlansScreen() {
       </View>
     );
   }
-
-  const onRefresh = useCallback(() => {
-    refetch();
-  }, [refetch]);
 
   const sections = STATUS_ORDER.map((status) => ({
     title: PLAN_STATUS_LABELS[status] ?? status,
