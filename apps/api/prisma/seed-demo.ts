@@ -284,6 +284,7 @@ const TASK_DEFS: TaskDef[] = [
     recurrenceMonths: 12,
     estimatedDurationMinutes: 45,
     categoryIndex: 1,
+    sector: 'TERRACE',
   },
   {
     name: 'Inspección de membranas asfálticas',
@@ -564,6 +565,7 @@ const TASK_DEFS: TaskDef[] = [
     recurrenceMonths: 12,
     estimatedDurationMinutes: 45,
     categoryIndex: 5,
+    sector: 'KITCHEN',
   },
   {
     name: 'Control de ventilaciones reglamentarias',
@@ -711,6 +713,7 @@ const TASK_DEFS: TaskDef[] = [
     recurrenceMonths: 24,
     estimatedDurationMinutes: 45,
     categoryIndex: 2,
+    sector: 'BATHROOM',
   },
 
   // —— 8. JARDÍN Y EXTERIORES (4 tareas) ——
@@ -2613,6 +2616,7 @@ export async function seedDemo(prisma: PrismaClient) {
   SR Comentarios: 4 (3 + 1)
   SR Adjuntos:  2
   Quote Tmpl:   3 (techo, eléctrico, humedad)
+  Sectores:     9 (asignados via CATEGORY_DEFAULT_SECTOR + overrides puntuales)
   Notific.:     7
 
   👤 María González  (maria.gonzalez@demo.com / Demo123!)
