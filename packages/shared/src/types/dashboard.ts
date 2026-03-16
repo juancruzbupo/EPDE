@@ -114,6 +114,29 @@ export interface SectorBreakdownItem {
   cost: number;
 }
 
+/** Property Health Index — multi-dimensional score (0-100 each). */
+export interface PropertyHealthIndex {
+  /** Overall ISV score (0-100, weighted average of dimensions). */
+  score: number;
+  /** Label: Excelente / Bueno / Regular / Necesita atención / Crítico */
+  label: string;
+  /** 5 dimensions, each 0-100 */
+  dimensions: {
+    /** % tasks on-time, weighted by priority. */
+    compliance: number;
+    /** Average condition found in recent inspections (mapped 0-100). */
+    condition: number;
+    /** % of sectors with at least 1 inspection in last 12 months. */
+    coverage: number;
+    /** Ratio of preventive vs corrective actions (higher = better). */
+    investment: number;
+    /** Change vs previous quarter: positive = improving. */
+    trend: number;
+  };
+  /** Per-sector health scores for breakdown. */
+  sectorScores: { sector: string; score: number; overdue: number; total: number }[];
+}
+
 /** Client analytics response */
 export interface ClientAnalytics {
   conditionTrend: Array<{
@@ -127,4 +150,5 @@ export interface ClientAnalytics {
   conditionDistribution: ConditionDistribution[];
   categoryBreakdown: CategoryBreakdownItem[];
   sectorBreakdown: SectorBreakdownItem[];
+  healthIndex: PropertyHealthIndex;
 }

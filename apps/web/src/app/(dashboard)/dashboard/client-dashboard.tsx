@@ -29,6 +29,7 @@ import { ConditionTrendChart } from '@/components/charts/condition-trend-chart';
 import { CostHistoryChart } from '@/components/charts/cost-history-chart';
 import { ErrorState } from '@/components/error-state';
 import { HealthCard } from '@/components/health-card';
+import { HealthIndexCard } from '@/components/health-index-card';
 import { PageHeader } from '@/components/page-header';
 import { StatCard } from '@/components/stat-card';
 import { AnimatedNumber } from '@/components/ui/animated-number';
@@ -98,6 +99,13 @@ export function ClientDashboard({ userName }: { userName: string }) {
           />
         </div>
       ) : null}
+
+      {/* Row 1b — Health Index (ISV) */}
+      {analytics?.healthIndex && analytics.healthIndex.score > 0 && (
+        <div className="mb-4">
+          <HealthIndexCard index={analytics.healthIndex} />
+        </div>
+      )}
 
       {/* Row 2 — StatCards + Condition Donut */}
       <div className="grid gap-6 lg:grid-cols-3">

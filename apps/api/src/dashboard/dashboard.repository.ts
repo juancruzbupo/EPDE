@@ -589,6 +589,162 @@ export class DashboardRepository {
     return { healthScore: score, healthLabel };
   }
 
+  /**
+   * Property Health Index (ISV) — 5-dimensional score.
+   * Uses only existing data (Task, TaskLog, sector).
+   */
+  async getPropertyHealthIndex(planIds: string[]) {
+    if (planIds.length === 0) {
+      return {
+        score: 0,
+        label: 'Sin datos',
+        dimensions: { compliance: 0, condition: 0, coverage: 0, investment: 0, trend: 0 },
+        sectorScores: [],
+      };
+    }
+
+    const now = new Date();
+    const twelveMonthsAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+    const threeMonthsAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+
+    const [tasks, recentLogs, olderLogs] = await Promise.all([
+      this.prisma.task.findMany({
+        where: { maintenancePlanId: { in: planIds }, deletedAt: null },
+        select: { id: true, status: true, priority: true, sector: true, nextDueDate: true },
+      }),
+      this.prisma.taskLog.findMany({
+        where: {
+          task: { maintenancePlanId: { in: planIds } },
+          completedAt: { gte: twelveMonthsAgo },
+        },
+        select: {
+          conditionFound: true,
+          actionTaken: true,
+          completedAt: true,
+          task: { select: { sector: true } },
+        },
+      }),
+      // Older logs for trend comparison (3-6 months ago)
+      this.prisma.taskLog.findMany({
+        where: {
+          task: { maintenancePlanId: { in: planIds } },
+          completedAt: {
+            gte: new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000),
+            lt: threeMonthsAgo,
+          },
+        },
+        select: { conditionFound: true, actionTaken: true },
+      }),
+    ]);
+
+    if (tasks.length === 0) {
+      return {
+        score: 0,
+        label: 'Sin datos',
+        dimensions: { compliance: 0, condition: 0, coverage: 0, investment: 0, trend: 0 },
+        sectorScores: [],
+      };
+    }
+
+    // ─── 1. COMPLIANCE (35%) — weighted by priority ───
+    const priorityWeight = { HIGH: 3, URGENT: 4, MEDIUM: 2, LOW: 1 } as Record<string, number>;
+    let totalWeight = 0;
+    let onTimeWeight = 0;
+    for (const t of tasks) {
+      const w = priorityWeight[t.priority] ?? 2;
+      totalWeight += w;
+      if (t.status !== 'OVERDUE') onTimeWeight += w;
+    }
+    const compliance = totalWeight > 0 ? Math.round((onTimeWeight / totalWeight) * 100) : 100;
+
+    // ─── 2. CONDITION (30%) — avg conditionFound of recent inspections ───
+    const conditionMap = {
+      EXCELLENT: 100,
+      GOOD: 80,
+      FAIR: 60,
+      MINOR_ISSUE: 40,
+      MAJOR_ISSUE: 20,
+    } as Record<string, number>;
+    const conditionScores = recentLogs
+      .map((l) => conditionMap[l.conditionFound] ?? 60)
+      .filter(Boolean);
+    const condition =
+      conditionScores.length > 0
+        ? Math.round(conditionScores.reduce((a, b) => a + b, 0) / conditionScores.length)
+        : 50; // default if no inspections
+
+    // ─── 3. COVERAGE (20%) — % sectors with inspection in last 12 months ───
+    const allSectors = new Set(tasks.map((t) => t.sector).filter(Boolean));
+    const inspectedSectors = new Set(recentLogs.map((l) => l.task.sector).filter(Boolean));
+    const coverage =
+      allSectors.size > 0 ? Math.round((inspectedSectors.size / allSectors.size) * 100) : 0;
+
+    // ─── 4. INVESTMENT (15%) — preventive vs corrective ratio ───
+    const preventiveActions = ['INSPECTION_ONLY', 'CLEANING', 'ADJUSTMENT', 'SEALING'];
+    const preventiveCount = recentLogs.filter((l) =>
+      preventiveActions.includes(l.actionTaken),
+    ).length;
+    const _correctiveCount = recentLogs.length - preventiveCount;
+    const investment =
+      recentLogs.length > 0 ? Math.round((preventiveCount / recentLogs.length) * 100) : 50;
+
+    // ─── 5. TREND — compare current quarter condition vs previous ───
+    const recentConditionAvg = recentLogs
+      .filter((l) => l.completedAt >= threeMonthsAgo)
+      .map((l) => conditionMap[l.conditionFound] ?? 60);
+    const olderConditionAvg = olderLogs.map((l) => conditionMap[l.conditionFound] ?? 60);
+
+    const avgRecent =
+      recentConditionAvg.length > 0
+        ? recentConditionAvg.reduce((a, b) => a + b, 0) / recentConditionAvg.length
+        : 50;
+    const avgOlder =
+      olderConditionAvg.length > 0
+        ? olderConditionAvg.reduce((a, b) => a + b, 0) / olderConditionAvg.length
+        : 50;
+    // Trend: 50 = stable, >50 = improving, <50 = declining
+    const trend = Math.max(0, Math.min(100, Math.round(50 + (avgRecent - avgOlder))));
+
+    // ─── GLOBAL SCORE ───
+    const globalScore = Math.round(
+      compliance * 0.35 + condition * 0.3 + coverage * 0.2 + investment * 0.15,
+    );
+
+    const labels: [number, string][] = [
+      [80, 'Excelente'],
+      [60, 'Bueno'],
+      [40, 'Regular'],
+      [20, 'Necesita atención'],
+      [0, 'Crítico'],
+    ];
+    const label = labels.find(([threshold]) => globalScore >= threshold)?.[1] ?? 'Crítico';
+
+    // ─── SECTOR SCORES ───
+    const sectorMap = new Map<string, { total: number; overdue: number }>();
+    for (const t of tasks) {
+      if (!t.sector) continue;
+      const entry = sectorMap.get(t.sector) ?? { total: 0, overdue: 0 };
+      entry.total += 1;
+      if (t.status === 'OVERDUE') entry.overdue += 1;
+      sectorMap.set(t.sector, entry);
+    }
+    const sectorScores = [...sectorMap.entries()]
+      .map(([sector, data]) => ({
+        sector,
+        score: data.total > 0 ? Math.round(((data.total - data.overdue) / data.total) * 100) : 100,
+        overdue: data.overdue,
+        total: data.total,
+      }))
+      .sort((a, b) => a.score - b.score);
+
+    return {
+      score: globalScore,
+      label,
+      dimensions: { compliance, condition, coverage, investment, trend },
+      sectorScores,
+    };
+  }
+
   /** SLA metrics for service requests: average response time and resolution time. */
   async getSlaMetrics() {
     const requests = await this.prisma.softDelete.serviceRequest.findMany({
