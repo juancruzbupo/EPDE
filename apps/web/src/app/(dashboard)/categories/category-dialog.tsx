@@ -81,27 +81,38 @@ export function CategoryDialog({ open, onOpenChange, category }: CategoryDialogP
           <DialogTitle>{isEdit ? 'Editar Categoría' : 'Nueva Categoría'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="cat-name">Nombre</Label>
-            <Input id="cat-name" {...register('name')} />
-            {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="cat-name">
+                Nombre <span className="text-destructive">*</span>
+              </Label>
+              <Input id="cat-name" placeholder="Ej: Estructura" {...register('name')} />
+              {errors.name && <p className="text-destructive text-xs">{errors.name.message}</p>}
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="cat-order">
+                Orden <span className="text-destructive">*</span>
+              </Label>
+              <Input id="cat-order" type="number" min={0} placeholder="0" {...register('order')} />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="cat-description">Descripción (opcional)</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="cat-description" className="text-muted-foreground">
+              Descripción
+            </Label>
             <Input id="cat-description" {...register('description')} />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="cat-icon">Ícono (opcional)</Label>
-              <Input id="cat-icon" {...register('icon')} placeholder="ej: zap, home..." />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="cat-order">Orden</Label>
-              <Input id="cat-order" type="number" min={0} {...register('order')} />
-            </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="cat-icon" className="text-muted-foreground">
+              Ícono
+            </Label>
+            <Input id="cat-icon" {...register('icon')} placeholder="ej: zap, home, droplet..." />
+            <p className="text-muted-foreground text-xs">
+              Nombre del ícono de Lucide. Ver lucide.dev/icons para referencia.
+            </p>
           </div>
-          <div className="space-y-2">
-            <Label>Plantilla vinculada (opcional)</Label>
+          <div className="space-y-1.5">
+            <Label className="text-muted-foreground">Plantilla vinculada</Label>
             <Controller
               control={control}
               name="categoryTemplateId"

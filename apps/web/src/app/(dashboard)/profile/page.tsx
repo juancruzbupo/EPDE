@@ -133,13 +133,17 @@ function ProfileForm({
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Nombre</Label>
+            <Label htmlFor="name">
+              Nombre <span className="text-destructive">*</span>
+            </Label>
             <Input id="name" placeholder="Tu nombre completo" {...register('name')} />
             {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">Teléfono</Label>
+            <Label htmlFor="phone" className="text-muted-foreground">
+              Teléfono
+            </Label>
             <Input id="phone" placeholder="+54 11 1234-5678" {...register('phone')} />
             {errors.phone && <p className="text-destructive text-sm">{errors.phone.message}</p>}
           </div>
@@ -194,7 +198,9 @@ function ChangePasswordForm() {
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="currentPassword">Contraseña actual</Label>
+            <Label htmlFor="currentPassword">
+              Contraseña actual <span className="text-destructive">*</span>
+            </Label>
             <div className="relative">
               <Input
                 id="currentPassword"
@@ -219,7 +225,9 @@ function ChangePasswordForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="newPassword">Nueva contraseña</Label>
+            <Label htmlFor="newPassword">
+              Nueva contraseña <span className="text-destructive">*</span>
+            </Label>
             <div className="relative">
               <Input
                 id="newPassword"
@@ -250,7 +258,9 @@ function ChangePasswordForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirmar nueva contraseña</Label>
+            <Label htmlFor="confirmPassword">
+              Confirmar nueva contraseña <span className="text-destructive">*</span>
+            </Label>
             <div className="relative">
               <Input
                 id="confirmPassword"

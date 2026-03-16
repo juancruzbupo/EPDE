@@ -203,24 +203,34 @@ export default function ProfileScreen() {
           Cambiar Contraseña
         </Text>
         <View className="gap-3">
-          <TextInput
-            value={currentPassword}
-            onChangeText={setCurrentPassword}
-            placeholder="Contraseña actual"
-            secureTextEntry
-            className="border-border bg-background text-foreground rounded-lg border px-3 py-2.5"
-            style={TYPE.bodyMd}
-            placeholderTextColor={COLORS.mutedForeground}
-          />
-          <TextInput
-            value={newPassword}
-            onChangeText={setNewPassword}
-            placeholder="Nueva contraseña (mín. 8, mayúscula, minúscula, número)"
-            secureTextEntry
-            className="border-border bg-background text-foreground rounded-lg border px-3 py-2.5"
-            style={TYPE.bodyMd}
-            placeholderTextColor={COLORS.mutedForeground}
-          />
+          <View>
+            <Text style={TYPE.labelMd} className="text-foreground mb-1">
+              Contraseña actual *
+            </Text>
+            <TextInput
+              value={currentPassword}
+              onChangeText={setCurrentPassword}
+              placeholder="Contraseña actual"
+              secureTextEntry
+              className="border-border bg-background text-foreground rounded-lg border px-3 py-2.5"
+              style={TYPE.bodyMd}
+              placeholderTextColor={COLORS.mutedForeground}
+            />
+          </View>
+          <View>
+            <Text style={TYPE.labelMd} className="text-foreground mb-1">
+              Nueva contraseña *
+            </Text>
+            <TextInput
+              value={newPassword}
+              onChangeText={setNewPassword}
+              placeholder="Mín. 8, mayúscula, minúscula, número"
+              secureTextEntry
+              className="border-border bg-background text-foreground rounded-lg border px-3 py-2.5"
+              style={TYPE.bodyMd}
+              placeholderTextColor={COLORS.mutedForeground}
+            />
+          </View>
           <Pressable
             onPress={handleChangePassword}
             disabled={isChangingPassword}

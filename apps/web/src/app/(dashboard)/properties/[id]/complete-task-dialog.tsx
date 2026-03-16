@@ -42,16 +42,20 @@ function LabelSelect({
   value,
   onChange,
   placeholder,
+  required,
 }: {
   label: string;
   labels: Record<string, string>;
   value: string | undefined;
   onChange: (value: string) => void;
   placeholder: string;
+  required?: boolean;
 }) {
   return (
-    <div className="space-y-2">
-      <Label>{label}</Label>
+    <div className="space-y-1.5">
+      <Label>
+        {label} {required && <span className="text-destructive">*</span>}
+      </Label>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger>
           <SelectValue placeholder={placeholder} />
@@ -158,6 +162,7 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
                   value={field.value}
                   onChange={field.onChange}
                   placeholder="¿Cómo resultó?"
+                  required
                 />
               )}
             />
@@ -177,6 +182,7 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
                   value={field.value}
                   onChange={field.onChange}
                   placeholder="Estado general"
+                  required
                 />
               )}
             />
@@ -196,6 +202,7 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
                   value={field.value}
                   onChange={field.onChange}
                   placeholder="Ejecutor"
+                  required
                 />
               )}
             />
@@ -215,6 +222,7 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
                   value={field.value}
                   onChange={field.onChange}
                   placeholder="¿Qué se hizo?"
+                  required
                 />
               )}
             />
@@ -223,9 +231,10 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label>Costo (opcional)</Label>
+          <div className="space-y-1.5">
+            <Label className="text-muted-foreground">Costo</Label>
             <Input type="number" step="0.01" min="0" placeholder="0.00" {...register('cost')} />
+            <p className="text-muted-foreground text-xs">Monto en ARS (opcional).</p>
           </div>
 
           <div className="space-y-2">

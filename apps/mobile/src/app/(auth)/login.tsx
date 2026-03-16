@@ -61,7 +61,7 @@ export default function LoginScreen() {
 
         <View className="bg-card border-border rounded-xl border p-6">
           <Text style={TYPE.labelLg} className="text-foreground mb-1.5">
-            Email
+            Email *
           </Text>
           <Controller
             control={control}
@@ -86,7 +86,7 @@ export default function LoginScreen() {
           )}
 
           <Text style={TYPE.labelLg} className="text-foreground mt-3 mb-1.5">
-            Contraseña
+            Contraseña *
           </Text>
           <Controller
             control={control}
