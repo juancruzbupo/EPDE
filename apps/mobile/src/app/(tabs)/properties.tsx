@@ -21,6 +21,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useProperties } from '@/hooks/use-properties';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
+import { haptics } from '@/lib/haptics';
 
 const TYPE_FILTERS: { key: PropertyType | undefined; label: string }[] = [
   { key: undefined, label: 'Todos' },
@@ -157,7 +158,10 @@ export default function PropertiesScreen() {
             {TYPE_FILTERS.map((f) => (
               <Pressable
                 key={f.label}
-                onPress={() => setTypeFilter(f.key)}
+                onPress={() => {
+                  haptics.selection();
+                  setTypeFilter(f.key);
+                }}
                 className={`rounded-full px-3 py-1.5 ${
                   typeFilter === f.key ? 'bg-primary' : 'bg-card border-border border'
                 }`}

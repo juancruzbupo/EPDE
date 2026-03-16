@@ -22,6 +22,7 @@ import { useAllTasks } from '@/hooks/use-plans';
 import type { TaskListItem } from '@/lib/api/maintenance-plans';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
+import { haptics } from '@/lib/haptics';
 
 const PRIORITY_FILTERS: { key: TaskPriority | undefined; label: string }[] = [
   { key: undefined, label: 'Todas' },
@@ -175,9 +176,10 @@ export default function TasksScreen() {
                 {STAT_STATUSES.map((status) => (
                   <Pressable
                     key={status}
-                    onPress={() =>
-                      setStatusFilter((prev) => (prev === status ? undefined : status))
-                    }
+                    onPress={() => {
+                      haptics.selection();
+                      setStatusFilter((prev) => (prev === status ? undefined : status));
+                    }}
                     className={`flex-1 items-center rounded-lg p-2 ${
                       statusFilter === status ? 'border-primary border-2' : STAT_BG[status]
                     }`}
@@ -222,7 +224,10 @@ export default function TasksScreen() {
               {PRIORITY_FILTERS.map((f) => (
                 <Pressable
                   key={f.label}
-                  onPress={() => setPriorityFilter(f.key)}
+                  onPress={() => {
+                    haptics.selection();
+                    setPriorityFilter(f.key);
+                  }}
                   className={`rounded-full px-3 py-1.5 ${
                     priorityFilter === f.key ? 'bg-primary' : 'bg-card border-border border'
                   }`}

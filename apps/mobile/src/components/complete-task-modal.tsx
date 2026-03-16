@@ -318,15 +318,20 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
           <Text style={TYPE.labelLg} className="text-foreground mb-2">
             Costo (opcional)
           </Text>
-          <TextInput
-            value={cost}
-            onChangeText={setCost}
-            placeholder="0.00"
-            placeholderTextColor={COLORS.mutedForeground}
-            keyboardType="decimal-pad"
-            style={TYPE.bodyMd}
-            className="border-border bg-card text-foreground mb-4 rounded-xl border p-3"
-          />
+          <View className="mb-4 flex-row items-center">
+            <Text style={TYPE.bodyMd} className="text-muted-foreground mr-2">
+              $
+            </Text>
+            <TextInput
+              value={cost}
+              onChangeText={setCost}
+              placeholder="0.00"
+              placeholderTextColor={COLORS.mutedForeground}
+              keyboardType="decimal-pad"
+              style={TYPE.bodyMd}
+              className="border-border bg-card text-foreground flex-1 rounded-xl border p-3"
+            />
+          </View>
 
           <Text style={TYPE.labelLg} className="text-foreground mb-2">
             Notas (opcional)

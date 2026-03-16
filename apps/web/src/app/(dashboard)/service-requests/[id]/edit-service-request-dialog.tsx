@@ -1,14 +1,25 @@
 'use client';
 
-import type { EditServiceRequestInput, ServiceRequestPublic } from '@epde/shared';
-import { editServiceRequestSchema } from '@epde/shared';
+import type { EditServiceRequestInput, ServiceRequestPublic, ServiceUrgency } from '@epde/shared';
+import {
+  editServiceRequestSchema,
+  SERVICE_URGENCY_LABELS,
+  SERVICE_URGENCY_VALUES,
+} from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useEditServiceRequest } from '@/hooks/use-service-requests';
 
@@ -28,12 +39,14 @@ export function EditServiceRequestDialog({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<EditServiceRequestInput>({
     resolver: zodResolver(editServiceRequestSchema),
     defaultValues: {
       title: serviceRequest.title,
       description: serviceRequest.description,
+      urgency: serviceRequest.urgency,
     },
   });
 
@@ -66,6 +79,31 @@ export function EditServiceRequestDialog({
             {errors.description && (
               <p className="text-destructive text-sm">{errors.description.message}</p>
             )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-urgency">Urgencia</Label>
+            <Controller
+              control={control}
+              name="urgency"
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onValueChange={(v) => field.onChange(v as ServiceUrgency)}
+                >
+                  <SelectTrigger id="edit-urgency">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SERVICE_URGENCY_VALUES.map((value) => (
+                      <SelectItem key={value} value={value}>
+                        {SERVICE_URGENCY_LABELS[value]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.urgency && <p className="text-destructive text-sm">{errors.urgency.message}</p>}
           </div>
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

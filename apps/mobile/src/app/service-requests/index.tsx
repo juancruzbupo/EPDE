@@ -22,6 +22,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useServiceRequests } from '@/hooks/use-service-requests';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
+import { haptics } from '@/lib/haptics';
 import { defaultScreenOptions } from '@/lib/screen-options';
 
 const STATUS_FILTERS = [
@@ -185,7 +186,10 @@ export default function ServiceRequestsScreen() {
               {STATUS_FILTERS.map((f) => (
                 <Pressable
                   key={f.label}
-                  onPress={() => setStatusFilter(f.key)}
+                  onPress={() => {
+                    haptics.selection();
+                    setStatusFilter(f.key);
+                  }}
                   className={`rounded-full px-3 py-1.5 ${statusFilter === f.key ? 'bg-primary' : 'bg-card border-border border'}`}
                 >
                   <Text
@@ -212,7 +216,10 @@ export default function ServiceRequestsScreen() {
               {URGENCY_FILTERS.map((f) => (
                 <Pressable
                   key={f.label}
-                  onPress={() => setUrgencyFilter(f.key)}
+                  onPress={() => {
+                    haptics.selection();
+                    setUrgencyFilter(f.key);
+                  }}
                   className={`rounded-full px-3 py-1.5 ${urgencyFilter === f.key ? 'bg-primary' : 'bg-card border-border border'}`}
                 >
                   <Text

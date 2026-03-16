@@ -308,6 +308,13 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
         onOpenChange={setRespondOpen}
         budgetId={id}
         initialLineItems={budget.status === BudgetStatus.QUOTED ? budget.lineItems : undefined}
+        initialEstimatedDays={
+          budget.status === BudgetStatus.QUOTED ? budget.response?.estimatedDays : undefined
+        }
+        initialValidUntil={
+          budget.status === BudgetStatus.QUOTED ? budget.response?.validUntil : undefined
+        }
+        initialNotes={budget.status === BudgetStatus.QUOTED ? budget.response?.notes : undefined}
       />
 
       {budget.status === BudgetStatus.PENDING && (

@@ -98,7 +98,7 @@ export class ServiceRequestsRepository extends BaseRepository<ServiceRequest, 's
    */
   async editServiceRequest(
     id: string,
-    data: { title?: string; description?: string },
+    data: { title?: string; description?: string; urgency?: ServiceUrgency },
     updatedBy: string,
   ) {
     return this.prisma.$transaction(async (tx) => {

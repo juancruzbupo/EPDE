@@ -70,7 +70,7 @@ export class DashboardRepository {
           where: { status: TaskStatus.COMPLETED },
           orderBy: { updatedAt: 'desc' },
           take: 5,
-          select: { id: true, name: true, updatedAt: true },
+          select: { id: true, name: true, updatedAt: true, maintenancePlanId: true },
         }),
         this.prisma.softDelete.budgetRequest.findMany({
           orderBy: { createdAt: 'desc' },

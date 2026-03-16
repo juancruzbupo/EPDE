@@ -177,6 +177,10 @@ export class ServiceRequestsService {
         before.description = request.description;
         after.description = dto.description;
       }
+      if (dto.urgency && dto.urgency !== request.urgency) {
+        before.urgency = request.urgency;
+        after.urgency = dto.urgency;
+      }
       void this.auditLogRepository.createAuditLog(id, currentUser.id, 'edited', before, after);
 
       return updated;

@@ -22,30 +22,35 @@ export class DashboardService {
         type: ActivityType.CLIENT_CREATED,
         description: `Nuevo cliente: ${c.name}`,
         timestamp: c.createdAt,
+        metadata: { clientId: c.id },
       })),
       ...recentProperties.map((p) => ({
         id: p.id,
         type: ActivityType.PROPERTY_CREATED,
         description: `Nueva propiedad: ${p.address}, ${p.city}`,
         timestamp: p.createdAt,
+        metadata: { propertyId: p.id },
       })),
       ...recentTasks.map((t) => ({
         id: t.id,
         type: ActivityType.TASK_COMPLETED,
         description: `Tarea completada: ${t.name}`,
         timestamp: t.updatedAt,
+        metadata: { taskId: t.id, maintenancePlanId: t.maintenancePlanId },
       })),
       ...recentBudgets.map((b) => ({
         id: b.id,
         type: ActivityType.BUDGET_REQUESTED,
         description: `Presupuesto solicitado: ${b.title}`,
         timestamp: b.createdAt,
+        metadata: { budgetId: b.id },
       })),
       ...recentServices.map((s) => ({
         id: s.id,
         type: ActivityType.SERVICE_REQUESTED,
         description: `Solicitud de servicio: ${s.title}`,
         timestamp: s.createdAt,
+        metadata: { serviceRequestId: s.id },
       })),
     ];
 

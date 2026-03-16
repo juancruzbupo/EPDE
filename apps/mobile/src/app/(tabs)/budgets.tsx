@@ -22,6 +22,7 @@ import { useBudgets } from '@/hooks/use-budgets';
 import { useDebounce } from '@/hooks/use-debounce';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
+import { haptics } from '@/lib/haptics';
 
 const FILTERS = [
   { key: undefined, label: 'Todos' },
@@ -173,7 +174,10 @@ export default function BudgetsScreen() {
               {FILTERS.map((f) => (
                 <Pressable
                   key={f.label}
-                  onPress={() => setStatusFilter(f.key)}
+                  onPress={() => {
+                    haptics.selection();
+                    setStatusFilter(f.key);
+                  }}
                   className={`rounded-full px-3 py-1.5 ${statusFilter === f.key ? 'bg-primary' : 'bg-card border-border border'}`}
                 >
                   <Text

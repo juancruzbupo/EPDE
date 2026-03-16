@@ -59,6 +59,7 @@ export const editServiceRequestSchema = z.object({
     .min(10, 'La descripción debe tener al menos 10 caracteres')
     .max(2000, 'La descripción no puede superar 2000 caracteres')
     .optional(),
+  urgency: z.enum(SERVICE_URGENCY_VALUES).optional(),
 });
 
 export type EditServiceRequestInput = z.infer<typeof editServiceRequestSchema>;

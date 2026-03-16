@@ -23,6 +23,12 @@ interface RespondBudgetDialogProps {
   budgetId: string;
   /** Pre-fill line items when re-quoting an already-QUOTED budget. */
   initialLineItems?: BudgetLineItemPublic[];
+  /** Pre-fill estimated days when re-quoting. */
+  initialEstimatedDays?: number | null;
+  /** Pre-fill valid-until date when re-quoting. */
+  initialValidUntil?: string | null;
+  /** Pre-fill notes when re-quoting. */
+  initialNotes?: string | null;
 }
 
 export function RespondBudgetDialog({
@@ -30,6 +36,9 @@ export function RespondBudgetDialog({
   onOpenChange,
   budgetId,
   initialLineItems,
+  initialEstimatedDays,
+  initialValidUntil,
+  initialNotes,
 }: RespondBudgetDialogProps) {
   const respondToBudget = useRespondToBudget();
 
@@ -50,6 +59,9 @@ export function RespondBudgetDialog({
             unitPrice: Number(li.unitPrice),
           }))
         : [{ description: '', quantity: 1, unitPrice: 0 }],
+      estimatedDays: initialEstimatedDays ?? undefined,
+      validUntil: initialValidUntil ?? undefined,
+      notes: initialNotes ?? undefined,
     },
   });
 
