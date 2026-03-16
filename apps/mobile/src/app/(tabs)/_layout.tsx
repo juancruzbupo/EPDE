@@ -1,3 +1,4 @@
+import { UserRole } from '@epde/shared';
 import { Tabs } from 'expo-router';
 import { useEffect } from 'react';
 import { Text, View } from 'react-native';
@@ -9,6 +10,7 @@ import { SPRING, useReducedMotion } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
 import { haptics } from '@/lib/haptics';
 import { defaultTabBarOptions } from '@/lib/screen-options';
+import { useAuthStore } from '@/stores/auth-store';
 
 function AnimatedTabIcon({
   emoji,
@@ -40,6 +42,7 @@ function AnimatedTabIcon({
 
 export default function TabLayout() {
   const { data: unreadCount } = useUnreadCount();
+  const isAdmin = useAuthStore((s) => s.user?.role) === UserRole.ADMIN;
 
   return (
     <View className="flex-1">
@@ -72,6 +75,7 @@ export default function TabLayout() {
           name="maintenance-plans"
           options={{
             title: 'Planes',
+            href: isAdmin ? null : undefined,
             tabBarIcon: ({ color, focused }) => (
               <AnimatedTabIcon emoji="📅" color={color} focused={focused} />
             ),

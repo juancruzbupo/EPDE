@@ -1,9 +1,11 @@
 import type { UpcomingTask } from '@epde/shared';
 import { formatRelativeDate } from '@epde/shared';
+import { UserRole } from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
 
+import { AdminDashboard } from '@/components/admin-dashboard';
 import { AnimatedListItem } from '@/components/animated-list-item';
 import { AnimatedStatCard } from '@/components/animated-stat-card';
 import { CategoryBreakdownList } from '@/components/charts/category-breakdown-list';
@@ -65,6 +67,16 @@ const CHART_MONTH_OPTIONS = [
 ] as const;
 
 export default function DashboardScreen() {
+  const userRole = useAuthStore((s) => s.user?.role);
+
+  if (userRole === UserRole.ADMIN) {
+    return <AdminDashboard />;
+  }
+
+  return <ClientDashboard />;
+}
+
+function ClientDashboard() {
   const router = useRouter();
   const userName = useAuthStore((s) => s.user?.name ?? '');
   const [chartMonths, setChartMonths] = useState(6);
