@@ -105,8 +105,11 @@ export class AuthService {
     // Always return success even if user not found (prevents email enumeration)
     if (!user || !user.passwordHash) return;
 
+    // Embed first 8 chars of passwordHash as fingerprint — makes token
+    // implicitly single-use: once password changes, fingerprint won't match.
+    const fp = user.passwordHash.slice(0, 8);
     const token = this.jwtService.sign(
-      { sub: user.id, email: user.email, purpose: 'reset' },
+      { sub: user.id, email: user.email, purpose: 'reset', fp },
       { expiresIn: '1h' },
     );
 
@@ -124,6 +127,11 @@ export class AuthService {
 
       const user = await this.usersService.findById(payload.sub);
       if (!user) throw new UnauthorizedException('Token inválido');
+
+      // Verify fingerprint — ensures token is single-use (password hasn't changed since token was issued)
+      if (payload.fp && user.passwordHash?.slice(0, 8) !== payload.fp) {
+        throw new UnauthorizedException('Token ya utilizado');
+      }
 
       const hash = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
       await this.usersService.update(user.id, { passwordHash: hash });

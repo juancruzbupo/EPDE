@@ -150,7 +150,12 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
       </Tabs>
 
       {isAdmin && (
-        <EditPropertyDialog open={editOpen} onOpenChange={setEditOpen} property={property} />
+        <EditPropertyDialog
+          key={property.id}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          property={property}
+        />
       )}
     </div>
   );

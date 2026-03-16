@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import * as authApi from '@/lib/auth';
+import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -67,6 +68,22 @@ export default function ProfileScreen() {
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword) {
       Alert.alert('Error', 'Completá ambos campos');
+      return;
+    }
+    if (newPassword.length < 8) {
+      Alert.alert('Error', 'La contraseña debe tener al menos 8 caracteres');
+      return;
+    }
+    if (!/[A-Z]/.test(newPassword)) {
+      Alert.alert('Error', 'Debe contener al menos una mayúscula');
+      return;
+    }
+    if (!/[a-z]/.test(newPassword)) {
+      Alert.alert('Error', 'Debe contener al menos una minúscula');
+      return;
+    }
+    if (!/[0-9]/.test(newPassword)) {
+      Alert.alert('Error', 'Debe contener al menos un número');
       return;
     }
     setIsChangingPassword(true);
@@ -203,7 +220,7 @@ export default function ProfileScreen() {
             secureTextEntry
             className="border-border bg-background text-foreground rounded-lg border px-3 py-2.5"
             style={TYPE.bodyMd}
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={COLORS.mutedForeground}
           />
           <TextInput
             value={newPassword}
@@ -212,7 +229,7 @@ export default function ProfileScreen() {
             secureTextEntry
             className="border-border bg-background text-foreground rounded-lg border px-3 py-2.5"
             style={TYPE.bodyMd}
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={COLORS.mutedForeground}
           />
           <Pressable
             onPress={handleChangePassword}

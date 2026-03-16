@@ -30,7 +30,8 @@ export class DashboardController {
   @Get('analytics')
   @Roles(UserRole.ADMIN)
   async getAnalytics(@Query('months') months?: string) {
-    const m = months ? Math.min(Math.max(parseInt(months, 10), 1), 24) : 6;
+    const parsed = months ? parseInt(months, 10) : NaN;
+    const m = Number.isNaN(parsed) ? 6 : Math.min(Math.max(parsed, 1), 24);
     return { data: await this.dashboardService.getAdminAnalytics(m) };
   }
 
@@ -54,7 +55,8 @@ export class DashboardController {
     @CurrentUser() user: CurrentUserPayload,
     @Query('months') months?: string,
   ) {
-    const m = months ? Math.min(Math.max(parseInt(months, 10), 1), 24) : 6;
+    const parsed = months ? parseInt(months, 10) : NaN;
+    const m = Number.isNaN(parsed) ? 6 : Math.min(Math.max(parsed, 1), 24);
     return { data: await this.dashboardService.getClientAnalytics(user.id, m) };
   }
 }

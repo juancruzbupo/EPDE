@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Modal, Pressable, Text, TextInput, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
@@ -37,47 +45,61 @@ export function TextInputModal({
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: 'rgba(0,0,0,0.5)',
-        }}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
       >
-        <View className="bg-card mx-8 w-full max-w-sm rounded-2xl p-6">
-          <Text style={TYPE.titleMd} className="text-foreground mb-4">
-            {title}
-          </Text>
-          <TextInput
-            style={TYPE.bodyMd}
-            className="border-border text-foreground mb-4 rounded-lg border px-3 py-2.5"
-            placeholder={placeholder}
-            placeholderTextColor={COLORS.mutedForeground}
-            value={value}
-            onChangeText={setValue}
-            autoFocus
-          />
-          <View className="flex-row justify-end gap-3">
-            <Pressable accessibilityRole="button" accessibilityLabel="Cancelar" onPress={onClose}>
-              <Text style={TYPE.labelLg} className="text-muted-foreground px-3 py-2">
-                Cancelar
+        <Pressable
+          onPress={onClose}
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+          }}
+        >
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            <View className="bg-card mx-8 w-full max-w-sm rounded-2xl p-6">
+              <Text style={TYPE.titleMd} className="text-foreground mb-4">
+                {title}
               </Text>
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Guardar"
-              onPress={handleSubmit}
-              className="bg-primary rounded-lg px-4 py-2"
-              disabled={!value.trim()}
-            >
-              <Text style={TYPE.labelLg} className="text-primary-foreground">
-                Guardar
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      </View>
+              <TextInput
+                style={TYPE.bodyMd}
+                className="border-border text-foreground mb-4 rounded-lg border px-3 py-2.5"
+                placeholder={placeholder}
+                placeholderTextColor={COLORS.mutedForeground}
+                value={value}
+                onChangeText={setValue}
+                autoFocus
+                returnKeyType="done"
+                onSubmitEditing={handleSubmit}
+              />
+              <View className="flex-row justify-end gap-3">
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Cancelar"
+                  onPress={onClose}
+                >
+                  <Text style={TYPE.labelLg} className="text-muted-foreground px-3 py-2">
+                    Cancelar
+                  </Text>
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Guardar"
+                  onPress={handleSubmit}
+                  className="bg-primary rounded-lg px-4 py-2"
+                  disabled={!value.trim()}
+                >
+                  <Text style={TYPE.labelLg} className="text-primary-foreground">
+                    Guardar
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          </Pressable>
+        </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

@@ -1,15 +1,47 @@
 'use client';
 
 import type { LucideIcon } from 'lucide-react';
-import * as LucideIcons from 'lucide-react';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import {
+  Bug,
+  Building,
+  DoorOpen,
+  Droplet,
+  Droplets,
+  FireExtinguisher,
+  Flame,
+  Home,
+  Layers,
+  Paintbrush,
+  Pencil,
+  Plus,
+  Thermometer,
+  Trash2,
+  Trees,
+  Zap,
+} from 'lucide-react';
 import { useState } from 'react';
+
+/** Curated map of icons used by category templates (seed data). */
+const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
+  building: Building,
+  home: Home,
+  zap: Zap,
+  droplets: Droplets,
+  droplet: Droplet,
+  flame: Flame,
+  'door-open': DoorOpen,
+  paintbrush: Paintbrush,
+  trees: Trees,
+  thermometer: Thermometer,
+  'fire-extinguisher': FireExtinguisher,
+  bug: Bug,
+  layers: Layers,
+};
 
 function renderCategoryIcon(iconName: string | null): React.ReactNode {
   if (!iconName) return '\u2014';
-  const pascalName = iconName.charAt(0).toUpperCase() + iconName.slice(1);
-  const Icon = (LucideIcons as Record<string, unknown>)[pascalName] as LucideIcon | undefined;
-  if (!Icon || typeof Icon !== 'function') return iconName;
+  const Icon = CATEGORY_ICON_MAP[iconName.toLowerCase()];
+  if (!Icon) return iconName;
   return <Icon className="h-4 w-4" />;
 }
 

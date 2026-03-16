@@ -48,7 +48,7 @@ const TaskCard = memo(function TaskCard({ task, index }: { task: UpcomingTask; i
             {task.categoryName}
           </Text>
           <Text style={TYPE.bodySm} className="text-muted-foreground">
-            {task.nextDueDate ? formatRelativeDate(new Date(task.nextDueDate)) : 'Segun deteccion'}
+            {task.nextDueDate ? formatRelativeDate(new Date(task.nextDueDate)) : 'Según detección'}
           </Text>
         </View>
       </Pressable>
@@ -146,27 +146,27 @@ export default function DashboardScreen() {
 
         {/* Charts section — graceful degradation: only show if analytics available or loading */}
         <ChartCard
-          title="Condicion General"
-          description="Distribucion del estado de tus tareas"
+          title="Condición General"
+          description="Distribución del estado de tus tareas"
           isLoading={analyticsLoading && !analytics}
           isEmpty={(analytics?.conditionDistribution ?? []).length === 0}
-          emptyMessage="Sin datos de condicion"
+          emptyMessage="Sin datos de condición"
         >
           <MiniDonutChart data={analytics?.conditionDistribution ?? []} />
         </ChartCard>
 
         <ChartCard
-          title="Evolucion de Condicion"
-          description="Promedio mensual de todas las categorias"
+          title="Evolución de Condición"
+          description="Promedio mensual de todas las categorías"
           isLoading={analyticsLoading && !analytics}
           isEmpty={conditionTrendData.length === 0}
-          emptyMessage="Sin historial de condicion"
+          emptyMessage="Sin historial de condición"
         >
           <MiniTrendChart data={conditionTrendData} />
         </ChartCard>
 
         <ChartCard
-          title="Gastos del Ultimo Ano"
+          title="Gastos del Último Año"
           description="Costos de mantenimiento por mes"
           isLoading={analyticsLoading && !analytics}
           isEmpty={costHistoryData.length === 0}
@@ -176,11 +176,11 @@ export default function DashboardScreen() {
         </ChartCard>
 
         <ChartCard
-          title="Estado por Categoria"
-          description="Progreso y condicion por area"
+          title="Estado por Categoría"
+          description="Progreso y condición por área"
           isLoading={analyticsLoading && !analytics}
           isEmpty={(analytics?.categoryBreakdown ?? []).length === 0}
-          emptyMessage="Sin categorias registradas"
+          emptyMessage="Sin categorías registradas"
         >
           <CategoryBreakdownList data={analytics?.categoryBreakdown ?? []} />
         </ChartCard>
@@ -206,7 +206,7 @@ export default function DashboardScreen() {
         </Pressable>
 
         <Text style={TYPE.titleLg} className="text-foreground mb-3">
-          Proximas Tareas
+          Próximas Tareas
         </Text>
       </View>
     ),
@@ -236,7 +236,7 @@ export default function DashboardScreen() {
       ListEmptyComponent={
         !isLoading ? (
           <EmptyState
-            title="Sin tareas proximas"
+            title="Sin tareas próximas"
             message="No hay tareas de mantenimiento programadas por ahora."
           />
         ) : null

@@ -129,7 +129,7 @@ export const CategoryBreakdownList = memo(function CategoryBreakdownList({
     return (
       <View className="items-center py-4">
         <Text style={TYPE.bodySm} className="text-muted-foreground">
-          Sin categorias registradas
+          Sin categorías registradas
         </Text>
       </View>
     );

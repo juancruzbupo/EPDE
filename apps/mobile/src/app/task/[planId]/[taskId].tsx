@@ -203,7 +203,7 @@ export default function TaskDetailScreen() {
             )}
             <View className="flex-row justify-between">
               <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                Proxima fecha
+                Próxima fecha
               </Text>
               <Text style={TYPE.labelLg} className="text-foreground">
                 {task.nextDueDate
@@ -213,7 +213,7 @@ export default function TaskDetailScreen() {
             </View>
             <View className="flex-row justify-between">
               <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                Categoria
+                Categoría
               </Text>
               <Text style={TYPE.labelLg} className="text-foreground">
                 {task.category.name}

@@ -197,6 +197,7 @@ export class AuthController {
     await this.authService.forgotPassword(dto.email);
     // Always return success to prevent email enumeration
     return {
+      data: null,
       message:
         'Si el email está registrado, recibirás instrucciones para restablecer tu contraseña',
     };
@@ -218,7 +219,8 @@ export class AuthController {
     @Body(new ZodValidationPipe(updateProfileSchema)) dto: UpdateProfileInput,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const data = await this.usersService.update(user.id, dto);
+    const updated = await this.usersService.update(user.id, dto);
+    const { passwordHash: _, ...data } = updated;
     return { data, message: 'Perfil actualizado' };
   }
 
@@ -230,7 +232,7 @@ export class AuthController {
     @CurrentUser() user: CurrentUserPayload,
   ) {
     await this.authService.changePassword(user.id, dto.currentPassword, dto.newPassword);
-    return { message: 'Contraseña actualizada' };
+    return { data: null, message: 'Contraseña actualizada' };
   }
 
   @Get('me')

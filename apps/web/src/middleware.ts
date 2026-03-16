@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-const PUBLIC_PATHS = ['/login', '/set-password'];
+const PUBLIC_PATHS = ['/login', '/set-password', '/forgot-password', '/reset-password'];
 
 /**
  * Decode JWT payload (no signature verification — that happens API-side).
