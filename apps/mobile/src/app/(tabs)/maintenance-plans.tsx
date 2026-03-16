@@ -89,22 +89,6 @@ export default function MaintenancePlansScreen() {
     data: filteredPlans.filter((p) => p.status === status),
   })).filter((s) => s.data.length > 0);
 
-  if (!isLoading && !debouncedSearch && sections.length === 0) {
-    return (
-      <View className="bg-background flex-1">
-        <View className="px-4 pt-6 pb-2">
-          <Text style={TYPE.displayLg} className="text-foreground">
-            Planes
-          </Text>
-        </View>
-        <EmptyState
-          title="Sin planes"
-          message="Los planes de mantenimiento se crean al agregar una propiedad."
-        />
-      </View>
-    );
-  }
-
   return (
     <SectionList
       className="bg-background flex-1"
@@ -158,8 +142,18 @@ export default function MaintenancePlansScreen() {
         </View>
       }
       ListEmptyComponent={
-        debouncedSearch && !isLoading ? (
-          <EmptyState title="Sin resultados" message="No se encontraron planes con esa búsqueda." />
+        !isLoading ? (
+          debouncedSearch ? (
+            <EmptyState
+              title="Sin resultados"
+              message="No se encontraron planes con esa búsqueda."
+            />
+          ) : (
+            <EmptyState
+              title="Sin planes"
+              message="Los planes de mantenimiento se crean al agregar una propiedad."
+            />
+          )
         ) : null
       }
       stickySectionHeadersEnabled={false}
