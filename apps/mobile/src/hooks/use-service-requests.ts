@@ -1,4 +1,4 @@
-import type { ServiceRequestPublic } from '@epde/shared';
+import type { ServiceRequestPublic, ServiceUrgency } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
@@ -58,8 +58,15 @@ export function useCreateServiceRequest() {
 export function useEditServiceRequest() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...dto }: { id: string; title?: string; description?: string }) =>
-      editServiceRequest(id, dto),
+    mutationFn: ({
+      id,
+      ...dto
+    }: {
+      id: string;
+      title?: string;
+      description?: string;
+      urgency?: ServiceUrgency;
+    }) => editServiceRequest(id, dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
       Alert.alert('Éxito', 'Solicitud actualizada');

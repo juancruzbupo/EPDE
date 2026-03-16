@@ -251,7 +251,7 @@ export default function TasksPage() {
 
       {/* Stat cards */}
       {!isLoading && !isError && tasks && tasks.length > 0 && (
-        <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="mb-4 grid grid-cols-3 gap-2">
           {TASK_STATUS_ORDER.map((status) => (
             <StatCard
               key={status}
@@ -291,7 +291,7 @@ export default function TasksPage() {
 
       {isLoading ? (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div className="grid grid-cols-3 gap-2">
             {Array.from({ length: 4 }).map((_, i) => (
               <Card key={i}>
                 <CardContent className="p-3">

@@ -3,12 +3,14 @@
 import { UserRole } from '@epde/shared';
 import {
   CheckSquare,
+  ClipboardList,
   FileText,
   Home,
   LayoutDashboard,
   LayoutTemplate,
   LogOut,
   Tags,
+  User,
   Users,
   Wrench,
 } from 'lucide-react';
@@ -22,6 +24,7 @@ const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Clientes', href: '/clients', icon: Users, adminOnly: true },
   { label: 'Propiedades', href: '/properties', icon: Home },
+  { label: 'Planes', href: '/plans', icon: ClipboardList, clientOnly: true },
   { label: 'Tareas', href: '/tasks', icon: CheckSquare },
   { label: 'Presupuestos', href: '/budgets', icon: FileText },
   { label: 'Servicios', href: '/service-requests', icon: Wrench },
@@ -41,7 +44,11 @@ export function Sidebar({ className }: { className?: string }) {
     }
   };
 
-  const filteredItems = navItems.filter((item) => !item.adminOnly || user?.role === UserRole.ADMIN);
+  const filteredItems = navItems.filter((item) => {
+    if (item.adminOnly && user?.role !== UserRole.ADMIN) return false;
+    if (item.clientOnly && user?.role !== UserRole.CLIENT) return false;
+    return true;
+  });
 
   return (
     <aside className={cn('bg-sidebar flex w-64 flex-col border-r', className)}>
@@ -77,13 +84,22 @@ export function Sidebar({ className }: { className?: string }) {
       <div className="border-t p-4">
         <p className="text-sidebar-foreground truncate text-sm font-medium">{user?.name}</p>
         <p className="text-sidebar-foreground/60 truncate text-xs">{user?.email}</p>
-        <button
-          onClick={handleLogout}
-          className="text-sidebar-foreground/60 hover:text-sidebar-foreground focus-visible:ring-ring/50 mt-2 flex items-center gap-2 rounded text-sm focus-visible:ring-[3px] focus-visible:outline-none"
-        >
-          <LogOut className="h-3.5 w-3.5" />
-          Cerrar sesión
-        </button>
+        <div className="mt-2 flex items-center gap-4">
+          <Link
+            href="/profile"
+            className="text-sidebar-foreground/60 hover:text-sidebar-foreground focus-visible:ring-ring/50 flex items-center gap-2 rounded text-sm focus-visible:ring-[3px] focus-visible:outline-none"
+          >
+            <User className="h-3.5 w-3.5" />
+            Perfil
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="text-sidebar-foreground/60 hover:text-sidebar-foreground focus-visible:ring-ring/50 flex items-center gap-2 rounded text-sm focus-visible:ring-[3px] focus-visible:outline-none"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            Cerrar sesión
+          </button>
+        </div>
       </div>
     </aside>
   );

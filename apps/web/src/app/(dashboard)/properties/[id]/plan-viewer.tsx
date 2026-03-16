@@ -109,10 +109,18 @@ function CategorySection({
             const isOverdue = task.nextDueDate ? new Date(task.nextDueDate) < new Date() : false;
 
             return (
-              <button
+              <div
                 key={task.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => onTaskClick(task)}
-                className="bg-card hover:bg-muted/40 w-full rounded-lg border p-3 text-left transition-colors"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onTaskClick(task);
+                  }
+                }}
+                className="bg-card hover:bg-muted/40 w-full cursor-pointer rounded-lg border p-3 text-left transition-colors"
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0 flex-1">
@@ -160,7 +168,7 @@ function CategorySection({
                     </Button>
                   )}
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>

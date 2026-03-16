@@ -54,6 +54,7 @@ function AuthGate() {
         'service-requests',
         'login',
         'set-password',
+        'reset-password',
       ];
       const firstSegment = path?.split('/')[0];
       if (firstSegment && !allowedPaths.includes(firstSegment)) {

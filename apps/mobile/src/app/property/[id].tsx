@@ -30,26 +30,23 @@ import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { defaultScreenOptions } from '@/lib/screen-options';
 
-type StatusFilter = 'ALL' | 'UPCOMING' | 'OVERDUE' | 'COMPLETED';
+type StatusFilter = 'ALL' | 'UPCOMING' | 'OVERDUE';
 
 const FILTERS: { key: StatusFilter; label: string }[] = [
   { key: 'ALL', label: 'Todas' },
   { key: 'UPCOMING', label: 'Próximas' },
   { key: 'OVERDUE', label: 'Vencidas' },
-  { key: 'COMPLETED', label: 'Completadas' },
 ];
 
 function TaskCard({ task, planId }: { task: TaskPublic; planId: string }) {
   const router = useRouter();
 
   const statusDotColor =
-    task.status === TaskStatus.COMPLETED
-      ? 'bg-success'
-      : task.status === TaskStatus.OVERDUE
-        ? 'bg-destructive'
-        : task.status === TaskStatus.UPCOMING
-          ? 'bg-primary'
-          : 'bg-muted-foreground';
+    task.status === TaskStatus.OVERDUE
+      ? 'bg-destructive'
+      : task.status === TaskStatus.UPCOMING
+        ? 'bg-primary'
+        : 'bg-muted-foreground';
 
   return (
     <Pressable

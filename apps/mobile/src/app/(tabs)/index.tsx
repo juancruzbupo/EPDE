@@ -1,7 +1,7 @@
 import type { UpcomingTask } from '@epde/shared';
 import { formatRelativeDate } from '@epde/shared';
 import { useRouter } from 'expo-router';
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
 
 import { AnimatedListItem } from '@/components/animated-list-item';
@@ -56,8 +56,15 @@ const TaskCard = memo(function TaskCard({ task, index }: { task: UpcomingTask; i
   );
 });
 
+const CHART_MONTH_OPTIONS = [
+  { value: 3, label: '3m' },
+  { value: 6, label: '6m' },
+  { value: 12, label: '12m' },
+] as const;
+
 export default function DashboardScreen() {
   const router = useRouter();
+  const [chartMonths, setChartMonths] = useState(6);
   const {
     data: stats,
     isLoading: statsLoading,
@@ -74,7 +81,7 @@ export default function DashboardScreen() {
     data: analytics,
     isLoading: analyticsLoading,
     refetch: refetchAnalytics,
-  } = useClientAnalytics();
+  } = useClientAnalytics(chartMonths);
 
   const isLoading = statsLoading || tasksLoading;
 
@@ -143,6 +150,33 @@ export default function DashboardScreen() {
             </View>
           </View>
         ) : null}
+
+        {/* Chart time range toggle */}
+        <View className="mb-3 flex-row items-center justify-between">
+          <Text style={TYPE.titleLg} className="text-foreground">
+            Gráficos
+          </Text>
+          <View className="flex-row gap-1">
+            {CHART_MONTH_OPTIONS.map((opt) => (
+              <Pressable
+                key={opt.value}
+                onPress={() => setChartMonths(opt.value)}
+                className={`rounded-full px-3 py-1 ${
+                  chartMonths === opt.value ? 'bg-primary' : 'bg-card border-border border'
+                }`}
+              >
+                <Text
+                  style={TYPE.labelMd}
+                  className={
+                    chartMonths === opt.value ? 'text-primary-foreground' : 'text-foreground'
+                  }
+                >
+                  {opt.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
 
         {/* Charts section — graceful degradation: only show if analytics available or loading */}
         <ChartCard
