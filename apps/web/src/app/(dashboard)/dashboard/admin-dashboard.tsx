@@ -1,7 +1,12 @@
 'use client';
 
-import type { ActivityItem } from '@epde/shared';
-import { ActivityType, formatARSCompact, formatRelativeDate } from '@epde/shared';
+import type { ActivityItem, PropertySector } from '@epde/shared';
+import {
+  ActivityType,
+  formatARSCompact,
+  formatRelativeDate,
+  PROPERTY_SECTOR_LABELS,
+} from '@epde/shared';
 import { motion } from 'framer-motion';
 import {
   Activity,
@@ -30,6 +35,7 @@ import { PageHeader } from '@/components/page-header';
 import { SectionErrorBoundary } from '@/components/section-error-boundary';
 import { StatCard } from '@/components/stat-card';
 import { AnimatedNumber } from '@/components/ui/animated-number';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { useAdminAnalytics, useDashboardActivity, useDashboardStats } from '@/hooks/use-dashboard';
@@ -360,6 +366,35 @@ export function AdminDashboard() {
           </ChartCard>
         </SectionErrorBoundary>
       </div>
+
+      {/* Row 4b — Problematic Sectors */}
+      {analytics && analytics.problematicSectors?.length > 0 && (
+        <div className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="type-title-md">Sectores Problemáticos</CardTitle>
+              <p className="type-body-sm text-muted-foreground">
+                Top sectores con más tareas vencidas
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {analytics.problematicSectors.map((s) => {
+                  const label = PROPERTY_SECTOR_LABELS[s.sector as PropertySector] ?? s.sector;
+                  return (
+                    <div key={s.sector} className="flex items-center justify-between">
+                      <span className="text-sm font-medium">{label}</span>
+                      <Badge variant="destructive" className="text-xs">
+                        {s.overdueCount} vencida{s.overdueCount !== 1 ? 's' : ''}
+                      </Badge>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Row 5 — Activity */}
       <motion.div

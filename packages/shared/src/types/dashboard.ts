@@ -94,6 +94,7 @@ export interface AdminAnalytics {
   totalMaintenanceCost: number;
   completionRate: number;
   slaMetrics: SlaMetrics;
+  problematicSectors: { sector: string; overdueCount: number }[];
 }
 
 /** Category breakdown for client dashboard */
@@ -110,6 +111,7 @@ export interface SectorBreakdownItem {
   total: number;
   overdue: number;
   pending: number;
+  cost: number;
 }
 
 /** Client analytics response */

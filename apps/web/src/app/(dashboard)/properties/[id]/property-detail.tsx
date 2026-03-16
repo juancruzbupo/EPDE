@@ -1,7 +1,7 @@
 'use client';
 
 import type { PropertyPublic } from '@epde/shared';
-import { PROPERTY_TYPE_LABELS } from '@epde/shared';
+import { PROPERTY_SECTOR_LABELS, PROPERTY_TYPE_LABELS, type PropertySector } from '@epde/shared';
 import {
   ArrowLeft,
   Building,
@@ -193,6 +193,7 @@ const formatCurrency = (amount: number) =>
 function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
   const { data: expenses, isLoading, isError, refetch } = usePropertyExpenses(propertyId);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [groupBy, setGroupBy] = useState<'category' | 'sector'>('sector');
 
   const analytics = useMemo(() => {
     if (!expenses || expenses.items.length === 0) return null;
@@ -222,6 +223,20 @@ function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
     const topCategory = categories[0];
     const maxCategoryTotal = topCategory?.total ?? 0;
 
+    // Sector grouping
+    const bySector = new Map<string, { total: number; count: number }>();
+    for (const item of items) {
+      const sec = item.sector ?? 'Sin sector';
+      const entry = bySector.get(sec) ?? { total: 0, count: 0 };
+      entry.total += item.amount;
+      entry.count += 1;
+      bySector.set(sec, entry);
+    }
+    const sectors = [...bySector.entries()]
+      .map(([name, data]) => ({ name, ...data }))
+      .sort((a, b) => b.total - a.total);
+    const maxSectorTotal = sectors[0]?.total ?? 0;
+
     // Task vs Budget split
     const taskTotal = items.filter((i) => i.type === 'task').reduce((s, i) => s + i.amount, 0);
     const budgetTotal = items.filter((i) => i.type === 'budget').reduce((s, i) => s + i.amount, 0);
@@ -232,6 +247,8 @@ function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
       categories,
       topCategory,
       maxCategoryTotal,
+      sectors,
+      maxSectorTotal,
       taskTotal,
       budgetTotal,
     };
@@ -343,26 +360,57 @@ function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
         </Card>
       </div>
 
-      {/* Row 2 — Category Breakdown */}
+      {/* Row 2 — Breakdown with toggle */}
       <Card>
-        <CardHeader>
-          <CardTitle className="type-title-md">Gasto por categoría</CardTitle>
-          <p className="type-body-sm text-muted-foreground">
-            Tareas: {formatCurrency(analytics.taskTotal)} · Presupuestos:{' '}
-            {formatCurrency(analytics.budgetTotal)}
-          </p>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="type-title-md">
+              Gasto por {groupBy === 'sector' ? 'sector' : 'categoría'}
+            </CardTitle>
+            <p className="type-body-sm text-muted-foreground">
+              Tareas: {formatCurrency(analytics.taskTotal)} · Presupuestos:{' '}
+              {formatCurrency(analytics.budgetTotal)}
+            </p>
+          </div>
+          <div className="flex gap-1">
+            <button
+              onClick={() => setGroupBy('sector')}
+              className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                groupBy === 'sector'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground'
+              }`}
+            >
+              Sector
+            </button>
+            <button
+              onClick={() => setGroupBy('category')}
+              className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                groupBy === 'category'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground'
+              }`}
+            >
+              Categoría
+            </button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {analytics.categories.map((cat) => {
-              const pct =
-                analytics.maxCategoryTotal > 0 ? (cat.total / analytics.maxCategoryTotal) * 100 : 0;
+            {(groupBy === 'sector' ? analytics.sectors : analytics.categories).map((item) => {
+              const maxTotal =
+                groupBy === 'sector' ? analytics.maxSectorTotal : analytics.maxCategoryTotal;
+              const pct = maxTotal > 0 ? (item.total / maxTotal) * 100 : 0;
+              const label =
+                groupBy === 'sector'
+                  ? (PROPERTY_SECTOR_LABELS[item.name as PropertySector] ?? item.name)
+                  : item.name;
               return (
-                <div key={cat.name}>
+                <div key={item.name}>
                   <div className="mb-1 flex items-center justify-between">
-                    <span className="text-sm font-medium">{cat.name}</span>
+                    <span className="text-sm font-medium">{label}</span>
                     <span className="text-sm font-medium tabular-nums">
-                      {formatCurrency(cat.total)}
+                      {formatCurrency(item.total)}
                     </span>
                   </div>
                   <div className="bg-muted h-2 overflow-hidden rounded-full">
@@ -372,8 +420,8 @@ function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
                     />
                   </div>
                   <p className="text-muted-foreground mt-0.5 text-xs">
-                    {cat.count} item{cat.count !== 1 ? 's' : ''} ·{' '}
-                    {Math.round((cat.total / expenses.totalCost) * 100)}% del total
+                    {item.count} item{item.count !== 1 ? 's' : ''} ·{' '}
+                    {Math.round((item.total / expenses.totalCost) * 100)}% del total
                   </p>
                 </div>
               );

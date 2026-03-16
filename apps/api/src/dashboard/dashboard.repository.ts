@@ -301,6 +301,25 @@ export class DashboardRepository {
     }));
   }
 
+  /** Top sectors with most overdue tasks across all properties. */
+  async getProblematicSectors() {
+    const tasks = await this.prisma.task.findMany({
+      where: { deletedAt: null, status: 'OVERDUE', sector: { not: null } },
+      select: { sector: true },
+    });
+
+    const map = new Map<string, number>();
+    for (const t of tasks) {
+      if (!t.sector) continue;
+      map.set(t.sector, (map.get(t.sector) ?? 0) + 1);
+    }
+
+    return [...map.entries()]
+      .map(([sector, count]) => ({ sector, overdueCount: count }))
+      .sort((a, b) => b.overdueCount - a.overdueCount)
+      .slice(0, 5);
+  }
+
   async getCategoryCosts(months: number) {
     const since = subMonths(startOfMonth(new Date()), months - 1);
 
@@ -608,23 +627,41 @@ export class DashboardRepository {
   async getClientSectorBreakdown(planIds: string[]) {
     if (planIds.length === 0) return [];
 
-    const tasks = await this.prisma.task.findMany({
-      where: {
-        maintenancePlanId: { in: planIds },
-        deletedAt: null,
-        sector: { not: null },
-      },
-      select: { sector: true, status: true },
-    });
+    const [tasks, logs] = await Promise.all([
+      this.prisma.task.findMany({
+        where: {
+          maintenancePlanId: { in: planIds },
+          deletedAt: null,
+          sector: { not: null },
+        },
+        select: { id: true, sector: true, status: true },
+      }),
+      this.prisma.taskLog.findMany({
+        where: {
+          task: { maintenancePlanId: { in: planIds }, sector: { not: null } },
+          cost: { not: null },
+        },
+        select: { cost: true, task: { select: { sector: true } } },
+      }),
+    ]);
 
-    const map = new Map<string, { total: number; overdue: number; pending: number }>();
+    const map = new Map<
+      string,
+      { total: number; overdue: number; pending: number; cost: number }
+    >();
     for (const t of tasks) {
       if (!t.sector) continue;
-      const entry = map.get(t.sector) ?? { total: 0, overdue: 0, pending: 0 };
+      const entry = map.get(t.sector) ?? { total: 0, overdue: 0, pending: 0, cost: 0 };
       entry.total += 1;
       if (t.status === 'OVERDUE') entry.overdue += 1;
       if (t.status === 'PENDING' || t.status === 'UPCOMING') entry.pending += 1;
       map.set(t.sector, entry);
+    }
+
+    for (const log of logs) {
+      if (!log.task.sector) continue;
+      const entry = map.get(log.task.sector);
+      if (entry) entry.cost += Number(log.cost);
     }
 
     return [...map.entries()]

@@ -270,6 +270,8 @@ export function ClientDashboard({ userName }: { userName: string }) {
                         {s.overdue > 0
                           ? ` · ${s.overdue} vencida${s.overdue !== 1 ? 's' : ''}`
                           : ''}
+                        {s.cost > 0 &&
+                          ` · ${new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(s.cost)}`}
                       </p>
                     </Link>
                   );

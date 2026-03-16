@@ -128,7 +128,30 @@ export default function PropertyDetailScreen() {
       .map(([name, data]) => ({ name, ...data }))
       .sort((a, b) => b.total - a.total);
 
-    return { months, monthlyAvg, categories, maxTotal: categories[0]?.total ?? 0 };
+    // Sector grouping
+    const bySector = new Map<string, { total: number; count: number }>();
+    for (const item of items) {
+      const sec = item.sector
+        ? (PROPERTY_SECTOR_LABELS[item.sector as keyof typeof PROPERTY_SECTOR_LABELS] ??
+          item.sector)
+        : 'Sin sector';
+      const entry = bySector.get(sec) ?? { total: 0, count: 0 };
+      entry.total += item.amount;
+      entry.count += 1;
+      bySector.set(sec, entry);
+    }
+    const sectors = [...bySector.entries()]
+      .map(([name, data]) => ({ name, ...data }))
+      .sort((a, b) => b.total - a.total);
+
+    return {
+      months,
+      monthlyAvg,
+      categories,
+      sectors,
+      maxTotal: categories[0]?.total ?? 0,
+      maxSectorTotal: sectors[0]?.total ?? 0,
+    };
   }, [expenses]);
 
   const sections = useMemo(() => {
@@ -295,6 +318,39 @@ export default function PropertyDetailScreen() {
                       );
                     })}
                   </View>
+
+                  {/* Sector breakdown */}
+                  {expenseAnalytics.sectors.length > 0 && (
+                    <View className="gap-2">
+                      <Text style={TYPE.labelMd} className="text-muted-foreground">
+                        Por sector
+                      </Text>
+                      {expenseAnalytics.sectors.slice(0, 5).map((sec) => {
+                        const pct =
+                          expenseAnalytics.maxSectorTotal > 0
+                            ? (sec.total / expenseAnalytics.maxSectorTotal) * 100
+                            : 0;
+                        return (
+                          <View key={sec.name}>
+                            <View className="flex-row items-center justify-between">
+                              <Text style={TYPE.bodySm} className="text-foreground">
+                                {sec.name}
+                              </Text>
+                              <Text style={TYPE.bodySm} className="text-foreground">
+                                {formatCurrency(sec.total)}
+                              </Text>
+                            </View>
+                            <View className="bg-muted mt-1 h-1.5 overflow-hidden rounded-full">
+                              <View
+                                className="bg-primary h-full rounded-full"
+                                style={{ width: `${pct}%` }}
+                              />
+                            </View>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  )}
 
                   {/* Item list */}
                   <View className="border-border border-t pt-2">
