@@ -73,17 +73,25 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
           <DialogTitle>Editar propiedad</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="edit-address">Dirección</Label>
-            <Input id="edit-address" {...register('address')} />
-            {errors.address && <p className="text-destructive text-sm">{errors.address.message}</p>}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-address">
+                Dirección <span className="text-destructive">*</span>
+              </Label>
+              <Input id="edit-address" {...register('address')} />
+              {errors.address && (
+                <p className="text-destructive text-xs">{errors.address.message}</p>
+              )}
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-city">
+                Ciudad <span className="text-destructive">*</span>
+              </Label>
+              <Input id="edit-city" {...register('city')} />
+              {errors.city && <p className="text-destructive text-xs">{errors.city.message}</p>}
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="edit-city">Ciudad</Label>
-            <Input id="edit-city" {...register('city')} />
-            {errors.city && <p className="text-destructive text-sm">{errors.city.message}</p>}
-          </div>
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="edit-type">Tipo</Label>
             <Select
               defaultValue={property.type}
@@ -101,9 +109,11 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-year">Año de construcción</Label>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-year" className="text-muted-foreground">
+                Año de construcción
+              </Label>
               <Input
                 id="edit-year"
                 type="number"
@@ -115,8 +125,10 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
                 <p className="text-destructive text-sm">{errors.yearBuilt.message}</p>
               )}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-sqm">Metros cuadrados</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-sqm" className="text-muted-foreground">
+                Metros cuadrados
+              </Label>
               <Input
                 id="edit-sqm"
                 type="number"
@@ -130,8 +142,11 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
               )}
             </div>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label>Sectores activos</Label>
+            <p className="text-muted-foreground text-xs">
+              Desmarcá los sectores que no aplican a esta propiedad.
+            </p>
             <div className="grid grid-cols-3 gap-2">
               {Object.entries(PROPERTY_SECTOR_LABELS).map(([value, label]) => (
                 <label key={value} className="flex cursor-pointer items-center gap-2 text-sm">

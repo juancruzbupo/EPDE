@@ -55,8 +55,8 @@ describe('CreateBudgetModal', () => {
 
   it('renders form fields', () => {
     render(<CreateBudgetModal {...defaultProps} />);
-    expect(screen.getByText('Titulo')).toBeTruthy();
-    expect(screen.getByText('Descripcion (opcional)')).toBeTruthy();
+    expect(screen.getByText('Título *')).toBeTruthy();
+    expect(screen.getByText('Descripción')).toBeTruthy();
   });
 
   it('renders cancel and create buttons', () => {

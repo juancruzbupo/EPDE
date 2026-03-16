@@ -190,7 +190,7 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
           {!errors.propertyId && <View className="mb-4" />}
 
           <Text style={TYPE.labelLg} className="text-foreground mb-2">
-            Titulo
+            Título *
           </Text>
           <Controller
             control={control}
@@ -216,7 +216,7 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
           {!errors.title && <View className="mb-4" />}
 
           <Text style={TYPE.labelLg} className="text-foreground mb-2">
-            Descripcion (opcional)
+            Descripción
           </Text>
           <Controller
             control={control}

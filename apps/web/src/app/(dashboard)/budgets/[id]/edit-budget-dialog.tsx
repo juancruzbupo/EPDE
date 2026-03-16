@@ -46,19 +46,23 @@ export function EditBudgetDialog({ open, onOpenChange, budget }: EditBudgetDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Editar presupuesto</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="edit-title">Título</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="edit-title">
+              Título <span className="text-destructive">*</span>
+            </Label>
             <Input id="edit-title" {...register('title')} />
-            {errors.title && <p className="text-destructive text-sm">{errors.title.message}</p>}
+            {errors.title && <p className="text-destructive text-xs">{errors.title.message}</p>}
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="edit-description">Descripción</Label>
-            <Textarea id="edit-description" {...register('description')} rows={3} />
+          <div className="space-y-1.5">
+            <Label htmlFor="edit-description" className="text-muted-foreground">
+              Descripción
+            </Label>
+            <Textarea id="edit-description" {...register('description')} rows={2} />
             {errors.description && (
               <p className="text-destructive text-sm">{errors.description.message}</p>
             )}

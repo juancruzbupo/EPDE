@@ -63,13 +63,18 @@ export function CreateBudgetDialog({ open, onOpenChange }: CreateBudgetDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Solicitar Presupuesto</DialogTitle>
+          <p className="text-muted-foreground text-sm">
+            Solicitá un presupuesto para tu propiedad.
+          </p>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="propertyId">Propiedad</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="propertyId">
+              Propiedad <span className="text-destructive">*</span>
+            </Label>
             <Select
               value={selectedPropertyId ?? ''}
               onValueChange={(value) => setValue('propertyId', value, { shouldValidate: true })}
@@ -89,14 +94,23 @@ export function CreateBudgetDialog({ open, onOpenChange }: CreateBudgetDialogPro
               <p className="text-destructive text-sm">{errors.propertyId.message}</p>
             )}
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="title">Título</Label>
-            <Input id="title" {...register('title')} />
-            {errors.title && <p className="text-destructive text-sm">{errors.title.message}</p>}
+          <div className="space-y-1.5">
+            <Label htmlFor="title">
+              Título <span className="text-destructive">*</span>
+            </Label>
+            <Input id="title" placeholder="Ej: Reparación de techo" {...register('title')} />
+            {errors.title && <p className="text-destructive text-xs">{errors.title.message}</p>}
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Descripción (opcional)</Label>
-            <Textarea id="description" {...register('description')} />
+          <div className="space-y-1.5">
+            <Label htmlFor="description" className="text-muted-foreground">
+              Descripción
+            </Label>
+            <Textarea
+              id="description"
+              rows={2}
+              placeholder="Detalles adicionales sobre el trabajo necesario..."
+              {...register('description')}
+            />
             {errors.description && (
               <p className="text-destructive text-sm">{errors.description.message}</p>
             )}

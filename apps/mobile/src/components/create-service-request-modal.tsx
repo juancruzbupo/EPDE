@@ -364,7 +364,7 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
 
           {/* Title */}
           <Text style={TYPE.labelLg} className="text-foreground mb-2">
-            Titulo
+            Título *
           </Text>
           <Controller
             control={control}
@@ -391,7 +391,7 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
 
           {/* Description */}
           <Text style={TYPE.labelLg} className="text-foreground mb-2">
-            Descripcion
+            Descripción *
           </Text>
           <Controller
             control={control}

@@ -78,8 +78,8 @@ describe('CreateServiceRequestModal', () => {
 
   it('renders form fields and photo section', () => {
     render(<CreateServiceRequestModal {...defaultProps} />);
-    expect(screen.getByText('Titulo')).toBeTruthy();
-    expect(screen.getByText('Descripcion')).toBeTruthy();
+    expect(screen.getByText('Título *')).toBeTruthy();
+    expect(screen.getByText('Descripción *')).toBeTruthy();
     expect(screen.getByText('Fotos (opcional, max 5)')).toBeTruthy();
   });
 

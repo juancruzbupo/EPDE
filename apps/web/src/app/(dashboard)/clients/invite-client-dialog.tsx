@@ -42,9 +42,12 @@ export function InviteClientDialog({ open, onOpenChange }: InviteClientDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Invitar Cliente</DialogTitle>
+          <p className="text-muted-foreground text-sm">
+            Se enviará un email de invitación para que configure su contraseña.
+          </p>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {errorMessage && (
@@ -52,19 +55,25 @@ export function InviteClientDialog({ open, onOpenChange }: InviteClientDialogPro
               <AlertDescription>{errorMessage}</AlertDescription>
             </Alert>
           )}
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" {...register('email')} />
-            {errors.email && <p className="text-destructive text-sm">{errors.email.message}</p>}
+          <div className="space-y-1.5">
+            <Label htmlFor="email">
+              Email <span className="text-destructive">*</span>
+            </Label>
+            <Input id="email" type="email" placeholder="cliente@email.com" {...register('email')} />
+            {errors.email && <p className="text-destructive text-xs">{errors.email.message}</p>}
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="name">Nombre</Label>
-            <Input id="name" {...register('name')} />
-            {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
+          <div className="space-y-1.5">
+            <Label htmlFor="name">
+              Nombre <span className="text-destructive">*</span>
+            </Label>
+            <Input id="name" placeholder="Nombre completo" {...register('name')} />
+            {errors.name && <p className="text-destructive text-xs">{errors.name.message}</p>}
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="phone">Teléfono (opcional)</Label>
-            <Input id="phone" {...register('phone')} />
+          <div className="space-y-1.5">
+            <Label htmlFor="phone" className="text-muted-foreground">
+              Teléfono
+            </Label>
+            <Input id="phone" placeholder="+54 11 1234-5678" {...register('phone')} />
           </div>
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
