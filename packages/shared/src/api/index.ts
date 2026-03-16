@@ -6,4 +6,9 @@ export { createDashboardQueries } from './dashboard';
 export { createMaintenancePlanQueries } from './maintenance-plans';
 export { createNotificationQueries, type NotificationFilters } from './notifications';
 export { createPropertyQueries, type PropertyFilters } from './properties';
+export {
+  createQuoteTemplateQueries,
+  type QuoteTemplateItem,
+  type QuoteTemplatePublic,
+} from './quote-templates';
 export { createServiceRequestQueries, type ServiceRequestFilters } from './service-requests';

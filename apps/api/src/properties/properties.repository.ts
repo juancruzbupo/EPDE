@@ -188,4 +188,46 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
 
     return { totalCost, items };
   }
+
+  /** Aggregates all photos for a property from ServiceRequestPhotos + TaskLog photoUrls. */
+  async getPropertyPhotos(propertyId: string) {
+    const [servicePhotos, taskPhotos] = await Promise.all([
+      this.prisma.serviceRequestPhoto.findMany({
+        where: { serviceRequest: { propertyId, deletedAt: null } },
+        select: {
+          url: true,
+          createdAt: true,
+          serviceRequest: { select: { title: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.taskLog.findMany({
+        where: {
+          task: { maintenancePlan: { propertyId } },
+          photoUrl: { not: null },
+        },
+        select: {
+          photoUrl: true,
+          completedAt: true,
+          task: { select: { name: true } },
+        },
+        orderBy: { completedAt: 'desc' },
+      }),
+    ]);
+
+    return [
+      ...servicePhotos.map((p) => ({
+        url: p.url,
+        date: p.createdAt.toISOString(),
+        description: p.serviceRequest.title,
+        source: 'service-request' as const,
+      })),
+      ...taskPhotos.map((p) => ({
+        url: p.photoUrl!,
+        date: p.completedAt.toISOString(),
+        description: p.task.name,
+        source: 'task' as const,
+      })),
+    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }
 }

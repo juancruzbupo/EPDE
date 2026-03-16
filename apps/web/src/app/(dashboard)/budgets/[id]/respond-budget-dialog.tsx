@@ -16,6 +16,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useRespondToBudget } from '@/hooks/use-budgets';
+import { useQuoteTemplates } from '@/hooks/use-quote-templates';
+import type { QuoteTemplatePublic } from '@/lib/api/quote-templates';
 
 interface RespondBudgetDialogProps {
   open: boolean;
@@ -41,6 +43,7 @@ export function RespondBudgetDialog({
   initialNotes,
 }: RespondBudgetDialogProps) {
   const respondToBudget = useRespondToBudget();
+  const { data: quoteTemplates } = useQuoteTemplates();
 
   const {
     register,
@@ -98,6 +101,40 @@ export function RespondBudgetDialog({
           <DialogTitle>Cotizar Presupuesto</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Quote Template Selector */}
+          {quoteTemplates && quoteTemplates.length > 0 && (
+            <div className="space-y-2">
+              <Label>Usar plantilla</Label>
+              <select
+                className="border-border bg-background text-foreground w-full rounded-md border px-3 py-2 text-sm"
+                defaultValue=""
+                onChange={(e) => {
+                  const template = quoteTemplates.find(
+                    (t: QuoteTemplatePublic) => t.id === e.target.value,
+                  );
+                  if (template) {
+                    // Remove existing items and replace with template
+                    while (fields.length > 0) remove(0);
+                    template.items.forEach((item: QuoteTemplatePublic['items'][number]) =>
+                      append({
+                        description: item.description,
+                        quantity: Number(item.quantity),
+                        unitPrice: Number(item.unitPrice),
+                      }),
+                    );
+                  }
+                }}
+              >
+                <option value="">Seleccionar plantilla...</option>
+                {quoteTemplates.map((t: QuoteTemplatePublic) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name} ({t.items.length} items)
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Line Items */}
           <div className="space-y-3">
             <Label>Items</Label>

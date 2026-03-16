@@ -73,6 +73,18 @@ export class PropertiesService {
     return { data: null, message: 'Propiedad eliminada' };
   }
 
+  async getPropertyPhotos(id: string, currentUser: ServiceUser) {
+    const property = await this.propertiesRepository.findById(id);
+    if (!property) {
+      throw new NotFoundException('Propiedad no encontrada');
+    }
+
+    this.assertOwnership(property.userId, currentUser);
+
+    const photos = await this.propertiesRepository.getPropertyPhotos(id);
+    return { data: photos };
+  }
+
   async getPropertyExpenses(id: string, currentUser: ServiceUser) {
     const property = await this.propertiesRepository.findById(id);
     if (!property) {

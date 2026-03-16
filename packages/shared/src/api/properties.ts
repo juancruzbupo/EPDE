@@ -51,5 +51,22 @@ export function createPropertyQueries(apiClient: AxiosInstance) {
       const { data } = await apiClient.get(`/properties/${id}/expenses`, { signal });
       return data;
     },
+
+    async getPropertyPhotos(
+      id: string,
+      signal?: AbortSignal,
+    ): Promise<
+      ApiResponse<
+        {
+          url: string;
+          date: string;
+          description: string;
+          source: 'service-request' | 'task';
+        }[]
+      >
+    > {
+      const { data } = await apiClient.get(`/properties/${id}/photos`, { signal });
+      return data;
+    },
   };
 }

@@ -220,6 +220,7 @@ export const QUERY_KEYS = {
   categories: 'categories',
   categoryTemplates: 'category-templates',
   taskTemplates: 'task-templates',
+  quoteTemplates: 'quote-templates',
   taskDetail: 'task-detail',
   taskLogs: 'task-logs',
   taskNotes: 'task-notes',

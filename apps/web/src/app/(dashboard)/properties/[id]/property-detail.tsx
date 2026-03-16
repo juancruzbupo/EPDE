@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   Building,
   Calendar,
+  Camera,
   ClipboardList,
   DollarSign,
   MapPin,
@@ -22,7 +23,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useProperty, usePropertyExpenses } from '@/hooks/use-properties';
+import { useProperty, usePropertyExpenses, usePropertyPhotos } from '@/hooks/use-properties';
 
 import { EditPropertyDialog } from './edit-property-dialog';
 import { PlanEditor } from './plan-editor';
@@ -73,6 +74,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
           <TabsTrigger value="details">Detalles</TabsTrigger>
           <TabsTrigger value="plan">Plan de Mantenimiento</TabsTrigger>
           <TabsTrigger value="expenses">Gastos</TabsTrigger>
+          <TabsTrigger value="photos">Fotos</TabsTrigger>
         </TabsList>
 
         <TabsContent value="details" className="mt-4">
@@ -157,6 +159,10 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
 
         <TabsContent value="expenses" className="mt-4">
           <PropertyExpensesTab propertyId={property.id} />
+        </TabsContent>
+
+        <TabsContent value="photos" className="mt-4">
+          <PropertyPhotosTab propertyId={property.id} />
         </TabsContent>
       </Tabs>
 
@@ -247,6 +253,80 @@ function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
                 </span>
               </div>
             </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Photos Tab ─────────────────────────────────────────
+
+function PropertyPhotosTab({ propertyId }: { propertyId: string }) {
+  const { data: photos, isLoading, isError, refetch } = usePropertyPhotos(propertyId);
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="bg-muted/40 aspect-square animate-pulse rounded-lg" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isError) {
+    return (
+      <ErrorState message="No se pudieron cargar las fotos" onRetry={refetch} className="py-12" />
+    );
+  }
+
+  if (!photos || photos.length === 0) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center gap-2 py-12">
+          <Camera className="text-muted-foreground/50 h-8 w-8" />
+          <p className="text-muted-foreground text-sm">
+            No hay fotos registradas para esta propiedad.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="type-title-md">Galería de Fotos ({photos.length})</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+          {photos.map((photo, i) => (
+            <a
+              key={i}
+              href={photo.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative aspect-square overflow-hidden rounded-lg border"
+            >
+              <img
+                src={photo.url}
+                alt={photo.description}
+                className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                loading="lazy"
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                <p className="truncate text-xs font-medium text-white">{photo.description}</p>
+                <p className="text-xs text-white/70">
+                  {photo.source === 'task' ? 'Tarea' : 'Solicitud'} ·{' '}
+                  {new Date(photo.date).toLocaleDateString('es-AR')}
+                </p>
+              </div>
+            </a>
           ))}
         </div>
       </CardContent>

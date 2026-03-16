@@ -54,6 +54,15 @@ export class PropertiesController {
     return { data };
   }
 
+  @Get(':id/photos')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  async getPropertyPhotos(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    return this.propertiesService.getPropertyPhotos(id, user);
+  }
+
   @Get(':id/expenses')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async getPropertyExpenses(
