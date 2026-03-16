@@ -80,7 +80,11 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row, index) => (
                 <RowWrapper
                   key={row.id}
-                  className={onRowClick ? 'hover:bg-muted/50 cursor-pointer' : undefined}
+                  className={
+                    onRowClick
+                      ? 'hover:bg-muted/50 cursor-pointer transition-opacity active:opacity-60'
+                      : undefined
+                  }
                   onClick={() => onRowClick?.(row.original)}
                   {...(onRowClick
                     ? {

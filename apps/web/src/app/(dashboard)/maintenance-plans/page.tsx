@@ -23,7 +23,7 @@ function PlanCard({ plan, onClick }: { plan: PlanListItem; onClick: () => void }
   return (
     <button
       onClick={onClick}
-      className="bg-card hover:bg-muted/40 w-full rounded-lg border p-3 text-left transition-colors"
+      className="bg-card hover:bg-muted/40 w-full rounded-lg border p-3 text-left transition-all active:opacity-60"
     >
       <div className="mb-1 flex items-start justify-between gap-2">
         <span className="text-sm leading-tight font-medium">{plan.name}</span>

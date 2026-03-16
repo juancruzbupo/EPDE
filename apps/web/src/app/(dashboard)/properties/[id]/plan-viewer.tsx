@@ -120,7 +120,7 @@ function CategorySection({
                     onTaskClick(task);
                   }
                 }}
-                className="bg-card hover:bg-muted/40 w-full cursor-pointer rounded-lg border p-3 text-left transition-colors"
+                className="bg-card hover:bg-muted/40 w-full cursor-pointer rounded-lg border p-3 text-left transition-all active:opacity-60"
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0 flex-1">

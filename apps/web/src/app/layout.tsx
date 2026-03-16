@@ -3,8 +3,10 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { DM_Sans, DM_Serif_Display } from 'next/font/google';
 import Script from 'next/script';
+import { Suspense } from 'react';
 import { Toaster } from 'sonner';
 
+import { NavigationProgress } from '@/components/navigation-progress';
 import { AuthProvider } from '@/providers/auth-provider';
 import { QueryProvider } from '@/providers/query-provider';
 
@@ -37,6 +39,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >{`(function(){try{var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.classList.add('dark')}catch(e){}})()`}</Script>
       </head>
       <body className={`${dmSans.variable} ${dmSerifDisplay.variable}`}>
+        <Suspense>
+          <NavigationProgress />
+        </Suspense>
         <QueryProvider>
           <AuthProvider>{children}</AuthProvider>
         </QueryProvider>
