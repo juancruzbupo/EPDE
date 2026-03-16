@@ -140,7 +140,7 @@ export default function PlansPage() {
         <EmptyState
           icon={Home}
           title="Sin planes"
-          message="No hay planes de mantenimiento registrados todavia."
+          message="No hay planes de mantenimiento registrados todavía."
         />
       ) : (
         <div className="space-y-4">

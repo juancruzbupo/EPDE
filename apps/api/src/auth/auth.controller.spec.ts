@@ -49,6 +49,13 @@ const mockAuthService = {
   logout: jest.fn(),
   setPassword: jest.fn(),
   getMe: jest.fn(),
+  forgotPassword: jest.fn(),
+  resetPassword: jest.fn(),
+  changePassword: jest.fn(),
+};
+
+const mockUsersService = {
+  update: jest.fn(),
 };
 
 const mockConfigService = {
@@ -92,7 +99,7 @@ describe('AuthController', () => {
       providers: [
         { provide: AuthService, useValue: mockAuthService },
         { provide: ConfigService, useValue: mockConfigService },
-        { provide: UsersService, useValue: { update: jest.fn().mockResolvedValue({}) } },
+        { provide: UsersService, useValue: mockUsersService },
       ],
     }).compile();
 
@@ -433,6 +440,89 @@ describe('AuthController', () => {
       const result = await controller.getMe('u-2');
 
       expect(result.data).toEqual(rawServiceResponse);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // forgotPassword
+  // -------------------------------------------------------------------------
+
+  describe('forgotPassword', () => {
+    it('should delegate to authService.forgotPassword and return anti-enumeration message', async () => {
+      mockAuthService.forgotPassword.mockResolvedValue(undefined);
+
+      const dto = { email: 'test@epde.ar' } as any;
+      const result = await controller.forgotPassword(dto);
+
+      expect(mockAuthService.forgotPassword).toHaveBeenCalledWith('test@epde.ar');
+      expect(result).toEqual({
+        data: null,
+        message:
+          'Si el email está registrado, recibirás instrucciones para restablecer tu contraseña',
+      });
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // resetPassword
+  // -------------------------------------------------------------------------
+
+  describe('resetPassword', () => {
+    it('should delegate to authService.resetPassword and return data envelope', async () => {
+      const serviceResult = { message: 'Contraseña actualizada correctamente' };
+      mockAuthService.resetPassword.mockResolvedValue(serviceResult);
+
+      const dto = { token: 'reset-token', newPassword: 'NewPass123!' } as any;
+      const result = await controller.resetPassword(dto);
+
+      expect(mockAuthService.resetPassword).toHaveBeenCalledWith('reset-token', 'NewPass123!');
+      expect(result).toEqual({ data: serviceResult });
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // updateProfile
+  // -------------------------------------------------------------------------
+
+  describe('updateProfile', () => {
+    it('should delegate to usersService.update, strip passwordHash, and return data+message', async () => {
+      const updatedUser = {
+        id: 'client-1',
+        email: 'client@epde.ar',
+        name: 'Nuevo Nombre',
+        phone: '+5491100000000',
+        role: UserRole.CLIENT,
+        passwordHash: '$2b$12$secrethash',
+      };
+      mockUsersService.update.mockResolvedValue(updatedUser);
+
+      const dto = { name: 'Nuevo Nombre', phone: '+5491100000000' } as any;
+      const result = await controller.updateProfile(dto, clientUser);
+
+      expect(mockUsersService.update).toHaveBeenCalledWith('client-1', dto);
+      expect(result.data).not.toHaveProperty('passwordHash');
+      expect(result.data.name).toBe('Nuevo Nombre');
+      expect(result.message).toBe('Perfil actualizado');
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // changePassword
+  // -------------------------------------------------------------------------
+
+  describe('changePassword', () => {
+    it('should delegate to authService.changePassword and return message', async () => {
+      mockAuthService.changePassword.mockResolvedValue(undefined);
+
+      const dto = { currentPassword: 'OldPass123!', newPassword: 'NewPass456!' } as any;
+      const result = await controller.changePassword(dto, clientUser);
+
+      expect(mockAuthService.changePassword).toHaveBeenCalledWith(
+        'client-1',
+        'OldPass123!',
+        'NewPass456!',
+      );
+      expect(result).toEqual({ data: null, message: 'Contraseña actualizada' });
     });
   });
 });

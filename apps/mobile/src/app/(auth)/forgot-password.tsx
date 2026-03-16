@@ -64,7 +64,12 @@ export default function ForgotPasswordScreen() {
               <Text style={TYPE.bodyMd} className="text-muted-foreground text-center">
                 Si el email está registrado, recibirás instrucciones para restablecer tu contraseña.
               </Text>
-              <Pressable onPress={() => router.back()} className="mt-4">
+              <Pressable
+                accessibilityRole="link"
+                accessibilityLabel="Volver al inicio de sesión"
+                onPress={() => router.back()}
+                className="mt-4"
+              >
                 <Text style={TYPE.labelLg} className="text-primary text-center">
                   Volver al inicio de sesión
                 </Text>
@@ -100,6 +105,8 @@ export default function ForgotPasswordScreen() {
               {error && <Text className="text-destructive mt-2 text-center text-sm">{error}</Text>}
 
               <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Enviar instrucciones de recuperación"
                 onPress={handleSubmit(onSubmit)}
                 disabled={isLoading}
                 className="bg-primary mt-5 items-center rounded-lg py-3.5 active:opacity-80"
@@ -114,7 +121,12 @@ export default function ForgotPasswordScreen() {
                 )}
               </Pressable>
 
-              <Pressable onPress={() => router.back()} className="mt-4">
+              <Pressable
+                accessibilityRole="link"
+                accessibilityLabel="Volver al inicio de sesión"
+                onPress={() => router.back()}
+                className="mt-4"
+              >
                 <Text style={TYPE.labelMd} className="text-primary text-center">
                   Volver al inicio de sesión
                 </Text>

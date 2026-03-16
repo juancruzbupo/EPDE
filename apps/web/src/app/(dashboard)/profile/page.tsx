@@ -17,7 +17,7 @@ import { PageTransition } from '@/components/ui/page-transition';
 import { changePassword, updateProfile } from '@/lib/auth';
 import { useAuthStore } from '@/stores/auth-store';
 
-const ROLE_LABELS: Record<string, string> = {
+const ROLE_LABELS: Record<UserRole, string> = {
   [UserRole.ADMIN]: 'Administrador',
   [UserRole.CLIENT]: 'Cliente',
 };
@@ -30,7 +30,7 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 const passwordSchema = changePasswordSchema
   .extend({ confirmPassword: z.string() })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'Las contrasenas no coinciden',
+    message: 'Las contraseñas no coinciden',
     path: ['confirmPassword'],
   });
 type PasswordFormData = z.infer<typeof passwordSchema>;
@@ -242,10 +242,10 @@ function ChangePasswordForm() {
               <p className="text-destructive text-sm">{errors.newPassword.message}</p>
             )}
             <ul className="text-muted-foreground space-y-1 text-sm">
-              <li>Minimo 8 caracteres</li>
-              <li>Al menos una mayuscula</li>
-              <li>Al menos una minuscula</li>
-              <li>Al menos un numero</li>
+              <li>Mínimo 8 caracteres</li>
+              <li>Al menos una mayúscula</li>
+              <li>Al menos una minúscula</li>
+              <li>Al menos un número</li>
             </ul>
           </div>
 

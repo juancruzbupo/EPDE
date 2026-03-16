@@ -1,3 +1,4 @@
+import { changePasswordSchema } from '@epde/shared';
 import Constants from 'expo-constants';
 import { useState } from 'react';
 import {
@@ -70,20 +71,9 @@ export default function ProfileScreen() {
       Alert.alert('Error', 'Completá ambos campos');
       return;
     }
-    if (newPassword.length < 8) {
-      Alert.alert('Error', 'La contraseña debe tener al menos 8 caracteres');
-      return;
-    }
-    if (!/[A-Z]/.test(newPassword)) {
-      Alert.alert('Error', 'Debe contener al menos una mayúscula');
-      return;
-    }
-    if (!/[a-z]/.test(newPassword)) {
-      Alert.alert('Error', 'Debe contener al menos una minúscula');
-      return;
-    }
-    if (!/[0-9]/.test(newPassword)) {
-      Alert.alert('Error', 'Debe contener al menos un número');
+    const result = changePasswordSchema.safeParse({ currentPassword, newPassword });
+    if (!result.success) {
+      Alert.alert('Error', result.error.issues[0]?.message ?? 'Contraseña inválida');
       return;
     }
     setIsChangingPassword(true);
@@ -237,7 +227,7 @@ export default function ProfileScreen() {
             className="bg-primary items-center rounded-lg py-2.5"
           >
             {isChangingPassword ? (
-              <ActivityIndicator color="white" size="small" />
+              <ActivityIndicator color={COLORS.primaryForeground} size="small" />
             ) : (
               <Text style={TYPE.labelLg} className="text-primary-foreground">
                 Cambiar Contraseña

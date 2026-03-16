@@ -66,6 +66,23 @@ describe('EmailQueueService', () => {
     });
   });
 
+  describe('enqueuePasswordReset', () => {
+    it('should call queue.add with jobName "passwordReset" and correct data', async () => {
+      await service.enqueuePasswordReset('client@test.com', 'Juan', 'reset-token-abc12345');
+
+      expect(mockQueue.add).toHaveBeenCalledWith(
+        'passwordReset',
+        {
+          type: 'passwordReset',
+          to: 'client@test.com',
+          name: 'Juan',
+          token: 'reset-token-abc12345',
+        },
+        { jobId: 'passwordReset:client@test.com:abc12345' },
+      );
+    });
+  });
+
   describe('enqueueBudgetQuoted', () => {
     it('should call queue.add with jobName "budgetQuoted" and correct data', async () => {
       await service.enqueueBudgetQuoted('client@test.com', 'Juan', 'Pintura', 150000, 'budget-1');

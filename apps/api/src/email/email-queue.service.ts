@@ -1,3 +1,4 @@
+import type { BudgetStatus } from '@epde/shared';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
@@ -88,7 +89,7 @@ export class EmailQueueService {
     to: string,
     name: string,
     budgetTitle: string,
-    newStatus: string,
+    newStatus: BudgetStatus,
     budgetId: string,
   ): Promise<void> {
     await this.emailQueue.add(
