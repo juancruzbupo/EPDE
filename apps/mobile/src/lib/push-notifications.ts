@@ -1,3 +1,4 @@
+import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
@@ -16,6 +17,12 @@ Notifications.setNotificationHandler({
 export async function registerForPushNotifications(): Promise<string | null> {
   // Only real devices can receive push notifications
   if (!Device.isDevice) {
+    return null;
+  }
+
+  // projectId is required for Expo Push — skip if not configured (local dev without EAS)
+  const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+  if (!projectId) {
     return null;
   }
 
@@ -40,25 +47,29 @@ export async function registerForPushNotifications(): Promise<string | null> {
     });
   }
 
-  const { data: token } = await Notifications.getExpoPushTokenAsync();
-
-  // Register with backend
   try {
+    const { data: token } = await Notifications.getExpoPushTokenAsync({ projectId });
+
+    // Register with backend
     await apiClient.post('/notifications/push-token', {
       token,
       platform: Platform.OS,
     });
-  } catch {
-    // Silent fail — push is best-effort
-  }
 
-  return token;
+    return token;
+  } catch {
+    // Push registration failed (no EAS config, network error, etc.) — non-blocking
+    return null;
+  }
 }
 
 /** Remove push token from backend (call on logout). */
 export async function unregisterPushToken(): Promise<void> {
+  const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+  if (!projectId) return;
+
   try {
-    const { data: token } = await Notifications.getExpoPushTokenAsync();
+    const { data: token } = await Notifications.getExpoPushTokenAsync({ projectId });
     await apiClient.delete('/notifications/push-token', { data: { token } });
   } catch {
     // Silent fail
