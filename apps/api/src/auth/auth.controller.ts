@@ -160,6 +160,7 @@ export class AuthController {
 
   @Post('logout')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   @HttpCode(HttpStatus.OK)
   async logout(@CurrentUser() user: CurrentUserPayload, @Res({ passthrough: true }) res: Response) {
     const ttlSeconds = user.exp ? Math.max(0, user.exp - Math.floor(Date.now() / 1000)) : 0;

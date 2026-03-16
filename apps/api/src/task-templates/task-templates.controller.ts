@@ -11,6 +11,7 @@ import {
 } from '@epde/shared';
 import { Body, Controller, Delete, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { Roles } from '../common/decorators/roles.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
@@ -29,6 +30,7 @@ export class TaskTemplatesController {
   constructor(private readonly service: TaskTemplatesService) {}
 
   @Post('category-templates/:categoryId/tasks')
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async create(
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
     @Body(new ZodValidationPipe(createTaskTemplateSchema)) dto: CreateTaskTemplateInput,
@@ -38,6 +40,7 @@ export class TaskTemplatesController {
   }
 
   @Patch('task-templates/:id')
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updateTaskTemplateSchema)) dto: UpdateTaskTemplateInput,
@@ -47,11 +50,13 @@ export class TaskTemplatesController {
   }
 
   @Delete('task-templates/:id')
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.remove(id);
   }
 
   @Patch('category-templates/:categoryId/tasks/reorder')
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async reorder(
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
     @Body(new ZodValidationPipe(reorderTemplatesSchema)) dto: ReorderTemplatesInput,

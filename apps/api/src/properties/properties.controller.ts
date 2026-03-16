@@ -67,6 +67,7 @@ export class PropertiesController {
 
   @Patch(':id')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async updateProperty(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updatePropertySchema)) dto: UpdatePropertyInput,
@@ -78,6 +79,7 @@ export class PropertiesController {
 
   @Delete(':id')
   @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async deleteProperty(
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: CurrentUserPayload,

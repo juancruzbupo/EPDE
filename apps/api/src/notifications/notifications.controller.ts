@@ -2,6 +2,7 @@ import type { CurrentUser as CurrentUserPayload, CursorPaginationInput } from '@
 import { cursorPaginationSchema, UserRole } from '@epde/shared';
 import { Controller, Get, Param, ParseUUIDPipe, Patch, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -33,6 +34,7 @@ export class NotificationsController {
   /** Collection-level bulk action — marks ALL unread notifications as read. */
   @Patch('read-all')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async markAllAsRead(@CurrentUser() user: CurrentUserPayload) {
     const count = await this.notificationsService.markAllAsRead(user.id);
     return { data: { count }, message: 'Notificaciones marcadas como leídas' };
@@ -40,6 +42,7 @@ export class NotificationsController {
 
   @Patch(':id/read')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async markAsRead(
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: CurrentUserPayload,

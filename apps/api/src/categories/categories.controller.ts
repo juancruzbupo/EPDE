@@ -33,6 +33,7 @@ export class CategoriesController {
 
   @Patch(':id')
   @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async updateCategory(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updateCategorySchema)) dto: UpdateCategoryInput,
@@ -43,6 +44,7 @@ export class CategoriesController {
 
   @Delete(':id')
   @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async deleteCategory(@Param('id', ParseUUIDPipe) id: string) {
     await this.categoriesService.deleteCategory(id);
     return { data: null, message: 'Categoría eliminada' };

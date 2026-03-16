@@ -73,6 +73,7 @@ export class ClientsController {
 
   @Delete(':id')
   @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async deleteClient(@Param('id', ParseUUIDPipe) id: string) {
     return this.clientsService.deleteClient(id);
   }

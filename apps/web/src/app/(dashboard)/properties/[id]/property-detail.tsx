@@ -15,6 +15,7 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 
+import { ErrorState } from '@/components/error-state';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -33,9 +34,13 @@ interface PropertyDetailProps {
 }
 
 export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps) {
-  const { data } = useProperty(id, { initialData });
+  const { data, isError, refetch } = useProperty(id, { initialData });
   const property = data;
   const [editOpen, setEditOpen] = useState(false);
+
+  if (isError && !property) {
+    return <ErrorState message="No se pudo cargar la propiedad" onRetry={refetch} />;
+  }
 
   if (!property) return null;
 

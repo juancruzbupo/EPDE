@@ -61,11 +61,13 @@ export class CategoryTemplatesController {
   }
 
   @Patch('reorder/batch')
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async reorder(@Body(new ZodValidationPipe(reorderTemplatesSchema)) dto: ReorderTemplatesInput) {
     return this.service.reorder(dto.ids);
   }
 
   @Patch(':id')
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updateCategoryTemplateSchema)) dto: UpdateCategoryTemplateInput,
@@ -75,6 +77,7 @@ export class CategoryTemplatesController {
   }
 
   @Delete(':id')
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.remove(id);
   }
