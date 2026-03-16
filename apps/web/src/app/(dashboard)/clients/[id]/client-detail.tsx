@@ -170,12 +170,8 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
                     Último acceso
                   </dt>
                   <dd className="font-medium">
-                    {(client as ClientPublic & { lastLoginAt?: string | null }).lastLoginAt
-                      ? formatRelativeDate(
-                          new Date(
-                            (client as ClientPublic & { lastLoginAt?: string | null }).lastLoginAt!,
-                          ),
-                        )
+                    {client.lastLoginAt
+                      ? formatRelativeDate(new Date(client.lastLoginAt))
                       : 'Nunca'}
                   </dd>
                 </div>

@@ -235,8 +235,11 @@ function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
       </CardHeader>
       <CardContent>
         <div className="divide-y">
-          {expenses.items.map((item, i) => (
-            <div key={i} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+          {expenses.items.map((item) => (
+            <div
+              key={`${item.date}-${item.description}`}
+              className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
+            >
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium">{item.description}</p>
                 <p className="text-muted-foreground text-xs">
@@ -305,9 +308,9 @@ function PropertyPhotosTab({ propertyId }: { propertyId: string }) {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-          {photos.map((photo, i) => (
+          {photos.map((photo) => (
             <a
-              key={i}
+              key={`${photo.url}-${photo.date}`}
               href={photo.url}
               target="_blank"
               rel="noopener noreferrer"

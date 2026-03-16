@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useCreateBudgetRequest } from '@/hooks/use-budgets';
+import { useDraft } from '@/hooks/use-draft';
 import { useProperties } from '@/hooks/use-properties';
 
 interface CreateBudgetDialogProps {
@@ -34,6 +35,9 @@ export function CreateBudgetDialog({ open, onOpenChange }: CreateBudgetDialogPro
     [propertiesData],
   );
 
+  const form = useForm<CreateBudgetRequestInput>({
+    resolver: zodResolver(createBudgetRequestSchema),
+  });
   const {
     register,
     handleSubmit,
@@ -41,15 +45,16 @@ export function CreateBudgetDialog({ open, onOpenChange }: CreateBudgetDialogPro
     setValue,
     watch,
     formState: { errors },
-  } = useForm<CreateBudgetRequestInput>({
-    resolver: zodResolver(createBudgetRequestSchema),
-  });
+  } = form;
+
+  const { clearDraft } = useDraft('draft:budget:create', form);
 
   const selectedPropertyId = watch('propertyId');
 
   const onSubmit = (data: CreateBudgetRequestInput) => {
     createBudget.mutate(data, {
       onSuccess: () => {
+        clearDraft();
         reset();
         onOpenChange(false);
       },

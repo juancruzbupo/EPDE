@@ -1,10 +1,15 @@
-import type { CurrentUser as CurrentUserPayload } from '@epde/shared';
-import { UserRole } from '@epde/shared';
+import type {
+  CreateQuoteTemplateInput,
+  CurrentUser as CurrentUserPayload,
+  UpdateQuoteTemplateInput,
+} from '@epde/shared';
+import { createQuoteTemplateSchema, updateQuoteTemplateSchema, UserRole } from '@epde/shared';
 import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { QuoteTemplatesService } from './quote-templates.service';
 
 @ApiTags('Plantillas de Cotización')
@@ -28,8 +33,7 @@ export class QuoteTemplatesController {
 
   @Post()
   async create(
-    @Body()
-    dto: { name: string; items: { description: string; quantity: number; unitPrice: number }[] },
+    @Body(new ZodValidationPipe(createQuoteTemplateSchema)) dto: CreateQuoteTemplateInput,
     @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.service.create(dto, user);
@@ -39,8 +43,7 @@ export class QuoteTemplatesController {
   @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body()
-    dto: { name?: string; items?: { description: string; quantity: number; unitPrice: number }[] },
+    @Body(new ZodValidationPipe(updateQuoteTemplateSchema)) dto: UpdateQuoteTemplateInput,
   ) {
     const data = await this.service.update(id, dto);
     return { data, message: 'Plantilla actualizada' };

@@ -66,8 +66,7 @@ export function clientColumns({
       id: 'lastLogin',
       header: 'Último acceso',
       cell: ({ row }) => {
-        const lastLogin = (row.original as ClientPublic & { lastLoginAt?: string | null })
-          .lastLoginAt;
+        const lastLogin = row.original.lastLoginAt;
         if (!lastLogin) return <span className="text-muted-foreground text-xs">Nunca</span>;
         const daysAgo = Math.floor(
           (Date.now() - new Date(lastLogin).getTime()) / (1000 * 60 * 60 * 24),

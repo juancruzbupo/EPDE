@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useDraft } from '@/hooks/use-draft';
 import { useAllTasks } from '@/hooks/use-plans';
 import { useProperties } from '@/hooks/use-properties';
 import { useCreateServiceRequest } from '@/hooks/use-service-requests';
@@ -50,6 +51,12 @@ export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogP
   const { data: propertiesData } = useProperties({});
   const properties = propertiesData?.pages.flatMap((p) => p.data) ?? [];
 
+  const form = useForm<CreateServiceRequestInput>({
+    resolver: zodResolver(createServiceRequestSchema),
+    defaultValues: {
+      urgency: ServiceUrgency.MEDIUM,
+    },
+  });
   const {
     register,
     handleSubmit,
@@ -58,12 +65,9 @@ export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogP
     watch,
     setValue,
     formState: { errors },
-  } = useForm<CreateServiceRequestInput>({
-    resolver: zodResolver(createServiceRequestSchema),
-    defaultValues: {
-      urgency: ServiceUrgency.MEDIUM,
-    },
-  });
+  } = form;
+
+  const { clearDraft } = useDraft('draft:service-request:create', form);
 
   const selectedPropertyId = watch('propertyId');
 
@@ -122,6 +126,7 @@ export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogP
           onSuccess: () => {
             photos.forEach((p) => URL.revokeObjectURL(p.preview));
             setPhotos([]);
+            clearDraft();
             reset();
             onOpenChange(false);
           },

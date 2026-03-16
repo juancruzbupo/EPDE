@@ -8,6 +8,7 @@ export * from './category';
 export * from './maintenance-plan';
 export * from './pagination';
 export * from './property';
+export * from './quote-template';
 export * from './service-request';
 export * from './task';
 export * from './task-log';

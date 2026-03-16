@@ -9,6 +9,7 @@ export interface User extends BaseEntity, SoftDeletable {
   phone: string | null;
   role: UserRole;
   status: UserStatus;
+  lastLoginAt: Date | null;
 }
 
 export type UserPublic = Serialized<Omit<User, 'passwordHash'>>;

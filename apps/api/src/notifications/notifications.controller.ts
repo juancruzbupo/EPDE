@@ -1,5 +1,15 @@
-import type { CurrentUser as CurrentUserPayload, CursorPaginationInput } from '@epde/shared';
-import { cursorPaginationSchema, UserRole } from '@epde/shared';
+import type {
+  CurrentUser as CurrentUserPayload,
+  CursorPaginationInput,
+  RegisterPushTokenInput,
+  RemovePushTokenInput,
+} from '@epde/shared';
+import {
+  cursorPaginationSchema,
+  registerPushTokenSchema,
+  removePushTokenSchema,
+  UserRole,
+} from '@epde/shared';
 import {
   Body,
   Controller,
@@ -68,7 +78,7 @@ export class NotificationsController {
   @Post('push-token')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async registerPushToken(
-    @Body() body: { token: string; platform: string },
+    @Body(new ZodValidationPipe(registerPushTokenSchema)) body: RegisterPushTokenInput,
     @CurrentUser() user: CurrentUserPayload,
   ) {
     await this.pushService.registerToken(user.id, body.token, body.platform);
@@ -77,7 +87,9 @@ export class NotificationsController {
 
   @Delete('push-token')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
-  async removePushToken(@Body() body: { token: string }) {
+  async removePushToken(
+    @Body(new ZodValidationPipe(removePushTokenSchema)) body: RemovePushTokenInput,
+  ) {
     await this.pushService.removeToken(body.token);
     return { data: null, message: 'Push token eliminado' };
   }
