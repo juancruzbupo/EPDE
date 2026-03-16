@@ -136,7 +136,26 @@ interface TaskDef {
   recurrenceMonths: number;
   estimatedDurationMinutes: number;
   categoryIndex: number;
+  /** Override the category default sector. If omitted, CATEGORY_DEFAULT_SECTOR is used. */
+  sector?: string;
 }
+
+/** Default sector mapping by category — most tasks in a category share a natural sector. */
+const CATEGORY_DEFAULT_SECTOR: Record<number, string> = {
+  0: 'INTERIOR', // Estructura → varies, default Interior
+  1: 'ROOF', // Techos y Cubiertas
+  2: 'EXTERIOR', // Pintura y Revestimientos
+  3: 'BATHROOM', // Instalación Sanitaria
+  4: 'INSTALLATIONS', // Instalación Eléctrica
+  5: 'INSTALLATIONS', // Gas y Calefacción
+  6: 'EXTERIOR', // Aberturas
+  7: 'INSTALLATIONS', // Climatización
+  8: 'GARDEN', // Jardín y Exteriores
+  9: 'BASEMENT', // Humedad e Impermeabilización
+  10: 'INSTALLATIONS', // Seguridad contra Incendio
+  11: 'EXTERIOR', // Control de Plagas
+  12: 'INTERIOR', // Pisos y Contrapisos
+};
 
 const TASK_DEFS: TaskDef[] = [
   // —— 0. ESTRUCTURA (10 tareas) ——
@@ -1040,6 +1059,7 @@ async function createTasksForPlan(
       data: {
         maintenancePlanId: planId,
         categoryId: categoryIds[def.categoryIndex]!,
+        sector: (def.sector ?? CATEGORY_DEFAULT_SECTOR[def.categoryIndex] ?? null) as never,
         name: def.name,
         taskType: def.taskType as never,
         professionalRequirement: def.professionalRequirement as never,
