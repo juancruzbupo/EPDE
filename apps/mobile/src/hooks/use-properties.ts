@@ -6,6 +6,7 @@ import {
   getProperties,
   getProperty,
   getPropertyExpenses,
+  getPropertyPhotos,
   type PropertyFilters,
 } from '@/lib/api/properties';
 
@@ -33,6 +34,14 @@ export function usePropertyExpenses(id: string) {
   return useQuery({
     queryKey: [QUERY_KEYS.properties, id, 'expenses'],
     queryFn: ({ signal }) => getPropertyExpenses(id, signal).then((r) => r.data),
+    enabled: !!id,
+  });
+}
+
+export function usePropertyPhotos(id: string) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.properties, id, 'photos'],
+    queryFn: ({ signal }) => getPropertyPhotos(id, signal).then((r) => r.data),
     enabled: !!id,
   });
 }

@@ -18,6 +18,7 @@ import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useCreateBudgetRequest } from '@/hooks/use-budgets';
+import { useDraft } from '@/hooks/use-draft';
 import { useProperties } from '@/hooks/use-properties';
 import { useSlideIn } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
@@ -36,6 +37,10 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
   const { data: propertiesData } = useProperties();
   const properties = propertiesData?.pages.flatMap((p) => p.data) ?? [];
 
+  const form = useForm<CreateBudgetRequestInput>({
+    resolver: zodResolver(createBudgetRequestSchema),
+    mode: 'onChange',
+  });
   const {
     control,
     handleSubmit,
@@ -43,10 +48,9 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
     watch,
     reset,
     formState: { errors, isValid, isDirty },
-  } = useForm<CreateBudgetRequestInput>({
-    resolver: zodResolver(createBudgetRequestSchema),
-    mode: 'onChange',
-  });
+  } = form;
+
+  const { clearDraft } = useDraft('draft:budget:create', form, visible);
 
   const selectedPropertyId = watch('propertyId');
   const isSubmitting = createBudget.isPending;
@@ -61,6 +65,7 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
       {
         onSuccess: () => {
           haptics.success();
+          clearDraft();
           reset();
           onClose();
         },

@@ -20,6 +20,7 @@ import {
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useDraft } from '@/hooks/use-draft';
 import { useAllTasks } from '@/hooks/use-plans';
 import { useProperties } from '@/hooks/use-properties';
 import { useCreateServiceRequest } from '@/hooks/use-service-requests';
@@ -52,6 +53,11 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
   const { data: propertiesData } = useProperties();
   const properties = propertiesData?.pages.flatMap((p) => p.data) ?? [];
 
+  const form = useForm<CreateServiceRequestInput>({
+    resolver: zodResolver(createServiceRequestSchema),
+    defaultValues: { urgency: 'MEDIUM' },
+    mode: 'onChange',
+  });
   const {
     control,
     handleSubmit,
@@ -59,11 +65,9 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
     watch,
     reset,
     formState: { errors, isValid, isDirty },
-  } = useForm<CreateServiceRequestInput>({
-    resolver: zodResolver(createServiceRequestSchema),
-    defaultValues: { urgency: 'MEDIUM' },
-    mode: 'onChange',
-  });
+  } = form;
+
+  const { clearDraft } = useDraft('draft:service-request:create', form, visible);
 
   const selectedPropertyId = watch('propertyId');
   const selectedTaskId = watch('taskId');
@@ -169,6 +173,7 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
       {
         onSuccess: () => {
           haptics.success();
+          clearDraft();
           reset();
           setPhotos([]);
           onClose();

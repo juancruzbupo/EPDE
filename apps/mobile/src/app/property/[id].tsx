@@ -4,6 +4,8 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
+  Linking,
   Pressable,
   RefreshControl,
   SectionList,
@@ -25,7 +27,7 @@ import {
 } from '@/components/status-badge';
 import { SwipeableRow } from '@/components/swipeable-row';
 import { usePlan } from '@/hooks/use-plans';
-import { useProperty, usePropertyExpenses } from '@/hooks/use-properties';
+import { useProperty, usePropertyExpenses, usePropertyPhotos } from '@/hooks/use-properties';
 import { useAnimatedEntry } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
@@ -86,6 +88,7 @@ export default function PropertyDetailScreen() {
   const planId = property?.maintenancePlan?.id;
   const { data: plan, isLoading: planLoading, refetch: refetchPlan } = usePlan(planId ?? '');
   const { data: expenses } = usePropertyExpenses(id);
+  const { data: photos } = usePropertyPhotos(id);
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('es-AR', {
@@ -93,6 +96,33 @@ export default function PropertyDetailScreen() {
       currency: 'ARS',
       maximumFractionDigits: 0,
     }).format(amount);
+
+  // Expenses analytics (parity with web)
+  const expenseAnalytics = useMemo(() => {
+    if (!expenses || expenses.items.length === 0) return null;
+    const items = expenses.items;
+    const dates = items.map((i) => new Date(i.date).getTime());
+    const oldest = new Date(Math.min(...dates));
+    const months = Math.max(
+      1,
+      Math.ceil((Date.now() - oldest.getTime()) / (1000 * 60 * 60 * 24 * 30)),
+    );
+    const monthlyAvg = expenses.totalCost / months;
+
+    const byCategory = new Map<string, { total: number; count: number }>();
+    for (const item of items) {
+      const cat = item.category ?? 'Presupuestos';
+      const entry = byCategory.get(cat) ?? { total: 0, count: 0 };
+      entry.total += item.amount;
+      entry.count += 1;
+      byCategory.set(cat, entry);
+    }
+    const categories = [...byCategory.entries()]
+      .map(([name, data]) => ({ name, ...data }))
+      .sort((a, b) => b.total - a.total);
+
+    return { months, monthlyAvg, categories, maxTotal: categories[0]?.total ?? 0 };
+  }, [expenses]);
 
   const sections = useMemo(() => {
     if (!plan?.tasks) return [];
@@ -207,28 +237,108 @@ export default function PropertyDetailScreen() {
               />
             )}
 
-            {/* Expenses section */}
-            {expenses && expenses.items.length > 0 && (
+            {/* Expenses section — with analytics (parity with web) */}
+            {expenses && expenses.items.length > 0 && expenseAnalytics && (
               <CollapsibleSection title={`Gastos (${formatCurrency(expenses.totalCost)})`}>
-                <View className="gap-2">
-                  {expenses.items.slice(0, 10).map((item, i) => (
-                    <View
-                      key={i}
-                      className="border-border flex-row items-center justify-between border-b pb-2 last:border-0"
-                    >
-                      <View className="flex-1">
-                        <Text style={TYPE.bodySm} className="text-foreground">
-                          {item.description}
-                        </Text>
-                        <Text style={TYPE.labelMd} className="text-muted-foreground">
-                          {item.category ?? 'Presupuesto'} ·{' '}
-                          {new Date(item.date).toLocaleDateString('es-AR')}
-                        </Text>
-                      </View>
+                <View className="gap-3">
+                  {/* Stat summary */}
+                  <View className="flex-row gap-2">
+                    <View className="bg-muted/40 flex-1 rounded-lg p-2.5">
+                      <Text style={TYPE.labelMd} className="text-muted-foreground">
+                        Mensual prom.
+                      </Text>
                       <Text style={TYPE.titleSm} className="text-foreground">
-                        {formatCurrency(item.amount)}
+                        {formatCurrency(expenseAnalytics.monthlyAvg)}
                       </Text>
                     </View>
+                    <View className="bg-muted/40 flex-1 rounded-lg p-2.5">
+                      <Text style={TYPE.labelMd} className="text-muted-foreground">
+                        Período
+                      </Text>
+                      <Text style={TYPE.titleSm} className="text-foreground">
+                        {expenseAnalytics.months} mes{expenseAnalytics.months !== 1 ? 'es' : ''}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Category breakdown */}
+                  <View className="gap-2">
+                    {expenseAnalytics.categories.slice(0, 5).map((cat) => {
+                      const pct =
+                        expenseAnalytics.maxTotal > 0
+                          ? (cat.total / expenseAnalytics.maxTotal) * 100
+                          : 0;
+                      return (
+                        <View key={cat.name}>
+                          <View className="flex-row items-center justify-between">
+                            <Text style={TYPE.bodySm} className="text-foreground">
+                              {cat.name}
+                            </Text>
+                            <Text style={TYPE.bodySm} className="text-foreground">
+                              {formatCurrency(cat.total)}
+                            </Text>
+                          </View>
+                          <View className="bg-muted mt-1 h-1.5 overflow-hidden rounded-full">
+                            <View
+                              className="bg-primary h-full rounded-full"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </View>
+                        </View>
+                      );
+                    })}
+                  </View>
+
+                  {/* Item list */}
+                  <View className="border-border border-t pt-2">
+                    <Text style={TYPE.labelMd} className="text-muted-foreground mb-2">
+                      Últimos movimientos
+                    </Text>
+                    {expenses.items.slice(0, 5).map((item) => (
+                      <View
+                        key={`${item.date}-${item.description}`}
+                        className="border-border flex-row items-center justify-between border-b py-1.5 last:border-0"
+                      >
+                        <View className="flex-1">
+                          <Text style={TYPE.bodySm} className="text-foreground">
+                            {item.description}
+                          </Text>
+                          <Text style={TYPE.labelMd} className="text-muted-foreground">
+                            {item.category ?? 'Presupuesto'} ·{' '}
+                            {new Date(item.date).toLocaleDateString('es-AR')}
+                          </Text>
+                        </View>
+                        <Text style={TYPE.titleSm} className="text-foreground">
+                          {formatCurrency(item.amount)}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              </CollapsibleSection>
+            )}
+
+            {/* Photos section */}
+            {photos && photos.length > 0 && (
+              <CollapsibleSection title={`Fotos (${photos.length})`}>
+                <View className="flex-row flex-wrap gap-2">
+                  {photos.slice(0, 12).map((photo) => (
+                    <Pressable
+                      key={`${photo.url}-${photo.date}`}
+                      onPress={() => Linking.openURL(photo.url)}
+                      className="overflow-hidden rounded-lg"
+                    >
+                      <Image
+                        source={{ uri: photo.url }}
+                        className="h-24 w-24 rounded-lg"
+                        resizeMode="cover"
+                      />
+                      <View className="absolute inset-x-0 bottom-0 bg-black/50 px-1 py-0.5">
+                        <Text className="text-center text-[9px] text-white" numberOfLines={1}>
+                          {photo.source === 'task' ? 'Tarea' : 'Solicitud'}
+                        </Text>
+                      </View>
+                    </Pressable>
                   ))}
                 </View>
               </CollapsibleSection>
