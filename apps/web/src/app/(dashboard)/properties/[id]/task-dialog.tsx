@@ -3,6 +3,7 @@
 import {
   createTaskSchema,
   PROFESSIONAL_REQUIREMENT_LABELS,
+  PROPERTY_SECTOR_LABELS,
   RECURRENCE_TYPE_LABELS,
   RecurrenceType,
   TASK_PRIORITY_LABELS,
@@ -90,6 +91,7 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
     if (task) {
       setValue('maintenancePlanId', planId);
       setValue('categoryId', task.category.id);
+      if (task.sector) setValue('sector', task.sector as TaskFormValues['sector']);
       setValue('name', task.name);
       setValue('description', task.description ?? '');
       setValue('priority', task.priority as TaskFormValues['priority']);
@@ -141,6 +143,16 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <input type="hidden" {...register('maintenancePlanId')} />
+
+          {/* Sector select */}
+          <FormSelect
+            id="task-sector"
+            label="Sector de la vivienda"
+            value={watch('sector') ?? ''}
+            onValueChange={(v) => setValue('sector', (v || undefined) as TaskFormValues['sector'])}
+            options={PROPERTY_SECTOR_LABELS}
+            placeholder="Seleccionar sector (opcional)"
+          />
 
           {/* Category select — uses dynamic list, not label map */}
           <div className="space-y-2">

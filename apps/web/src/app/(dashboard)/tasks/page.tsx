@@ -1,9 +1,11 @@
 'use client';
 
 import type { TaskListItem, TaskPublic } from '@epde/shared';
+import type { PropertySector } from '@epde/shared';
 import {
   formatRelativeDate,
   PRIORITY_VARIANT,
+  PROPERTY_SECTOR_LABELS,
   TASK_PRIORITY_LABELS,
   TASK_STATUS_LABELS,
   TaskPriority,
@@ -36,6 +38,14 @@ const PRIORITY_OPTIONS: { value: TaskPriority | 'all'; label: string }[] = [
   { value: TaskPriority.HIGH, label: 'Alta' },
   { value: TaskPriority.MEDIUM, label: 'Media' },
   { value: TaskPriority.LOW, label: 'Baja' },
+];
+
+const SECTOR_OPTIONS: { value: PropertySector | 'all'; label: string }[] = [
+  { value: 'all', label: 'Todos' },
+  ...Object.entries(PROPERTY_SECTOR_LABELS).map(([value, label]) => ({
+    value: value as PropertySector,
+    label,
+  })),
 ];
 
 function StatCard({
@@ -84,6 +94,12 @@ function TaskRow({ task, onClick }: { task: TaskListItem; onClick: () => void })
 
       <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
         <span>{task.category.name}</span>
+        {task.sector && (
+          <>
+            <span className="text-muted-foreground/40">·</span>
+            <span>{PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}</span>
+          </>
+        )}
         <span className="text-muted-foreground/40">·</span>
         <span className="flex items-center gap-1">
           <MapPin className="h-3 w-3" />
@@ -185,6 +201,7 @@ function StatusSection({
 export default function TasksPage() {
   const [search, setSearch] = useState('');
   const [priority, setPriority] = useState<TaskPriority | 'all'>('all');
+  const [sectorFilter, setSectorFilter] = useState<PropertySector | 'all'>('all');
   const [activeStatus, setActiveStatus] = useState<TaskStatus | null>(null);
   const debouncedSearch = useDebounce(search);
 
@@ -208,6 +225,10 @@ export default function TasksPage() {
       result = result.filter((t) => t.priority === priority);
     }
 
+    if (sectorFilter !== 'all') {
+      result = result.filter((t) => t.sector === sectorFilter);
+    }
+
     if (debouncedSearch) {
       const q = debouncedSearch.toLowerCase();
       result = result.filter(
@@ -220,7 +241,7 @@ export default function TasksPage() {
     }
 
     return result;
-  }, [tasks, priority, debouncedSearch]);
+  }, [tasks, priority, sectorFilter, debouncedSearch]);
 
   const grouped = useMemo(() => {
     const map = new Map<TaskStatus, TaskListItem[]>();
@@ -279,6 +300,22 @@ export default function TasksPage() {
               className={cn(
                 'rounded-full px-3 py-1 text-xs font-medium transition-colors',
                 priority === opt.value
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80',
+              )}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-1 overflow-x-auto">
+          {SECTOR_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => setSectorFilter(opt.value)}
+              className={cn(
+                'rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors',
+                sectorFilter === opt.value
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted text-muted-foreground hover:bg-muted/80',
               )}

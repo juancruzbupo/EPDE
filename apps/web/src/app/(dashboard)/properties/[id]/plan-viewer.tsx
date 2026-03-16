@@ -4,6 +4,7 @@ import {
   formatRelativeDate,
   PLAN_STATUS_LABELS,
   PRIORITY_VARIANT,
+  PROPERTY_SECTOR_LABELS,
   RECURRENCE_TYPE_LABELS,
   TASK_PRIORITY_LABELS,
   TASK_STATUS_LABELS,
@@ -140,6 +141,12 @@ function CategorySection({
                       >
                         {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
                       </Badge>
+                      {task.sector && (
+                        <>
+                          <span className="text-muted-foreground/40">·</span>
+                          <span>{PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}</span>
+                        </>
+                      )}
                       <span className="text-muted-foreground/40">·</span>
                       <span>
                         {RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}
