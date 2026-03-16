@@ -94,7 +94,8 @@ epde/
 │   │   │   │   ├── layout.tsx        # Root layout (fonts, providers)
 │   │   │   │   ├── page.tsx          # Landing page publica
 │   │   │   │   ├── error.tsx        # Root error boundary
-│   │   │   │   ├── (auth)/           # Login, set-password
+│   │   │   │   ├── not-found.tsx     # 404 branded page
+│   │   │   │   ├── (auth)/           # Login, set-password, forgot-password, reset-password
 │   │   │   │   └── (dashboard)/      # Layout autenticado con sidebar
 │   │   │   │       ├── layout.tsx    # Sidebar + Header + Content
 │   │   │   │       ├── error.tsx    # Dashboard error boundary
@@ -102,11 +103,13 @@ epde/
 │   │   │   │       ├── clients/      # CRUD clientes (ADMIN)
 │   │   │   │       ├── properties/   # CRUD propiedades
 │   │   │   │       ├── categories/   # CRUD categorias (ADMIN)
-│   │   │   │       ├── maintenance-plans/ # Planes de mantenimiento
+│   │   │   │       ├── plans/        # Planes de mantenimiento (client view)
 │   │   │   │       ├── tasks/        # Tareas globales
 │   │   │   │       ├── budgets/      # Presupuestos
 │   │   │   │       ├── service-requests/  # Solicitudes
-│   │   │   │       └── notifications/     # Notificaciones
+│   │   │   │       ├── notifications/     # Notificaciones
+│   │   │   │       ├── templates/    # Templates categorías + tareas (ADMIN)
+│   │   │   │       └── profile/      # Perfil + cambio de contraseña
 │   │   │   ├── components/
 │   │   │   │   ├── ui/               # 23 componentes shadcn/ui
 │   │   │   │   ├── data-table/       # DataTable wrapper (TanStack Table)
@@ -133,7 +136,7 @@ epde/
 │       │   ├── app/
 │       │   │   ├── _layout.tsx       # Root layout + ErrorBoundary + PersistQueryClient + AuthGate
 │       │   │   ├── index.tsx         # Redirect segun auth state
-│       │   │   ├── (auth)/           # Login, set-password
+│       │   │   ├── (auth)/           # Login, set-password, forgot-password, reset-password
 │       │   │   ├── (tabs)/           # 7 tabs (dashboard, properties, maintenance-plans, tasks, budgets, notifications, profile)
 │       │   │   ├── property/[id].tsx # Detalle propiedad + tareas
 │       │   │   ├── budget/[id].tsx   # Detalle presupuesto + items
@@ -1024,7 +1027,7 @@ pnpm dev:mobile       # Expo dev server
 pnpm build            # Build completo
 pnpm lint             # ESLint
 pnpm typecheck        # TypeScript check
-pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo) — ~1224 tests total
+pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo) — ~1223 tests total
 
 # Tests E2E (requiere DB + Redis)
 pnpm --filter @epde/api test:e2e

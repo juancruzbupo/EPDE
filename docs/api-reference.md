@@ -95,13 +95,17 @@ Si algun componente falla, `status` sera `"error"` y el campo `error` contendra 
 
 ### Auth
 
-| Metodo | Ruta                 | Auth | Rol | Descripcion                      |
-| ------ | -------------------- | ---- | --- | -------------------------------- |
-| POST   | `/auth/login`        | No   | —   | Login con email y password       |
-| POST   | `/auth/refresh`      | No   | —   | Refrescar access token           |
-| POST   | `/auth/logout`       | Si   | —   | Cerrar sesion                    |
-| GET    | `/auth/me`           | Si   | —   | Obtener usuario actual           |
-| POST   | `/auth/set-password` | No   | —   | Configurar password (invitacion) |
+| Metodo | Ruta                    | Auth | Rol   | Descripcion                      |
+| ------ | ----------------------- | ---- | ----- | -------------------------------- |
+| POST   | `/auth/login`           | No   | —     | Login con email y password       |
+| POST   | `/auth/refresh`         | No   | —     | Refrescar access token           |
+| POST   | `/auth/logout`          | Si   | —     | Cerrar sesion                    |
+| GET    | `/auth/me`              | Si   | —     | Obtener usuario actual           |
+| POST   | `/auth/set-password`    | No   | —     | Configurar password (invitacion) |
+| POST   | `/auth/forgot-password` | No   | —     | Solicitar reset de contraseña    |
+| POST   | `/auth/reset-password`  | No   | —     | Resetear contraseña con token    |
+| PATCH  | `/auth/me`              | Si   | Ambos | Actualizar perfil (nombre, tel)  |
+| PATCH  | `/auth/me/password`     | Si   | Ambos | Cambiar contraseña               |
 
 **POST /auth/login**
 
