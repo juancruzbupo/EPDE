@@ -47,7 +47,10 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
       cursor: params.cursor,
       take: params.take,
       where,
-      include: { user: { select: { id: true, name: true, email: true } } },
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+        maintenancePlan: { select: { id: true, name: true, status: true } },
+      },
     };
 
     return this.findMany(findParams);

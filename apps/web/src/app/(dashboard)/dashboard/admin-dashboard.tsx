@@ -34,6 +34,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { useAdminAnalytics, useDashboardActivity, useDashboardStats } from '@/hooks/use-dashboard';
 import { FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM, useMotionPreference } from '@/lib/motion';
+import { cn } from '@/lib/utils';
 
 const formatCurrency = (v: number) => formatARSCompact(v);
 
@@ -343,7 +344,10 @@ export function AdminDashboard() {
                     const href = getActivityHref(item);
                     const content = (
                       <li
-                        className={`flex items-start gap-3 rounded-lg border p-3${href ? 'hover:bg-accent cursor-pointer transition-colors' : ''}`}
+                        className={cn(
+                          'flex items-start gap-3 rounded-lg border p-3',
+                          href && 'hover:bg-accent cursor-pointer transition-colors',
+                        )}
                       >
                         <div className="bg-muted mt-0.5 rounded-full p-2">
                           <Activity className="h-4 w-4" />
