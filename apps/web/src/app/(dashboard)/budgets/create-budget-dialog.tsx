@@ -47,7 +47,7 @@ export function CreateBudgetDialog({ open, onOpenChange }: CreateBudgetDialogPro
     formState: { errors },
   } = form;
 
-  const { clearDraft } = useDraft('draft:budget:create', form);
+  const { clearDraft } = useDraft('draft:budget:create', form, open);
 
   const selectedPropertyId = watch('propertyId');
 

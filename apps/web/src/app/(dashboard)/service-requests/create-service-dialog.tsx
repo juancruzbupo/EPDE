@@ -67,7 +67,7 @@ export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogP
     formState: { errors },
   } = form;
 
-  const { clearDraft } = useDraft('draft:service-request:create', form);
+  const { clearDraft } = useDraft('draft:service-request:create', form, open);
 
   const selectedPropertyId = watch('propertyId');
 
