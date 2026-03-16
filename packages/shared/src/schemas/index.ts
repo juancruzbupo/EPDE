@@ -6,6 +6,7 @@ export * from './auth';
 export * from './budget';
 export * from './category';
 export * from './maintenance-plan';
+export * from './notification';
 export * from './pagination';
 export * from './property';
 export * from './quote-template';
