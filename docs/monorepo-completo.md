@@ -42,7 +42,7 @@ epde/
 ├── apps/
 │   ├── api/                          # ── @epde/api ──────────────────────
 │   │   ├── prisma/
-│   │   │   ├── schema.prisma         # 26 modelos, 17 enums
+│   │   │   ├── schema.prisma         # 26 modelos, 18 enums
 │   │   │   ├── seed.ts               # Admin + 13 categorias default + FK linkage
 │   │   │   └── migrations/
 │   │   ├── src/
@@ -816,9 +816,11 @@ User ─1:N─ PushToken
 `QuoteTemplate`/`QuoteTemplateItem` son plantillas de cotizacion reutilizables para el admin.
 `PushToken` almacena device tokens para push notifications (Expo Push API).
 
-### Enums (17)
+### Enums (18)
 
-`UserRole`, `UserStatus`, `PropertyType`, `PlanStatus`, `TaskPriority`, `RecurrenceType`, `TaskStatus`, `BudgetStatus`, `ServiceUrgency`, `ServiceStatus`, `NotificationType`
+`UserRole`, `UserStatus`, `PropertyType`, `PropertySector`, `PlanStatus`, `TaskPriority`, `RecurrenceType`, `TaskStatus`, `BudgetStatus`, `ServiceUrgency`, `ServiceStatus`, `NotificationType`
+
+`PropertySector`: EXTERIOR, ROOF, TERRACE, INTERIOR, KITCHEN, BATHROOM, BASEMENT, GARDEN, INSTALLATIONS — zona de la vivienda donde se ubica la tarea.
 
 ### Soft Delete
 
