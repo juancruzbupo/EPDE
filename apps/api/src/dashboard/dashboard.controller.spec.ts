@@ -117,7 +117,7 @@ describe('DashboardController', () => {
 
       const result = await controller.getClientAnalytics(clientUser);
 
-      expect(mockDashboardService.getClientAnalytics).toHaveBeenCalledWith('client-1');
+      expect(mockDashboardService.getClientAnalytics).toHaveBeenCalledWith('client-1', 6);
       expect(result).toEqual({ data: analytics });
     });
 

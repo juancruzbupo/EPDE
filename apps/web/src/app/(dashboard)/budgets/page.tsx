@@ -3,8 +3,8 @@
 import type { BudgetStatus } from '@epde/shared';
 import { BUDGET_STATUS_LABELS, UserRole } from '@epde/shared';
 import { Plus } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 
 import { DataTable } from '@/components/data-table/data-table';
 import { ErrorState } from '@/components/error-state';
@@ -26,14 +26,27 @@ const statusOptions = Object.entries(BUDGET_STATUS_LABELS).map(([value, label]) 
   label,
 }));
 
-export default function BudgetsPage() {
+function BudgetsPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const user = useAuthStore((s) => s.user);
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('all');
+
+  const [search, setSearch] = useState(searchParams.get('search') ?? '');
+  const [status, setStatus] = useState<BudgetStatus | 'all'>(
+    (searchParams.get('status') as BudgetStatus) || 'all',
+  );
   const [createOpen, setCreateOpen] = useState(false);
 
   const debouncedSearch = useDebounce(search);
+
+  // Sync state to URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (debouncedSearch) params.set('search', debouncedSearch);
+    if (status && status !== 'all') params.set('status', status);
+    const qs = params.toString();
+    router.replace(qs ? `?${qs}` : '?', { scroll: false });
+  }, [debouncedSearch, status, router]);
 
   const filters = useMemo(
     () => ({
@@ -71,7 +84,7 @@ export default function BudgetsPage() {
         />
         <FilterSelect
           value={status}
-          onChange={setStatus}
+          onChange={(v: string) => setStatus(v as BudgetStatus | 'all')}
           options={statusOptions}
           placeholder="Estado"
         />
@@ -98,5 +111,13 @@ export default function BudgetsPage() {
 
       <CreateBudgetDialog open={createOpen} onOpenChange={setCreateOpen} />
     </PageTransition>
+  );
+}
+
+export default function BudgetsPage() {
+  return (
+    <Suspense fallback={<div className="text-muted-foreground py-24 text-center">Cargando...</div>}>
+      <BudgetsPageContent />
+    </Suspense>
   );
 }

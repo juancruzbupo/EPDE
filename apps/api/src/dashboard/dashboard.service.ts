@@ -89,7 +89,7 @@ export class DashboardService {
     }));
   }
 
-  async getAdminAnalytics(): Promise<AdminAnalytics> {
+  async getAdminAnalytics(months = 6): Promise<AdminAnalytics> {
     const [
       completionTrend,
       conditionDistribution,
@@ -100,11 +100,11 @@ export class DashboardService {
       totalMaintenanceCost,
       completionRate,
     ] = await Promise.all([
-      this.dashboardRepository.getCompletionTrend(6),
+      this.dashboardRepository.getCompletionTrend(months),
       this.dashboardRepository.getConditionDistribution(),
       this.dashboardRepository.getProblematicCategories(),
       this.dashboardRepository.getBudgetPipeline(),
-      this.dashboardRepository.getCategoryCosts(6),
+      this.dashboardRepository.getCategoryCosts(months),
       this.dashboardRepository.getAvgBudgetResponseDays(),
       this.dashboardRepository.getTotalMaintenanceCost(),
       this.dashboardRepository.getCompletionRate(),
@@ -122,13 +122,13 @@ export class DashboardService {
     };
   }
 
-  async getClientAnalytics(userId: string): Promise<ClientAnalytics> {
+  async getClientAnalytics(userId: string, months = 6): Promise<ClientAnalytics> {
     const { planIds } = await this.dashboardRepository.getClientPropertyAndPlanIds(userId);
 
     const [conditionTrend, costHistory, healthData, conditionDistribution, categoryBreakdown] =
       await Promise.all([
-        this.dashboardRepository.getClientConditionTrend(planIds, 6),
-        this.dashboardRepository.getClientCostHistory(planIds, 12),
+        this.dashboardRepository.getClientConditionTrend(planIds, months),
+        this.dashboardRepository.getClientCostHistory(planIds, months),
         this.dashboardRepository.getClientHealthScore(planIds),
         this.dashboardRepository.getClientConditionDistribution(planIds),
         this.dashboardRepository.getClientCategoryBreakdown(planIds),

@@ -15,6 +15,7 @@ import {
   TASK_RESULT_LABELS,
   TASK_RESULT_VALUES,
 } from '@epde/shared';
+import { parse } from 'date-fns';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import {
@@ -98,6 +99,7 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
   const [actionTaken, setActionTaken] = useState<ActionTaken | null>(null);
   const [note, setNote] = useState('');
   const [cost, setCost] = useState('');
+  const [completedAtText, setCompletedAtText] = useState('');
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
 
@@ -115,6 +117,7 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
     setActionTaken(null);
     setNote('');
     setCost('');
+    setCompletedAtText('');
     setPhotoUri(null);
     setUploadedUrl(null);
   };
@@ -183,6 +186,9 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
     if (!canSubmit) return;
 
     const parsedCost = cost.trim() ? parseFloat(cost) : undefined;
+    const completedAt = completedAtText.trim()
+      ? parse(completedAtText.trim(), 'dd/MM/yyyy', new Date())
+      : undefined;
 
     completeTask.mutate(
       {
@@ -194,6 +200,7 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
         actionTaken,
         note: note.trim() || undefined,
         cost: parsedCost && !isNaN(parsedCost) ? parsedCost : undefined,
+        completedAt: completedAt && !isNaN(completedAt.getTime()) ? completedAt : undefined,
         photoUrl: uploadedUrl || undefined,
       },
       {
@@ -216,6 +223,7 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
     !!executor ||
     !!actionTaken ||
     note.trim().length > 0 ||
+    completedAtText.trim().length > 0 ||
     photoUri !== null;
 
   const handleClose = () => {
@@ -332,6 +340,19 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
               className="border-border bg-card text-foreground flex-1 rounded-xl border p-3"
             />
           </View>
+
+          <Text style={TYPE.labelLg} className="text-foreground mb-2">
+            Fecha de completación (opcional)
+          </Text>
+          <TextInput
+            value={completedAtText}
+            onChangeText={setCompletedAtText}
+            placeholder="DD/MM/AAAA (hoy por defecto)"
+            placeholderTextColor={COLORS.mutedForeground}
+            keyboardType="numeric"
+            style={TYPE.bodyMd}
+            className="border-border bg-card text-foreground mb-4 rounded-xl border p-3"
+          />
 
           <Text style={TYPE.labelLg} className="text-foreground mb-2">
             Notas (opcional)

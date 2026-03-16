@@ -356,7 +356,7 @@ describe('DashboardService', () => {
 
       expect(repository.getClientPropertyAndPlanIds).toHaveBeenCalledWith('user-1');
       expect(repository.getClientConditionTrend).toHaveBeenCalledWith(planIds, 6);
-      expect(repository.getClientCostHistory).toHaveBeenCalledWith(planIds, 12);
+      expect(repository.getClientCostHistory).toHaveBeenCalledWith(planIds, 6);
       expect(result.conditionTrend).toEqual(mockTrend);
       expect(result.costHistory).toEqual(mockCost);
       expect(result.healthScore).toBe(75);

@@ -1,12 +1,30 @@
 import Constants from 'expo-constants';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
+import * as authApi from '@/lib/auth';
 import { TYPE } from '@/lib/fonts';
 import { useAuthStore } from '@/stores/auth-store';
 
 export default function ProfileScreen() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+
+  const [editingField, setEditingField] = useState<'name' | 'phone' | null>(null);
+  const [editValue, setEditValue] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   const handleLogout = () => {
     Alert.alert('Cerrar Sesión', '¿Estás seguro de que querés cerrar sesión?', [
@@ -17,6 +35,51 @@ export default function ProfileScreen() {
         onPress: () => logout(),
       },
     ]);
+  };
+
+  const startEdit = (field: 'name' | 'phone') => {
+    setEditingField(field);
+    setEditValue(field === 'name' ? (user?.name ?? '') : (user?.phone ?? ''));
+  };
+
+  const cancelEdit = () => {
+    setEditingField(null);
+    setEditValue('');
+  };
+
+  const saveEdit = async () => {
+    if (!editingField) return;
+    setIsSaving(true);
+    try {
+      const dto = editingField === 'name' ? { name: editValue } : { phone: editValue };
+      const updated = await authApi.updateProfile(dto);
+      useAuthStore.setState({ user: updated });
+      setEditingField(null);
+      setEditValue('');
+      Alert.alert('Listo', 'Perfil actualizado');
+    } catch {
+      Alert.alert('Error', 'No se pudo actualizar el perfil');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword) {
+      Alert.alert('Error', 'Completá ambos campos');
+      return;
+    }
+    setIsChangingPassword(true);
+    try {
+      await authApi.changePassword({ currentPassword, newPassword });
+      setCurrentPassword('');
+      setNewPassword('');
+      Alert.alert('Listo', 'Contraseña actualizada');
+    } catch {
+      Alert.alert('Error', 'No se pudo cambiar la contraseña. Verificá tu contraseña actual.');
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   return (
@@ -40,14 +103,44 @@ export default function ProfileScreen() {
         </View>
 
         <View className="border-border gap-3 border-t pt-3">
-          <View className="flex-row justify-between">
+          {/* Name field */}
+          <View className="flex-row items-center justify-between">
             <Text style={TYPE.bodyMd} className="text-muted-foreground">
               Nombre
             </Text>
-            <Text style={TYPE.labelLg} className="text-foreground">
-              {user?.name ?? '-'}
-            </Text>
+            {editingField === 'name' ? (
+              <View className="ml-4 flex-1 flex-row items-center gap-2">
+                <TextInput
+                  value={editValue}
+                  onChangeText={setEditValue}
+                  className="border-border bg-background text-foreground flex-1 rounded-lg border px-3 py-1.5"
+                  style={TYPE.bodyMd}
+                  autoFocus
+                />
+                <Pressable onPress={saveEdit} disabled={isSaving}>
+                  <Text style={TYPE.labelMd} className="text-primary">
+                    {isSaving ? '...' : 'OK'}
+                  </Text>
+                </Pressable>
+                <Pressable onPress={cancelEdit}>
+                  <Text style={TYPE.labelMd} className="text-muted-foreground">
+                    X
+                  </Text>
+                </Pressable>
+              </View>
+            ) : (
+              <Pressable onPress={() => startEdit('name')} className="flex-row items-center gap-2">
+                <Text style={TYPE.labelLg} className="text-foreground">
+                  {user?.name ?? '-'}
+                </Text>
+                <Text style={TYPE.labelMd} className="text-primary">
+                  Editar
+                </Text>
+              </Pressable>
+            )}
           </View>
+
+          {/* Email field (read-only) */}
           <View className="flex-row justify-between">
             <Text style={TYPE.bodyMd} className="text-muted-foreground">
               Email
@@ -56,14 +149,84 @@ export default function ProfileScreen() {
               {user?.email ?? '-'}
             </Text>
           </View>
-          <View className="flex-row justify-between">
+
+          {/* Phone field */}
+          <View className="flex-row items-center justify-between">
             <Text style={TYPE.bodyMd} className="text-muted-foreground">
               Teléfono
             </Text>
-            <Text style={TYPE.labelLg} className="text-foreground">
-              {user?.phone ?? 'No registrado'}
-            </Text>
+            {editingField === 'phone' ? (
+              <View className="ml-4 flex-1 flex-row items-center gap-2">
+                <TextInput
+                  value={editValue}
+                  onChangeText={setEditValue}
+                  className="border-border bg-background text-foreground flex-1 rounded-lg border px-3 py-1.5"
+                  style={TYPE.bodyMd}
+                  keyboardType="phone-pad"
+                  autoFocus
+                />
+                <Pressable onPress={saveEdit} disabled={isSaving}>
+                  <Text style={TYPE.labelMd} className="text-primary">
+                    {isSaving ? '...' : 'OK'}
+                  </Text>
+                </Pressable>
+                <Pressable onPress={cancelEdit}>
+                  <Text style={TYPE.labelMd} className="text-muted-foreground">
+                    X
+                  </Text>
+                </Pressable>
+              </View>
+            ) : (
+              <Pressable onPress={() => startEdit('phone')} className="flex-row items-center gap-2">
+                <Text style={TYPE.labelLg} className="text-foreground">
+                  {user?.phone ?? 'No registrado'}
+                </Text>
+                <Text style={TYPE.labelMd} className="text-primary">
+                  Editar
+                </Text>
+              </Pressable>
+            )}
           </View>
+        </View>
+      </View>
+
+      {/* Change password card */}
+      <View className="border-border bg-card mb-4 rounded-xl border p-4">
+        <Text style={TYPE.titleSm} className="text-foreground mb-3">
+          Cambiar Contraseña
+        </Text>
+        <View className="gap-3">
+          <TextInput
+            value={currentPassword}
+            onChangeText={setCurrentPassword}
+            placeholder="Contraseña actual"
+            secureTextEntry
+            className="border-border bg-background text-foreground rounded-lg border px-3 py-2.5"
+            style={TYPE.bodyMd}
+            placeholderTextColor="#9ca3af"
+          />
+          <TextInput
+            value={newPassword}
+            onChangeText={setNewPassword}
+            placeholder="Nueva contraseña (mín. 8, mayúscula, minúscula, número)"
+            secureTextEntry
+            className="border-border bg-background text-foreground rounded-lg border px-3 py-2.5"
+            style={TYPE.bodyMd}
+            placeholderTextColor="#9ca3af"
+          />
+          <Pressable
+            onPress={handleChangePassword}
+            disabled={isChangingPassword}
+            className="bg-primary items-center rounded-lg py-2.5"
+          >
+            {isChangingPassword ? (
+              <ActivityIndicator color="white" size="small" />
+            ) : (
+              <Text style={TYPE.labelLg} className="text-primary-foreground">
+                Cambiar Contraseña
+              </Text>
+            )}
+          </Pressable>
         </View>
       </View>
 

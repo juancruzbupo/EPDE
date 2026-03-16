@@ -17,6 +17,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 import { BudgetPipelineChart } from '@/components/charts/budget-pipeline-chart';
 import { CategoryCostsChart } from '@/components/charts/category-costs-chart';
@@ -70,7 +71,8 @@ export function AdminDashboard() {
     isError: activityError,
     refetch: refetchActivity,
   } = useDashboardActivity();
-  const { data: analytics, isLoading: analyticsLoading } = useAdminAnalytics();
+  const [chartMonths, setChartMonths] = useState(6);
+  const { data: analytics, isLoading: analyticsLoading } = useAdminAnalytics(chartMonths);
   const { shouldAnimate } = useMotionPreference();
 
   const Wrapper = shouldAnimate ? motion.div : 'div';
@@ -173,12 +175,30 @@ export function AdminDashboard() {
         </Link>
       </div>
 
+      {/* Time range selector */}
+      <div className="mt-6 flex items-center gap-2">
+        <span className="type-body-sm text-muted-foreground">Periodo:</span>
+        {([3, 6, 12] as const).map((m) => (
+          <button
+            key={m}
+            onClick={() => setChartMonths(m)}
+            className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
+              chartMonths === m
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-card text-foreground border-border hover:bg-accent'
+            }`}
+          >
+            {m} meses
+          </button>
+        ))}
+      </div>
+
       {/* Row 2 — Completion Trend + Condition Distribution */}
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <SectionErrorBoundary>
           <ChartCard
             title="Tareas Completadas"
-            description="Últimos 6 meses"
+            description={`Últimos ${chartMonths} meses`}
             className="lg:col-span-2"
             isLoading={analyticsLoading}
             isEmpty={!analytics?.completionTrend.length}
@@ -279,7 +299,7 @@ export function AdminDashboard() {
         <SectionErrorBoundary>
           <ChartCard
             title="Costos por Categoría"
-            description="Últimos 6 meses"
+            description={`Últimos ${chartMonths} meses`}
             isLoading={analyticsLoading}
             isEmpty={!analytics?.categoryCosts.some((c) => Object.keys(c.categories).length > 0)}
             emptyIcon={<DollarSign className="h-8 w-8" />}

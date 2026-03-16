@@ -1,15 +1,19 @@
 import type {
+  ChangePasswordInput,
   CurrentUser as CurrentUserPayload,
   LoginInput,
   RefreshInput,
   SetPasswordInput,
+  UpdateProfileInput,
 } from '@epde/shared';
 import {
+  changePasswordSchema,
   CLIENT_TYPE_HEADER,
   CLIENT_TYPES,
   loginSchema,
   refreshSchema,
   setPasswordSchema,
+  updateProfileSchema,
   UserRole,
 } from '@epde/shared';
 import {
@@ -18,6 +22,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Patch,
   Post,
   Req,
   Res,
@@ -34,6 +39,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 
 const ACCESS_COOKIE_NAME = 'access_token';
@@ -46,6 +52,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
+    private readonly usersService: UsersService,
   ) {}
 
   private get isProduction(): boolean {
@@ -174,6 +181,28 @@ export class AuthController {
   async setPassword(@Body(new ZodValidationPipe(setPasswordSchema)) dto: SetPasswordInput) {
     const result = await this.authService.setPassword(dto.token, dto.newPassword);
     return { data: result };
+  }
+
+  @Patch('me')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
+  async updateProfile(
+    @Body(new ZodValidationPipe(updateProfileSchema)) dto: UpdateProfileInput,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    const data = await this.usersService.update(user.id, dto);
+    return { data, message: 'Perfil actualizado' };
+  }
+
+  @Patch('me/password')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  @Throttle({ medium: { limit: 5, ttl: 60_000 } })
+  async changePassword(
+    @Body(new ZodValidationPipe(changePasswordSchema)) dto: ChangePasswordInput,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    await this.authService.changePassword(user.id, dto.currentPassword, dto.newPassword);
+    return { message: 'Contraseña actualizada' };
   }
 
   @Get('me')

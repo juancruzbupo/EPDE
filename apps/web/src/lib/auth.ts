@@ -1,4 +1,9 @@
-import type { AuthResponse, UserPublic } from '@epde/shared';
+import type {
+  AuthResponse,
+  ChangePasswordInput,
+  UpdateProfileInput,
+  UserPublic,
+} from '@epde/shared';
 
 import { apiClient } from './api-client';
 
@@ -23,6 +28,15 @@ export async function getMe(): Promise<UserPublic> {
     throw new Error('Respuesta de usuario inválida');
   }
   return data.data;
+}
+
+export async function updateProfile(dto: UpdateProfileInput): Promise<UserPublic> {
+  const { data } = await apiClient.patch<{ data: UserPublic }>('/auth/me', dto);
+  return data.data;
+}
+
+export async function changePassword(dto: ChangePasswordInput): Promise<void> {
+  await apiClient.patch('/auth/me/password', dto);
 }
 
 export async function setPassword(token: string, newPassword: string): Promise<void> {

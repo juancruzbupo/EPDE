@@ -98,6 +98,23 @@ export class AuthService {
     }
   }
 
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const user = await this.usersService.findById(userId);
+    if (!user?.passwordHash) {
+      throw new BadRequestException('Usuario sin contraseña configurada');
+    }
+    const isValid = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isValid) {
+      throw new BadRequestException('Contraseña actual incorrecta');
+    }
+    const hash = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
+    await this.usersService.update(userId, { passwordHash: hash });
+  }
+
   async getMe(userId: string) {
     const user = await this.usersService.findById(userId);
     const { passwordHash: _passwordHash, ...userWithoutPassword } = user;

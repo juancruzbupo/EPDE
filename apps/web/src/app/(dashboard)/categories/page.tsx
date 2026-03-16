@@ -1,7 +1,17 @@
 'use client';
 
+import type { LucideIcon } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+
+function renderCategoryIcon(iconName: string | null): React.ReactNode {
+  if (!iconName) return '\u2014';
+  const pascalName = iconName.charAt(0).toUpperCase() + iconName.slice(1);
+  const Icon = (LucideIcons as Record<string, unknown>)[pascalName] as LucideIcon | undefined;
+  if (!Icon || typeof Icon !== 'function') return iconName;
+  return <Icon className="h-4 w-4" />;
+}
 
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ErrorState } from '@/components/error-state';
@@ -89,7 +99,7 @@ export default function CategoriesPage() {
                 categories.map((cat) => (
                   <TableRow key={cat.id}>
                     <TableCell>{cat.order}</TableCell>
-                    <TableCell>{cat.icon ?? '—'}</TableCell>
+                    <TableCell>{renderCategoryIcon(cat.icon ?? null)}</TableCell>
                     <TableCell className="font-medium">{cat.name}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {cat.description ?? '—'}

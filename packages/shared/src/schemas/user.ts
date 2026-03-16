@@ -40,3 +40,21 @@ export const clientFiltersSchema = z.object({
 });
 
 export type ClientFiltersInput = z.infer<typeof clientFiltersSchema>;
+
+export const updateProfileSchema = z.object({
+  name: z.string().min(2).max(200).optional(),
+  phone: z.string().max(30).optional(),
+});
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Contraseña actual requerida'),
+  newPassword: z
+    .string()
+    .min(8, 'La contraseña debe tener al menos 8 caracteres')
+    .max(128)
+    .regex(/[A-Z]/, 'Debe contener al menos una mayúscula')
+    .regex(/[a-z]/, 'Debe contener al menos una minúscula')
+    .regex(/[0-9]/, 'Debe contener al menos un número'),
+});
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

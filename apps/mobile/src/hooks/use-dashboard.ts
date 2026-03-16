@@ -21,10 +21,10 @@ export function useClientUpcomingTasks() {
   });
 }
 
-export function useClientAnalytics() {
+export function useClientAnalytics(months?: number) {
   return useQuery({
-    queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientAnalytics],
-    queryFn: ({ signal }) => getClientAnalytics(signal).then((r) => r.data),
+    queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientAnalytics, months],
+    queryFn: ({ signal }) => getClientAnalytics(signal, months).then((r) => r.data),
     staleTime: 5 * 60_000,
   });
 }

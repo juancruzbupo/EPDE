@@ -14,6 +14,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 import { CategoryBreakdown } from '@/components/charts/category-breakdown';
 import { ChartCard } from '@/components/charts/chart-card';
@@ -48,7 +49,8 @@ export function ClientDashboard({ userName }: { userName: string }) {
     isError: upcomingError,
     refetch: refetchUpcoming,
   } = useClientUpcomingTasks();
-  const { data: analytics, isLoading: analyticsLoading } = useClientAnalytics();
+  const [chartMonths, setChartMonths] = useState(6);
+  const { data: analytics, isLoading: analyticsLoading } = useClientAnalytics(chartMonths);
   const { shouldAnimate } = useMotionPreference();
 
   const Wrapper = shouldAnimate ? motion.div : 'div';
@@ -155,11 +157,29 @@ export function ClientDashboard({ userName }: { userName: string }) {
         </ChartCard>
       </div>
 
+      {/* Time range selector */}
+      <div className="mt-6 flex items-center gap-2">
+        <span className="type-body-sm text-muted-foreground">Periodo:</span>
+        {([3, 6, 12] as const).map((m) => (
+          <button
+            key={m}
+            onClick={() => setChartMonths(m)}
+            className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
+              chartMonths === m
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-card text-foreground border-border hover:bg-accent'
+            }`}
+          >
+            {m} meses
+          </button>
+        ))}
+      </div>
+
       {/* Row 3 — Condition Trend + Cost History */}
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <ChartCard
           title="Evolución de Condición"
-          description="Promedio por categoría — últimos 6 meses"
+          description={`Promedio por categoría — últimos ${chartMonths} meses`}
           isLoading={analyticsLoading}
           isEmpty={!analytics?.conditionTrend.some((p) => Object.keys(p.categories).length > 0)}
           emptyIcon={<TrendingUp className="h-8 w-8" />}
@@ -170,7 +190,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
 
         <ChartCard
           title="Historial de Gastos"
-          description="Últimos 12 meses"
+          description={`Últimos ${chartMonths} meses`}
           isLoading={analyticsLoading}
           isEmpty={!analytics?.costHistory.some((p) => p.value > 0)}
           emptyIcon={<BarChart3 className="h-8 w-8" />}

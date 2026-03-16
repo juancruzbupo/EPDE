@@ -22,8 +22,12 @@ export function createDashboardQueries(apiClient: AxiosInstance) {
       return data;
     },
 
-    async getClientAnalytics(signal?: AbortSignal): Promise<ApiResponse<ClientAnalytics>> {
-      const { data } = await apiClient.get('/dashboard/client-analytics', { signal });
+    async getClientAnalytics(
+      signal?: AbortSignal,
+      months?: number,
+    ): Promise<ApiResponse<ClientAnalytics>> {
+      const params = months ? `?months=${months}` : '';
+      const { data } = await apiClient.get(`/dashboard/client-analytics${params}`, { signal });
       return data;
     },
   };

@@ -38,18 +38,18 @@ export function useClientUpcomingTasks() {
   });
 }
 
-export function useAdminAnalytics() {
+export function useAdminAnalytics(months?: number) {
   return useQuery({
-    queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardAnalytics],
-    queryFn: ({ signal }) => getAdminAnalytics(signal).then((r) => r.data),
+    queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardAnalytics, months],
+    queryFn: ({ signal }) => getAdminAnalytics(signal, months).then((r) => r.data),
     staleTime: 5 * 60_000,
   });
 }
 
-export function useClientAnalytics() {
+export function useClientAnalytics(months?: number) {
   return useQuery({
-    queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientAnalytics],
-    queryFn: ({ signal }) => getClientAnalytics(signal).then((r) => r.data),
+    queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientAnalytics, months],
+    queryFn: ({ signal }) => getClientAnalytics(signal, months).then((r) => r.data),
     staleTime: 5 * 60_000,
   });
 }

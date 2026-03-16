@@ -1,6 +1,6 @@
 import type { CurrentUser as CurrentUserPayload } from '@epde/shared';
 import { UserRole } from '@epde/shared';
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -29,9 +29,9 @@ export class DashboardController {
 
   @Get('analytics')
   @Roles(UserRole.ADMIN)
-  async getAnalytics() {
-    const data = await this.dashboardService.getAdminAnalytics();
-    return { data };
+  async getAnalytics(@Query('months') months?: string) {
+    const m = months ? Math.min(Math.max(parseInt(months, 10), 1), 24) : 6;
+    return { data: await this.dashboardService.getAdminAnalytics(m) };
   }
 
   @Get('client-stats')
@@ -50,8 +50,11 @@ export class DashboardController {
 
   @Get('client-analytics')
   @Roles(UserRole.CLIENT)
-  async getClientAnalytics(@CurrentUser() user: CurrentUserPayload) {
-    const data = await this.dashboardService.getClientAnalytics(user.id);
-    return { data };
+  async getClientAnalytics(
+    @CurrentUser() user: CurrentUserPayload,
+    @Query('months') months?: string,
+  ) {
+    const m = months ? Math.min(Math.max(parseInt(months, 10), 1), 24) : 6;
+    return { data: await this.dashboardService.getClientAnalytics(user.id, m) };
   }
 }

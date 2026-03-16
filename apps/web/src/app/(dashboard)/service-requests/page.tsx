@@ -3,8 +3,8 @@
 import type { ServiceStatus, ServiceUrgency } from '@epde/shared';
 import { SERVICE_STATUS_LABELS, SERVICE_URGENCY_LABELS, UserRole } from '@epde/shared';
 import { Plus } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 
 import { DataTable } from '@/components/data-table/data-table';
 import { ErrorState } from '@/components/error-state';
@@ -30,16 +30,31 @@ const urgencyOptions = Object.entries(SERVICE_URGENCY_LABELS).map(([value, label
   label,
 }));
 
-export default function ServiceRequestsPage() {
+function ServiceRequestsPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const user = useAuthStore((s) => s.user);
 
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('all');
-  const [urgency, setUrgency] = useState('all');
+  const [search, setSearch] = useState(searchParams.get('search') ?? '');
+  const [status, setStatus] = useState<ServiceStatus | 'all'>(
+    (searchParams.get('status') as ServiceStatus) || 'all',
+  );
+  const [urgency, setUrgency] = useState<ServiceUrgency | 'all'>(
+    (searchParams.get('urgency') as ServiceUrgency) || 'all',
+  );
   const [createOpen, setCreateOpen] = useState(false);
 
   const debouncedSearch = useDebounce(search);
+
+  // Sync state to URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (debouncedSearch) params.set('search', debouncedSearch);
+    if (status && status !== 'all') params.set('status', status);
+    if (urgency && urgency !== 'all') params.set('urgency', urgency);
+    const qs = params.toString();
+    router.replace(qs ? `?${qs}` : '?', { scroll: false });
+  }, [debouncedSearch, status, urgency, router]);
 
   const filters = useMemo(
     () => ({
@@ -79,13 +94,13 @@ export default function ServiceRequestsPage() {
         />
         <FilterSelect
           value={status}
-          onChange={setStatus}
+          onChange={(v: string) => setStatus(v as ServiceStatus | 'all')}
           options={statusOptions}
           placeholder="Estado"
         />
         <FilterSelect
           value={urgency}
-          onChange={setUrgency}
+          onChange={(v: string) => setUrgency(v as ServiceUrgency | 'all')}
           options={urgencyOptions}
           placeholder="Urgencia"
         />
@@ -114,5 +129,13 @@ export default function ServiceRequestsPage() {
         <CreateServiceDialog open={createOpen} onOpenChange={setCreateOpen} />
       )}
     </PageTransition>
+  );
+}
+
+export default function ServiceRequestsPage() {
+  return (
+    <Suspense fallback={<div className="text-muted-foreground py-24 text-center">Cargando...</div>}>
+      <ServiceRequestsPageContent />
+    </Suspense>
   );
 }
