@@ -431,13 +431,15 @@ model ServiceRequest {
   taskId      String?
   title       String         @db.VarChar(200)
   description String         @db.VarChar(2000)
-  urgency     ServiceUrgency @default(MEDIUM)
-  status      ServiceStatus  @default(OPEN)
-  createdBy   String?
-  updatedBy   String?
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  deletedAt   DateTime?
+  urgency          ServiceUrgency @default(MEDIUM)
+  status           ServiceStatus  @default(OPEN)
+  firstResponseAt  DateTime?
+  resolvedAt       DateTime?
+  createdBy        String?
+  updatedBy        String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  deletedAt        DateTime?
 
   property    Property                      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   requester   User                          @relation(fields: [requestedBy], references: [id])

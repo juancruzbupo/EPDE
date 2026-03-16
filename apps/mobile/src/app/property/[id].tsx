@@ -13,6 +13,7 @@ import {
 import Animated from 'react-native-reanimated';
 
 import { AnimatedListItem } from '@/components/animated-list-item';
+import { CollapsibleSection } from '@/components/collapsible-section';
 import { CompleteTaskModal } from '@/components/complete-task-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
@@ -24,7 +25,7 @@ import {
 } from '@/components/status-badge';
 import { SwipeableRow } from '@/components/swipeable-row';
 import { usePlan } from '@/hooks/use-plans';
-import { useProperty } from '@/hooks/use-properties';
+import { useProperty, usePropertyExpenses } from '@/hooks/use-properties';
 import { useAnimatedEntry } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
@@ -84,6 +85,14 @@ export default function PropertyDetailScreen() {
   } = useProperty(id);
   const planId = property?.maintenancePlan?.id;
   const { data: plan, isLoading: planLoading, refetch: refetchPlan } = usePlan(planId ?? '');
+  const { data: expenses } = usePropertyExpenses(id);
+
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+      maximumFractionDigits: 0,
+    }).format(amount);
 
   const sections = useMemo(() => {
     if (!plan?.tasks) return [];
@@ -196,6 +205,33 @@ export default function PropertyDetailScreen() {
                 title="Sin plan asignado"
                 message="Esta propiedad aun no tiene un plan de mantenimiento."
               />
+            )}
+
+            {/* Expenses section */}
+            {expenses && expenses.items.length > 0 && (
+              <CollapsibleSection title={`Gastos (${formatCurrency(expenses.totalCost)})`}>
+                <View className="gap-2">
+                  {expenses.items.slice(0, 10).map((item, i) => (
+                    <View
+                      key={i}
+                      className="border-border flex-row items-center justify-between border-b pb-2 last:border-0"
+                    >
+                      <View className="flex-1">
+                        <Text style={TYPE.bodySm} className="text-foreground">
+                          {item.description}
+                        </Text>
+                        <Text style={TYPE.labelMd} className="text-muted-foreground">
+                          {item.category ?? 'Presupuesto'} ·{' '}
+                          {new Date(item.date).toLocaleDateString('es-AR')}
+                        </Text>
+                      </View>
+                      <Text style={TYPE.titleSm} className="text-foreground">
+                        {formatCurrency(item.amount)}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </CollapsibleSection>
             )}
 
             {/* Status filter tabs */}

@@ -293,6 +293,52 @@ export function AdminDashboard() {
                   <p className="type-number-md text-foreground">{analytics.completionRate}%</p>
                 </div>
               </div>
+              {analytics.slaMetrics.avgResponseHours !== null && (
+                <div className="flex items-center gap-3">
+                  <div className="bg-primary/10 rounded-lg p-2.5">
+                    <Timer className="text-primary h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="type-body-sm text-muted-foreground">
+                      Tiempo respuesta solicitudes
+                    </p>
+                    <p
+                      className={`type-number-md ${
+                        analytics.slaMetrics.avgResponseHours <= 24
+                          ? 'text-success'
+                          : analytics.slaMetrics.avgResponseHours <= 72
+                            ? 'text-amber-600'
+                            : 'text-destructive'
+                      }`}
+                    >
+                      {analytics.slaMetrics.avgResponseHours}h
+                    </p>
+                  </div>
+                </div>
+              )}
+              {analytics.slaMetrics.avgResolutionHours !== null && (
+                <div className="flex items-center gap-3">
+                  <div className="bg-primary/10 rounded-lg p-2.5">
+                    <Timer className="text-primary h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="type-body-sm text-muted-foreground">
+                      Tiempo resolución solicitudes
+                    </p>
+                    <p
+                      className={`type-number-md ${
+                        analytics.slaMetrics.avgResolutionHours <= 48
+                          ? 'text-success'
+                          : analytics.slaMetrics.avgResolutionHours <= 168
+                            ? 'text-amber-600'
+                            : 'text-destructive'
+                      }`}
+                    >
+                      {analytics.slaMetrics.avgResolutionHours}h
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </ChartCard>

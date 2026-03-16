@@ -569,4 +569,38 @@ export class DashboardRepository {
 
     return { healthScore: score, healthLabel };
   }
+
+  /** SLA metrics for service requests: average response time and resolution time. */
+  async getSlaMetrics() {
+    const requests = await this.prisma.softDelete.serviceRequest.findMany({
+      where: {
+        OR: [{ firstResponseAt: { not: null } }, { resolvedAt: { not: null } }],
+      },
+      select: { createdAt: true, firstResponseAt: true, resolvedAt: true },
+    });
+
+    let totalResponseHours = 0;
+    let responseCount = 0;
+    let totalResolutionHours = 0;
+    let resolutionCount = 0;
+
+    for (const r of requests) {
+      if (r.firstResponseAt) {
+        totalResponseHours +=
+          (r.firstResponseAt.getTime() - r.createdAt.getTime()) / (1000 * 60 * 60);
+        responseCount++;
+      }
+      if (r.resolvedAt) {
+        totalResolutionHours += (r.resolvedAt.getTime() - r.createdAt.getTime()) / (1000 * 60 * 60);
+        resolutionCount++;
+      }
+    }
+
+    return {
+      avgResponseHours: responseCount > 0 ? Math.round(totalResponseHours / responseCount) : null,
+      avgResolutionHours:
+        resolutionCount > 0 ? Math.round(totalResolutionHours / resolutionCount) : null,
+      totalTracked: requests.length,
+    };
+  }
 }

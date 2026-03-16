@@ -99,6 +99,7 @@ export class DashboardService {
       avgBudgetResponseDays,
       totalMaintenanceCost,
       completionRate,
+      slaMetrics,
     ] = await Promise.all([
       this.dashboardRepository.getCompletionTrend(months),
       this.dashboardRepository.getConditionDistribution(),
@@ -108,6 +109,7 @@ export class DashboardService {
       this.dashboardRepository.getAvgBudgetResponseDays(),
       this.dashboardRepository.getTotalMaintenanceCost(),
       this.dashboardRepository.getCompletionRate(),
+      this.dashboardRepository.getSlaMetrics(),
     ]);
 
     return {
@@ -119,6 +121,7 @@ export class DashboardService {
       avgBudgetResponseDays,
       totalMaintenanceCost,
       completionRate,
+      slaMetrics,
     };
   }
 

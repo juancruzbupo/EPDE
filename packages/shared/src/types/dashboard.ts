@@ -77,6 +77,13 @@ export interface CategoryCostPoint {
 }
 
 /** Full admin analytics response */
+export interface SlaMetrics {
+  avgResponseHours: number | null;
+  avgResolutionHours: number | null;
+  totalTracked: number;
+}
+
+/** Full admin analytics response */
 export interface AdminAnalytics {
   completionTrend: TimeSeriesPoint[];
   conditionDistribution: ConditionDistribution[];
@@ -86,6 +93,7 @@ export interface AdminAnalytics {
   avgBudgetResponseDays: number | null;
   totalMaintenanceCost: number;
   completionRate: number;
+  slaMetrics: SlaMetrics;
 }
 
 /** Category breakdown for client dashboard */

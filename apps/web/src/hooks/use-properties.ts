@@ -8,6 +8,7 @@ import {
   deleteProperty,
   getProperties,
   getProperty,
+  getPropertyExpenses,
   type PropertyFilters,
   updateProperty,
 } from '@/lib/api/properties';
@@ -74,5 +75,13 @@ export function useDeleteProperty() {
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al eliminar propiedad'));
     },
+  });
+}
+
+export function usePropertyExpenses(id: string) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.properties, id, 'expenses'],
+    queryFn: ({ signal }) => getPropertyExpenses(id, signal).then((r) => r.data),
+    enabled: !!id,
   });
 }

@@ -212,9 +212,18 @@ export class ServiceRequestsService {
       throw e;
     }
 
+    // Auto-track SLA timestamps on key transitions
+    const slaData: Record<string, Date> = {};
+    if (dto.status === ServiceStatus.IN_REVIEW && !request.firstResponseAt) {
+      slaData.firstResponseAt = new Date();
+    }
+    if (dto.status === ServiceStatus.RESOLVED && !request.resolvedAt) {
+      slaData.resolvedAt = new Date();
+    }
+
     const updated = await this.serviceRequestsRepository.update(
       id,
-      { status: dto.status, updatedBy: currentUser.id },
+      { status: dto.status, updatedBy: currentUser.id, ...slaData },
       {
         property: {
           select: {

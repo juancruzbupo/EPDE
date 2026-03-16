@@ -54,6 +54,15 @@ export class PropertiesController {
     return { data };
   }
 
+  @Get(':id/expenses')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  async getPropertyExpenses(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    return this.propertiesService.getPropertyExpenses(id, user);
+  }
+
   @Post()
   @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 5, ttl: 60_000 } })

@@ -7,6 +7,7 @@ import {
   Building,
   Calendar,
   ClipboardList,
+  DollarSign,
   MapPin,
   Pencil,
   Ruler,
@@ -21,7 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useProperty } from '@/hooks/use-properties';
+import { useProperty, usePropertyExpenses } from '@/hooks/use-properties';
 
 import { EditPropertyDialog } from './edit-property-dialog';
 import { PlanEditor } from './plan-editor';
@@ -71,6 +72,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
         <TabsList>
           <TabsTrigger value="details">Detalles</TabsTrigger>
           <TabsTrigger value="plan">Plan de Mantenimiento</TabsTrigger>
+          <TabsTrigger value="expenses">Gastos</TabsTrigger>
         </TabsList>
 
         <TabsContent value="details" className="mt-4">
@@ -152,6 +154,10 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
             </Card>
           )}
         </TabsContent>
+
+        <TabsContent value="expenses" className="mt-4">
+          <PropertyExpensesTab propertyId={property.id} />
+        </TabsContent>
       </Tabs>
 
       {isAdmin && (
@@ -163,5 +169,87 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
         />
       )}
     </div>
+  );
+}
+
+// ─── Expenses Tab ───────────────────────────────────────
+
+function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
+  const { data: expenses, isLoading, isError, refetch } = usePropertyExpenses(propertyId);
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="bg-muted/40 h-10 animate-pulse rounded" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isError) {
+    return (
+      <ErrorState message="No se pudieron cargar los gastos" onRetry={refetch} className="py-12" />
+    );
+  }
+
+  if (!expenses || expenses.items.length === 0) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center gap-2 py-12">
+          <DollarSign className="text-muted-foreground/50 h-8 w-8" />
+          <p className="text-muted-foreground text-sm">
+            No hay gastos registrados para esta propiedad.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+      maximumFractionDigits: 0,
+    }).format(amount);
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle className="type-title-md">Historial de Gastos</CardTitle>
+          <p className="type-body-sm text-muted-foreground mt-1">
+            Total: {formatCurrency(expenses.totalCost)}
+          </p>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="divide-y">
+          {expenses.items.map((item, i) => (
+            <div key={i} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium">{item.description}</p>
+                <p className="text-muted-foreground text-xs">
+                  {item.category ?? 'Presupuesto'} ·{' '}
+                  {new Date(item.date).toLocaleDateString('es-AR')}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant={item.type === 'task' ? 'secondary' : 'default'} className="text-xs">
+                  {item.type === 'task' ? 'Tarea' : 'Presupuesto'}
+                </Badge>
+                <span className="text-sm font-medium tabular-nums">
+                  {formatCurrency(item.amount)}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

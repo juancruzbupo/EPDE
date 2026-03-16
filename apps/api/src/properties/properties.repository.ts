@@ -132,4 +132,60 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
       orderBy: { createdAt: 'desc' },
     });
   }
+
+  /** Aggregates expenses for a property from TaskLog costs + approved BudgetResponse amounts. */
+  async getPropertyExpenses(propertyId: string) {
+    const [taskExpenses, budgetExpenses] = await Promise.all([
+      // Task completion costs via MaintenancePlan
+      this.prisma.taskLog.findMany({
+        where: {
+          task: { maintenancePlan: { propertyId } },
+          cost: { not: null },
+        },
+        select: {
+          completedAt: true,
+          cost: true,
+          task: { select: { name: true, category: { select: { name: true } } } },
+        },
+        orderBy: { completedAt: 'desc' },
+      }),
+      // Approved budget costs
+      this.prisma.budgetResponse.findMany({
+        where: {
+          budgetRequest: {
+            propertyId,
+            status: { in: ['APPROVED', 'IN_PROGRESS', 'COMPLETED'] },
+            deletedAt: null,
+          },
+        },
+        select: {
+          totalAmount: true,
+          respondedAt: true,
+          budgetRequest: { select: { title: true } },
+        },
+        orderBy: { respondedAt: 'desc' },
+      }),
+    ]);
+
+    const items = [
+      ...taskExpenses.map((t) => ({
+        date: t.completedAt.toISOString(),
+        description: t.task.name,
+        category: t.task.category.name,
+        amount: Number(t.cost),
+        type: 'task' as const,
+      })),
+      ...budgetExpenses.map((b) => ({
+        date: b.respondedAt.toISOString(),
+        description: b.budgetRequest.title,
+        category: null,
+        amount: Number(b.totalAmount),
+        type: 'budget' as const,
+      })),
+    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    const totalCost = items.reduce((sum, item) => sum + item.amount, 0);
+
+    return { totalCost, items };
+  }
 }

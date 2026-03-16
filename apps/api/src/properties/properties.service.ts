@@ -73,6 +73,18 @@ export class PropertiesService {
     return { data: null, message: 'Propiedad eliminada' };
   }
 
+  async getPropertyExpenses(id: string, currentUser: ServiceUser) {
+    const property = await this.propertiesRepository.findById(id);
+    if (!property) {
+      throw new NotFoundException('Propiedad no encontrada');
+    }
+
+    this.assertOwnership(property.userId, currentUser);
+
+    const expenses = await this.propertiesRepository.getPropertyExpenses(id);
+    return { data: expenses };
+  }
+
   private assertOwnership(propertyUserId: string, currentUser: ServiceUser) {
     try {
       if (currentUser.role === UserRole.CLIENT && propertyUserId !== currentUser.id) {
