@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 import { UserAlreadyHasPasswordError } from '../common/exceptions/domain.exceptions';
+import { EmailQueueService } from '../email/email-queue.service';
 import { UsersService } from '../users/users.service';
 import { AuthAuditService } from './auth-audit.service';
 import { TokenService } from './token.service';
@@ -20,6 +21,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly tokenService: TokenService,
     private readonly authAudit: AuthAuditService,
+    private readonly emailQueueService: EmailQueueService,
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -94,6 +96,43 @@ export class AuthService {
       if (error instanceof UserAlreadyHasPasswordError) {
         throw new BadRequestException(error.message);
       }
+      throw new UnauthorizedException('Token inválido o expirado');
+    }
+  }
+
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this.usersService.findByEmail(email);
+    // Always return success even if user not found (prevents email enumeration)
+    if (!user || !user.passwordHash) return;
+
+    const token = this.jwtService.sign(
+      { sub: user.id, email: user.email, purpose: 'reset' },
+      { expiresIn: '1h' },
+    );
+
+    // Fire-and-forget — queue email
+    void this.emailQueueService.enqueuePasswordReset(user.email, user.name, token);
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+    try {
+      const payload = this.jwtService.verify(token);
+
+      if (payload.purpose !== 'reset') {
+        throw new UnauthorizedException('Token inválido');
+      }
+
+      const user = await this.usersService.findById(payload.sub);
+      if (!user) throw new UnauthorizedException('Token inválido');
+
+      const hash = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
+      await this.usersService.update(user.id, { passwordHash: hash });
+
+      this.authAudit.logPasswordSet(user.id);
+
+      return { message: 'Contraseña actualizada correctamente' };
+    } catch (error) {
+      if (error instanceof UnauthorizedException) throw error;
       throw new UnauthorizedException('Token inválido o expirado');
     }
   }

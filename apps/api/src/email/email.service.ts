@@ -92,6 +92,34 @@ export class EmailService {
     this.logger.log(`Email de invitación enviado a ${maskEmail(to)}`);
   }
 
+  async sendPasswordResetEmail(to: string, name: string, token: string): Promise<void> {
+    const link = `${this.frontendUrl}/reset-password?token=${encodeURIComponent(token)}`;
+
+    if (!this.resend) {
+      this.logger.warn(
+        `Email de recuperación no enviado (RESEND_API_KEY no configurada). Destinatario: ${to}`,
+      );
+      return;
+    }
+
+    const safeName = escapeHtml(name);
+
+    await this.resend.emails.send({
+      from: this.emailFrom,
+      to,
+      subject: 'EPDE - Recuperá tu contraseña',
+      html: this.wrapEmailHtml(`
+        <p>Hola ${safeName},</p>
+        <p>Recibimos una solicitud para restablecer tu contraseña.</p>
+        <p>Hacé clic en el siguiente enlace para crear una nueva contraseña:</p>
+        ${this.ctaButton(link, 'Restablecer contraseña')}
+        <p style="color: #666; font-size: 14px;">Este enlace expira en 1 hora. Si no solicitaste este cambio, ignorá este email.</p>
+      `),
+    });
+
+    this.logger.log(`Email de recuperación enviado a ${maskEmail(to)}`);
+  }
+
   async sendTaskReminderEmail(
     to: string,
     name: string,

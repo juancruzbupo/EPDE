@@ -8,6 +8,7 @@ export const EMAIL_QUEUE = 'email';
 
 export type EmailJobData =
   | { type: 'invite'; to: string; name: string; token: string }
+  | { type: 'passwordReset'; to: string; name: string; token: string }
   | {
       type: 'taskReminder';
       to: string;
@@ -50,6 +51,13 @@ export class EmailQueueProcessor extends WorkerHost {
       switch (job.data.type) {
         case 'invite':
           await this.emailService.sendInviteEmail(job.data.to, job.data.name, job.data.token);
+          break;
+        case 'passwordReset':
+          await this.emailService.sendPasswordResetEmail(
+            job.data.to,
+            job.data.name,
+            job.data.token,
+          );
           break;
         case 'taskReminder':
           await this.emailService.sendTaskReminderEmail(

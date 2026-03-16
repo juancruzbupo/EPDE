@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
 
+import { EmailQueueService } from '../email/email-queue.service';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { AuthAuditService } from './auth-audit.service';
@@ -70,6 +71,10 @@ describe('AuthService', () => {
             blacklistAccessToken: jest.fn(),
             isBlacklisted: jest.fn(),
           },
+        },
+        {
+          provide: EmailQueueService,
+          useValue: { enqueuePasswordReset: jest.fn() },
         },
         {
           provide: AuthAuditService,

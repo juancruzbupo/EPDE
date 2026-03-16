@@ -3,6 +3,7 @@
 import { type LoginInput, loginSchema } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -78,6 +79,12 @@ export default function LoginPage() {
             {errors.password && (
               <p className="text-destructive text-sm">{errors.password.message}</p>
             )}
+          </div>
+
+          <div className="flex justify-end">
+            <Link href="/forgot-password" className="text-primary text-sm hover:underline">
+              ¿Olvidaste tu contraseña?
+            </Link>
           </div>
 
           {error && <p className="text-destructive text-center text-sm">{error}</p>}

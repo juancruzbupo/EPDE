@@ -1,6 +1,7 @@
 import type { LoginInput } from '@epde/shared';
 import { loginSchema } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
@@ -18,6 +19,7 @@ import { TYPE } from '@/lib/fonts';
 import { useAuthStore } from '@/stores/auth-store';
 
 export default function LoginScreen() {
+  const router = useRouter();
   const login = useAuthStore((s) => s.login);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -116,6 +118,15 @@ export default function LoginScreen() {
           {errors.password && (
             <Text className="text-destructive mb-2 text-xs">{errors.password.message}</Text>
           )}
+
+          <Pressable
+            onPress={() => router.push('/(auth)/forgot-password')}
+            className="mt-2 self-end"
+          >
+            <Text style={TYPE.labelMd} className="text-primary">
+              ¿Olvidaste tu contraseña?
+            </Text>
+          </Pressable>
 
           {error && <Text className="text-destructive mt-2 text-center text-sm">{error}</Text>}
 

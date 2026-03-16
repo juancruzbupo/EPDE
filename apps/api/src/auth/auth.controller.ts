@@ -1,8 +1,10 @@
 import type {
   ChangePasswordInput,
   CurrentUser as CurrentUserPayload,
+  ForgotPasswordInput,
   LoginInput,
   RefreshInput,
+  ResetPasswordInput,
   SetPasswordInput,
   UpdateProfileInput,
 } from '@epde/shared';
@@ -10,8 +12,10 @@ import {
   changePasswordSchema,
   CLIENT_TYPE_HEADER,
   CLIENT_TYPES,
+  forgotPasswordSchema,
   loginSchema,
   refreshSchema,
+  resetPasswordSchema,
   setPasswordSchema,
   updateProfileSchema,
   UserRole,
@@ -180,6 +184,30 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async setPassword(@Body(new ZodValidationPipe(setPasswordSchema)) dto: SetPasswordInput) {
     const result = await this.authService.setPassword(dto.token, dto.newPassword);
+    return { data: result };
+  }
+
+  @Public()
+  @Throttle({ medium: { limit: 3, ttl: 3600_000 }, short: { limit: 1, ttl: 5000 } })
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(
+    @Body(new ZodValidationPipe(forgotPasswordSchema)) dto: ForgotPasswordInput,
+  ) {
+    await this.authService.forgotPassword(dto.email);
+    // Always return success to prevent email enumeration
+    return {
+      message:
+        'Si el email está registrado, recibirás instrucciones para restablecer tu contraseña',
+    };
+  }
+
+  @Public()
+  @Throttle({ medium: { limit: 3, ttl: 3600_000 }, short: { limit: 1, ttl: 5000 } })
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body(new ZodValidationPipe(resetPasswordSchema)) dto: ResetPasswordInput) {
+    const result = await this.authService.resetPassword(dto.token, dto.newPassword);
     return { data: result };
   }
 

@@ -27,6 +27,23 @@ export const setPasswordSchema = z.object({
 
 export type SetPasswordInput = z.infer<typeof setPasswordSchema>;
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().trim().email('Email inválido').max(254),
+});
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, 'Token requerido'),
+  newPassword: z
+    .string()
+    .min(8, 'La contraseña debe tener al menos 8 caracteres')
+    .max(128, 'La contraseña no puede superar 128 caracteres')
+    .regex(/[A-Z]/, 'Debe contener al menos una mayúscula')
+    .regex(/[a-z]/, 'Debe contener al menos una minúscula')
+    .regex(/[0-9]/, 'Debe contener al menos un número'),
+});
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+
 export const refreshSchema = z.object({
   refreshToken: z.string().min(1).max(2048).optional(),
 });

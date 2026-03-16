@@ -25,6 +25,15 @@ export class EmailQueueService {
     this.logger.log(`Enqueued invite email for ${maskEmail(to)}`);
   }
 
+  async enqueuePasswordReset(to: string, name: string, token: string): Promise<void> {
+    await this.emailQueue.add(
+      'passwordReset',
+      { type: 'passwordReset', to, name, token },
+      { jobId: `passwordReset:${to}:${token.slice(-8)}` },
+    );
+    this.logger.log(`Enqueued password reset email for ${maskEmail(to)}`);
+  }
+
   async enqueueTaskReminder(opts: {
     to: string;
     name: string;
