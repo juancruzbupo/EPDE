@@ -117,6 +117,7 @@ describe('TaskReminderService', () => {
         category: { name: 'Electricidad' },
         maintenancePlan: {
           property: {
+            id: 'property-1',
             address: '123 Test St',
             user: { id: 'user-1', name: 'Owner', email: 'owner@test.com' },
           },

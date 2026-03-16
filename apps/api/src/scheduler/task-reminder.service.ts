@@ -100,7 +100,7 @@ export class TaskReminderService {
           type: 'TASK_REMINDER',
           title,
           message,
-          data: { taskId: task.id, propertyAddress: property.address },
+          data: { taskId: task.id, propertyId: property.id, propertyAddress: property.address },
         });
 
         emails.push({
@@ -121,7 +121,7 @@ export class TaskReminderService {
               type: 'TASK_REMINDER',
               title: 'Tarea vencida',
               message: `La tarea "${task.name}" (${owner.name} - ${property.address}) está vencida`,
-              data: { taskId: task.id },
+              data: { taskId: task.id, propertyId: property.id },
             });
           }
         }
