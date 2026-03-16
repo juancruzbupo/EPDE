@@ -105,6 +105,13 @@ export interface CategoryBreakdownItem {
   avgCondition: number;
 }
 
+export interface SectorBreakdownItem {
+  sector: string;
+  total: number;
+  overdue: number;
+  pending: number;
+}
+
 /** Client analytics response */
 export interface ClientAnalytics {
   conditionTrend: Array<{
@@ -117,4 +124,5 @@ export interface ClientAnalytics {
   healthLabel: string;
   conditionDistribution: ConditionDistribution[];
   categoryBreakdown: CategoryBreakdownItem[];
+  sectorBreakdown: SectorBreakdownItem[];
 }

@@ -43,6 +43,7 @@ export function createPropertyQueries(apiClient: AxiosInstance) {
           date: string;
           description: string;
           category: string | null;
+          sector: string | null;
           amount: number;
           type: 'task' | 'budget';
         }[];

@@ -603,4 +603,32 @@ export class DashboardRepository {
       totalTracked: requests.length,
     };
   }
+
+  /** Sector breakdown: task count, overdue, completed per sector for a set of plans. */
+  async getClientSectorBreakdown(planIds: string[]) {
+    if (planIds.length === 0) return [];
+
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        maintenancePlanId: { in: planIds },
+        deletedAt: null,
+        sector: { not: null },
+      },
+      select: { sector: true, status: true },
+    });
+
+    const map = new Map<string, { total: number; overdue: number; pending: number }>();
+    for (const t of tasks) {
+      if (!t.sector) continue;
+      const entry = map.get(t.sector) ?? { total: 0, overdue: 0, pending: 0 };
+      entry.total += 1;
+      if (t.status === 'OVERDUE') entry.overdue += 1;
+      if (t.status === 'PENDING' || t.status === 'UPCOMING') entry.pending += 1;
+      map.set(t.sector, entry);
+    }
+
+    return [...map.entries()]
+      .map(([sector, data]) => ({ sector, ...data }))
+      .sort((a, b) => b.total - a.total);
+  }
 }

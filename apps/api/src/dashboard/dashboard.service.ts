@@ -128,14 +128,21 @@ export class DashboardService {
   async getClientAnalytics(userId: string, months = 6): Promise<ClientAnalytics> {
     const { planIds } = await this.dashboardRepository.getClientPropertyAndPlanIds(userId);
 
-    const [conditionTrend, costHistory, healthData, conditionDistribution, categoryBreakdown] =
-      await Promise.all([
-        this.dashboardRepository.getClientConditionTrend(planIds, months),
-        this.dashboardRepository.getClientCostHistory(planIds, months),
-        this.dashboardRepository.getClientHealthScore(planIds),
-        this.dashboardRepository.getClientConditionDistribution(planIds),
-        this.dashboardRepository.getClientCategoryBreakdown(planIds),
-      ]);
+    const [
+      conditionTrend,
+      costHistory,
+      healthData,
+      conditionDistribution,
+      categoryBreakdown,
+      sectorBreakdown,
+    ] = await Promise.all([
+      this.dashboardRepository.getClientConditionTrend(planIds, months),
+      this.dashboardRepository.getClientCostHistory(planIds, months),
+      this.dashboardRepository.getClientHealthScore(planIds),
+      this.dashboardRepository.getClientConditionDistribution(planIds),
+      this.dashboardRepository.getClientCategoryBreakdown(planIds),
+      this.dashboardRepository.getClientSectorBreakdown(planIds),
+    ]);
 
     return {
       conditionTrend,
@@ -144,6 +151,7 @@ export class DashboardService {
       healthLabel: healthData.healthLabel,
       conditionDistribution,
       categoryBreakdown,
+      sectorBreakdown,
     };
   }
 }
