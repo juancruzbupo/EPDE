@@ -10,6 +10,7 @@ import {
   TASK_TYPE_LABELS,
 } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { ChevronDown } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -137,199 +138,264 @@ export function TaskDialog({ open, onOpenChange, planId, task, activeSectors }: 
 
   const isPending = addTask.isPending || updateTask.isPending;
 
+  const [showAdvanced, setShowAdvanced] = useState(isEdit);
+
+  const sectorOptions = activeSectors
+    ? Object.fromEntries(
+        Object.entries(PROPERTY_SECTOR_LABELS).filter(([k]) => activeSectors.includes(k)),
+      )
+    : PROPERTY_SECTOR_LABELS;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Editar Tarea' : 'Agregar Tarea'}</DialogTitle>
+          <DialogTitle>{isEdit ? 'Editar Tarea' : 'Nueva Tarea'}</DialogTitle>
+          <p className="text-muted-foreground text-sm">
+            {isEdit
+              ? 'Modificá los datos de la tarea.'
+              : 'Completá los datos para crear una nueva tarea de mantenimiento.'}
+          </p>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <input type="hidden" {...register('maintenancePlanId')} />
 
-          {/* Sector select */}
-          <FormSelect
-            id="task-sector"
-            label="Sector de la vivienda"
-            value={watch('sector') ?? ''}
-            onValueChange={(v) => setValue('sector', (v || undefined) as TaskFormValues['sector'])}
-            options={
-              activeSectors
-                ? Object.fromEntries(
-                    Object.entries(PROPERTY_SECTOR_LABELS).filter(([k]) =>
-                      activeSectors.includes(k),
-                    ),
-                  )
-                : PROPERTY_SECTOR_LABELS
-            }
-            placeholder="Seleccionar sector (opcional)"
-          />
+          {/* ─── Section 1: Identificación ─── */}
+          <fieldset className="space-y-4">
+            <legend className="text-foreground mb-1 text-sm font-semibold">Identificación</legend>
 
-          {/* Category select — uses dynamic list, not label map */}
-          <div className="space-y-2">
-            <Label htmlFor="task-category">Categoría</Label>
-            <Select
-              value={watch('categoryId') ?? ''}
-              onValueChange={(v) => {
-                setValue('categoryId', v);
-                setValue('name', '');
-                setUseCustomName(false);
-              }}
-              disabled={categoriesLoading}
-            >
-              <SelectTrigger id="task-category">
-                <SelectValue
-                  placeholder={
-                    categoriesLoading ? 'Cargando categorías...' : 'Seleccionar categoría'
-                  }
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {categories?.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.categoryId && (
-              <p className="text-destructive text-sm">{errors.categoryId.message}</p>
-            )}
-          </div>
-
-          {/* Name — template select or free-text input */}
-          <div className="space-y-2">
-            <Label htmlFor="task-name">Nombre</Label>
-            {hasTemplates && !useCustomName ? (
-              <Select onValueChange={handleTemplateSelect} disabled={!watchedCategoryId}>
-                <SelectTrigger id="task-name">
+            {/* Category (required) */}
+            <div className="space-y-1.5">
+              <Label htmlFor="task-category">
+                Categoría <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={watch('categoryId') ?? ''}
+                onValueChange={(v) => {
+                  setValue('categoryId', v);
+                  setValue('name', '');
+                  setUseCustomName(false);
+                }}
+                disabled={categoriesLoading}
+              >
+                <SelectTrigger id="task-category">
                   <SelectValue
-                    placeholder={
-                      watchedCategoryId
-                        ? 'Seleccionar plantilla...'
-                        : 'Seleccioná una categoría primero'
-                    }
+                    placeholder={categoriesLoading ? 'Cargando...' : 'Seleccionar categoría'}
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  {taskTemplates.map((t) => (
-                    <SelectItem key={t.id} value={t.id}>
-                      {t.name}
+                  {categories?.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.name}
                     </SelectItem>
                   ))}
-                  <SelectItem value="__custom__">Nombre personalizado...</SelectItem>
                 </SelectContent>
               </Select>
-            ) : (
-              <div className="flex gap-2">
+              <p className="text-muted-foreground text-xs">
+                Especialidad técnica de la tarea (ej: Estructura, Eléctrica).
+              </p>
+              {errors.categoryId && (
+                <p className="text-destructive text-xs">{errors.categoryId.message}</p>
+              )}
+            </div>
+
+            {/* Name (required) */}
+            <div className="space-y-1.5">
+              <Label htmlFor="task-name">
+                Nombre <span className="text-destructive">*</span>
+              </Label>
+              {hasTemplates && !useCustomName ? (
+                <Select onValueChange={handleTemplateSelect} disabled={!watchedCategoryId}>
+                  <SelectTrigger id="task-name">
+                    <SelectValue
+                      placeholder={
+                        watchedCategoryId
+                          ? 'Seleccionar de plantillas...'
+                          : 'Seleccioná categoría primero'
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {taskTemplates.map((t) => (
+                      <SelectItem key={t.id} value={t.id}>
+                        {t.name}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="__custom__">Nombre personalizado...</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    id="task-name"
+                    className="flex-1"
+                    disabled={!watchedCategoryId && !isEdit}
+                    placeholder={watchedCategoryId || isEdit ? 'Nombre de la tarea' : ''}
+                    {...register('name')}
+                  />
+                  {hasTemplates && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0"
+                      onClick={() => {
+                        setUseCustomName(false);
+                        setValue('name', '');
+                      }}
+                    >
+                      Plantilla
+                    </Button>
+                  )}
+                </div>
+              )}
+              {errors.name && <p className="text-destructive text-xs">{errors.name.message}</p>}
+            </div>
+
+            {/* Sector (optional) */}
+            <div className="space-y-1.5">
+              <FormSelect
+                id="task-sector"
+                label="Sector"
+                value={watch('sector') ?? ''}
+                onValueChange={(v) =>
+                  setValue('sector', (v || undefined) as TaskFormValues['sector'])
+                }
+                options={sectorOptions}
+                placeholder="Seleccionar sector"
+              />
+              <p className="text-muted-foreground text-xs">
+                Zona de la vivienda donde se realiza (ej: Techo, Baño, Exterior).
+              </p>
+            </div>
+          </fieldset>
+
+          {/* ─── Section 2: Programación ─── */}
+          <fieldset className="space-y-4">
+            <legend className="text-foreground mb-1 text-sm font-semibold">Programación</legend>
+
+            <div className="grid grid-cols-2 gap-3">
+              <FormSelect
+                id="task-priority"
+                label="Prioridad"
+                value={watch('priority') ?? 'MEDIUM'}
+                onValueChange={(v) => setValue('priority', v as TaskFormValues['priority'])}
+                options={TASK_PRIORITY_LABELS}
+              />
+              <FormSelect
+                id="task-recurrence"
+                label="Recurrencia"
+                value={watch('recurrenceType') ?? 'ANNUAL'}
+                onValueChange={(v) =>
+                  setValue('recurrenceType', v as TaskFormValues['recurrenceType'])
+                }
+                options={RECURRENCE_TYPE_LABELS}
+              />
+            </div>
+
+            {recurrenceType === RecurrenceType.CUSTOM && (
+              <div className="space-y-1.5">
+                <Label htmlFor="task-recurrence-months">Intervalo en meses</Label>
                 <Input
-                  id="task-name"
-                  className="flex-1"
-                  disabled={!watchedCategoryId && !isEdit}
-                  placeholder={
-                    watchedCategoryId || isEdit ? '' : 'Seleccioná una categoría primero'
-                  }
-                  {...register('name')}
+                  id="task-recurrence-months"
+                  type="number"
+                  min={1}
+                  max={120}
+                  placeholder="Ej: 18"
+                  {...register('recurrenceMonths')}
                 />
-                {hasTemplates && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="shrink-0 self-center"
-                    onClick={() => {
-                      setUseCustomName(false);
-                      setValue('name', '');
-                    }}
-                  >
-                    Usar plantilla
-                  </Button>
-                )}
+                <p className="text-muted-foreground text-xs">
+                  Cada cuántos meses se repite esta tarea.
+                </p>
               </div>
             )}
-            {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="task-description">Descripción (opcional)</Label>
-            <Textarea id="task-description" rows={3} {...register('description')} />
-          </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="task-due-date">Próxima fecha de vencimiento</Label>
+              <Input id="task-due-date" type="date" {...register('nextDueDate')} />
+              <p className="text-muted-foreground text-xs">
+                Dejá vacío para tareas que se detectan visualmente (sin fecha fija).
+              </p>
+              {errors.nextDueDate && (
+                <p className="text-destructive text-xs">{errors.nextDueDate.message}</p>
+              )}
+            </div>
+          </fieldset>
 
-          <div className="grid grid-cols-2 gap-4">
-            <FormSelect
-              id="task-priority"
-              label="Prioridad"
-              value={watch('priority') ?? 'MEDIUM'}
-              onValueChange={(v) => setValue('priority', v as TaskFormValues['priority'])}
-              options={TASK_PRIORITY_LABELS}
-            />
-            <FormSelect
-              id="task-recurrence"
-              label="Recurrencia"
-              value={watch('recurrenceType') ?? 'ANNUAL'}
-              onValueChange={(v) =>
-                setValue('recurrenceType', v as TaskFormValues['recurrenceType'])
-              }
-              options={RECURRENCE_TYPE_LABELS}
-            />
-          </div>
-
-          {recurrenceType === RecurrenceType.CUSTOM && (
-            <div className="space-y-2">
-              <Label htmlFor="task-recurrence-months">Meses personalizados</Label>
-              <Input
-                id="task-recurrence-months"
-                type="number"
-                min={1}
-                max={120}
-                {...register('recurrenceMonths')}
+          {/* ─── Section 3: Detalles técnicos (colapsable) ─── */}
+          <fieldset>
+            <button
+              type="button"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="text-muted-foreground hover:text-foreground flex w-full items-center gap-1 text-sm transition-colors"
+            >
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${showAdvanced ? '' : '-rotate-90'}`}
               />
-            </div>
-          )}
+              Detalles técnicos
+              <span className="text-muted-foreground/60 ml-1 text-xs">(opcional)</span>
+            </button>
 
-          <div className="grid grid-cols-2 gap-4">
-            <FormSelect
-              id="task-type"
-              label="Tipo de tarea"
-              value={watch('taskType') ?? 'INSPECTION'}
-              onValueChange={(v) => setValue('taskType', v as TaskFormValues['taskType'])}
-              options={TASK_TYPE_LABELS}
-            />
-            <FormSelect
-              id="task-professional"
-              label="Requerimiento profesional"
-              value={watch('professionalRequirement') ?? 'OWNER_CAN_DO'}
-              onValueChange={(v) =>
-                setValue('professionalRequirement', v as TaskFormValues['professionalRequirement'])
-              }
-              options={PROFESSIONAL_REQUIREMENT_LABELS}
-            />
-          </div>
+            {showAdvanced && (
+              <div className="mt-3 space-y-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="task-description">Descripción</Label>
+                  <Textarea
+                    id="task-description"
+                    rows={2}
+                    placeholder="Qué incluye esta tarea..."
+                    {...register('description')}
+                  />
+                </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="task-technical-desc">Descripción técnica (opcional)</Label>
-              <Input id="task-technical-desc" {...register('technicalDescription')} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="task-duration">Duración estimada (min, opcional)</Label>
-              <Input
-                id="task-duration"
-                type="number"
-                min={1}
-                {...register('estimatedDurationMinutes')}
-              />
-            </div>
-          </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <FormSelect
+                    id="task-type"
+                    label="Tipo de tarea"
+                    value={watch('taskType') ?? 'INSPECTION'}
+                    onValueChange={(v) => setValue('taskType', v as TaskFormValues['taskType'])}
+                    options={TASK_TYPE_LABELS}
+                  />
+                  <FormSelect
+                    id="task-professional"
+                    label="Req. profesional"
+                    value={watch('professionalRequirement') ?? 'OWNER_CAN_DO'}
+                    onValueChange={(v) =>
+                      setValue(
+                        'professionalRequirement',
+                        v as TaskFormValues['professionalRequirement'],
+                      )
+                    }
+                    options={PROFESSIONAL_REQUIREMENT_LABELS}
+                  />
+                </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="task-due-date">Próxima fecha de vencimiento</Label>
-            <Input id="task-due-date" type="date" {...register('nextDueDate')} />
-            {errors.nextDueDate && (
-              <p className="text-destructive text-sm">{errors.nextDueDate.message}</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="task-technical-desc">Descripción técnica</Label>
+                    <Input
+                      id="task-technical-desc"
+                      placeholder="Detalles para el profesional"
+                      {...register('technicalDescription')}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="task-duration">Duración estimada</Label>
+                    <Input
+                      id="task-duration"
+                      type="number"
+                      min={1}
+                      placeholder="Minutos"
+                      {...register('estimatedDurationMinutes')}
+                    />
+                  </div>
+                </div>
+              </div>
             )}
-          </div>
+          </fieldset>
 
-          <div className="flex justify-end gap-2">
+          {/* ─── Actions ─── */}
+          <div className="border-border flex justify-end gap-2 border-t pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
