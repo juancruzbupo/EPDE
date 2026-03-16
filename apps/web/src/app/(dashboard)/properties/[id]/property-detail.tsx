@@ -7,15 +7,18 @@ import {
   Building,
   Calendar,
   Camera,
+  ChevronDown,
+  ChevronRight,
   ClipboardList,
   DollarSign,
   MapPin,
   Pencil,
   Ruler,
+  TrendingUp,
   User,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { ErrorState } from '@/components/error-state';
 import { PageHeader } from '@/components/page-header';
@@ -180,20 +183,82 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
 
 // ─── Expenses Tab ───────────────────────────────────────
 
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+    maximumFractionDigits: 0,
+  }).format(amount);
+
 function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
   const { data: expenses, isLoading, isError, refetch } = usePropertyExpenses(propertyId);
+  const [historyOpen, setHistoryOpen] = useState(false);
+
+  const analytics = useMemo(() => {
+    if (!expenses || expenses.items.length === 0) return null;
+
+    const items = expenses.items;
+    const dates = items.map((i) => new Date(i.date).getTime());
+    const oldest = new Date(Math.min(...dates));
+    const months = Math.max(
+      1,
+      Math.ceil((Date.now() - oldest.getTime()) / (1000 * 60 * 60 * 24 * 30)),
+    );
+    const monthlyAvg = expenses.totalCost / months;
+
+    // Group by category
+    const byCategory = new Map<string, { total: number; count: number }>();
+    for (const item of items) {
+      const cat = item.category ?? 'Presupuestos';
+      const entry = byCategory.get(cat) ?? { total: 0, count: 0 };
+      entry.total += item.amount;
+      entry.count += 1;
+      byCategory.set(cat, entry);
+    }
+    const categories = [...byCategory.entries()]
+      .map(([name, data]) => ({ name, ...data }))
+      .sort((a, b) => b.total - a.total);
+
+    const topCategory = categories[0];
+    const maxCategoryTotal = topCategory?.total ?? 0;
+
+    // Task vs Budget split
+    const taskTotal = items.filter((i) => i.type === 'task').reduce((s, i) => s + i.amount, 0);
+    const budgetTotal = items.filter((i) => i.type === 'budget').reduce((s, i) => s + i.amount, 0);
+
+    return {
+      months,
+      monthlyAvg,
+      categories,
+      topCategory,
+      maxCategoryTotal,
+      taskTotal,
+      budgetTotal,
+    };
+  }, [expenses]);
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="space-y-3">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="bg-muted/40 h-10 animate-pulse rounded" />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <div className="space-y-4">
+        <div className="grid grid-cols-3 gap-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-4">
+                <div className="bg-muted/40 h-16 animate-pulse rounded" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="bg-muted/40 h-8 animate-pulse rounded" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
@@ -203,7 +268,7 @@ function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
     );
   }
 
-  if (!expenses || expenses.items.length === 0) {
+  if (!expenses || expenses.items.length === 0 || !analytics) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center gap-2 py-12">
@@ -216,50 +281,158 @@ function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
     );
   }
 
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      maximumFractionDigits: 0,
-    }).format(amount);
-
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle className="type-title-md">Historial de Gastos</CardTitle>
-          <p className="type-body-sm text-muted-foreground mt-1">
-            Total: {formatCurrency(expenses.totalCost)}
-          </p>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="divide-y">
-          {expenses.items.map((item) => (
-            <div
-              key={`${item.date}-${item.description}`}
-              className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">{item.description}</p>
+    <div className="space-y-4">
+      {/* Row 1 — Stat Cards */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/10 rounded-lg p-2.5">
+                <DollarSign className="text-primary h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs">Total acumulado</p>
+                <p className="type-number-md text-foreground">
+                  {formatCurrency(expenses.totalCost)}
+                </p>
                 <p className="text-muted-foreground text-xs">
-                  {item.category ?? 'Presupuesto'} ·{' '}
-                  {new Date(item.date).toLocaleDateString('es-AR')}
+                  en {analytics.months} mes{analytics.months !== 1 ? 'es' : ''}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge variant={item.type === 'task' ? 'secondary' : 'default'} className="text-xs">
-                  {item.type === 'task' ? 'Tarea' : 'Presupuesto'}
-                </Badge>
-                <span className="text-sm font-medium tabular-nums">
-                  {formatCurrency(item.amount)}
-                </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/10 rounded-lg p-2.5">
+                <TrendingUp className="text-primary h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs">Costo mensual promedio</p>
+                <p className="type-number-md text-foreground">
+                  {formatCurrency(analytics.monthlyAvg)}
+                </p>
+                <p className="text-muted-foreground text-xs">/mes</p>
               </div>
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/10 rounded-lg p-2.5">
+                <ClipboardList className="text-primary h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs">Categoría principal</p>
+                <p className="type-title-sm text-foreground truncate">
+                  {analytics.topCategory?.name ?? '—'}
+                </p>
+                <p className="text-muted-foreground text-xs">
+                  {analytics.topCategory
+                    ? `${formatCurrency(analytics.topCategory.total)} (${analytics.topCategory.count} items)`
+                    : ''}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Row 2 — Category Breakdown */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="type-title-md">Gasto por categoría</CardTitle>
+          <p className="type-body-sm text-muted-foreground">
+            Tareas: {formatCurrency(analytics.taskTotal)} · Presupuestos:{' '}
+            {formatCurrency(analytics.budgetTotal)}
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {analytics.categories.map((cat) => {
+              const pct =
+                analytics.maxCategoryTotal > 0 ? (cat.total / analytics.maxCategoryTotal) * 100 : 0;
+              return (
+                <div key={cat.name}>
+                  <div className="mb-1 flex items-center justify-between">
+                    <span className="text-sm font-medium">{cat.name}</span>
+                    <span className="text-sm font-medium tabular-nums">
+                      {formatCurrency(cat.total)}
+                    </span>
+                  </div>
+                  <div className="bg-muted h-2 overflow-hidden rounded-full">
+                    <div
+                      className="bg-primary h-full rounded-full transition-all"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <p className="text-muted-foreground mt-0.5 text-xs">
+                    {cat.count} item{cat.count !== 1 ? 's' : ''} ·{' '}
+                    {Math.round((cat.total / expenses.totalCost) * 100)}% del total
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Row 3 — Collapsible History */}
+      <Card>
+        <button
+          onClick={() => setHistoryOpen(!historyOpen)}
+          className="flex w-full items-center justify-between p-6 text-left"
+        >
+          <div>
+            <p className="type-title-md">Historial detallado</p>
+            <p className="type-body-sm text-muted-foreground">
+              {expenses.items.length} movimiento{expenses.items.length !== 1 ? 's' : ''}
+            </p>
+          </div>
+          {historyOpen ? (
+            <ChevronDown className="text-muted-foreground h-5 w-5" />
+          ) : (
+            <ChevronRight className="text-muted-foreground h-5 w-5" />
+          )}
+        </button>
+        {historyOpen && (
+          <CardContent className="border-t pt-4">
+            <div className="divide-y">
+              {expenses.items.map((item) => (
+                <div
+                  key={`${item.date}-${item.description}`}
+                  className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">{item.description}</p>
+                    <p className="text-muted-foreground text-xs">
+                      {item.category ?? 'Presupuesto'} ·{' '}
+                      {new Date(item.date).toLocaleDateString('es-AR')}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant={item.type === 'task' ? 'secondary' : 'default'}
+                      className="text-xs"
+                    >
+                      {item.type === 'task' ? 'Tarea' : 'Presupuesto'}
+                    </Badge>
+                    <span className="text-sm font-medium tabular-nums">
+                      {formatCurrency(item.amount)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        )}
+      </Card>
+    </div>
   );
 }
 
