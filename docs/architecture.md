@@ -56,7 +56,7 @@ epde/
         providers/      # QueryProvider, AuthProvider
         stores/         # Zustand stores
       vitest.config.ts  # Vitest + jsdom config
-    mobile/           # Expo React Native (rol CLIENT)
+    mobile/           # Expo React Native (CLIENT + ADMIN MVP)
       src/
         app/
           (auth)/       # Login, set-password

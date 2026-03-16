@@ -1,6 +1,11 @@
 # App Mobile
 
-App nativa para clientes (rol `CLIENT`) construida con Expo + React Native. Replica las funcionalidades del portal web cliente en una experiencia mobile-first.
+App nativa construida con Expo + React Native. Soporta ambos roles:
+
+- **CLIENT**: Dashboard con health card + charts + tareas proximas, tab Planes visible
+- **ADMIN (MVP)**: Dashboard con 5 KPIs + metricas clave + SLA + actividad reciente, tab Planes oculto
+
+Ambos roles comparten: Propiedades, Tareas, Presupuestos, Solicitudes, Notificaciones, Perfil. El backend filtra datos por rol automaticamente.
 
 ## Stack
 

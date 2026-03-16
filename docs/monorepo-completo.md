@@ -10,12 +10,12 @@ Documento exhaustivo que describe la estructura, tecnologias, patrones de diseno
 
 ### Aplicaciones
 
-| App    | Workspace      | Tecnologia              | Puerto | Descripcion                        |
-| ------ | -------------- | ----------------------- | ------ | ---------------------------------- |
-| API    | `@epde/api`    | NestJS 11               | 3001   | REST API con auth, RBAC, eventos   |
-| Web    | `@epde/web`    | Next.js 15.3            | 3000   | Panel admin + portal cliente (SPA) |
-| Mobile | `@epde/mobile` | Expo 54 + React Native  | 8081   | App nativa para clientes           |
-| Shared | `@epde/shared` | TypeScript + Zod + tsup | —      | Tipos, schemas, constantes, utils  |
+| App    | Workspace      | Tecnologia              | Puerto | Descripcion                            |
+| ------ | -------------- | ----------------------- | ------ | -------------------------------------- |
+| API    | `@epde/api`    | NestJS 11               | 3001   | REST API con auth, RBAC, eventos       |
+| Web    | `@epde/web`    | Next.js 15.3            | 3000   | Panel admin + portal cliente (SPA)     |
+| Mobile | `@epde/mobile` | Expo 54 + React Native  | 8081   | App nativa para clientes + admin (MVP) |
+| Shared | `@epde/shared` | TypeScript + Zod + tsup | —      | Tipos, schemas, constantes, utils      |
 
 ### Roles
 

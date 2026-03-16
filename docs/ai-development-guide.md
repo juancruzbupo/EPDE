@@ -1107,7 +1107,7 @@ Items de actividad con icon circle + card border:
 ```typescript
 // apps/mobile/src/hooks/use-budgets.ts
 
-// Lista con infinite scroll (mobile es CLIENT-only, filters default a {})
+// Lista con infinite scroll (mobile soporta CLIENT + ADMIN, filters default a {})
 export function useBudgets(filters: Omit<BudgetFilters, 'cursor'> = {}) {
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.budgets, filters],
