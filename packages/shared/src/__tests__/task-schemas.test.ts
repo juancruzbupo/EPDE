@@ -21,6 +21,27 @@ describe('createTaskSchema', () => {
     }
   });
 
+  it('should accept optional sector field', () => {
+    const result = createTaskSchema.safeParse({ ...validInput, sector: 'ROOF' });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.sector).toBe('ROOF');
+    }
+  });
+
+  it('should reject invalid sector value', () => {
+    const result = createTaskSchema.safeParse({ ...validInput, sector: 'INVALID' });
+    expect(result.success).toBe(false);
+  });
+
+  it('should accept missing sector (optional)', () => {
+    const result = createTaskSchema.safeParse(validInput);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.sector).toBeUndefined();
+    }
+  });
+
   it('should default priority to MEDIUM', () => {
     const result = createTaskSchema.safeParse(validInput);
     expect(result.success).toBe(true);
