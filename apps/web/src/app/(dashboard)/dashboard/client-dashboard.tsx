@@ -231,7 +231,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
       </div>
 
       {/* Row 4b — Sector Breakdown */}
-      {analytics && analytics.sectorBreakdown.length > 0 && (
+      {analytics && analytics.sectorBreakdown?.length > 0 && (
         <div className="mt-6">
           <Card>
             <CardHeader>
