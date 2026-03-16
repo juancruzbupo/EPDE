@@ -39,11 +39,9 @@ export function attachRefreshInterceptor(options: RefreshInterceptorOptions): vo
 
       const status = error.response?.status;
 
-      // 403 = role revoked mid-session → force logout (no refresh attempt)
-      if (status === 403 && !skipUrls.some((url) => originalRequest?.url?.includes(url))) {
-        await onRefreshFail();
-        return Promise.reject(error);
-      }
+      // 403 is NOT treated as auth failure — it means the user's role doesn't have
+      // permission for this endpoint (e.g., admin calling client-only endpoint).
+      // Only 401 triggers refresh/logout flow.
 
       if (
         !originalRequest ||
