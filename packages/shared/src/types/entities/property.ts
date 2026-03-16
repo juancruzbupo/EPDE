@@ -1,4 +1,4 @@
-import type { PlanStatus, PropertyType } from '../enums';
+import type { PlanStatus, PropertySector, PropertyType } from '../enums';
 import type { BaseEntity, SoftDeletable } from '../index';
 import type { Serialized, UserBriefWithEmail } from './common';
 
@@ -9,6 +9,7 @@ export interface Property extends BaseEntity, SoftDeletable {
   address: string;
   city: string;
   type: PropertyType;
+  activeSectors: PropertySector[];
   yearBuilt: number | null;
   squareMeters: number | null;
   photoUrl: string | null;

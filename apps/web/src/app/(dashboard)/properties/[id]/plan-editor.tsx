@@ -41,6 +41,7 @@ const PRIORITY_OPTIONS: { value: TaskPriority | 'all'; label: string }[] = [
 
 interface PlanEditorProps {
   planId: string;
+  activeSectors?: string[];
 }
 
 function StatusSummary({ tasks }: { tasks: TaskPublic[] }) {
@@ -158,7 +159,7 @@ function CategorySection({
   );
 }
 
-export function PlanEditor({ planId }: PlanEditorProps) {
+export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
   const { data: plan, isLoading, isError, refetch } = usePlan(planId);
   const removeTask = useRemoveTask();
   const updatePlan = useUpdatePlan();
@@ -331,6 +332,7 @@ export function PlanEditor({ planId }: PlanEditorProps) {
         onOpenChange={setTaskDialogOpen}
         planId={planId}
         task={editingTask}
+        activeSectors={activeSectors}
       />
 
       <ConfirmDialog

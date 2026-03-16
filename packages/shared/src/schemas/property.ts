@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { PAGINATION_DEFAULT_TAKE, PAGINATION_MAX_TAKE } from '../constants';
-import { PROPERTY_TYPE_VALUES, PropertyType } from '../types/enums';
+import { PROPERTY_SECTOR_VALUES, PROPERTY_TYPE_VALUES, PropertyType } from '../types/enums';
 
 export const createPropertySchema = z.object({
   userId: z.string().uuid('ID de usuario inválido'),
@@ -16,6 +16,7 @@ export const createPropertySchema = z.object({
     .min(2, 'La ciudad debe tener al menos 2 caracteres')
     .max(200, 'La ciudad no puede superar 200 caracteres'),
   type: z.enum(PROPERTY_TYPE_VALUES).default(PropertyType.HOUSE),
+  activeSectors: z.array(z.enum(PROPERTY_SECTOR_VALUES)).optional(),
   yearBuilt: z.coerce.number().int().min(1800).max(2100).optional(),
   squareMeters: z.coerce.number().positive().max(99_999).optional(),
 });
@@ -36,6 +37,7 @@ export const updatePropertySchema = z.object({
     .max(200, 'La ciudad no puede superar 200 caracteres')
     .optional(),
   type: z.enum(PROPERTY_TYPE_VALUES).optional(),
+  activeSectors: z.array(z.enum(PROPERTY_SECTOR_VALUES)).optional(),
   yearBuilt: z.coerce.number().int().min(1800).max(2100).optional(),
   squareMeters: z.coerce.number().positive().max(99_999).optional(),
 });

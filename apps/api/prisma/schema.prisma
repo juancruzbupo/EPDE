@@ -196,10 +196,11 @@ model Property {
   updatedBy    String?
   address      String       @db.VarChar(500)
   city         String       @db.VarChar(200)
-  type         PropertyType @default(HOUSE)
-  yearBuilt    Int?
-  squareMeters Float?
-  photoUrl     String?
+  type           PropertyType     @default(HOUSE)
+  activeSectors  PropertySector[] @default([EXTERIOR, ROOF, TERRACE, INTERIOR, KITCHEN, BATHROOM, BASEMENT, GARDEN, INSTALLATIONS])
+  yearBuilt      Int?
+  squareMeters   Float?
+  photoUrl       String?
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   deletedAt    DateTime?

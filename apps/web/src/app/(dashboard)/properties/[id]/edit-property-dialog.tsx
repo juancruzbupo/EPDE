@@ -1,8 +1,9 @@
 'use client';
 
-import type { PropertyPublic, UpdatePropertyInput } from '@epde/shared';
-import { PROPERTY_TYPE_LABELS, updatePropertySchema } from '@epde/shared';
+import type { PropertyPublic, PropertySector, UpdatePropertyInput } from '@epde/shared';
+import { PROPERTY_SECTOR_LABELS, PROPERTY_TYPE_LABELS, updatePropertySchema } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
@@ -38,14 +39,25 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
       address: property.address,
       city: property.city,
       type: property.type,
+      activeSectors: property.activeSectors,
       yearBuilt: property.yearBuilt ?? undefined,
       squareMeters: property.squareMeters ?? undefined,
     },
   });
 
+  const [sectors, setSectors] = useState<PropertySector[]>(
+    (property.activeSectors as PropertySector[]) ?? [],
+  );
+
+  const toggleSector = (sector: PropertySector) => {
+    setSectors((prev) =>
+      prev.includes(sector) ? prev.filter((s) => s !== sector) : [...prev, sector],
+    );
+  };
+
   const onSubmit = handleSubmit((data) => {
     updateMutation.mutate(
-      { id: property.id, ...data },
+      { id: property.id, ...data, activeSectors: sectors },
       {
         onSuccess: () => {
           onOpenChange(false);
@@ -116,6 +128,22 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
               {errors.squareMeters && (
                 <p className="text-destructive text-sm">{errors.squareMeters.message}</p>
               )}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label>Sectores activos</Label>
+            <div className="grid grid-cols-3 gap-2">
+              {Object.entries(PROPERTY_SECTOR_LABELS).map(([value, label]) => (
+                <label key={value} className="flex cursor-pointer items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={sectors.includes(value as PropertySector)}
+                    onChange={() => toggleSector(value as PropertySector)}
+                    className="accent-primary h-4 w-4 rounded"
+                  />
+                  {label}
+                </label>
+              ))}
             </div>
           </div>
           <div className="flex justify-end gap-2">

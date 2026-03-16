@@ -40,9 +40,11 @@ interface TaskDialogProps {
   onOpenChange: (open: boolean) => void;
   planId: string;
   task: TaskPublic | null;
+  /** If provided, only these sectors are shown in the selector. */
+  activeSectors?: string[];
 }
 
-export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps) {
+export function TaskDialog({ open, onOpenChange, planId, task, activeSectors }: TaskDialogProps) {
   const isEdit = !!task;
   const addTask = useAddTask();
   const updateTask = useUpdateTask();
@@ -150,7 +152,15 @@ export function TaskDialog({ open, onOpenChange, planId, task }: TaskDialogProps
             label="Sector de la vivienda"
             value={watch('sector') ?? ''}
             onValueChange={(v) => setValue('sector', (v || undefined) as TaskFormValues['sector'])}
-            options={PROPERTY_SECTOR_LABELS}
+            options={
+              activeSectors
+                ? Object.fromEntries(
+                    Object.entries(PROPERTY_SECTOR_LABELS).filter(([k]) =>
+                      activeSectors.includes(k),
+                    ),
+                  )
+                : PROPERTY_SECTOR_LABELS
+            }
             placeholder="Seleccionar sector (opcional)"
           />
 

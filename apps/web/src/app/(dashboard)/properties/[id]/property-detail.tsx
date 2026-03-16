@@ -144,7 +144,10 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
         <TabsContent value="plan" className="mt-4">
           {property.maintenancePlan ? (
             isAdmin ? (
-              <PlanEditor planId={property.maintenancePlan.id} />
+              <PlanEditor
+                planId={property.maintenancePlan.id}
+                activeSectors={property.activeSectors}
+              />
             ) : (
               <PlanViewer planId={property.maintenancePlan.id} />
             )
