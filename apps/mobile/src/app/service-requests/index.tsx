@@ -1,7 +1,7 @@
 import type { ServiceRequestPublic, ServiceStatus, ServiceUrgency } from '@epde/shared';
 import { formatRelativeDate, SERVICE_URGENCY_LABELS } from '@epde/shared';
 import { Stack, useRouter } from 'expo-router';
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -82,11 +82,14 @@ export default function ServiceRequestsScreen() {
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const debouncedSearch = useDebounce(search);
 
-  const filters = {
-    ...(debouncedSearch ? { search: debouncedSearch } : {}),
-    ...(statusFilter ? { status: statusFilter } : {}),
-    ...(urgencyFilter ? { urgency: urgencyFilter } : {}),
-  };
+  const filters = useMemo(
+    () => ({
+      ...(debouncedSearch ? { search: debouncedSearch } : {}),
+      ...(statusFilter ? { status: statusFilter } : {}),
+      ...(urgencyFilter ? { urgency: urgencyFilter } : {}),
+    }),
+    [debouncedSearch, statusFilter, urgencyFilter],
+  );
 
   const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useServiceRequests(filters);
@@ -142,6 +145,7 @@ export default function ServiceRequestsScreen() {
         maxToRenderPerBatch={10}
         windowSize={10}
         removeClippedSubviews
+        getItemLayout={(_, index) => ({ length: 82, offset: 82 * index, index })}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
         ListHeaderComponent={
           <View className="mb-4">

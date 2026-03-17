@@ -45,6 +45,7 @@ export const queryClient = new QueryClient({
         // Retry server errors once
         return failureCount < 1;
       },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
       refetchOnReconnect: true,
       networkMode: 'offlineFirst',
     },

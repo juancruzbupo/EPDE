@@ -1,7 +1,7 @@
 import type { PropertyPublic, PropertyType } from '@epde/shared';
 import { PROPERTY_TYPE_LABELS } from '@epde/shared';
 import { useRouter } from 'expo-router';
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -72,10 +72,13 @@ export default function PropertiesScreen() {
   const [typeFilter, setTypeFilter] = useState<PropertyType | undefined>(undefined);
   const debouncedSearch = useDebounce(search);
 
-  const filters = {
-    ...(debouncedSearch ? { search: debouncedSearch } : {}),
-    ...(typeFilter ? { type: typeFilter } : {}),
-  };
+  const filters = useMemo(
+    () => ({
+      ...(debouncedSearch ? { search: debouncedSearch } : {}),
+      ...(typeFilter ? { type: typeFilter } : {}),
+    }),
+    [debouncedSearch, typeFilter],
+  );
 
   const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useProperties(filters);
@@ -122,6 +125,7 @@ export default function PropertiesScreen() {
       maxToRenderPerBatch={10}
       windowSize={10}
       removeClippedSubviews
+      getItemLayout={(_, index) => ({ length: 82, offset: 82 * index, index })}
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
       ListHeaderComponent={
         <View className="mb-4">

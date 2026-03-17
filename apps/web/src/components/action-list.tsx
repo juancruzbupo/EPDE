@@ -10,6 +10,7 @@ import {
 import { motion } from 'framer-motion';
 import { CheckCircle, ChevronRight, Wrench } from 'lucide-react';
 import Link from 'next/link';
+import { useMemo } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -84,15 +85,19 @@ export function ActionList({ tasks }: ActionListProps) {
   const Wrapper = shouldAnimate ? motion.div : 'div';
   const Item = shouldAnimate ? motion.div : 'div';
 
-  const now = new Date();
-  const weekFromNow = new Date();
-  weekFromNow.setDate(weekFromNow.getDate() + 7);
+  const { overdueTasks, upcomingTasks } = useMemo(() => {
+    const now = new Date();
+    const weekFromNow = new Date();
+    weekFromNow.setDate(weekFromNow.getDate() + 7);
 
-  const overdueTasks = tasks.filter((t) => t.nextDueDate && new Date(t.nextDueDate) < now);
-  const upcomingTasks = tasks.filter(
-    (t) =>
-      t.nextDueDate && new Date(t.nextDueDate) >= now && new Date(t.nextDueDate) <= weekFromNow,
-  );
+    return {
+      overdueTasks: tasks.filter((t) => t.nextDueDate && new Date(t.nextDueDate) < now),
+      upcomingTasks: tasks.filter(
+        (t) =>
+          t.nextDueDate && new Date(t.nextDueDate) >= now && new Date(t.nextDueDate) <= weekFromNow,
+      ),
+    };
+  }, [tasks]);
 
   if (overdueTasks.length === 0 && upcomingTasks.length === 0) {
     return (

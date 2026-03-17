@@ -105,6 +105,7 @@ export function AdminDashboard() {
     refetch: refetchActivity,
   } = useDashboardActivity();
   const [chartMonths, setChartMonths] = useState(6);
+  const [analyticsTab, setAnalyticsTab] = useState('operational');
   const { data: analytics, isLoading: analyticsLoading } = useAdminAnalytics(chartMonths);
   const { shouldAnimate } = useMotionPreference();
 
@@ -199,7 +200,7 @@ export function AdminDashboard() {
 
       {/* Level 3: Admin Analytics Tabs */}
       <div className="mb-6">
-        <Tabs defaultValue="operational">
+        <Tabs value={analyticsTab} onValueChange={setAnalyticsTab}>
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <TabsList>
               <TabsTrigger value="operational">Operativo</TabsTrigger>
@@ -211,276 +212,281 @@ export function AdminDashboard() {
 
           {/* Operativo tab */}
           <TabsContent value="operational">
-            {analyticsLoading ? (
-              <div className="grid gap-6 lg:grid-cols-3">
-                <SkeletonShimmer className="h-[300px] lg:col-span-2" />
-                <SkeletonShimmer className="h-[300px]" />
-              </div>
-            ) : (
-              <div className="space-y-6">
+            {analyticsTab === 'operational' &&
+              (analyticsLoading ? (
                 <div className="grid gap-6 lg:grid-cols-3">
-                  <SectionErrorBoundary>
-                    <ChartCard
-                      title="Tareas Completadas"
-                      description={`Últimos ${chartMonths} meses`}
-                      className="lg:col-span-2"
-                      isLoading={false}
-                      isEmpty={!analytics?.completionTrend.length}
-                      emptyIcon={<TrendingUp className="h-8 w-8" />}
-                      height={280}
-                      href="/tasks"
-                    >
-                      {analytics && <CompletionTrendChart data={analytics.completionTrend} />}
-                    </ChartCard>
-                  </SectionErrorBoundary>
+                  <SkeletonShimmer className="h-[300px] lg:col-span-2" />
+                  <SkeletonShimmer className="h-[300px]" />
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="grid gap-6 lg:grid-cols-3">
+                    <SectionErrorBoundary>
+                      <ChartCard
+                        title="Tareas Completadas"
+                        description={`Últimos ${chartMonths} meses`}
+                        className="lg:col-span-2"
+                        isLoading={false}
+                        isEmpty={!analytics?.completionTrend.length}
+                        emptyIcon={<TrendingUp className="h-8 w-8" />}
+                        height={280}
+                        href="/tasks"
+                      >
+                        {analytics && <CompletionTrendChart data={analytics.completionTrend} />}
+                      </ChartCard>
+                    </SectionErrorBoundary>
+
+                    <SectionErrorBoundary>
+                      <ChartCard
+                        title="Condiciones"
+                        description="Distribución de inspecciones"
+                        isLoading={false}
+                        isEmpty={!analytics?.conditionDistribution.length}
+                        emptyIcon={<PieChart className="h-8 w-8" />}
+                        height={280}
+                      >
+                        {analytics && (
+                          <ConditionDonutChart data={analytics.conditionDistribution} />
+                        )}
+                      </ChartCard>
+                    </SectionErrorBoundary>
+                  </div>
 
                   <SectionErrorBoundary>
                     <ChartCard
-                      title="Condiciones"
-                      description="Distribución de inspecciones"
+                      title="Categorías Problemáticas"
+                      description="Top 5 por incidencias"
                       isLoading={false}
-                      isEmpty={!analytics?.conditionDistribution.length}
-                      emptyIcon={<PieChart className="h-8 w-8" />}
+                      isEmpty={!analytics?.problematicCategories.length}
+                      emptyIcon={<BarChart3 className="h-8 w-8" />}
                       height={280}
+                      href="/categories"
                     >
-                      {analytics && <ConditionDonutChart data={analytics.conditionDistribution} />}
+                      {analytics && (
+                        <ProblematicCategoriesChart data={analytics.problematicCategories} />
+                      )}
                     </ChartCard>
                   </SectionErrorBoundary>
                 </div>
-
-                <SectionErrorBoundary>
-                  <ChartCard
-                    title="Categorías Problemáticas"
-                    description="Top 5 por incidencias"
-                    isLoading={false}
-                    isEmpty={!analytics?.problematicCategories.length}
-                    emptyIcon={<BarChart3 className="h-8 w-8" />}
-                    height={280}
-                    href="/categories"
-                  >
-                    {analytics && (
-                      <ProblematicCategoriesChart data={analytics.problematicCategories} />
-                    )}
-                  </ChartCard>
-                </SectionErrorBoundary>
-              </div>
-            )}
+              ))}
           </TabsContent>
 
           {/* Tendencias tab */}
           <TabsContent value="trends">
-            {analyticsLoading ? (
-              <div className="space-y-6">
-                <SkeletonShimmer className="h-[300px] w-full" />
-                <SkeletonShimmer className="h-[200px] w-full" />
-              </div>
-            ) : (
-              <div className="space-y-6">
-                <SectionErrorBoundary>
-                  <ChartCard
-                    title="Costos por Categoría"
-                    description={`Últimos ${chartMonths} meses`}
-                    isLoading={false}
-                    isEmpty={
-                      !analytics?.categoryCosts.some((c) => Object.keys(c.categories).length > 0)
-                    }
-                    emptyIcon={<DollarSign className="h-8 w-8" />}
-                    height={300}
-                    href="/tasks"
-                  >
-                    {analytics && <CategoryCostsChart data={analytics.categoryCosts} />}
-                  </ChartCard>
-                </SectionErrorBoundary>
+            {analyticsTab === 'trends' &&
+              (analyticsLoading ? (
+                <div className="space-y-6">
+                  <SkeletonShimmer className="h-[300px] w-full" />
+                  <SkeletonShimmer className="h-[200px] w-full" />
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <SectionErrorBoundary>
+                    <ChartCard
+                      title="Costos por Categoría"
+                      description={`Últimos ${chartMonths} meses`}
+                      isLoading={false}
+                      isEmpty={
+                        !analytics?.categoryCosts.some((c) => Object.keys(c.categories).length > 0)
+                      }
+                      emptyIcon={<DollarSign className="h-8 w-8" />}
+                      height={300}
+                      href="/tasks"
+                    >
+                      {analytics && <CategoryCostsChart data={analytics.categoryCosts} />}
+                    </ChartCard>
+                  </SectionErrorBoundary>
 
-                {/* Portfolio Health */}
-                {analytics && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="type-title-md">Salud del Portfolio</CardTitle>
-                      <p className="type-body-sm text-muted-foreground">
-                        Índice basado en tareas vencidas vs completadas
-                      </p>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center gap-4">
-                        <div
-                          className={`type-number-md ${
-                            analytics.completionRate >= 80
-                              ? 'text-success'
-                              : analytics.completionRate >= 60
-                                ? 'text-amber-600'
-                                : 'text-destructive'
-                          }`}
-                        >
-                          {analytics.completionRate}%
-                        </div>
-                        <div className="flex-1">
-                          <div className="bg-muted h-2 overflow-hidden rounded-full">
-                            <div
-                              className={`h-full rounded-full ${
-                                analytics.completionRate >= 80
-                                  ? 'bg-success'
-                                  : analytics.completionRate >= 60
-                                    ? 'bg-amber-500'
-                                    : 'bg-destructive'
-                              }`}
-                              style={{ width: `${analytics.completionRate}%` }}
-                            />
+                  {/* Portfolio Health */}
+                  {analytics && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="type-title-md">Salud del Portfolio</CardTitle>
+                        <p className="type-body-sm text-muted-foreground">
+                          Índice basado en tareas vencidas vs completadas
+                        </p>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex items-center gap-4">
+                          <div
+                            className={`type-number-md ${
+                              analytics.completionRate >= 80
+                                ? 'text-success'
+                                : analytics.completionRate >= 60
+                                  ? 'text-amber-600'
+                                  : 'text-destructive'
+                            }`}
+                          >
+                            {analytics.completionRate}%
                           </div>
-                          <p className="text-muted-foreground mt-1 text-xs">
-                            Tasa de completamiento global de tareas
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Problematic Sectors */}
-                {analytics && analytics.problematicSectors?.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="type-title-md">Sectores Problemáticos</CardTitle>
-                      <p className="type-body-sm text-muted-foreground">
-                        Top sectores con más tareas vencidas
-                      </p>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {analytics.problematicSectors.map((s) => {
-                          const label =
-                            PROPERTY_SECTOR_LABELS[s.sector as PropertySector] ?? s.sector;
-                          return (
-                            <div key={s.sector} className="flex items-center justify-between">
-                              <span className="text-sm font-medium">{label}</span>
-                              <Badge variant="destructive" className="text-xs">
-                                {s.overdueCount} vencida{s.overdueCount !== 1 ? 's' : ''}
-                              </Badge>
+                          <div className="flex-1">
+                            <div className="bg-muted h-2 overflow-hidden rounded-full">
+                              <div
+                                className={`h-full rounded-full ${
+                                  analytics.completionRate >= 80
+                                    ? 'bg-success'
+                                    : analytics.completionRate >= 60
+                                      ? 'bg-amber-500'
+                                      : 'bg-destructive'
+                                }`}
+                                style={{ width: `${analytics.completionRate}%` }}
+                              />
                             </div>
-                          );
-                        })}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            )}
+                            <p className="text-muted-foreground mt-1 text-xs">
+                              Tasa de completamiento global de tareas
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Problematic Sectors */}
+                  {analytics && analytics.problematicSectors?.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="type-title-md">Sectores Problemáticos</CardTitle>
+                        <p className="type-body-sm text-muted-foreground">
+                          Top sectores con más tareas vencidas
+                        </p>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {analytics.problematicSectors.map((s) => {
+                            const label =
+                              PROPERTY_SECTOR_LABELS[s.sector as PropertySector] ?? s.sector;
+                            return (
+                              <div key={s.sector} className="flex items-center justify-between">
+                                <span className="text-sm font-medium">{label}</span>
+                                <Badge variant="destructive" className="text-xs">
+                                  {s.overdueCount} vencida{s.overdueCount !== 1 ? 's' : ''}
+                                </Badge>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              ))}
           </TabsContent>
 
           {/* Financiero tab */}
           <TabsContent value="financial">
-            {analyticsLoading ? (
-              <div className="space-y-6">
-                <SkeletonShimmer className="h-[300px] w-full" />
-                <SkeletonShimmer className="h-[200px] w-full" />
-              </div>
-            ) : (
-              <div className="space-y-6">
-                <SectionErrorBoundary>
-                  <ChartCard
-                    title="Pipeline de Presupuestos"
-                    description="Por estado"
-                    isLoading={false}
-                    isEmpty={!analytics?.budgetPipeline.length}
-                    emptyIcon={<FileText className="h-8 w-8" />}
-                    height={280}
-                    href="/budgets"
-                  >
-                    {analytics && <BudgetPipelineChart data={analytics.budgetPipeline} />}
-                  </ChartCard>
-                </SectionErrorBoundary>
+            {analyticsTab === 'financial' &&
+              (analyticsLoading ? (
+                <div className="space-y-6">
+                  <SkeletonShimmer className="h-[300px] w-full" />
+                  <SkeletonShimmer className="h-[200px] w-full" />
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <SectionErrorBoundary>
+                    <ChartCard
+                      title="Pipeline de Presupuestos"
+                      description="Por estado"
+                      isLoading={false}
+                      isEmpty={!analytics?.budgetPipeline.length}
+                      emptyIcon={<FileText className="h-8 w-8" />}
+                      height={280}
+                      href="/budgets"
+                    >
+                      {analytics && <BudgetPipelineChart data={analytics.budgetPipeline} />}
+                    </ChartCard>
+                  </SectionErrorBoundary>
 
-                {/* Key Metrics */}
-                {analytics && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="type-title-md">Métricas Clave</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        <div className="flex items-center gap-3">
-                          <div className="bg-primary/10 rounded-lg p-2.5">
-                            <DollarSign className="text-primary h-5 w-5" />
+                  {/* Key Metrics */}
+                  {analytics && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="type-title-md">Métricas Clave</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                          <div className="flex items-center gap-3">
+                            <div className="bg-primary/10 rounded-lg p-2.5">
+                              <DollarSign className="text-primary h-5 w-5" />
+                            </div>
+                            <div>
+                              <p className="type-body-sm text-muted-foreground">
+                                Costo total mantenimiento
+                              </p>
+                              <p className="type-number-md text-foreground">
+                                {formatCurrency(analytics.totalMaintenanceCost)}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="type-body-sm text-muted-foreground">
-                              Costo total mantenimiento
-                            </p>
-                            <p className="type-number-md text-foreground">
-                              {formatCurrency(analytics.totalMaintenanceCost)}
-                            </p>
-                          </div>
-                        </div>
 
-                        <div className="flex items-center gap-3">
-                          <div className="bg-primary/10 rounded-lg p-2.5">
-                            <Timer className="text-primary h-5 w-5" />
-                          </div>
-                          <div>
-                            <p className="type-body-sm text-muted-foreground">
-                              Respuesta promedio presupuestos
-                            </p>
-                            <p className="type-number-md text-foreground">
-                              {analytics.avgBudgetResponseDays !== null
-                                ? `${analytics.avgBudgetResponseDays} días`
-                                : 'Sin datos'}
-                            </p>
-                          </div>
-                        </div>
-
-                        {analytics.slaMetrics.avgResponseHours !== null && (
                           <div className="flex items-center gap-3">
                             <div className="bg-primary/10 rounded-lg p-2.5">
                               <Timer className="text-primary h-5 w-5" />
                             </div>
                             <div>
                               <p className="type-body-sm text-muted-foreground">
-                                Tiempo respuesta solicitudes
+                                Respuesta promedio presupuestos
                               </p>
-                              <p
-                                className={`type-number-md ${
-                                  analytics.slaMetrics.avgResponseHours <= 24
-                                    ? 'text-success'
-                                    : analytics.slaMetrics.avgResponseHours <= 72
-                                      ? 'text-amber-600'
-                                      : 'text-destructive'
-                                }`}
-                              >
-                                {analytics.slaMetrics.avgResponseHours}h
+                              <p className="type-number-md text-foreground">
+                                {analytics.avgBudgetResponseDays !== null
+                                  ? `${analytics.avgBudgetResponseDays} días`
+                                  : 'Sin datos'}
                               </p>
                             </div>
                           </div>
-                        )}
 
-                        {analytics.slaMetrics.avgResolutionHours !== null && (
-                          <div className="flex items-center gap-3">
-                            <div className="bg-primary/10 rounded-lg p-2.5">
-                              <Timer className="text-primary h-5 w-5" />
+                          {analytics.slaMetrics.avgResponseHours !== null && (
+                            <div className="flex items-center gap-3">
+                              <div className="bg-primary/10 rounded-lg p-2.5">
+                                <Timer className="text-primary h-5 w-5" />
+                              </div>
+                              <div>
+                                <p className="type-body-sm text-muted-foreground">
+                                  Tiempo respuesta solicitudes
+                                </p>
+                                <p
+                                  className={`type-number-md ${
+                                    analytics.slaMetrics.avgResponseHours <= 24
+                                      ? 'text-success'
+                                      : analytics.slaMetrics.avgResponseHours <= 72
+                                        ? 'text-amber-600'
+                                        : 'text-destructive'
+                                  }`}
+                                >
+                                  {analytics.slaMetrics.avgResponseHours}h
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="type-body-sm text-muted-foreground">
-                                Tiempo resolución solicitudes
-                              </p>
-                              <p
-                                className={`type-number-md ${
-                                  analytics.slaMetrics.avgResolutionHours <= 48
-                                    ? 'text-success'
-                                    : analytics.slaMetrics.avgResolutionHours <= 168
-                                      ? 'text-amber-600'
-                                      : 'text-destructive'
-                                }`}
-                              >
-                                {analytics.slaMetrics.avgResolutionHours}h
-                              </p>
+                          )}
+
+                          {analytics.slaMetrics.avgResolutionHours !== null && (
+                            <div className="flex items-center gap-3">
+                              <div className="bg-primary/10 rounded-lg p-2.5">
+                                <Timer className="text-primary h-5 w-5" />
+                              </div>
+                              <div>
+                                <p className="type-body-sm text-muted-foreground">
+                                  Tiempo resolución solicitudes
+                                </p>
+                                <p
+                                  className={`type-number-md ${
+                                    analytics.slaMetrics.avgResolutionHours <= 48
+                                      ? 'text-success'
+                                      : analytics.slaMetrics.avgResolutionHours <= 168
+                                        ? 'text-amber-600'
+                                        : 'text-destructive'
+                                  }`}
+                                >
+                                  {analytics.slaMetrics.avgResolutionHours}h
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            )}
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              ))}
           </TabsContent>
         </Tabs>
       </div>

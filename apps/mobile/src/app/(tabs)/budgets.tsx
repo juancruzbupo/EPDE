@@ -1,7 +1,7 @@
 import type { BudgetRequestPublic, BudgetStatus } from '@epde/shared';
 import { formatARS, formatRelativeDate } from '@epde/shared';
 import { useRouter } from 'expo-router';
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -77,10 +77,13 @@ export default function BudgetsScreen() {
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const debouncedSearch = useDebounce(search);
 
-  const filters = {
-    ...(debouncedSearch ? { search: debouncedSearch } : {}),
-    ...(statusFilter ? { status: statusFilter } : {}),
-  };
+  const filters = useMemo(
+    () => ({
+      ...(debouncedSearch ? { search: debouncedSearch } : {}),
+      ...(statusFilter ? { status: statusFilter } : {}),
+    }),
+    [debouncedSearch, statusFilter],
+  );
 
   const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useBudgets(filters);
@@ -127,6 +130,7 @@ export default function BudgetsScreen() {
         maxToRenderPerBatch={10}
         windowSize={10}
         removeClippedSubviews
+        getItemLayout={(_, index) => ({ length: 82, offset: 82 * index, index })}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
         ListHeaderComponent={
           <View className="mb-4">
