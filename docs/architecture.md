@@ -366,7 +366,7 @@ Dependencias: `TasksRepository`, `NotificationsRepository`, `UsersRepository`, `
 - Las 4 detail pages (`budgets/[id]`, `service-requests/[id]`, `clients/[id]`, `properties/[id]`) son **Client Components** (`'use client'`)
 - Pattern: `page.tsx` usa `use(params)` para obtener `id`, `useAuthStore` para rol → pasa `id` + `isAdmin` al Client Component hijo
 - Los Client Components cargan datos via React Query con skeleton loading inmediato (sin blocking de navegacion)
-- Property detail usa **lazy tab loading**: expenses/photos/health solo se fetchean cuando el tab esta activo
+- Property detail usa **lazy tab loading** con 4 tabs ordenados por prioridad: Salud (default) → Plan → Gastos → Fotos. Expenses/photos solo se fetchean cuando el tab esta activo
 - Properties list page tiene **prefetch on hover**: al pasar el mouse sobre una fila, se pre-carga data del detalle
 
 **UI/UX Patterns (Web):**

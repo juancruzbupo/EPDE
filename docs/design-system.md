@@ -412,8 +412,8 @@ export const metadata: Metadata = {
 
 ### Dashboard Layout
 
-- **Sidebar** (desktop): Fijo a la izquierda, 256px, con navegacion por rol
-- **Header**: Fijo arriba, muestra nombre de usuario, notificaciones, mobile menu
+- **Sidebar** (desktop): Fijo a la izquierda, colapsable (w-64 expandido, w-16 colapsado). Solo navegación — sin footer. Persistencia en localStorage
+- **Header**: Fijo arriba. Contiene: ThemeToggle, NotificationBell, dropdown de usuario (Mi perfil + Cerrar sesión). En mobile: hamburger menu
 - **Content**: Area principal con padding
 
 ### Navegacion por Rol
