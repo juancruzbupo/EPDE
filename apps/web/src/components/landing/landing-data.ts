@@ -49,8 +49,11 @@ export interface SectionProps {
 // Constants
 // ---------------------------------------------------------------------------
 
-export const WHATSAPP_URL =
+const WHATSAPP_PLACEHOLDER =
   'https://wa.me/5493001234567?text=Hola%20Noelia%2C%20quiero%20coordinar%20el%20diagn%C3%B3stico.';
+
+/** WhatsApp CTA URL. Set NEXT_PUBLIC_WHATSAPP_URL in production to override placeholder. */
+export const WHATSAPP_URL = process.env.NEXT_PUBLIC_WHATSAPP_URL || WHATSAPP_PLACEHOLDER;
 
 export {
   AlertTriangle,
