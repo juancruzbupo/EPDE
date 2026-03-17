@@ -40,7 +40,7 @@ export function FinalCtaSection({ motionProps }: SectionProps) {
         <motion.div variants={FADE_IN} className="mt-8">
           <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
             <Button size="lg" variant="secondary" className="gap-2">
-              Agendar diagnóstico
+              Quiero saber el estado de mi casa
               <ArrowRight className="h-4 w-4" />
             </Button>
           </a>

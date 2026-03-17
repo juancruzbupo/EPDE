@@ -74,7 +74,7 @@ export function InvestmentSection({ motionProps }: SectionProps) {
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
               <Button size="lg" className="gap-2">
-                Agendar diagnóstico
+                Quiero saber el estado de mi casa
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </a>
@@ -88,9 +88,23 @@ export function InvestmentSection({ motionProps }: SectionProps) {
 
         <motion.p
           variants={FADE_IN}
+          className="type-body-md text-foreground mx-auto mt-8 max-w-2xl text-center font-medium"
+        >
+          Cuanto antes lo hagas, más problemas evitás.
+        </motion.p>
+        <motion.p
+          variants={FADE_IN}
+          className="type-body-sm text-muted-foreground mx-auto mt-2 max-w-2xl text-center"
+        >
+          Postergar el mantenimiento casi siempre termina siendo más caro.
+        </motion.p>
+
+        <motion.p
+          variants={FADE_IN}
           className="type-body-sm text-primary mx-auto mt-6 max-w-3xl text-center font-medium"
         >
-          Solo 10 diagnósticos disponibles este mes en Paraná · Etapa de lanzamiento
+          Solo 10 diagnósticos disponibles este mes en Paraná · Primeros diagnósticos en etapa de
+          lanzamiento
         </motion.p>
 
         <motion.p

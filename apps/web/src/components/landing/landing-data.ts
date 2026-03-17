@@ -119,9 +119,9 @@ export const STEPS: Step[] = [
   {
     number: '03',
     icon: MonitorSmartphone,
-    title: 'Seguimiento digital',
+    title: 'Seguimiento continuo',
     description:
-      'Tu plan se carga en EPDE con tareas programadas y recordatorios automáticos. Tu vivienda deja de depender de recordatorios mentales.',
+      'Tu plan se carga en EPDE con tareas programadas y recordatorios automáticos. Los problemas no vuelven a pasar desapercibidos.',
   },
   {
     number: '04',
@@ -148,7 +148,7 @@ export const INVESTMENT_FEATURES = [
   'Registro fotográfico de hallazgos',
   'Informe técnico con diagnóstico y prioridades',
   'Recomendaciones de mantenimiento preventivo',
-  'Carga en plataforma digital con seguimiento',
+  'Seguimiento continuo para que los problemas no vuelvan',
 ];
 
 export const TARGET_PROFILES = [
