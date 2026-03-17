@@ -183,6 +183,8 @@ export default function TasksScreen() {
                 {STAT_STATUSES.map((status) => (
                   <Pressable
                     key={status}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Filtrar por ${TASK_STATUS_LABELS[status]}`}
                     onPress={() => {
                       haptics.selection();
                       setStatusFilter((prev) => (prev === status ? undefined : status));
@@ -214,9 +216,14 @@ export default function TasksScreen() {
                 onChangeText={setSearch}
                 autoCapitalize="none"
                 autoCorrect={false}
+                returnKeyType="search"
               />
               {search.length > 0 && (
-                <Pressable onPress={() => setSearch('')}>
+                <Pressable
+                  onPress={() => setSearch('')}
+                  accessibilityLabel="Limpiar búsqueda"
+                  accessibilityRole="button"
+                >
                   <Text className="text-muted-foreground text-lg">✕</Text>
                 </Pressable>
               )}
@@ -231,11 +238,13 @@ export default function TasksScreen() {
               {PRIORITY_FILTERS.map((f) => (
                 <Pressable
                   key={f.label}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Filtrar por ${f.label}`}
                   onPress={() => {
                     haptics.selection();
                     setPriorityFilter(f.key);
                   }}
-                  className={`rounded-full px-3 py-1.5 ${
+                  className={`rounded-full px-3 py-2.5 ${
                     priorityFilter === f.key ? 'bg-primary' : 'bg-card border-border border'
                   }`}
                 >

@@ -138,14 +138,14 @@ function CategorySection({
               <div className="flex shrink-0 gap-1">
                 <button
                   onClick={() => onEdit(task)}
-                  className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded p-1 focus-visible:ring-[3px] focus-visible:outline-none"
+                  className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded p-2 focus-visible:ring-[3px] focus-visible:outline-none"
                   aria-label="Editar tarea"
                 >
                   <Pencil className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => onDelete(task.id)}
-                  className="text-muted-foreground hover:text-destructive focus-visible:ring-ring/50 rounded p-1 focus-visible:ring-[3px] focus-visible:outline-none"
+                  className="text-muted-foreground hover:text-destructive focus-visible:ring-ring/50 rounded p-2 focus-visible:ring-[3px] focus-visible:outline-none"
                   aria-label="Eliminar tarea"
                 >
                   <Trash2 className="h-4 w-4" />

@@ -60,7 +60,13 @@ export function CollapsibleSection({
 
   return (
     <View className="mb-4">
-      <Pressable onPress={toggle} className="mb-2 flex-row items-center justify-between">
+      <Pressable
+        onPress={toggle}
+        className="mb-2 flex-row items-center justify-between"
+        accessibilityRole="button"
+        accessibilityLabel={title}
+        accessibilityState={{ expanded: open }}
+      >
         <View className="flex-row items-center gap-2">
           <Text style={TYPE.titleMd} className="text-foreground">
             {title}

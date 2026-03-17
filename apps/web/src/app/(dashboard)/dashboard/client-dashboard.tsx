@@ -65,11 +65,13 @@ export function ClientDashboard({ userName }: { userName: string }) {
       {/* Level 1: Home Status Card */}
       <div className="mb-6">
         {statsLoading ? (
-          <Card>
-            <CardContent className="p-6">
-              <SkeletonShimmer className="h-40 w-full" />
-            </CardContent>
-          </Card>
+          <div role="status" aria-label="Cargando...">
+            <Card>
+              <CardContent className="p-6">
+                <SkeletonShimmer className="h-40 w-full" />
+              </CardContent>
+            </Card>
+          </div>
         ) : statsError ? (
           <ErrorState message="No se pudieron cargar las estadísticas" onRetry={refetchStats} />
         ) : stats ? (
@@ -91,15 +93,17 @@ export function ClientDashboard({ userName }: { userName: string }) {
       {/* Level 2: Action List */}
       <div ref={actionsRef} className="mb-6 scroll-mt-4">
         {upcomingLoading ? (
-          <Card>
-            <CardContent className="p-6">
-              <div className="space-y-3">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <SkeletonShimmer key={i} className="h-14 w-full" />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <div role="status" aria-label="Cargando...">
+            <Card>
+              <CardContent className="p-6">
+                <div className="space-y-3">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <SkeletonShimmer key={i} className="h-14 w-full" />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         ) : upcomingError ? (
           <ErrorState message="No se pudieron cargar las tareas" onRetry={refetchUpcoming} />
         ) : upcoming ? (

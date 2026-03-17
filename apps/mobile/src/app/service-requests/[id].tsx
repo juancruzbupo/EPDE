@@ -472,6 +472,7 @@ export default function ServiceRequestDetailScreen() {
                     source={{ uri: photo.url, cache: 'force-cache' }}
                     className="h-32 w-32 rounded-xl"
                     resizeMode="cover"
+                    accessibilityLabel="Foto de solicitud de servicio"
                   />
                 </Pressable>
               ))}

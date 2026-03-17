@@ -158,9 +158,14 @@ export default function BudgetsScreen() {
                 onChangeText={setSearch}
                 autoCapitalize="none"
                 autoCorrect={false}
+                returnKeyType="search"
               />
               {search.length > 0 && (
-                <Pressable onPress={() => setSearch('')}>
+                <Pressable
+                  onPress={() => setSearch('')}
+                  accessibilityLabel="Limpiar búsqueda"
+                  accessibilityRole="button"
+                >
                   <Text className="text-muted-foreground text-lg">✕</Text>
                 </Pressable>
               )}
@@ -174,11 +179,13 @@ export default function BudgetsScreen() {
               {FILTERS.map((f) => (
                 <Pressable
                   key={f.label}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Filtrar por ${f.label}`}
                   onPress={() => {
                     haptics.selection();
                     setStatusFilter(f.key);
                   }}
-                  className={`rounded-full px-3 py-1.5 ${statusFilter === f.key ? 'bg-primary' : 'bg-card border-border border'}`}
+                  className={`rounded-full px-3 py-2.5 ${statusFilter === f.key ? 'bg-primary' : 'bg-card border-border border'}`}
                 >
                   <Text
                     style={TYPE.labelMd}

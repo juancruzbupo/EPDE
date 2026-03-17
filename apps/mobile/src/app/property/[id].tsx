@@ -408,6 +408,7 @@ export default function PropertyDetailScreen() {
                         source={{ uri: photo.url }}
                         className="h-24 w-24 rounded-lg"
                         resizeMode="cover"
+                        accessibilityLabel={photo.description || 'Foto de la propiedad'}
                       />
                       <View className="absolute inset-x-0 bottom-0 bg-black/50 px-1 py-0.5">
                         <Text className="text-center text-[9px] text-white" numberOfLines={1}>
@@ -580,8 +581,10 @@ export default function PropertyDetailScreen() {
                 {FILTERS.map((f) => (
                   <Pressable
                     key={f.key}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Filtrar por ${f.label}`}
                     onPress={() => setStatusFilter(f.key)}
-                    className={`rounded-full px-3 py-1.5 ${
+                    className={`rounded-full px-3 py-2.5 ${
                       statusFilter === f.key ? 'bg-primary' : 'bg-muted'
                     }`}
                   >

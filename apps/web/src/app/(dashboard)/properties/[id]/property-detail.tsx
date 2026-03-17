@@ -162,7 +162,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
           ) : (
             <Card>
               <CardContent className="flex flex-col items-center gap-2 py-12">
-                <ClipboardList className="text-muted-foreground/50 h-8 w-8" />
+                <ClipboardList className="text-muted-foreground/60 h-8 w-8" />
                 <p className="text-muted-foreground text-sm">
                   No hay plan de mantenimiento asociado.
                 </p>
@@ -304,7 +304,7 @@ function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center gap-2 py-12">
-          <DollarSign className="text-muted-foreground/50 h-8 w-8" />
+          <DollarSign className="text-muted-foreground/60 h-8 w-8" />
           <p className="text-muted-foreground text-sm">
             No hay gastos registrados para esta propiedad.
           </p>
@@ -528,7 +528,7 @@ function PropertyPhotosTab({ propertyId }: { propertyId: string }) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center gap-2 py-12">
-          <Camera className="text-muted-foreground/50 h-8 w-8" />
+          <Camera className="text-muted-foreground/60 h-8 w-8" />
           <p className="text-muted-foreground text-sm">
             No hay fotos registradas para esta propiedad.
           </p>
@@ -597,7 +597,7 @@ function PropertyHealthTab({ propertyId, address }: { propertyId: string; addres
     return (
       <Card>
         <CardContent className="flex flex-col items-center gap-2 py-12">
-          <DollarSign className="text-muted-foreground/50 h-8 w-8" />
+          <DollarSign className="text-muted-foreground/60 h-8 w-8" />
           <p className="text-muted-foreground text-sm">
             No hay datos suficientes para calcular el índice de salud.
           </p>

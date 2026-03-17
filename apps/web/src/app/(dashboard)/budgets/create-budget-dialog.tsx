@@ -79,7 +79,7 @@ export function CreateBudgetDialog({ open, onOpenChange }: CreateBudgetDialogPro
               value={selectedPropertyId ?? ''}
               onValueChange={(value) => setValue('propertyId', value, { shouldValidate: true })}
             >
-              <SelectTrigger id="propertyId" className="w-full">
+              <SelectTrigger id="propertyId" className="w-full" aria-invalid={!!errors.propertyId}>
                 <SelectValue placeholder="Seleccionar propiedad" />
               </SelectTrigger>
               <SelectContent>
@@ -98,7 +98,12 @@ export function CreateBudgetDialog({ open, onOpenChange }: CreateBudgetDialogPro
             <Label htmlFor="title">
               Título <span className="text-destructive">*</span>
             </Label>
-            <Input id="title" placeholder="Ej: Reparación de techo" {...register('title')} />
+            <Input
+              id="title"
+              placeholder="Ej: Reparación de techo"
+              aria-invalid={!!errors.title}
+              {...register('title')}
+            />
             {errors.title && <p className="text-destructive text-xs">{errors.title.message}</p>}
           </div>
           <div className="space-y-1.5">

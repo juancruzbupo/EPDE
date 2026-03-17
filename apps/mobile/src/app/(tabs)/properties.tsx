@@ -141,9 +141,14 @@ export default function PropertiesScreen() {
               onChangeText={setSearch}
               autoCapitalize="none"
               autoCorrect={false}
+              returnKeyType="search"
             />
             {search.length > 0 && (
-              <Pressable onPress={() => setSearch('')}>
+              <Pressable
+                onPress={() => setSearch('')}
+                accessibilityLabel="Limpiar búsqueda"
+                accessibilityRole="button"
+              >
                 <Text className="text-muted-foreground text-lg">✕</Text>
               </Pressable>
             )}
@@ -158,11 +163,13 @@ export default function PropertiesScreen() {
             {TYPE_FILTERS.map((f) => (
               <Pressable
                 key={f.label}
+                accessibilityRole="button"
+                accessibilityLabel={`Filtrar por ${f.label}`}
                 onPress={() => {
                   haptics.selection();
                   setTypeFilter(f.key);
                 }}
-                className={`rounded-full px-3 py-1.5 ${
+                className={`rounded-full px-3 py-2.5 ${
                   typeFilter === f.key ? 'bg-primary' : 'bg-card border-border border'
                 }`}
               >

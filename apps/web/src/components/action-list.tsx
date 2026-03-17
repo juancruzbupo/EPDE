@@ -36,7 +36,9 @@ function TaskItem({ task }: { task: UpcomingTask }) {
       >
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="type-title-sm text-foreground truncate">{task.name}</span>
+            <span className="type-title-sm text-foreground truncate" title={task.name}>
+              {task.name}
+            </span>
             <Badge variant="outline" className="shrink-0 text-xs">
               {task.categoryName}
             </Badge>
@@ -54,7 +56,9 @@ function TaskItem({ task }: { task: UpcomingTask }) {
             )}
           </div>
           <div className="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
-            <span className="truncate">{task.propertyAddress}</span>
+            <span className="truncate" title={task.propertyAddress}>
+              {task.propertyAddress}
+            </span>
             {task.sector && (
               <>
                 <span>·</span>

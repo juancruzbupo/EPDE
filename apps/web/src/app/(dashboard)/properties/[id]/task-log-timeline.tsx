@@ -34,7 +34,7 @@ export function TaskLogTimeline({ planId, taskId }: TaskLogTimelineProps) {
   if (!logs || logs.length === 0) {
     return (
       <div className="flex flex-col items-center gap-2 py-8">
-        <History className="text-muted-foreground/50 h-8 w-8" />
+        <History className="text-muted-foreground/60 h-8 w-8" />
         <p className="text-muted-foreground text-sm">Sin historial de completado</p>
       </div>
     );

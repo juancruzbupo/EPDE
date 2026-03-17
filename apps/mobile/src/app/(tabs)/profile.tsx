@@ -128,19 +128,33 @@ export default function ProfileScreen() {
                   style={TYPE.bodyMd}
                   autoFocus
                 />
-                <Pressable onPress={saveEdit} disabled={isSaving}>
+                <Pressable
+                  onPress={saveEdit}
+                  disabled={isSaving}
+                  accessibilityLabel="Guardar"
+                  accessibilityRole="button"
+                >
                   <Text style={TYPE.labelMd} className="text-primary">
                     {isSaving ? '...' : 'OK'}
                   </Text>
                 </Pressable>
-                <Pressable onPress={cancelEdit}>
+                <Pressable
+                  onPress={cancelEdit}
+                  accessibilityLabel="Cancelar"
+                  accessibilityRole="button"
+                >
                   <Text style={TYPE.labelMd} className="text-muted-foreground">
                     X
                   </Text>
                 </Pressable>
               </View>
             ) : (
-              <Pressable onPress={() => startEdit('name')} className="flex-row items-center gap-2">
+              <Pressable
+                onPress={() => startEdit('name')}
+                className="flex-row items-center gap-2"
+                accessibilityLabel="Editar nombre"
+                accessibilityRole="button"
+              >
                 <Text style={TYPE.labelLg} className="text-foreground">
                   {user?.name ?? '-'}
                 </Text>
@@ -176,19 +190,33 @@ export default function ProfileScreen() {
                   keyboardType="phone-pad"
                   autoFocus
                 />
-                <Pressable onPress={saveEdit} disabled={isSaving}>
+                <Pressable
+                  onPress={saveEdit}
+                  disabled={isSaving}
+                  accessibilityLabel="Guardar"
+                  accessibilityRole="button"
+                >
                   <Text style={TYPE.labelMd} className="text-primary">
                     {isSaving ? '...' : 'OK'}
                   </Text>
                 </Pressable>
-                <Pressable onPress={cancelEdit}>
+                <Pressable
+                  onPress={cancelEdit}
+                  accessibilityLabel="Cancelar"
+                  accessibilityRole="button"
+                >
                   <Text style={TYPE.labelMd} className="text-muted-foreground">
                     X
                   </Text>
                 </Pressable>
               </View>
             ) : (
-              <Pressable onPress={() => startEdit('phone')} className="flex-row items-center gap-2">
+              <Pressable
+                onPress={() => startEdit('phone')}
+                className="flex-row items-center gap-2"
+                accessibilityLabel="Editar teléfono"
+                accessibilityRole="button"
+              >
                 <Text style={TYPE.labelLg} className="text-foreground">
                   {user?.phone ?? 'No registrado'}
                 </Text>
@@ -219,6 +247,7 @@ export default function ProfileScreen() {
               className="border-border bg-background text-foreground rounded-lg border px-3 py-2.5"
               style={TYPE.bodyMd}
               placeholderTextColor={COLORS.mutedForeground}
+              returnKeyType="next"
             />
           </View>
           <View>
@@ -233,12 +262,15 @@ export default function ProfileScreen() {
               className="border-border bg-background text-foreground rounded-lg border px-3 py-2.5"
               style={TYPE.bodyMd}
               placeholderTextColor={COLORS.mutedForeground}
+              returnKeyType="done"
             />
           </View>
           <Pressable
             onPress={handleChangePassword}
             disabled={isChangingPassword}
             className="bg-primary items-center rounded-lg py-2.5"
+            accessibilityLabel="Cambiar contraseña"
+            accessibilityRole="button"
           >
             {isChangingPassword ? (
               <ActivityIndicator color={COLORS.primaryForeground} size="small" />
@@ -260,6 +292,11 @@ export default function ProfileScreen() {
           {(['auto', 'light', 'dark'] as const).map((option) => (
             <Pressable
               key={option}
+              accessibilityRole="radio"
+              accessibilityLabel={
+                option === 'auto' ? 'Automático (sistema)' : option === 'light' ? 'Claro' : 'Oscuro'
+              }
+              accessibilityState={{ selected: mode === option }}
               onPress={() => {
                 setMode(option);
                 haptics.selection();
@@ -305,7 +342,12 @@ export default function ProfileScreen() {
       </View>
 
       {/* Logout button */}
-      <Pressable onPress={handleLogout} className="bg-destructive items-center rounded-xl py-3">
+      <Pressable
+        onPress={handleLogout}
+        className="bg-destructive items-center rounded-xl py-3"
+        accessibilityLabel="Cerrar sesión"
+        accessibilityRole="button"
+      >
         <Text style={TYPE.titleMd} className="text-destructive-foreground">
           Cerrar Sesión
         </Text>

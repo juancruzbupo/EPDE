@@ -19,7 +19,7 @@ export function Header() {
         <Sheet>
           <SheetTrigger asChild>
             <button
-              className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded-md p-1 focus-visible:ring-[3px] focus-visible:outline-none"
+              className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded-md p-2 focus-visible:ring-[3px] focus-visible:outline-none"
               aria-label="Abrir menú"
             >
               <Menu className="h-5 w-5" />

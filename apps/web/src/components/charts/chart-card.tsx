@@ -70,7 +70,7 @@ export function ChartCard({
             <SkeletonShimmer style={{ height }} className="w-full" />
           ) : isEmpty ? (
             <div className="flex flex-col items-center justify-center gap-2" style={{ height }}>
-              {emptyIcon && <div className="text-muted-foreground/50">{emptyIcon}</div>}
+              {emptyIcon && <div className="text-muted-foreground/60">{emptyIcon}</div>}
               <p className="type-body-sm text-muted-foreground text-center">{emptyMessage}</p>
             </div>
           ) : (

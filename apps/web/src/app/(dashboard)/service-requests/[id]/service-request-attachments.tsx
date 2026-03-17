@@ -20,7 +20,9 @@ function AttachmentItem({ attachment }: { attachment: ServiceRequestAttachmentPu
     >
       <Paperclip className="text-muted-foreground h-4 w-4 shrink-0" />
       <div className="flex-1 overflow-hidden">
-        <p className="truncate text-sm font-medium">{attachment.fileName}</p>
+        <p className="truncate text-sm font-medium" title={attachment.fileName}>
+          {attachment.fileName}
+        </p>
         <p className="text-muted-foreground text-xs">
           {formatRelativeDate(new Date(attachment.createdAt))}
         </p>

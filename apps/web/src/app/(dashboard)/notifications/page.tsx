@@ -2,7 +2,7 @@
 
 import type { NotificationType } from '@epde/shared';
 import { formatRelativeDate, NOTIFICATION_TYPE_LABELS } from '@epde/shared';
-import { Bell, CheckCheck, Clock, FileText, Wrench } from 'lucide-react';
+import { Bell, CheckCheck, ChevronRight, Clock, FileText, Wrench } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
@@ -98,7 +98,7 @@ export default function NotificationsPage() {
                     handleClick(n);
                   }
                 }}
-                className={`hover:bg-accent focus-visible:ring-ring/50 flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors focus-visible:ring-[3px] focus-visible:outline-none ${
+                className={`hover:bg-muted/50 focus-visible:ring-ring/50 flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors focus-visible:ring-[3px] focus-visible:outline-none ${
                   !n.read ? 'border-primary/20 bg-primary/5' : ''
                 }`}
               >
@@ -120,6 +120,9 @@ export default function NotificationsPage() {
                     {formatRelativeDate(new Date(n.createdAt))}
                   </span>
                 </div>
+                {getNotificationHref(n) && (
+                  <ChevronRight className="text-muted-foreground mt-1 h-4 w-4 shrink-0" />
+                )}
               </li>
             );
           })}

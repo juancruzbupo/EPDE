@@ -178,7 +178,7 @@ export function TaskDialog({ open, onOpenChange, planId, task, activeSectors }: 
                 }}
                 disabled={categoriesLoading}
               >
-                <SelectTrigger id="task-category">
+                <SelectTrigger id="task-category" aria-invalid={!!errors.categoryId}>
                   <SelectValue
                     placeholder={categoriesLoading ? 'Cargando...' : 'Seleccionar categoría'}
                   />
@@ -229,6 +229,7 @@ export function TaskDialog({ open, onOpenChange, planId, task, activeSectors }: 
                   <Input
                     id="task-name"
                     className="flex-1"
+                    aria-invalid={!!errors.name}
                     disabled={!watchedCategoryId && !isEdit}
                     placeholder={watchedCategoryId || isEdit ? 'Nombre de la tarea' : ''}
                     {...register('name')}
@@ -274,7 +275,7 @@ export function TaskDialog({ open, onOpenChange, planId, task, activeSectors }: 
           <fieldset className="space-y-4">
             <legend className="text-foreground mb-1 text-sm font-semibold">Programación</legend>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <FormSelect
                 id="task-priority"
                 label="Prioridad"
@@ -327,6 +328,7 @@ export function TaskDialog({ open, onOpenChange, planId, task, activeSectors }: 
             <button
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
+              aria-expanded={showAdvanced}
               className="text-muted-foreground hover:text-foreground flex w-full items-center gap-1 text-sm transition-colors"
             >
               <ChevronDown

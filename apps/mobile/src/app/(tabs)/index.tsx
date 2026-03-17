@@ -146,7 +146,7 @@ function ClientDashboard() {
             Reportar problemas o pedir asistencia
           </Text>
         </View>
-        <Text className="text-muted-foreground" style={{ fontSize: 18 }}>
+        <Text className="text-muted-foreground" style={TYPE.titleSm}>
           &gt;
         </Text>
       </Pressable>

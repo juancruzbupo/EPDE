@@ -127,9 +127,14 @@ export default function MaintenancePlansScreen() {
               onChangeText={setSearch}
               autoCapitalize="none"
               autoCorrect={false}
+              returnKeyType="search"
             />
             {search.length > 0 && (
-              <Pressable onPress={() => setSearch('')}>
+              <Pressable
+                onPress={() => setSearch('')}
+                accessibilityLabel="Limpiar búsqueda"
+                accessibilityRole="button"
+              >
                 <Text className="text-muted-foreground text-lg">✕</Text>
               </Pressable>
             )}

@@ -118,11 +118,13 @@ export function AdminDashboard() {
       {/* Level 1: Executive summary KPIs */}
       <div className="mb-6">
         {statsLoading ? (
-          <Card>
-            <CardContent className="p-6">
-              <SkeletonShimmer className="h-16 w-full" />
-            </CardContent>
-          </Card>
+          <div role="status" aria-label="Cargando...">
+            <Card>
+              <CardContent className="p-6">
+                <SkeletonShimmer className="h-16 w-full" />
+              </CardContent>
+            </Card>
+          </div>
         ) : statsError ? (
           <ErrorState message="No se pudieron cargar las estadísticas" onRetry={refetchStats} />
         ) : stats ? (
@@ -494,7 +496,7 @@ export function AdminDashboard() {
           </CardHeader>
           <CardContent>
             {activityLoading ? (
-              <div className="space-y-3">
+              <div role="status" aria-label="Cargando..." className="space-y-3">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <SkeletonShimmer key={i} className="h-6 w-full" />
                 ))}
@@ -549,7 +551,7 @@ export function AdminDashboard() {
               </Wrapper>
             ) : (
               <div className="flex flex-col items-center gap-2 py-8">
-                <Activity className="text-muted-foreground/50 h-8 w-8" />
+                <Activity className="text-muted-foreground/60 h-8 w-8" />
                 <p className="text-muted-foreground text-sm">Sin actividad reciente</p>
               </div>
             )}
