@@ -15,7 +15,9 @@ export async function uploadFile(uri: string, folder: string): Promise<string> {
   } else {
     const filename = uri.split('/').pop() ?? 'photo.jpg';
     const match = /\.(\w+)$/.exec(filename);
-    const type = match ? `image/${match[1]}` : 'image/jpeg';
+    const ext = match?.[1]?.toLowerCase() ?? 'jpeg';
+    // .jpg → image/jpeg (not image/jpg which is non-standard and rejected by backend)
+    const type = ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;
     // Native: file size unknown before upload — API validates server-side
     formData.append('file', { uri, name: filename, type } as unknown as Blob);
   }
