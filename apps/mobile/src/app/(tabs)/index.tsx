@@ -62,9 +62,8 @@ function ClientDashboard() {
     refetchAnalytics();
   }, [refetchStats, refetchTasks, refetchAnalytics]);
 
-  // Show welcome card when client has no task activity yet
-  const showWelcome =
-    stats && stats.completedThisMonth === 0 && stats.pendingTasks + stats.overdueTasks === 0;
+  // Show welcome card only for brand-new users with no properties yet
+  const showWelcome = stats && stats.totalProperties === 0;
 
   const handleServiceRequests = () => {
     haptics.light();
@@ -91,7 +90,10 @@ function ClientDashboard() {
         <WelcomeCard
           userName={userName}
           hasProperties={(stats?.totalProperties ?? 0) > 0}
-          hasActivePlan={(stats?.upcomingTasks ?? 0) > 0}
+          hasActivePlan={
+            (stats?.pendingTasks ?? 0) + (stats?.overdueTasks ?? 0) + (stats?.upcomingTasks ?? 0) >
+            0
+          }
         />
       )}
 

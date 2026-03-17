@@ -39,8 +39,8 @@ export function ClientDashboard({ userName }: { userName: string }) {
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const showWelcome =
-    stats && stats.completedThisMonth === 0 && stats.pendingTasks + stats.overdueTasks === 0;
+  // Show welcome card only for brand-new users with no properties yet
+  const showWelcome = stats && stats.totalProperties === 0;
 
   const score = analytics?.healthIndex?.score ?? 0;
   const label = analytics?.healthIndex?.label ?? '';
@@ -57,7 +57,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
         <WelcomeCard
           userName={userName}
           hasProperties={stats.totalProperties > 0}
-          hasActivePlan={stats.upcomingTasks > 0}
+          hasActivePlan={stats.pendingTasks + stats.overdueTasks + stats.upcomingTasks > 0}
           hasCompletedTasks={false}
         />
       )}
