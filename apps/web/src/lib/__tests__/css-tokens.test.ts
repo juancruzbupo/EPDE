@@ -85,6 +85,34 @@ describe('Web CSS token sync', () => {
     expect(mismatches).toEqual([]);
   });
 
+  it(':root should not define --color-* tokens absent from DESIGN_TOKENS_LIGHT (reverse check)', () => {
+    const rootValues = extractSectionValues(/:root\s*\{([^}]+)\}/s);
+    const sharedKeys = new Set(Object.keys(DESIGN_TOKENS_LIGHT).map(toKebab));
+    // Known tokens in :root that are web-only shadcn/ui chrome (not in shared design tokens)
+    const ALLOWLIST = new Set([
+      'radius',
+      'font-heading',
+      'font-dm-serif',
+      'popover',
+      'popover-foreground', // shadcn/ui popover chrome
+      'card',
+      'card-foreground', // shadcn/ui card chrome (may differ from shared)
+    ]);
+    const orphans: string[] = [];
+
+    for (const cssKey of rootValues.keys()) {
+      // Only check color-semantic tokens (skip radius, font, sidebar, chart, task-type)
+      if (cssKey.startsWith('chart-') || cssKey.startsWith('task-') || cssKey.startsWith('sidebar'))
+        continue;
+      if (ALLOWLIST.has(cssKey)) continue;
+      if (!sharedKeys.has(cssKey)) {
+        orphans.push(`--${cssKey} defined in :root but not in DESIGN_TOKENS_LIGHT`);
+      }
+    }
+
+    expect(orphans).toEqual([]);
+  });
+
   it(':root task-type values should match TASK_TYPE_TOKENS_LIGHT', () => {
     const rootValues = extractSectionValues(/:root\s*\{([^}]+)\}/s);
     const mismatches: string[] = [];

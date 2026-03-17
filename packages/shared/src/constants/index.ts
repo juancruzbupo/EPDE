@@ -252,4 +252,14 @@ export const QUERY_KEYS = {
   serviceRequestComments: 'service-request-comments',
   // Notifications sub-keys
   notificationsUnreadCount: 'unread-count',
+  // Property sub-keys
+  propertyExpenses: 'expenses',
+  propertyPhotos: 'photos',
+  propertyHealthIndex: 'health-index',
+  propertyHealthHistory: 'health-history',
+  // Plan sub-keys
+  plansList: 'list',
+  plansTasks: 'tasks',
+  // Client sub-keys
+  clientsSearch: 'search',
 } as const;

@@ -172,6 +172,12 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     });
   }
 
+  /**
+   * ⚠️ CRITICAL: This soft-delete extension does NOT apply inside $transaction callbacks.
+   * Inside $transaction, you MUST add `deletedAt: null` manually to all queries
+   * on soft-deletable models (user, property, task, category, budgetRequest, serviceRequest).
+   * See ai-development-guide.md SIEMPRE #72 for details.
+   */
   private createExtended() {
     return this.$extends(softDeleteExtension());
   }

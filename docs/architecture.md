@@ -172,16 +172,16 @@ feature/
 
 #### Excepciones al Module Pattern
 
-| Modulo      | Excepcion                    | Justificacion                                                                                                                                                                                                               |
-| ----------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `users`     | Sin controller               | Modulo internal-only. Consumido por `auth` y `clients`. No expone endpoints REST propios.                                                                                                                                   |
-| `upload`    | Sin repository               | Infraestructura (S3/R2), no domain entity. Service accede directamente a S3Client.                                                                                                                                          |
-| `scheduler` | Sin controller ni repository | Cron jobs puros. Consume services de otros modulos via DI.                                                                                                                                                                  |
-| `dashboard` | Sin repository propio        | Agregacion cross-entity. DashboardRepository hace queries directas a Prisma para stats y analytics (15+ metodos: trends, distributions, pipeline, costs, health score). Service usa `Promise.all` para paralelizar queries. |
-| `email`     | Sin controller ni repository | Servicio transversal. Envia emails via Resend SDK. Consumido por queues.                                                                                                                                                    |
-| `redis`     | Sin controller               | Infraestructura global. Provee RedisService y DistributedLockService.                                                                                                                                                       |
-| `health`    | Sin service ni repository    | Infraestructura. Controller directo con @nestjs/terminus checks.                                                                                                                                                            |
-| `metrics`   | Sin controller ni repository | Infraestructura. Interceptor + service para OpenTelemetry.                                                                                                                                                                  |
+| Modulo      | Excepcion                    | Justificacion                                                                                                                                                                                                                                                                      |
+| ----------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `users`     | Sin controller               | Modulo internal-only. Consumido por `auth` y `clients`. No expone endpoints REST propios.                                                                                                                                                                                          |
+| `upload`    | Sin repository               | Infraestructura (S3/R2), no domain entity. Service accede directamente a S3Client.                                                                                                                                                                                                 |
+| `scheduler` | Sin controller ni repository | Cron jobs puros. Consume services de otros modulos via DI.                                                                                                                                                                                                                         |
+| `dashboard` | Sin repository propio        | Agregacion cross-entity. DashboardRepository hace queries directas a Prisma para stats y analytics (15+ metodos: trends, distributions, pipeline, costs, health score, ISV). ISVSnapshotRepository maneja snapshots mensuales. Service usa `Promise.all` para paralelizar queries. |
+| `email`     | Sin controller ni repository | Servicio transversal. Envia emails via Resend SDK. Consumido por queues.                                                                                                                                                                                                           |
+| `redis`     | Sin controller               | Infraestructura global. Provee RedisService y DistributedLockService.                                                                                                                                                                                                              |
+| `health`    | Sin service ni repository    | Infraestructura. Controller directo con @nestjs/terminus checks.                                                                                                                                                                                                                   |
+| `metrics`   | Sin controller ni repository | Infraestructura. Interceptor + service para OpenTelemetry.                                                                                                                                                                                                                         |
 
 ### 4. Guard Composition
 
@@ -234,6 +234,7 @@ Las notificaciones y emails se disparan con **inyeccion directa** desde los serv
 | Presupuesto cotizado         | BudgetsService         | NotificationsHandlerService | Notificacion in-app + email al cliente (BullMQ queues)    |
 | Estado de presupuesto cambia | BudgetsService         | NotificationsHandlerService | Notificacion in-app + email al cliente (BullMQ queues)    |
 | Cliente invitado             | ClientsService         | EmailQueueService (directo) | Email de invitacion via BullMQ queue                      |
+| ISV bajó >15 puntos          | ISVSnapshotService     | NotificationsHandlerService | Notificacion in-app (BullMQ queue) + push notification    |
 
 **Pattern:** Los servicios de dominio inyectan `NotificationsHandlerService` y llaman sus metodos con `void` (fire-and-forget):
 
@@ -325,11 +326,14 @@ Frontend (ADMIN) → POST /upload (multipart/form-data)
 
 ### 11. Cron Jobs (Scheduler + Distributed Lock)
 
-`SchedulerModule` con `@Cron()` — tres jobs diarios a las 09:00-09:10 UTC:
+`SchedulerModule` con `@Cron()` — cinco jobs diarios + uno mensual:
 
-1. **task-status-recalculation** (09:00 UTC): PENDING → UPCOMING (30 dias) → OVERDUE (pasada fecha), y reset UPCOMING → PENDING si se alejo
-2. **task-upcoming-reminders** (09:05 UTC): Notificaciones in-app + email para tareas en 7 dias y vencidas. Deduplicacion por dia. Overdue tambien notifica admins
-3. **task-safety-sweep** (09:10 UTC): Fix para tareas COMPLETED con nextDueDate vencida que no se avanzaron (edge case crash)
+1. **task-status-recalculation** (09:00 UTC diario): PENDING → UPCOMING (30 dias) → OVERDUE (pasada fecha), y reset UPCOMING → PENDING si se alejo
+2. **task-upcoming-reminders** (09:05 UTC diario): Notificaciones in-app + email para tareas en 7 dias y vencidas. Deduplicacion por dia. Overdue tambien notifica admins
+3. **task-safety-sweep** (09:10 UTC diario): Fix para tareas COMPLETED con nextDueDate vencida que no se avanzaron (edge case crash)
+4. **budget-expiration** (09:30 UTC diario): Expira presupuestos QUOTED con `validUntil` vencida
+5. **service-request-auto-close** (10:00 UTC diario): Cierra solicitudes RESOLVED con >30 días sin actividad
+6. **isv-snapshot** (02:00 UTC, 1ro de cada mes): Captura ISV (Índice de Salud de la Vivienda) para todas las propiedades con plan ACTIVE. Compara con snapshot anterior — si bajó >15 puntos → dispara alerta via `NotificationsHandlerService.handleISVAlert()` (notificación in-app + push)
 
 **Batch Processing:** Las tareas se procesan en lotes de `BATCH_SIZE=50`, verificando `signal.lockLost` entre cada batch para abortar si el lock se perdio.
 

@@ -15,14 +15,19 @@ import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 
 export function usePlans() {
   return useQuery({
-    queryKey: [QUERY_KEYS.plans, 'list'],
+    queryKey: [QUERY_KEYS.plans, QUERY_KEYS.plansList],
     queryFn: ({ signal }) => getPlans(signal).then((r) => r.data),
   });
 }
 
 export function useAllTasks(params?: { status?: TaskStatus; propertyId?: string }) {
   return useQuery({
-    queryKey: [QUERY_KEYS.plans, 'tasks', params?.status ?? 'all', params?.propertyId ?? 'all'],
+    queryKey: [
+      QUERY_KEYS.plans,
+      QUERY_KEYS.plansTasks,
+      params?.status ?? 'all',
+      params?.propertyId ?? 'all',
+    ],
     queryFn: ({ signal }) => getAllTasks(params, signal).then((r) => r.data),
   });
 }
@@ -43,7 +48,7 @@ export function useUpdatePlan() {
     onSuccess: (_data, vars) => {
       toast.success('Plan actualizado');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, vars.id] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, 'list'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, QUERY_KEYS.plansList] });
       invalidateDashboard(queryClient);
     },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al actualizar plan')),

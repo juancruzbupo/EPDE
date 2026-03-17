@@ -61,6 +61,22 @@ describe('Mobile CSS token sync', () => {
     expect(mismatches).toEqual([]);
   });
 
+  it('CSS should not define --color-* tokens absent from DESIGN_TOKENS_LIGHT (reverse check)', () => {
+    const themeValues = extractThemeValues();
+    const sharedKeys = new Set(Object.keys(DESIGN_TOKENS_LIGHT).map(toKebab));
+    const orphans: string[] = [];
+
+    for (const cssKey of themeValues.keys()) {
+      // Skip task-type tokens (checked separately)
+      if (cssKey.startsWith('task-')) continue;
+      if (!sharedKeys.has(cssKey)) {
+        orphans.push(`--color-${cssKey} defined in CSS but not in DESIGN_TOKENS_LIGHT`);
+      }
+    }
+
+    expect(orphans).toEqual([]);
+  });
+
   it('should define a --color-task-* CSS variable for every TASK_TYPE_TOKENS_LIGHT key', () => {
     const cssVars = extractCSSVarNames();
     const missing: string[] = [];

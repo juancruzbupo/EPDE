@@ -32,7 +32,7 @@ export function useProperty(id: string, options?: { initialData?: PropertyPublic
 
 export function usePropertyExpenses(id: string) {
   return useQuery({
-    queryKey: [QUERY_KEYS.properties, id, 'expenses'],
+    queryKey: [QUERY_KEYS.properties, id, QUERY_KEYS.propertyExpenses],
     queryFn: ({ signal }) => getPropertyExpenses(id, signal).then((r) => r.data),
     enabled: !!id,
   });
@@ -40,7 +40,7 @@ export function usePropertyExpenses(id: string) {
 
 export function usePropertyPhotos(id: string) {
   return useQuery({
-    queryKey: [QUERY_KEYS.properties, id, 'photos'],
+    queryKey: [QUERY_KEYS.properties, id, QUERY_KEYS.propertyPhotos],
     queryFn: ({ signal }) => getPropertyPhotos(id, signal).then((r) => r.data),
     enabled: !!id,
   });

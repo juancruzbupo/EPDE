@@ -10,9 +10,11 @@ User ─1:N─ Property ─1:1─ MaintenancePlan ─1:N─ Task
   │                ├─1:N─ BudgetRequest ─1:N─ BudgetLineItem
   │                │         └─1:1─ BudgetResponse
   │                │
-  │                └─1:N─ ServiceRequest ─1:N─ ServiceRequestPhoto
-  │                                │
-  │                                └─N:1─ Task (FK: taskId, nullable, onDelete: SetNull)
+  │                ├─1:N─ ServiceRequest ─1:N─ ServiceRequestPhoto
+  │                │                │
+  │                │                └─N:1─ Task (FK: taskId, nullable, onDelete: SetNull)
+  │                │
+  │                └─1:N─ ISVSnapshot (monthly health index snapshots)
   │
   ├─1:N─ TaskLog
   ├─1:N─ TaskNote
@@ -179,6 +181,20 @@ CategoryTemplate ─1:N─ TaskTemplate
 | `RESOLVED`    | Resuelto              | → CLOSED             |
 | `CLOSED`      | Cerrado               | (terminal)           |
 
+### PropertySector
+
+| Valor           | Label         |
+| --------------- | ------------- |
+| `EXTERIOR`      | Exterior      |
+| `ROOF`          | Techos        |
+| `TERRACE`       | Terraza       |
+| `INTERIOR`      | Interior      |
+| `KITCHEN`       | Cocina        |
+| `BATHROOM`      | Baños         |
+| `BASEMENT`      | Subsuelo      |
+| `GARDEN`        | Jardín        |
+| `INSTALLATIONS` | Instalaciones |
+
 ### NotificationType
 
 | Valor            | Descripcion                           |
@@ -210,24 +226,25 @@ CategoryTemplate ─1:N─ TaskTemplate
 
 ### Property
 
-| Campo        | Tipo         | Notas             |
-| ------------ | ------------ | ----------------- |
-| id           | UUID         | PK                |
-| userId       | String       | FK → User         |
-| address      | String       |                   |
-| city         | String       |                   |
-| type         | PropertyType | Default: HOUSE    |
-| yearBuilt    | Int?         |                   |
-| squareMeters | Float?       |                   |
-| photoUrl     | String?      | URL de foto en R2 |
-| createdBy    | String?      | Auditoria         |
-| updatedBy    | String?      | Auditoria         |
-| createdAt    | DateTime     |                   |
-| updatedAt    | DateTime     |                   |
-| deletedAt    | DateTime?    | Soft delete       |
+| Campo         | Tipo             | Notas              |
+| ------------- | ---------------- | ------------------ |
+| id            | UUID             | PK                 |
+| userId        | String           | FK → User          |
+| address       | String           |                    |
+| city          | String           |                    |
+| type          | PropertyType     | Default: HOUSE     |
+| activeSectors | PropertySector[] | 9 sectores activos |
+| yearBuilt     | Int?             |                    |
+| squareMeters  | Float?           |                    |
+| photoUrl      | String?          | URL de foto en R2  |
+| createdBy     | String?          | Auditoria          |
+| updatedBy     | String?          | Auditoria          |
+| createdAt     | DateTime         |                    |
+| updatedAt     | DateTime         |                    |
+| deletedAt     | DateTime?        | Soft delete        |
 
 **Indices:** `userId`, `[userId, deletedAt]`
-**Relaciones:** `user`, `maintenancePlan` (1:1), `budgetRequests`, `serviceRequests`
+**Relaciones:** `user`, `maintenancePlan` (1:1), `budgetRequests`, `serviceRequests`, `isvSnapshots`
 
 ### MaintenancePlan
 
@@ -279,6 +296,7 @@ CategoryTemplate ─1:N─ TaskTemplate
 | professionalRequirement  | ProfessionalRequirement | Default: OWNER_CAN_DO            |
 | technicalDescription     | String?                 | Descripcion tecnica del template |
 | estimatedDurationMinutes | Int?                    | Duracion estimada en minutos     |
+| sector                   | PropertySector?         | Sector de la vivienda            |
 | createdAt                | DateTime                |                                  |
 | updatedAt                | DateTime                |                                  |
 | createdBy                | String?                 | Auditoria                        |
@@ -410,6 +428,29 @@ CategoryTemplate ─1:N─ TaskTemplate
 
 **Indices:** `[userId, read]`, `createdAt`, `[userId, type, createdAt]`
 
+### ISVSnapshot
+
+Snapshot mensual del Índice de Salud de la Vivienda (ISV). Generado por cron job el 1ro de cada mes (02:00 UTC).
+
+| Campo        | Tipo       | Notas                                    |
+| ------------ | ---------- | ---------------------------------------- |
+| id           | UUID       | PK                                       |
+| propertyId   | String     | FK → Property                            |
+| snapshotDate | DateTime   | Fecha del snapshot (1ro mes)             |
+| score        | Int        | Score global ISV (0-100)                 |
+| label        | String(50) | Excelente/Bueno/Regular/Crítico          |
+| compliance   | Int        | Dimensión: cumplimiento (35%)            |
+| condition    | Int        | Dimensión: condición (30%)               |
+| coverage     | Int        | Dimensión: cobertura (20%)               |
+| investment   | Int        | Dimensión: inversión (15%)               |
+| trend        | Int        | Tendencia (>50 mejora, <50 declina)      |
+| sectorScores | Json       | Array de {sector, score, overdue, total} |
+| createdAt    | DateTime   |                                          |
+
+**Indices:** `propertyId`, `@@unique([propertyId, snapshotDate])`
+**Cascade:** onDelete de Property elimina sus ISVSnapshots
+**ISV Label:** score ≥80 "Excelente", ≥60 "Bueno", ≥40 "Regular", ≥20 "Necesita atención", <20 "Crítico"
+
 ### CategoryTemplate
 
 | Campo        | Tipo         | Notas              |
@@ -473,6 +514,7 @@ const INCLUDE = {
 - `BudgetResponse` → cascade on delete de `BudgetRequest`
 - `ServiceRequest` → cascade on delete de `Property`
 - `ServiceRequestPhoto` → cascade on delete de `ServiceRequest`
+- `ISVSnapshot` → cascade on delete de `Property`
 - `ServiceRequest.taskId` → SetNull on delete de `Task`
 - `Notification` → cascade on delete de `User`
 - `TaskTemplate` → cascade on delete de `CategoryTemplate`
@@ -555,5 +597,6 @@ El seed demo (`prisma/seed-demo.ts`) crea un dataset realista con 3 perfiles de 
 | Tareas         | 213 (71 × 3 propiedades)             |
 | Task Logs      | 65 (María: 51, Carlos: 14, Laura: 0) |
 | Presupuestos   | 3 (COMPLETED, IN_PROGRESS, QUOTED)   |
-| Solicitudes    | 1 (IN_PROGRESS)                      |
+| Solicitudes    | 2 (IN_PROGRESS, OPEN)                |
+| ISV Snapshots  | 18 (María: 12, Carlos: 5, Laura: 1)  |
 | Notificaciones | 7                                    |

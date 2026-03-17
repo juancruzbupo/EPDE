@@ -81,6 +81,7 @@
 69. **Timezone Argentina (UTC-3) en dedup de reminders** — `findTodayReminderTaskIds` calcula medianoche AR en UTC con offset fijo (Argentina no tiene DST). No usar `setHours(0,0,0,0)` que depende del timezone del server
 70. **Multer `limits.fileSize`** — `FileInterceptor` DEBE incluir `{ limits: { fileSize: MAX_SIZE } }` para abortar uploads mid-stream. NUNCA depender solo de checks post-buffer (file ya esta en memoria)
 71. **`trust proxy` en produccion** — `app.set('trust proxy', 1)` DEBE estar en main.ts para que `req.ip` refleje la IP del cliente real detras de reverse proxies (Render, Cloudflare, etc.)
+72. **Dentro de `$transaction` callbacks, agregar `deletedAt: null` manualmente** — A todas las queries de modelos soft-deletable (`user`, `property`, `task`, `category`, `budgetRequest`, `serviceRequest`). La extensión Prisma de soft-delete NO aplica dentro de transactions
 
 ### NUNCA
 
@@ -111,6 +112,7 @@
 25. **NUNCA lanzar HTTP exceptions directamente desde logica de negocio** — `ForbiddenException`, `ConflictException`, `BadRequestException` DEBEN ser mapeados desde domain exceptions via try/catch. `NotFoundException` para existencia pre-operacion es la unica excepcion aceptable (no hay domain exception para "no existe")
 26. **NUNCA usar string literals para enums en tests** — Usar `TaskPriority.MEDIUM`, `RecurrenceType.ANNUAL`, etc. Si un enum value cambia, TypeScript debe capturarlo en tests tambien
 27. **NUNCA definir `const QUERY_KEY` local en hooks** — Escribir `[QUERY_KEYS.xxx]` inline en cada `queryKey`/`invalidateQueries`. Una constante local esconde la key real y dificulta busquedas globales
+28. **NUNCA usar `jest.mock()` o `jest.fn()` en tests de `@epde/web`** — Usar `vi.mock()` y `vi.fn()` de Vitest. NUNCA usar `vi.mock()` o `vi.fn()` en tests de `@epde/api` o `@epde/mobile` — usar `jest.mock()` y `jest.fn()`
 
 ---
 
@@ -1293,14 +1295,16 @@ El QueryClient de mobile difiere de web para soportar uso offline durante inspec
 
 ### 5.8 Test Runners por Workspace
 
-| Workspace         | Runner           | Mock syntax                 | Config             |
-| ----------------- | ---------------- | --------------------------- | ------------------ |
-| `apps/api`        | Jest + ts-jest   | `jest.mock()` / `jest.fn()` | `jest.config.js`   |
-| `apps/web`        | Vitest + jsdom   | `vi.mock()` / `vi.fn()`     | `vitest.config.ts` |
-| `apps/mobile`     | Jest + jest-expo | `jest.mock()` / `jest.fn()` | `jest.config.js`   |
-| `packages/shared` | Vitest           | `vi.mock()` / `vi.fn()`     | `vitest.config.ts` |
+### Test Frameworks por Workspace
 
-> NUNCA usar `jest.fn()` en web/shared tests ni `vi.fn()` en mobile/API tests. Los test runners no son intercambiables.
+| Workspace      | Framework            | Mock API                   | Config                   |
+| -------------- | -------------------- | -------------------------- | ------------------------ |
+| `@epde/web`    | **Vitest**           | `vi.fn()`, `vi.mock()`     | `vitest.config.ts`       |
+| `@epde/api`    | **Jest**             | `jest.fn()`, `jest.mock()` | `jest` en `package.json` |
+| `@epde/mobile` | **Jest** (jest-expo) | `jest.fn()`, `jest.mock()` | `jest.config.js`         |
+| `@epde/shared` | **Vitest**           | `vi.fn()`, `vi.mock()`     | `vitest.config.ts`       |
+
+> NUNCA usar `jest.mock()` o `jest.fn()` en tests de `@epde/web` — usar `vi.mock()` y `vi.fn()` de Vitest. NUNCA usar `vi.mock()` o `vi.fn()` en tests de `@epde/api` o `@epde/mobile` — usar `jest.mock()` y `jest.fn()`. Los test runners no son intercambiables.
 
 **Coverage Thresholds por Workspace:**
 

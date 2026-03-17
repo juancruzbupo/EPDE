@@ -246,3 +246,49 @@ describe('Zod-Prisma schema consistency', () => {
     }
   });
 });
+
+describe('Zod→Prisma reverse consistency (no phantom required fields)', () => {
+  /**
+   * Verify that required Zod schema keys correspond to actual Prisma model fields.
+   * Catches: Zod schema referencing a field that was renamed/removed in Prisma.
+   */
+  function prismaFieldNames(modelName: string): Set<string> {
+    const model = Prisma.dmmf.datamodel.models.find((m) => m.name === modelName);
+    if (!model) return new Set();
+    return new Set(
+      model.fields.filter((f) => f.kind === 'scalar' || f.kind === 'enum').map((f) => f.name),
+    );
+  }
+
+  function zodRequiredKeys(schema: ZodObject<ZodRawShape>): string[] {
+    return Object.entries(schema.shape)
+      .filter(([, v]) => !(v as { isOptional?: () => boolean }).isOptional?.())
+      .map(([k]) => k);
+  }
+
+  const SCHEMA_MODEL_MAP: [string, ZodObject<ZodRawShape>, string[]][] = [
+    ['Property', createPropertySchema, []],
+    ['Task', createTaskSchema, []],
+    ['BudgetRequest', createBudgetRequestSchema, []],
+    ['ServiceRequest', createServiceRequestSchema, ['photoUrls', 'taskId']],
+    ['Category', createCategorySchema, []],
+    ['User', createClientSchema, []],
+    ['CategoryTemplate', createCategoryTemplateSchema, []],
+    ['TaskTemplate', createTaskTemplateSchema, []],
+    ['TaskNote', createTaskNoteSchema, []],
+  ];
+
+  it.each(SCHEMA_MODEL_MAP)(
+    '%s: Zod required keys should map to Prisma scalar fields (or be in allowlist)',
+    (modelName, schema, extraAllowed) => {
+      const prismaFields = prismaFieldNames(modelName);
+      const allowed = new Set(extraAllowed);
+      const required = zodRequiredKeys(schema);
+
+      for (const key of required) {
+        if (allowed.has(key)) continue;
+        expect(prismaFields).toContain(key);
+      }
+    },
+  );
+});

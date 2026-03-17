@@ -36,13 +36,19 @@ export const apiClient = axios.create({
   timeout: 15_000,
 });
 
-// TODO [PRE-RELEASE]: Certificate pinning
-// Package: react-native-ssl-pinning (npm i react-native-ssl-pinning)
-// Replace axios instance with SSLPinning.fetch() for protected requests.
-// Get server cert SHA-256 fingerprint:
-//   openssl s_client -connect <api-host>:443 < /dev/null | openssl x509 -fingerprint -sha256 -noout
-// Store fingerprint in .env as API_SSL_FINGERPRINT and read via expo-constants at build time.
-// See: https://github.com/MaxToyberman/react-native-ssl-pinning
+/**
+ * TODO (PRE-PRODUCTION): Implement certificate pinning.
+ *
+ * Without pinning, the app is vulnerable to MITM attacks on public WiFi.
+ * Steps:
+ * 1. Install `react-native-ssl-pinning` or use TrustKit
+ * 2. Extract SHA-256 pin from production API certificate
+ * 3. Configure pinned domains: ['api.epde.com.ar']
+ * 4. Add backup pin (next certificate rotation)
+ * 5. Test with Charles Proxy (should fail with pinning enabled)
+ *
+ * See: SIEMPRE #28 in ai-development-guide.md
+ */
 
 // Request interceptor: attach Bearer token
 apiClient.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {

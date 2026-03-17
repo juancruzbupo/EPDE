@@ -83,7 +83,7 @@ export function useDeleteProperty() {
 
 export function usePropertyExpenses(id: string) {
   return useQuery({
-    queryKey: [QUERY_KEYS.properties, id, 'expenses'],
+    queryKey: [QUERY_KEYS.properties, id, QUERY_KEYS.propertyExpenses],
     queryFn: ({ signal }) => getPropertyExpenses(id, signal).then((r) => r.data),
     enabled: !!id,
   });
@@ -91,7 +91,7 @@ export function usePropertyExpenses(id: string) {
 
 export function usePropertyPhotos(id: string) {
   return useQuery({
-    queryKey: [QUERY_KEYS.properties, id, 'photos'],
+    queryKey: [QUERY_KEYS.properties, id, QUERY_KEYS.propertyPhotos],
     queryFn: ({ signal }) => getPropertyPhotos(id, signal).then((r) => r.data),
     enabled: !!id,
   });
@@ -99,7 +99,7 @@ export function usePropertyPhotos(id: string) {
 
 export function usePropertyHealthIndex(id: string) {
   return useQuery({
-    queryKey: [QUERY_KEYS.properties, id, 'health-index'],
+    queryKey: [QUERY_KEYS.properties, id, QUERY_KEYS.propertyHealthIndex],
     queryFn: ({ signal }) => getPropertyHealthIndex(id, signal).then((r) => r.data),
     enabled: !!id,
   });
@@ -107,7 +107,7 @@ export function usePropertyHealthIndex(id: string) {
 
 export function usePropertyHealthHistory(id: string) {
   return useQuery({
-    queryKey: [QUERY_KEYS.properties, id, 'health-history'],
+    queryKey: [QUERY_KEYS.properties, id, QUERY_KEYS.propertyHealthHistory],
     queryFn: ({ signal }) => getPropertyHealthHistory(id, signal).then((r) => r.data),
     enabled: !!id,
   });

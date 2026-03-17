@@ -156,13 +156,17 @@ Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
 
 ### Propiedades
 
-| Metodo | Ruta              | Auth | Rol   | Descripcion        |
-| ------ | ----------------- | ---- | ----- | ------------------ |
-| GET    | `/properties`     | Si   | Ambos | Listar propiedades |
-| GET    | `/properties/:id` | Si   | Ambos | Detalle            |
-| POST   | `/properties`     | Si   | ADMIN | Crear propiedad    |
-| PATCH  | `/properties/:id` | Si   | ADMIN | Actualizar         |
-| DELETE | `/properties/:id` | Si   | ADMIN | Eliminar (soft)    |
+| Metodo | Ruta                             | Auth | Rol   | Descripcion              |
+| ------ | -------------------------------- | ---- | ----- | ------------------------ |
+| GET    | `/properties`                    | Si   | Ambos | Listar propiedades       |
+| GET    | `/properties/:id`                | Si   | Ambos | Detalle                  |
+| POST   | `/properties`                    | Si   | ADMIN | Crear propiedad          |
+| PATCH  | `/properties/:id`                | Si   | ADMIN | Actualizar               |
+| DELETE | `/properties/:id`                | Si   | ADMIN | Eliminar (soft)          |
+| GET    | `/properties/:id/health-index`   | Si   | Ambos | ISV en tiempo real       |
+| GET    | `/properties/:id/health-history` | Si   | Ambos | Historial ISV (12 meses) |
+| GET    | `/properties/:id/expenses`       | Si   | Ambos | Gastos de la propiedad   |
+| GET    | `/properties/:id/photos`         | Si   | Ambos | Galería de fotos         |
 
 **GET /properties** — Query params:
 
@@ -179,6 +183,58 @@ Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
   "type": "APARTMENT",
   "yearBuilt": 1990,
   "squareMeters": 85
+}
+```
+
+**GET /properties** incluye `latestISV` en cada propiedad (último snapshot ISV):
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "address": "...",
+      "latestISV": { "score": 72, "label": "Bueno" }
+    }
+  ]
+}
+```
+
+**GET /properties/:id/health-index** — ISV calculado en tiempo real:
+
+```json
+{
+  "data": {
+    "score": 72,
+    "label": "Bueno",
+    "dimensions": {
+      "compliance": 80,
+      "condition": 70,
+      "coverage": 65,
+      "investment": 60,
+      "trend": 52
+    },
+    "sectorScores": [{ "sector": "INTERIOR", "score": 80, "overdue": 1, "total": 12 }]
+  }
+}
+```
+
+**GET /properties/:id/health-history** — Últimos 12 snapshots mensuales:
+
+```json
+{
+  "data": [
+    {
+      "month": "2025-08",
+      "score": 78,
+      "label": "Bueno",
+      "compliance": 90,
+      "condition": 80,
+      "coverage": 70,
+      "investment": 65,
+      "trend": 50
+    }
+  ]
 }
 ```
 

@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 
 import * as authApi from '@/lib/auth';
+import { QUERY_CACHE_KEY } from '@/lib/constants';
 import { unregisterPushToken } from '@/lib/push-notifications';
 import { queryClient } from '@/lib/query-client';
 import { tokenService } from '@/lib/token-service';
@@ -51,7 +52,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       // Clear persisted query cache to prevent data leaks between sessions
       const keys = await AsyncStorage.getAllKeys();
-      const cacheKeys = keys.filter((k) => k.startsWith('epde-query-cache'));
+      const cacheKeys = keys.filter((k) => k.startsWith(QUERY_CACHE_KEY));
       if (cacheKeys.length > 0) {
         await AsyncStorage.multiRemove(cacheKeys);
       }

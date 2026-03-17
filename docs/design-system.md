@@ -231,26 +231,26 @@ El proyecto usa [shadcn/ui](https://ui.shadcn.com/) estilo **new-york** con los 
 
 ### Componentes Disponibles
 
-| Componente   | Ubicacion                         | Notas                                                        |
-| ------------ | --------------------------------- | ------------------------------------------------------------ |
-| Alert        | `components/ui/alert.tsx`         | Mensajes de error/info/warning                               |
-| Avatar       | `components/ui/avatar.tsx`        | Avatares de usuario                                          |
-| Badge        | `components/ui/badge.tsx`         | Variantes: default, secondary, outline, destructive, success |
-| Button       | `components/ui/button.tsx`        | Variantes: default, secondary, outline, ghost, destructive   |
-| Card         | `components/ui/card.tsx`          | Contenedores de contenido                                    |
-| Command      | `components/ui/command.tsx`       | Combobox/typeahead (usa cmdk)                                |
-| Dialog       | `components/ui/dialog.tsx`        | Modales                                                      |
-| DropdownMenu | `components/ui/dropdown-menu.tsx` | Menus contextuales                                           |
-| Input        | `components/ui/input.tsx`         | Inputs de formulario                                         |
-| Label        | `components/ui/label.tsx`         | Labels de formulario                                         |
-| Popover      | `components/ui/popover.tsx`       | Tooltips interactivos, dropdowns                             |
-| Select       | `components/ui/select.tsx`        | Select nativo mejorado                                       |
-| Separator    | `components/ui/separator.tsx`     | Linea divisoria                                              |
-| Sheet        | `components/ui/sheet.tsx`         | Panel lateral (mobile sidebar)                               |
-| Skeleton     | `components/ui/skeleton.tsx`      | Loading placeholders                                         |
-| Table        | `components/ui/table.tsx`         | Tablas HTML estilizadas                                      |
-| Tabs         | `components/ui/tabs.tsx`          | Pestanas de navegacion                                       |
-| Tooltip      | `components/ui/tooltip.tsx`       | Tooltips informativos                                        |
+| Componente   | Ubicacion                         | Notas                                                                 |
+| ------------ | --------------------------------- | --------------------------------------------------------------------- |
+| Alert        | `components/ui/alert.tsx`         | Mensajes de error/info/warning                                        |
+| Avatar       | `components/ui/avatar.tsx`        | Avatares de usuario                                                   |
+| Badge        | `components/ui/badge.tsx`         | Variantes: default, secondary, outline, destructive, success, warning |
+| Button       | `components/ui/button.tsx`        | Variantes: default, secondary, outline, ghost, destructive            |
+| Card         | `components/ui/card.tsx`          | Contenedores de contenido                                             |
+| Command      | `components/ui/command.tsx`       | Combobox/typeahead (usa cmdk)                                         |
+| Dialog       | `components/ui/dialog.tsx`        | Modales                                                               |
+| DropdownMenu | `components/ui/dropdown-menu.tsx` | Menus contextuales                                                    |
+| Input        | `components/ui/input.tsx`         | Inputs de formulario                                                  |
+| Label        | `components/ui/label.tsx`         | Labels de formulario                                                  |
+| Popover      | `components/ui/popover.tsx`       | Tooltips interactivos, dropdowns                                      |
+| Select       | `components/ui/select.tsx`        | Select nativo mejorado                                                |
+| Separator    | `components/ui/separator.tsx`     | Linea divisoria                                                       |
+| Sheet        | `components/ui/sheet.tsx`         | Panel lateral (mobile sidebar)                                        |
+| Skeleton     | `components/ui/skeleton.tsx`      | Loading placeholders                                                  |
+| Table        | `components/ui/table.tsx`         | Tablas HTML estilizadas                                               |
+| Tabs         | `components/ui/tabs.tsx`          | Pestanas de navegacion                                                |
+| Tooltip      | `components/ui/tooltip.tsx`       | Tooltips informativos                                                 |
 
 ### Agregar un nuevo componente shadcn
 

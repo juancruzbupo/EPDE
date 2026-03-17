@@ -11,14 +11,19 @@ import { getAllTasks, getPlan, getPlans } from '@/lib/api/maintenance-plans';
 
 export function usePlans() {
   return useQuery({
-    queryKey: [QUERY_KEYS.plans, 'list'],
+    queryKey: [QUERY_KEYS.plans, QUERY_KEYS.plansList],
     queryFn: ({ signal }) => getPlans(signal).then((r) => r.data),
   });
 }
 
 export function useAllTasks(params?: { status?: TaskStatus; propertyId?: string }) {
   return useQuery({
-    queryKey: [QUERY_KEYS.plans, 'tasks', params?.status ?? 'all', params?.propertyId ?? 'all'],
+    queryKey: [
+      QUERY_KEYS.plans,
+      QUERY_KEYS.plansTasks,
+      params?.status ?? 'all',
+      params?.propertyId ?? 'all',
+    ],
     queryFn: ({ signal }) => getAllTasks(params, signal).then((r) => r.data),
   });
 }

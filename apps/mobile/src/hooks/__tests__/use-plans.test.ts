@@ -27,7 +27,7 @@ describe('usePlans', () => {
 
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: [QUERY_KEYS.plans, 'list'],
+        queryKey: [QUERY_KEYS.plans, QUERY_KEYS.plansList],
       }),
     );
   });
@@ -39,7 +39,7 @@ describe('useAllTasks', () => {
 
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: [QUERY_KEYS.plans, 'tasks', 'all', 'all'],
+        queryKey: [QUERY_KEYS.plans, QUERY_KEYS.plansTasks, 'all', 'all'],
       }),
     );
   });
@@ -49,7 +49,7 @@ describe('useAllTasks', () => {
 
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: [QUERY_KEYS.plans, 'tasks', 'PENDING', 'all'],
+        queryKey: [QUERY_KEYS.plans, QUERY_KEYS.plansTasks, 'PENDING', 'all'],
       }),
     );
   });
