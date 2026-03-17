@@ -86,6 +86,8 @@ export class DashboardService {
       propertyId: t.maintenancePlan.property.id,
       categoryName: t.category.name,
       maintenancePlanId: t.maintenancePlan.id,
+      professionalRequirement: t.professionalRequirement,
+      sector: t.sector,
     }));
   }
 

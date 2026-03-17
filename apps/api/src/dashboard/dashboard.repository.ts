@@ -111,7 +111,16 @@ export class DashboardRepository {
       maintenancePlanId: { in: planIds },
     };
 
-    const [pendingTasks, overdueTasks, upcomingTasks, completedThisMonth] = await Promise.all([
+    const sevenDaysFromNow = addDays(now, 7);
+
+    const [
+      pendingTasks,
+      overdueTasks,
+      upcomingTasks,
+      upcomingThisWeek,
+      urgentTasks,
+      completedThisMonth,
+    ] = await Promise.all([
       this.prisma.softDelete.task.count({
         where: { ...taskWhere, status: TaskStatus.PENDING },
       }),
@@ -129,6 +138,20 @@ export class DashboardRepository {
           status: { not: TaskStatus.COMPLETED },
         },
       }),
+      this.prisma.softDelete.task.count({
+        where: {
+          ...taskWhere,
+          nextDueDate: { gte: now, lte: sevenDaysFromNow },
+          status: { not: TaskStatus.COMPLETED },
+        },
+      }),
+      this.prisma.softDelete.task.count({
+        where: {
+          ...taskWhere,
+          priority: 'URGENT',
+          status: { not: TaskStatus.COMPLETED },
+        },
+      }),
       this.prisma.taskLog.count({
         where: {
           completedBy: userId,
@@ -137,7 +160,14 @@ export class DashboardRepository {
       }),
     ]);
 
-    return { pendingTasks, overdueTasks, upcomingTasks, completedThisMonth };
+    return {
+      pendingTasks,
+      overdueTasks,
+      upcomingTasks,
+      upcomingThisWeek,
+      urgentTasks,
+      completedThisMonth,
+    };
   }
 
   async getClientBudgetAndServiceCounts(propertyIds: string[]) {
@@ -176,7 +206,14 @@ export class DashboardRepository {
           },
         ],
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        nextDueDate: true,
+        priority: true,
+        status: true,
+        professionalRequirement: true,
+        sector: true,
         category: { select: { name: true } },
         maintenancePlan: {
           select: {

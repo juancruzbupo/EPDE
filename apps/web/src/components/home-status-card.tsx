@@ -1,0 +1,174 @@
+'use client';
+
+import { motion } from 'framer-motion';
+import { AlertTriangle, ArrowRight, CheckCircle, Clock, FileText } from 'lucide-react';
+
+import { AnimatedNumber } from '@/components/ui/animated-number';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { FADE_IN_UP, MOTION_DURATION, useMotionPreference } from '@/lib/motion';
+
+interface HomeStatusCardProps {
+  score: number;
+  label: string;
+  overdueTasks: number;
+  upcomingThisWeek: number;
+  urgentTasks: number;
+  pendingTasks: number;
+  completedThisMonth: number;
+  pendingBudgets: number;
+  onViewActions: () => void;
+  onViewAnalytics: () => void;
+}
+
+function getScoreTheme(score: number) {
+  if (score >= 80)
+    return {
+      title: 'Tu casa está bien',
+      bg: 'bg-success/5',
+      border: 'border-success/20',
+      barColor: 'var(--success)',
+      textColor: 'text-success',
+    };
+  if (score >= 60)
+    return {
+      title: 'Tu casa necesita algo de atención',
+      bg: 'bg-primary/5',
+      border: 'border-primary/20',
+      barColor: 'var(--primary)',
+      textColor: 'text-primary',
+    };
+  if (score >= 40)
+    return {
+      title: 'Tu casa necesita atención',
+      bg: 'bg-warning/5',
+      border: 'border-warning/20',
+      barColor: 'var(--warning)',
+      textColor: 'text-warning',
+    };
+  return {
+    title: 'Tu casa necesita atención urgente',
+    bg: 'bg-destructive/5',
+    border: 'border-destructive/20',
+    barColor: 'var(--destructive)',
+    textColor: 'text-destructive',
+  };
+}
+
+function getHumanMessage(overdue: number, urgent: number, upcoming: number): string {
+  if (overdue > 0 && urgent > 0)
+    return `Tenés ${overdue} tarea${overdue !== 1 ? 's' : ''} vencida${overdue !== 1 ? 's' : ''} y ${urgent} urgente${urgent !== 1 ? 's' : ''}. Revisalas cuanto antes.`;
+  if (overdue > 0)
+    return `Tenés ${overdue} tarea${overdue !== 1 ? 's' : ''} vencida${overdue !== 1 ? 's' : ''}. Revisalas para mantener tu casa al día.`;
+  if (urgent > 0)
+    return `Tenés ${urgent} tarea${urgent !== 1 ? 's' : ''} urgente${urgent !== 1 ? 's' : ''}. Completá${urgent !== 1 ? 'las' : 'la'} esta semana.`;
+  if (upcoming > 0)
+    return `Tenés ${upcoming} tarea${upcoming !== 1 ? 's' : ''} programada${upcoming !== 1 ? 's' : ''} esta semana.`;
+  return 'Todo al día. ¡Tu casa está en buen estado!';
+}
+
+export function HomeStatusCard({
+  score,
+  label,
+  overdueTasks,
+  upcomingThisWeek,
+  urgentTasks,
+  pendingTasks,
+  completedThisMonth,
+  pendingBudgets,
+  onViewActions,
+  onViewAnalytics,
+}: HomeStatusCardProps) {
+  const { shouldAnimate } = useMotionPreference();
+  const theme = getScoreTheme(score);
+  const message = getHumanMessage(overdueTasks, urgentTasks, upcomingThisWeek);
+  const Wrapper = shouldAnimate ? motion.div : 'div';
+
+  const miniStats = [
+    {
+      label: 'Vencidas',
+      value: overdueTasks,
+      color: overdueTasks > 0 ? 'text-destructive' : 'text-foreground',
+    },
+    { label: 'Pendientes', value: pendingTasks, color: 'text-foreground' },
+    { label: 'Completadas', value: completedThisMonth, color: 'text-success' },
+    { label: 'Presupuestos', value: pendingBudgets, color: 'text-foreground' },
+  ];
+
+  const miniIcons = [AlertTriangle, Clock, CheckCircle, FileText];
+
+  return (
+    <Wrapper
+      {...(shouldAnimate ? { variants: FADE_IN_UP, initial: 'hidden', animate: 'visible' } : {})}
+    >
+      <Card className={`${theme.bg} ${theme.border}`}>
+        <CardContent className="p-6">
+          {/* Title + label */}
+          <div className="mb-1 flex items-center justify-between">
+            <h2 className="type-title-lg text-foreground">{theme.title}</h2>
+            <span className={`type-label-md ${theme.textColor}`}>{label}</span>
+          </div>
+
+          {/* Human message */}
+          <p className="type-body-md text-muted-foreground mb-4">{message}</p>
+
+          {/* Score + progress bar */}
+          <div className="mb-4 flex items-center gap-4">
+            <span className={`type-number-lg ${theme.textColor}`}>
+              <AnimatedNumber value={score} />
+            </span>
+            <div className="bg-muted h-3 flex-1 overflow-hidden rounded-full">
+              {shouldAnimate ? (
+                <motion.div
+                  className="h-full rounded-full"
+                  style={{ backgroundColor: theme.barColor }}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${score}%` }}
+                  transition={{
+                    duration: MOTION_DURATION.slow * 2,
+                    ease: [0.33, 1, 0.68, 1],
+                  }}
+                />
+              ) : (
+                <div
+                  className="h-full rounded-full"
+                  style={{ backgroundColor: theme.barColor, width: `${score}%` }}
+                />
+              )}
+            </div>
+            <span className="type-body-sm text-muted-foreground">/ 100</span>
+          </div>
+
+          {/* Action buttons */}
+          <div className="mb-5 flex gap-3">
+            <Button size="sm" onClick={onViewActions}>
+              Ver qué hacer
+              <ArrowRight className="ml-1.5 h-4 w-4" />
+            </Button>
+            <Button size="sm" variant="outline" onClick={onViewAnalytics}>
+              Ver análisis completo
+            </Button>
+          </div>
+
+          {/* Mini stats grid */}
+          <div className="border-border grid grid-cols-4 gap-3 border-t pt-4">
+            {miniStats.map((stat, i) => {
+              const Icon = miniIcons[i]!;
+              return (
+                <div key={stat.label} className="text-center">
+                  <div className="mb-1 flex justify-center">
+                    <Icon className={`h-4 w-4 ${stat.color}`} />
+                  </div>
+                  <p className={`type-number-md ${stat.color}`}>
+                    <AnimatedNumber value={stat.value} />
+                  </p>
+                  <p className="type-label-sm text-muted-foreground">{stat.label}</p>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+    </Wrapper>
+  );
+}

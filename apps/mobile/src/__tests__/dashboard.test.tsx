@@ -12,7 +12,9 @@ jest.mock('expo-router', () => ({
 }));
 
 jest.mock('date-fns', () => ({
-  formatDistanceToNow: () => 'en 3 dias',
+  formatDistanceToNow: () => 'en 3 días',
+  differenceInDays: () => 3,
+  isPast: () => false,
 }));
 
 jest.mock('date-fns/locale', () => ({
@@ -62,6 +64,8 @@ const mockStats = {
   pendingTasks: 5,
   overdueTasks: 1,
   upcomingTasks: 4,
+  upcomingThisWeek: 2,
+  urgentTasks: 0,
   completedThisMonth: 7,
   pendingBudgets: 2,
   openServices: 1,
@@ -71,39 +75,51 @@ const mockTasks = [
   {
     id: 'task-1',
     name: 'Revisar caldera',
-    nextDueDate: '2025-04-15',
+    nextDueDate: '2026-04-15',
     priority: 'HIGH',
     status: 'UPCOMING',
     propertyAddress: 'Av. Corrientes 1234',
     propertyId: 'prop-1',
-    categoryName: 'Calefaccion',
+    categoryName: 'Calefacción',
     maintenancePlanId: 'plan-1',
+    professionalRequirement: 'PROFESSIONAL_RECOMMENDED',
+    sector: 'INSTALLATIONS',
   },
   {
     id: 'task-2',
     name: 'Limpiar canaletas',
-    nextDueDate: '2025-04-20',
+    nextDueDate: '2026-04-20',
     priority: 'MEDIUM',
     status: 'PENDING',
     propertyAddress: 'Av. Santa Fe 5678',
     propertyId: 'prop-2',
     categoryName: 'Exterior',
     maintenancePlanId: 'plan-2',
+    professionalRequirement: 'OWNER_CAN_DO',
+    sector: 'EXTERIOR',
   },
 ];
 
 const mockAnalytics = {
   conditionDistribution: [],
-  completionTrend: [],
+  conditionTrend: [],
   costHistory: [],
   categoryBreakdown: [],
+  sectorBreakdown: [],
+  healthScore: 75,
+  healthLabel: 'Bueno',
+  healthIndex: {
+    score: 75,
+    label: 'Bueno',
+    dimensions: { compliance: 80, condition: 70, coverage: 60, investment: 65, trend: 50 },
+    sectorScores: [],
+  },
 };
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Default query return shape for "loading finished, no error" scenarios. */
 function queryResult(data: unknown, overrides?: Record<string, unknown>) {
   return {
     data,
@@ -124,51 +140,38 @@ describe('DashboardScreen', () => {
     mockUseClientAnalytics.mockReturnValue(queryResult(mockAnalytics));
   });
 
-  // 1. Renders stats and tasks when data is available
-  it('renders stats and tasks when data is available', () => {
+  it('renders home status card and tasks when data is available', () => {
     mockUseClientDashboardStats.mockReturnValue(queryResult(mockStats));
     mockUseClientUpcomingTasks.mockReturnValue(queryResult(mockTasks));
 
     const { getByText, getAllByText } = render(<DashboardScreen />);
 
-    // Heading
     expect(getByText('Mi Panel')).toBeTruthy();
 
-    // HealthCard + 3 compact stat cards (new layout after Premium Polish)
-    expect(getByText('Salud del Mantenimiento')).toBeTruthy();
+    // HomeStatusCard mini-stats
     expect(getAllByText('Vencidas').length).toBeGreaterThanOrEqual(1);
+    expect(getAllByText('Pendientes').length).toBeGreaterThanOrEqual(1);
     expect(getAllByText('Completadas').length).toBeGreaterThanOrEqual(1);
-    expect(getByText('Pendientes')).toBeTruthy();
 
-    // HealthCard shows exact counts from stats
-    expect(getByText('7')).toBeTruthy(); // completedThisMonth
-    expect(getAllByText('1').length).toBeGreaterThanOrEqual(1); // overdueTasks
-
-    // Section heading
-    expect(getByText('Próximas Tareas')).toBeTruthy();
-
-    // Task cards
+    // Task names from ActionList
     expect(getByText('Revisar caldera')).toBeTruthy();
-    expect(getByText('Av. Corrientes 1234')).toBeTruthy();
     expect(getByText('Limpiar canaletas')).toBeTruthy();
-    expect(getByText('Av. Santa Fe 5678')).toBeTruthy();
   });
 
-  // 2. Shows empty state when no upcoming tasks
-  it('shows empty state when no upcoming tasks', () => {
-    mockUseClientDashboardStats.mockReturnValue(queryResult(mockStats));
+  it('shows positive message when no tasks', () => {
+    mockUseClientDashboardStats.mockReturnValue(
+      queryResult({ ...mockStats, overdueTasks: 0, upcomingThisWeek: 0, urgentTasks: 0 }),
+    );
     mockUseClientUpcomingTasks.mockReturnValue(queryResult([]));
 
     const { getByText } = render(<DashboardScreen />);
 
     expect(getByText('Mi Panel')).toBeTruthy();
-    expect(getByText('Próximas Tareas')).toBeTruthy();
-    expect(getByText('Sin tareas próximas')).toBeTruthy();
-    expect(getByText('No hay tareas de mantenimiento programadas por ahora.')).toBeTruthy();
+    // ActionList shows "Todo al día" when empty
+    expect(getByText('Todo al día')).toBeTruthy();
   });
 
-  // 3. Shows error state when both queries fail
-  it('shows error state when both queries fail', () => {
+  it('shows error state when queries fail', () => {
     mockUseClientDashboardStats.mockReturnValue(
       queryResult(undefined, { error: new Error('Network error') }),
     );

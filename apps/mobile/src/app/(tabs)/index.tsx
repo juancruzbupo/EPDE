@@ -1,23 +1,14 @@
-import type { UpcomingTask } from '@epde/shared';
-import { formatRelativeDate } from '@epde/shared';
 import { UserRole } from '@epde/shared';
 import { useRouter } from 'expo-router';
-import { memo, useCallback, useMemo, useState } from 'react';
-import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 
+import { ActionList } from '@/components/action-list';
 import { AdminDashboard } from '@/components/admin-dashboard';
-import { AnimatedListItem } from '@/components/animated-list-item';
-import { AnimatedStatCard } from '@/components/animated-stat-card';
-import { CategoryBreakdownList } from '@/components/charts/category-breakdown-list';
-import { ChartCard } from '@/components/charts/chart-card';
-import { MiniBarChart } from '@/components/charts/mini-bar-chart';
-import { MiniDonutChart } from '@/components/charts/mini-donut-chart';
-import { MiniTrendChart } from '@/components/charts/mini-trend-chart';
-import { EmptyState } from '@/components/empty-state';
+import { AnalyticsSection } from '@/components/analytics-section';
 import { ErrorState } from '@/components/error-state';
-import { HealthCard } from '@/components/health-card';
+import { HomeStatusCard } from '@/components/home-status-card';
 import { StatCardSkeleton } from '@/components/skeleton-placeholder';
-import { PriorityBadge } from '@/components/status-badge';
 import { WelcomeCard } from '@/components/welcome-card';
 import {
   useClientAnalytics,
@@ -25,46 +16,8 @@ import {
   useClientUpcomingTasks,
 } from '@/hooks/use-dashboard';
 import { TYPE } from '@/lib/fonts';
+import { haptics } from '@/lib/haptics';
 import { useAuthStore } from '@/stores/auth-store';
-
-const TaskCard = memo(function TaskCard({ task, index }: { task: UpcomingTask; index: number }) {
-  const router = useRouter();
-
-  return (
-    <AnimatedListItem index={index}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`Tarea: ${task.name}`}
-        className="border-border bg-card mb-3 rounded-xl border p-3"
-        onPress={() => router.push(`/task/${task.maintenancePlanId}/${task.id}` as never)}
-      >
-        <View className="mb-1 flex-row items-center justify-between">
-          <Text style={TYPE.titleSm} className="text-foreground flex-1" numberOfLines={1}>
-            {task.name}
-          </Text>
-          <PriorityBadge priority={task.priority} />
-        </View>
-        <Text style={TYPE.bodySm} className="text-muted-foreground mb-1">
-          {task.propertyAddress}
-        </Text>
-        <View className="flex-row items-center justify-between">
-          <Text style={TYPE.labelMd} className="text-muted-foreground">
-            {task.categoryName}
-          </Text>
-          <Text style={TYPE.bodySm} className="text-muted-foreground">
-            {task.nextDueDate ? formatRelativeDate(new Date(task.nextDueDate)) : 'Según detección'}
-          </Text>
-        </View>
-      </Pressable>
-    </AnimatedListItem>
-  );
-});
-
-const CHART_MONTH_OPTIONS = [
-  { value: 3, label: '3m' },
-  { value: 6, label: '6m' },
-  { value: 12, label: '12m' },
-] as const;
 
 export default function DashboardScreen() {
   const userRole = useAuthStore((s) => s.user?.role);
@@ -80,18 +33,21 @@ function ClientDashboard() {
   const router = useRouter();
   const userName = useAuthStore((s) => s.user?.name ?? '');
   const [chartMonths, setChartMonths] = useState(6);
+
   const {
     data: stats,
     isLoading: statsLoading,
     error: statsError,
     refetch: refetchStats,
   } = useClientDashboardStats();
+
   const {
     data: tasks,
     isLoading: tasksLoading,
     error: tasksError,
     refetch: refetchTasks,
   } = useClientUpcomingTasks();
+
   const {
     data: analytics,
     isLoading: analyticsLoading,
@@ -106,226 +62,102 @@ function ClientDashboard() {
     refetchAnalytics();
   }, [refetchStats, refetchTasks, refetchAnalytics]);
 
-  // Compute average condition trend across all categories
-  const conditionTrendData = useMemo(() => {
-    const trend = analytics?.conditionTrend ?? [];
-    if (trend.length === 0) return [];
+  // Show welcome card when client has no task activity yet
+  const showWelcome =
+    stats && stats.completedThisMonth === 0 && stats.pendingTasks + stats.overdueTasks === 0;
 
-    return trend.map((point) => {
-      const values = Object.values(point.categories);
-      const avg = values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0;
-      return { label: point.label, value: Math.round(avg * 10) / 10 };
-    });
-  }, [analytics?.conditionTrend]);
-
-  const costHistoryData = useMemo(() => {
-    return (analytics?.costHistory ?? []).map((p) => ({
-      label: p.label,
-      value: p.value,
-    }));
-  }, [analytics?.costHistory]);
-
-  const ListHeader = useCallback(
-    () => (
-      <View>
-        <Text style={TYPE.displayLg} className="text-foreground mb-4">
-          Mi Panel
-        </Text>
-
-        {/* Welcome Card — shown until client has tasks */}
-        {stats &&
-          stats.completedThisMonth === 0 &&
-          stats.pendingTasks + stats.overdueTasks === 0 && (
-            <WelcomeCard
-              userName={userName}
-              hasProperties={stats.totalProperties > 0}
-              hasActivePlan={stats.upcomingTasks > 0}
-            />
-          )}
-
-        {/* Stats section */}
-        {statsLoading && !stats ? (
-          <View className="mb-6">
-            <StatCardSkeleton />
-            <View className="flex-row gap-3">
-              <StatCardSkeleton />
-              <StatCardSkeleton />
-              <StatCardSkeleton />
-            </View>
-          </View>
-        ) : stats ? (
-          <View className="mb-6">
-            <HealthCard
-              totalTasks={stats.pendingTasks + stats.overdueTasks + stats.completedThisMonth}
-              completedTasks={stats.completedThisMonth}
-              overdueTasks={stats.overdueTasks}
-            />
-            {/* ISV Summary */}
-            {analytics?.healthIndex && analytics.healthIndex.score > 0 && (
-              <View className="border-border bg-card mb-3 flex-row items-center justify-between rounded-xl border p-3">
-                <View>
-                  <Text style={TYPE.labelMd} className="text-muted-foreground">
-                    Índice de Salud
-                  </Text>
-                  <Text
-                    style={TYPE.titleMd}
-                    className={
-                      analytics.healthIndex.score >= 60 ? 'text-success' : 'text-destructive'
-                    }
-                  >
-                    {analytics.healthIndex.score}/100 — {analytics.healthIndex.label}
-                  </Text>
-                </View>
-                <Text style={TYPE.bodySm} className="text-muted-foreground">
-                  {analytics.healthIndex.dimensions.trend > 55
-                    ? '↑ Mejorando'
-                    : analytics.healthIndex.dimensions.trend < 45
-                      ? '↓ Declinando'
-                      : '→ Estable'}
-                </Text>
-              </View>
-            )}
-            <View className="flex-row gap-3">
-              <AnimatedStatCard
-                title="Vencidas"
-                value={stats.overdueTasks}
-                variant="destructive"
-                index={0}
-              />
-              <AnimatedStatCard title="Pendientes" value={stats.pendingTasks} index={1} />
-              <AnimatedStatCard title="Completadas" value={stats.completedThisMonth} index={2} />
-            </View>
-            <View className="mt-3 flex-row gap-3">
-              <AnimatedStatCard title="Presupuestos" value={stats.pendingBudgets} index={3} />
-              <AnimatedStatCard title="Servicios" value={stats.openServices} index={4} />
-            </View>
-          </View>
-        ) : null}
-
-        {/* Chart time range toggle */}
-        <View className="mb-3 flex-row items-center justify-between">
-          <Text style={TYPE.titleLg} className="text-foreground">
-            Gráficos
-          </Text>
-          <View className="flex-row gap-1">
-            {CHART_MONTH_OPTIONS.map((opt) => (
-              <Pressable
-                key={opt.value}
-                onPress={() => setChartMonths(opt.value)}
-                className={`rounded-full px-3 py-1 ${
-                  chartMonths === opt.value ? 'bg-primary' : 'bg-card border-border border'
-                }`}
-              >
-                <Text
-                  style={TYPE.labelMd}
-                  className={
-                    chartMonths === opt.value ? 'text-primary-foreground' : 'text-foreground'
-                  }
-                >
-                  {opt.label}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        </View>
-
-        {/* Charts section — graceful degradation: only show if analytics available or loading */}
-        <ChartCard
-          title="Condición General"
-          description="Distribución del estado de tus tareas"
-          isLoading={analyticsLoading && !analytics}
-          isEmpty={(analytics?.conditionDistribution ?? []).length === 0}
-          emptyMessage="Sin datos de condición"
-        >
-          <MiniDonutChart data={analytics?.conditionDistribution ?? []} />
-        </ChartCard>
-
-        <ChartCard
-          title="Evolución de Condición"
-          description="Promedio mensual de todas las categorías"
-          isLoading={analyticsLoading && !analytics}
-          isEmpty={conditionTrendData.length === 0}
-          emptyMessage="Sin historial de condición"
-        >
-          <MiniTrendChart data={conditionTrendData} />
-        </ChartCard>
-
-        <ChartCard
-          title="Gastos del Último Año"
-          description="Costos de mantenimiento por mes"
-          isLoading={analyticsLoading && !analytics}
-          isEmpty={costHistoryData.length === 0}
-          emptyMessage="Sin gastos registrados"
-        >
-          <MiniBarChart data={costHistoryData} />
-        </ChartCard>
-
-        <ChartCard
-          title="Estado por Categoría"
-          description="Progreso y condición por área"
-          isLoading={analyticsLoading && !analytics}
-          isEmpty={(analytics?.categoryBreakdown ?? []).length === 0}
-          emptyMessage="Sin categorías registradas"
-        >
-          <CategoryBreakdownList data={analytics?.categoryBreakdown ?? []} />
-        </ChartCard>
-
-        {/* Quick actions */}
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Solicitudes de Servicio"
-          onPress={() => router.push('/service-requests' as never)}
-          className="border-border bg-card mb-6 flex-row items-center justify-between rounded-xl border p-3"
-        >
-          <View>
-            <Text style={TYPE.titleSm} className="text-foreground">
-              Solicitudes de Servicio
-            </Text>
-            <Text style={TYPE.bodySm} className="text-muted-foreground">
-              Reportar problemas o pedir asistencia
-            </Text>
-          </View>
-          <Text className="text-muted-foreground" style={{ fontSize: 18 }}>
-            &gt;
-          </Text>
-        </Pressable>
-
-        <Text style={TYPE.titleLg} className="text-foreground mb-3">
-          Próximas Tareas
-        </Text>
-      </View>
-    ),
-    [stats, statsLoading, analytics, analyticsLoading, conditionTrendData, costHistoryData, router],
-  );
-
-  const renderTask = useCallback(
-    ({ item, index }: { item: UpcomingTask; index: number }) => (
-      <TaskCard task={item} index={index} />
-    ),
-    [],
-  );
+  const handleServiceRequests = () => {
+    haptics.light();
+    router.push('/service-requests' as never);
+  };
 
   if ((statsError || tasksError) && !stats && !tasks) {
     return <ErrorState onRetry={onRefresh} message="No se pudieron cargar los datos del panel." />;
   }
 
   return (
-    <FlatList
+    <ScrollView
       className="bg-background flex-1"
       contentContainerStyle={{ padding: 16 }}
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
-      data={tasks ?? []}
-      renderItem={renderTask}
-      keyExtractor={(item) => item.id}
-      ListHeaderComponent={ListHeader}
-      ListEmptyComponent={
-        !isLoading ? (
-          <EmptyState
-            title="Sin tareas próximas"
-            message="No hay tareas de mantenimiento programadas por ahora."
-          />
-        ) : null
-      }
-    />
+    >
+      {/* Title */}
+      <Text style={TYPE.displayLg} className="text-foreground mb-4">
+        Mi Panel
+      </Text>
+
+      {/* Welcome Card — shown until client has tasks */}
+      {showWelcome && (
+        <WelcomeCard
+          userName={userName}
+          hasProperties={(stats?.totalProperties ?? 0) > 0}
+          hasActivePlan={(stats?.upcomingTasks ?? 0) > 0}
+        />
+      )}
+
+      {/* Level 1: Home Status — conclusion first */}
+      {statsLoading && !stats ? (
+        <View className="mb-4">
+          <StatCardSkeleton />
+          <View className="mt-3 flex-row gap-3">
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+          </View>
+        </View>
+      ) : stats && !showWelcome ? (
+        <HomeStatusCard
+          score={analytics?.healthIndex?.score ?? 0}
+          label={analytics?.healthIndex?.label ?? ''}
+          overdueTasks={stats.overdueTasks}
+          upcomingThisWeek={stats.upcomingThisWeek}
+          urgentTasks={stats.urgentTasks}
+          pendingTasks={stats.pendingTasks}
+          completedThisMonth={stats.completedThisMonth}
+          pendingBudgets={stats.pendingBudgets}
+        />
+      ) : null}
+
+      {/* Level 2: Actions — what to do next */}
+      {tasksLoading && !tasks ? (
+        <View className="mb-4">
+          <StatCardSkeleton />
+          <View className="mt-3">
+            <StatCardSkeleton />
+          </View>
+        </View>
+      ) : tasks && !showWelcome ? (
+        <ActionList tasks={tasks} />
+      ) : null}
+
+      {/* Quick action: Service Requests */}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Solicitudes de Servicio"
+        onPress={handleServiceRequests}
+        className="border-border bg-card mb-4 flex-row items-center justify-between rounded-xl border p-3"
+      >
+        <View>
+          <Text style={TYPE.titleSm} className="text-foreground">
+            Solicitudes de Servicio
+          </Text>
+          <Text style={TYPE.bodySm} className="text-muted-foreground">
+            Reportar problemas o pedir asistencia
+          </Text>
+        </View>
+        <Text className="text-muted-foreground" style={{ fontSize: 18 }}>
+          &gt;
+        </Text>
+      </Pressable>
+
+      {/* Level 3: Analytics — collapsed by default */}
+      {!showWelcome && (
+        <AnalyticsSection
+          analytics={analytics}
+          isLoading={analyticsLoading}
+          chartMonths={chartMonths}
+          onMonthsChange={setChartMonths}
+        />
+      )}
+    </ScrollView>
   );
 }

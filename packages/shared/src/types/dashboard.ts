@@ -13,6 +13,8 @@ export interface ClientDashboardStats {
   pendingTasks: number;
   overdueTasks: number;
   upcomingTasks: number;
+  upcomingThisWeek: number;
+  urgentTasks: number;
   completedThisMonth: number;
   pendingBudgets: number;
   openServices: number;
@@ -28,6 +30,8 @@ export interface UpcomingTask {
   propertyId: string;
   categoryName: string;
   maintenancePlanId: string;
+  professionalRequirement: string;
+  sector: string | null;
 }
 
 export interface ActivityItem {
