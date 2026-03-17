@@ -1683,8 +1683,64 @@ export async function seedDemo(prisma: PrismaClient) {
     'Nueva fisura sellada en medianera',
   );
 
-  const mariaLogCount = 46;
-  console.log(`  ✓ ${mariaLogCount} registros de historial (4 ciclos + 2 detecciones)`);
+  // —— Recent completions (within last 30 days for dashboard "Completadas" metric) ——
+  await createLog(
+    prisma,
+    mariaTasks[0].id,
+    maria.id,
+    daysAgo(5),
+    'OK',
+    'GOOD',
+    'OWNER',
+    'INSPECTION_ONLY',
+  );
+  await createLog(
+    prisma,
+    mariaTasks[3].id,
+    maria.id,
+    daysAgo(10),
+    'OK',
+    'FAIR',
+    'OWNER',
+    'CLEANING',
+    2500,
+  );
+  await createLog(
+    prisma,
+    mariaTasks[8].id,
+    maria.id,
+    daysAgo(15),
+    'OK',
+    'GOOD',
+    'HIRED_PROFESSIONAL',
+    'ADJUSTMENT',
+    8000,
+  );
+  await createLog(
+    prisma,
+    mariaTasks[12].id,
+    maria.id,
+    daysAgo(20),
+    'OK_WITH_OBSERVATIONS',
+    'FAIR',
+    'OWNER',
+    'INSPECTION_ONLY',
+  );
+  await createLog(
+    prisma,
+    mariaTasks[18].id,
+    maria.id,
+    daysAgo(25),
+    'OK',
+    'GOOD',
+    'OWNER',
+    'CLEANING',
+  );
+
+  const mariaLogCount = 51;
+  console.log(
+    `  ✓ ${mariaLogCount} registros de historial (4 ciclos + 2 detecciones + 5 recientes)`,
+  );
 
   // —— Presupuestos de María ——
 
@@ -2883,7 +2939,7 @@ export async function seedDemo(prisma: PrismaClient) {
   Planes:       3 (todos ACTIVE)
   Categorías:   ${CATEGORIES.length} (compartidas)
   Tareas:       ${3 * TASK_DEFS.length} (${TASK_DEFS.length} × 3 propiedades)
-  Task Logs:    ${mariaLogCount + 14} (María: ${mariaLogCount}, Carlos: 14, Laura: 0)
+  Task Logs:    ${mariaLogCount + 14} (María: ${mariaLogCount} (incl. 5 últimos 30 días), Carlos: 14, Laura: 0)
   Presupuestos: 3 (COMPLETED, IN_PROGRESS, QUOTED)
   Audit Logs:   11 (5 + 4 + 2 presup.)
   Comentarios:  6 (3 + 2 + 1 presup.)

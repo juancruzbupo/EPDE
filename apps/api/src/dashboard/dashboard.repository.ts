@@ -102,10 +102,10 @@ export class DashboardRepository {
     };
   }
 
-  async getClientTaskStats(planIds: string[], userId: string) {
+  async getClientTaskStats(planIds: string[], _userId: string) {
     const now = new Date();
     const thirtyDaysFromNow = addDays(now, 30);
-    const monthStart = startOfMonth(now);
+    const thirtyDaysAgo = addDays(now, -30);
 
     const taskWhere = {
       maintenancePlanId: { in: planIds },
@@ -154,8 +154,8 @@ export class DashboardRepository {
       }),
       this.prisma.taskLog.count({
         where: {
-          completedBy: userId,
-          completedAt: { gte: monthStart },
+          task: { maintenancePlanId: { in: planIds } },
+          completedAt: { gte: thirtyDaysAgo },
         },
       }),
     ]);
