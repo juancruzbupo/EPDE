@@ -1,6 +1,7 @@
 import type { CreateBudgetRequestInput, PropertyPublic } from '@epde/shared';
 import { createBudgetRequestSchema } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   ActivityIndicator,
@@ -28,9 +29,18 @@ import { haptics } from '@/lib/haptics';
 interface CreateBudgetModalProps {
   visible: boolean;
   onClose: () => void;
+  /** Pre-select property when opening from task detail */
+  defaultPropertyId?: string;
+  /** Pre-fill title when opening from task detail */
+  defaultTitle?: string;
 }
 
-export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) {
+export function CreateBudgetModal({
+  visible,
+  onClose,
+  defaultPropertyId,
+  defaultTitle,
+}: CreateBudgetModalProps) {
   const insets = useSafeAreaInsets();
   const contentStyle = useSlideIn('bottom');
   const createBudget = useCreateBudgetRequest();
@@ -51,6 +61,13 @@ export function CreateBudgetModal({ visible, onClose }: CreateBudgetModalProps) 
   } = form;
 
   const { clearDraft } = useDraft('draft:budget:create', form, visible);
+
+  // Pre-fill defaults when opened from task detail
+  useEffect(() => {
+    if (!visible) return;
+    if (defaultPropertyId) setValue('propertyId', defaultPropertyId, { shouldValidate: true });
+    if (defaultTitle) setValue('title', defaultTitle, { shouldValidate: true });
+  }, [visible, defaultPropertyId, defaultTitle, setValue]);
 
   const selectedPropertyId = watch('propertyId');
   const isSubmitting = createBudget.isPending;

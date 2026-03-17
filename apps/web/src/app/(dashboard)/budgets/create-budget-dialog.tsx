@@ -2,7 +2,7 @@
 
 import { type CreateBudgetRequestInput, createBudgetRequestSchema } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
@@ -24,9 +24,15 @@ import { useProperties } from '@/hooks/use-properties';
 interface CreateBudgetDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Pre-fill the property selector when opening from a task context. */
+  defaultPropertyId?: string;
 }
 
-export function CreateBudgetDialog({ open, onOpenChange }: CreateBudgetDialogProps) {
+export function CreateBudgetDialog({
+  open,
+  onOpenChange,
+  defaultPropertyId,
+}: CreateBudgetDialogProps) {
   const createBudget = useCreateBudgetRequest();
   const { data: propertiesData } = useProperties({});
 
@@ -48,6 +54,13 @@ export function CreateBudgetDialog({ open, onOpenChange }: CreateBudgetDialogPro
   } = form;
 
   const { clearDraft } = useDraft('draft:budget:create', form, open);
+
+  // Pre-fill property when provided (e.g. from task detail sheet)
+  useEffect(() => {
+    if (open && defaultPropertyId) {
+      setValue('propertyId', defaultPropertyId, { shouldValidate: true });
+    }
+  }, [open, defaultPropertyId, setValue]);
 
   const selectedPropertyId = watch('propertyId');
 

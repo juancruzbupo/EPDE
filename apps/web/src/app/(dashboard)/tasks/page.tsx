@@ -28,8 +28,10 @@ import { useTaskDetail } from '@/hooks/use-task-operations';
 import { TASK_STATUS_COLORS, TASK_STATUS_ICONS, TASK_STATUS_ORDER } from '@/lib/style-maps';
 import { cn } from '@/lib/utils';
 
+import { CreateBudgetDialog } from '../budgets/create-budget-dialog';
 import { CompleteTaskDialog } from '../properties/[id]/complete-task-dialog';
 import { TaskDetailSheet } from '../properties/[id]/task-detail-sheet';
+import { CreateServiceDialog } from '../service-requests/create-service-dialog';
 
 const INITIAL_VISIBLE = 5;
 
@@ -208,6 +210,13 @@ export default function TasksPage() {
   // Task detail sheet state
   const [selectedTask, setSelectedTask] = useState<TaskListItem | null>(null);
   const [completingTask, setCompletingTask] = useState<TaskPublic | null>(null);
+
+  // Service / budget dialog state (pre-filled from task detail sheet)
+  const [serviceDialogTask, setServiceDialogTask] = useState<{
+    propertyId: string;
+    taskId: string;
+  } | null>(null);
+  const [budgetDialogPropertyId, setBudgetDialogPropertyId] = useState<string | null>(null);
 
   const { data: tasks, isLoading, isError, refetch } = useAllTasks();
 
@@ -406,6 +415,19 @@ export default function TasksPage() {
           setSelectedTask(null);
           setCompletingTask(task);
         }}
+        onRequestService={() => {
+          if (!selectedTask) return;
+          setServiceDialogTask({
+            propertyId: selectedTask.maintenancePlan.property.id,
+            taskId: selectedTask.id,
+          });
+          setSelectedTask(null);
+        }}
+        onRequestBudget={() => {
+          if (!selectedTask) return;
+          setBudgetDialogPropertyId(selectedTask.maintenancePlan.property.id);
+          setSelectedTask(null);
+        }}
       />
 
       <CompleteTaskDialog
@@ -413,6 +435,23 @@ export default function TasksPage() {
         onOpenChange={() => setCompletingTask(null)}
         task={completingTask}
         planId={selectedTask?.maintenancePlan.id ?? completingTask?.maintenancePlanId ?? ''}
+      />
+
+      <CreateServiceDialog
+        open={!!serviceDialogTask}
+        onOpenChange={(open) => {
+          if (!open) setServiceDialogTask(null);
+        }}
+        defaultPropertyId={serviceDialogTask?.propertyId}
+        defaultTaskId={serviceDialogTask?.taskId}
+      />
+
+      <CreateBudgetDialog
+        open={!!budgetDialogPropertyId}
+        onOpenChange={(open) => {
+          if (!open) setBudgetDialogPropertyId(null);
+        }}
+        defaultPropertyId={budgetDialogPropertyId ?? undefined}
       />
     </PageTransition>
   );

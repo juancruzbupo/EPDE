@@ -8,6 +8,7 @@ import {
   CONDITION_FOUND_LABELS,
   formatRelativeDate,
   PROFESSIONAL_REQUIREMENT_LABELS,
+  ProfessionalRequirement,
   PROPERTY_SECTOR_LABELS,
   RECURRENCE_TYPE_LABELS,
   TASK_TYPE_LABELS,
@@ -22,9 +23,12 @@ import Animated from 'react-native-reanimated';
 
 import { CollapsibleSection } from '@/components/collapsible-section';
 import { CompleteTaskModal } from '@/components/complete-task-modal';
+import { CreateBudgetModal } from '@/components/create-budget-modal';
+import { CreateServiceRequestModal } from '@/components/create-service-request-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { PriorityBadge, TaskStatusBadge } from '@/components/status-badge';
+import { usePlan } from '@/hooks/use-plans';
 import {
   useAddTaskNote,
   useTaskDetail,
@@ -34,6 +38,7 @@ import {
 import { useSlideIn } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
+import { haptics } from '@/lib/haptics';
 import { defaultScreenOptions } from '@/lib/screen-options';
 
 function LogItem({ log }: { log: TaskLogPublic }) {
@@ -78,6 +83,8 @@ export default function TaskDetailScreen() {
   const { planId, taskId } = useLocalSearchParams<{ planId: string; taskId: string }>();
   const contentStyle = useSlideIn('bottom');
   const [completeModalVisible, setCompleteModalVisible] = useState(false);
+  const [showServiceModal, setShowServiceModal] = useState(false);
+  const [showBudgetModal, setShowBudgetModal] = useState(false);
   const [noteContent, setNoteContent] = useState('');
 
   const {
@@ -88,6 +95,7 @@ export default function TaskDetailScreen() {
   } = useTaskDetail(planId, taskId);
   const { data: logs, refetch: refetchLogs } = useTaskLogs(planId, taskId);
   const { data: notes, refetch: refetchNotes } = useTaskNotes(planId, taskId);
+  const { data: plan } = usePlan(planId);
   const addNote = useAddTaskNote();
 
   const onRefresh = () => {
@@ -276,6 +284,43 @@ export default function TaskDetailScreen() {
           </Pressable>
         )}
 
+        {/* Professional service hint */}
+        {task.professionalRequirement !== ProfessionalRequirement.OWNER_CAN_DO && (
+          <Text style={TYPE.bodySm} className="text-muted-foreground mt-2 text-center">
+            Esta tarea requiere intervención profesional
+          </Text>
+        )}
+
+        {/* Service + Budget buttons */}
+        <View className="mt-2 mb-4 flex-row gap-2">
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Solicitar servicio para esta tarea"
+            className="border-border flex-1 items-center rounded-xl border p-3"
+            onPress={() => {
+              haptics.light();
+              setShowServiceModal(true);
+            }}
+          >
+            <Text style={TYPE.labelMd} className="text-foreground">
+              Solicitar Servicio
+            </Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Pedir presupuesto para esta tarea"
+            className="border-border flex-1 items-center rounded-xl border p-3"
+            onPress={() => {
+              haptics.light();
+              setShowBudgetModal(true);
+            }}
+          >
+            <Text style={TYPE.labelMd} className="text-foreground">
+              Pedir Presupuesto
+            </Text>
+          </Pressable>
+        </View>
+
         {/* Task Logs */}
         <CollapsibleSection title="Historial" count={logs?.length ?? 0}>
           <View className="border-border bg-card rounded-xl border px-4">
@@ -341,6 +386,23 @@ export default function TaskDetailScreen() {
         onClose={() => setCompleteModalVisible(false)}
         task={task}
         planId={planId}
+      />
+
+      {/* Service request modal */}
+      <CreateServiceRequestModal
+        visible={showServiceModal}
+        onClose={() => setShowServiceModal(false)}
+        defaultPropertyId={plan?.property?.id}
+        defaultTaskId={task.id}
+        defaultTitle={task.name}
+      />
+
+      {/* Budget request modal */}
+      <CreateBudgetModal
+        visible={showBudgetModal}
+        onClose={() => setShowBudgetModal(false)}
+        defaultPropertyId={plan?.property?.id}
+        defaultTitle={task.name}
       />
     </View>
   );

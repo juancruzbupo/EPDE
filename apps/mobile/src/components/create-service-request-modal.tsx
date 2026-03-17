@@ -40,9 +40,21 @@ const URGENCY_OPTIONS = [
 interface CreateServiceRequestModalProps {
   visible: boolean;
   onClose: () => void;
+  /** Pre-select property when opening from task detail */
+  defaultPropertyId?: string;
+  /** Pre-select linked task when opening from task detail */
+  defaultTaskId?: string;
+  /** Pre-fill title when opening from task detail */
+  defaultTitle?: string;
 }
 
-export function CreateServiceRequestModal({ visible, onClose }: CreateServiceRequestModalProps) {
+export function CreateServiceRequestModal({
+  visible,
+  onClose,
+  defaultPropertyId,
+  defaultTaskId,
+  defaultTitle,
+}: CreateServiceRequestModalProps) {
   const insets = useSafeAreaInsets();
   const contentStyle = useSlideIn('bottom');
   const [photos, setPhotos] = useState<{ uri: string; uploadedUrl?: string }[]>([]);
@@ -68,6 +80,14 @@ export function CreateServiceRequestModal({ visible, onClose }: CreateServiceReq
   } = form;
 
   const { clearDraft } = useDraft('draft:service-request:create', form, visible);
+
+  // Pre-fill defaults when opened from task detail
+  useEffect(() => {
+    if (!visible) return;
+    if (defaultPropertyId) setValue('propertyId', defaultPropertyId, { shouldValidate: true });
+    if (defaultTaskId) setValue('taskId', defaultTaskId, { shouldValidate: true });
+    if (defaultTitle) setValue('title', defaultTitle, { shouldValidate: true });
+  }, [visible, defaultPropertyId, defaultTaskId, defaultTitle, setValue]);
 
   const selectedPropertyId = watch('propertyId');
   const selectedTaskId = watch('taskId');

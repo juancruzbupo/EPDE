@@ -5,6 +5,7 @@ import {
   formatRelativeDate,
   PRIORITY_VARIANT,
   PROFESSIONAL_REQUIREMENT_LABELS,
+  ProfessionalRequirement,
   PROPERTY_SECTOR_LABELS,
   RECURRENCE_TYPE_LABELS,
   TASK_PRIORITY_LABELS,
@@ -19,6 +20,7 @@ import {
   ChevronDown,
   ChevronUp,
   Clock,
+  FileText,
   RotateCcw,
   Wrench,
 } from 'lucide-react';
@@ -41,6 +43,8 @@ interface TaskDetailSheetProps {
   task: (TaskPublic | TaskDetailPublic) | null;
   planId: string;
   onComplete?: (task: TaskPublic) => void;
+  onRequestService?: (task: TaskPublic) => void;
+  onRequestBudget?: (task: TaskPublic) => void;
 }
 
 export function TaskDetailSheet({
@@ -49,6 +53,8 @@ export function TaskDetailSheet({
   task,
   planId,
   onComplete,
+  onRequestService,
+  onRequestBudget,
 }: TaskDetailSheetProps) {
   const [techDescOpen, setTechDescOpen] = useState(false);
 
@@ -189,12 +195,45 @@ export function TaskDetailSheet({
           )}
 
           {/* CTA */}
-          {canComplete && onComplete && (
-            <Button className="w-full" size="lg" onClick={() => onComplete(task)}>
-              <CheckCircle className="mr-2 h-4 w-4" />
-              Completar Tarea
-            </Button>
-          )}
+          <div className="space-y-2">
+            {canComplete && onComplete && (
+              <Button className="w-full" size="lg" onClick={() => onComplete(task)}>
+                <CheckCircle className="mr-2 h-4 w-4" />
+                Completar Tarea
+              </Button>
+            )}
+
+            {task.professionalRequirement !== ProfessionalRequirement.OWNER_CAN_DO && (
+              <p className="type-body-sm text-muted-foreground text-center">
+                Esta tarea requiere intervención profesional
+              </p>
+            )}
+
+            {(onRequestService || onRequestBudget) && (
+              <div className="flex gap-2">
+                {onRequestService && (
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => onRequestService(task)}
+                  >
+                    <Wrench className="mr-2 h-4 w-4" />
+                    Solicitar Servicio
+                  </Button>
+                )}
+                {onRequestBudget && (
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => onRequestBudget(task)}
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    Pedir Presupuesto
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Tabs */}
           <Tabs defaultValue="history">

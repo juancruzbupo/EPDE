@@ -3,12 +3,25 @@ import { TaskPriority, TaskStatus, UserRole } from '@epde/shared';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+vi.mock('@tanstack/react-query', async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  return { ...actual, useQueryClient: () => ({ prefetchQuery: vi.fn() }) };
+});
+
 vi.mock('@/hooks/use-plans', () => ({
   useAllTasks: vi.fn(),
 }));
 
 vi.mock('@/hooks/use-task-operations', () => ({
   useTaskDetail: vi.fn(() => ({ data: undefined })),
+}));
+
+vi.mock('@/app/(dashboard)/service-requests/create-service-dialog', () => ({
+  CreateServiceDialog: () => null,
+}));
+
+vi.mock('@/app/(dashboard)/budgets/create-budget-dialog', () => ({
+  CreateBudgetDialog: () => null,
 }));
 
 vi.mock('@/hooks/use-debounce', () => ({

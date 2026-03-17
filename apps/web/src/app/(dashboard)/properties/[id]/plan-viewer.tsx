@@ -27,6 +27,8 @@ import type { TaskPublic } from '@/lib/api/maintenance-plans';
 import { TASK_STATUS_COLORS, TASK_STATUS_ICONS, TASK_STATUS_ORDER } from '@/lib/style-maps';
 import { cn } from '@/lib/utils';
 
+import { CreateBudgetDialog } from '../../budgets/create-budget-dialog';
+import { CreateServiceDialog } from '../../service-requests/create-service-dialog';
 import { CompleteTaskDialog } from './complete-task-dialog';
 import { TaskDetailSheet } from './task-detail-sheet';
 
@@ -41,6 +43,7 @@ const PRIORITY_OPTIONS: { value: TaskPriority | 'all'; label: string }[] = [
 
 interface PlanViewerProps {
   planId: string;
+  propertyId: string;
 }
 
 function StatusSummary({ tasks }: { tasks: TaskPublic[] }) {
@@ -184,11 +187,15 @@ function CategorySection({
   );
 }
 
-export function PlanViewer({ planId }: PlanViewerProps) {
+export function PlanViewer({ planId, propertyId }: PlanViewerProps) {
   const { data: plan, isLoading, isError, refetch } = usePlan(planId);
 
   const [selectedTask, setSelectedTask] = useState<TaskPublic | null>(null);
   const [completingTask, setCompletingTask] = useState<TaskPublic | null>(null);
+
+  // Service / budget dialog state (pre-filled from task detail sheet)
+  const [serviceDialogTaskId, setServiceDialogTaskId] = useState<string | null>(null);
+  const [budgetDialogOpen, setBudgetDialogOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [priority, setPriority] = useState<TaskPriority | 'all'>('all');
   const debouncedSearch = useDebounce(search);
@@ -332,6 +339,14 @@ export function PlanViewer({ planId }: PlanViewerProps) {
           setSelectedTask(null);
           setCompletingTask(task);
         }}
+        onRequestService={(task) => {
+          setServiceDialogTaskId(task.id);
+          setSelectedTask(null);
+        }}
+        onRequestBudget={() => {
+          setBudgetDialogOpen(true);
+          setSelectedTask(null);
+        }}
       />
 
       <CompleteTaskDialog
@@ -339,6 +354,21 @@ export function PlanViewer({ planId }: PlanViewerProps) {
         onOpenChange={() => setCompletingTask(null)}
         task={completingTask}
         planId={planId}
+      />
+
+      <CreateServiceDialog
+        open={!!serviceDialogTaskId}
+        onOpenChange={(open) => {
+          if (!open) setServiceDialogTaskId(null);
+        }}
+        defaultPropertyId={propertyId}
+        defaultTaskId={serviceDialogTaskId ?? undefined}
+      />
+
+      <CreateBudgetDialog
+        open={budgetDialogOpen}
+        onOpenChange={setBudgetDialogOpen}
+        defaultPropertyId={propertyId}
       />
     </>
   );

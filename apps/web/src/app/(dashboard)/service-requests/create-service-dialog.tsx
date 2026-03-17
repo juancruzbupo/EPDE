@@ -32,6 +32,10 @@ import { useUploadFile } from '@/hooks/use-upload';
 interface CreateServiceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Pre-fill the property selector when opening from a task context. */
+  defaultPropertyId?: string;
+  /** Pre-fill the linked task when opening from a task context. */
+  defaultTaskId?: string;
 }
 
 interface PhotoPreview {
@@ -41,7 +45,12 @@ interface PhotoPreview {
 
 const NONE_VALUE = '__none__';
 
-export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogProps) {
+export function CreateServiceDialog({
+  open,
+  onOpenChange,
+  defaultPropertyId,
+  defaultTaskId,
+}: CreateServiceDialogProps) {
   const createServiceRequest = useCreateServiceRequest();
   const uploadFile = useUploadFile();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -68,6 +77,19 @@ export function CreateServiceDialog({ open, onOpenChange }: CreateServiceDialogP
   } = form;
 
   const { clearDraft } = useDraft('draft:service-request:create', form, open);
+
+  // Pre-fill property and task when provided (e.g. from task detail sheet)
+  useEffect(() => {
+    if (open && defaultPropertyId) {
+      setValue('propertyId', defaultPropertyId, { shouldValidate: true });
+    }
+  }, [open, defaultPropertyId, setValue]);
+
+  useEffect(() => {
+    if (open && defaultTaskId) {
+      setValue('taskId', defaultTaskId);
+    }
+  }, [open, defaultTaskId, setValue]);
 
   const selectedPropertyId = watch('propertyId');
 

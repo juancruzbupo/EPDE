@@ -31,8 +31,20 @@ jest.mock('@/hooks/use-task-operations', () => ({
   useAddTaskNote: () => mockUseAddTaskNote(),
 }));
 
+jest.mock('@/hooks/use-plans', () => ({
+  usePlan: () => ({ data: { property: { id: 'prop-1' } } }),
+}));
+
 jest.mock('@/components/complete-task-modal', () => ({
   CompleteTaskModal: () => null,
+}));
+
+jest.mock('@/components/create-service-request-modal', () => ({
+  CreateServiceRequestModal: () => null,
+}));
+
+jest.mock('@/components/create-budget-modal', () => ({
+  CreateBudgetModal: () => null,
 }));
 
 jest.mock('@/components/collapsible-section', () => ({

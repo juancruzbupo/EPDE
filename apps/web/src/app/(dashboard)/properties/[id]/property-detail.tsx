@@ -175,7 +175,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
                 activeSectors={property.activeSectors}
               />
             ) : (
-              <PlanViewer planId={property.maintenancePlan.id} />
+              <PlanViewer planId={property.maintenancePlan.id} propertyId={property.id} />
             )
           ) : (
             <Card>
