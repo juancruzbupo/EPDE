@@ -81,8 +81,11 @@ function ClientDashboard() {
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
     >
       {/* Title */}
-      <Text style={TYPE.displayLg} className="text-foreground mb-4">
-        Mi Panel
+      <Text style={TYPE.displayLg} className="text-foreground">
+        {userName ? `Hola, ${userName.split(' ')[0]}` : 'Mi Panel'}
+      </Text>
+      <Text style={TYPE.bodySm} className="text-muted-foreground mb-4">
+        Resumen de tus propiedades y tareas
       </Text>
 
       {/* Welcome Card — shown until client has tasks */}

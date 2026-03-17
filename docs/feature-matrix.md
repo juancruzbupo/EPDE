@@ -74,6 +74,15 @@ Actualizar cuando se agrega o modifica una feature en cualquier plataforma.
 | **Categorías**                  |             |               |                  |                                                           |
 | Gestionar categorías            | ✅ (admin)  |      ❌       |        ❌        | Categorías operacionales                                  |
 
+## Diferencias intencionales entre plataformas
+
+| Área                 | Web                                  | Mobile                              | Razón                                                           |
+| -------------------- | ------------------------------------ | ----------------------------------- | --------------------------------------------------------------- |
+| Property detail      | Tabs (Salud/Plan/Gastos/Fotos)       | CollapsibleSections                 | Mobile: scroll vertical natural; Web: tabs para pantalla grande |
+| Dark mode toggle     | Header dropdown                      | Profile screen                      | Mobile: menos espacio en header; profile es donde van settings  |
+| Notification routing | `/budgets/`, `/properties/` (plural) | `/budget/`, `/property/` (singular) | Expo Router usa file system routes (singular)                   |
+| Dashboard welcome    | "Bienvenido, {nombre}"               | "Hola, {nombre}"                    | Ambos personalizados, tono ligeramente diferente                |
+
 ## Riesgos de drift documentados
 
 1. **Design tokens**: Web usa CSS custom properties (`globals.css`). Mobile usa NativeWind config (`tailwind.config.js`). Nuevo token → actualizar ambos archivos manualmente.

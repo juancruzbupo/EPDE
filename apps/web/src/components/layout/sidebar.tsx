@@ -79,6 +79,7 @@ export function Sidebar({ className }: { className?: string }) {
               key={item.href}
               href={item.href}
               aria-current={isActive ? 'page' : undefined}
+              aria-label={item.label}
               title={collapsed ? item.label : undefined}
               className={cn(
                 'relative flex items-center rounded-md text-sm font-medium transition-all duration-200',
