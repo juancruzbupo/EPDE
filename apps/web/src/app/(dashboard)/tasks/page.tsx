@@ -279,28 +279,23 @@ export default function TasksPage() {
         description="Seguimiento de todas las tareas de mantenimiento de tus propiedades."
       />
 
-      {/* Stat cards */}
-      {isLoading && (
-        <div role="status" aria-label="Cargando...">
-          <div className="mb-4 grid grid-cols-3 gap-2">
-            {TASK_STATUS_ORDER.map((status) => (
-              <div
-                key={status}
-                className="bg-card flex flex-1 items-center gap-3 rounded-lg border p-3"
-              >
-                <Skeleton className="h-5 w-5 rounded" />
-                <div>
-                  <Skeleton className="h-5 w-8" />
-                  <Skeleton className="mt-1 h-3 w-16" />
-                </div>
+      {/* Stat cards — always visible, skeleton during loading */}
+      <div className="mb-4 grid grid-cols-3 gap-2">
+        {TASK_STATUS_ORDER.map((status) =>
+          isLoading || !tasks ? (
+            <div
+              key={status}
+              role="status"
+              aria-label="Cargando..."
+              className="bg-card flex flex-1 items-center gap-3 rounded-lg border p-3"
+            >
+              <Skeleton className="h-5 w-5 rounded" />
+              <div>
+                <Skeleton className="h-5 w-8" />
+                <Skeleton className="mt-1 h-3 w-16" />
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-      {!isLoading && !isError && tasks && tasks.length > 0 && (
-        <div className="mb-4 grid grid-cols-3 gap-2">
-          {TASK_STATUS_ORDER.map((status) => (
+            </div>
+          ) : (
             <StatCard
               key={status}
               status={status}
@@ -308,9 +303,9 @@ export default function TasksPage() {
               active={activeStatus === status}
               onClick={() => toggleStatus(status)}
             />
-          ))}
-        </div>
-      )}
+          ),
+        )}
+      </div>
 
       {/* Filters */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
