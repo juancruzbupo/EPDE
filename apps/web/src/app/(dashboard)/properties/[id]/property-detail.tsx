@@ -4,18 +4,13 @@ import type { PropertyPublic } from '@epde/shared';
 import { PROPERTY_SECTOR_LABELS, PROPERTY_TYPE_LABELS, type PropertySector } from '@epde/shared';
 import {
   ArrowLeft,
-  Building,
-  Calendar,
   Camera,
   ChevronDown,
   ChevronRight,
   ClipboardList,
   DollarSign,
-  MapPin,
   Pencil,
-  Ruler,
   TrendingUp,
-  User,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
@@ -78,7 +73,15 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
     <div className="space-y-6">
       <PageHeader
         title={property.address}
-        description={`${property.city} — ${PROPERTY_TYPE_LABELS[property.type] ?? property.type}`}
+        description={[
+          property.city,
+          PROPERTY_TYPE_LABELS[property.type] ?? property.type,
+          property.yearBuilt && `${property.yearBuilt}`,
+          property.squareMeters && `${property.squareMeters} m²`,
+          property.user && `Cliente: ${property.user.name}`,
+        ]
+          .filter(Boolean)
+          .join(' · ')}
         action={
           <div className="flex gap-2">
             <Button variant="outline" asChild>
@@ -97,75 +100,13 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
         }
       />
 
-      <Tabs defaultValue="details" onValueChange={setActiveTab}>
+      <Tabs defaultValue="health" onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="details">Detalles</TabsTrigger>
-          <TabsTrigger value="plan">Plan de Mantenimiento</TabsTrigger>
+          <TabsTrigger value="health">Salud</TabsTrigger>
+          <TabsTrigger value="plan">Plan</TabsTrigger>
           <TabsTrigger value="expenses">Gastos</TabsTrigger>
           <TabsTrigger value="photos">Fotos</TabsTrigger>
-          <TabsTrigger value="health">Salud</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="details" className="mt-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-lg">Información de la propiedad</CardTitle>
-              <Badge variant="outline">
-                {PROPERTY_TYPE_LABELS[property.type] ?? property.type}
-              </Badge>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-muted/40 rounded-lg p-4">
-                <dl className="grid gap-4 text-sm sm:grid-cols-2">
-                  <div className="space-y-1">
-                    <dt className="text-muted-foreground flex items-center gap-1.5">
-                      <MapPin className="h-3.5 w-3.5" />
-                      Dirección
-                    </dt>
-                    <dd className="font-medium">{property.address}</dd>
-                  </div>
-                  <div className="space-y-1">
-                    <dt className="text-muted-foreground flex items-center gap-1.5">
-                      <Building className="h-3.5 w-3.5" />
-                      Ciudad
-                    </dt>
-                    <dd className="font-medium">{property.city}</dd>
-                  </div>
-                  <div className="space-y-1">
-                    <dt className="text-muted-foreground flex items-center gap-1.5">
-                      <Calendar className="h-3.5 w-3.5" />
-                      Año de construcción
-                    </dt>
-                    <dd className="font-medium">{property.yearBuilt ?? '—'}</dd>
-                  </div>
-                  <div className="space-y-1">
-                    <dt className="text-muted-foreground flex items-center gap-1.5">
-                      <Ruler className="h-3.5 w-3.5" />
-                      Metros cuadrados
-                    </dt>
-                    <dd className="font-medium">{property.squareMeters ?? '—'}</dd>
-                  </div>
-                  {property.user && (
-                    <div className="space-y-1">
-                      <dt className="text-muted-foreground flex items-center gap-1.5">
-                        <User className="h-3.5 w-3.5" />
-                        Cliente
-                      </dt>
-                      <dd className="font-medium">
-                        <Link
-                          href={`/clients/${property.user.id}`}
-                          className="text-primary hover:underline"
-                        >
-                          {property.user.name}
-                        </Link>
-                      </dd>
-                    </div>
-                  )}
-                </dl>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         <TabsContent value="plan" className="mt-4">
           {property.maintenancePlan ? (
