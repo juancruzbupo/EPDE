@@ -281,6 +281,7 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
                 Subir foto
               </button>
             )}
+            <p className="type-body-sm text-muted-foreground">Máx. 10 MB por archivo</p>
             <input
               ref={fileInputRef}
               type="file"

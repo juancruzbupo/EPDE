@@ -494,6 +494,8 @@ export function CreateServiceRequestModal({
                 )}
                 <Pressable
                   onPress={() => removePhoto(index)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Eliminar foto"
                   className="bg-destructive absolute -top-2 -right-2 h-6 w-6 items-center justify-center rounded-full"
                 >
                   <Text className="text-xs font-bold text-white">X</Text>
@@ -514,6 +516,9 @@ export function CreateServiceRequestModal({
               </Pressable>
             )}
           </ScrollView>
+          <Text style={TYPE.bodySm} className="text-muted-foreground mb-4">
+            Máx. 10 MB por archivo
+          </Text>
         </Animated.ScrollView>
       </KeyboardAvoidingView>
     </Modal>

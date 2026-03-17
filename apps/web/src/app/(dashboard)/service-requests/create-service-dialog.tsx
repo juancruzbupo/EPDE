@@ -300,6 +300,7 @@ export function CreateServiceDialog({
               <Upload className="mr-2 h-4 w-4" />
               Subir fotos
             </Button>
+            <p className="type-body-sm text-muted-foreground">Máx. 10 MB por archivo</p>
             {photos.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-2">
                 {photos.map((photo, index) => (

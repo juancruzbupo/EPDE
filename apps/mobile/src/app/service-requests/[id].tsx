@@ -324,29 +324,55 @@ export default function ServiceRequestDetailScreen() {
     );
   };
 
-  const handleAddAttachment = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      Alert.alert('Permiso requerido', 'Se necesita acceso a la galería.');
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.8 });
-    if (result.canceled || !result.assets[0]) return;
-
-    const asset = result.assets[0];
-    const fileName = asset.uri.split('/').pop() ?? 'adjunto.jpg';
-
+  const uploadAttachmentFromUri = async (uri: string) => {
+    const fileName = uri.split('/').pop() ?? 'adjunto.jpg';
     setIsUploadingAttachment(true);
     try {
-      const url = await uploadFile.mutateAsync({ uri: asset.uri, folder: 'service-requests' });
+      const url = await uploadFile.mutateAsync({ uri, folder: 'service-requests' });
       await addAttachments.mutateAsync({
         serviceRequestId: id,
         attachments: [{ url, fileName }],
       });
       haptics.success();
+    } catch {
+      Alert.alert('Error', 'No se pudo subir el archivo.');
     } finally {
       setIsUploadingAttachment(false);
     }
+  };
+
+  const handleAddAttachment = () => {
+    Alert.alert('Adjuntar archivo', 'Elegir origen', [
+      {
+        text: 'Cámara',
+        onPress: async () => {
+          const permission = await ImagePicker.requestCameraPermissionsAsync();
+          if (!permission.granted) {
+            Alert.alert('Permiso requerido', 'Se necesita acceso a la cámara.');
+            return;
+          }
+          const result = await ImagePicker.launchCameraAsync({ quality: 0.8 });
+          if (!result.canceled && result.assets[0]) {
+            uploadAttachmentFromUri(result.assets[0].uri);
+          }
+        },
+      },
+      {
+        text: 'Galería',
+        onPress: async () => {
+          const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (!permission.granted) {
+            Alert.alert('Permiso requerido', 'Se necesita acceso a la galería.');
+            return;
+          }
+          const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.8 });
+          if (!result.canceled && result.assets[0]) {
+            uploadAttachmentFromUri(result.assets[0].uri);
+          }
+        },
+      },
+      { text: 'Cancelar', style: 'cancel' },
+    ]);
   };
 
   if (isLoading) {
@@ -493,19 +519,24 @@ export default function ServiceRequestDetailScreen() {
           </View>
 
           {!isTerminal && (
-            <Pressable
-              onPress={handleAddAttachment}
-              disabled={isUploadingAttachment}
-              className="bg-primary mt-2 items-center rounded-lg py-2"
-            >
-              {isUploadingAttachment ? (
-                <ActivityIndicator size="small" color={COLORS.primaryForeground} />
-              ) : (
-                <Text style={TYPE.labelMd} className="text-primary-foreground">
-                  Adjuntar archivo
-                </Text>
-              )}
-            </Pressable>
+            <>
+              <Pressable
+                onPress={handleAddAttachment}
+                disabled={isUploadingAttachment}
+                className="bg-primary mt-2 items-center rounded-lg py-2"
+              >
+                {isUploadingAttachment ? (
+                  <ActivityIndicator size="small" color={COLORS.primaryForeground} />
+                ) : (
+                  <Text style={TYPE.labelMd} className="text-primary-foreground">
+                    Adjuntar archivo
+                  </Text>
+                )}
+              </Pressable>
+              <Text style={TYPE.bodySm} className="text-muted-foreground mt-1 text-center">
+                Máx. 10 MB por archivo
+              </Text>
+            </>
           )}
         </CollapsibleSection>
 

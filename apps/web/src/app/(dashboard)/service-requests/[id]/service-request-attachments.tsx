@@ -96,6 +96,7 @@ export function ServiceRequestAttachments({
               )}
               {isUploading ? 'Subiendo...' : 'Adjuntar archivo'}
             </Button>
+            <p className="type-body-sm text-muted-foreground">Máx. 10 MB por archivo</p>
           </>
         )}
       </CardHeader>

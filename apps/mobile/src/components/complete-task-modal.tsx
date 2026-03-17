@@ -391,13 +391,16 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
           ) : (
             <Pressable
               onPress={pickImage}
-              className="border-border mb-4 flex-row items-center gap-2 rounded-xl border border-dashed px-4 py-3"
+              className="border-border flex-row items-center gap-2 rounded-xl border border-dashed px-4 py-3"
             >
               <Text style={TYPE.labelLg} className="text-muted-foreground">
                 Subir foto
               </Text>
             </Pressable>
           )}
+          <Text style={TYPE.bodySm} className="text-muted-foreground mt-1 mb-4">
+            Máx. 10 MB por archivo
+          </Text>
         </Animated.ScrollView>
       </KeyboardAvoidingView>
     </Modal>
