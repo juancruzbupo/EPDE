@@ -3,6 +3,11 @@ import { PropertyType, UserRole } from '@epde/shared';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+vi.mock('@tanstack/react-query', async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  return { ...actual, useQueryClient: () => ({ prefetchQuery: vi.fn() }) };
+});
+
 vi.mock('@/hooks/use-properties', () => ({
   useProperties: vi.fn(),
 }));

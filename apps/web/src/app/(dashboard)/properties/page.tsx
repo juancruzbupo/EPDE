@@ -1,10 +1,11 @@
 'use client';
 
 import type { PropertyType } from '@epde/shared';
-import { PROPERTY_TYPE_LABELS, UserRole } from '@epde/shared';
+import { PROPERTY_TYPE_LABELS, QUERY_KEYS, UserRole } from '@epde/shared';
+import { useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { DataTable } from '@/components/data-table/data-table';
 import { ErrorState } from '@/components/error-state';
@@ -16,6 +17,8 @@ import { PageTransition } from '@/components/ui/page-transition';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useProperties } from '@/hooks/use-properties';
 import { useUrlFilters } from '@/hooks/use-url-filters';
+import type { PropertyPublic } from '@/lib/api/properties';
+import { getProperty } from '@/lib/api/properties';
 import { useAuthStore } from '@/stores/auth-store';
 
 import { propertyColumns } from './columns';
@@ -50,7 +53,19 @@ export default function PropertiesPage() {
     [debouncedSearch, type],
   );
 
+  const queryClient = useQueryClient();
   const { data, isLoading, isError, refetch, hasNextPage, fetchNextPage } = useProperties(filters);
+
+  const handleRowHover = useCallback(
+    (row: PropertyPublic) => {
+      queryClient.prefetchQuery({
+        queryKey: [QUERY_KEYS.properties, row.id],
+        queryFn: () => getProperty(row.id).then((r) => r.data),
+        staleTime: 30_000,
+      });
+    },
+    [queryClient],
+  );
 
   const allProperties = useMemo(() => data?.pages.flatMap((p) => p.data) ?? [], [data]);
   const total = data?.pages[0]?.total;
@@ -96,6 +111,7 @@ export default function PropertiesPage() {
         total={total}
         emptyMessage="No se encontraron propiedades"
         onRowClick={(row) => router.push(`/properties/${row.id}`)}
+        onRowHover={handleRowHover}
       />
 
       {isAdmin && <CreatePropertyDialog open={createOpen} onOpenChange={setCreateOpen} />}

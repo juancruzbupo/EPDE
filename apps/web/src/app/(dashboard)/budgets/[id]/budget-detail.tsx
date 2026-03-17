@@ -78,7 +78,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
   const [editOpen, setEditOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
 
-  const { data, isError, refetch } = useBudget(id, { initialData });
+  const { data, isLoading, isError, refetch } = useBudget(id, { initialData });
   const updateStatus = useUpdateBudgetStatus();
 
   const budget = data;
@@ -92,6 +92,14 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
     return (
       <ErrorState message="No se pudo cargar el presupuesto" onRetry={refetch} className="py-24" />
     );
+  if (isLoading && !budget) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-muted/40 h-8 w-48 animate-pulse rounded" />
+        <div className="bg-muted/40 h-64 animate-pulse rounded-xl" />
+      </div>
+    );
+  }
   if (!budget) return null;
 
   const hasResponse = budget.status !== BudgetStatus.PENDING && budget.lineItems.length > 0;

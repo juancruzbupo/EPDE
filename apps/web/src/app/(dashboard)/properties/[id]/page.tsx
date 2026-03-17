@@ -1,9 +1,9 @@
-import type { ApiResponse, PropertyPublic } from '@epde/shared';
-import { UserRole } from '@epde/shared';
-import { notFound } from 'next/navigation';
+'use client';
 
-import { serverFetch } from '@/lib/server-api';
-import { getServerUser } from '@/lib/server-auth';
+import { UserRole } from '@epde/shared';
+import { use } from 'react';
+
+import { useAuthStore } from '@/stores/auth-store';
 
 import { PropertyDetail } from './property-detail';
 
@@ -11,17 +11,10 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
-export default async function PropertyDetailPage({ params }: Props) {
-  const { id } = await params;
+export default function PropertyDetailPage({ params }: Props) {
+  const { id } = use(params);
+  const role = useAuthStore((s) => s.user?.role);
+  const isAdmin = role === UserRole.ADMIN;
 
-  const [data, user] = await Promise.all([
-    serverFetch<ApiResponse<PropertyPublic>>(`/properties/${id}`),
-    getServerUser(),
-  ]);
-
-  if (!data?.data) notFound();
-
-  const isAdmin = user?.role === UserRole.ADMIN;
-
-  return <PropertyDetail id={id} isAdmin={isAdmin} initialData={data.data} />;
+  return <PropertyDetail id={id} isAdmin={isAdmin} />;
 }

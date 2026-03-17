@@ -1,9 +1,9 @@
-import type { ApiResponse, ServiceRequestPublic } from '@epde/shared';
-import { UserRole } from '@epde/shared';
-import { notFound } from 'next/navigation';
+'use client';
 
-import { serverFetch } from '@/lib/server-api';
-import { getServerUser } from '@/lib/server-auth';
+import { UserRole } from '@epde/shared';
+import { use } from 'react';
+
+import { useAuthStore } from '@/stores/auth-store';
 
 import { ServiceRequestDetail } from './service-request-detail';
 
@@ -11,20 +11,11 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
-export default async function ServiceRequestDetailPage({ params }: Props) {
-  const { id } = await params;
+export default function ServiceRequestDetailPage({ params }: Props) {
+  const { id } = use(params);
+  const role = useAuthStore((s) => s.user?.role);
+  const isAdmin = role === UserRole.ADMIN;
+  const isClient = role === UserRole.CLIENT;
 
-  const [data, user] = await Promise.all([
-    serverFetch<ApiResponse<ServiceRequestPublic>>(`/service-requests/${id}`),
-    getServerUser(),
-  ]);
-
-  if (!data?.data) notFound();
-
-  const isAdmin = user?.role === UserRole.ADMIN;
-  const isClient = user?.role === UserRole.CLIENT;
-
-  return (
-    <ServiceRequestDetail id={id} isAdmin={isAdmin} isClient={isClient} initialData={data.data} />
-  );
+  return <ServiceRequestDetail id={id} isAdmin={isAdmin} isClient={isClient} />;
 }

@@ -46,12 +46,30 @@ interface PropertyDetailProps {
 }
 
 export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps) {
-  const { data, isError, refetch } = useProperty(id, { initialData });
+  const { data, isLoading, isError, refetch } = useProperty(id, { initialData });
   const property = data;
   const [editOpen, setEditOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('details');
 
   if (isError && !property) {
     return <ErrorState message="No se pudo cargar la propiedad" onRetry={refetch} />;
+  }
+
+  if (isLoading && !property) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-muted/40 h-10 w-64 animate-pulse rounded" />
+        <Card>
+          <CardContent className="p-6">
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="bg-muted/40 h-6 animate-pulse rounded" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   if (!property) return null;
@@ -79,7 +97,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
         }
       />
 
-      <Tabs defaultValue="details">
+      <Tabs defaultValue="details" onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="details">Detalles</TabsTrigger>
           <TabsTrigger value="plan">Plan de Mantenimiento</TabsTrigger>
@@ -172,15 +190,17 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
         </TabsContent>
 
         <TabsContent value="expenses" className="mt-4">
-          <PropertyExpensesTab propertyId={property.id} />
+          {activeTab === 'expenses' && <PropertyExpensesTab propertyId={property.id} />}
         </TabsContent>
 
         <TabsContent value="photos" className="mt-4">
-          <PropertyPhotosTab propertyId={property.id} />
+          {activeTab === 'photos' && <PropertyPhotosTab propertyId={property.id} />}
         </TabsContent>
 
         <TabsContent value="health" className="mt-4">
-          <PropertyHealthTab propertyId={property.id} address={property.address} />
+          {activeTab === 'health' && (
+            <PropertyHealthTab propertyId={property.id} address={property.address} />
+          )}
         </TabsContent>
       </Tabs>
 

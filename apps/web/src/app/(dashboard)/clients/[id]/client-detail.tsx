@@ -54,7 +54,7 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
   const [editing, setEditing] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const { data, isError, refetch } = useClient(id, { initialData });
+  const { data, isLoading, isError, refetch } = useClient(id, { initialData });
   const updateClient = useUpdateClient();
   const deleteClient = useDeleteClient();
 
@@ -77,6 +77,14 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
     return (
       <ErrorState message="No se pudo cargar el cliente" onRetry={refetch} className="py-24" />
     );
+  if (isLoading && !client) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-muted/40 h-8 w-48 animate-pulse rounded" />
+        <div className="bg-muted/40 h-64 animate-pulse rounded-xl" />
+      </div>
+    );
+  }
   if (!client) return null;
 
   return (

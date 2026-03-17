@@ -65,7 +65,7 @@ export function ServiceRequestDetail({
   isClient,
   initialData,
 }: ServiceRequestDetailProps) {
-  const { data, isError, refetch } = useServiceRequest(id, { initialData });
+  const { data, isLoading, isError, refetch } = useServiceRequest(id, { initialData });
   const updateStatus = useUpdateServiceStatus();
 
   const [statusConfirm, setStatusConfirm] = useState<ServiceStatus | null>(null);
@@ -79,6 +79,14 @@ export function ServiceRequestDetail({
     return (
       <ErrorState message="No se pudo cargar la solicitud" onRetry={refetch} className="py-24" />
     );
+  if (isLoading && !request) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-muted/40 h-8 w-48 animate-pulse rounded" />
+        <div className="bg-muted/40 h-64 animate-pulse rounded-xl" />
+      </div>
+    );
+  }
   if (!request) return null;
 
   const nextStatus = STATUS_TRANSITIONS[request.status];

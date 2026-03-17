@@ -24,6 +24,7 @@ interface DataTableProps<TData, TValue> {
   total?: number;
   emptyMessage?: string;
   onRowClick?: (row: TData) => void;
+  onRowHover?: (row: TData) => void;
   caption?: string;
 }
 
@@ -36,6 +37,7 @@ export function DataTable<TData, TValue>({
   total,
   emptyMessage = 'Sin resultados',
   onRowClick,
+  onRowHover,
   caption,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
@@ -86,6 +88,7 @@ export function DataTable<TData, TValue>({
                       : undefined
                   }
                   onClick={() => onRowClick?.(row.original)}
+                  onMouseEnter={() => onRowHover?.(row.original)}
                   {...(onRowClick
                     ? {
                         tabIndex: 0,
