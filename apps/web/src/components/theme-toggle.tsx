@@ -1,23 +1,35 @@
 'use client';
 
 import { Moon, Sun } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 
-export function ThemeToggle() {
-  const [isDark, setIsDark] = useState(false);
+function getIsDark() {
+  return typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+}
 
+export function ThemeToggle() {
+  const [isDark, setIsDark] = useState(getIsDark);
+
+  // Sync state when another ThemeToggle instance changes the class
   useEffect(() => {
-    setIsDark(document.documentElement.classList.contains('dark'));
+    const observer = new MutationObserver(() => {
+      setIsDark(getIsDark());
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+    return () => observer.disconnect();
   }, []);
 
-  const toggle = () => {
-    const next = !isDark;
+  const toggle = useCallback(() => {
+    const next = !getIsDark();
     document.documentElement.classList.toggle('dark', next);
     localStorage.setItem('theme', next ? 'dark' : 'light');
     setIsDark(next);
-  };
+  }, []);
 
   return (
     <Button
