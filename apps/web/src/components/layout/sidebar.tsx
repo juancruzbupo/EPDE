@@ -5,7 +5,6 @@ import {
   CheckSquare,
   ChevronsLeft,
   ChevronsRight,
-  ClipboardList,
   FileText,
   Home,
   LayoutDashboard,
@@ -25,7 +24,6 @@ const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Clientes', href: '/clients', icon: Users, adminOnly: true },
   { label: 'Propiedades', href: '/properties', icon: Home },
-  { label: 'Planes', href: '/maintenance-plans', icon: ClipboardList, clientOnly: true },
   { label: 'Tareas', href: '/tasks', icon: CheckSquare },
   { label: 'Presupuestos', href: '/budgets', icon: FileText },
   { label: 'Servicios', href: '/service-requests', icon: Wrench },
@@ -47,7 +45,6 @@ export function Sidebar({ className }: { className?: string }) {
 
   const filteredItems = navItems.filter((item) => {
     if (item.adminOnly && user?.role !== UserRole.ADMIN) return false;
-    if (item.clientOnly && user?.role !== UserRole.CLIENT) return false;
     return true;
   });
 
