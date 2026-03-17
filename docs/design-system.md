@@ -420,11 +420,11 @@ export const metadata: Metadata = {
 
 **ADMIN:**
 
-- Dashboard, Clientes, Propiedades, Presupuestos, Servicios, Categorias, Plantillas
+- Dashboard, Clientes, Propiedades, Tareas, Presupuestos, Servicios, Categorías, Plantillas
 
 **CLIENT:**
 
-- Dashboard, Propiedades, Presupuestos, Servicios
+- Dashboard, Propiedades, Tareas, Presupuestos, Servicios
 
 ### Iconos
 

@@ -2,8 +2,8 @@
 
 App nativa construida con Expo + React Native. Soporta ambos roles:
 
-- **CLIENT**: Dashboard con health card + charts + tareas proximas, tab Planes visible
-- **ADMIN (MVP)**: Dashboard con 5 KPIs + metricas clave + SLA + actividad reciente, tab Planes oculto
+- **CLIENT**: Dashboard con health card + charts + tareas proximas
+- **ADMIN (MVP)**: Dashboard con 5 KPIs + metricas clave + SLA + actividad reciente
 
 Ambos roles comparten: Propiedades, Tareas, Presupuestos, Solicitudes, Notificaciones, Perfil. El backend filtra datos por rol automaticamente.
 
@@ -40,7 +40,7 @@ apps/mobile/
         _layout.tsx                   # Stack navigator
         login.tsx                     # Pantalla de login
         set-password.tsx              # Configurar password (invitacion)
-      (tabs)/                         # Tab navigator (7 tabs)
+      (tabs)/                         # Tab navigator (7 tabs: Inicio, Propiedades, Servicios, Tareas, Presupuestos, Avisos, Perfil)
         _layout.tsx                   # Configuracion de tabs
         index.tsx                     # Dashboard (Mi Panel)
         properties.tsx                # Mis Propiedades
@@ -136,15 +136,15 @@ Wraps: `GestureHandlerRootView` → `ErrorBoundary` → `PersistQueryClientProvi
 
 ### Tabs (7 pantallas)
 
-| Tab          | Ruta                 | Icono | Descripcion                        |
-| ------------ | -------------------- | ----- | ---------------------------------- |
-| Inicio       | `/(tabs)`            | 🏠    | Dashboard con stats y tareas       |
-| Propiedades  | `/properties`        | 🏘️    | Lista de propiedades               |
-| Planes       | `/maintenance-plans` | 📅    | Planes de mantenimiento            |
-| Tareas       | `/tasks`             | ✅    | Todas las tareas (todas las props) |
-| Presupuestos | `/budgets`           | 📋    | Lista de presupuestos              |
-| Avisos       | `/notifications`     | 📢    | Centro de notificaciones           |
-| Perfil       | `/profile`           | 👤    | Info de usuario + logout           |
+| Tab          | Ruta                | Icono | Descripcion                        |
+| ------------ | ------------------- | ----- | ---------------------------------- |
+| Inicio       | `/(tabs)`           | 🏠    | Dashboard con stats y tareas       |
+| Propiedades  | `/properties`       | 🏘️    | Lista de propiedades               |
+| Servicios    | `/service-requests` | 🔧    | Solicitudes de servicio            |
+| Tareas       | `/tasks`            | ✅    | Todas las tareas (todas las props) |
+| Presupuestos | `/budgets`          | 📋    | Lista de presupuestos              |
+| Avisos       | `/notifications`    | 📢    | Centro de notificaciones           |
+| Perfil       | `/profile`          | 👤    | Info de usuario + logout           |
 
 La tab de Avisos muestra un **badge con conteo de no leidas** (auto-refresh cada 30s).
 

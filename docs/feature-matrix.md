@@ -30,7 +30,7 @@ Actualizar cuando se agrega o modifica una feature en cualquier plataforma.
 | Crear / Editar                  | ✅ (admin)  |      ❌       |        ❌        | Solo admin crea propiedades                               |
 | Ver detalle                     |     ✅      |      ✅       |        ✅        |                                                           |
 | **Planes de Mantenimiento**     |             |               |                  |                                                           |
-| Listado de planes               |     ✅      |      ✅       |        ✅        | Tab "Planes" en mobile                                    |
+| Listado de planes               |     ✅      |      ✅       |        ✅        | Vía Propiedades → tab Plan (sin tab dedicado)             |
 | Ver detalle de plan             |     ✅      |      ✅       |  Vía propiedad   | Mobile accede desde propiedad                             |
 | Crear / Editar plan             | ✅ (admin)  |      ❌       |        ❌        | Auto-creado con propiedad                                 |
 | **Tareas**                      |             |               |                  |                                                           |

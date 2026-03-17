@@ -60,7 +60,7 @@ epde/
       src/
         app/
           (auth)/       # Login, set-password
-          (tabs)/       # Tab navigation (7 tabs: Inicio, Propiedades, Planes, Tareas, Presupuestos, Avisos, Perfil)
+          (tabs)/       # Tab navigation (7 tabs: Inicio, Propiedades, Servicios, Tareas, Presupuestos, Avisos, Perfil)
           property/     # Detalle de propiedad [id]
           budget/       # Detalle de presupuesto [id]
           service-requests/ # Lista y detalle
