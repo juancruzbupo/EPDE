@@ -162,12 +162,12 @@ export function AdminDashboard() {
 
                   <span className="text-muted-foreground hidden sm:inline">·</span>
 
-                  {analytics && (
-                    <div className="flex items-center gap-2">
-                      <div className="bg-primary/10 rounded-full p-2">
-                        <TrendingUp className="text-primary h-4 w-4" />
-                      </div>
-                      <div>
+                  <div className="flex items-center gap-2">
+                    <div className="bg-primary/10 rounded-full p-2">
+                      <TrendingUp className="text-primary h-4 w-4" />
+                    </div>
+                    <div>
+                      {analytics ? (
                         <p
                           className={`type-number-md ${
                             analytics.completionRate >= 80
@@ -179,10 +179,12 @@ export function AdminDashboard() {
                         >
                           {analytics.completionRate}%
                         </p>
-                        <p className="type-label-sm text-muted-foreground">Tasa de completado</p>
-                      </div>
+                      ) : (
+                        <p className="type-number-md text-muted-foreground">—</p>
+                      )}
+                      <p className="type-label-sm text-muted-foreground">Tasa de completado</p>
                     </div>
-                  )}
+                  </div>
                 </div>
               </CardContent>
             </Card>

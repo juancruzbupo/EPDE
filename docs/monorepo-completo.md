@@ -68,7 +68,7 @@ epde/
 │   │   │   ├── dashboard/            # Estadisticas agregadas (DashboardRepository standalone — queries multi-modelo)
 │   │   │   ├── email/                # Servicio de emails (Resend)
 │   │   │   ├── upload/               # Upload a Cloudflare R2
-│   │   │   ├── scheduler/            # Cron jobs (3 diarios, distributed lock)
+│   │   │   ├── scheduler/            # Cron jobs (6 jobs: 5 diarios + 1 mensual, distributed lock)
 │   │   │   ├── redis/                # RedisModule (global) + DistributedLockService
 │   │   │   ├── health/              # HealthModule (@nestjs/terminus, DB + Redis)
 │   │   │   ├── metrics/             # MetricsModule (OpenTelemetry, Prometheus :9464)
@@ -115,7 +115,12 @@ epde/
 │   │   │   │   ├── ui/               # 23 componentes shadcn/ui
 │   │   │   │   ├── data-table/       # DataTable wrapper (TanStack Table)
 │   │   │   │   ├── layout/           # Header, Sidebar
-│   │   │   │   └── landing/          # landing-page.tsx (composicion) + sections/ (11 archivos) + landing-data.ts
+│   │   │   │   ├── landing/          # landing-page.tsx (composicion) + sections/ (11 archivos) + landing-data.ts
+│   │   │   │   ├── home-status-card.tsx   # Dashboard L1: score ISV + mensaje humano
+│   │   │   │   ├── action-list.tsx        # Dashboard L2: tareas vencidas + semana
+│   │   │   │   ├── analytics-tabs.tsx     # Dashboard L3: charts en tabs
+│   │   │   │   ├── attention-needed.tsx   # Dashboard admin: alertas que requieren accion
+│   │   │   │   └── theme-toggle.tsx       # Dark mode toggle (localStorage + .dark class)
 │   │   │   ├── hooks/                # React Query hooks por entidad
 │   │   │   ├── lib/
 │   │   │   │   ├── api-client.ts     # Axios + 401 refresh interceptor
@@ -144,6 +149,9 @@ epde/
 │       │   │   ├── service-requests/ # Lista y detalle
 │       │   │   └── task/[planId]/[taskId].tsx  # Tarea + logs + notas
 │       │   ├── components/           # StatusBadge, EmptyState, StatCard, ErrorBoundary
+│       │   │   ├── home-status-card.tsx   # Dashboard L1: score ISV + mensaje humano + mini-stats
+│       │   │   ├── action-list.tsx        # Dashboard L2: tareas vencidas + semana
+│       │   │   └── analytics-section.tsx  # Dashboard L3: charts colapsable
 │       │   ├── hooks/                # React Query hooks (infinite scroll)
 │       │   ├── lib/
 │       │   │   ├── api-client.ts     # Axios + token refresh + auto-detect URL
@@ -153,7 +161,9 @@ epde/
 │       │   │   ├── colors.ts         # Re-exports DESIGN_TOKENS_LIGHT de @epde/shared
 │       │   │   ├── screen-options.ts # Navigation header/tab defaults
 │       │   │   └── api/              # Endpoints por entidad
-│       │   ├── stores/               # Zustand auth store
+│       │   ├── stores/
+│       │   │   ├── auth-store.ts          # Zustand: user, isAuthenticated, login, logout
+│       │   │   └── theme-store.ts         # Zustand: dark mode (auto/light/dark) + AsyncStorage persistence
 │       │   └── global.css            # Tokens NativeWind
 │       ├── assets/                   # Iconos, splash
 │       ├── app.json                  # Expo config (com.epde.mobile)
@@ -359,7 +369,7 @@ feature/
 | `upload`    | Sin repository                                                                 | Solo interactua con Cloudflare R2, no persiste en DB                                                                                                         |
 | `scheduler` | Sin controller ni repository                                                   | Solo cron jobs — sin endpoints REST ni acceso a datos propios                                                                                                |
 | `email`     | Sin controller ni repository                                                   | Servicio auxiliar de envio — invocado por `notifications/`                                                                                                   |
-| `dashboard` | Repository standalone (no extiende BaseRepository)                             | Queries de agregacion multi-modelo (JOINs entre User, Task, Budget, ServiceRequest) que no encajan en el patron CRUD de un solo modelo                       |
+| `dashboard` | Repository standalone (no extiende BaseRepository) + ISVSnapshotRepository     | Queries de agregacion multi-modelo (JOINs entre User, Task, Budget, ServiceRequest). ISVSnapshotRepository maneja snapshots mensuales de ISV                 |
 | `tasks`     | Modulo separado importa `PlanDataModule` (provee `MaintenancePlansRepository`) | Extraccion de `TaskLifecycleService` + `TaskNotesService` del modulo `maintenance-plans/`. `PlanDataModule` rompe la dependencia circular sin `forwardRef()` |
 
 ### P4: Guard Composition
@@ -451,13 +461,33 @@ Cliente → POST /upload (multipart/form-data) → { url }
 
 ### P11: Cron Jobs (Distributed Lock)
 
-Tres jobs diarios (09:00-09:10 UTC), cada uno envuelto en `DistributedLockService.withLock()` (Redis SETNX, TTL 5min):
+6 jobs programados, cada uno envuelto en `DistributedLockService.withLock()` (Redis SETNX, TTL 5min):
 
-1. **task-status-recalculation**: PENDING → UPCOMING (30 dias) → OVERDUE
-2. **task-upcoming-reminders**: Notificaciones + email para tareas proximas/vencidas
-3. **task-safety-sweep**: Correccion de edge cases en tareas completadas
+| Job                        | Cron              | Descripcion                                          |
+| -------------------------- | ----------------- | ---------------------------------------------------- |
+| task-status-recalculation  | 09:00 UTC diario  | PENDING -> UPCOMING (30 dias) -> OVERDUE             |
+| task-upcoming-reminders    | 09:05 UTC diario  | Notificaciones + email para tareas proximas/vencidas |
+| task-safety-sweep          | 09:10 UTC diario  | Correccion de edge cases en tareas completadas       |
+| budget-expiration-check    | 09:30 UTC diario  | Expiracion de presupuestos con validUntil vencido    |
+| service-request-auto-close | 10:00 UTC diario  | Auto-cierre de solicitudes resueltas hace >7 dias    |
+| isv-monthly-snapshot       | 02:00 UTC 1ro/mes | Snapshot mensual del ISV por propiedad               |
 
 Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en deployments multi-instancia. Incluye **watchdog** que extiende TTL automaticamente cada mitad del periodo. El callback recibe `signal: { lockLost: boolean }` — los jobs verifican el flag antes de operaciones costosas y abortan si el lock se perdio. **Batch processing**: tareas procesadas en lotes de `BATCH_SIZE=50` para evitar timeouts en datasets grandes.
+
+### Dashboard Inverted Pyramid
+
+El dashboard sigue un patron de **piramide invertida** — la informacion mas importante primero:
+
+| Nivel | Componente Web    | Componente Mobile  | Contenido                                              |
+| ----- | ----------------- | ------------------ | ------------------------------------------------------ |
+| L1    | `HomeStatusCard`  | `HomeStatusCard`   | Score ISV + mensaje humano + mini-stats (conclusion)   |
+| L2    | `ActionList`      | `ActionList`       | Tareas vencidas + proximas esta semana (acciones)      |
+| L2    | `AttentionNeeded` | —                  | Alertas admin: presupuestos pendientes, servicios open |
+| L3    | `AnalyticsTabs`   | `AnalyticsSection` | Charts de analytics detallados                         |
+
+- **Cliente**: L1 (HomeStatusCard) + L2 (ActionList) + L3 (AnalyticsTabs/AnalyticsSection)
+- **Admin**: L1 (stat cards KPI) + L2 (AttentionNeeded + actividad reciente) + L3 (AnalyticsTabs con charts admin)
+- **Mobile L3**: `AnalyticsSection` es colapsable (cerrado por defecto) para priorizar contenido actionable
 
 ### P12: State Management (Web + Mobile)
 
@@ -668,16 +698,30 @@ NUNCA usar hex literals en estos archivos — importar siempre desde `DESIGN_TOK
 | Table      | Tablas estilizadas                                         |
 | Textarea   | Areas de texto                                             |
 
+### Componentes Dashboard (Web — custom)
+
+| Componente      | Uso                                                                      |
+| --------------- | ------------------------------------------------------------------------ |
+| HomeStatusCard  | L1 piramide: score ISV + mensaje humano + mini-stats (cliente)           |
+| ActionList      | L2 piramide: tareas vencidas + proximas esta semana con links directos   |
+| AttentionNeeded | L2 piramide: alertas admin (presupuestos pendientes, servicios abiertos) |
+| AnalyticsTabs   | L3 piramide: charts en tabs (condicion, costos, categorias, sectores)    |
+| HealthIndexCard | ISV detallado: 5 dimensiones, history chart, reporte imprimible          |
+| ThemeToggle     | Switch dark mode (light/dark/system, persiste en localStorage)           |
+
 ### Componentes UI (Mobile — custom)
 
-| Componente                | Uso                                      |
-| ------------------------- | ---------------------------------------- |
-| StatusBadge               | Badge con variantes por estado/prioridad |
-| EmptyState                | Placeholder para listas vacias           |
-| StatCard                  | Tarjeta de estadistica del dashboard     |
-| CreateBudgetModal         | Formulario de creacion de presupuesto    |
-| CreateServiceRequestModal | Formulario con upload de fotos           |
-| CompleteTaskModal         | Completar tarea con nota y foto          |
+| Componente                | Uso                                              |
+| ------------------------- | ------------------------------------------------ |
+| StatusBadge               | Badge con variantes por estado/prioridad         |
+| EmptyState                | Placeholder para listas vacias                   |
+| StatCard                  | Tarjeta de estadistica del dashboard             |
+| HomeStatusCard            | Dashboard L1: score ISV + mensaje humano + stats |
+| ActionList                | Dashboard L2: tareas vencidas + proximas semana  |
+| AnalyticsSection          | Dashboard L3: charts colapsable                  |
+| CreateBudgetModal         | Formulario de creacion de presupuesto            |
+| CreateServiceRequestModal | Formulario con upload de fotos                   |
+| CompleteTaskModal         | Completar tarea con nota y foto                  |
 
 ### UI/UX Patterns (Web)
 
@@ -713,10 +757,13 @@ Skeletons estructurados que reflejan el layout real: PageHeader (titulo + descri
 - Titulo de la columna principal como `<Link>` clickeable
 - Menu 3-dot solo para acciones destructivas (eliminar, cambiar estado)
 
-#### Dashboard
+#### Dashboard (Inverted Pyramid)
 
-- Stat cards con styling condicional para overdue: `border-destructive/30 bg-destructive/10`
-- Activity list con icon circles (`bg-muted rounded-full p-2`) en bordered card items
+**Cliente (web):** `HomeStatusCard` (score ISV + mensaje + mini-stats) -> `ActionList` (tareas vencidas + proximas esta semana) -> `AnalyticsTabs` (charts: condicion, costos, categorias, sectores)
+
+**Admin (web):** Stat cards KPI (overdue styling: `border-destructive/30 bg-destructive/10`) -> `AttentionNeeded` (presupuestos pendientes, servicios abiertos) + activity list -> `AnalyticsTabs` (charts admin: trend, pipeline, SLA)
+
+**Cliente (mobile):** `HomeStatusCard` -> `ActionList` -> `AnalyticsSection` (colapsable, cerrado por defecto para priorizar contenido actionable)
 
 ### Style Maps (Variantes de Badge)
 
@@ -737,7 +784,9 @@ Las variantes de Badge se importan directamente desde `@epde/shared` (SSoT web +
 
 Color maps locales en `lib/style-maps.ts` (web): `TASK_TYPE_COLORS`, `PROFESSIONAL_REQ_COLORS`, y `TASK_STATUS_ORDER`/`TASK_STATUS_ICONS`/`TASK_STATUS_COLORS` (iconos y colores por status, compartidos entre tasks page, plan-viewer y plan-editor). El Badge web incluye variante `success` para estados terminales positivos (COMPLETED, APPROVED, RESOLVED).
 
-**Tokens semanticos en badges:** La variante `success` usa `bg-success/15 text-success border-success/20` (web) y `bg-success/15 text-success` (mobile). NUNCA usar `bg-green-*` / `text-green-*` directamente — siempre tokens semanticos (`success`, `warning`, `destructive`).
+**Tokens semanticos en badges:** La variante `success` usa `bg-success/15 text-success border-success/20` (web) y `bg-success/15 text-success` (mobile). La variante `warning` usa `bg-amber-100 text-amber-800 border-amber-200` (web) y `bg-amber-100 text-amber-800` (mobile). NUNCA usar `bg-green-*` / `text-green-*` directamente — siempre tokens semanticos (`success`, `warning`, `destructive`).
+
+**ISV color coding en tabla de propiedades:** El score ISV en la columna de propiedades usa variantes semanticas: `success` (score >= 80), `warning` (>= 60), `destructive` (< 60).
 
 ### Accesibilidad (Web)
 
@@ -755,6 +804,22 @@ El frontend web sigue patrones de accesibilidad WCAG 2.1:
 | Secciones colapsables | `aria-expanded` en botones toggle                                                                    |
 | Modales accesibles    | `<Dialog>` de shadcn con focus trap, Escape, aria-modal                                              |
 | Tokens semanticos     | `text-destructive` (no `text-red-600`), `bg-background` (no `bg-white`)                              |
+
+### Dark Mode
+
+**Web:**
+
+- `ThemeToggle` componente (toggle light/dark/system)
+- Persiste preferencia en `localStorage`
+- Aplica clase `.dark` en `<html>` — Tailwind v4 genera variantes dark automaticamente
+- Tokens dark definidos en `globals.css` bajo `.dark { ... }`
+
+**Mobile:**
+
+- NativeWind clase `.dark` + Zustand `theme-store.ts` + `AsyncStorage` persistencia
+- 3 opciones: `auto` (sigue sistema), `light`, `dark`
+- `useColorScheme()` de NativeWind para aplicar tema
+- Charts usan `CHART_TOKENS_DARK` de `@epde/shared` en dark mode
 
 ### DataTable (Web)
 
@@ -799,7 +864,9 @@ User ─1:N─ Property ─1:1─ MaintenancePlan ─1:N─ Task ─1:N─ TaskA
   │                ├─1:N─ BudgetRequest ─1:N─ BudgetLineItem
   │                │         └─1:1─ BudgetResponse
   │                │
-  │                └─1:N─ ServiceRequest ─1:N─ ServiceRequestPhoto
+  │                ├─1:N─ ServiceRequest ─1:N─ ServiceRequestPhoto
+  │                │
+  │                └─1:N─ ISVSnapshot (monthly health index snapshots)
   │
   ├─1:N─ TaskLog
   ├─1:N─ TaskNote
@@ -812,6 +879,7 @@ User ─1:N─ PushToken
 ```
 
 **Nota:** `TaskAuditLog` registra el historial de cambios de cada tarea (before/after snapshot).
+`ISVSnapshot` almacena snapshots mensuales del Indice de Salud de la Vivienda (generados por cron el 1ro de cada mes).
 `CategoryTemplate`/`TaskTemplate` son plantillas de configuracion inicial — no estan en el diagrama principal.
 `QuoteTemplate`/`QuoteTemplateItem` son plantillas de cotizacion reutilizables para el admin.
 `PushToken` almacena device tokens para push notifications (Expo Push API).
@@ -820,7 +888,39 @@ User ─1:N─ PushToken
 
 `UserRole`, `UserStatus`, `PropertyType`, `PropertySector`, `PlanStatus`, `TaskPriority`, `RecurrenceType`, `TaskStatus`, `BudgetStatus`, `ServiceUrgency`, `ServiceStatus`, `NotificationType`
 
-`PropertySector`: EXTERIOR, ROOF, TERRACE, INTERIOR, KITCHEN, BATHROOM, BASEMENT, GARDEN, INSTALLATIONS — zona de la vivienda donde se ubica la tarea.
+`PropertySector` (9 valores): EXTERIOR, ROOF, TERRACE, INTERIOR, KITCHEN, BATHROOM, BASEMENT, GARDEN, INSTALLATIONS — zona de la vivienda donde se ubica la tarea. Usado en `Property.activeSectors` y `Task.sector`.
+
+### ISVSnapshot
+
+Snapshot mensual del Indice de Salud de la Vivienda (ISV). Generado por cron job el 1ro de cada mes (02:00 UTC).
+
+| Campo        | Tipo       | Notas                                    |
+| ------------ | ---------- | ---------------------------------------- |
+| id           | UUID       | PK                                       |
+| propertyId   | String     | FK -> Property                           |
+| snapshotDate | DateTime   | Fecha del snapshot (1ro mes)             |
+| score        | Int        | Score global ISV (0-100)                 |
+| label        | String(50) | Excelente/Bueno/Regular/Critico          |
+| compliance   | Int        | Dimension: cumplimiento (35%)            |
+| condition    | Int        | Dimension: condicion (30%)               |
+| coverage     | Int        | Dimension: cobertura (20%)               |
+| investment   | Int        | Dimension: inversion (15%)               |
+| trend        | Int        | Tendencia (>50 mejora, <50 declina)      |
+| sectorScores | Json       | Array de {sector, score, overdue, total} |
+| createdAt    | DateTime   |                                          |
+
+**Indices:** `propertyId`, `@@unique([propertyId, snapshotDate])`
+**Cascade:** onDelete de Property elimina sus ISVSnapshots
+**ISV Label:** score >=80 "Excelente", >=60 "Bueno", >=40 "Regular", >=20 "Necesita atencion", <20 "Critico"
+
+### Campos adicionales relevantes
+
+- `Property.activeSectors`: `PropertySector[]` — 9 sectores activos de la vivienda
+- `Task.sector`: `PropertySector?` — sector de la vivienda donde se ubica la tarea
+- `ClientDashboardStats.upcomingThisWeek`: tareas proximas esta semana
+- `ClientDashboardStats.urgentTasks`: tareas urgentes
+- `UpcomingTask.professionalRequirement`: nivel de profesional requerido
+- `UpcomingTask.sector`: sector de la vivienda (nullable)
 
 ### Soft Delete
 
@@ -862,6 +962,7 @@ Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `
 - `BudgetResponse` → on delete `BudgetRequest`
 - `BudgetRequest` → on delete `Property`
 - `ServiceRequest` → on delete `Property`
+- `ISVSnapshot` → on delete `Property`
 - `ServiceRequestPhoto` → on delete `ServiceRequest`
 
 ### Restrict Deletes
@@ -888,7 +989,7 @@ Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `
 1. **Health** — `GET /health` (DB + Redis via @nestjs/terminus)
 2. **Auth** — login, refresh, logout, me, set-password
 3. **Clients** — CRUD (ADMIN only) + bulk-reinvite + bulk-delete
-4. **Properties** — CRUD + filtro por rol + expenses + photos
+4. **Properties** — CRUD + filtro por rol + 4 sub-endpoints: `GET :id/health-index` (ISV en tiempo real), `GET :id/health-history` (historial ISV 12 meses), `GET :id/expenses`, `GET :id/photos`. `GET /properties` incluye `latestISV` (ultimo snapshot ISV) en cada propiedad
 5. **Categories** — CRUD
 6. **Maintenance Plans** — CRUD + tareas + complete + notes + reorder
 7. **Budgets** — CRUD + respond + status changes
@@ -939,7 +1040,7 @@ uses: ci-reusable.yml (sin coverage ni spec enforcement) + deploy jobs
 | API     | 75         | 60       | 65        | 75    |
 | Shared  | 80         | 65       | 75        | 80    |
 | Web     | 70         | 70       | 65        | 70    |
-| Mobile  | 65         | 55       | 55        | 65    |
+| Mobile  | 55         | 35       | 45        | 55    |
 
 ### GitHub Actions CD
 
@@ -1039,7 +1140,7 @@ pnpm dev:mobile       # Expo dev server
 pnpm build            # Build completo
 pnpm lint             # ESLint
 pnpm typecheck        # TypeScript check
-pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo) — ~1254 tests total
+pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo) — ~970 total (453 API + 197 Shared + 241 Web + 170 Mobile)
 
 # Tests E2E (requiere DB + Redis)
 pnpm --filter @epde/api test:e2e

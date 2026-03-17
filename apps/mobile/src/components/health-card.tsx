@@ -24,8 +24,8 @@ function getHealthInfo(total: number, overdue: number) {
   const percent = Math.round(((total - overdue) / total) * 100);
   if (percent > 90) return { percent, label: 'Excelente', color: COLORS.success };
   if (percent > 70) return { percent, label: 'Bueno', color: COLORS.primary };
-  if (percent > 50) return { percent, label: 'Necesita atencion', color: COLORS.warning };
-  return { percent, label: 'Critico', color: COLORS.destructive };
+  if (percent > 50) return { percent, label: 'Necesita atención', color: COLORS.warning };
+  return { percent, label: 'Crítico', color: COLORS.destructive };
 }
 
 export const HealthCard = memo(function HealthCard({

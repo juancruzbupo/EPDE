@@ -25,26 +25,26 @@ interface MobileHomeStatusCardProps {
 }
 
 function getStatusTitle(score: number): string {
-  if (score >= 80) return 'Tu casa esta bien';
-  if (score >= 60) return 'Tu casa necesita algo de atencion';
-  if (score >= 40) return 'Tu casa necesita atencion';
-  return 'Tu casa necesita atencion urgente';
+  if (score >= 80) return 'Tu casa está bien';
+  if (score >= 60) return 'Tu casa necesita algo de atención';
+  if (score >= 40) return 'Tu casa necesita atención';
+  return 'Tu casa necesita atención urgente';
 }
 
 function getHumanMessage(score: number, overdue: number, upcoming: number): string {
   if (score >= 80) {
-    return 'Todo bajo control. Segui asi y tu hogar se va a mantener en excelente estado.';
+    return 'Todo bajo control. Seguí así y tu hogar se va a mantener en excelente estado.';
   }
   if (score >= 60) {
     if (overdue > 0) {
-      return `Tenes ${overdue} tarea${overdue > 1 ? 's' : ''} vencida${overdue > 1 ? 's' : ''}. Revisalas para mantener tu casa al dia.`;
+      return `Tenés ${overdue} tarea${overdue > 1 ? 's' : ''} vencida${overdue > 1 ? 's' : ''}. Revisalas para mantener tu casa al día.`;
     }
-    return 'Hay algunas tareas pendientes. Un poco de atencion ahora evita problemas mayores.';
+    return 'Hay algunas tareas pendientes. Un poco de atención ahora evita problemas mayores.';
   }
   if (score >= 40) {
-    return `Hay varias tareas que necesitan atencion${upcoming > 0 ? `, incluyendo ${upcoming} esta semana` : ''}. Te recomendamos revisarlas pronto.`;
+    return `Hay varias tareas que necesitan atención${upcoming > 0 ? `, incluyendo ${upcoming} esta semana` : ''}. Te recomendamos revisarlas pronto.`;
   }
-  return 'Tu hogar necesita atencion urgente. Revisá las tareas pendientes lo antes posible para evitar problemas mayores.';
+  return 'Tu hogar necesita atención urgente. Revisá las tareas pendientes lo antes posible para evitar problemas mayores.';
 }
 
 function getScoreColor(score: number): string {

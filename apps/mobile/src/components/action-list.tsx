@@ -23,11 +23,11 @@ function formatDueLabel(dateStr: string): string {
   const days = getDaysUntil(dateStr);
   if (days < 0) {
     const abs = Math.abs(days);
-    return `Vencida hace ${abs} dia${abs > 1 ? 's' : ''}`;
+    return `Vencida hace ${abs} día${abs > 1 ? 's' : ''}`;
   }
   if (days === 0) return 'Vence hoy';
-  if (days === 1) return 'Vence manana';
-  return `Vence en ${days} dias`;
+  if (days === 1) return 'Vence mañana';
+  return `Vence en ${days} días`;
 }
 
 function getDueLabelColor(dateStr: string): string {
@@ -155,7 +155,7 @@ export const ActionList = memo(function ActionList({ tasks }: MobileActionListPr
       {overdue.length > 0 && (
         <>
           <Text style={TYPE.titleMd} className="text-destructive mb-2">
-            Necesitan atencion ({overdue.length})
+            Necesitan atención ({overdue.length})
           </Text>
           {overdue.map((task) => {
             const idx = globalIndex++;

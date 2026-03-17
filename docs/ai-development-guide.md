@@ -82,6 +82,7 @@
 70. **Multer `limits.fileSize`** — `FileInterceptor` DEBE incluir `{ limits: { fileSize: MAX_SIZE } }` para abortar uploads mid-stream. NUNCA depender solo de checks post-buffer (file ya esta en memoria)
 71. **`trust proxy` en produccion** — `app.set('trust proxy', 1)` DEBE estar en main.ts para que `req.ip` refleje la IP del cliente real detras de reverse proxies (Render, Cloudflare, etc.)
 72. **Dentro de `$transaction` callbacks, agregar `deletedAt: null` manualmente** — A todas las queries de modelos soft-deletable (`user`, `property`, `task`, `category`, `budgetRequest`, `serviceRequest`). La extensión Prisma de soft-delete NO aplica dentro de transactions
+73. **Split de NotificationsHandlerService a 12+ métodos** — Si el servicio supera 12 handlers, dividir por dominio: `BudgetNotificationHandler`, `TaskNotificationHandler`, `ServiceNotificationHandler`, `SystemNotificationHandler`. Cada handler inyecta `NotificationQueueService` + `EmailQueueService` + `PushService` directamente. El servicio actual (8 métodos) no requiere split todavía
 
 ### NUNCA
 

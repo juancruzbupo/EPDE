@@ -29,16 +29,16 @@ describe('HealthCard', () => {
     expect(screen.getByText('Bueno')).toBeTruthy();
   });
 
-  it('shows "Necesita atencion" when overdue ratio yields 51-70%', () => {
+  it('shows "Necesita atención" when overdue ratio yields 51-70%', () => {
     // 100 total, 40 overdue → (100-40)/100 = 60%
     render(<HealthCard totalTasks={100} completedTasks={30} overdueTasks={40} />);
-    expect(screen.getByText('Necesita atencion')).toBeTruthy();
+    expect(screen.getByText('Necesita atención')).toBeTruthy();
   });
 
-  it('shows "Critico" when overdue ratio yields ≤ 50%', () => {
+  it('shows "Crítico" when overdue ratio yields ≤ 50%', () => {
     // 100 total, 60 overdue → (100-60)/100 = 40%
     render(<HealthCard totalTasks={100} completedTasks={10} overdueTasks={60} />);
-    expect(screen.getByText('Critico')).toBeTruthy();
+    expect(screen.getByText('Crítico')).toBeTruthy();
   });
 
   it('displays the completed tasks count', () => {
@@ -60,10 +60,10 @@ describe('HealthCard', () => {
     expect(screen.getByText('10')).toBeTruthy();
   });
 
-  it('renders "Critico" when all tasks are overdue', () => {
+  it('renders "Crítico" when all tasks are overdue', () => {
     // 10 total, 10 overdue → (10-10)/10 = 0%
     render(<HealthCard totalTasks={10} completedTasks={0} overdueTasks={10} />);
-    expect(screen.getByText('Critico')).toBeTruthy();
+    expect(screen.getByText('Crítico')).toBeTruthy();
   });
 
   it('renders zero completed tasks', () => {
