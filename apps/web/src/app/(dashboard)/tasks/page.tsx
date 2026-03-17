@@ -12,7 +12,8 @@ import {
   TaskStatus,
 } from '@epde/shared';
 import { Calendar, CheckSquare, ChevronDown, ChevronRight, MapPin } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
@@ -224,7 +225,17 @@ export default function TasksPage() {
     description: string;
   } | null>(null);
 
+  const searchParams = useSearchParams();
   const { data: tasks, isLoading, isError, refetch } = useAllTasks();
+
+  // Auto-open task detail when navigating with ?taskId=xxx (e.g. from dashboard ActionList)
+  useEffect(() => {
+    const taskId = searchParams.get('taskId');
+    if (taskId && tasks && !selectedTask) {
+      const found = tasks.find((t) => t.id === taskId);
+      if (found) setSelectedTask(found);
+    }
+  }, [searchParams, tasks, selectedTask]);
 
   // Fetch full task detail when a task is selected
   const { data: taskDetail } = useTaskDetail(

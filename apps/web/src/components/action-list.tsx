@@ -32,7 +32,7 @@ function TaskItem({ task }: { task: UpcomingTask }) {
   return (
     <li>
       <Link
-        href={`/properties/${task.propertyId}`}
+        href={`/tasks?taskId=${task.id}`}
         className="hover:bg-accent flex items-center gap-3 rounded-lg border p-3 transition-colors"
       >
         <div className="min-w-0 flex-1">

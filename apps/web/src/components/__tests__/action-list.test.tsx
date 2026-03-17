@@ -104,6 +104,6 @@ describe('ActionList', () => {
     });
     render(<ActionList tasks={[task]} />);
     const link = screen.getByRole('link');
-    expect(link).toHaveAttribute('href', '/maintenance-plans/plan-xyz/tasks/task-abc');
+    expect(link).toHaveAttribute('href', '/tasks?taskId=task-abc');
   });
 });
