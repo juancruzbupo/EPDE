@@ -79,7 +79,12 @@ export function CreateBudgetDialog({ open, onOpenChange }: CreateBudgetDialogPro
               value={selectedPropertyId ?? ''}
               onValueChange={(value) => setValue('propertyId', value, { shouldValidate: true })}
             >
-              <SelectTrigger id="propertyId" className="w-full" aria-invalid={!!errors.propertyId}>
+              <SelectTrigger
+                id="propertyId"
+                className="w-full"
+                aria-invalid={!!errors.propertyId}
+                aria-describedby={errors.propertyId ? 'property-error' : undefined}
+              >
                 <SelectValue placeholder="Seleccionar propiedad" />
               </SelectTrigger>
               <SelectContent>
@@ -91,7 +96,9 @@ export function CreateBudgetDialog({ open, onOpenChange }: CreateBudgetDialogPro
               </SelectContent>
             </Select>
             {errors.propertyId && (
-              <p className="text-destructive text-sm">{errors.propertyId.message}</p>
+              <p id="property-error" role="alert" className="text-destructive text-sm">
+                {errors.propertyId.message}
+              </p>
             )}
           </div>
           <div className="space-y-1.5">
@@ -102,9 +109,14 @@ export function CreateBudgetDialog({ open, onOpenChange }: CreateBudgetDialogPro
               id="title"
               placeholder="Ej: Reparación de techo"
               aria-invalid={!!errors.title}
+              aria-describedby={errors.title ? 'title-error' : undefined}
               {...register('title')}
             />
-            {errors.title && <p className="text-destructive text-xs">{errors.title.message}</p>}
+            {errors.title && (
+              <p id="title-error" role="alert" className="text-destructive text-xs">
+                {errors.title.message}
+              </p>
+            )}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="description" className="text-muted-foreground">

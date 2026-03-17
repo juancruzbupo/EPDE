@@ -178,7 +178,11 @@ export function TaskDialog({ open, onOpenChange, planId, task, activeSectors }: 
                 }}
                 disabled={categoriesLoading}
               >
-                <SelectTrigger id="task-category" aria-invalid={!!errors.categoryId}>
+                <SelectTrigger
+                  id="task-category"
+                  aria-invalid={!!errors.categoryId}
+                  aria-describedby={errors.categoryId ? 'category-error' : undefined}
+                >
                   <SelectValue
                     placeholder={categoriesLoading ? 'Cargando...' : 'Seleccionar categoría'}
                   />
@@ -195,7 +199,9 @@ export function TaskDialog({ open, onOpenChange, planId, task, activeSectors }: 
                 Especialidad técnica de la tarea (ej: Estructura, Eléctrica).
               </p>
               {errors.categoryId && (
-                <p className="text-destructive text-xs">{errors.categoryId.message}</p>
+                <p id="category-error" role="alert" className="text-destructive text-xs">
+                  {errors.categoryId.message}
+                </p>
               )}
             </div>
 
@@ -230,6 +236,7 @@ export function TaskDialog({ open, onOpenChange, planId, task, activeSectors }: 
                     id="task-name"
                     className="flex-1"
                     aria-invalid={!!errors.name}
+                    aria-describedby={errors.name ? 'name-error' : undefined}
                     disabled={!watchedCategoryId && !isEdit}
                     placeholder={watchedCategoryId || isEdit ? 'Nombre de la tarea' : ''}
                     {...register('name')}
@@ -250,7 +257,11 @@ export function TaskDialog({ open, onOpenChange, planId, task, activeSectors }: 
                   )}
                 </div>
               )}
-              {errors.name && <p className="text-destructive text-xs">{errors.name.message}</p>}
+              {errors.name && (
+                <p id="name-error" role="alert" className="text-destructive text-xs">
+                  {errors.name.message}
+                </p>
+              )}
             </div>
 
             {/* Sector (optional) */}

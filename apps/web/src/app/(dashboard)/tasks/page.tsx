@@ -272,19 +272,21 @@ export default function TasksPage() {
 
       {/* Stat cards */}
       {isLoading && (
-        <div className="mb-4 grid grid-cols-3 gap-2">
-          {TASK_STATUS_ORDER.map((status) => (
-            <div
-              key={status}
-              className="bg-card flex flex-1 items-center gap-3 rounded-lg border p-3"
-            >
-              <Skeleton className="h-5 w-5 rounded" />
-              <div>
-                <Skeleton className="h-5 w-8" />
-                <Skeleton className="mt-1 h-3 w-16" />
+        <div role="status" aria-label="Cargando...">
+          <div className="mb-4 grid grid-cols-3 gap-2">
+            {TASK_STATUS_ORDER.map((status) => (
+              <div
+                key={status}
+                className="bg-card flex flex-1 items-center gap-3 rounded-lg border p-3"
+              >
+                <Skeleton className="h-5 w-5 rounded" />
+                <div>
+                  <Skeleton className="h-5 w-8" />
+                  <Skeleton className="mt-1 h-3 w-16" />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
       {!isLoading && !isError && tasks && tasks.length > 0 && (

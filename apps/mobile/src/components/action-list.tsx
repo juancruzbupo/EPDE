@@ -62,6 +62,7 @@ const ActionTaskCard = memo(function ActionTaskCard({
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`Tarea: ${task.name}`}
+        accessibilityHint="Navega al detalle de la tarea"
         className={`bg-card mb-3 rounded-xl border p-3 ${
           isOverdue ? 'border-destructive/20' : 'border-border'
         }`}

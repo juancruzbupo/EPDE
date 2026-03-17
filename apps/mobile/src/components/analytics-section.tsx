@@ -60,6 +60,8 @@ export const AnalyticsSection = memo(function AnalyticsSection({
         {CHART_MONTH_OPTIONS.map((opt) => (
           <Pressable
             key={opt.value}
+            accessibilityLabel={`Mostrar últimos ${opt.value} meses`}
+            accessibilityRole="button"
             onPress={() => handleMonthChange(opt.value)}
             className={`rounded-full px-3 py-1 ${
               chartMonths === opt.value ? 'bg-primary' : 'bg-card border-border border'

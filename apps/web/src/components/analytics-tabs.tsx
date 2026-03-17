@@ -36,6 +36,7 @@ function MonthSelector({
       {([3, 6, 12] as const).map((m) => (
         <button
           key={m}
+          aria-label={`Mostrar últimos ${m} meses`}
           onClick={() => onMonthsChange(m)}
           className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
             chartMonths === m
