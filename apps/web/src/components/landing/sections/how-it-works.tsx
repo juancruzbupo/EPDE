@@ -20,9 +20,9 @@ export function HowItWorksSection({ motionProps }: SectionProps) {
             variants={FADE_IN_UP}
             className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
           >
-            No es solo un informe.
+            Del diagnóstico al seguimiento.
             <br />
-            <span className="text-muted-foreground">Es un sistema completo.</span>
+            <span className="text-muted-foreground">Todo en un solo proceso.</span>
           </motion.h2>
         </div>
 

@@ -19,24 +19,26 @@ export function ProblemsSection({ motionProps }: SectionProps) {
             variants={FADE_IN_UP}
             className="font-heading text-foreground text-3xl tracking-tight sm:text-4xl"
           >
-            El problema no es el paso del tiempo.
+            Evitar problemas en tu casa no es suerte.
             <br />
-            <span className="text-muted-foreground">Es no tener sistema.</span>
+            <span className="text-muted-foreground">Es detectarlos antes de que aparezcan.</span>
           </motion.h2>
-          <motion.div
+          <motion.ul
             variants={FADE_IN}
-            className="type-body-lg text-muted-foreground mt-4 max-w-2xl space-y-4"
+            className="type-body-lg text-muted-foreground mt-6 max-w-2xl list-none space-y-3"
           >
-            <p>
-              Las filtraciones no empiezan siendo urgencias. Las instalaciones no fallan de un día
-              para el otro. El deterioro es progresivo, invisible y acumulativo.
-            </p>
-            <p>
-              Cada mes que pasa sin revisión, el costo de la solución crece. Lo que hoy se resuelve
-              con una intervención menor, mañana requiere obra completa.
-            </p>
-            <p>Postergar no es ahorrar. Es acumular riesgo.</p>
-          </motion.div>
+            <li>• El deterioro es progresivo, invisible y acumulativo.</li>
+            <li>• Cada mes sin revisión, el costo de la solución crece.</li>
+            <li>
+              • Lo que hoy se resuelve con una intervención menor, mañana requiere obra completa.
+            </li>
+          </motion.ul>
+          <motion.p
+            variants={FADE_IN}
+            className="type-body-lg text-foreground mt-4 max-w-2xl font-medium"
+          >
+            Postergar no es ahorrar. Es acumular riesgo.
+          </motion.p>
 
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             {PROBLEMS.map((problem) => (

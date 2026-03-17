@@ -30,7 +30,7 @@ export function Footer() {
       <div className="border-border bg-background/95 fixed right-0 bottom-0 left-0 z-50 border-t p-2 backdrop-blur-sm md:hidden">
         <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="block">
           <Button size="sm" className="w-full gap-2">
-            Solicitar diagnóstico
+            Agendar diagnóstico
             <ArrowRight className="h-3.5 w-3.5" />
           </Button>
         </a>

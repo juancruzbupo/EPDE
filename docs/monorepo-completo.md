@@ -1140,7 +1140,7 @@ pnpm dev:mobile       # Expo dev server
 pnpm build            # Build completo
 pnpm lint             # ESLint
 pnpm typecheck        # TypeScript check
-pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo) — ~970 total (453 API + 197 Shared + 241 Web + 170 Mobile)
+pnpm test             # API (jest) + Shared (vitest) + Web (vitest) + Mobile (jest-expo) — ~1280 total (628 API + 228 Shared + 252 Web + 173 Mobile)
 
 # Tests E2E (requiere DB + Redis)
 pnpm --filter @epde/api test:e2e

@@ -12,6 +12,7 @@ import { Footer } from './sections/footer';
 import { Header } from './sections/header';
 import { HeroSection } from './sections/hero';
 import { HowItWorksSection } from './sections/how-it-works';
+import { ImmediatePromiseSection } from './sections/immediate-promise';
 import { InvestmentSection } from './sections/investment';
 import { ProblemsSection } from './sections/problems';
 import { RealExampleSection } from './sections/real-example';
@@ -37,6 +38,7 @@ export function LandingPage() {
     <div className="flex min-h-screen flex-col pb-16 md:pb-0">
       <Header ctaHref={ctaHref} ctaLabel={ctaLabel} />
       <HeroSection motionProps={motionProps} />
+      <ImmediatePromiseSection motionProps={motionProps} />
       <ProblemsSection motionProps={motionProps} />
       <CostComparisonSection motionProps={motionProps} />
       <HowItWorksSection motionProps={motionProps} />

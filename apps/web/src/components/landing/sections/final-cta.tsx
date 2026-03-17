@@ -19,9 +19,9 @@ export function FinalCtaSection({ motionProps }: SectionProps) {
           variants={FADE_IN_UP}
           className="font-heading text-background text-3xl sm:text-4xl"
         >
-          Tu vivienda no necesita más arreglos.
+          Evitar problemas costosos empieza
           <br />
-          Necesita un sistema.
+          con una sola visita.
         </motion.h2>
         <motion.p
           variants={FADE_IN}
@@ -40,12 +40,12 @@ export function FinalCtaSection({ motionProps }: SectionProps) {
         <motion.div variants={FADE_IN} className="mt-8">
           <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
             <Button size="lg" variant="secondary" className="gap-2">
-              Solicitar diagnóstico de mi vivienda
+              Agendar diagnóstico
               <ArrowRight className="h-4 w-4" />
             </Button>
           </a>
           <p className="type-body-sm text-background/40 mt-3">
-            Recibí una evaluación inicial del estado de tu casa.
+            Sin compromiso. Respondemos en menos de 24 horas.
           </p>
         </motion.div>
       </motion.div>

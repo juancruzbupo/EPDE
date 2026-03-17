@@ -40,11 +40,19 @@ export function HeroSection({ motionProps }: SectionProps) {
           comunes del hogar antes de que se conviertan en reparaciones caras.
         </motion.p>
 
-        <motion.div variants={FADE_IN} className="mt-10 flex justify-center">
+        <motion.div
+          variants={FADE_IN}
+          className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
+        >
           <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
             <Button size="lg" className="gap-2">
-              Evaluar mi vivienda
+              Agendar diagnóstico
               <ArrowRight className="h-4 w-4" />
+            </Button>
+          </a>
+          <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+            <Button size="lg" variant="outline" className="gap-2">
+              Consultar por WhatsApp
             </Button>
           </a>
         </motion.div>

@@ -71,11 +71,16 @@ export function InvestmentSection({ motionProps }: SectionProps) {
             ))}
           </div>
 
-          <div className="mt-8 text-center">
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
               <Button size="lg" className="gap-2">
-                Solicitar diagnóstico
+                Agendar diagnóstico
                 <ArrowRight className="h-4 w-4" />
+              </Button>
+            </a>
+            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+              <Button size="lg" variant="outline" className="gap-2">
+                Consultar por WhatsApp
               </Button>
             </a>
           </div>
@@ -83,7 +88,14 @@ export function InvestmentSection({ motionProps }: SectionProps) {
 
         <motion.p
           variants={FADE_IN}
-          className="type-body-sm text-muted-foreground/70 mx-auto mt-8 max-w-3xl text-center"
+          className="type-body-sm text-primary mx-auto mt-6 max-w-3xl text-center font-medium"
+        >
+          Solo 10 diagnósticos disponibles este mes en Paraná · Etapa de lanzamiento
+        </motion.p>
+
+        <motion.p
+          variants={FADE_IN}
+          className="type-body-sm text-muted-foreground/70 mx-auto mt-4 max-w-3xl text-center"
         >
           {PRICE_DISCLAIMER}
         </motion.p>
