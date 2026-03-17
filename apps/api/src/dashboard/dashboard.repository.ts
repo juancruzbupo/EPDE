@@ -415,12 +415,19 @@ export class DashboardRepository {
     return Number(result._sum.cost ?? 0);
   }
 
+  /**
+   * Completion rate = tasks with at least 1 TaskLog / total tasks.
+   * Task.status is NOT reliable because EPDE tasks are cyclic — upon completion,
+   * status resets to PENDING with a new nextDueDate. COMPLETED is transient.
+   */
   async getCompletionRate() {
-    const [total, completed] = await Promise.all([
+    const [total, withLogs] = await Promise.all([
       this.prisma.softDelete.task.count(),
-      this.prisma.softDelete.task.count({ where: { status: TaskStatus.COMPLETED } }),
+      this.prisma.softDelete.task.count({
+        where: { taskLogs: { some: {} } },
+      }),
     ]);
-    return total > 0 ? Math.round((completed / total) * 100) : 0;
+    return total > 0 ? Math.round((withLogs / total) * 100) : 0;
   }
 
   // ─── Client Analytics Methods ──────────────────────────
