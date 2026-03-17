@@ -36,6 +36,10 @@ interface CreateServiceDialogProps {
   defaultPropertyId?: string;
   /** Pre-fill the linked task when opening from a task context. */
   defaultTaskId?: string;
+  /** Pre-fill the title field. */
+  defaultTitle?: string;
+  /** Pre-fill the description field. */
+  defaultDescription?: string;
 }
 
 interface PhotoPreview {
@@ -50,6 +54,8 @@ export function CreateServiceDialog({
   onOpenChange,
   defaultPropertyId,
   defaultTaskId,
+  defaultTitle,
+  defaultDescription,
 }: CreateServiceDialogProps) {
   const createServiceRequest = useCreateServiceRequest();
   const uploadFile = useUploadFile();
@@ -77,7 +83,7 @@ export function CreateServiceDialog({
   } = form;
 
   // Disable draft when pre-filling from task context (prevents stale draft overwriting defaults)
-  const hasDefaults = !!(defaultPropertyId || defaultTaskId);
+  const hasDefaults = !!(defaultPropertyId || defaultTaskId || defaultTitle);
   const { clearDraft } = useDraft('draft:service-request:create', form, open && !hasDefaults);
 
   // Pre-fill property and task when provided (e.g. from task detail sheet)
@@ -88,7 +94,13 @@ export function CreateServiceDialog({
     if (open && defaultTaskId) {
       setValue('taskId', defaultTaskId);
     }
-  }, [open, defaultPropertyId, defaultTaskId, setValue]);
+    if (open && defaultTitle) {
+      setValue('title', defaultTitle);
+    }
+    if (open && defaultDescription) {
+      setValue('description', defaultDescription);
+    }
+  }, [open, defaultPropertyId, defaultTaskId, defaultTitle, defaultDescription, setValue]);
 
   const selectedPropertyId = watch('propertyId');
 

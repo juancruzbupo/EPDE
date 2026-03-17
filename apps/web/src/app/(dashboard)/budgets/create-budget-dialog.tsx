@@ -26,12 +26,18 @@ interface CreateBudgetDialogProps {
   onOpenChange: (open: boolean) => void;
   /** Pre-fill the property selector when opening from a task context. */
   defaultPropertyId?: string;
+  /** Pre-fill the title field. */
+  defaultTitle?: string;
+  /** Pre-fill the description field. */
+  defaultDescription?: string;
 }
 
 export function CreateBudgetDialog({
   open,
   onOpenChange,
   defaultPropertyId,
+  defaultTitle,
+  defaultDescription,
 }: CreateBudgetDialogProps) {
   const createBudget = useCreateBudgetRequest();
   const { data: propertiesData } = useProperties({});
@@ -54,7 +60,7 @@ export function CreateBudgetDialog({
   } = form;
 
   // Disable draft when pre-filling from task context
-  const hasDefaults = !!defaultPropertyId;
+  const hasDefaults = !!(defaultPropertyId || defaultTitle);
   const { clearDraft } = useDraft('draft:budget:create', form, open && !hasDefaults);
 
   // Pre-fill property when provided (e.g. from task detail sheet)
@@ -62,7 +68,13 @@ export function CreateBudgetDialog({
     if (open && defaultPropertyId) {
       setValue('propertyId', defaultPropertyId, { shouldValidate: true });
     }
-  }, [open, defaultPropertyId, setValue]);
+    if (open && defaultTitle) {
+      setValue('title', defaultTitle);
+    }
+    if (open && defaultDescription) {
+      setValue('description', defaultDescription);
+    }
+  }, [open, defaultPropertyId, defaultTitle, defaultDescription, setValue]);
 
   const selectedPropertyId = watch('propertyId');
 

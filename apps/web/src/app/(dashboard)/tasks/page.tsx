@@ -215,8 +215,14 @@ export default function TasksPage() {
   const [serviceDialogTask, setServiceDialogTask] = useState<{
     propertyId: string;
     taskId: string;
+    title: string;
+    description: string;
   } | null>(null);
-  const [budgetDialogPropertyId, setBudgetDialogPropertyId] = useState<string | null>(null);
+  const [budgetDialogTask, setBudgetDialogTask] = useState<{
+    propertyId: string;
+    title: string;
+    description: string;
+  } | null>(null);
 
   const { data: tasks, isLoading, isError, refetch } = useAllTasks();
 
@@ -415,12 +421,18 @@ export default function TasksPage() {
           setServiceDialogTask({
             propertyId: selectedTask.maintenancePlan.property.id,
             taskId: selectedTask.id,
+            title: `Solicitud: ${selectedTask.name}`,
+            description: `Tarea: ${selectedTask.name} — ${selectedTask.category.name}`,
           });
           setSelectedTask(null);
         }}
         onRequestBudget={() => {
           if (!selectedTask) return;
-          setBudgetDialogPropertyId(selectedTask.maintenancePlan.property.id);
+          setBudgetDialogTask({
+            propertyId: selectedTask.maintenancePlan.property.id,
+            title: `Presupuesto: ${selectedTask.name}`,
+            description: `Tarea: ${selectedTask.name} — ${selectedTask.category.name}`,
+          });
           setSelectedTask(null);
         }}
       />
@@ -439,14 +451,18 @@ export default function TasksPage() {
         }}
         defaultPropertyId={serviceDialogTask?.propertyId}
         defaultTaskId={serviceDialogTask?.taskId}
+        defaultTitle={serviceDialogTask?.title}
+        defaultDescription={serviceDialogTask?.description}
       />
 
       <CreateBudgetDialog
-        open={!!budgetDialogPropertyId}
+        open={!!budgetDialogTask}
         onOpenChange={(open) => {
-          if (!open) setBudgetDialogPropertyId(null);
+          if (!open) setBudgetDialogTask(null);
         }}
-        defaultPropertyId={budgetDialogPropertyId ?? undefined}
+        defaultPropertyId={budgetDialogTask?.propertyId}
+        defaultTitle={budgetDialogTask?.title}
+        defaultDescription={budgetDialogTask?.description}
       />
     </PageTransition>
   );

@@ -194,8 +194,15 @@ export function PlanViewer({ planId, propertyId }: PlanViewerProps) {
   const [completingTask, setCompletingTask] = useState<TaskPublic | null>(null);
 
   // Service / budget dialog state (pre-filled from task detail sheet)
-  const [serviceDialogTaskId, setServiceDialogTaskId] = useState<string | null>(null);
-  const [budgetDialogOpen, setBudgetDialogOpen] = useState(false);
+  const [serviceDialogTask, setServiceDialogTask] = useState<{
+    taskId: string;
+    title: string;
+    description: string;
+  } | null>(null);
+  const [budgetDialogTask, setBudgetDialogTask] = useState<{
+    title: string;
+    description: string;
+  } | null>(null);
   const [search, setSearch] = useState('');
   const [priority, setPriority] = useState<TaskPriority | 'all'>('all');
   const debouncedSearch = useDebounce(search);
@@ -340,11 +347,18 @@ export function PlanViewer({ planId, propertyId }: PlanViewerProps) {
           setCompletingTask(task);
         }}
         onRequestService={(task) => {
-          setServiceDialogTaskId(task.id);
+          setServiceDialogTask({
+            taskId: task.id,
+            title: `Solicitud: ${task.name}`,
+            description: `Tarea: ${task.name} — ${task.category?.name ?? ''}`,
+          });
           setSelectedTask(null);
         }}
-        onRequestBudget={() => {
-          setBudgetDialogOpen(true);
+        onRequestBudget={(task) => {
+          setBudgetDialogTask({
+            title: `Presupuesto: ${task.name}`,
+            description: `Tarea: ${task.name} — ${task.category?.name ?? ''}`,
+          });
           setSelectedTask(null);
         }}
       />
@@ -357,18 +371,24 @@ export function PlanViewer({ planId, propertyId }: PlanViewerProps) {
       />
 
       <CreateServiceDialog
-        open={!!serviceDialogTaskId}
+        open={!!serviceDialogTask}
         onOpenChange={(open) => {
-          if (!open) setServiceDialogTaskId(null);
+          if (!open) setServiceDialogTask(null);
         }}
         defaultPropertyId={propertyId}
-        defaultTaskId={serviceDialogTaskId ?? undefined}
+        defaultTaskId={serviceDialogTask?.taskId}
+        defaultTitle={serviceDialogTask?.title}
+        defaultDescription={serviceDialogTask?.description}
       />
 
       <CreateBudgetDialog
-        open={budgetDialogOpen}
-        onOpenChange={setBudgetDialogOpen}
+        open={!!budgetDialogTask}
+        onOpenChange={(open) => {
+          if (!open) setBudgetDialogTask(null);
+        }}
         defaultPropertyId={propertyId}
+        defaultTitle={budgetDialogTask?.title}
+        defaultDescription={budgetDialogTask?.description}
       />
     </>
   );
