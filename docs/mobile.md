@@ -461,7 +461,7 @@ module.exports = {
 
 **Nota:** Los tests e2e (Detox) en `e2e/` están excluidos del Jest runner. Se ejecutan con Detox CLI separado.
 
-### Tests disponibles (32 suites, 165 tests)
+### Tests disponibles (34 suites, 176 tests)
 
 | Grupo      | Suites | Tests   | Descripcion                                                                                                                                         |
 | ---------- | ------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |

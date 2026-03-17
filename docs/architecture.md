@@ -361,14 +361,13 @@ Dependencias: `TasksRepository`, `NotificationsRepository`, `UsersRepository`, `
 - Paginacion cursor-based con `hasMore` + "Cargar mas"
 - Hooks de detalle aceptan `options?: { initialData }` para hydration desde Server Components
 
-**Server Components (detail pages):**
+**Detail pages (Client Components con skeleton loading):**
 
-- Las 4 detail pages (`budgets/[id]`, `service-requests/[id]`, `clients/[id]`, `properties/[id]`) son **Server Components**
-- Pattern: `page.tsx` (Server) hace fetch con `serverFetch()` + obtiene rol con `getServerUser()` → pasa `initialData` + `isAdmin` a Client Component hijo
-- `serverFetch()` (`lib/server-api.ts`): usa `fetch()` + forward de cookies via `cookies()` de `next/headers`
-- `getServerUser()` (`lib/server-auth.ts`): decodifica JWT del cookie `access_token` sin verificar firma (backend lo hace)
-- Si el recurso no existe, el Server Component llama `notFound()` — sin flash de skeleton
-- Los Client Components (`budget-detail.tsx`, etc.) reciben `initialData` que se usa como cache seed en React Query
+- Las 4 detail pages (`budgets/[id]`, `service-requests/[id]`, `clients/[id]`, `properties/[id]`) son **Client Components** (`'use client'`)
+- Pattern: `page.tsx` usa `use(params)` para obtener `id`, `useAuthStore` para rol → pasa `id` + `isAdmin` al Client Component hijo
+- Los Client Components cargan datos via React Query con skeleton loading inmediato (sin blocking de navegacion)
+- Property detail usa **lazy tab loading**: expenses/photos/health solo se fetchean cuando el tab esta activo
+- Properties list page tiene **prefetch on hover**: al pasar el mouse sobre una fila, se pre-carga data del detalle
 
 **UI/UX Patterns (Web):**
 
