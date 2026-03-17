@@ -38,6 +38,8 @@ Actualizar cuando se agrega o modifica una feature en cualquier plataforma.
 | Ver detalle de tarea            |     ✅      |      ✅       |        ✅        |                                                           |
 | Crear / Editar tarea            | ✅ (admin)  |      ❌       |        ❌        |                                                           |
 | Completar tarea                 |     ✅      |      ✅       |        ✅        | Con foto, costo, nota                                     |
+| Solicitar servicio desde tarea  |     ✅      |      ✅       |        ✅        | Pre-llena propertyId + taskId + título                    |
+| Pedir presupuesto desde tarea   |     ✅      |      ✅       |        ✅        | Pre-llena propertyId + título                             |
 | Reordenar tareas                | ✅ (admin)  |      ❌       |        ❌        | Drag & drop                                               |
 | Notas de tarea                  |     ✅      |      ✅       |        ✅        |                                                           |
 | Historial de tarea (logs)       |     ✅      |      ✅       |        ✅        |                                                           |

@@ -256,6 +256,9 @@ Estructura en 3 niveles (conclusión primero, datos después):
 
 - Info completa: nombre, descripcion, estado, prioridad, recurrencia, categoria
 - Boton "Completar Tarea" → modal con 4 selectores, costo y foto
+- Boton "Solicitar Servicio" → abre modal pre-llenado con propertyId + taskId + titulo
+- Boton "Pedir Presupuesto" → abre modal pre-llenado con propertyId + titulo
+- Hint "Esta tarea requiere intervencion profesional" cuando `professionalRequirement !== OWNER_CAN_DO`
 - Historial de completados (logs) — `CollapsibleSection` expandible
 - Seccion de comentarios/notas — `CollapsibleSection` expandible
 
