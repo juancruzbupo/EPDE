@@ -1,6 +1,7 @@
 'use client';
 
-import { Menu } from 'lucide-react';
+import { Menu, User } from 'lucide-react';
+import Link from 'next/link';
 import { VisuallyHidden } from 'radix-ui';
 
 import { NotificationBell } from '@/components/notification-bell';
@@ -39,7 +40,13 @@ export function Header() {
       <div className="ml-auto flex items-center gap-3">
         <ThemeToggle />
         <NotificationBell />
-        <span className="text-muted-foreground text-sm">{user?.name}</span>
+        <Link
+          href="/profile"
+          className="text-muted-foreground hover:text-foreground flex items-center gap-2 rounded-md px-2 py-1 text-sm transition-colors"
+        >
+          <User className="h-4 w-4" />
+          <span className="hidden sm:inline">{user?.name}</span>
+        </Link>
       </div>
     </header>
   );

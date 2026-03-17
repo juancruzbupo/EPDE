@@ -63,18 +63,18 @@ describe('Sidebar', () => {
     expect(screen.getByText('Categorías')).toBeInTheDocument();
   });
 
-  it('displays user name and email', () => {
+  it('renders EPDE branding', () => {
     renderSidebar();
 
-    expect(screen.getByText('Juan Test')).toBeInTheDocument();
-    expect(screen.getByText('juan@test.com')).toBeInTheDocument();
+    expect(screen.getByText('EPDE')).toBeInTheDocument();
   });
 
-  it('calls logout and clears cache on click', async () => {
+  it('calls logout on logout button click', async () => {
     const user = userEvent.setup();
     renderSidebar();
 
-    await user.click(screen.getByText('Cerrar sesión'));
+    const logoutBtn = screen.getByTitle('Cerrar sesión');
+    await user.click(logoutBtn);
 
     expect(mockLogout).toHaveBeenCalledTimes(1);
   });

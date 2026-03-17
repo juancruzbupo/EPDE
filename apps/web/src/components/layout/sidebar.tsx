@@ -12,7 +12,6 @@ import {
   LayoutTemplate,
   LogOut,
   Tags,
-  User,
   Users,
   Wrench,
 } from 'lucide-react';
@@ -113,29 +112,16 @@ export function Sidebar({ className }: { className?: string }) {
       </nav>
 
       {/* Footer */}
-      <div className={cn('border-t', collapsed ? 'p-2' : 'p-4')}>
-        {!collapsed && (
-          <>
-            <p className="text-sidebar-foreground truncate text-sm font-medium">{user?.name}</p>
-            <p className="text-sidebar-foreground/60 truncate text-xs">{user?.email}</p>
-          </>
-        )}
-        <div className={cn('flex items-center', collapsed ? 'mt-0 flex-col gap-2' : 'mt-2 gap-4')}>
-          <Link
-            href="/profile"
-            title="Perfil"
-            className="text-sidebar-foreground/60 hover:text-sidebar-foreground focus-visible:ring-ring/50 flex items-center gap-2 rounded text-sm focus-visible:ring-[3px] focus-visible:outline-none"
-          >
-            <User className="h-3.5 w-3.5" />
-            {!collapsed && 'Perfil'}
-          </Link>
+      <div className={cn('border-t', collapsed ? 'p-2' : 'p-3')}>
+        <div
+          className={cn('flex items-center', collapsed ? 'flex-col gap-2' : 'justify-center gap-3')}
+        >
           <button
             onClick={handleLogout}
             title="Cerrar sesión"
-            className="text-sidebar-foreground/60 hover:text-sidebar-foreground focus-visible:ring-ring/50 flex items-center gap-2 rounded text-sm focus-visible:ring-[3px] focus-visible:outline-none"
+            className="text-sidebar-foreground/60 hover:text-sidebar-foreground focus-visible:ring-ring/50 rounded p-1.5 focus-visible:ring-[3px] focus-visible:outline-none"
           >
-            <LogOut className="h-3.5 w-3.5" />
-            {!collapsed && 'Cerrar sesión'}
+            <LogOut className="h-4 w-4" />
           </button>
           <ThemeToggle />
         </div>
