@@ -434,19 +434,28 @@ pnpm --filter @epde/mobile android
 ```javascript
 module.exports = {
   preset: 'jest-expo',
+  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/e2e/'],
+  setupFiles: ['./src/test-setup.ts'],
   transformIgnorePatterns: [
     'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|@tanstack/.*|@epde/.*)',
   ],
 };
 ```
 
-### Tests disponibles
+**Setup file** (`src/test-setup.ts`): Mocks globales para native modules no disponibles en Jest (`expo-haptics`, `@react-native-community/netinfo`, `@react-native-async-storage/async-storage`).
 
-| Suite       | Tests  | Descripcion                                         |
-| ----------- | ------ | --------------------------------------------------- |
-| StatusBadge | 10     | Renderizado de badges por estado, variantes, labels |
-| EmptyState  | 3      | Renderizado de titulo, mensaje, placeholder         |
-| **Total**   | **13** |                                                     |
+**Nota:** Los tests e2e (Detox) en `e2e/` están excluidos del Jest runner. Se ejecutan con Detox CLI separado.
+
+### Tests disponibles (32 suites, 165 tests)
+
+| Grupo      | Suites | Tests   | Descripcion                                                                                                                                         |
+| ---------- | ------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Hooks      | 9      | ~70     | use-budgets, use-plans, use-properties, use-dashboard, use-notifications, use-service-requests, use-task-operations, use-upload, use-network-status |
+| Screens    | 9      | ~50     | dashboard, budgets, properties, tasks, maintenance-plans, notifications, profile, service-requests, task-detail                                     |
+| Components | 6      | ~30     | status-badge, empty-state, health-card, animated-number, offline-banner, error-state                                                                |
+| Lib        | 1      | ~5      | css-tokens (design token sync)                                                                                                                      |
+| Auth       | 1      | ~10     | auth-flow (login, logout, checkAuth)                                                                                                                |
+| **Total**  | **32** | **165** |                                                                                                                                                     |
 
 ### Comandos
 
