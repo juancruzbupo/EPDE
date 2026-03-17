@@ -10,7 +10,6 @@ import {
   Home,
   LayoutDashboard,
   LayoutTemplate,
-  LogOut,
   Tags,
   Users,
   Wrench,
@@ -19,7 +18,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { ThemeToggle } from '@/components/theme-toggle';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -37,7 +35,7 @@ const navItems = [
 
 export function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname();
-  const { user, logout } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window === 'undefined') return false;
     return localStorage.getItem('sidebar-collapsed') === 'true';
@@ -46,14 +44,6 @@ export function Sidebar({ className }: { className?: string }) {
   useEffect(() => {
     localStorage.setItem('sidebar-collapsed', String(collapsed));
   }, [collapsed]);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch {
-      // Logout API may fail — local cleanup already done by auth store
-    }
-  };
 
   const filteredItems = navItems.filter((item) => {
     if (item.adminOnly && user?.role !== UserRole.ADMIN) return false;
@@ -110,22 +100,6 @@ export function Sidebar({ className }: { className?: string }) {
           );
         })}
       </nav>
-
-      {/* Footer */}
-      <div className={cn('border-t', collapsed ? 'p-2' : 'p-3')}>
-        <div
-          className={cn('flex items-center', collapsed ? 'flex-col gap-2' : 'justify-center gap-3')}
-        >
-          <button
-            onClick={handleLogout}
-            title="Cerrar sesión"
-            className="text-sidebar-foreground/60 hover:text-sidebar-foreground focus-visible:ring-ring/50 rounded p-1.5 focus-visible:ring-[3px] focus-visible:outline-none"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
-          <ThemeToggle />
-        </div>
-      </div>
     </aside>
   );
 }

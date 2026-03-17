@@ -1,18 +1,33 @@
 'use client';
 
-import { Menu, User } from 'lucide-react';
+import { LogOut, Menu, User } from 'lucide-react';
 import Link from 'next/link';
 import { VisuallyHidden } from 'radix-ui';
 
 import { NotificationBell } from '@/components/notification-bell';
 import { ThemeToggle } from '@/components/theme-toggle';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useAuthStore } from '@/stores/auth-store';
 
 import { Sidebar } from './sidebar';
 
 export function Header() {
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch {
+      // Logout API may fail — local cleanup already done by auth store
+    }
+  };
 
   return (
     <header className="flex h-14 items-center gap-4 border-b px-6">
@@ -40,13 +55,30 @@ export function Header() {
       <div className="ml-auto flex items-center gap-3">
         <ThemeToggle />
         <NotificationBell />
-        <Link
-          href="/profile"
-          className="text-muted-foreground hover:text-foreground flex items-center gap-2 rounded-md px-2 py-1 text-sm transition-colors"
-        >
-          <User className="h-4 w-4" />
-          <span className="hidden sm:inline">{user?.name}</span>
-        </Link>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="text-muted-foreground hover:text-foreground flex items-center gap-2 rounded-md px-2 py-1 text-sm transition-colors">
+              <User className="h-4 w-4" />
+              <span className="hidden sm:inline">{user?.name}</span>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem asChild>
+              <Link href="/profile" className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                Mi perfil
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={handleLogout}
+              className="text-destructive focus:text-destructive flex items-center gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Cerrar sesión
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );

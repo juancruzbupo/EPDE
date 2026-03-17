@@ -1,7 +1,6 @@
 import { UserRole } from '@epde/shared';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
 import { Sidebar } from '../layout/sidebar';
 
@@ -10,15 +9,13 @@ vi.mock('next/navigation', () => ({
   usePathname: () => '/dashboard',
 }));
 
-// Mock zustand store
-const mockLogout = vi.fn().mockResolvedValue(undefined);
+// Mock zustand store — sidebar uses selector pattern: useAuthStore((s) => s.user)
 let mockUser: { name: string; email: string; role: string } | null = null;
 
 vi.mock('@/stores/auth-store', () => ({
-  useAuthStore: () => ({
-    user: mockUser,
-    logout: mockLogout,
-  }),
+  useAuthStore: vi.fn((selector: (s: Record<string, unknown>) => unknown) =>
+    selector({ user: mockUser }),
+  ),
 }));
 
 function renderSidebar() {
@@ -36,7 +33,6 @@ function renderSidebar() {
 describe('Sidebar', () => {
   beforeEach(() => {
     mockUser = { name: 'Juan Test', email: 'juan@test.com', role: UserRole.CLIENT };
-    mockLogout.mockClear();
   });
 
   it('renders common navigation items', () => {
@@ -67,15 +63,5 @@ describe('Sidebar', () => {
     renderSidebar();
 
     expect(screen.getByText('EPDE')).toBeInTheDocument();
-  });
-
-  it('calls logout on logout button click', async () => {
-    const user = userEvent.setup();
-    renderSidebar();
-
-    const logoutBtn = screen.getByTitle('Cerrar sesión');
-    await user.click(logoutBtn);
-
-    expect(mockLogout).toHaveBeenCalledTimes(1);
   });
 });
