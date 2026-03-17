@@ -84,6 +84,7 @@
 72. **Dentro de `$transaction` callbacks, agregar `deletedAt: null` manualmente** — A todas las queries de modelos soft-deletable (`user`, `property`, `task`, `category`, `budgetRequest`, `serviceRequest`). La extensión Prisma de soft-delete NO aplica dentro de transactions
 73. **Split de NotificationsHandlerService a 12+ métodos** — Si el servicio supera 12 handlers, dividir por dominio: `BudgetNotificationHandler`, `TaskNotificationHandler`, `ServiceNotificationHandler`, `SystemNotificationHandler`. Cada handler inyecta `NotificationQueueService` + `EmailQueueService` + `PushService` directamente. El servicio actual (8 métodos) no requiere split todavía
 74. **Todo copy de landing en `landing-data.ts`** — Textos, CTAs, disclaimers, features y constantes de la landing page DEBEN vivir centralizados en `apps/web/src/components/landing/landing-data.ts`. NUNCA agregar copy inline en archivos de sección (`sections/*.tsx`). Si un CRO round agrega nuevos textos, extraerlos a constantes en `landing-data.ts`
+75. **Sincronizar `monorepo-completo.md` al cerrar una feature grande** — Después de agregar features que afecten estructura (nuevos componentes, models, endpoints, tabs), actualizar `docs/monorepo-completo.md` con los cambios. Los docs granulares (`architecture.md`, `mobile.md`, etc.) son la fuente de verdad; `monorepo-completo.md` es el consolidado para auditorías y onboarding
 
 ### NUNCA
 
