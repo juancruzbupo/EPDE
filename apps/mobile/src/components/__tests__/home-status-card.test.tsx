@@ -3,12 +3,11 @@ import React from 'react';
 
 import { HomeStatusCard } from '../home-status-card';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { Text: RNText } = require('react-native');
-
 jest.mock('../animated-number', () => ({
   AnimatedNumber: ({ value, suffix }: { value: number; suffix?: string }) => {
-    return <RNText>{`${value}${suffix ?? ''}`}</RNText>;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { Text } = require('react-native');
+    return <Text>{`${value}${suffix ?? ''}`}</Text>;
   },
 }));
 

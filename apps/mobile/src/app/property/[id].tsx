@@ -1,5 +1,10 @@
 import type { TaskPublic } from '@epde/shared';
-import { formatRelativeDate, PROPERTY_SECTOR_LABELS, TaskStatus } from '@epde/shared';
+import {
+  formatRelativeDate,
+  PROPERTY_SECTOR_LABELS,
+  type PropertySector,
+  TaskStatus,
+} from '@epde/shared';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import {
@@ -27,7 +32,13 @@ import {
 } from '@/components/status-badge';
 import { SwipeableRow } from '@/components/swipeable-row';
 import { usePlan } from '@/hooks/use-plans';
-import { useProperty, usePropertyExpenses, usePropertyPhotos } from '@/hooks/use-properties';
+import {
+  useProperty,
+  usePropertyExpenses,
+  usePropertyHealthHistory,
+  usePropertyHealthIndex,
+  usePropertyPhotos,
+} from '@/hooks/use-properties';
 import { useAnimatedEntry } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
@@ -96,6 +107,8 @@ export default function PropertyDetailScreen() {
   const { data: plan, isLoading: planLoading, refetch: refetchPlan } = usePlan(planId ?? '');
   const { data: expenses } = usePropertyExpenses(id);
   const { data: photos } = usePropertyPhotos(id);
+  const { data: healthIndex } = usePropertyHealthIndex(id);
+  const { data: healthHistory } = usePropertyHealthHistory(id);
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('es-AR', {
@@ -403,6 +416,160 @@ export default function PropertyDetailScreen() {
                       </View>
                     </Pressable>
                   ))}
+                </View>
+              </CollapsibleSection>
+            )}
+
+            {/* Health / ISV section */}
+            {healthIndex && healthIndex.score > 0 && (
+              <CollapsibleSection title={`Salud (ISV: ${healthIndex.score}/100)`}>
+                <View className="gap-3">
+                  {/* Score + label */}
+                  <View className="flex-row items-center justify-between">
+                    <Text
+                      style={TYPE.numberLg}
+                      className={
+                        healthIndex.score >= 80
+                          ? 'text-success'
+                          : healthIndex.score >= 60
+                            ? 'text-primary'
+                            : healthIndex.score >= 40
+                              ? 'text-warning'
+                              : 'text-destructive'
+                      }
+                    >
+                      {healthIndex.score}
+                    </Text>
+                    <View className="items-end">
+                      <Text style={TYPE.titleSm} className="text-foreground">
+                        {healthIndex.label}
+                      </Text>
+                      <Text style={TYPE.bodySm} className="text-muted-foreground">
+                        {healthIndex.dimensions.trend > 55
+                          ? 'Mejorando'
+                          : healthIndex.dimensions.trend < 45
+                            ? 'Declinando'
+                            : 'Estable'}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* 5 Dimensions */}
+                  {(
+                    [
+                      { key: 'compliance' as const, name: 'Cumplimiento' },
+                      { key: 'condition' as const, name: 'Condición' },
+                      { key: 'coverage' as const, name: 'Cobertura' },
+                      { key: 'investment' as const, name: 'Inversión' },
+                      { key: 'trend' as const, name: 'Tendencia' },
+                    ] as const
+                  ).map(({ key, name }) => {
+                    const value = healthIndex.dimensions[key];
+                    return (
+                      <View key={key}>
+                        <View className="flex-row items-center justify-between">
+                          <Text style={TYPE.bodySm} className="text-foreground">
+                            {name}
+                          </Text>
+                          <Text
+                            style={TYPE.bodySm}
+                            className={
+                              value >= 80
+                                ? 'text-success font-semibold'
+                                : value >= 60
+                                  ? 'text-primary font-semibold'
+                                  : value >= 40
+                                    ? 'text-warning font-semibold'
+                                    : 'text-destructive font-semibold'
+                            }
+                          >
+                            {value}
+                          </Text>
+                        </View>
+                        <View className="bg-muted mt-1 h-1.5 overflow-hidden rounded-full">
+                          <View
+                            className={`h-full rounded-full ${
+                              value >= 80
+                                ? 'bg-success'
+                                : value >= 60
+                                  ? 'bg-primary'
+                                  : value >= 40
+                                    ? 'bg-warning'
+                                    : 'bg-destructive'
+                            }`}
+                            style={{ width: `${value}%` }}
+                          />
+                        </View>
+                      </View>
+                    );
+                  })}
+
+                  {/* Sector scores */}
+                  {healthIndex.sectorScores.length > 0 && (
+                    <View className="border-border border-t pt-2">
+                      <Text style={TYPE.labelMd} className="text-muted-foreground mb-2">
+                        Por sector
+                      </Text>
+                      {healthIndex.sectorScores.map((s) => (
+                        <View key={s.sector} className="flex-row items-center justify-between py-1">
+                          <Text style={TYPE.bodySm} className="text-foreground">
+                            {PROPERTY_SECTOR_LABELS[s.sector as PropertySector] ?? s.sector}
+                          </Text>
+                          <Text
+                            style={TYPE.bodySm}
+                            className={
+                              s.score >= 80
+                                ? 'text-success font-semibold'
+                                : s.score >= 60
+                                  ? 'text-primary font-semibold'
+                                  : 'text-destructive font-semibold'
+                            }
+                          >
+                            {s.score}%
+                            {s.overdue > 0 && (
+                              <Text className="text-destructive">
+                                {' '}
+                                ({s.overdue} vencida{s.overdue !== 1 ? 's' : ''})
+                              </Text>
+                            )}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+
+                  {/* History chart (simple bar representation) */}
+                  {healthHistory && healthHistory.length > 1 && (
+                    <View className="border-border border-t pt-2">
+                      <Text style={TYPE.labelMd} className="text-muted-foreground mb-2">
+                        Evolución del ISV
+                      </Text>
+                      <View className="flex-row items-end gap-1" style={{ height: 60 }}>
+                        {healthHistory.map((s) => {
+                          const h = Math.max(4, (s.score / 100) * 52);
+                          return (
+                            <View key={s.month} className="flex-1 items-center">
+                              <View
+                                className={`w-full rounded-t ${
+                                  s.score >= 80
+                                    ? 'bg-success'
+                                    : s.score >= 60
+                                      ? 'bg-primary'
+                                      : s.score >= 40
+                                        ? 'bg-warning'
+                                        : 'bg-destructive'
+                                }`}
+                                style={{ height: h }}
+                              />
+                              <Text className="text-muted-foreground mt-0.5 text-[8px]">
+                                {s.month.slice(5)}
+                              </Text>
+                            </View>
+                          );
+                        })}
+                      </View>
+                    </View>
+                  )}
                 </View>
               </CollapsibleSection>
             )}
