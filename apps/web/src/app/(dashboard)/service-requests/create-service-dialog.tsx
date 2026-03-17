@@ -185,11 +185,11 @@ export function CreateServiceDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-h-[90vh] max-w-xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Nueva Solicitud de Servicio</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="min-w-0 space-y-4">
           <div className="space-y-2">
             <Label htmlFor="propertyId">Propiedad</Label>
             <Controller
@@ -226,7 +226,7 @@ export function CreateServiceDialog({
                     value={field.value ?? NONE_VALUE}
                     onValueChange={(v) => field.onChange(v === NONE_VALUE ? undefined : v)}
                   >
-                    <SelectTrigger id="taskId" className="w-full">
+                    <SelectTrigger id="taskId" className="w-full truncate">
                       <SelectValue placeholder="Seleccionar tarea" />
                     </SelectTrigger>
                     <SelectContent>
