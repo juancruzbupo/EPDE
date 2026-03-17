@@ -34,6 +34,12 @@ export class UploadService {
     verifiedMime?: string,
   ): Promise<string> {
     if (!this.s3 || !this.bucketName) {
+      // Dev fallback: return placeholder URL when R2 is not configured
+      const isDev = this.configService.get<string>('NODE_ENV') !== 'production';
+      if (isDev) {
+        this.logger.warn(`Upload sin R2 — usando placeholder para ${file.originalname}`);
+        return `https://placehold.co/400x300/e8ddd3/4a4542?text=${encodeURIComponent(file.originalname)}`;
+      }
       throw new Error('Upload no configurado. Configure las variables R2_* en .env');
     }
 
