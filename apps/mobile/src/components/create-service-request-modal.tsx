@@ -79,7 +79,9 @@ export function CreateServiceRequestModal({
     formState: { errors, isValid, isDirty },
   } = form;
 
-  const { clearDraft } = useDraft('draft:service-request:create', form, visible);
+  // Disable draft when pre-filling from task context
+  const hasDefaults = !!(defaultPropertyId || defaultTaskId || defaultTitle);
+  const { clearDraft } = useDraft('draft:service-request:create', form, visible && !hasDefaults);
 
   // Pre-fill defaults when opened from task detail
   useEffect(() => {
@@ -101,10 +103,19 @@ export function CreateServiceRequestModal({
   );
   const tasks = selectedPropertyId ? (propertyTasks ?? []) : [];
 
-  // Clear taskId when property changes
+  // Clear taskId when property changes (skip when pre-filling from task context)
   useEffect(() => {
-    setValue('taskId', undefined);
-  }, [selectedPropertyId, setValue]);
+    if (!defaultTaskId) {
+      setValue('taskId', undefined);
+    }
+  }, [selectedPropertyId, defaultTaskId, setValue]);
+
+  // Re-apply defaultTaskId after tasks load (select needs options available)
+  useEffect(() => {
+    if (visible && defaultTaskId && propertyTasks && propertyTasks.length > 0) {
+      setValue('taskId', defaultTaskId, { shouldValidate: true });
+    }
+  }, [visible, defaultTaskId, propertyTasks, setValue]);
 
   const pickImage = () => {
     if (photos.length >= 5) {

@@ -60,7 +60,9 @@ export function CreateBudgetModal({
     formState: { errors, isValid, isDirty },
   } = form;
 
-  const { clearDraft } = useDraft('draft:budget:create', form, visible);
+  // Disable draft when pre-filling from task context
+  const hasDefaults = !!(defaultPropertyId || defaultTitle);
+  const { clearDraft } = useDraft('draft:budget:create', form, visible && !hasDefaults);
 
   // Pre-fill defaults when opened from task detail
   useEffect(() => {
