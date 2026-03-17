@@ -91,17 +91,17 @@ export function AdminDashboard() {
         ) : stats ? (
           <View className="mb-6">
             <View className="flex-row gap-3">
-              <AnimatedStatCard title="Clientes" value={stats.totalClients} color="primary" />
-              <AnimatedStatCard title="Propiedades" value={stats.totalProperties} color="primary" />
+              <AnimatedStatCard title="Clientes" value={stats.totalClients} />
+              <AnimatedStatCard title="Propiedades" value={stats.totalProperties} />
               <AnimatedStatCard
                 title="Vencidas"
                 value={stats.overdueTasks}
-                color={stats.overdueTasks > 0 ? 'destructive' : 'primary'}
+                variant={stats.overdueTasks > 0 ? 'destructive' : 'default'}
               />
             </View>
             <View className="mt-3 flex-row gap-3">
-              <AnimatedStatCard title="Presupuestos" value={stats.pendingBudgets} color="primary" />
-              <AnimatedStatCard title="Servicios" value={stats.pendingServices} color="primary" />
+              <AnimatedStatCard title="Presupuestos" value={stats.pendingBudgets} />
+              <AnimatedStatCard title="Servicios" value={stats.pendingServices} />
             </View>
           </View>
         ) : null}
