@@ -163,7 +163,7 @@ describe('DashboardScreen', () => {
 
     expect(getByText('Mi Panel')).toBeTruthy();
     expect(getByText('Próximas Tareas')).toBeTruthy();
-    expect(getByText('Sin tareas proximas')).toBeTruthy();
+    expect(getByText('Sin tareas próximas')).toBeTruthy();
     expect(getByText('No hay tareas de mantenimiento programadas por ahora.')).toBeTruthy();
   });
 
