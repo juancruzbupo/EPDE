@@ -1,4 +1,4 @@
-import { UserRole } from '@epde/shared';
+// UserRole removed — all tabs now visible to all roles
 import { Tabs } from 'expo-router';
 import { useEffect } from 'react';
 import { Text, View } from 'react-native';
@@ -10,7 +10,6 @@ import { SPRING, useReducedMotion } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
 import { haptics } from '@/lib/haptics';
 import { defaultTabBarOptions } from '@/lib/screen-options';
-import { useAuthStore } from '@/stores/auth-store';
 
 function AnimatedTabIcon({
   emoji,
@@ -42,7 +41,7 @@ function AnimatedTabIcon({
 
 export default function TabLayout() {
   const { data: unreadCount } = useUnreadCount();
-  const isAdmin = useAuthStore((s) => s.user?.role) === UserRole.ADMIN;
+  // Role check removed — all tabs visible to all roles (Planes hidden via href: null)
 
   return (
     <View className="flex-1">
@@ -72,10 +71,19 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="service-requests"
+          options={{
+            title: 'Servicios',
+            tabBarIcon: ({ color, focused }) => (
+              <AnimatedTabIcon emoji="🔧" color={color} focused={focused} />
+            ),
+          }}
+        />
+        <Tabs.Screen
           name="maintenance-plans"
           options={{
             title: 'Planes',
-            href: isAdmin ? null : undefined,
+            href: null,
             tabBarIcon: ({ color, focused }) => (
               <AnimatedTabIcon emoji="📅" color={color} focused={focused} />
             ),
