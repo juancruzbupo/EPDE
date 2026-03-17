@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 const mockSearchParams = new URLSearchParams('token=test-token-abc');
 
 vi.mock('next/navigation', () => ({
+  usePathname: () => '/test',
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
   useSearchParams: () => mockSearchParams,
 }));

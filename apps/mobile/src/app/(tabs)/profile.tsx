@@ -14,11 +14,15 @@ import {
 import * as authApi from '@/lib/auth';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
+import { haptics } from '@/lib/haptics';
 import { useAuthStore } from '@/stores/auth-store';
+import { useThemeStore } from '@/stores/theme-store';
 
 export default function ProfileScreen() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const mode = useThemeStore((s) => s.mode);
+  const setMode = useThemeStore((s) => s.setMode);
 
   const [editingField, setEditingField] = useState<'name' | 'phone' | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -244,6 +248,34 @@ export default function ProfileScreen() {
               </Text>
             )}
           </Pressable>
+        </View>
+      </View>
+
+      {/* Apariencia */}
+      <View className="border-border bg-card mb-4 rounded-xl border p-4">
+        <Text style={TYPE.titleSm} className="text-foreground mb-3">
+          Apariencia
+        </Text>
+        <View className="gap-2">
+          {(['auto', 'light', 'dark'] as const).map((option) => (
+            <Pressable
+              key={option}
+              onPress={() => {
+                setMode(option);
+                haptics.selection();
+              }}
+              className={`flex-row items-center justify-between rounded-lg p-3 ${mode === option ? 'bg-primary/10' : 'bg-muted/50'}`}
+            >
+              <Text style={TYPE.bodyMd} className="text-foreground">
+                {option === 'auto'
+                  ? 'Automático (sistema)'
+                  : option === 'light'
+                    ? 'Claro'
+                    : 'Oscuro'}
+              </Text>
+              {mode === option && <View className="bg-primary h-3 w-3 rounded-full" />}
+            </Pressable>
+          ))}
         </View>
       </View>
 

@@ -8,6 +8,7 @@ vi.mock('@/hooks/use-service-requests', () => ({
 }));
 
 vi.mock('next/navigation', () => ({
+  usePathname: () => '/test',
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
   useSearchParams: () => new URLSearchParams(),
 }));

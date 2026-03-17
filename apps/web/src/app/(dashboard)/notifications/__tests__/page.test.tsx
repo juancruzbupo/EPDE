@@ -9,6 +9,8 @@ vi.mock('@/hooks/use-notifications', () => ({
 }));
 
 vi.mock('next/navigation', () => ({
+  usePathname: () => '/test',
+  useSearchParams: () => new URLSearchParams(),
   useRouter: () => ({ push: vi.fn() }),
 }));
 

@@ -7,6 +7,8 @@ import { serverFetch } from '@/lib/server-api';
 import Page from '../page';
 
 vi.mock('next/navigation', () => ({
+  usePathname: () => '/test',
+  useSearchParams: () => new URLSearchParams(),
   notFound: vi.fn(() => {
     throw new Error('NEXT_NOT_FOUND');
   }),

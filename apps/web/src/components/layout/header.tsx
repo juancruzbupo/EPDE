@@ -4,6 +4,7 @@ import { Menu } from 'lucide-react';
 import { VisuallyHidden } from 'radix-ui';
 
 import { NotificationBell } from '@/components/notification-bell';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -36,6 +37,7 @@ export function Header() {
       <span className="font-heading text-primary text-lg font-bold lg:hidden">EPDE</span>
 
       <div className="ml-auto flex items-center gap-3">
+        <ThemeToggle />
         <NotificationBell />
         <span className="text-muted-foreground text-sm">{user?.name}</span>
       </div>

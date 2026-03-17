@@ -14,6 +14,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { useColorScheme, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -21,6 +22,7 @@ import { registerForPushNotifications } from '@/lib/push-notifications';
 import { queryClient } from '@/lib/query-client';
 import { asyncStoragePersister } from '@/lib/query-persister';
 import { useAuthStore } from '@/stores/auth-store';
+import { useThemeStore } from '@/stores/theme-store';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -76,6 +78,11 @@ function AuthGate() {
 
 export default function RootLayout() {
   const checkAuth = useAuthStore((s) => s.checkAuth);
+  const systemColorScheme = useColorScheme();
+  const mode = useThemeStore((s) => s.mode);
+  const loadSavedTheme = useThemeStore((s) => s.loadSavedTheme);
+
+  const effectiveTheme = mode === 'auto' ? (systemColorScheme ?? 'light') : mode;
 
   const [fontsLoaded, fontError] = useFonts({
     DMSans_400Regular,
@@ -94,21 +101,27 @@ export default function RootLayout() {
     checkAuth();
   }, [checkAuth]);
 
+  useEffect(() => {
+    void loadSavedTheme();
+  }, [loadSavedTheme]);
+
   if (!fontsLoaded && !fontError) {
     return null;
   }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ErrorBoundary>
-        <PersistQueryClientProvider
-          client={queryClient}
-          persistOptions={{ persister: asyncStoragePersister }}
-        >
-          <AuthGate />
-          <StatusBar style="auto" />
-        </PersistQueryClientProvider>
-      </ErrorBoundary>
+      <View className={effectiveTheme === 'dark' ? 'dark flex-1' : 'flex-1'}>
+        <ErrorBoundary>
+          <PersistQueryClientProvider
+            client={queryClient}
+            persistOptions={{ persister: asyncStoragePersister }}
+          >
+            <AuthGate />
+            <StatusBar style={effectiveTheme === 'dark' ? 'light' : 'dark'} />
+          </PersistQueryClientProvider>
+        </ErrorBoundary>
+      </View>
     </GestureHandlerRootView>
   );
 }

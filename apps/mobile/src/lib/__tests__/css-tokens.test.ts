@@ -1,4 +1,9 @@
-import { DESIGN_TOKENS_LIGHT, TASK_TYPE_TOKENS_LIGHT } from '@epde/shared';
+import {
+  DESIGN_TOKENS_DARK,
+  DESIGN_TOKENS_LIGHT,
+  TASK_TYPE_TOKENS_DARK,
+  TASK_TYPE_TOKENS_LIGHT,
+} from '@epde/shared';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -98,6 +103,92 @@ describe('Mobile CSS token sync', () => {
     for (const [key, expected] of Object.entries(TASK_TYPE_TOKENS_LIGHT)) {
       const cssKey = `task-${key}`;
       const actual = themeValues.get(cssKey);
+      if (!actual) {
+        mismatches.push(`--color-${cssKey}: missing`);
+      } else if (actual !== expected) {
+        mismatches.push(`--color-${cssKey}: expected "${expected}", got "${actual}"`);
+      }
+    }
+
+    expect(mismatches).toEqual([]);
+  });
+
+  // --- Dark mode token sync ---
+
+  /** Extract `--color-key: value` pairs from the `.dark { }` block. */
+  function extractDarkValues(): Map<string, string> {
+    const darkMatch = cssContent.match(/\.dark\s*\{([^}]+)\}/s);
+    if (!darkMatch) return new Map();
+    const entries = [...darkMatch[1]!.matchAll(/--color-([\w-]+):\s*([^;]+);/g)];
+    return new Map(entries.map((m) => [m[1]!, m[2]!.trim()]));
+  }
+
+  it('should define a .dark block with --color-* variables for every DESIGN_TOKENS_DARK key', () => {
+    const darkValues = extractDarkValues();
+    const missing: string[] = [];
+
+    for (const key of Object.keys(DESIGN_TOKENS_DARK)) {
+      const expected = toKebab(key);
+      if (!darkValues.has(expected)) {
+        missing.push(`--color-${expected}`);
+      }
+    }
+
+    expect(missing).toEqual([]);
+  });
+
+  it('.dark --color-* values should match DESIGN_TOKENS_DARK', () => {
+    const darkValues = extractDarkValues();
+    const mismatches: string[] = [];
+
+    for (const [key, expected] of Object.entries(DESIGN_TOKENS_DARK)) {
+      const cssKey = toKebab(key);
+      const actual = darkValues.get(cssKey);
+      if (actual && actual !== expected) {
+        mismatches.push(`--color-${cssKey}: expected "${expected}", got "${actual}"`);
+      }
+    }
+
+    expect(mismatches).toEqual([]);
+  });
+
+  it('.dark should not define --color-* tokens absent from DESIGN_TOKENS_DARK (reverse check)', () => {
+    const darkValues = extractDarkValues();
+    const sharedKeys = new Set(Object.keys(DESIGN_TOKENS_DARK).map(toKebab));
+    const orphans: string[] = [];
+
+    for (const cssKey of darkValues.keys()) {
+      // Skip task-type tokens (checked separately)
+      if (cssKey.startsWith('task-')) continue;
+      if (!sharedKeys.has(cssKey)) {
+        orphans.push(`--color-${cssKey} defined in .dark CSS but not in DESIGN_TOKENS_DARK`);
+      }
+    }
+
+    expect(orphans).toEqual([]);
+  });
+
+  it('.dark should define --color-task-* variables for every TASK_TYPE_TOKENS_DARK key', () => {
+    const darkValues = extractDarkValues();
+    const missing: string[] = [];
+
+    for (const key of Object.keys(TASK_TYPE_TOKENS_DARK)) {
+      const expected = `task-${key}`;
+      if (!darkValues.has(expected)) {
+        missing.push(`--color-${expected}`);
+      }
+    }
+
+    expect(missing).toEqual([]);
+  });
+
+  it('.dark --color-task-* values should match TASK_TYPE_TOKENS_DARK', () => {
+    const darkValues = extractDarkValues();
+    const mismatches: string[] = [];
+
+    for (const [key, expected] of Object.entries(TASK_TYPE_TOKENS_DARK)) {
+      const cssKey = `task-${key}`;
+      const actual = darkValues.get(cssKey);
       if (!actual) {
         mismatches.push(`--color-${cssKey}: missing`);
       } else if (actual !== expected) {

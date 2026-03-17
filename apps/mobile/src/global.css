@@ -40,3 +40,41 @@
   --color-task-evaluation: #8b5cf6;
   --radius: 0.625rem;
 }
+
+@layer base {
+  .dark {
+    --color-primary: #d4956f;
+    --color-primary-foreground: #1a1715;
+    --color-secondary: #3d3835;
+    --color-secondary-foreground: #f5f0eb;
+    --color-background: #1a1715;
+    --color-foreground: #f5f0eb;
+    --color-card: #2e2a27;
+    --color-card-foreground: #f5f0eb;
+    --color-muted: #3d3835;
+    --color-muted-foreground: #a09890;
+    --color-accent: #3d3835;
+    --color-accent-foreground: #f5f0eb;
+    --color-destructive: #c45b4b;
+    --color-destructive-foreground: #ffffff;
+    --color-border: rgba(255, 255, 255, 0.1);
+    --color-input: rgba(255, 255, 255, 0.15);
+    --color-ring: #d4956f;
+    --color-success: #7ab588;
+    --color-success-foreground: #1a1715;
+    --color-warning: #d4b050;
+    --color-warning-foreground: #1a1715;
+    --color-caution: #d48050;
+    --color-caution-foreground: #1a1715;
+    /* Task type color tokens */
+    --color-task-inspection: #60a5fa;
+    --color-task-cleaning: #22d3ee;
+    --color-task-test: #818cf8;
+    --color-task-treatment: #c084fc;
+    --color-task-sealing: #fbbf24;
+    --color-task-lubrication: #a3e635;
+    --color-task-adjustment: #94a3b8;
+    --color-task-measurement: #2dd4bf;
+    --color-task-evaluation: #a78bfa;
+  }
+}

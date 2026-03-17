@@ -17,6 +17,7 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+import { ThemeToggle } from '@/components/theme-toggle';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -99,6 +100,7 @@ export function Sidebar({ className }: { className?: string }) {
             <LogOut className="h-3.5 w-3.5" />
             Cerrar sesión
           </button>
+          <ThemeToggle />
         </div>
       </div>
     </aside>

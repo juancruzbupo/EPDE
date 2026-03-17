@@ -42,7 +42,7 @@ export const DESIGN_TOKENS_LIGHT = {
   cautionForeground: '#fafaf8',
 } as const;
 
-/** Dark mode palette (web only — React Native uses light mode) */
+/** Dark mode palette */
 export const DESIGN_TOKENS_DARK = {
   primary: '#d4956f',
   primaryForeground: '#1a1715',
