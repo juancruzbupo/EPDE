@@ -13,7 +13,7 @@ import {
 } from '@epde/shared';
 import { Calendar, CheckSquare, ChevronDown, ChevronRight, MapPin } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
@@ -229,13 +229,17 @@ export default function TasksPage() {
   const { data: tasks, isLoading, isError, refetch } = useAllTasks();
 
   // Auto-open task detail when navigating with ?taskId=xxx (e.g. from dashboard ActionList)
+  const handledTaskId = useRef<string | null>(null);
   useEffect(() => {
     const taskId = searchParams.get('taskId');
-    if (taskId && tasks && !selectedTask) {
+    if (taskId && tasks && taskId !== handledTaskId.current) {
       const found = tasks.find((t) => t.id === taskId);
-      if (found) setSelectedTask(found);
+      if (found) {
+        setSelectedTask(found);
+        handledTaskId.current = taskId;
+      }
     }
-  }, [searchParams, tasks, selectedTask]);
+  }, [searchParams, tasks]);
 
   // Fetch full task detail when a task is selected
   const { data: taskDetail } = useTaskDetail(
