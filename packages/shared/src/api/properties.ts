@@ -77,5 +77,13 @@ export function createPropertyQueries(apiClient: AxiosInstance) {
       const { data } = await apiClient.get(`/properties/${id}/health-index`, { signal });
       return data;
     },
+
+    async getPropertyHealthHistory(
+      id: string,
+      signal?: AbortSignal,
+    ): Promise<ApiResponse<import('../types/dashboard').ISVSnapshotPublic[]>> {
+      const { data } = await apiClient.get(`/properties/${id}/health-history`, { signal });
+      return data;
+    },
   };
 }

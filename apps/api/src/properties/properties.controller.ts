@@ -63,6 +63,15 @@ export class PropertiesController {
     return this.propertiesService.getPropertyPhotos(id, user);
   }
 
+  @Get(':id/health-history')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  async getPropertyHealthHistory(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    return this.propertiesService.getPropertyHealthHistory(id, user);
+  }
+
   @Get(':id/health-index')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async getPropertyHealthIndex(

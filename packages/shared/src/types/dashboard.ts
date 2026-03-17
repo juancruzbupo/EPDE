@@ -137,6 +137,18 @@ export interface PropertyHealthIndex {
   sectorScores: { sector: string; score: number; overdue: number; total: number }[];
 }
 
+/** Monthly ISV snapshot for history chart. */
+export interface ISVSnapshotPublic {
+  month: string;
+  score: number;
+  label: string;
+  compliance: number;
+  condition: number;
+  coverage: number;
+  investment: number;
+  trend: number;
+}
+
 /** Client analytics response */
 export interface ClientAnalytics {
   conditionTrend: Array<{

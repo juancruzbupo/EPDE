@@ -9,6 +9,7 @@ import {
   getProperties,
   getProperty,
   getPropertyExpenses,
+  getPropertyHealthHistory,
   getPropertyHealthIndex,
   getPropertyPhotos,
   type PropertyFilters,
@@ -100,6 +101,14 @@ export function usePropertyHealthIndex(id: string) {
   return useQuery({
     queryKey: [QUERY_KEYS.properties, id, 'health-index'],
     queryFn: ({ signal }) => getPropertyHealthIndex(id, signal).then((r) => r.data),
+    enabled: !!id,
+  });
+}
+
+export function usePropertyHealthHistory(id: string) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.properties, id, 'health-history'],
+    queryFn: ({ signal }) => getPropertyHealthHistory(id, signal).then((r) => r.data),
     enabled: !!id,
   });
 }

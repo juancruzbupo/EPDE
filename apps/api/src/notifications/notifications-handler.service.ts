@@ -286,4 +286,35 @@ export class NotificationsHandlerService {
       return { notificationCount: 0, failedEmails: payload.emails.length };
     }
   }
+
+  /** Alert user when their property ISV drops significantly. */
+  async handleISVAlert(payload: {
+    propertyId: string;
+    userId: string;
+    address: string;
+    previousScore: number;
+    currentScore: number;
+  }): Promise<void> {
+    try {
+      const drop = payload.previousScore - payload.currentScore;
+      await this.notificationQueueService.enqueue({
+        userId: payload.userId,
+        type: 'SYSTEM',
+        title: 'Salud de tu propiedad bajó',
+        message: `El índice de salud de ${payload.address} bajó ${drop} puntos (de ${payload.previousScore} a ${payload.currentScore}). Revisá las tareas pendientes.`,
+        data: { propertyId: payload.propertyId },
+      });
+
+      this.sendPush(
+        [payload.userId],
+        'Salud de tu propiedad bajó',
+        `ISV de ${payload.address}: ${payload.currentScore}/100`,
+        { propertyId: payload.propertyId },
+      );
+    } catch (error) {
+      this.logger.error(
+        `Error handling ISV alert for property ${payload.propertyId}: ${(error as Error).message}`,
+      );
+    }
+  }
 }

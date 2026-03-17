@@ -12,6 +12,7 @@ export const {
   getPropertyExpenses,
   getPropertyPhotos,
   getPropertyHealthIndex,
+  getPropertyHealthHistory,
 } = queries;
 
 // Admin-only

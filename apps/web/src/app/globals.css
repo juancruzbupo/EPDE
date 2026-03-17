@@ -300,6 +300,45 @@ body {
   }
 }
 
+/* Print styles for ISV report */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Hide everything except the print target */
+  nav,
+  header,
+  aside,
+  footer,
+  [data-slot='sidebar'],
+  [data-slot='tabs-list'],
+  .no-print {
+    display: none !important;
+  }
+
+  /* Full width for content */
+  main,
+  [data-print-target] {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Ensure colored badges/bars print correctly */
+  .bg-success,
+  .bg-amber-500,
+  .bg-orange-500,
+  .bg-destructive {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .skeleton-shimmer::after {

@@ -209,6 +209,7 @@ model Property {
   maintenancePlan MaintenancePlan?
   budgetRequests  BudgetRequest[]
   serviceRequests ServiceRequest[]
+  isvSnapshots    ISVSnapshot[]
 
   @@index([userId])
   @@index([userId, deletedAt])
@@ -634,4 +635,24 @@ model PushToken {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model ISVSnapshot {
+  id           String   @id @default(uuid())
+  propertyId   String
+  snapshotDate DateTime
+  score        Int
+  label        String   @db.VarChar(50)
+  compliance   Int
+  condition    Int
+  coverage     Int
+  investment   Int
+  trend        Int
+  sectorScores Json
+  createdAt    DateTime @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([propertyId, snapshotDate])
+  @@index([propertyId])
 }

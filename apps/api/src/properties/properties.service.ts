@@ -9,6 +9,7 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 
 import { PropertyAccessDeniedError } from '../common/exceptions/domain.exceptions';
 import { DashboardRepository } from '../dashboard/dashboard.repository';
+import { ISVSnapshotRepository } from '../dashboard/isv-snapshot.repository';
 import { PropertiesRepository } from './properties.repository';
 
 @Injectable()
@@ -16,12 +17,13 @@ export class PropertiesService {
   constructor(
     private readonly propertiesRepository: PropertiesRepository,
     private readonly dashboardRepository: DashboardRepository,
+    private readonly isvSnapshotRepository: ISVSnapshotRepository,
   ) {}
 
   async listProperties(filters: PropertyFiltersInput, currentUser: ServiceUser) {
     const userId = currentUser.role === UserRole.CLIENT ? currentUser.id : filters.userId;
 
-    return this.propertiesRepository.findProperties({
+    const result = await this.propertiesRepository.findProperties({
       cursor: filters.cursor,
       take: filters.take,
       search: filters.search,
@@ -29,6 +31,21 @@ export class PropertiesService {
       city: filters.city,
       type: filters.type,
     });
+
+    // Enrich with latest ISV scores
+    const propertyIds = result.data.map((p) => p.id);
+    const isvScores = await this.isvSnapshotRepository.findLatestForProperties(propertyIds);
+    const isvMap = new Map(
+      isvScores.map((s) => [s.propertyId, { score: s.score, label: s.label }]),
+    );
+
+    return {
+      ...result,
+      data: result.data.map((p) => ({
+        ...p,
+        latestISV: isvMap.get(p.id) ?? null,
+      })),
+    };
   }
 
   async getProperty(id: string, currentUser: ServiceUser) {
@@ -111,6 +128,31 @@ export class PropertiesService {
 
     const index = await this.dashboardRepository.getPropertyHealthIndex([planId]);
     return { data: index };
+  }
+
+  async getPropertyHealthHistory(id: string, currentUser: ServiceUser) {
+    const property = await this.propertiesRepository.findById(id);
+    if (!property) {
+      throw new NotFoundException('Propiedad no encontrada');
+    }
+
+    this.assertOwnership(property.userId, currentUser);
+
+    const snapshots = await this.isvSnapshotRepository.findByProperty(id, 12);
+    const data = snapshots
+      .map((s) => ({
+        month: s.snapshotDate.toISOString().slice(0, 7),
+        score: s.score,
+        label: s.label,
+        compliance: s.compliance,
+        condition: s.condition,
+        coverage: s.coverage,
+        investment: s.investment,
+        trend: s.trend,
+      }))
+      .reverse();
+
+    return { data };
   }
 
   async getPropertyExpenses(id: string, currentUser: ServiceUser) {

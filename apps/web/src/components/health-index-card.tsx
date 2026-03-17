@@ -1,10 +1,11 @@
 'use client';
 
-import type { PropertyHealthIndex } from '@epde/shared';
+import type { ISVSnapshotPublic, PropertyHealthIndex } from '@epde/shared';
 import { PROPERTY_SECTOR_LABELS, type PropertySector } from '@epde/shared';
-import { ArrowDown, ArrowRight, ArrowUp } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUp, Printer } from 'lucide-react';
 import Link from 'next/link';
 
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const DIMENSION_LABELS = {
@@ -37,15 +38,30 @@ function TrendIcon({ value }: { value: number }) {
 
 interface HealthIndexCardProps {
   index: PropertyHealthIndex;
+  history?: ISVSnapshotPublic[];
+  address?: string;
 }
 
-export function HealthIndexCard({ index }: HealthIndexCardProps) {
+export function HealthIndexCard({ index, history, address }: HealthIndexCardProps) {
   return (
-    <Card>
+    <Card data-print-target>
+      {/* Print-only header */}
+      <div className="hidden print:mb-4 print:block print:border-b print:px-6 print:pt-6 print:pb-4">
+        <p className="text-lg font-bold">EPDE — Estudio Profesional de Diagnóstico Edilicio</p>
+        {address && <p className="text-sm text-gray-600">{address}</p>}
+        <p className="text-xs text-gray-500">
+          Reporte generado el {new Date().toLocaleDateString('es-AR')}
+        </p>
+      </div>
+
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="type-title-md">Índice de Salud de la Vivienda</CardTitle>
           <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" className="no-print" onClick={() => window.print()}>
+              <Printer className="mr-1.5 h-4 w-4" />
+              Imprimir
+            </Button>
             <span className={`type-number-md ${scoreColor(index.score)}`}>{index.score}</span>
             <span className="type-body-sm text-muted-foreground">/ 100</span>
           </div>
@@ -162,6 +178,32 @@ export function HealthIndexCard({ index }: HealthIndexCardProps) {
                       )}
                     </span>
                   </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* History chart */}
+        {history && history.length > 1 && (
+          <div className="border-border border-t pt-3">
+            <p className="text-foreground mb-2 text-sm font-semibold">Evolución del ISV</p>
+            <div className="flex items-end gap-1" style={{ height: 80 }}>
+              {history.map((s) => {
+                const h = Math.max(4, (s.score / 100) * 72);
+                return (
+                  <div key={s.month} className="group relative flex flex-1 flex-col items-center">
+                    <div
+                      className={`w-full rounded-t ${barColor(s.score)}`}
+                      style={{ height: h }}
+                    />
+                    <span className="text-muted-foreground mt-1 text-[9px]">
+                      {s.month.slice(5)}
+                    </span>
+                    <div className="pointer-events-none absolute -top-6 hidden rounded bg-black/80 px-1.5 py-0.5 text-[10px] text-white group-hover:block">
+                      {s.score}
+                    </div>
+                  </div>
                 );
               })}
             </div>

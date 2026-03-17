@@ -30,6 +30,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   useProperty,
   usePropertyExpenses,
+  usePropertyHealthHistory,
   usePropertyHealthIndex,
   usePropertyPhotos,
 } from '@/hooks/use-properties';
@@ -179,7 +180,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
         </TabsContent>
 
         <TabsContent value="health" className="mt-4">
-          <PropertyHealthTab propertyId={property.id} />
+          <PropertyHealthTab propertyId={property.id} address={property.address} />
         </TabsContent>
       </Tabs>
 
@@ -574,8 +575,9 @@ function PropertyPhotosTab({ propertyId }: { propertyId: string }) {
 
 // ─── Health Tab ──────────────────────────────────────────
 
-function PropertyHealthTab({ propertyId }: { propertyId: string }) {
+function PropertyHealthTab({ propertyId, address }: { propertyId: string; address: string }) {
   const { data: healthIndex, isLoading } = usePropertyHealthIndex(propertyId);
+  const { data: history } = usePropertyHealthHistory(propertyId);
 
   if (isLoading) {
     return (
@@ -604,5 +606,5 @@ function PropertyHealthTab({ propertyId }: { propertyId: string }) {
     );
   }
 
-  return <HealthIndexCard index={healthIndex} />;
+  return <HealthIndexCard index={healthIndex} history={history} address={address} />;
 }
