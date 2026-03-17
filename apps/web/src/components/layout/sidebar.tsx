@@ -71,24 +71,17 @@ export function Sidebar({ className }: { className?: string }) {
       )}
     >
       {/* Header */}
-      <div
-        className={cn(
-          'flex items-center',
-          collapsed ? 'justify-center p-4' : 'justify-between p-6',
-        )}
-      >
+      <div className="flex items-center justify-between p-4">
         <h2 className="font-heading text-sidebar-primary text-xl font-bold">
           {collapsed ? 'E' : 'EPDE'}
         </h2>
-        {!collapsed && (
-          <button
-            onClick={() => setCollapsed(true)}
-            className="text-sidebar-foreground/60 hover:text-sidebar-foreground rounded p-1 transition-colors"
-            aria-label="Colapsar menú"
-          >
-            <ChevronsLeft className="h-4 w-4" />
-          </button>
-        )}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="text-sidebar-foreground/60 hover:text-sidebar-foreground rounded p-1 transition-colors"
+          aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'}
+        >
+          {collapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
+        </button>
       </div>
 
       {/* Navigation */}
@@ -118,19 +111,6 @@ export function Sidebar({ className }: { className?: string }) {
           );
         })}
       </nav>
-
-      {/* Expand button when collapsed */}
-      {collapsed && (
-        <div className="flex justify-center px-2 pb-2">
-          <button
-            onClick={() => setCollapsed(false)}
-            className="text-sidebar-foreground/60 hover:text-sidebar-foreground rounded p-1.5 transition-colors"
-            aria-label="Expandir menú"
-          >
-            <ChevronsRight className="h-4 w-4" />
-          </button>
-        </div>
-      )}
 
       {/* Footer */}
       <div className={cn('border-t', collapsed ? 'p-2' : 'p-4')}>
