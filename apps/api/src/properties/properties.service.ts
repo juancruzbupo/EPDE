@@ -8,11 +8,15 @@ import { UserRole } from '@epde/shared';
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 
 import { PropertyAccessDeniedError } from '../common/exceptions/domain.exceptions';
+import { DashboardRepository } from '../dashboard/dashboard.repository';
 import { PropertiesRepository } from './properties.repository';
 
 @Injectable()
 export class PropertiesService {
-  constructor(private readonly propertiesRepository: PropertiesRepository) {}
+  constructor(
+    private readonly propertiesRepository: PropertiesRepository,
+    private readonly dashboardRepository: DashboardRepository,
+  ) {}
 
   async listProperties(filters: PropertyFiltersInput, currentUser: ServiceUser) {
     const userId = currentUser.role === UserRole.CLIENT ? currentUser.id : filters.userId;
@@ -83,6 +87,30 @@ export class PropertiesService {
 
     const photos = await this.propertiesRepository.getPropertyPhotos(id);
     return { data: photos };
+  }
+
+  async getPropertyHealthIndex(id: string, currentUser: ServiceUser) {
+    const property = await this.propertiesRepository.findWithPlan(id);
+    if (!property) {
+      throw new NotFoundException('Propiedad no encontrada');
+    }
+
+    this.assertOwnership(property.userId, currentUser);
+
+    const planId = property.maintenancePlan?.id;
+    if (!planId) {
+      return {
+        data: {
+          score: 0,
+          label: 'Sin plan',
+          dimensions: { compliance: 0, condition: 0, coverage: 0, investment: 0, trend: 0 },
+          sectorScores: [],
+        },
+      };
+    }
+
+    const index = await this.dashboardRepository.getPropertyHealthIndex([planId]);
+    return { data: index };
   }
 
   async getPropertyExpenses(id: string, currentUser: ServiceUser) {

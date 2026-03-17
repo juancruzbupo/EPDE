@@ -21,12 +21,18 @@ import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
 import { ErrorState } from '@/components/error-state';
+import { HealthIndexCard } from '@/components/health-index-card';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useProperty, usePropertyExpenses, usePropertyPhotos } from '@/hooks/use-properties';
+import {
+  useProperty,
+  usePropertyExpenses,
+  usePropertyHealthIndex,
+  usePropertyPhotos,
+} from '@/hooks/use-properties';
 
 import { EditPropertyDialog } from './edit-property-dialog';
 import { PlanEditor } from './plan-editor';
@@ -78,6 +84,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
           <TabsTrigger value="plan">Plan de Mantenimiento</TabsTrigger>
           <TabsTrigger value="expenses">Gastos</TabsTrigger>
           <TabsTrigger value="photos">Fotos</TabsTrigger>
+          <TabsTrigger value="health">Salud</TabsTrigger>
         </TabsList>
 
         <TabsContent value="details" className="mt-4">
@@ -169,6 +176,10 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
 
         <TabsContent value="photos" className="mt-4">
           <PropertyPhotosTab propertyId={property.id} />
+        </TabsContent>
+
+        <TabsContent value="health" className="mt-4">
+          <PropertyHealthTab propertyId={property.id} />
         </TabsContent>
       </Tabs>
 
@@ -559,4 +570,39 @@ function PropertyPhotosTab({ propertyId }: { propertyId: string }) {
       </CardContent>
     </Card>
   );
+}
+
+// ─── Health Tab ──────────────────────────────────────────
+
+function PropertyHealthTab({ propertyId }: { propertyId: string }) {
+  const { data: healthIndex, isLoading } = usePropertyHealthIndex(propertyId);
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="bg-muted/40 h-8 animate-pulse rounded" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!healthIndex || healthIndex.score === 0) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center gap-2 py-12">
+          <DollarSign className="text-muted-foreground/50 h-8 w-8" />
+          <p className="text-muted-foreground text-sm">
+            No hay datos suficientes para calcular el índice de salud.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return <HealthIndexCard index={healthIndex} />;
 }

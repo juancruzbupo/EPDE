@@ -160,6 +160,31 @@ function ClientDashboard() {
               completedTasks={stats.completedThisMonth}
               overdueTasks={stats.overdueTasks}
             />
+            {/* ISV Summary */}
+            {analytics?.healthIndex && analytics.healthIndex.score > 0 && (
+              <View className="border-border bg-card mb-3 flex-row items-center justify-between rounded-xl border p-3">
+                <View>
+                  <Text style={TYPE.labelMd} className="text-muted-foreground">
+                    Índice de Salud
+                  </Text>
+                  <Text
+                    style={TYPE.titleMd}
+                    className={
+                      analytics.healthIndex.score >= 60 ? 'text-success' : 'text-destructive'
+                    }
+                  >
+                    {analytics.healthIndex.score}/100 — {analytics.healthIndex.label}
+                  </Text>
+                </View>
+                <Text style={TYPE.bodySm} className="text-muted-foreground">
+                  {analytics.healthIndex.dimensions.trend > 55
+                    ? '↑ Mejorando'
+                    : analytics.healthIndex.dimensions.trend < 45
+                      ? '↓ Declinando'
+                      : '→ Estable'}
+                </Text>
+              </View>
+            )}
             <View className="flex-row gap-3">
               <AnimatedStatCard
                 title="Vencidas"

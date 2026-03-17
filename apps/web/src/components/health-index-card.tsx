@@ -98,6 +98,47 @@ export function HealthIndexCard({ index }: HealthIndexCardProps) {
           })}
         </div>
 
+        {/* Recommendations */}
+        {(() => {
+          const recs: string[] = [];
+          if (index.dimensions.compliance < 60)
+            recs.push(
+              'Completá las tareas vencidas de alta prioridad para mejorar tu cumplimiento.',
+            );
+          if (index.dimensions.condition < 50)
+            recs.push(
+              'Las últimas inspecciones muestran condiciones desfavorables. Revisá los sectores más afectados.',
+            );
+          if (index.dimensions.coverage < 50)
+            recs.push(
+              'Hay sectores sin inspección reciente. Programá revisiones para cubrir toda la vivienda.',
+            );
+          if (index.dimensions.investment < 40)
+            recs.push(
+              'La mayoría de las acciones son correctivas. Invertí más en inspecciones preventivas.',
+            );
+          if (index.dimensions.trend < 45)
+            recs.push(
+              'La tendencia indica deterioro. Priorizá las tareas vencidas para revertir el declive.',
+            );
+          return recs.length > 0 ? (
+            <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3">
+              <p className="mb-1.5 text-xs font-semibold text-amber-700">Recomendaciones</p>
+              <ul className="space-y-1 text-xs text-amber-700">
+                {recs.map((r, i) => (
+                  <li key={i}>• {r}</li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <div className="bg-success/10 border-success/20 rounded-lg border p-3">
+              <p className="text-success text-xs font-semibold">
+                ¡Tu vivienda está en excelente estado! Seguí manteniendo el ritmo de inspecciones.
+              </p>
+            </div>
+          );
+        })()}
+
         {/* Sector scores */}
         {index.sectorScores.length > 0 && (
           <div className="border-border border-t pt-3">

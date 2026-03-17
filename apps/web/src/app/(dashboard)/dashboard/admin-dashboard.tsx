@@ -367,7 +367,53 @@ export function AdminDashboard() {
         </SectionErrorBoundary>
       </div>
 
-      {/* Row 4b — Problematic Sectors */}
+      {/* Row 4b — Portfolio Health Summary */}
+      {analytics && (
+        <div className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="type-title-md">Salud del Portfolio</CardTitle>
+              <p className="type-body-sm text-muted-foreground">
+                Índice basado en tareas vencidas vs completadas
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4">
+                <div
+                  className={`type-number-md ${
+                    analytics.completionRate >= 80
+                      ? 'text-success'
+                      : analytics.completionRate >= 60
+                        ? 'text-amber-600'
+                        : 'text-destructive'
+                  }`}
+                >
+                  {analytics.completionRate}%
+                </div>
+                <div className="flex-1">
+                  <div className="bg-muted h-2 overflow-hidden rounded-full">
+                    <div
+                      className={`h-full rounded-full ${
+                        analytics.completionRate >= 80
+                          ? 'bg-success'
+                          : analytics.completionRate >= 60
+                            ? 'bg-amber-500'
+                            : 'bg-destructive'
+                      }`}
+                      style={{ width: `${analytics.completionRate}%` }}
+                    />
+                  </div>
+                  <p className="text-muted-foreground mt-1 text-xs">
+                    Tasa de completamiento global de tareas
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Row 4c — Problematic Sectors */}
       {analytics && analytics.problematicSectors?.length > 0 && (
         <div className="mt-6">
           <Card>

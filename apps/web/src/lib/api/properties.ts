@@ -6,7 +6,13 @@ import { apiClient } from '../api-client';
 export type { PropertyFilters, PropertyPublic } from '@epde/shared';
 
 const queries = createPropertyQueries(apiClient);
-export const { getProperties, getProperty, getPropertyExpenses, getPropertyPhotos } = queries;
+export const {
+  getProperties,
+  getProperty,
+  getPropertyExpenses,
+  getPropertyPhotos,
+  getPropertyHealthIndex,
+} = queries;
 
 // Admin-only
 export async function createProperty(dto: {
