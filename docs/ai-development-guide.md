@@ -83,6 +83,7 @@
 71. **`trust proxy` en produccion** — `app.set('trust proxy', 1)` DEBE estar en main.ts para que `req.ip` refleje la IP del cliente real detras de reverse proxies (Render, Cloudflare, etc.)
 72. **Dentro de `$transaction` callbacks, agregar `deletedAt: null` manualmente** — A todas las queries de modelos soft-deletable (`user`, `property`, `task`, `category`, `budgetRequest`, `serviceRequest`). La extensión Prisma de soft-delete NO aplica dentro de transactions
 73. **Split de NotificationsHandlerService a 12+ métodos** — Si el servicio supera 12 handlers, dividir por dominio: `BudgetNotificationHandler`, `TaskNotificationHandler`, `ServiceNotificationHandler`, `SystemNotificationHandler`. Cada handler inyecta `NotificationQueueService` + `EmailQueueService` + `PushService` directamente. El servicio actual (8 métodos) no requiere split todavía
+74. **Todo copy de landing en `landing-data.ts`** — Textos, CTAs, disclaimers, features y constantes de la landing page DEBEN vivir centralizados en `apps/web/src/components/landing/landing-data.ts`. NUNCA agregar copy inline en archivos de sección (`sections/*.tsx`). Si un CRO round agrega nuevos textos, extraerlos a constantes en `landing-data.ts`
 
 ### NUNCA
 

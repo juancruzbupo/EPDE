@@ -115,7 +115,7 @@ epde/
 │   │   │   │   ├── ui/               # 23 componentes shadcn/ui
 │   │   │   │   ├── data-table/       # DataTable wrapper (TanStack Table)
 │   │   │   │   ├── layout/           # Header, Sidebar
-│   │   │   │   ├── landing/          # landing-page.tsx (composicion) + sections/ (11 archivos) + landing-data.ts
+│   │   │   │   ├── landing/          # landing-page.tsx (composicion) + sections/ (15 archivos) + landing-data.ts
 │   │   │   │   ├── home-status-card.tsx   # Dashboard L1: score ISV + mensaje humano
 │   │   │   │   ├── action-list.tsx        # Dashboard L2: tareas vencidas + semana
 │   │   │   │   ├── analytics-tabs.tsx     # Dashboard L3: charts en tabs
@@ -160,6 +160,7 @@ epde/
 │       │   │   ├── auth.ts           # Auth API functions
 │       │   │   ├── colors.ts         # Re-exports DESIGN_TOKENS_LIGHT de @epde/shared
 │       │   │   ├── screen-options.ts # Navigation header/tab defaults
+│       │   │   ├── constants.ts     # QUERY_CACHE_KEY constant
 │       │   │   └── api/              # Endpoints por entidad
 │       │   ├── stores/
 │       │   │   ├── auth-store.ts          # Zustand: user, isAuthenticated, login, logout
