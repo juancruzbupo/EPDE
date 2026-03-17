@@ -33,6 +33,7 @@ interface CreateBudgetModalProps {
   defaultPropertyId?: string;
   /** Pre-fill title when opening from task detail */
   defaultTitle?: string;
+  defaultDescription?: string;
 }
 
 export function CreateBudgetModal({
@@ -40,6 +41,7 @@ export function CreateBudgetModal({
   onClose,
   defaultPropertyId,
   defaultTitle,
+  defaultDescription,
 }: CreateBudgetModalProps) {
   const insets = useSafeAreaInsets();
   const contentStyle = useSlideIn('bottom');
@@ -61,7 +63,7 @@ export function CreateBudgetModal({
   } = form;
 
   // Disable draft when pre-filling from task context
-  const hasDefaults = !!(defaultPropertyId || defaultTitle);
+  const hasDefaults = !!(defaultPropertyId || defaultTitle || defaultDescription);
   const { clearDraft } = useDraft('draft:budget:create', form, visible && !hasDefaults);
 
   // Pre-fill defaults when opened from task detail
@@ -69,7 +71,8 @@ export function CreateBudgetModal({
     if (!visible) return;
     if (defaultPropertyId) setValue('propertyId', defaultPropertyId, { shouldValidate: true });
     if (defaultTitle) setValue('title', defaultTitle, { shouldValidate: true });
-  }, [visible, defaultPropertyId, defaultTitle, setValue]);
+    if (defaultDescription) setValue('description', defaultDescription);
+  }, [visible, defaultPropertyId, defaultTitle, defaultDescription, setValue]);
 
   const selectedPropertyId = watch('propertyId');
   const isSubmitting = createBudget.isPending;

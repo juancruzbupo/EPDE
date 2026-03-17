@@ -46,6 +46,8 @@ interface CreateServiceRequestModalProps {
   defaultTaskId?: string;
   /** Pre-fill title when opening from task detail */
   defaultTitle?: string;
+  /** Pre-fill description when opening from task detail */
+  defaultDescription?: string;
 }
 
 export function CreateServiceRequestModal({
@@ -54,6 +56,7 @@ export function CreateServiceRequestModal({
   defaultPropertyId,
   defaultTaskId,
   defaultTitle,
+  defaultDescription,
 }: CreateServiceRequestModalProps) {
   const insets = useSafeAreaInsets();
   const contentStyle = useSlideIn('bottom');
@@ -80,7 +83,7 @@ export function CreateServiceRequestModal({
   } = form;
 
   // Disable draft when pre-filling from task context
-  const hasDefaults = !!(defaultPropertyId || defaultTaskId || defaultTitle);
+  const hasDefaults = !!(defaultPropertyId || defaultTaskId || defaultTitle || defaultDescription);
   const { clearDraft } = useDraft('draft:service-request:create', form, visible && !hasDefaults);
 
   // Pre-fill defaults when opened from task detail
@@ -89,7 +92,8 @@ export function CreateServiceRequestModal({
     if (defaultPropertyId) setValue('propertyId', defaultPropertyId, { shouldValidate: true });
     if (defaultTaskId) setValue('taskId', defaultTaskId, { shouldValidate: true });
     if (defaultTitle) setValue('title', defaultTitle, { shouldValidate: true });
-  }, [visible, defaultPropertyId, defaultTaskId, defaultTitle, setValue]);
+    if (defaultDescription) setValue('description', defaultDescription, { shouldValidate: true });
+  }, [visible, defaultPropertyId, defaultTaskId, defaultTitle, defaultDescription, setValue]);
 
   const selectedPropertyId = watch('propertyId');
   const selectedTaskId = watch('taskId');

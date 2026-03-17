@@ -414,7 +414,8 @@ export default function TaskDetailScreen() {
         onClose={() => setShowServiceModal(false)}
         defaultPropertyId={plan?.property?.id}
         defaultTaskId={task.id}
-        defaultTitle={task.name}
+        defaultTitle={`Solicitud: ${task.name}`}
+        defaultDescription={`Tarea: ${task.name} — ${task.category?.name ?? ''}`}
       />
 
       {/* Budget request modal */}
@@ -422,7 +423,8 @@ export default function TaskDetailScreen() {
         visible={showBudgetModal}
         onClose={() => setShowBudgetModal(false)}
         defaultPropertyId={plan?.property?.id}
-        defaultTitle={task.name}
+        defaultTitle={`Presupuesto: ${task.name}`}
+        defaultDescription={`Tarea: ${task.name} — ${task.category?.name ?? ''}`}
       />
     </View>
   );
