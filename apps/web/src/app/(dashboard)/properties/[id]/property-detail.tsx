@@ -44,7 +44,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
   const { data, isLoading, isError, refetch } = useProperty(id, { initialData });
   const property = data;
   const [editOpen, setEditOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('details');
+  const [activeTab, setActiveTab] = useState('health');
 
   if (isError && !property) {
     return <ErrorState message="No se pudo cargar la propiedad" onRetry={refetch} />;
