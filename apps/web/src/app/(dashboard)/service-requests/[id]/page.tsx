@@ -1,9 +1,6 @@
-'use client';
-
 import { UserRole } from '@epde/shared';
-import { use } from 'react';
 
-import { useAuthStore } from '@/stores/auth-store';
+import { getServerUser } from '@/lib/server-auth';
 
 import { ServiceRequestDetail } from './service-request-detail';
 
@@ -11,11 +8,11 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
-export default function ServiceRequestDetailPage({ params }: Props) {
-  const { id } = use(params);
-  const role = useAuthStore((s) => s.user?.role);
-  const isAdmin = role === UserRole.ADMIN;
-  const isClient = role === UserRole.CLIENT;
+export default async function ServiceRequestDetailPage({ params }: Props) {
+  const { id } = await params;
+  const user = await getServerUser();
+  const isAdmin = user?.role === UserRole.ADMIN;
+  const isClient = user?.role === UserRole.CLIENT;
 
   return <ServiceRequestDetail id={id} isAdmin={isAdmin} isClient={isClient} />;
 }

@@ -1,10 +1,7 @@
-import { act, render, screen } from '@testing-library/react';
-import { Suspense } from 'react';
+import { render, screen } from '@testing-library/react';
 
-vi.mock('@/stores/auth-store', () => ({
-  useAuthStore: vi.fn((selector: (s: Record<string, unknown>) => unknown) =>
-    selector({ user: { id: 'u1', role: 'ADMIN' } }),
-  ),
+vi.mock('@/lib/server-auth', () => ({
+  getServerUser: vi.fn().mockResolvedValue({ id: 'u1', role: 'ADMIN' }),
 }));
 
 vi.mock('../property-detail', () => ({
@@ -16,14 +13,9 @@ vi.mock('../property-detail', () => ({
 import Page from '../page';
 
 describe('PropertyDetailPage', () => {
-  it('renders PropertyDetail with id and isAdmin', async () => {
-    await act(async () => {
-      render(
-        <Suspense fallback={<div>Loading...</div>}>
-          <Page params={Promise.resolve({ id: 'prop-1' })} />
-        </Suspense>,
-      );
-    });
+  it('renders PropertyDetail with id and isAdmin from server auth', async () => {
+    const jsx = await Page({ params: Promise.resolve({ id: 'prop-1' }) });
+    render(jsx);
 
     const el = screen.getByTestId('property-detail');
     const props = JSON.parse(el.dataset.props!);

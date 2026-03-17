@@ -1,10 +1,7 @@
-import { act, render, screen } from '@testing-library/react';
-import { Suspense } from 'react';
+import { render, screen } from '@testing-library/react';
 
-vi.mock('@/stores/auth-store', () => ({
-  useAuthStore: vi.fn((selector: (s: Record<string, unknown>) => unknown) =>
-    selector({ user: { id: 'u1', role: 'ADMIN' } }),
-  ),
+vi.mock('@/lib/server-auth', () => ({
+  getServerUser: vi.fn().mockResolvedValue({ id: 'u1', role: 'ADMIN' }),
 }));
 
 vi.mock('../budget-detail', () => ({
@@ -16,18 +13,13 @@ vi.mock('../budget-detail', () => ({
 import Page from '../page';
 
 describe('BudgetDetailPage', () => {
-  it('renders BudgetDetail with id and role flags', async () => {
-    await act(async () => {
-      render(
-        <Suspense fallback={<div>Loading...</div>}>
-          <Page params={Promise.resolve({ id: 'test-uuid' })} />
-        </Suspense>,
-      );
-    });
+  it('renders BudgetDetail with id and role flags from server auth', async () => {
+    const jsx = await Page({ params: Promise.resolve({ id: 'b-1' }) });
+    render(jsx);
 
     const el = screen.getByTestId('budget-detail');
     const props = JSON.parse(el.dataset.props!);
-    expect(props.id).toBe('test-uuid');
+    expect(props.id).toBe('b-1');
     expect(props.isAdmin).toBe(true);
     expect(props.isClient).toBe(false);
   });
