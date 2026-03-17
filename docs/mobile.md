@@ -73,6 +73,9 @@ apps/mobile/
       create-service-request-modal.tsx # Modal crear solicitud (con fotos)
       complete-task-modal.tsx         # Modal completar tarea (con foto)
       error-boundary.tsx             # Error boundary (class component)
+      home-status-card.tsx           # Nivel 1: score ISV + mensaje humano + mini-stats
+      action-list.tsx                # Nivel 2: tareas vencidas + semana
+      analytics-section.tsx          # Nivel 3: charts colapsable
     charts/
       chart-card.tsx                 # Wrapper con loading/empty states
       mini-donut-chart.tsx           # Donut SVG (condicion distribution)
@@ -209,19 +212,31 @@ const apiClient = axios.create({
 
 ## Pantallas
 
-### Dashboard (Mi Panel)
+### Dashboard (Mi Panel) — Pirámide Invertida
 
-- **HealthCard**: barra de progreso animada con porcentaje de salud del mantenimiento y label de estado (Excelente/Bueno/Necesita atencion/Critico)
-- 3 tarjetas de estadisticas compactas (vencidas, pendientes, completadas del mes)
-- **Charts de analytics** (degradacion graceful — se muestran solo si analytics carga):
-  - `MiniDonutChart`: distribucion de condicion general (SVG donut con leyenda)
-  - `MiniTrendChart`: evolucion mensual de condicion (linea SVG con area)
-  - `MiniBarChart`: gastos de mantenimiento por mes (barras SVG animadas con reanimated)
-  - `CategoryBreakdownList`: progreso y condicion por categoria (progress bars + dots)
-- Boton rapido a solicitudes de servicio
-- Lista de tareas proximas con `AnimatedListItem` (entrada animada + haptics)
+Estructura en 3 niveles (conclusión primero, datos después):
+
+**Nivel 1 — Resumen (siempre visible):**
+
+- `HomeStatusCard`: mensaje humano ("Tu casa está bien"), score ISV con AnimatedNumber + progress bar, color dinámico según score
+- 4 mini-stats inline: Vencidas, Pendientes, Completadas, Presupuestos
+
+**Nivel 2 — Acciones concretas:**
+
+- `ActionList`: tareas vencidas (sección roja) + tareas de esta semana
+- Cada tarea: nombre, vencimiento, categoría, sector, badge "Requiere profesional"
+- Press → navega al detalle de la tarea
+- Si no hay tareas: "Todo al día" mensaje positivo
+
+**Nivel 3 — Análisis (colapsado por defecto):**
+
+- `AnalyticsSection` wrapping `CollapsibleSection` con `defaultOpen={false}`
+- Selector de meses (3m/6m/12m)
+- 4 mini charts: MiniDonutChart, MiniTrendChart, MiniBarChart, CategoryBreakdownList
+
+- Botón rápido a solicitudes de servicio
 - Pull-to-refresh (refresca stats + tasks + analytics)
-- Usa `FlatList` con `ListHeaderComponent` para renderizado virtualizado eficiente
+- Usa `ScrollView` (todo el contenido es estructurado)
 
 ### Propiedades
 
