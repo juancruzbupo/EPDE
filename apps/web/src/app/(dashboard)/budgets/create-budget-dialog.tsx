@@ -53,7 +53,9 @@ export function CreateBudgetDialog({
     formState: { errors },
   } = form;
 
-  const { clearDraft } = useDraft('draft:budget:create', form, open);
+  // Disable draft when pre-filling from task context
+  const hasDefaults = !!defaultPropertyId;
+  const { clearDraft } = useDraft('draft:budget:create', form, open && !hasDefaults);
 
   // Pre-fill property when provided (e.g. from task detail sheet)
   useEffect(() => {

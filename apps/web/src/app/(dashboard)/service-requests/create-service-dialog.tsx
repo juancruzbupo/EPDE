@@ -76,20 +76,19 @@ export function CreateServiceDialog({
     formState: { errors },
   } = form;
 
-  const { clearDraft } = useDraft('draft:service-request:create', form, open);
+  // Disable draft when pre-filling from task context (prevents stale draft overwriting defaults)
+  const hasDefaults = !!(defaultPropertyId || defaultTaskId);
+  const { clearDraft } = useDraft('draft:service-request:create', form, open && !hasDefaults);
 
   // Pre-fill property and task when provided (e.g. from task detail sheet)
   useEffect(() => {
     if (open && defaultPropertyId) {
       setValue('propertyId', defaultPropertyId, { shouldValidate: true });
     }
-  }, [open, defaultPropertyId, setValue]);
-
-  useEffect(() => {
     if (open && defaultTaskId) {
       setValue('taskId', defaultTaskId);
     }
-  }, [open, defaultTaskId, setValue]);
+  }, [open, defaultPropertyId, defaultTaskId, setValue]);
 
   const selectedPropertyId = watch('propertyId');
 
