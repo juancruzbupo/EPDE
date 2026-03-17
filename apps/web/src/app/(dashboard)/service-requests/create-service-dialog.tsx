@@ -110,9 +110,20 @@ export function CreateServiceDialog({
   );
   const tasks = selectedPropertyId ? (propertyTasks ?? []) : [];
 
-  // Clear taskId when property changes
+  // Re-apply defaultTaskId after tasks load (select needs options to be available)
   useEffect(() => {
-    setValue('taskId', undefined);
+    if (open && defaultTaskId && propertyTasks && propertyTasks.length > 0) {
+      setValue('taskId', defaultTaskId);
+    }
+  }, [open, defaultTaskId, propertyTasks, setValue]);
+
+  // Clear taskId when property changes (but not when pre-filling from task context)
+  const defaultTaskIdRef = useRef(defaultTaskId);
+  defaultTaskIdRef.current = defaultTaskId;
+  useEffect(() => {
+    if (!defaultTaskIdRef.current) {
+      setValue('taskId', undefined);
+    }
   }, [selectedPropertyId, setValue]);
 
   // Cleanup Object URLs on unmount to prevent memory leaks
