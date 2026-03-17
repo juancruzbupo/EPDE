@@ -196,9 +196,19 @@ export default function TaskDetailScreen() {
               <Text style={TYPE.bodyMd} className="text-muted-foreground">
                 Profesional
               </Text>
-              <Text style={TYPE.labelLg} className="text-foreground">
-                {PROFESSIONAL_REQUIREMENT_LABELS[task.professionalRequirement]}
-              </Text>
+              <View className="items-end">
+                <Text style={TYPE.labelLg} className="text-foreground">
+                  {PROFESSIONAL_REQUIREMENT_LABELS[task.professionalRequirement]}
+                </Text>
+                <Text style={TYPE.labelSm} className="text-muted-foreground">
+                  {task.professionalRequirement === ProfessionalRequirement.OWNER_CAN_DO
+                    ? '(Podés hacerla vos)'
+                    : task.professionalRequirement ===
+                        ProfessionalRequirement.PROFESSIONAL_RECOMMENDED
+                      ? '(Mejor con profesional)'
+                      : '(Requiere profesional obligatoriamente)'}
+                </Text>
+              </View>
             </View>
             {task.estimatedDurationMinutes != null && (
               <View className="flex-row justify-between">
@@ -214,11 +224,18 @@ export default function TaskDetailScreen() {
               <Text style={TYPE.bodyMd} className="text-muted-foreground">
                 Próxima fecha
               </Text>
-              <Text style={TYPE.labelLg} className="text-foreground">
-                {task.nextDueDate
-                  ? format(new Date(task.nextDueDate), 'd MMM yyyy', { locale: es })
-                  : 'Según detección'}
-              </Text>
+              <View className="items-end">
+                <Text style={TYPE.labelLg} className="text-foreground">
+                  {task.nextDueDate
+                    ? format(new Date(task.nextDueDate), 'd MMM yyyy', { locale: es })
+                    : 'Según detección'}
+                </Text>
+                {!task.nextDueDate && (
+                  <Text style={TYPE.labelSm} className="text-muted-foreground">
+                    Se realiza solo si se detectan problemas
+                  </Text>
+                )}
+              </View>
             </View>
             <View className="flex-row justify-between">
               <Text style={TYPE.bodyMd} className="text-muted-foreground">
@@ -320,6 +337,9 @@ export default function TaskDetailScreen() {
             </Text>
           </Pressable>
         </View>
+        <Text style={TYPE.labelSm} className="text-muted-foreground mt-1 mb-3 text-center">
+          Servicio: que lo hagan · Presupuesto: que te pasen un precio
+        </Text>
 
         {/* Task Logs */}
         <CollapsibleSection title="Historial" count={logs?.length ?? 0}>

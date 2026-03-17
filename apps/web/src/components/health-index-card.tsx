@@ -12,7 +12,10 @@ const DIMENSION_LABELS = {
   compliance: { name: 'Cumplimiento', hint: 'Tareas al día (ponderado por prioridad)' },
   condition: { name: 'Condición', hint: 'Estado encontrado en últimas inspecciones' },
   coverage: { name: 'Cobertura', hint: 'Sectores inspeccionados en últimos 12 meses' },
-  investment: { name: 'Inversión', hint: 'Ratio preventivo vs correctivo' },
+  investment: {
+    name: 'Inversión',
+    hint: '¿Gastás más en prevención (inspecciones) o en reparaciones? Ideal: más prevención',
+  },
   trend: { name: 'Tendencia', hint: 'Comparación con trimestre anterior' },
 } as const;
 

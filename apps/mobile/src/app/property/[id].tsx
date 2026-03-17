@@ -458,20 +458,37 @@ export default function PropertyDetailScreen() {
                   {/* 5 Dimensions */}
                   {(
                     [
-                      { key: 'compliance' as const, name: 'Cumplimiento' },
-                      { key: 'condition' as const, name: 'Condición' },
-                      { key: 'coverage' as const, name: 'Cobertura' },
-                      { key: 'investment' as const, name: 'Inversión' },
-                      { key: 'trend' as const, name: 'Tendencia' },
+                      { key: 'compliance' as const, name: 'Cumplimiento', hint: 'Tareas al día' },
+                      {
+                        key: 'condition' as const,
+                        name: 'Condición',
+                        hint: 'Estado en últimas inspecciones',
+                      },
+                      { key: 'coverage' as const, name: 'Cobertura', hint: 'Sectores revisados' },
+                      {
+                        key: 'investment' as const,
+                        name: 'Inversión',
+                        hint: 'Prevención vs reparaciones',
+                      },
+                      {
+                        key: 'trend' as const,
+                        name: 'Tendencia',
+                        hint: 'Comparación con trimestre anterior',
+                      },
                     ] as const
-                  ).map(({ key, name }) => {
+                  ).map(({ key, name, hint }) => {
                     const value = healthIndex.dimensions[key];
                     return (
                       <View key={key}>
                         <View className="flex-row items-center justify-between">
-                          <Text style={TYPE.bodySm} className="text-foreground">
-                            {name}
-                          </Text>
+                          <View>
+                            <Text style={TYPE.bodySm} className="text-foreground">
+                              {name}
+                            </Text>
+                            <Text style={TYPE.labelSm} className="text-muted-foreground">
+                              {hint}
+                            </Text>
+                          </View>
                           <Text
                             style={TYPE.bodySm}
                             className={

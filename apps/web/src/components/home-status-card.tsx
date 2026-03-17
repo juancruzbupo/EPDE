@@ -87,12 +87,28 @@ export function HomeStatusCard({
   const miniStats = [
     {
       label: 'Vencidas',
+      hint: 'Tareas que pasaron su fecha de vencimiento',
       value: overdueTasks,
       color: overdueTasks > 0 ? 'text-destructive' : 'text-foreground',
     },
-    { label: 'Pendientes', value: pendingTasks, color: 'text-foreground' },
-    { label: 'Completadas', value: completedThisMonth, color: 'text-success' },
-    { label: 'Presupuestos', value: pendingBudgets, color: 'text-foreground' },
+    {
+      label: 'Pendientes',
+      hint: 'Tareas programadas que aún no vencieron',
+      value: pendingTasks,
+      color: 'text-foreground',
+    },
+    {
+      label: 'Completadas',
+      hint: 'Tareas completadas en los últimos 30 días',
+      value: completedThisMonth,
+      color: 'text-success',
+    },
+    {
+      label: 'Presupuestos',
+      hint: 'Presupuestos pendientes de aprobación',
+      value: pendingBudgets,
+      color: 'text-foreground',
+    },
   ];
 
   const miniIcons = [AlertTriangle, Clock, CheckCircle, FileText];
@@ -114,7 +130,10 @@ export function HomeStatusCard({
 
           {/* Score + progress bar */}
           <div className="mb-4 flex items-center gap-4">
-            <span className={`type-number-lg ${theme.textColor}`}>
+            <span
+              className={`type-number-lg ${theme.textColor}`}
+              title="Índice de Salud de la Vivienda — 100 es excelente, 0 es crítico"
+            >
               <AnimatedNumber value={score} />
             </span>
             <div className="bg-muted h-3 flex-1 overflow-hidden rounded-full">
@@ -162,7 +181,9 @@ export function HomeStatusCard({
                   <p className={`type-number-md ${stat.color}`}>
                     <AnimatedNumber value={stat.value} />
                   </p>
-                  <p className="type-label-sm text-muted-foreground">{stat.label}</p>
+                  <p className="type-label-sm text-muted-foreground" title={stat.hint}>
+                    {stat.label}
+                  </p>
                 </div>
               );
             })}

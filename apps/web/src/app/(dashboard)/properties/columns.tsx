@@ -54,7 +54,7 @@ export function propertyColumns({ isAdmin }: { isAdmin: boolean }): ColumnDef<Pr
     },
     {
       id: 'isv',
-      header: 'ISV',
+      header: () => <span title="Índice de Salud de la Vivienda (0-100)">ISV</span>,
       cell: ({ row }) => {
         const isv = row.original.latestISV;
         if (!isv) return <span className="text-muted-foreground">—</span>;

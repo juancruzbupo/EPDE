@@ -62,10 +62,18 @@ export function AnalyticsTabs({
     <Tabs defaultValue="general">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <TabsList>
-          <TabsTrigger value="general">Estado general</TabsTrigger>
-          <TabsTrigger value="evolution">Evolución</TabsTrigger>
-          <TabsTrigger value="costs">Gastos</TabsTrigger>
-          <TabsTrigger value="categories">Por categoría</TabsTrigger>
+          <TabsTrigger value="general" title="Condición actual de tu vivienda">
+            Estado general
+          </TabsTrigger>
+          <TabsTrigger value="evolution" title="Cómo cambió la salud de tu vivienda en el tiempo">
+            Evolución
+          </TabsTrigger>
+          <TabsTrigger value="costs" title="Cuánto gastaste en mantenimiento">
+            Gastos
+          </TabsTrigger>
+          <TabsTrigger value="categories" title="Desglose por tipo de trabajo">
+            Por categoría
+          </TabsTrigger>
         </TabsList>
         <MonthSelector chartMonths={chartMonths} onMonthsChange={onMonthsChange} />
       </div>

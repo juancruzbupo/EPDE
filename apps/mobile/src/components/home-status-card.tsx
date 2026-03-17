@@ -65,11 +65,12 @@ interface MiniStatProps {
   label: string;
   value: number;
   color?: string;
+  accessibilityHint?: string;
 }
 
-const MiniStat = memo(function MiniStat({ label, value, color }: MiniStatProps) {
+const MiniStat = memo(function MiniStat({ label, value, color, accessibilityHint }: MiniStatProps) {
   return (
-    <View className="flex-1 items-center">
+    <View className="flex-1 items-center" accessibilityHint={accessibilityHint}>
       <Text style={[TYPE.numberMd, color ? { color } : undefined]} className="text-foreground">
         {value}
       </Text>
@@ -114,7 +115,10 @@ export const HomeStatusCard = memo(function HomeStatusCard({
             {getStatusTitle(score)}
           </Text>
         </View>
-        <View className="items-center">
+        <View
+          className="items-center"
+          accessibilityHint="Índice de Salud de tu Vivienda — 100 es excelente, 0 es crítico"
+        >
           <AnimatedNumber value={score} suffix="/100" style={[TYPE.numberLg, { color }]} />
           <Text style={[TYPE.labelSm, { color }]}>{label}</Text>
         </View>
@@ -136,14 +140,24 @@ export const HomeStatusCard = memo(function HomeStatusCard({
           label="Vencidas"
           value={overdueTasks}
           color={overdueTasks > 0 ? COLORS.destructive : undefined}
+          accessibilityHint="Tareas que pasaron su fecha de vencimiento"
         />
-        <MiniStat label="Pendientes" value={pendingTasks} />
+        <MiniStat
+          label="Pendientes"
+          value={pendingTasks}
+          accessibilityHint="Tareas programadas que aún no vencieron"
+        />
         <MiniStat
           label="Completadas"
           value={completedThisMonth}
           color={completedThisMonth > 0 ? COLORS.success : undefined}
+          accessibilityHint="Tareas completadas en los últimos 30 días"
         />
-        <MiniStat label="Presupuestos" value={pendingBudgets} />
+        <MiniStat
+          label="Presupuestos"
+          value={pendingBudgets}
+          accessibilityHint="Presupuestos pendientes de aprobación"
+        />
       </View>
     </View>
   );

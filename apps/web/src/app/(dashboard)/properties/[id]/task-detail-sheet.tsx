@@ -121,6 +121,16 @@ export function TaskDetailSheet({
                   <Badge className={PROFESSIONAL_REQ_COLORS[task.professionalRequirement]}>
                     {PROFESSIONAL_REQUIREMENT_LABELS[task.professionalRequirement]}
                   </Badge>
+                  <p className="text-muted-foreground mt-0.5 text-xs">
+                    {task.professionalRequirement === ProfessionalRequirement.OWNER_CAN_DO &&
+                      '(Podés hacerla vos mismo)'}
+                    {task.professionalRequirement ===
+                      ProfessionalRequirement.PROFESSIONAL_RECOMMENDED &&
+                      '(Mejor con un profesional, pero podés intentar)'}
+                    {task.professionalRequirement ===
+                      ProfessionalRequirement.PROFESSIONAL_REQUIRED &&
+                      '(Necesariamente debe hacerlo un profesional)'}
+                  </p>
                 </dd>
               </div>
               {task.estimatedDurationMinutes != null && (
@@ -129,7 +139,12 @@ export function TaskDetailSheet({
                     <Clock className="h-3.5 w-3.5" />
                     Duración estimada
                   </dt>
-                  <dd className="font-medium">{task.estimatedDurationMinutes} minutos</dd>
+                  <dd className="font-medium">
+                    {task.estimatedDurationMinutes} minutos
+                    <span className="text-muted-foreground ml-1 text-xs font-normal">
+                      (para un profesional sin complicaciones)
+                    </span>
+                  </dd>
                 </div>
               )}
               <div className="space-y-1">
@@ -146,7 +161,13 @@ export function TaskDetailSheet({
                       </span>
                     </>
                   ) : (
-                    'Según detección'
+                    <>
+                      Según detección
+                      <span className="text-muted-foreground text-xs">
+                        {' '}
+                        — Se realiza solo si se detectan problemas
+                      </span>
+                    </>
                   )}
                 </dd>
               </div>
@@ -197,7 +218,12 @@ export function TaskDetailSheet({
           {/* CTA */}
           <div className="space-y-2">
             {canComplete && onComplete && (
-              <Button className="w-full" size="lg" onClick={() => onComplete(task)}>
+              <Button
+                className="w-full"
+                size="lg"
+                onClick={() => onComplete(task)}
+                title="Registrá que completaste esta tarea"
+              >
                 <CheckCircle className="mr-2 h-4 w-4" />
                 Completar Tarea
               </Button>
@@ -210,28 +236,33 @@ export function TaskDetailSheet({
             )}
 
             {(onRequestService || onRequestBudget) && (
-              <div className="flex gap-2">
-                {onRequestService && (
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => onRequestService(task)}
-                  >
-                    <Wrench className="mr-2 h-4 w-4" />
-                    Solicitar Servicio
-                  </Button>
-                )}
-                {onRequestBudget && (
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => onRequestBudget(task)}
-                  >
-                    <FileText className="mr-2 h-4 w-4" />
-                    Pedir Presupuesto
-                  </Button>
-                )}
-              </div>
+              <>
+                <div className="flex gap-2">
+                  {onRequestService && (
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => onRequestService(task)}
+                    >
+                      <Wrench className="mr-2 h-4 w-4" />
+                      Solicitar Servicio
+                    </Button>
+                  )}
+                  {onRequestBudget && (
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => onRequestBudget(task)}
+                    >
+                      <FileText className="mr-2 h-4 w-4" />
+                      Pedir Presupuesto
+                    </Button>
+                  )}
+                </div>
+                <p className="type-body-sm text-muted-foreground mt-1 text-center">
+                  Servicio: que lo hagan · Presupuesto: que te pasen un precio
+                </p>
+              </>
             )}
           </div>
 
