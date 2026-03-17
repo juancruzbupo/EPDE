@@ -60,6 +60,7 @@ export async function cleanDatabase(prisma: PrismaService): Promise<void> {
     'ServiceRequestAttachment',
     'ServiceRequestPhoto',
     'ServiceRequest',
+    'ISVSnapshot',
     'BudgetAuditLog',
     'BudgetComment',
     'BudgetAttachment',

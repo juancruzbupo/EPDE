@@ -2593,6 +2593,283 @@ export async function seedDemo(prisma: PrismaClient) {
 
   console.log('  ✓ 3 plantillas de cotización');
 
+  // ════════════════════════════════════════════════════════════════════════
+  // ISV SNAPSHOTS — Monthly health index history per property
+  // ════════════════════════════════════════════════════════════════════════
+
+  // María: 12 monthly snapshots — started strong, declined as issues accumulated
+  // (overdue tasks, humidity detection, structural crack monitoring)
+  const mariaISVSnapshots = [
+    {
+      month: 16,
+      score: 78,
+      label: 'Bueno',
+      compliance: 90,
+      condition: 80,
+      coverage: 70,
+      investment: 65,
+      trend: 50,
+    },
+    {
+      month: 15,
+      score: 76,
+      label: 'Bueno',
+      compliance: 88,
+      condition: 78,
+      coverage: 72,
+      investment: 60,
+      trend: 48,
+    },
+    {
+      month: 14,
+      score: 74,
+      label: 'Bueno',
+      compliance: 85,
+      condition: 75,
+      coverage: 68,
+      investment: 62,
+      trend: 46,
+    },
+    {
+      month: 13,
+      score: 72,
+      label: 'Bueno',
+      compliance: 82,
+      condition: 72,
+      coverage: 65,
+      investment: 60,
+      trend: 45,
+    },
+    {
+      month: 12,
+      score: 70,
+      label: 'Bueno',
+      compliance: 80,
+      condition: 70,
+      coverage: 62,
+      investment: 58,
+      trend: 44,
+    },
+    {
+      month: 11,
+      score: 68,
+      label: 'Bueno',
+      compliance: 75,
+      condition: 68,
+      coverage: 60,
+      investment: 55,
+      trend: 42,
+    },
+    {
+      month: 10,
+      score: 65,
+      label: 'Bueno',
+      compliance: 72,
+      condition: 65,
+      coverage: 58,
+      investment: 52,
+      trend: 40,
+    },
+    {
+      month: 9,
+      score: 63,
+      label: 'Bueno',
+      compliance: 68,
+      condition: 62,
+      coverage: 55,
+      investment: 55,
+      trend: 42,
+    },
+    {
+      month: 8,
+      score: 62,
+      label: 'Bueno',
+      compliance: 66,
+      condition: 60,
+      coverage: 56,
+      investment: 58,
+      trend: 44,
+    },
+    {
+      month: 7,
+      score: 60,
+      label: 'Bueno',
+      compliance: 64,
+      condition: 58,
+      coverage: 54,
+      investment: 56,
+      trend: 42,
+    },
+    {
+      month: 6,
+      score: 58,
+      label: 'Regular',
+      compliance: 60,
+      condition: 55,
+      coverage: 52,
+      investment: 55,
+      trend: 40,
+    },
+    {
+      month: 5,
+      score: 56,
+      label: 'Regular',
+      compliance: 58,
+      condition: 52,
+      coverage: 50,
+      investment: 54,
+      trend: 38,
+    },
+  ];
+
+  // Carlos: 5 monthly snapshots — stable, good modern house maintenance
+  const carlosISVSnapshots = [
+    {
+      month: 5,
+      score: 68,
+      label: 'Bueno',
+      compliance: 75,
+      condition: 72,
+      coverage: 45,
+      investment: 70,
+      trend: 50,
+    },
+    {
+      month: 4,
+      score: 70,
+      label: 'Bueno',
+      compliance: 78,
+      condition: 74,
+      coverage: 48,
+      investment: 68,
+      trend: 52,
+    },
+    {
+      month: 3,
+      score: 69,
+      label: 'Bueno',
+      compliance: 76,
+      condition: 72,
+      coverage: 50,
+      investment: 65,
+      trend: 50,
+    },
+    {
+      month: 2,
+      score: 71,
+      label: 'Bueno',
+      compliance: 80,
+      condition: 74,
+      coverage: 52,
+      investment: 62,
+      trend: 54,
+    },
+    {
+      month: 1,
+      score: 72,
+      label: 'Bueno',
+      compliance: 82,
+      condition: 75,
+      coverage: 55,
+      investment: 60,
+      trend: 56,
+    },
+  ];
+
+  // Laura: 1 snapshot — new house, baseline high score
+  const lauraISVSnapshots = [
+    {
+      month: 1,
+      score: 85,
+      label: 'Excelente',
+      compliance: 100,
+      condition: 80,
+      coverage: 0,
+      investment: 50,
+      trend: 50,
+    },
+  ];
+
+  // Sector scores coherent with each property's task distribution
+  const mariaSectorScores = [
+    { sector: 'INTERIOR', score: 55, overdue: 4, total: 12 },
+    { sector: 'ROOF', score: 60, overdue: 2, total: 5 },
+    { sector: 'EXTERIOR', score: 50, overdue: 5, total: 10 },
+    { sector: 'BATHROOM', score: 65, overdue: 2, total: 6 },
+    { sector: 'INSTALLATIONS', score: 58, overdue: 5, total: 14 },
+    { sector: 'GARDEN', score: 62, overdue: 2, total: 6 },
+    { sector: 'BASEMENT', score: 40, overdue: 3, total: 4 },
+    { sector: 'TERRACE', score: 70, overdue: 1, total: 3 },
+    { sector: 'KITCHEN', score: 75, overdue: 0, total: 2 },
+  ];
+  const carlosSectorScores = [
+    { sector: 'INTERIOR', score: 80, overdue: 1, total: 12 },
+    { sector: 'ROOF', score: 85, overdue: 0, total: 5 },
+    { sector: 'EXTERIOR', score: 70, overdue: 2, total: 10 },
+    { sector: 'BATHROOM', score: 75, overdue: 1, total: 6 },
+    { sector: 'INSTALLATIONS', score: 72, overdue: 3, total: 14 },
+    { sector: 'GARDEN', score: 80, overdue: 0, total: 6 },
+    { sector: 'BASEMENT', score: 85, overdue: 0, total: 4 },
+    { sector: 'TERRACE', score: 90, overdue: 0, total: 3 },
+    { sector: 'KITCHEN', score: 90, overdue: 0, total: 2 },
+  ];
+  const lauraSectorScores = [
+    { sector: 'INTERIOR', score: 100, overdue: 0, total: 12 },
+    { sector: 'ROOF', score: 100, overdue: 0, total: 5 },
+    { sector: 'EXTERIOR', score: 100, overdue: 0, total: 10 },
+    { sector: 'BATHROOM', score: 100, overdue: 0, total: 6 },
+    { sector: 'INSTALLATIONS', score: 100, overdue: 0, total: 14 },
+    { sector: 'GARDEN', score: 100, overdue: 0, total: 6 },
+    { sector: 'BASEMENT', score: 100, overdue: 0, total: 4 },
+    { sector: 'TERRACE', score: 100, overdue: 0, total: 3 },
+    { sector: 'KITCHEN', score: 100, overdue: 0, total: 2 },
+  ];
+
+  const allSnapshotData: Prisma.ISVSnapshotCreateManyInput[] = [
+    ...mariaISVSnapshots.map((s) => ({
+      propertyId: ids.mariaProp,
+      snapshotDate: monthsAgo(s.month),
+      score: s.score,
+      label: s.label,
+      compliance: s.compliance,
+      condition: s.condition,
+      coverage: s.coverage,
+      investment: s.investment,
+      trend: s.trend,
+      sectorScores: mariaSectorScores as unknown as Prisma.InputJsonValue,
+    })),
+    ...carlosISVSnapshots.map((s) => ({
+      propertyId: ids.carlosProp,
+      snapshotDate: monthsAgo(s.month),
+      score: s.score,
+      label: s.label,
+      compliance: s.compliance,
+      condition: s.condition,
+      coverage: s.coverage,
+      investment: s.investment,
+      trend: s.trend,
+      sectorScores: carlosSectorScores as unknown as Prisma.InputJsonValue,
+    })),
+    ...lauraISVSnapshots.map((s) => ({
+      propertyId: ids.lauraProp,
+      snapshotDate: monthsAgo(s.month),
+      score: s.score,
+      label: s.label,
+      compliance: s.compliance,
+      condition: s.condition,
+      coverage: s.coverage,
+      investment: s.investment,
+      trend: s.trend,
+      sectorScores: lauraSectorScores as unknown as Prisma.InputJsonValue,
+    })),
+  ];
+
+  await prisma.iSVSnapshot.createMany({ data: allSnapshotData });
+
+  console.log(
+    `  ✓ ${allSnapshotData.length} ISV snapshots (María: ${mariaISVSnapshots.length}, Carlos: ${carlosISVSnapshots.length}, Laura: ${lauraISVSnapshots.length})`,
+  );
+
   // ————————————————————————————————————————————————————————————————————————
   // RESUMEN
   // ————————————————————————————————————————————————————————————————————————
@@ -2617,21 +2894,25 @@ export async function seedDemo(prisma: PrismaClient) {
   SR Adjuntos:  2
   Quote Tmpl:   3 (techo, eléctrico, humedad)
   Sectores:     9 (asignados via CATEGORY_DEFAULT_SECTOR + overrides puntuales)
+  ISV Snaps:    ${allSnapshotData.length} (María: ${mariaISVSnapshots.length}, Carlos: ${carlosISVSnapshots.length}, Laura: ${lauraISVSnapshots.length})
   Notific.:     7
 
   👤 María González  (maria.gonzalez@demo.com / Demo123!)
      Casa 1985, 18 meses de uso, historial rico, problemas reales
      → Grieta activa monitoreada, humedad ascendente en tratamiento
      → 4 ciclos completos de mantenimiento
+     → ISV: 78→56 (12 snapshots, tendencia declinante)
 
   👤 Carlos Rodríguez (carlos.rodriguez@demo.com / Demo123!)
      Casa 2015, 6 meses de uso, control parcial
      → Priorizó seguridad (gas + eléctrica), resto pendiente
      → Presupuesto de puesta a tierra cotizado
+     → ISV: 68→72 (5 snapshots, tendencia estable/mejorando)
 
   👤 Laura Fernández  (laura.fernandez@demo.com / Demo123!)
      Casa 2023, 1 mes de uso, plan recién creado
      → Todas las tareas pendientes, sin historial
      → Caso de onboarding limpio
+     → ISV: 85 (1 snapshot, baseline alto)
   `);
 }
