@@ -287,6 +287,80 @@ export class NotificationsHandlerService {
     }
   }
 
+  /** Notify the other party when a comment is added to a budget. */
+  async handleBudgetCommentAdded(payload: {
+    budgetId: string;
+    title: string;
+    commentAuthorId: string;
+    requesterId: string;
+  }): Promise<void> {
+    try {
+      const adminIds = await this.usersRepository.findAdminIds();
+      const isAdminComment = adminIds.includes(payload.commentAuthorId);
+      const author = await this.usersRepository.findEmailInfo(payload.commentAuthorId);
+      const authorName = author?.name ?? 'Un usuario';
+
+      const recipients = isAdminComment ? [payload.requesterId] : adminIds;
+
+      const notifTitle = 'Nuevo comentario en presupuesto';
+      const notifMsg = `${authorName} comentó en "${payload.title}"`;
+
+      await this.notificationQueueService.enqueueBatch(
+        recipients.map((userId) => ({
+          userId,
+          type: 'BUDGET_UPDATE' as const,
+          title: notifTitle,
+          message: notifMsg,
+          data: { budgetId: payload.budgetId },
+        })),
+      );
+
+      this.sendPush(recipients, notifTitle, notifMsg, { budgetId: payload.budgetId });
+    } catch (error) {
+      this.logger.error(
+        `Error handling budget comment for ${payload.budgetId}: ${(error as Error).message}`,
+      );
+    }
+  }
+
+  /** Notify the other party when a comment is added to a service request. */
+  async handleServiceCommentAdded(payload: {
+    serviceRequestId: string;
+    title: string;
+    commentAuthorId: string;
+    requesterId: string;
+  }): Promise<void> {
+    try {
+      const adminIds = await this.usersRepository.findAdminIds();
+      const isAdminComment = adminIds.includes(payload.commentAuthorId);
+      const author = await this.usersRepository.findEmailInfo(payload.commentAuthorId);
+      const authorName = author?.name ?? 'Un usuario';
+
+      const recipients = isAdminComment ? [payload.requesterId] : adminIds;
+
+      const notifTitle = 'Nuevo comentario en solicitud';
+      const notifMsg = `${authorName} comentó en "${payload.title}"`;
+
+      await this.notificationQueueService.enqueueBatch(
+        recipients.map((userId) => ({
+          userId,
+          type: 'SERVICE_UPDATE' as const,
+          title: notifTitle,
+          message: notifMsg,
+          data: { serviceRequestId: payload.serviceRequestId },
+        })),
+      );
+
+      this.sendPush(recipients, notifTitle, notifMsg, {
+        serviceRequestId: payload.serviceRequestId,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Error handling service comment for ${payload.serviceRequestId}: ${(error as Error).message}`,
+      );
+    }
+  }
+
   /** Alert user when their property ISV drops significantly. */
   async handleISVAlert(payload: {
     propertyId: string;

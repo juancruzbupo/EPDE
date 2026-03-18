@@ -282,6 +282,13 @@ export class BudgetsService {
       dto.content,
     );
 
+    void this.notificationsHandler.handleBudgetCommentAdded({
+      budgetId,
+      title: budget.title,
+      commentAuthorId: currentUser.id,
+      requesterId: budget.requestedBy,
+    });
+
     void this.auditLogRepository.createAuditLog(
       budgetId,
       currentUser.id,

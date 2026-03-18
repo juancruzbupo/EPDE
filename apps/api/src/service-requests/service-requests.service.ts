@@ -305,7 +305,16 @@ export class ServiceRequestsService {
       throw error;
     }
 
-    return this.commentsRepository.createComment(id, currentUser.id, dto.content);
+    const comment = await this.commentsRepository.createComment(id, currentUser.id, dto.content);
+
+    void this.notificationsHandler.handleServiceCommentAdded({
+      serviceRequestId: id,
+      title: request.title,
+      commentAuthorId: currentUser.id,
+      requesterId: request.requestedBy,
+    });
+
+    return comment;
   }
 
   // ─── Attachments ────────────────────────────────────────
