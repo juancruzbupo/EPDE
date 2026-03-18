@@ -233,6 +233,8 @@ Las notificaciones y emails se disparan con **inyeccion directa** desde los serv
 | Presupuesto creado           | BudgetsService         | NotificationsHandlerService | Notificacion in-app (BullMQ queue) + email (BullMQ queue) |
 | Presupuesto cotizado         | BudgetsService         | NotificationsHandlerService | Notificacion in-app + email al cliente (BullMQ queues)    |
 | Estado de presupuesto cambia | BudgetsService         | NotificationsHandlerService | Notificacion in-app + email al cliente (BullMQ queues)    |
+| Comentario en presupuesto    | BudgetsService         | NotificationsHandlerService | Notificacion in-app + push a la otra parte                |
+| Comentario en solicitud      | ServiceRequestsService | NotificationsHandlerService | Notificacion in-app + push a la otra parte                |
 | Cliente invitado             | ClientsService         | EmailQueueService (directo) | Email de invitacion via BullMQ queue                      |
 | ISV bajó >15 puntos          | ISVSnapshotService     | NotificationsHandlerService | Notificacion in-app (BullMQ queue) + push notification    |
 
@@ -240,7 +242,7 @@ Las notificaciones y emails se disparan con **inyeccion directa** desde los serv
 
 ```typescript
 // BudgetsService llama directamente — sin EventEmitter2
-void this.notificationsHandler.handleBudgetCreated({ budgetId, title, requesterId, propertyId });
+void this.notificationsHandler.handleBudgetCreated({ budgetId, title, requesterId });
 ```
 
 **Error Boundaries:** Cada metodo de `NotificationsHandlerService` esta envuelto en `try-catch` con `logger.error`. Los errores de BullMQ se manejan con reintentos automaticos.
