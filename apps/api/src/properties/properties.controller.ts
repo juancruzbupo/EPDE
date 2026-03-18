@@ -120,6 +120,7 @@ export class PropertiesController {
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    return this.propertiesService.deleteProperty(id, user);
+    await this.propertiesService.deleteProperty(id, user);
+    return { data: null, message: 'Propiedad eliminada' };
   }
 }

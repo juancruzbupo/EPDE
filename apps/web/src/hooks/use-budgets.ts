@@ -94,13 +94,27 @@ export function useUpdateBudgetStatus() {
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: BudgetStatus }) =>
       updateBudgetStatus(id, status),
-    onSuccess: () => {
-      toast.success('Estado actualizado');
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey: [QUERY_KEYS.budgets, variables.id] });
+      const previous = queryClient.getQueryData<BudgetRequestPublic>([
+        QUERY_KEYS.budgets,
+        variables.id,
+      ]);
+      queryClient.setQueryData<BudgetRequestPublic>([QUERY_KEYS.budgets, variables.id], (old) =>
+        old ? { ...old, status: variables.status } : old,
+      );
+      return { previous };
+    },
+    onSuccess: () => toast.success('Estado actualizado'),
+    onError: (err, variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData([QUERY_KEYS.budgets, variables.id], context.previous);
+      }
+      toast.error(getErrorMessage(err, 'Error al actualizar estado'));
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
       invalidateDashboard(queryClient);
-    },
-    onError: (err) => {
-      toast.error(getErrorMessage(err, 'Error al actualizar estado'));
     },
   });
 }

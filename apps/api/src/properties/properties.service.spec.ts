@@ -159,7 +159,7 @@ describe('PropertiesService', () => {
 
       await expect(service.getProperty('prop-1', otherClient)).rejects.toThrow(ForbiddenException);
       await expect(service.getProperty('prop-1', otherClient)).rejects.toThrow(
-        'No tenés acceso a esta propiedad',
+        'Acceso denegado a esta propiedad',
       );
     });
   });
@@ -239,7 +239,7 @@ describe('PropertiesService', () => {
         ForbiddenException,
       );
       await expect(service.updateProperty('prop-1', updateDto, otherClient)).rejects.toThrow(
-        'No tenés acceso a esta propiedad',
+        'Acceso denegado a esta propiedad',
       );
     });
   });
@@ -249,21 +249,19 @@ describe('PropertiesService', () => {
       repository.findById.mockResolvedValue(mockProperty);
       repository.softDeleteWithCascade.mockResolvedValue(undefined);
 
-      const result = await service.deleteProperty('prop-1', adminUser);
+      await service.deleteProperty('prop-1', adminUser);
 
       expect(repository.findById).toHaveBeenCalledWith('prop-1');
       expect(repository.softDeleteWithCascade).toHaveBeenCalledWith('prop-1');
-      expect(result).toEqual({ data: null, message: 'Propiedad eliminada' });
     });
 
     it('should soft delete property when CLIENT is the owner', async () => {
       repository.findById.mockResolvedValue(mockProperty);
       repository.softDeleteWithCascade.mockResolvedValue(undefined);
 
-      const result = await service.deleteProperty('prop-1', clientUser);
+      await service.deleteProperty('prop-1', clientUser);
 
       expect(repository.softDeleteWithCascade).toHaveBeenCalledWith('prop-1');
-      expect(result).toEqual({ data: null, message: 'Propiedad eliminada' });
     });
 
     it('should throw NotFoundException when property not found', async () => {
@@ -284,7 +282,7 @@ describe('PropertiesService', () => {
         ForbiddenException,
       );
       await expect(service.deleteProperty('prop-1', otherClient)).rejects.toThrow(
-        'No tenés acceso a esta propiedad',
+        'Acceso denegado a esta propiedad',
       );
     });
   });

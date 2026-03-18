@@ -1,3 +1,9 @@
+/**
+ * Mobile property hooks — read-only.
+ * Mutation hooks (create, update, delete) are omitted because:
+ * - create/delete are admin-only operations (mobile is client-only)
+ * - update has no UI in the mobile app (property editing is web-only)
+ */
 import type { PropertyPublic } from '@epde/shared';
 import { QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';

@@ -334,15 +334,8 @@ export class BudgetsService {
     budget: BudgetRequest & { property?: { userId?: string } | null },
     currentUser: ServiceUser,
   ) {
-    try {
-      if (currentUser.role === UserRole.CLIENT && budget.property?.userId !== currentUser.id) {
-        throw new BudgetAccessDeniedError('ownership');
-      }
-    } catch (error) {
-      if (error instanceof BudgetAccessDeniedError) {
-        throw new ForbiddenException(error.message);
-      }
-      throw error;
+    if (currentUser.role === UserRole.CLIENT && budget.property?.userId !== currentUser.id) {
+      throw new ForbiddenException('Acceso denegado a este presupuesto');
     }
   }
 

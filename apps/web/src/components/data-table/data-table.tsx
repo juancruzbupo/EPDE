@@ -47,7 +47,6 @@ export function DataTable<TData, TValue>({
   });
 
   const { shouldAnimate } = useMotionPreference();
-  const RowWrapper = shouldAnimate ? motion.tr : 'tr';
 
   return (
     <div>
@@ -80,7 +79,7 @@ export function DataTable<TData, TValue>({
               ))
             ) : table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row, index) => (
-                <RowWrapper
+                <motion.tr
                   key={row.id}
                   className={
                     onRowClick
@@ -101,34 +100,31 @@ export function DataTable<TData, TValue>({
                         },
                       }
                     : {})}
-                  {...(shouldAnimate
-                    ? {
-                        initial: { opacity: 0, y: 4 },
-                        animate: { opacity: 1, y: 0 },
-                        transition: {
-                          duration: MOTION_DURATION.normal,
-                          delay: index * 0.03,
-                        },
-                      }
-                    : {})}
+                  initial={shouldAnimate ? { opacity: 0, y: 4 } : false}
+                  animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+                  transition={
+                    shouldAnimate
+                      ? { duration: MOTION_DURATION.normal, delay: index * 0.03 }
+                      : undefined
+                  }
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
-                </RowWrapper>
+                </motion.tr>
               ))
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  {shouldAnimate ? (
-                    <motion.span variants={FADE_IN_UP} initial="hidden" animate="visible">
-                      {emptyMessage}
-                    </motion.span>
-                  ) : (
-                    emptyMessage
-                  )}
+                  <motion.span
+                    variants={FADE_IN_UP}
+                    initial={shouldAnimate ? 'hidden' : false}
+                    animate={shouldAnimate ? 'visible' : undefined}
+                  >
+                    {emptyMessage}
+                  </motion.span>
                 </TableCell>
               </TableRow>
             )}

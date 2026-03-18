@@ -7,6 +7,8 @@ import {
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { darkTheme, lightTheme } from '../theme-tokens';
+
 /**
  * Verify that the mobile global.css defines a --color-* variable for every key
  * in DESIGN_TOKENS_LIGHT (the SSoT), AND that the actual values match.
@@ -197,6 +199,37 @@ describe('Mobile CSS token sync', () => {
       }
     }
 
+    expect(mismatches).toEqual([]);
+  });
+
+  // --- theme-tokens.ts runtime sync ---
+
+  // NativeWind vars() strips the '--' prefix from keys (e.g. '--color-primary' → 'color-primary')
+  it('lightTheme vars should match DESIGN_TOKENS_LIGHT', () => {
+    const mismatches: string[] = [];
+    for (const [key, expected] of Object.entries(DESIGN_TOKENS_LIGHT)) {
+      const varKey = `color-${toKebab(key)}`;
+      const actual = (lightTheme as Record<string, string>)[varKey];
+      if (!actual) {
+        mismatches.push(`${varKey}: missing in lightTheme`);
+      } else if (actual !== expected) {
+        mismatches.push(`${varKey}: expected "${expected}", got "${actual}"`);
+      }
+    }
+    expect(mismatches).toEqual([]);
+  });
+
+  it('darkTheme vars should match DESIGN_TOKENS_DARK', () => {
+    const mismatches: string[] = [];
+    for (const [key, expected] of Object.entries(DESIGN_TOKENS_DARK)) {
+      const varKey = `color-${toKebab(key)}`;
+      const actual = (darkTheme as Record<string, string>)[varKey];
+      if (!actual) {
+        mismatches.push(`${varKey}: missing in darkTheme`);
+      } else if (actual !== expected) {
+        mismatches.push(`${varKey}: expected "${expected}", got "${actual}"`);
+      }
+    }
     expect(mismatches).toEqual([]);
   });
 });

@@ -193,12 +193,14 @@ describe('useUpdateBudgetStatus', () => {
     vi.clearAllMocks();
   });
 
-  it('should invalidate budgets and dashboard queries on success', () => {
+  it('should show toast on success and invalidate on settled', () => {
     renderHook(() => useUpdateBudgetStatus());
 
     const config = vi.mocked(useMutation).mock.calls[0][0];
     (config.onSuccess as () => void)();
+    expect(toast.success).toHaveBeenCalledWith('Estado actualizado');
 
+    (config.onSettled as () => void)();
     expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey: [QUERY_KEYS.budgets] });
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
       queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardStats],
@@ -206,6 +208,5 @@ describe('useUpdateBudgetStatus', () => {
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
       queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardActivity],
     });
-    expect(toast.success).toHaveBeenCalledWith('Estado actualizado');
   });
 });

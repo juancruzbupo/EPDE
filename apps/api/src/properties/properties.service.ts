@@ -7,7 +7,6 @@ import type {
 import { UserRole } from '@epde/shared';
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 
-import { PropertyAccessDeniedError } from '../common/exceptions/domain.exceptions';
 import { DashboardRepository } from '../dashboard/dashboard.repository';
 import { ISVSnapshotRepository } from '../dashboard/isv-snapshot.repository';
 import { PropertiesRepository } from './properties.repository';
@@ -91,7 +90,6 @@ export class PropertiesService {
     this.assertOwnership(property.userId, currentUser);
 
     await this.propertiesRepository.softDeleteWithCascade(id);
-    return { data: null, message: 'Propiedad eliminada' };
   }
 
   async getPropertyPhotos(id: string, currentUser: ServiceUser) {
@@ -168,15 +166,8 @@ export class PropertiesService {
   }
 
   private assertOwnership(propertyUserId: string, currentUser: ServiceUser) {
-    try {
-      if (currentUser.role === UserRole.CLIENT && propertyUserId !== currentUser.id) {
-        throw new PropertyAccessDeniedError();
-      }
-    } catch (error) {
-      if (error instanceof PropertyAccessDeniedError) {
-        throw new ForbiddenException(error.message);
-      }
-      throw error;
+    if (currentUser.role === UserRole.CLIENT && propertyUserId !== currentUser.id) {
+      throw new ForbiddenException('Acceso denegado a esta propiedad');
     }
   }
 }
