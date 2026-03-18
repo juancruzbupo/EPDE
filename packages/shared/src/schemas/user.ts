@@ -58,3 +58,8 @@ export const changePasswordSchema = z.object({
     .regex(/[0-9]/, 'Debe contener al menos un número'),
 });
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+
+export const bulkIdsSchema = z.object({
+  ids: z.array(z.string().uuid()).min(1, 'Se requiere al menos un ID').max(50),
+});
+export type BulkIdsInput = z.infer<typeof bulkIdsSchema>;

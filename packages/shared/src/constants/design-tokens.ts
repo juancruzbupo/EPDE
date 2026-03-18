@@ -40,6 +40,10 @@ export const DESIGN_TOKENS_LIGHT = {
   warningForeground: '#1a1715',
   caution: '#c47030',
   cautionForeground: '#fafaf8',
+  // Task status colors (semantic — used in task list/detail views)
+  statusPending: '#d97706',
+  statusUpcoming: '#2563eb',
+  statusCompleted: '#059669',
 } as const;
 
 /** Dark mode palette */
@@ -67,6 +71,9 @@ export const DESIGN_TOKENS_DARK = {
   warningForeground: '#1a1715',
   caution: '#d48050',
   cautionForeground: '#1a1715',
+  statusPending: '#fbbf24',
+  statusUpcoming: '#60a5fa',
+  statusCompleted: '#34d399',
 } as const;
 
 export type DesignTokens = typeof DESIGN_TOKENS_LIGHT;

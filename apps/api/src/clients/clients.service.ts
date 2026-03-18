@@ -126,7 +126,6 @@ export class ClientsService {
     }
 
     await this.clientsRepository.softDelete(id);
-    return { data: null, message: 'Cliente eliminado' };
   }
 
   async findByEmail(email: string) {

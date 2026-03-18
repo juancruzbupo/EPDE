@@ -306,9 +306,8 @@ describe('ClientsService', () => {
       });
       clientsRepository.softDelete.mockResolvedValue(undefined);
 
-      const result = await service.deleteClient('client-1');
+      await service.deleteClient('client-1');
 
-      expect(result).toEqual({ data: null, message: 'Cliente eliminado' });
       expect(clientsRepository.softDelete).toHaveBeenCalledWith('client-1');
     });
 

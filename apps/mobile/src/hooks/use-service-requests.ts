@@ -1,3 +1,8 @@
+/**
+ * Mobile service request hooks — client operations only.
+ * `useUpdateServiceStatus` is omitted because status transitions
+ * are admin-only (`@Roles(UserRole.ADMIN)` on the endpoint).
+ */
 import type { ServiceRequestPublic, ServiceUrgency } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';

@@ -1,5 +1,11 @@
-import type { ClientFiltersInput, CreateClientInput, UpdateClientInput } from '@epde/shared';
+import type {
+  BulkIdsInput,
+  ClientFiltersInput,
+  CreateClientInput,
+  UpdateClientInput,
+} from '@epde/shared';
 import {
+  bulkIdsSchema,
   clientFiltersSchema,
   createClientSchema,
   updateClientSchema,
@@ -75,13 +81,14 @@ export class ClientsController {
   @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async deleteClient(@Param('id', ParseUUIDPipe) id: string) {
-    return this.clientsService.deleteClient(id);
+    await this.clientsService.deleteClient(id);
+    return { data: null, message: 'Cliente eliminado' };
   }
 
   @Post('bulk-reinvite')
   @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 5, ttl: 60_000 } })
-  async bulkReinvite(@Body() body: { ids: string[] }) {
+  async bulkReinvite(@Body(new ZodValidationPipe(bulkIdsSchema)) body: BulkIdsInput) {
     const results = await Promise.allSettled(
       body.ids.map((id) => this.clientsService.reinviteClient(id)),
     );
@@ -95,7 +102,7 @@ export class ClientsController {
   @Post('bulk-delete')
   @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 5, ttl: 60_000 } })
-  async bulkDelete(@Body() body: { ids: string[] }) {
+  async bulkDelete(@Body(new ZodValidationPipe(bulkIdsSchema)) body: BulkIdsInput) {
     const results = await Promise.allSettled(
       body.ids.map((id) => this.clientsService.deleteClient(id)),
     );

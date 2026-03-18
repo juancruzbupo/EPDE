@@ -56,6 +56,10 @@ body {
   --color-warning-foreground: var(--warning-foreground);
   --color-caution: var(--caution);
   --color-caution-foreground: var(--caution-foreground);
+  /* Task status tokens */
+  --color-status-pending: var(--status-pending);
+  --color-status-upcoming: var(--status-upcoming);
+  --color-status-completed: var(--status-completed);
   /* Task type color tokens */
   --color-task-inspection: var(--task-inspection);
   --color-task-cleaning: var(--task-cleaning);
@@ -112,6 +116,10 @@ body {
   --task-adjustment: #64748b;
   --task-measurement: #14b8a6;
   --task-evaluation: #8b5cf6;
+  /* Task status tokens */
+  --status-pending: #d97706;
+  --status-upcoming: #2563eb;
+  --status-completed: #059669;
   --sidebar: #f5f0eb;
   --sidebar-foreground: #2e2a27;
   --sidebar-primary: #c4704b;
@@ -164,6 +172,10 @@ body {
   --task-adjustment: #94a3b8;
   --task-measurement: #2dd4bf;
   --task-evaluation: #a78bfa;
+  /* Task status tokens (dark) */
+  --status-pending: #fbbf24;
+  --status-upcoming: #60a5fa;
+  --status-completed: #34d399;
   --sidebar: #2e2a27;
   --sidebar-foreground: #f5f0eb;
   --sidebar-primary: #d4956f;

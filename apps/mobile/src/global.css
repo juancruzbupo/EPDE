@@ -28,6 +28,10 @@
   --color-warning-foreground: #1a1715;
   --color-caution: #c47030;
   --color-caution-foreground: #fafaf8;
+  /* Task status tokens */
+  --color-status-pending: #d97706;
+  --color-status-upcoming: #2563eb;
+  --color-status-completed: #059669;
   /* Task type color tokens */
   --color-task-inspection: #3b82f6;
   --color-task-cleaning: #06b6d4;
@@ -66,6 +70,10 @@
     --color-warning-foreground: #1a1715;
     --color-caution: #d48050;
     --color-caution-foreground: #1a1715;
+    /* Task status tokens */
+    --color-status-pending: #fbbf24;
+    --color-status-upcoming: #60a5fa;
+    --color-status-completed: #34d399;
     /* Task type color tokens */
     --color-task-inspection: #60a5fa;
     --color-task-cleaning: #22d3ee;

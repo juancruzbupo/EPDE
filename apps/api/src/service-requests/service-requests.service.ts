@@ -17,7 +17,6 @@ import {
 
 import {
   InvalidServiceStatusTransitionError,
-  ServiceRequestAccessDeniedError,
   ServiceRequestNotEditableError,
   ServiceRequestTerminalError,
   TaskPropertyMismatchError,
@@ -81,15 +80,8 @@ export class ServiceRequestsService {
       throw new NotFoundException('Propiedad no encontrada');
     }
 
-    try {
-      if (property.userId !== userId) {
-        throw new ServiceRequestAccessDeniedError('ownership');
-      }
-    } catch (error) {
-      if (error instanceof ServiceRequestAccessDeniedError) {
-        throw new ForbiddenException(error.message);
-      }
-      throw error;
+    if (property.userId !== userId) {
+      throw new ForbiddenException('Acceso denegado a esta propiedad');
     }
 
     // If a task is linked, validate it belongs to the same property
@@ -144,15 +136,8 @@ export class ServiceRequestsService {
 
     this.assertAccess(request, currentUser);
 
-    try {
-      if (currentUser.role !== UserRole.CLIENT) {
-        throw new ServiceRequestAccessDeniedError('role');
-      }
-    } catch (error) {
-      if (error instanceof ServiceRequestAccessDeniedError) {
-        throw new ForbiddenException(error.message);
-      }
-      throw error;
+    if (currentUser.role !== UserRole.CLIENT) {
+      throw new ForbiddenException('Solo el cliente puede editar su solicitud');
     }
 
     try {
@@ -354,7 +339,7 @@ export class ServiceRequestsService {
 
   private assertAccess(request: ServiceRequestWithDetails, currentUser: ServiceUser): void {
     if (currentUser.role === UserRole.CLIENT && request.property?.userId !== currentUser.id) {
-      throw new ForbiddenException(new ServiceRequestAccessDeniedError('ownership').message);
+      throw new ForbiddenException('Acceso denegado a esta solicitud');
     }
   }
 }

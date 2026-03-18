@@ -4,8 +4,8 @@
  * Badge variant mappings also live in @epde/shared — import directly from there.
  */
 
-import type { ProfessionalRequirement, TaskStatus, TaskType } from '@epde/shared';
-import { TaskStatus as TS } from '@epde/shared';
+import type { ProfessionalRequirement, TaskType } from '@epde/shared';
+import { TaskStatus } from '@epde/shared';
 import { AlertTriangle, CheckCircle2, Clock, type LucideIcon, Timer } from 'lucide-react';
 
 // ─── Color class maps (platform-specific, not shared) ───
@@ -32,18 +32,22 @@ export const PROFESSIONAL_REQ_COLORS: Record<ProfessionalRequirement, string> = 
 
 /** Display order: actionable items first. COMPLETED excluded — tasks never stay in that status
  * (they recycle back to PENDING after completion; completion is tracked via TaskLog). */
-export const TASK_STATUS_ORDER: TaskStatus[] = [TS.OVERDUE, TS.PENDING, TS.UPCOMING];
+export const TASK_STATUS_ORDER: TaskStatus[] = [
+  TaskStatus.OVERDUE,
+  TaskStatus.PENDING,
+  TaskStatus.UPCOMING,
+];
 
 export const TASK_STATUS_ICONS: Record<TaskStatus, LucideIcon> = {
-  [TS.OVERDUE]: AlertTriangle,
-  [TS.PENDING]: Clock,
-  [TS.UPCOMING]: Timer,
-  [TS.COMPLETED]: CheckCircle2,
+  [TaskStatus.OVERDUE]: AlertTriangle,
+  [TaskStatus.PENDING]: Clock,
+  [TaskStatus.UPCOMING]: Timer,
+  [TaskStatus.COMPLETED]: CheckCircle2,
 };
 
 export const TASK_STATUS_COLORS: Record<TaskStatus, string> = {
-  [TS.OVERDUE]: 'text-destructive',
-  [TS.PENDING]: 'text-amber-600',
-  [TS.UPCOMING]: 'text-blue-600',
-  [TS.COMPLETED]: 'text-emerald-600',
+  [TaskStatus.OVERDUE]: 'text-destructive',
+  [TaskStatus.PENDING]: 'text-status-pending',
+  [TaskStatus.UPCOMING]: 'text-status-upcoming',
+  [TaskStatus.COMPLETED]: 'text-status-completed',
 };

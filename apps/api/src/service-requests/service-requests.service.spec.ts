@@ -194,7 +194,7 @@ describe('ServiceRequestsService', () => {
 
       await expect(service.getRequest('sr-1', otherClient)).rejects.toThrow(ForbiddenException);
       await expect(service.getRequest('sr-1', otherClient)).rejects.toThrow(
-        'No tenés acceso a esta solicitud',
+        'Acceso denegado a esta solicitud',
       );
     });
   });
@@ -266,7 +266,7 @@ describe('ServiceRequestsService', () => {
         ForbiddenException,
       );
       await expect(service.createRequest(createDto, 'client-2')).rejects.toThrow(
-        'No tenés acceso a esta solicitud',
+        'Acceso denegado a esta propiedad',
       );
     });
 
