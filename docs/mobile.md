@@ -329,10 +329,22 @@ Mutations con actualizacion optimista para UX instantanea:
 ### Upload de Imagenes
 
 1. Solicitar permisos (camara o galeria)
-2. Seleccionar imagen via `expo-image-picker`
-3. Upload a la API (multipart/form-data)
-4. Mostrar progreso de upload
-5. Prevenir submit hasta que el upload termine
+2. Seleccionar imagen via `expo-image-picker` (quality 0.7)
+3. Upload a la API (multipart/form-data), MIME normalizado (.jpg → image/jpeg)
+4. Trackear uploads por URI (no por indice) para evitar race conditions con selecciones rapidas
+5. Mostrar spinner overlay por foto durante upload
+6. Si falla: mantener preview con overlay "Reintentar" (no borrar la foto)
+7. Prevenir submit hasta que todos los uploads terminen (`uploadingCount === 0`)
+
+### Dark Mode
+
+Implementado via NativeWind `vars()` (no className `.dark`):
+
+- **`theme-tokens.ts`** — `lightTheme` y `darkTheme` usando `vars()` de NativeWind
+- **Root layout** — `<View style={themeVars}>` inyecta tokens segun preferencia
+- **Theme store** — Zustand + AsyncStorage, opciones: auto/light/dark
+- **Toggle** — Pantalla de Perfil, seccion "Apariencia"
+- **`global.css`** — usa `@theme` (sin `inline`) para que Tailwind emita `var()` en vez de hex estaticos
 
 ### Localizacion
 

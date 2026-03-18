@@ -576,23 +576,42 @@ La app mobile replica el design system web usando **NativeWind 5** (Tailwind CSS
 @import 'tailwindcss/utilities.css';
 @import 'nativewind/theme';
 
-@theme inline {
+@theme {
   --color-primary: #c4704b;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #e8ddd3;
-  --color-secondary-foreground: #2e2a27;
   --color-background: #fafaf8;
   --color-foreground: #2e2a27;
-  --color-card: #ffffff;
-  --color-card-foreground: #2e2a27;
-  --color-muted: #f5f0eb;
-  --color-muted-foreground: #4a4542;
-  --color-destructive: #c45b4b;
-  --color-border: #e8ddd3;
-  --color-success: #6b9b7a;
-  --radius: 0.625rem;
+  /* ... 30+ tokens ... */
+}
+
+@layer base {
+  .dark {
+    --color-primary: #d4956f;
+    --color-background: #1a1715;
+    --color-foreground: #f5f0eb;
+    /* ... dark overrides ... */
+  }
 }
 ```
+
+**Importante**: se usa `@theme` (sin `inline`) para que Tailwind emita `var(--color-*)` en el CSS compilado. Con `@theme inline`, Tailwind resuelve los colores a hex estaticos en build time y las variables runtime no tienen efecto.
+
+### Dark mode mobile
+
+NativeWind v5 + Tailwind v4 no soporta el cascade de clases CSS como un browser. El bloque `.dark` en `global.css` existe como referencia pero **no aplica dark mode en runtime**. En su lugar:
+
+1. **`src/lib/theme-tokens.ts`** — define `lightTheme` y `darkTheme` usando `vars()` de NativeWind
+2. **Root layout (`_layout.tsx`)** — inyecta las variables en el root `<View style={themeVars}>`
+3. **Theme store (`stores/theme-store.ts`)** — persiste la preferencia (`auto`/`light`/`dark`) en AsyncStorage
+
+```tsx
+// _layout.tsx
+const effectiveTheme = mode === 'auto' ? (systemColorScheme ?? 'light') : mode;
+const themeVars = effectiveTheme === 'dark' ? darkTheme : lightTheme;
+
+<View style={themeVars} className="bg-background flex-1">
+```
+
+Al agregar un nuevo color: actualizar `global.css` (ambos bloques), `theme-tokens.ts` (ambos objetos), y `DESIGN_TOKENS_LIGHT`/`DESIGN_TOKENS_DARK` en `@epde/shared`.
 
 ### Tipografia Mobile
 

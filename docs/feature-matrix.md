@@ -76,12 +76,12 @@ Actualizar cuando se agrega o modifica una feature en cualquier plataforma.
 
 ## Diferencias intencionales entre plataformas
 
-| Área                 | Web                                  | Mobile                              | Razón                                                           |
-| -------------------- | ------------------------------------ | ----------------------------------- | --------------------------------------------------------------- |
-| Property detail      | Tabs (Salud/Plan/Gastos/Fotos)       | CollapsibleSections                 | Mobile: scroll vertical natural; Web: tabs para pantalla grande |
-| Dark mode toggle     | Header dropdown                      | Profile screen                      | Mobile: menos espacio en header; profile es donde van settings  |
-| Notification routing | `/budgets/`, `/properties/` (plural) | `/budget/`, `/property/` (singular) | Expo Router usa file system routes (singular)                   |
-| Dashboard welcome    | "Bienvenido, {nombre}"               | "Hola, {nombre}"                    | Ambos personalizados, tono ligeramente diferente                |
+| Área                 | Web                                  | Mobile                               | Razón                                                                                                                        |
+| -------------------- | ------------------------------------ | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| Property detail      | Tabs (Salud/Plan/Gastos/Fotos)       | CollapsibleSections                  | Mobile: scroll vertical natural; Web: tabs para pantalla grande                                                              |
+| Dark mode toggle     | Header dropdown (CSS class `.dark`)  | Profile screen (`vars()` NativeWind) | Web: toggle CSS class en `<html>`. Mobile: `vars()` inyecta tokens en root View (NativeWind no soporta cascade de className) |
+| Notification routing | `/budgets/`, `/properties/` (plural) | `/budget/`, `/property/` (singular)  | Expo Router usa file system routes (singular)                                                                                |
+| Dashboard welcome    | "Bienvenido, {nombre}"               | "Hola, {nombre}"                     | Ambos personalizados, tono ligeramente diferente                                                                             |
 
 ## Riesgos de drift documentados
 
