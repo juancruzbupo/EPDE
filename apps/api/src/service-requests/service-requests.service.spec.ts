@@ -293,7 +293,11 @@ describe('ServiceRequestsService', () => {
       expect(serviceRequestsRepo.findByIdWithDetails).toHaveBeenCalledWith('sr-1');
       expect(serviceRequestsRepo.update).toHaveBeenCalledWith(
         'sr-1',
-        { status: ServiceStatus.IN_REVIEW, updatedBy: 'admin-1' },
+        {
+          status: ServiceStatus.IN_REVIEW,
+          updatedBy: 'admin-1',
+          firstResponseAt: expect.any(Date),
+        },
         {
           property: {
             select: {

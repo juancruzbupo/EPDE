@@ -4,12 +4,20 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { NotificationsController } from './notifications.controller';
 import { NotificationsService } from './notifications.service';
+import { PushService } from './push.service';
 
 const mockNotificationsService = {
   getNotifications: jest.fn(),
   getUnreadCount: jest.fn(),
   markAllAsRead: jest.fn(),
   markAsRead: jest.fn(),
+};
+
+const mockPushService = {
+  registerToken: jest.fn().mockResolvedValue(undefined),
+  removeToken: jest.fn().mockResolvedValue(undefined),
+  removeAllForUser: jest.fn().mockResolvedValue(undefined),
+  sendToUsers: jest.fn().mockResolvedValue(undefined),
 };
 
 const clientUser: CurrentUserPayload = {
@@ -34,7 +42,10 @@ describe('NotificationsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [NotificationsController],
-      providers: [{ provide: NotificationsService, useValue: mockNotificationsService }],
+      providers: [
+        { provide: NotificationsService, useValue: mockNotificationsService },
+        { provide: PushService, useValue: mockPushService },
+      ],
     }).compile();
 
     controller = module.get<NotificationsController>(NotificationsController);

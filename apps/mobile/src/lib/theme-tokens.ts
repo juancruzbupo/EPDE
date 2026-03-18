@@ -1,0 +1,80 @@
+import { vars } from 'nativewind';
+
+/**
+ * NativeWind v5 + Tailwind v4 resolves CSS variables at build time,
+ * so `.dark { --color-*: ... }` in global.css doesn't work at runtime.
+ * Instead, we use `vars()` to inject CSS custom properties into the root
+ * View's style, which NativeWind propagates to all children.
+ *
+ * Keep these values in sync with global.css `@theme inline` and `.dark`.
+ */
+
+export const lightTheme = vars({
+  '--color-primary': '#c4704b',
+  '--color-primary-foreground': '#fafaf8',
+  '--color-secondary': '#e8ddd3',
+  '--color-secondary-foreground': '#2e2a27',
+  '--color-background': '#fafaf8',
+  '--color-foreground': '#2e2a27',
+  '--color-card': '#ffffff',
+  '--color-card-foreground': '#2e2a27',
+  '--color-muted': '#f5f0eb',
+  '--color-muted-foreground': '#4a4542',
+  '--color-destructive': '#c45b4b',
+  '--color-destructive-foreground': '#ffffff',
+  '--color-accent': '#e8ddd3',
+  '--color-accent-foreground': '#2e2a27',
+  '--color-border': '#e8ddd3',
+  '--color-input': '#e8ddd3',
+  '--color-ring': '#c4704b',
+  '--color-success': '#6b9b7a',
+  '--color-success-foreground': '#1a1715',
+  '--color-warning': '#c4a030',
+  '--color-warning-foreground': '#1a1715',
+  '--color-caution': '#c47030',
+  '--color-caution-foreground': '#fafaf8',
+  '--color-task-inspection': '#3b82f6',
+  '--color-task-cleaning': '#06b6d4',
+  '--color-task-test': '#6366f1',
+  '--color-task-treatment': '#a855f7',
+  '--color-task-sealing': '#f59e0b',
+  '--color-task-lubrication': '#84cc16',
+  '--color-task-adjustment': '#64748b',
+  '--color-task-measurement': '#14b8a6',
+  '--color-task-evaluation': '#8b5cf6',
+});
+
+export const darkTheme = vars({
+  '--color-primary': '#d4956f',
+  '--color-primary-foreground': '#1a1715',
+  '--color-secondary': '#3d3835',
+  '--color-secondary-foreground': '#f5f0eb',
+  '--color-background': '#1a1715',
+  '--color-foreground': '#f5f0eb',
+  '--color-card': '#2e2a27',
+  '--color-card-foreground': '#f5f0eb',
+  '--color-muted': '#3d3835',
+  '--color-muted-foreground': '#a09890',
+  '--color-accent': '#3d3835',
+  '--color-accent-foreground': '#f5f0eb',
+  '--color-destructive': '#c45b4b',
+  '--color-destructive-foreground': '#ffffff',
+  '--color-border': 'rgba(255, 255, 255, 0.1)',
+  '--color-input': 'rgba(255, 255, 255, 0.15)',
+  '--color-ring': '#d4956f',
+  '--color-success': '#7ab588',
+  '--color-success-foreground': '#1a1715',
+  '--color-warning': '#d4b050',
+  '--color-warning-foreground': '#1a1715',
+  '--color-caution': '#d48050',
+  '--color-caution-foreground': '#1a1715',
+  '--color-task-inspection': '#60a5fa',
+  '--color-task-cleaning': '#22d3ee',
+  '--color-task-test': '#818cf8',
+  '--color-task-treatment': '#c084fc',
+  '--color-task-sealing': '#fbbf24',
+  '--color-task-lubrication': '#a3e635',
+  '--color-task-adjustment': '#94a3b8',
+  '--color-task-measurement': '#2dd4bf',
+  '--color-task-evaluation': '#a78bfa',
+});

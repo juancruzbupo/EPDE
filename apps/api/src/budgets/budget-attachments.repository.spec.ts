@@ -83,14 +83,14 @@ describe('BudgetAttachmentsRepository', () => {
       );
     });
 
-    it('should order by createdAt asc', async () => {
+    it('should order by createdAt desc (newest first)', async () => {
       mockAttachmentModel.findMany.mockResolvedValue([]);
 
       await repository.findByBudgetId('clx1bdg00000001');
 
       expect(mockAttachmentModel.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          orderBy: { createdAt: 'asc' },
+          orderBy: { createdAt: 'desc' },
         }),
       );
     });

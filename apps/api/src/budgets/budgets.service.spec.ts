@@ -202,7 +202,6 @@ describe('BudgetsService', () => {
         budgetId: 'budget-new',
         title: dto.title,
         requesterId: clientUser.id,
-        propertyId: 'prop-1',
       });
     });
 

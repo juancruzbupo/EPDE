@@ -3,6 +3,7 @@
 import {
   type CreateServiceRequestInput,
   createServiceRequestSchema,
+  getErrorMessage,
   SERVICE_URGENCY_LABELS,
   ServiceUrgency,
 } from '@epde/shared';
@@ -10,6 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Upload, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -176,6 +178,8 @@ export function CreateServiceDialog({
           },
         },
       );
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Error al subir fotos'));
     } finally {
       setIsUploading(false);
     }
@@ -288,6 +292,7 @@ export function CreateServiceDialog({
               accept="image/*"
               multiple
               className="hidden"
+              aria-label="Seleccionar fotos"
               onChange={handleFileChange}
             />
             <Button

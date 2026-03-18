@@ -25,6 +25,10 @@ const mockDashboardRepository = {
   getClientHealthScore: jest.fn(),
   getClientConditionDistribution: jest.fn(),
   getClientCategoryBreakdown: jest.fn(),
+  getClientSectorBreakdown: jest.fn(),
+  getPropertyHealthIndex: jest.fn(),
+  getSlaMetrics: jest.fn(),
+  getProblematicSectors: jest.fn(),
 };
 
 describe('DashboardService', () => {
@@ -231,6 +235,8 @@ describe('DashboardService', () => {
           nextDueDate: dueDate,
           priority: 'HIGH',
           status: TaskStatus.PENDING,
+          professionalRequirement: 'RECOMMENDED',
+          sector: 'Techos',
           maintenancePlan: {
             id: 'plan-1',
             property: { id: 'prop-1', address: 'Av. Corrientes 1234' },
@@ -243,6 +249,8 @@ describe('DashboardService', () => {
           nextDueDate: new Date(Date.now() + 14 * 86_400_000),
           priority: 'MEDIUM',
           status: TaskStatus.UPCOMING,
+          professionalRequirement: 'NOT_NEEDED',
+          sector: 'Plomería',
           maintenancePlan: {
             id: 'plan-2',
             property: { id: 'prop-2', address: 'Calle San Martín 567' },
@@ -266,6 +274,8 @@ describe('DashboardService', () => {
         propertyId: 'prop-1',
         categoryName: 'Techos',
         maintenancePlanId: 'plan-1',
+        professionalRequirement: 'RECOMMENDED',
+        sector: 'Techos',
       });
 
       expect(result[1]!).toEqual({
@@ -278,6 +288,8 @@ describe('DashboardService', () => {
         propertyId: 'prop-2',
         categoryName: 'Plomería',
         maintenancePlanId: 'plan-2',
+        professionalRequirement: 'NOT_NEEDED',
+        sector: 'Plomería',
       });
     });
 
@@ -308,6 +320,10 @@ describe('DashboardService', () => {
       repository.getAvgBudgetResponseDays.mockResolvedValue(3.5);
       repository.getTotalMaintenanceCost.mockResolvedValue(15000);
       repository.getCompletionRate.mockResolvedValue(72);
+      const mockSlaMetrics = { avgResponseHours: 12, avgResolutionHours: 48, totalTracked: 5 };
+      const mockProblematicSectors = [{ sector: 'Techos', overdueCount: 3 }];
+      repository.getSlaMetrics.mockResolvedValue(mockSlaMetrics);
+      repository.getProblematicSectors.mockResolvedValue(mockProblematicSectors);
 
       const result = await service.getAdminAnalytics();
 
@@ -319,6 +335,8 @@ describe('DashboardService', () => {
       expect(result.avgBudgetResponseDays).toBe(3.5);
       expect(result.totalMaintenanceCost).toBe(15000);
       expect(result.completionRate).toBe(72);
+      expect(result.slaMetrics).toEqual(mockSlaMetrics);
+      expect(result.problematicSectors).toEqual(mockProblematicSectors);
       expect(repository.getCompletionTrend).toHaveBeenCalledWith(6);
       expect(repository.getCategoryCosts).toHaveBeenCalledWith(6);
     });
@@ -351,6 +369,17 @@ describe('DashboardService', () => {
       repository.getClientHealthScore.mockResolvedValue(mockHealth);
       repository.getClientConditionDistribution.mockResolvedValue(mockCondDist);
       repository.getClientCategoryBreakdown.mockResolvedValue(mockBreakdown);
+      const mockSectorBreakdown = [
+        { sector: 'Techos', total: 3, overdue: 1, pending: 1, cost: 500 },
+      ];
+      repository.getClientSectorBreakdown.mockResolvedValue(mockSectorBreakdown);
+      const mockHealthIndex = {
+        score: 70,
+        label: 'Bueno',
+        dimensions: { compliance: 80, condition: 70, coverage: 60, investment: 50, trend: 50 },
+        sectorScores: [],
+      };
+      repository.getPropertyHealthIndex.mockResolvedValue(mockHealthIndex);
 
       const result = await service.getClientAnalytics('user-1');
 
@@ -363,6 +392,8 @@ describe('DashboardService', () => {
       expect(result.healthLabel).toBe('Bueno');
       expect(result.conditionDistribution).toEqual(mockCondDist);
       expect(result.categoryBreakdown).toEqual(mockBreakdown);
+      expect(result.sectorBreakdown).toEqual(mockSectorBreakdown);
+      expect(result.healthIndex).toEqual(mockHealthIndex);
     });
 
     it('should handle user with no properties', async () => {
@@ -378,6 +409,13 @@ describe('DashboardService', () => {
       });
       repository.getClientConditionDistribution.mockResolvedValue([]);
       repository.getClientCategoryBreakdown.mockResolvedValue([]);
+      repository.getClientSectorBreakdown.mockResolvedValue([]);
+      repository.getPropertyHealthIndex.mockResolvedValue({
+        score: 0,
+        label: 'Sin datos',
+        dimensions: { compliance: 0, condition: 0, coverage: 0, investment: 0, trend: 0 },
+        sectorScores: [],
+      });
 
       const result = await service.getClientAnalytics('user-no-props');
 

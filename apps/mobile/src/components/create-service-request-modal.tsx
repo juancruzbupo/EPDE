@@ -167,7 +167,6 @@ export function CreateServiceRequestModal({
   };
 
   const handleImageSelected = (uri: string) => {
-    const photoIndex = photos.length;
     setPhotos((prev) => [...prev, { uri }]);
     setUploadingCount((c) => c + 1);
 
@@ -175,13 +174,11 @@ export function CreateServiceRequestModal({
       { uri, folder: 'service-requests' },
       {
         onSuccess: (url) => {
-          setPhotos((prev) =>
-            prev.map((p, i) => (i === photoIndex ? { ...p, uploadedUrl: url } : p)),
-          );
+          setPhotos((prev) => prev.map((p) => (p.uri === uri ? { ...p, uploadedUrl: url } : p)));
           setUploadingCount((c) => c - 1);
         },
         onError: () => {
-          setPhotos((prev) => prev.filter((_, i) => i !== photoIndex));
+          setPhotos((prev) => prev.filter((p) => p.uri !== uri));
           setUploadingCount((c) => c - 1);
           Alert.alert('Error', 'No se pudo subir la foto.');
         },

@@ -4,6 +4,7 @@ import type { BudgetAttachmentPublic } from '@epde/shared';
 import { formatRelativeDate, isBudgetTerminal } from '@epde/shared';
 import { Download, Loader2, Paperclip, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -52,11 +53,21 @@ export function BudgetAttachments({ budgetId, attachments, budgetStatus }: Budge
     setIsUploading(true);
     try {
       const uploaded: { url: string; fileName: string }[] = [];
+      const failed: string[] = [];
       for (const file of files) {
-        const url = await uploadFile.mutateAsync({ file, folder: 'budgets' });
-        uploaded.push({ url, fileName: file.name });
+        try {
+          const url = await uploadFile.mutateAsync({ file, folder: 'budgets' });
+          uploaded.push({ url, fileName: file.name });
+        } catch {
+          failed.push(file.name);
+        }
       }
-      await addAttachments.mutateAsync({ budgetId, attachments: uploaded });
+      if (uploaded.length > 0) {
+        await addAttachments.mutateAsync({ budgetId, attachments: uploaded });
+      }
+      if (failed.length > 0) {
+        toast.error(`No se pudieron subir: ${failed.join(', ')}`);
+      }
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -73,10 +84,12 @@ export function BudgetAttachments({ budgetId, attachments, budgetStatus }: Budge
           <>
             <input
               ref={fileInputRef}
+              id="budget-attachment-input"
               type="file"
               multiple
               accept="image/*,application/pdf"
               className="hidden"
+              aria-label="Seleccionar archivos adjuntos"
               onChange={handleFileChange}
             />
             <Button

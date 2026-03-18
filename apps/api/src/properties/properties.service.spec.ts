@@ -2,6 +2,8 @@ import { UserRole } from '@epde/shared';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { DashboardRepository } from '../dashboard/dashboard.repository';
+import { ISVSnapshotRepository } from '../dashboard/isv-snapshot.repository';
 import { PropertiesRepository } from './properties.repository';
 import { PropertiesService } from './properties.service';
 
@@ -13,6 +15,19 @@ const mockPropertiesRepository = {
   createWithPlan: jest.fn(),
   update: jest.fn(),
   softDeleteWithCascade: jest.fn(),
+};
+
+const mockDashboardRepository = {
+  getAdminStats: jest.fn(),
+  getClientStats: jest.fn(),
+  getRecentActivity: jest.fn(),
+  getClientUpcoming: jest.fn(),
+};
+
+const mockISVSnapshotRepository = {
+  createSnapshot: jest.fn(),
+  findLatest: jest.fn(),
+  findLatestForProperties: jest.fn().mockResolvedValue([]),
 };
 
 const adminUser = { id: 'admin-1', role: UserRole.ADMIN };
@@ -41,6 +56,8 @@ describe('PropertiesService', () => {
       providers: [
         PropertiesService,
         { provide: PropertiesRepository, useValue: mockPropertiesRepository },
+        { provide: DashboardRepository, useValue: mockDashboardRepository },
+        { provide: ISVSnapshotRepository, useValue: mockISVSnapshotRepository },
       ],
     }).compile();
 
@@ -74,7 +91,10 @@ describe('PropertiesService', () => {
         city: undefined,
         type: undefined,
       });
-      expect(result).toEqual(paginatedResult);
+      expect(result).toEqual({
+        ...paginatedResult,
+        data: [{ ...mockProperty, latestISV: null }],
+      });
     });
 
     it('should use filters.userId when role is ADMIN', async () => {

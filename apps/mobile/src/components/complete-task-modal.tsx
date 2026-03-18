@@ -107,6 +107,7 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
   const uploadFile = useUploadFile();
 
   const isUploading = uploadFile.isPending;
+  const uploadFailed = uploadFile.isError;
   const isSubmitting = completeTask.isPending;
   const canSubmit = !!result && !!conditionFound && !!executor && !!actionTaken;
 
@@ -164,13 +165,26 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
 
   const handleImageSelected = (uri: string) => {
     setPhotoUri(uri);
+    setUploadedUrl(null);
     uploadFile.mutate(
       { uri, folder: 'task-photos' },
       {
         onSuccess: (url) => setUploadedUrl(url),
         onError: () => {
-          setPhotoUri(null);
-          setUploadedUrl(null);
+          Alert.alert('Error', 'No se pudo subir la foto. Podés reintentar o elegir otra.');
+        },
+      },
+    );
+  };
+
+  const retryUpload = () => {
+    if (!photoUri) return;
+    setUploadedUrl(null);
+    uploadFile.mutate(
+      { uri: photoUri, folder: 'task-photos' },
+      {
+        onSuccess: (url) => setUploadedUrl(url),
+        onError: () => {
           Alert.alert('Error', 'No se pudo subir la foto.');
         },
       },
@@ -272,7 +286,9 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
             accessibilityRole="button"
             accessibilityLabel="Confirmar completacion"
             onPress={handleSubmit}
-            disabled={!canSubmit || isSubmitting || (isUploading && !uploadedUrl)}
+            disabled={
+              !canSubmit || isSubmitting || isUploading || (photoUri !== null && !uploadedUrl)
+            }
           >
             <Text
               style={TYPE.titleMd}
@@ -380,6 +396,16 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
                     <ActivityIndicator color="white" />
                   </View>
                 )}
+                {uploadFailed && !isUploading && (
+                  <Pressable
+                    onPress={retryUpload}
+                    className="absolute inset-0 h-40 w-40 items-center justify-center rounded-xl bg-black/50"
+                  >
+                    <Text style={TYPE.labelMd} className="text-white">
+                      Reintentar
+                    </Text>
+                  </Pressable>
+                )}
                 <Pressable
                   onPress={removePhoto}
                   className="bg-destructive absolute -top-2 -right-2 h-6 w-6 items-center justify-center rounded-full"
@@ -387,6 +413,11 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
                   <Text className="text-xs font-bold text-white">X</Text>
                 </Pressable>
               </View>
+              {isUploading && (
+                <Text style={TYPE.bodySm} className="text-muted-foreground mt-1">
+                  Subiendo foto...
+                </Text>
+              )}
             </View>
           ) : (
             <Pressable

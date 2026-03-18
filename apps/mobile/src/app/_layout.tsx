@@ -21,6 +21,7 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import { registerForPushNotifications } from '@/lib/push-notifications';
 import { queryClient } from '@/lib/query-client';
 import { asyncStoragePersister } from '@/lib/query-persister';
+import { darkTheme, lightTheme } from '@/lib/theme-tokens';
 import { useAuthStore } from '@/stores/auth-store';
 import { useThemeStore } from '@/stores/theme-store';
 
@@ -83,6 +84,7 @@ export default function RootLayout() {
   const loadSavedTheme = useThemeStore((s) => s.loadSavedTheme);
 
   const effectiveTheme = mode === 'auto' ? (systemColorScheme ?? 'light') : mode;
+  const themeVars = effectiveTheme === 'dark' ? darkTheme : lightTheme;
 
   const [fontsLoaded, fontError] = useFonts({
     DMSans_400Regular,
@@ -111,7 +113,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View className={effectiveTheme === 'dark' ? 'dark flex-1' : 'flex-1'}>
+      <View style={themeVars} className="bg-background flex-1">
         <ErrorBoundary>
           <PersistQueryClientProvider
             client={queryClient}

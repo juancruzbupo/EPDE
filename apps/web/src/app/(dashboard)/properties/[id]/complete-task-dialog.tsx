@@ -5,6 +5,7 @@ import {
   type CompleteTaskInput,
   completeTaskSchema,
   CONDITION_FOUND_LABELS,
+  getErrorMessage,
   TASK_EXECUTOR_LABELS,
   TASK_RESULT_LABELS,
 } from '@epde/shared';
@@ -12,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Upload, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -76,6 +78,7 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
   const completeTask = useCompleteTask();
   const uploadFile = useUploadFile();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const currentObjectUrl = useRef<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
   const {
@@ -91,35 +94,42 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
 
   useEffect(() => {
     return () => {
-      if (preview) URL.revokeObjectURL(preview);
+      if (currentObjectUrl.current) URL.revokeObjectURL(currentObjectUrl.current);
     };
-  }, [preview]);
+  }, []);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (preview) URL.revokeObjectURL(preview);
+    if (currentObjectUrl.current) URL.revokeObjectURL(currentObjectUrl.current);
     const objectUrl = URL.createObjectURL(file);
+    currentObjectUrl.current = objectUrl;
     setPreview(objectUrl);
 
     uploadFile.mutate(
       { file, folder: 'task-photos' },
       {
         onSuccess: (url) => {
+          // Guard: ignore if user already picked a different file
+          if (currentObjectUrl.current !== objectUrl) return;
           setValue('photoUrl', url);
         },
-        onError: () => {
+        onError: (err) => {
+          if (currentObjectUrl.current !== objectUrl) return;
           URL.revokeObjectURL(objectUrl);
+          currentObjectUrl.current = null;
           setPreview(null);
           setValue('photoUrl', undefined);
+          toast.error(getErrorMessage(err, 'Error al subir foto'));
         },
       },
     );
   };
 
   const removePhoto = () => {
-    if (preview) URL.revokeObjectURL(preview);
+    if (currentObjectUrl.current) URL.revokeObjectURL(currentObjectUrl.current);
+    currentObjectUrl.current = null;
     setPreview(null);
     setValue('photoUrl', undefined);
     if (fileInputRef.current) {
@@ -134,7 +144,8 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
       {
         onSuccess: () => {
           reset();
-          if (preview) URL.revokeObjectURL(preview);
+          if (currentObjectUrl.current) URL.revokeObjectURL(currentObjectUrl.current);
+          currentObjectUrl.current = null;
           setPreview(null);
           onOpenChange(false);
         },
@@ -288,6 +299,7 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
               accept="image/*"
               onChange={handleFileSelect}
               className="hidden"
+              aria-label="Seleccionar foto"
             />
           </div>
 

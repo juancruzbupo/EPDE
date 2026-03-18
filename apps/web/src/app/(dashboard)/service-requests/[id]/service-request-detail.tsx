@@ -21,6 +21,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import Link from 'next/link';
+import { VisuallyHidden } from 'radix-ui';
 import { useState } from 'react';
 
 import { ConfirmDialog } from '@/components/confirm-dialog';
@@ -29,7 +30,7 @@ import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useServiceRequest, useUpdateServiceStatus } from '@/hooks/use-service-requests';
 
@@ -246,12 +247,16 @@ export function ServiceRequestDetail({
 
       <Dialog open={!!previewPhoto} onOpenChange={() => setPreviewPhoto(null)}>
         <DialogContent className="max-w-[90vw] border-none bg-transparent p-0 shadow-none">
-          {/* Fullscreen preview — user-uploaded photo, unknown dimensions */}
-          <img
-            src={previewPhoto ?? ''}
-            alt="Vista previa de foto"
-            className="max-h-[85vh] w-full rounded-md object-contain"
-          />
+          <VisuallyHidden.Root>
+            <DialogTitle>Vista previa de foto</DialogTitle>
+          </VisuallyHidden.Root>
+          {previewPhoto && (
+            <img
+              src={previewPhoto}
+              alt="Vista previa de foto"
+              className="max-h-[85vh] w-full rounded-md object-contain"
+            />
+          )}
         </DialogContent>
       </Dialog>
 

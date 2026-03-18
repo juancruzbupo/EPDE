@@ -24,7 +24,7 @@ export class BudgetAttachmentsRepository {
   async findByBudgetId(budgetId: string) {
     return this.prisma.budgetAttachment.findMany({
       where: { budgetId },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: 'desc' },
     });
   }
 }

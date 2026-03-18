@@ -1,6 +1,5 @@
-import { getErrorMessage, validateUpload } from '@epde/shared';
+import { validateUpload } from '@epde/shared';
 import { useMutation } from '@tanstack/react-query';
-import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api-client';
 
@@ -25,10 +24,6 @@ export function useUploadFile() {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return data.data.url;
-    },
-    onSuccess: () => toast.success('Archivo subido'),
-    onError: (err) => {
-      toast.error(getErrorMessage(err, 'Error al subir archivo'));
     },
   });
 }

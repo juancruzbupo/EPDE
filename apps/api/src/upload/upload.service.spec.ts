@@ -118,31 +118,55 @@ describe('UploadService', () => {
   });
 
   describe('when R2 is NOT configured', () => {
-    beforeEach(async () => {
-      configService = {
-        get: jest.fn().mockReturnValue(undefined),
-      };
+    const mockFile = {
+      originalname: 'photo.jpg',
+      buffer: Buffer.from('data'),
+      mimetype: 'image/jpeg',
+    } as Express.Multer.File;
 
-      const module: TestingModule = await Test.createTestingModule({
-        providers: [UploadService, { provide: ConfigService, useValue: configService }],
-      }).compile();
+    describe('in non-production (dev fallback)', () => {
+      beforeEach(async () => {
+        configService = {
+          get: jest.fn().mockReturnValue(undefined),
+        };
 
-      service = module.get<UploadService>(UploadService);
+        const module: TestingModule = await Test.createTestingModule({
+          providers: [UploadService, { provide: ConfigService, useValue: configService }],
+        }).compile();
+
+        service = module.get<UploadService>(UploadService);
+      });
+
+      it('should NOT initialize S3 when R2 vars missing', () => {
+        // Service created without error — S3 is null internally
+        expect(service).toBeDefined();
+      });
+
+      it('should return a placeholder URL in dev when R2 is not configured', async () => {
+        const result = await service.uploadFile(mockFile, 'photos');
+
+        expect(result).toBe('https://placehold.co/400x300/e8ddd3/4a4542?text=photo.jpg');
+      });
     });
 
-    it('should NOT initialize S3 when R2 vars missing', () => {
-      // Service created without error — S3 is null internally
-      expect(service).toBeDefined();
-    });
+    describe('in production', () => {
+      beforeEach(async () => {
+        configService = {
+          get: jest.fn((key: string) => (key === 'NODE_ENV' ? 'production' : undefined)),
+        };
 
-    it('should throw when upload attempted without S3 configured', async () => {
-      const mockFile = {
-        originalname: 'photo.jpg',
-        buffer: Buffer.from('data'),
-        mimetype: 'image/jpeg',
-      } as Express.Multer.File;
+        const module: TestingModule = await Test.createTestingModule({
+          providers: [UploadService, { provide: ConfigService, useValue: configService }],
+        }).compile();
 
-      await expect(service.uploadFile(mockFile, 'photos')).rejects.toThrow('Upload no configurado');
+        service = module.get<UploadService>(UploadService);
+      });
+
+      it('should throw when upload attempted without S3 configured', async () => {
+        await expect(service.uploadFile(mockFile, 'photos')).rejects.toThrow(
+          'Upload no configurado',
+        );
+      });
     });
   });
 });

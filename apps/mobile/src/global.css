@@ -4,7 +4,7 @@
 
 @import 'nativewind/theme';
 
-@theme inline {
+@theme {
   --color-primary: #c4704b;
   --color-primary-foreground: #fafaf8;
   --color-secondary: #e8ddd3;

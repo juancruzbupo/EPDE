@@ -11,8 +11,9 @@ import * as path from 'path';
  * Verify that the mobile global.css defines a --color-* variable for every key
  * in DESIGN_TOKENS_LIGHT (the SSoT), AND that the actual values match.
  *
- * NativeWind uses `@theme inline { --color-*: #hex; }` with direct values
- * (unlike web which uses var() indirection).
+ * NativeWind uses `@theme { --color-*: #hex; }` to define tokens (non-inline
+ * so Tailwind emits var() references). Dark mode is applied via vars() in
+ * the root layout (theme-tokens.ts), not via CSS .dark selector.
  */
 describe('Mobile CSS token sync', () => {
   const cssPath = path.resolve(__dirname, '../../global.css');
@@ -26,7 +27,7 @@ describe('Mobile CSS token sync', () => {
 
   /** Extract `--color-key: value` pairs from the @theme inline block. */
   function extractThemeValues(): Map<string, string> {
-    const themeMatch = cssContent.match(/@theme\s+inline\s*\{([^}]+)\}/s);
+    const themeMatch = cssContent.match(/@theme(?:\s+inline)?\s*\{([^}]+)\}/s);
     if (!themeMatch) return new Map();
     const entries = [...themeMatch[1]!.matchAll(/--color-([\w-]+):\s*([^;]+);/g)];
     return new Map(entries.map((m) => [m[1]!, m[2]!.trim()]));

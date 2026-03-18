@@ -5,6 +5,7 @@ import { EmailQueueService } from '../email/email-queue.service';
 import { NotificationQueueService } from './notification-queue.service';
 import { NotificationsService } from './notifications.service';
 import { NotificationsHandlerService } from './notifications-handler.service';
+import { PushService } from './push.service';
 
 const mockNotificationQueue = {
   enqueue: jest.fn().mockResolvedValue(undefined),
@@ -26,6 +27,13 @@ const mockNotificationsService = {
   createNotifications: jest.fn().mockResolvedValue(0),
 };
 
+const mockPushService = {
+  registerToken: jest.fn().mockResolvedValue(undefined),
+  removeToken: jest.fn().mockResolvedValue(undefined),
+  removeAllForUser: jest.fn().mockResolvedValue(undefined),
+  sendToUsers: jest.fn().mockResolvedValue(undefined),
+};
+
 describe('NotificationsHandlerService', () => {
   let service: NotificationsHandlerService;
 
@@ -37,6 +45,7 @@ describe('NotificationsHandlerService', () => {
         { provide: NotificationsService, useValue: mockNotificationsService },
         { provide: UserLookupRepository, useValue: mockUserLookup },
         { provide: EmailQueueService, useValue: mockEmailQueue },
+        { provide: PushService, useValue: mockPushService },
       ],
     }).compile();
 

@@ -52,7 +52,7 @@ describe('AuthService', () => {
           useValue: {
             findByEmail: jest.fn(),
             findById: jest.fn(),
-            update: jest.fn(),
+            update: jest.fn().mockResolvedValue(undefined),
           },
         },
         {

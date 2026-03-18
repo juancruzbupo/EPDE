@@ -4,6 +4,7 @@ import type { ServiceRequestAttachmentPublic } from '@epde/shared';
 import { formatRelativeDate, isServiceRequestTerminal } from '@epde/shared';
 import { Download, Loader2, Paperclip, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -56,11 +57,21 @@ export function ServiceRequestAttachments({
     setIsUploading(true);
     try {
       const uploaded: { url: string; fileName: string }[] = [];
+      const failed: string[] = [];
       for (const file of files) {
-        const url = await uploadFile.mutateAsync({ file, folder: 'service-requests' });
-        uploaded.push({ url, fileName: file.name });
+        try {
+          const url = await uploadFile.mutateAsync({ file, folder: 'service-requests' });
+          uploaded.push({ url, fileName: file.name });
+        } catch {
+          failed.push(file.name);
+        }
       }
-      await addAttachments.mutateAsync({ serviceRequestId, attachments: uploaded });
+      if (uploaded.length > 0) {
+        await addAttachments.mutateAsync({ serviceRequestId, attachments: uploaded });
+      }
+      if (failed.length > 0) {
+        toast.error(`No se pudieron subir: ${failed.join(', ')}`);
+      }
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -77,10 +88,12 @@ export function ServiceRequestAttachments({
           <>
             <input
               ref={fileInputRef}
+              id="sr-attachment-input"
               type="file"
               multiple
               accept="image/*,application/pdf"
               className="hidden"
+              aria-label="Seleccionar archivos adjuntos"
               onChange={handleFileChange}
             />
             <Button

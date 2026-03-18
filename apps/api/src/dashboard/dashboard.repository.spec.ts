@@ -163,7 +163,7 @@ describe('DashboardRepository', () => {
 
       expect(mockTaskLogModel.count).toHaveBeenCalledWith({
         where: expect.objectContaining({
-          completedBy: 'user-1',
+          task: { maintenancePlanId: { in: ['plan-1'] } },
           completedAt: { gte: expect.any(Date) },
         }),
       });
