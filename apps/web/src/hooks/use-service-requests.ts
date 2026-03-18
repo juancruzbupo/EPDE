@@ -74,13 +74,28 @@ export function useUpdateServiceStatus() {
   return useMutation({
     mutationFn: ({ id, status, note }: { id: string; status: ServiceStatus; note?: string }) =>
       updateServiceStatus(id, status, note),
-    onSuccess: () => {
-      toast.success('Estado actualizado');
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey: [QUERY_KEYS.serviceRequests, variables.id] });
+      const previous = queryClient.getQueryData<ServiceRequestPublic>([
+        QUERY_KEYS.serviceRequests,
+        variables.id,
+      ]);
+      queryClient.setQueryData<ServiceRequestPublic>(
+        [QUERY_KEYS.serviceRequests, variables.id],
+        (old) => (old ? { ...old, status: variables.status } : old),
+      );
+      return { previous };
+    },
+    onSuccess: () => toast.success('Estado actualizado'),
+    onError: (err, variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData([QUERY_KEYS.serviceRequests, variables.id], context.previous);
+      }
+      toast.error(getErrorMessage(err, 'Error al actualizar estado'));
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
       invalidateDashboard(queryClient);
-    },
-    onError: (err) => {
-      toast.error(getErrorMessage(err, 'Error al actualizar estado'));
     },
   });
 }

@@ -63,6 +63,7 @@ export function useRemoveTask() {
     onSuccess: () => {
       toast.success('Tarea eliminada');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] });
+      invalidateDashboard(queryClient);
     },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al eliminar tarea')),
   });

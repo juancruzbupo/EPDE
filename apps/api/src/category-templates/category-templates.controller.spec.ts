@@ -112,14 +112,13 @@ describe('CategoryTemplatesController', () => {
   });
 
   describe('remove', () => {
-    it('should delegate to service.remove and return service result', async () => {
-      const removeResult = { data: null, message: 'Plantilla eliminada' };
-      mockService.remove.mockResolvedValue(removeResult);
+    it('should delegate to service.remove and return envelope', async () => {
+      mockService.remove.mockResolvedValue(undefined);
 
       const result = await controller.remove(templateId);
 
       expect(mockService.remove).toHaveBeenCalledWith(templateId);
-      expect(result).toEqual(removeResult);
+      expect(result).toEqual({ data: null, message: 'Categoría template eliminada' });
     });
   });
 });

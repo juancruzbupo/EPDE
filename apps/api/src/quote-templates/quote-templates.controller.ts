@@ -6,6 +6,7 @@ import type {
 import { createQuoteTemplateSchema, updateQuoteTemplateSchema, UserRole } from '@epde/shared';
 import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -15,23 +16,26 @@ import { QuoteTemplatesService } from './quote-templates.service';
 @ApiTags('Plantillas de Cotización')
 @ApiBearerAuth()
 @Controller('quote-templates')
-@Roles(UserRole.ADMIN)
 export class QuoteTemplatesController {
   constructor(private readonly service: QuoteTemplatesService) {}
 
   @Get()
+  @Roles(UserRole.ADMIN)
   async findAll() {
     const data = await this.service.findAll();
     return { data };
   }
 
   @Get(':id')
+  @Roles(UserRole.ADMIN)
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
     const data = await this.service.findById(id);
     return { data };
   }
 
   @Post()
+  @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 5, ttl: 60_000 } })
   async create(
     @Body(new ZodValidationPipe(createQuoteTemplateSchema)) dto: CreateQuoteTemplateInput,
     @CurrentUser() user: CurrentUserPayload,
@@ -41,6 +45,8 @@ export class QuoteTemplatesController {
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(updateQuoteTemplateSchema)) dto: UpdateQuoteTemplateInput,
@@ -50,7 +56,10 @@ export class QuoteTemplatesController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.service.delete(id);
+    await this.service.delete(id);
+    return { data: null, message: 'Plantilla eliminada' };
   }
 }

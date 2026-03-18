@@ -163,9 +163,8 @@ describe('CategoryTemplatesService', () => {
       repository.findByIdWithTasks.mockResolvedValue({ id: 'cat-1', name: 'Techos' });
       repository.hardDelete.mockResolvedValue({});
 
-      const result = await service.remove('cat-1');
+      await service.remove('cat-1');
 
-      expect(result).toEqual({ data: null, message: 'Categoría template eliminada' });
       expect(repository.hardDelete).toHaveBeenCalledWith('cat-1');
     });
 

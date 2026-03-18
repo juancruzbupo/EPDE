@@ -31,12 +31,12 @@ import { CategoryTemplatesService } from './category-templates.service';
 
 @ApiTags('Plantillas de Categorías')
 @ApiBearerAuth()
-@Roles(UserRole.ADMIN)
 @Controller('category-templates')
 export class CategoryTemplatesController {
   constructor(private readonly service: CategoryTemplatesService) {}
 
   @Get()
+  @Roles(UserRole.ADMIN)
   async list(
     @Query(new ZodValidationPipe(categoryTemplateFiltersSchema))
     filters: CategoryTemplateFiltersInput,
@@ -46,12 +46,14 @@ export class CategoryTemplatesController {
   }
 
   @Get(':id')
+  @Roles(UserRole.ADMIN)
   async getById(@Param('id', ParseUUIDPipe) id: string) {
     const data = await this.service.getById(id);
     return { data };
   }
 
   @Post()
+  @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 5, ttl: 60_000 } })
   async create(
     @Body(new ZodValidationPipe(createCategoryTemplateSchema)) dto: CreateCategoryTemplateInput,
@@ -61,12 +63,14 @@ export class CategoryTemplatesController {
   }
 
   @Patch('reorder/batch')
+  @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async reorder(@Body(new ZodValidationPipe(reorderTemplatesSchema)) dto: ReorderTemplatesInput) {
     return this.service.reorder(dto.ids);
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -77,8 +81,10 @@ export class CategoryTemplatesController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.service.remove(id);
+    await this.service.remove(id);
+    return { data: null, message: 'Categoría template eliminada' };
   }
 }

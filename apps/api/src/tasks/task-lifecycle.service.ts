@@ -157,7 +157,6 @@ export class TaskLifecycleService {
     }
 
     await this.tasksRepository.softDelete(taskId);
-    return { data: null, message: 'Tarea eliminada' };
   }
 
   async reorderTasks(planId: string, dto: ReorderTasksInput) {

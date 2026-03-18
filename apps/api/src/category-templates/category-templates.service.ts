@@ -46,7 +46,6 @@ export class CategoryTemplatesService {
   async remove(id: string) {
     await this.getById(id);
     await this.repository.hardDelete(id);
-    return { data: null, message: 'Categoría template eliminada' };
   }
 
   async reorder(ids: string[]) {

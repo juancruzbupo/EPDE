@@ -24,12 +24,12 @@ import { TaskTemplatesService } from './task-templates.service';
  */
 @ApiTags('Plantillas de Tareas')
 @ApiBearerAuth()
-@Roles(UserRole.ADMIN) // Class-level: all task template operations are ADMIN-only
 @Controller()
 export class TaskTemplatesController {
   constructor(private readonly service: TaskTemplatesService) {}
 
   @Post('category-templates/:categoryId/tasks')
+  @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async create(
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
@@ -40,6 +40,7 @@ export class TaskTemplatesController {
   }
 
   @Patch('task-templates/:id')
+  @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -50,12 +51,15 @@ export class TaskTemplatesController {
   }
 
   @Delete('task-templates/:id')
+  @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.service.remove(id);
+    await this.service.remove(id);
+    return { data: null, message: 'Tarea template eliminada' };
   }
 
   @Patch('category-templates/:categoryId/tasks/reorder')
+  @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async reorder(
     @Param('categoryId', ParseUUIDPipe) categoryId: string,

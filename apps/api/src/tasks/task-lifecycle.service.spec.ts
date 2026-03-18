@@ -142,10 +142,9 @@ describe('TaskLifecycleService', () => {
       mockTasksRepository.findById.mockResolvedValue(existingTask);
       mockTasksRepository.softDelete.mockResolvedValue(existingTask);
 
-      const result = await service.removeTask(planId, taskId);
+      await service.removeTask(planId, taskId);
 
       expect(mockTasksRepository.softDelete).toHaveBeenCalledWith(taskId);
-      expect(result).toEqual({ data: null, message: 'Tarea eliminada' });
     });
 
     it('should throw NotFoundException when task does not exist', async () => {

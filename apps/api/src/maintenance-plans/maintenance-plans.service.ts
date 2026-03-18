@@ -2,7 +2,6 @@ import type { ServiceUser, UpdatePlanInput } from '@epde/shared';
 import { UserRole } from '@epde/shared';
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 
-import { PlanAccessDeniedError } from '../common/exceptions/domain.exceptions';
 import { MaintenancePlansRepository } from './maintenance-plans.repository';
 
 @Injectable()
@@ -20,15 +19,8 @@ export class MaintenancePlansService {
       throw new NotFoundException('Plan de mantenimiento no encontrado');
     }
 
-    try {
-      if (currentUser?.role === UserRole.CLIENT && plan.property?.userId !== currentUser.id) {
-        throw new PlanAccessDeniedError();
-      }
-    } catch (error) {
-      if (error instanceof PlanAccessDeniedError) {
-        throw new ForbiddenException(error.message);
-      }
-      throw error;
+    if (currentUser?.role === UserRole.CLIENT && plan.property?.userId !== currentUser.id) {
+      throw new ForbiddenException('Acceso denegado a este plan');
     }
 
     return plan;

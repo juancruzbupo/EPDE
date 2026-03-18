@@ -122,12 +122,14 @@ describe('useCreateServiceRequest', () => {
 });
 
 describe('useUpdateServiceStatus', () => {
-  it('invalidates service-requests and dashboard on success', () => {
+  it('shows toast on success and invalidates on settled', () => {
     renderHook(() => useUpdateServiceStatus());
 
     const config = vi.mocked(useMutation).mock.calls[0][0];
     (config.onSuccess as () => void)();
+    expect(toast.success).toHaveBeenCalledWith('Estado actualizado');
 
+    (config.onSettled as () => void)();
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
       queryKey: [QUERY_KEYS.serviceRequests],
     });
@@ -137,7 +139,6 @@ describe('useUpdateServiceStatus', () => {
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
       queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardActivity],
     });
-    expect(toast.success).toHaveBeenCalledWith('Estado actualizado');
   });
 
   it('shows error toast on error', () => {

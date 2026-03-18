@@ -73,14 +73,13 @@ describe('TaskTemplatesController', () => {
   });
 
   describe('remove', () => {
-    it('should delegate to service.remove and return service result directly', async () => {
-      const serviceResult = { data: null, message: 'Plantilla de tarea eliminada' };
-      mockTaskTemplatesService.remove.mockResolvedValue(serviceResult);
+    it('should delegate to service.remove and return envelope', async () => {
+      mockTaskTemplatesService.remove.mockResolvedValue(undefined);
 
       const result = await controller.remove(templateId);
 
       expect(mockTaskTemplatesService.remove).toHaveBeenCalledWith(templateId);
-      expect(result).toEqual(serviceResult);
+      expect(result).toEqual({ data: null, message: 'Tarea template eliminada' });
     });
   });
 

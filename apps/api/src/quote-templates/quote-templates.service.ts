@@ -47,6 +47,5 @@ export class QuoteTemplatesService {
   async delete(id: string) {
     await this.findById(id);
     await this.repository.delete(id);
-    return { data: null, message: 'Plantilla eliminada' };
   }
 }

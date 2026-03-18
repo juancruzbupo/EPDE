@@ -84,8 +84,8 @@ describe('QuoteTemplatesService', () => {
       repository.findById.mockResolvedValue({ id: '1' });
       repository.delete.mockResolvedValue(undefined);
 
-      const result = await service.delete('1');
-      expect(result).toEqual({ data: null, message: 'Plantilla eliminada' });
+      await service.delete('1');
+      expect(repository.delete).toHaveBeenCalledWith('1');
     });
 
     it('should throw NotFoundException if template not found', async () => {

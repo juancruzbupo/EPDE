@@ -100,9 +100,8 @@ describe('TaskTemplatesService', () => {
       repository.findById.mockResolvedValue({ id: 'task-1', name: 'Revisar tablero' });
       repository.hardDelete.mockResolvedValue(undefined);
 
-      const result = await service.remove('task-1');
+      await service.remove('task-1');
 
-      expect(result).toEqual({ data: null, message: 'Tarea template eliminada' });
       expect(repository.hardDelete).toHaveBeenCalledWith('task-1');
     });
 

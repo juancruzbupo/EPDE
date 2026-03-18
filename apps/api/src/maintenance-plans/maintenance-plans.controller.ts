@@ -149,7 +149,8 @@ export class MaintenancePlansController {
     @Param('id', ParseUUIDPipe) planId: string,
     @Param('taskId', ParseUUIDPipe) taskId: string,
   ) {
-    return this.taskLifecycle.removeTask(planId, taskId);
+    await this.taskLifecycle.removeTask(planId, taskId);
+    return { data: null, message: 'Tarea eliminada' };
   }
 
   @Get(':id/tasks/:taskId')
