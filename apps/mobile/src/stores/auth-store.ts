@@ -60,6 +60,12 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   checkAuth: async () => {
+    // Skip if login() already populated the user (avoids redundant /auth/me call)
+    if (useAuthStore.getState().isAuthenticated) {
+      set({ isLoading: false });
+      return;
+    }
+
     try {
       let hasTokens = false;
       try {
