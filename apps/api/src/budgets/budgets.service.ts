@@ -106,7 +106,6 @@ export class BudgetsService {
       budgetId: budget.id,
       title: dto.title,
       requesterId: userId,
-      propertyId: dto.propertyId,
     });
 
     return budget;

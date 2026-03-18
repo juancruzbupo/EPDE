@@ -1,4 +1,4 @@
-import { BudgetStatus, ServiceStatus } from '@epde/shared';
+import { BudgetStatus, ServiceStatus, type ServiceUrgency } from '@epde/shared';
 import { Injectable, Logger } from '@nestjs/common';
 
 import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
@@ -49,7 +49,6 @@ export class NotificationsHandlerService {
     budgetId: string;
     title: string;
     requesterId: string;
-    propertyId: string;
   }): Promise<void> {
     try {
       const adminIds = await this.usersRepository.findAdminIds();
@@ -171,7 +170,7 @@ export class NotificationsHandlerService {
     serviceRequestId: string;
     title: string;
     requesterId: string;
-    urgency: string;
+    urgency: ServiceUrgency;
   }): Promise<void> {
     try {
       const adminIds = await this.usersRepository.findAdminIds();

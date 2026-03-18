@@ -52,7 +52,6 @@ describe('NotificationsHandlerService', () => {
         budgetId: 'budget-1',
         title: 'Pintura',
         requesterId: 'user-1',
-        propertyId: 'prop-1',
       });
 
       expect(mockNotificationQueue.enqueueBatch).toHaveBeenCalledWith(
@@ -71,7 +70,6 @@ describe('NotificationsHandlerService', () => {
           budgetId: 'budget-1',
           title: 'Pintura',
           requesterId: 'user-1',
-          propertyId: 'prop-1',
         }),
       ).resolves.not.toThrow();
     });
