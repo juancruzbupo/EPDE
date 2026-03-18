@@ -69,7 +69,9 @@ function TaskItem({ task }: { task: UpcomingTask }) {
             <span>·</span>
             <span className={overdue ? 'text-destructive font-medium' : ''}>
               {task.nextDueDate
-                ? formatRelativeDate(new Date(task.nextDueDate))
+                ? overdue
+                  ? `Vencida ${formatRelativeDate(new Date(task.nextDueDate))}`
+                  : formatRelativeDate(new Date(task.nextDueDate))
                 : 'Según detección'}
             </span>
           </div>

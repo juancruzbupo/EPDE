@@ -336,6 +336,16 @@ function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
         </Card>
       </div>
 
+      {/* Preventive savings insight */}
+      {analytics && analytics.taskTotal > 0 && (
+        <div className="bg-success/5 border-success/20 rounded-lg border p-3">
+          <p className="type-body-sm text-success font-medium">
+            El mantenimiento preventivo reduce hasta un 80% el costo de reparaciones mayores. Tu
+            inversión en tareas preventivas contribuye a preservar el valor de tu vivienda.
+          </p>
+        </div>
+      )}
+
       {/* Row 2 — Breakdown with toggle */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">

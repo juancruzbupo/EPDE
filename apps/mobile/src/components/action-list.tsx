@@ -23,6 +23,10 @@ function formatDueLabel(dateStr: string): string {
   const days = getDaysUntil(dateStr);
   if (days < 0) {
     const abs = Math.abs(days);
+    if (abs >= 30) {
+      const months = Math.floor(abs / 30);
+      return `Vencida hace ${months} mes${months > 1 ? 'es' : ''}`;
+    }
     return `Vencida hace ${abs} día${abs > 1 ? 's' : ''}`;
   }
   if (days === 0) return 'Vence hoy';

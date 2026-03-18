@@ -55,6 +55,15 @@ function getScoreTheme(score: number) {
   };
 }
 
+function getScoreConsequence(score: number): string | null {
+  if (score >= 80) return null;
+  if (score >= 60)
+    return 'Mantené el ritmo de inspecciones para evitar que los costos de reparación aumenten.';
+  if (score >= 40)
+    return 'Un ISV por debajo de 60 indica que los problemas se están acumulando. Las reparaciones correctivas suelen costar entre 8x y 15x más que la prevención.';
+  return 'Tu vivienda necesita intervención urgente. Cada mes de demora aumenta significativamente el costo de las reparaciones.';
+}
+
 function getHumanMessage(overdue: number, urgent: number, upcoming: number): string {
   if (overdue > 0 && urgent > 0)
     return `Tenés ${overdue} tarea${overdue !== 1 ? 's' : ''} vencida${overdue !== 1 ? 's' : ''} y ${urgent} urgente${urgent !== 1 ? 's' : ''}. Revisalas cuanto antes.`;
@@ -82,6 +91,7 @@ export function HomeStatusCard({
   const { shouldAnimate } = useMotionPreference();
   const theme = getScoreTheme(score);
   const message = getHumanMessage(overdueTasks, urgentTasks, upcomingThisWeek);
+  const consequence = getScoreConsequence(score);
   const Wrapper = shouldAnimate ? motion.div : 'div';
 
   const miniStats = [
@@ -105,7 +115,7 @@ export function HomeStatusCard({
     },
     {
       label: 'Presupuestos',
-      hint: 'Presupuestos pendientes de aprobación',
+      hint: 'Presupuestos esperando tu decisión. Revisalos para avanzar.',
       value: pendingBudgets,
       color: 'text-foreground',
     },
@@ -126,7 +136,9 @@ export function HomeStatusCard({
           </div>
 
           {/* Human message */}
-          <p className="type-body-md text-muted-foreground mb-4">{message}</p>
+          <p className="type-body-md text-muted-foreground mb-1">{message}</p>
+          {consequence && <p className="text-muted-foreground mb-4 text-xs">{consequence}</p>}
+          {!consequence && <div className="mb-4" />}
 
           {/* Score + progress bar */}
           <div className="mb-4 flex items-center gap-4">
@@ -160,11 +172,20 @@ export function HomeStatusCard({
 
           {/* Action buttons */}
           <div className="mb-5 flex gap-3">
-            <Button size="sm" onClick={onViewActions}>
+            <Button
+              size="sm"
+              aria-label="Ver tareas pendientes y acciones recomendadas"
+              onClick={onViewActions}
+            >
               Ver qué hacer
               <ArrowRight className="ml-1.5 h-4 w-4" />
             </Button>
-            <Button size="sm" variant="outline" onClick={onViewAnalytics}>
+            <Button
+              size="sm"
+              variant="outline"
+              aria-label="Ver análisis completo de salud de tu vivienda"
+              onClick={onViewAnalytics}
+            >
               Ver análisis completo
             </Button>
           </div>

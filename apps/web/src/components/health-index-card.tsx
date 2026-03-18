@@ -161,6 +161,16 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
         {/* Sector scores */}
         {index.sectorScores.length > 0 && (
           <div className="border-border border-t pt-3">
+            {/* Highlight worst sector */}
+            {index.sectorScores[0] && index.sectorScores[0].score < 70 && (
+              <div className="bg-destructive/5 border-destructive/20 mb-2 rounded-lg border p-2">
+                <p className="type-body-sm text-destructive">
+                  {PROPERTY_SECTOR_LABELS[index.sectorScores[0].sector as PropertySector] ??
+                    index.sectorScores[0].sector}{' '}
+                  necesita atención prioritaria (score: {index.sectorScores[0].score}%)
+                </p>
+              </div>
+            )}
             <p className="text-foreground mb-2 text-sm font-semibold">Salud por sector</p>
             <div className="grid gap-1.5 sm:grid-cols-2">
               {index.sectorScores.map((s) => {

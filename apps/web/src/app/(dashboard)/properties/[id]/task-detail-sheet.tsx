@@ -131,6 +131,12 @@ export function TaskDetailSheet({
                       ProfessionalRequirement.PROFESSIONAL_REQUIRED &&
                       '(Necesariamente debe hacerlo un profesional)'}
                   </p>
+                  {task.professionalRequirement !== ProfessionalRequirement.OWNER_CAN_DO && (
+                    <p className="type-body-sm text-muted-foreground mt-2">
+                      Las inspecciones preventivas cuestan entre $80.000 y $250.000. Las
+                      reparaciones por falta de prevención pueden superar los $2.000.000.
+                    </p>
+                  )}
                 </dd>
               </div>
               {task.estimatedDurationMinutes != null && (
