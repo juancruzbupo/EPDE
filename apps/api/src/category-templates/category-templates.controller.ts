@@ -66,7 +66,8 @@ export class CategoryTemplatesController {
   @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async reorder(@Body(new ZodValidationPipe(reorderTemplatesSchema)) dto: ReorderTemplatesInput) {
-    return this.service.reorder(dto.ids);
+    await this.service.reorder(dto.ids);
+    return { data: null, message: 'Orden actualizado' };
   }
 
   @Patch(':id')

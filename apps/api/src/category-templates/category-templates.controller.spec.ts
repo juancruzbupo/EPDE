@@ -75,21 +75,20 @@ describe('CategoryTemplatesController', () => {
   });
 
   describe('reorder', () => {
-    it('should delegate to service.reorder with dto.ids', async () => {
+    it('should delegate to service.reorder with dto.ids and return envelope', async () => {
       const ids = ['id-1', 'id-2', 'id-3'];
       const dto = { ids };
-      const reorderResult = { count: 3 };
-      mockService.reorder.mockResolvedValue(reorderResult);
+      mockService.reorder.mockResolvedValue(undefined);
 
       const result = await controller.reorder(dto as any);
 
       expect(mockService.reorder).toHaveBeenCalledWith(ids);
-      expect(result).toEqual(reorderResult);
+      expect(result).toEqual({ data: null, message: 'Orden actualizado' });
     });
 
     it('should extract ids from dto (not pass the whole dto)', async () => {
       const ids = ['id-a', 'id-b'];
-      mockService.reorder.mockResolvedValue({ count: 2 });
+      mockService.reorder.mockResolvedValue(undefined);
 
       await controller.reorder({ ids } as any);
 

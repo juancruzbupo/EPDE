@@ -84,15 +84,14 @@ describe('TaskTemplatesController', () => {
   });
 
   describe('reorder', () => {
-    it('should call service.reorder with categoryId and dto.ids and return service result directly', async () => {
+    it('should call service.reorder with categoryId and dto.ids and return envelope', async () => {
       const dto = { ids: ['t-1', 't-2', 't-3'] };
-      const serviceResult = { message: 'Orden actualizado' };
-      mockTaskTemplatesService.reorder.mockResolvedValue(serviceResult);
+      mockTaskTemplatesService.reorder.mockResolvedValue(undefined);
 
       const result = await controller.reorder(categoryId, dto as any);
 
       expect(mockTaskTemplatesService.reorder).toHaveBeenCalledWith(categoryId, dto.ids);
-      expect(result).toEqual(serviceResult);
+      expect(result).toEqual({ data: null, message: 'Orden actualizado' });
     });
 
     it('should extract dto.ids (not the whole dto) to pass to service', async () => {

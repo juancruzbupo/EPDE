@@ -70,9 +70,9 @@ describe('DashboardController', () => {
       const analytics = { completionRate: 0.85, avgResolutionDays: 4 };
       mockDashboardService.getAdminAnalytics.mockResolvedValue(analytics);
 
-      const result = await controller.getAnalytics();
+      const result = await controller.getAnalytics({ months: 6 });
 
-      expect(mockDashboardService.getAdminAnalytics).toHaveBeenCalledTimes(1);
+      expect(mockDashboardService.getAdminAnalytics).toHaveBeenCalledWith(6);
       expect(result).toEqual({ data: analytics });
     });
   });
@@ -115,7 +115,7 @@ describe('DashboardController', () => {
       const analytics = { tasksCompleted: 12, onTimeRate: 0.9 };
       mockDashboardService.getClientAnalytics.mockResolvedValue(analytics);
 
-      const result = await controller.getClientAnalytics(clientUser);
+      const result = await controller.getClientAnalytics(clientUser, { months: 6 });
 
       expect(mockDashboardService.getClientAnalytics).toHaveBeenCalledWith('client-1', 6);
       expect(result).toEqual({ data: analytics });
@@ -124,7 +124,7 @@ describe('DashboardController', () => {
     it('should pass user.id (not the whole user object) to the service', async () => {
       mockDashboardService.getClientAnalytics.mockResolvedValue({});
 
-      await controller.getClientAnalytics(clientUser);
+      await controller.getClientAnalytics(clientUser, { months: 6 });
 
       const [passedId] = mockDashboardService.getClientAnalytics.mock.calls[0];
       expect(passedId).toBe('client-1');

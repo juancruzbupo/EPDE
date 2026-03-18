@@ -2,10 +2,16 @@ import type { CurrentUser as CurrentUserPayload } from '@epde/shared';
 import { UserRole } from '@epde/shared';
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { z } from 'zod';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { DashboardService } from './dashboard.service';
+
+const analyticsQuerySchema = z.object({
+  months: z.coerce.number().int().min(1).max(24).default(6),
+});
 
 @ApiTags('Panel')
 @ApiBearerAuth()
@@ -29,10 +35,10 @@ export class DashboardController {
 
   @Get('analytics')
   @Roles(UserRole.ADMIN)
-  async getAnalytics(@Query('months') months?: string) {
-    const parsed = months ? parseInt(months, 10) : NaN;
-    const m = Number.isNaN(parsed) ? 6 : Math.min(Math.max(parsed, 1), 24);
-    return { data: await this.dashboardService.getAdminAnalytics(m) };
+  async getAnalytics(
+    @Query(new ZodValidationPipe(analyticsQuerySchema)) query: { months: number },
+  ) {
+    return { data: await this.dashboardService.getAdminAnalytics(query.months) };
   }
 
   @Get('client-stats')
@@ -53,10 +59,8 @@ export class DashboardController {
   @Roles(UserRole.CLIENT)
   async getClientAnalytics(
     @CurrentUser() user: CurrentUserPayload,
-    @Query('months') months?: string,
+    @Query(new ZodValidationPipe(analyticsQuerySchema)) query: { months: number },
   ) {
-    const parsed = months ? parseInt(months, 10) : NaN;
-    const m = Number.isNaN(parsed) ? 6 : Math.min(Math.max(parsed, 1), 24);
-    return { data: await this.dashboardService.getClientAnalytics(user.id, m) };
+    return { data: await this.dashboardService.getClientAnalytics(user.id, query.months) };
   }
 }

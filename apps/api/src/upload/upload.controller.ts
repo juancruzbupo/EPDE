@@ -38,12 +38,12 @@ const uploadBodySchema = z.object({
 
 @ApiTags('Carga de Archivos')
 @ApiBearerAuth()
-@Roles(UserRole.ADMIN, UserRole.CLIENT)
 @Controller('upload')
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
   @Post()
+  @Roles(UserRole.ADMIN, UserRole.CLIENT)
   @Throttle({ short: { limit: 3, ttl: 1000 }, medium: { limit: 20, ttl: 60000 } })
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 10 * 1024 * 1024 } }))
   async uploadFile(

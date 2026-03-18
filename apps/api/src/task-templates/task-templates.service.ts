@@ -37,6 +37,5 @@ export class TaskTemplatesService {
     const category = await this.categoryTemplatesRepository.findById(categoryId);
     if (!category) throw new NotFoundException('Categoría template no encontrada');
     await this.repository.reorder(categoryId, ids);
-    return { data: null, message: 'Orden actualizado' };
   }
 }

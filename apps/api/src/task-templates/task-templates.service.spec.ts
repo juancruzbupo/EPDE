@@ -120,9 +120,8 @@ describe('TaskTemplatesService', () => {
       categoryTemplatesRepository.findById.mockResolvedValue({ id: 'cat-1', name: 'Electricidad' });
       repository.reorder.mockResolvedValue(undefined);
 
-      const result = await service.reorder('cat-1', ids);
+      await service.reorder('cat-1', ids);
 
-      expect(result).toEqual({ data: null, message: 'Orden actualizado' });
       expect(categoryTemplatesRepository.findById).toHaveBeenCalledWith('cat-1');
       expect(repository.reorder).toHaveBeenCalledWith('cat-1', ids);
     });

@@ -143,9 +143,8 @@ describe('CategoriesService', () => {
       repository.hasReferencingTasks.mockResolvedValue(false);
       repository.hardDelete.mockResolvedValue(undefined);
 
-      const result = await service.deleteCategory('cat-1');
+      await service.deleteCategory('cat-1');
 
-      expect(result).toEqual({ data: null, message: 'Categoría eliminada' });
       expect(repository.hardDelete).toHaveBeenCalledWith('cat-1');
     });
 

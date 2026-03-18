@@ -279,15 +279,8 @@ export class ServiceRequestsService {
     }
     this.assertAccess(request, currentUser);
 
-    try {
-      if (isServiceRequestTerminal(request.status)) {
-        throw new ServiceRequestTerminalError('comentar');
-      }
-    } catch (error) {
-      if (error instanceof ServiceRequestTerminalError) {
-        throw new BadRequestException(error.message);
-      }
-      throw error;
+    if (isServiceRequestTerminal(request.status)) {
+      throw new BadRequestException(new ServiceRequestTerminalError('comentar').message);
     }
 
     const comment = await this.commentsRepository.createComment(id, currentUser.id, dto.content);
@@ -315,15 +308,8 @@ export class ServiceRequestsService {
     }
     this.assertAccess(request, currentUser);
 
-    try {
-      if (isServiceRequestTerminal(request.status)) {
-        throw new ServiceRequestTerminalError('agregar adjuntos');
-      }
-    } catch (error) {
-      if (error instanceof ServiceRequestTerminalError) {
-        throw new BadRequestException(error.message);
-      }
-      throw error;
+    if (isServiceRequestTerminal(request.status)) {
+      throw new BadRequestException(new ServiceRequestTerminalError('agregar adjuntos').message);
     }
 
     return this.attachmentsRepository.addAttachments(id, dto.attachments);

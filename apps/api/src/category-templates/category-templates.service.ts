@@ -50,6 +50,5 @@ export class CategoryTemplatesService {
 
   async reorder(ids: string[]) {
     await this.repository.reorder(ids);
-    return { data: null, message: 'Orden actualizado' };
   }
 }

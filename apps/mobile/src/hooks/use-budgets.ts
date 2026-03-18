@@ -138,6 +138,9 @@ export function useAddBudgetComment() {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.budgets, variables.budgetId, QUERY_KEYS.budgetComments],
       });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.budgets, variables.budgetId, QUERY_KEYS.budgetAuditLog],
+      });
       Alert.alert('Éxito', 'Comentario agregado');
     },
     onError: (err) => {

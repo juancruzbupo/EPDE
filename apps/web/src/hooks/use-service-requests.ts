@@ -132,6 +132,9 @@ export function useAddServiceRequestComment() {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.serviceRequests, serviceRequestId, QUERY_KEYS.serviceRequestComments],
       });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.serviceRequests, serviceRequestId, QUERY_KEYS.serviceRequestAuditLog],
+      });
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al agregar comentario'));

@@ -65,6 +65,7 @@ export class TaskTemplatesController {
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
     @Body(new ZodValidationPipe(reorderTemplatesSchema)) dto: ReorderTemplatesInput,
   ) {
-    return this.service.reorder(categoryId, dto.ids);
+    await this.service.reorder(categoryId, dto.ids);
+    return { data: null, message: 'Orden actualizado' };
   }
 }

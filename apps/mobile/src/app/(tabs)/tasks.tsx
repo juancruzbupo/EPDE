@@ -41,17 +41,17 @@ const PRIORITY_FILTERS: { key: TaskPriority | undefined; label: string }[] = [
 const STAT_STATUSES: TaskStatus[] = [TS.OVERDUE, TS.PENDING, TS.UPCOMING];
 
 const STAT_COLORS: Record<TaskStatus, string> = {
-  [TS.OVERDUE]: 'text-red-600',
-  [TS.PENDING]: 'text-amber-600',
-  [TS.UPCOMING]: 'text-blue-600',
-  [TS.COMPLETED]: 'text-emerald-600',
+  [TS.OVERDUE]: 'text-destructive',
+  [TS.PENDING]: 'text-status-pending',
+  [TS.UPCOMING]: 'text-status-upcoming',
+  [TS.COMPLETED]: 'text-status-completed',
 };
 
 const STAT_BG: Record<TaskStatus, string> = {
-  [TS.OVERDUE]: 'bg-red-50',
-  [TS.PENDING]: 'bg-amber-50',
-  [TS.UPCOMING]: 'bg-blue-50',
-  [TS.COMPLETED]: 'bg-emerald-50',
+  [TS.OVERDUE]: 'bg-destructive/10',
+  [TS.PENDING]: 'bg-status-pending/10',
+  [TS.UPCOMING]: 'bg-status-upcoming/10',
+  [TS.COMPLETED]: 'bg-status-completed/10',
 };
 
 const TaskCard = memo(function TaskCard({ task }: { task: TaskListItem }) {

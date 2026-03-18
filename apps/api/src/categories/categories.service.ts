@@ -82,19 +82,11 @@ export class CategoriesService {
       throw new NotFoundException('Categoría no encontrada');
     }
 
-    try {
-      const hasRefs = await this.categoriesRepository.hasReferencingTasks(id);
-      if (hasRefs) {
-        throw new CategoryHasReferencingTasksError();
-      }
-
-      await this.categoriesRepository.hardDelete(id);
-      return { data: null, message: 'Categoría eliminada' };
-    } catch (error) {
-      if (error instanceof CategoryHasReferencingTasksError) {
-        throw new BadRequestException(error.message);
-      }
-      throw error;
+    const hasRefs = await this.categoriesRepository.hasReferencingTasks(id);
+    if (hasRefs) {
+      throw new BadRequestException(new CategoryHasReferencingTasksError().message);
     }
+
+    await this.categoriesRepository.hardDelete(id);
   }
 }
