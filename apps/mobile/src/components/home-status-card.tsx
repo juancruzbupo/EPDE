@@ -47,6 +47,15 @@ function getHumanMessage(score: number, overdue: number, upcoming: number): stri
   return 'Tu hogar necesita atención urgente. Revisá las tareas pendientes lo antes posible para evitar problemas mayores.';
 }
 
+function getScoreConsequence(score: number): string | null {
+  if (score >= 80) return null;
+  if (score >= 60)
+    return 'Mantené el ritmo de inspecciones para evitar que los costos de reparación aumenten.';
+  if (score >= 40)
+    return 'Un ISV por debajo de 60 indica que los problemas se están acumulando. Las reparaciones correctivas suelen costar entre 8x y 15x más que la prevención.';
+  return 'Tu vivienda necesita intervención urgente. Cada mes de demora aumenta significativamente el costo de las reparaciones.';
+}
+
 function getScoreColor(score: number): string {
   if (score >= 80) return COLORS.success;
   if (score >= 60) return COLORS.primary;
@@ -130,9 +139,14 @@ export const HomeStatusCard = memo(function HomeStatusCard({
       </View>
 
       {/* Human message */}
-      <Text style={TYPE.bodySm} className="text-muted-foreground mb-3">
+      <Text style={TYPE.bodySm} className="text-muted-foreground mb-1">
         {getHumanMessage(score, overdueTasks, upcomingThisWeek)}
       </Text>
+      {getScoreConsequence(score) && (
+        <Text style={TYPE.labelSm} className="text-muted-foreground mb-3">
+          {getScoreConsequence(score)}
+        </Text>
+      )}
 
       {/* Mini stats row */}
       <View className="flex-row">

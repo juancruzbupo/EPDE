@@ -395,6 +395,13 @@ export default function PropertyDetailScreen() {
             {expenses && expenses.items.length > 0 && expenseAnalytics && (
               <CollapsibleSection title={`Gastos (${formatCurrency(expenses.totalCost)})`}>
                 <View className="gap-3">
+                  {/* Preventive savings insight */}
+                  <View className="bg-success/5 border-success/20 rounded-lg border p-2.5">
+                    <Text style={TYPE.bodySm} className="text-success">
+                      El mantenimiento preventivo reduce hasta un 80% el costo de reparaciones
+                      mayores.
+                    </Text>
+                  </View>
                   {/* Stat summary */}
                   <View className="flex-row gap-2">
                     <View className="bg-muted/40 flex-1 rounded-lg p-2.5">
