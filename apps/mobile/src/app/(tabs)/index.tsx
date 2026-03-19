@@ -70,6 +70,11 @@ function ClientDashboard() {
     router.push('/service-requests' as never);
   };
 
+  const handleBudgets = () => {
+    haptics.light();
+    router.push('/budgets' as never);
+  };
+
   if ((statsError || tasksError) && !stats && !tasks) {
     return <ErrorState onRetry={onRefresh} message="No se pudieron cargar los datos del panel." />;
   }
@@ -134,25 +139,45 @@ function ClientDashboard() {
         <ActionList tasks={tasks} />
       ) : null}
 
-      {/* Quick action: Service Requests */}
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Solicitudes de Servicio"
-        onPress={handleServiceRequests}
-        className="border-border bg-card mb-4 flex-row items-center justify-between rounded-xl border p-3"
-      >
-        <View>
-          <Text style={TYPE.titleSm} className="text-foreground">
-            Solicitudes de Servicio
+      {/* Quick access cards */}
+      <View className="mb-4 gap-2">
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Solicitudes de Servicio"
+          onPress={handleServiceRequests}
+          className="border-border bg-card flex-row items-center justify-between rounded-xl border p-3"
+        >
+          <View>
+            <Text style={TYPE.titleSm} className="text-foreground">
+              Solicitudes de Servicio
+            </Text>
+            <Text style={TYPE.bodySm} className="text-muted-foreground">
+              Reportar problemas o pedir asistencia
+            </Text>
+          </View>
+          <Text className="text-muted-foreground" style={TYPE.titleSm}>
+            &gt;
           </Text>
-          <Text style={TYPE.bodySm} className="text-muted-foreground">
-            Reportar problemas o pedir asistencia
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Presupuestos"
+          onPress={handleBudgets}
+          className="border-border bg-card flex-row items-center justify-between rounded-xl border p-3"
+        >
+          <View>
+            <Text style={TYPE.titleSm} className="text-foreground">
+              Presupuestos
+            </Text>
+            <Text style={TYPE.bodySm} className="text-muted-foreground">
+              Solicitar cotizaciones para reparaciones
+            </Text>
+          </View>
+          <Text className="text-muted-foreground" style={TYPE.titleSm}>
+            &gt;
           </Text>
-        </View>
-        <Text className="text-muted-foreground" style={TYPE.titleSm}>
-          &gt;
-        </Text>
-      </Pressable>
+        </Pressable>
+      </View>
 
       {/* Level 3: Analytics — collapsed by default */}
       {!showWelcome && (

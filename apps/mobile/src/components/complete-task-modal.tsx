@@ -4,6 +4,7 @@ import type {
   TaskExecutor,
   TaskPublic,
   TaskResult,
+  TaskType,
 } from '@epde/shared';
 import {
   ACTION_TAKEN_LABELS,
@@ -14,6 +15,7 @@ import {
   TASK_EXECUTOR_VALUES,
   TASK_RESULT_LABELS,
   TASK_RESULT_VALUES,
+  TASK_TYPE_TO_DEFAULT_ACTION,
 } from '@epde/shared';
 import { parse } from 'date-fns';
 import * as ImagePicker from 'expo-image-picker';
@@ -98,8 +100,10 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
   const contentStyle = useSlideIn('bottom');
   const [result, setResult] = useState<TaskResult | null>(null);
   const [conditionFound, setConditionFound] = useState<ConditionFound | null>(null);
-  const [executor, setExecutor] = useState<TaskExecutor | null>(null);
-  const [actionTaken, setActionTaken] = useState<ActionTaken | null>(null);
+  const [executor, setExecutor] = useState<TaskExecutor | null>('OWNER');
+  const [actionTaken, setActionTaken] = useState<ActionTaken | null>(
+    TASK_TYPE_TO_DEFAULT_ACTION[task.taskType as TaskType] ?? null,
+  );
   const [note, setNote] = useState('');
   const [cost, setCost] = useState('');
   const [completedAtText, setCompletedAtText] = useState('');

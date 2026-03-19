@@ -29,9 +29,7 @@ function getNotificationHref(n: NotificationPublic): string | null {
   if (n.type === 'BUDGET_UPDATE' && d.budgetId) return `/budgets/${d.budgetId}`;
   if (n.type === 'SERVICE_UPDATE' && d.serviceRequestId)
     return `/service-requests/${d.serviceRequestId}`;
-  // TASK_REMINDER: navigate to property if available (task detail is inside property view)
-  if (n.type === 'TASK_REMINDER' && d.propertyId) return `/properties/${d.propertyId}`;
-  if (n.type === 'TASK_REMINDER' && d.taskId) return `/tasks`;
+  if (n.type === 'TASK_REMINDER' && d.taskId) return `/tasks?taskId=${d.taskId}`;
   return null;
 }
 

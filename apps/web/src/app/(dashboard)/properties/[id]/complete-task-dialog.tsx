@@ -1,5 +1,6 @@
 'use client';
 
+import type { TaskType } from '@epde/shared';
 import {
   ACTION_TAKEN_LABELS,
   type CompleteTaskInput,
@@ -8,6 +9,7 @@ import {
   getErrorMessage,
   TASK_EXECUTOR_LABELS,
   TASK_RESULT_LABELS,
+  TASK_TYPE_TO_DEFAULT_ACTION,
 } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Upload, X } from 'lucide-react';
@@ -90,6 +92,10 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
     formState: { errors },
   } = useForm<CompleteTaskInput>({
     resolver: zodResolver(completeTaskSchema),
+    defaultValues: {
+      executor: 'OWNER',
+      actionTaken: task ? TASK_TYPE_TO_DEFAULT_ACTION[task.taskType as TaskType] : undefined,
+    },
   });
 
   useEffect(() => {

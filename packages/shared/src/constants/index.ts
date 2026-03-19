@@ -199,6 +199,19 @@ export const ACTION_TAKEN_LABELS = {
   NO_ACTION: 'Sin acción',
 } satisfies Record<ActionTaken, string>;
 
+/** Default ActionTaken based on TaskType — reduces form friction for homeowners */
+export const TASK_TYPE_TO_DEFAULT_ACTION: Record<TaskType, ActionTaken> = {
+  INSPECTION: 'INSPECTION_ONLY',
+  CLEANING: 'CLEANING',
+  TEST: 'INSPECTION_ONLY',
+  TREATMENT: 'TREATMENT',
+  SEALING: 'SEALING',
+  LUBRICATION: 'FULL_SERVICE',
+  ADJUSTMENT: 'ADJUSTMENT',
+  MEASUREMENT: 'INSPECTION_ONLY',
+  EVALUATION: 'INSPECTION_ONLY',
+};
+
 // ─── Default Categories ─────────────────────────────────
 
 export const CATEGORY_DEFAULTS = [

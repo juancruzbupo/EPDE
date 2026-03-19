@@ -83,6 +83,7 @@ function getNotificationRoute(n: NotificationPublic): string | null {
   if (n.type === 'BUDGET_UPDATE' && d.budgetId) return `/budget/${d.budgetId}`;
   if (n.type === 'SERVICE_UPDATE' && d.serviceRequestId)
     return `/service-requests/${d.serviceRequestId}`;
+  if (n.type === 'TASK_REMINDER' && d.planId && d.taskId) return `/task/${d.planId}/${d.taskId}`;
   if (n.type === 'TASK_REMINDER' && d.propertyId) return `/property/${d.propertyId}`;
   return null;
 }

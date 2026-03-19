@@ -7,6 +7,7 @@ import { AnalyticsTabs } from '@/components/analytics-tabs';
 import { ErrorState } from '@/components/error-state';
 import { HomeStatusCard } from '@/components/home-status-card';
 import { PageHeader } from '@/components/page-header';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { WelcomeCard } from '@/components/welcome-card';
@@ -30,6 +31,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
     refetch: refetchUpcoming,
   } = useClientUpcomingTasks();
   const [chartMonths, setChartMonths] = useState(6);
+  const [showAnalytics, setShowAnalytics] = useState(false);
   const { data: analytics, isLoading: analyticsLoading } = useClientAnalytics(chartMonths);
 
   const actionsRef = useRef<HTMLDivElement>(null);
@@ -111,16 +113,24 @@ export function ClientDashboard({ userName }: { userName: string }) {
         ) : null}
       </div>
 
-      {/* Level 3: Analytics Tabs */}
+      {/* Level 3: Analytics — collapsed by default to reduce cognitive load */}
       <div ref={analyticsRef} id="analytics" className="scroll-mt-4">
-        <h2 className="type-title-lg text-foreground mb-4">Análisis completo</h2>
-        <AnalyticsTabs
-          analytics={analytics}
-          healthIndex={analytics?.healthIndex}
-          isLoading={analyticsLoading}
-          chartMonths={chartMonths}
-          onMonthsChange={setChartMonths}
-        />
+        {showAnalytics ? (
+          <>
+            <h2 className="type-title-lg text-foreground mb-4">Análisis completo</h2>
+            <AnalyticsTabs
+              analytics={analytics}
+              healthIndex={analytics?.healthIndex}
+              isLoading={analyticsLoading}
+              chartMonths={chartMonths}
+              onMonthsChange={setChartMonths}
+            />
+          </>
+        ) : (
+          <Button variant="outline" className="w-full" onClick={() => setShowAnalytics(true)}>
+            Ver estadísticas detalladas
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -78,9 +78,10 @@ describe('CompleteTaskModal', () => {
     expect(screen.getByText('Confirmar')).toBeTruthy();
   });
 
-  it('calls onClose when cancel is pressed and form is clean', () => {
+  it('shows discard confirmation when cancel is pressed (form has pre-filled defaults)', () => {
     render(<CompleteTaskModal {...defaultProps} />);
     fireEvent.press(screen.getByText('Cancelar'));
-    expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
+    // Form has pre-filled executor + actionTaken, so isDirty is true → confirmation dialog shown
+    expect(defaultProps.onClose).not.toHaveBeenCalled();
   });
 });
