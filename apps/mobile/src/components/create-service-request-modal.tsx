@@ -292,6 +292,9 @@ export function CreateServiceRequestModal({
             {properties.map((property: PropertyPublic) => (
               <Pressable
                 key={property.id}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: selectedPropertyId === property.id }}
+                accessibilityLabel={`${property.address}, ${property.city}`}
                 onPress={() => setValue('propertyId', property.id, { shouldValidate: true })}
                 className={`rounded-xl border px-4 py-3 ${
                   selectedPropertyId === property.id
@@ -347,6 +350,9 @@ export function CreateServiceRequestModal({
                 contentContainerStyle={{ gap: 8, marginBottom: 16 }}
               >
                 <Pressable
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: !selectedTaskId }}
+                  accessibilityLabel="Ninguna tarea"
                   onPress={() => setValue('taskId', undefined)}
                   className={`rounded-xl border px-4 py-2 ${
                     !selectedTaskId ? 'bg-primary border-primary' : 'border-border bg-card'
@@ -362,6 +368,9 @@ export function CreateServiceRequestModal({
                 {tasks.map((task: TaskListItem) => (
                   <Pressable
                     key={task.id}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: selectedTaskId === task.id }}
+                    accessibilityLabel={task.name}
                     onPress={() => setValue('taskId', task.id, { shouldValidate: true })}
                     className={`rounded-xl border px-4 py-2 ${
                       selectedTaskId === task.id
@@ -453,10 +462,17 @@ export function CreateServiceRequestModal({
           <Text style={TYPE.labelLg} className="text-foreground mb-2">
             Urgencia
           </Text>
-          <View className="mb-4 flex-row gap-2">
+          <View
+            className="mb-4 flex-row gap-2"
+            accessibilityRole="radiogroup"
+            accessibilityLabel="Urgencia"
+          >
             {URGENCY_OPTIONS.map((opt) => (
               <Pressable
                 key={opt.key}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: urgency === opt.key }}
+                accessibilityLabel={opt.label}
                 onPress={() => setValue('urgency', opt.key, { shouldValidate: true })}
                 className={`flex-1 items-center rounded-xl border py-2 ${
                   urgency === opt.key ? 'bg-primary border-primary' : 'border-border bg-card'
@@ -501,6 +517,8 @@ export function CreateServiceRequestModal({
             ))}
             {photos.length < 5 && (
               <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Agregar foto"
                 onPress={pickImage}
                 className="border-border h-24 w-24 items-center justify-center rounded-xl border border-dashed"
               >

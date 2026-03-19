@@ -22,7 +22,12 @@ export function ErrorState({ onRetry, message }: ErrorStateProps) {
         {message ?? 'No se pudieron cargar los datos. Intentá de nuevo.'}
       </Text>
       {onRetry && (
-        <Pressable onPress={onRetry} className="bg-primary rounded-xl px-6 py-3">
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Reintentar"
+          onPress={onRetry}
+          className="bg-primary rounded-xl px-6 py-3"
+        >
           <Text style={TYPE.titleSm} className="text-primary-foreground">
             Reintentar
           </Text>

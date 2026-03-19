@@ -24,6 +24,8 @@ const ActivityCard = memo(function ActivityCard({ item }: { item: ActivityItem }
 
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={item.description}
       onPress={onPress}
       className="border-border bg-card mb-2 rounded-xl border p-3 active:opacity-60"
     >
@@ -112,6 +114,8 @@ export function AdminDashboard() {
             Acciones rápidas
           </Text>
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Presupuestos por responder"
             onPress={() => router.push('/(tabs)/budgets' as never)}
             className="bg-card border-border rounded-lg border p-3 active:opacity-60"
           >
@@ -120,6 +124,8 @@ export function AdminDashboard() {
             </Text>
           </Pressable>
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Tareas vencidas"
             onPress={() => router.push('/(tabs)/tasks' as never)}
             className="bg-card border-border rounded-lg border p-3 active:opacity-60"
           >
