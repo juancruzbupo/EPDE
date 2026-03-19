@@ -45,9 +45,9 @@ const PRIORITY_OPTIONS: { value: TaskPriority | 'all'; label: string }[] = [
 
 const SECTOR_OPTIONS: { value: PropertySector | 'all'; label: string }[] = [
   { value: 'all', label: 'Todos' },
-  ...Object.entries(PROPERTY_SECTOR_LABELS).map(([value, label]) => ({
-    value: value as PropertySector,
-    label,
+  ...(Object.keys(PROPERTY_SECTOR_LABELS) as PropertySector[]).map((value) => ({
+    value,
+    label: PROPERTY_SECTOR_LABELS[value],
   })),
 ];
 

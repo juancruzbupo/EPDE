@@ -633,7 +633,15 @@ export class DashboardRepository {
   /**
    * Property Health Index (ISV) — 5-dimensional score.
    * Uses only existing data (Task, TaskLog, sector).
+   *
+   * Safety bounds prevent unbounded result sets for properties with many tasks/logs.
    */
+  private static readonly HEALTH_INDEX_LIMITS = {
+    TASKS: 500,
+    RECENT_LOGS: 2_000,
+    OLDER_LOGS: 1_000,
+  } as const;
+
   async getPropertyHealthIndex(planIds: string[]) {
     if (planIds.length === 0) {
       return {
@@ -652,7 +660,7 @@ export class DashboardRepository {
       this.prisma.task.findMany({
         where: { maintenancePlanId: { in: planIds }, deletedAt: null },
         select: { id: true, status: true, priority: true, sector: true, nextDueDate: true },
-        take: 500,
+        take: DashboardRepository.HEALTH_INDEX_LIMITS.TASKS,
       }),
       this.prisma.taskLog.findMany({
         where: {
@@ -665,7 +673,7 @@ export class DashboardRepository {
           completedAt: true,
           task: { select: { sector: true } },
         },
-        take: 2_000,
+        take: DashboardRepository.HEALTH_INDEX_LIMITS.RECENT_LOGS,
         orderBy: { completedAt: 'desc' },
       }),
       // Older logs for trend comparison (3-6 months ago)
@@ -678,7 +686,7 @@ export class DashboardRepository {
           },
         },
         select: { conditionFound: true, actionTaken: true },
-        take: 1_000,
+        take: DashboardRepository.HEALTH_INDEX_LIMITS.OLDER_LOGS,
         orderBy: { completedAt: 'desc' },
       }),
     ]);

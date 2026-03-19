@@ -12,6 +12,7 @@ import {
 } from '@epde/shared';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -19,7 +20,6 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
-  Image,
   KeyboardAvoidingView,
   Linking,
   Modal,
@@ -511,9 +511,10 @@ export default function ServiceRequestDetailScreen() {
                   onPress={() => setPreviewPhoto(photo.url)}
                 >
                   <Image
-                    source={{ uri: photo.url, cache: 'force-cache' }}
+                    source={photo.url}
+                    contentFit="cover"
+                    transition={200}
                     className="h-32 w-32 rounded-xl"
-                    resizeMode="cover"
                     accessibilityLabel="Foto de solicitud de servicio"
                   />
                 </Pressable>
@@ -630,9 +631,10 @@ export default function ServiceRequestDetailScreen() {
         >
           {previewPhoto && (
             <Image
-              source={{ uri: previewPhoto }}
+              source={previewPhoto}
+              contentFit="contain"
+              transition={200}
               style={{ width: screenWidth * 0.9, height: screenHeight * 0.7 }}
-              resizeMode="contain"
             />
           )}
           <Text style={TYPE.labelLg} className="mt-4 text-white">

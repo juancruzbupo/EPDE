@@ -1,5 +1,5 @@
 import type { ServiceUser } from '@epde/shared';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 
 import { QuoteTemplatesRepository } from './quote-templates.repository';
 
@@ -46,6 +46,10 @@ export class QuoteTemplatesService {
 
   async delete(id: string) {
     await this.findById(id);
-    await this.repository.delete(id);
+    try {
+      await this.repository.delete(id);
+    } catch {
+      throw new BadRequestException('No se puede eliminar el template porque está en uso');
+    }
   }
 }

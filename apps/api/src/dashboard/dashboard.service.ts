@@ -16,6 +16,7 @@ export class DashboardService {
     private readonly redis: RedisService,
   ) {}
 
+  /** Admin overview stats (property/task/budget/service counts). Cached ${ANALYTICS_TTL}s. */
   async getStats() {
     const cacheKey = 'dashboard:admin:stats';
     try {
@@ -36,6 +37,7 @@ export class DashboardService {
     return result;
   }
 
+  /** Recent activity feed (last 10 items). NOT cached — real-time data. */
   async getRecentActivity() {
     const { recentClients, recentProperties, recentTasks, recentBudgets, recentServices } =
       await this.dashboardRepository.getRecentActivity();
@@ -81,6 +83,7 @@ export class DashboardService {
     return activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 10);
   }
 
+  /** Client stats (properties, tasks, budgets, services). Cached ${ANALYTICS_TTL}s per user. */
   async getClientStats(userId: string) {
     const cacheKey = `dashboard:client:${userId}:stats`;
     try {
@@ -113,6 +116,7 @@ export class DashboardService {
     return result;
   }
 
+  /** Client upcoming tasks with ISO date serialization. NOT cached — real-time data. */
   async getClientUpcomingTasks(userId: string) {
     const tasks = await this.dashboardRepository.getClientUpcomingTasks(userId);
 
@@ -131,6 +135,7 @@ export class DashboardService {
     }));
   }
 
+  /** Monthly task completion trend ($queryRaw). Cached ${ANALYTICS_TTL}s per month range. */
   async getCompletionTrend(months = 6) {
     const cacheKey = `dashboard:completion-trend:${months}`;
     try {
@@ -151,6 +156,7 @@ export class DashboardService {
     return result;
   }
 
+  /** Condition distribution across all inspections (groupBy). Cached ${ANALYTICS_TTL}s. */
   async getConditionDistribution() {
     const cacheKey = 'dashboard:condition-distribution';
     try {
@@ -171,6 +177,7 @@ export class DashboardService {
     return result;
   }
 
+  /** Budget pipeline by status with amounts ($queryRaw). Cached ${ANALYTICS_TTL}s. */
   async getBudgetPipeline() {
     const cacheKey = 'dashboard:budget-pipeline';
     try {
@@ -191,6 +198,7 @@ export class DashboardService {
     return result;
   }
 
+  /** Full admin analytics (10 repository calls). Cached ${ANALYTICS_TTL}s per month range. */
   async getAdminAnalytics(months = 6): Promise<AdminAnalytics> {
     const cacheKey = `dashboard:admin:analytics:${months}`;
     try {
@@ -246,6 +254,7 @@ export class DashboardService {
     return result;
   }
 
+  /** Client analytics (health, trends, costs). Cached ${ANALYTICS_TTL}s per user + month range. */
   async getClientAnalytics(userId: string, months = 6): Promise<ClientAnalytics> {
     const cacheKey = `dashboard:client:${userId}:analytics:${months}`;
     try {
