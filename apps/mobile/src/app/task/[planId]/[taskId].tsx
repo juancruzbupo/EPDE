@@ -1,8 +1,6 @@
 // TODO [ROADMAP]: Offline conflict resolution — requires offline mutation
 // queue, server-side version/timestamp comparison, and conflict resolution UI.
 
-// TODO [ROADMAP]: Migrate to expo-image for caching, progressive loading, and optimization.
-
 import type { TaskLogPublic, TaskNotePublic } from '@epde/shared';
 import {
   CONDITION_FOUND_LABELS,

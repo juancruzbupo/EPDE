@@ -123,20 +123,28 @@ jest.mock('@/components/status-badge', () => ({
   UrgencyBadge: () => null,
 }));
 
-jest.mock('@/components/empty-state', () => ({
-  EmptyState: ({ title, message }: { title: string; message: string }) => (
-    <>
-      {title}
-      {message}
-    </>
-  ),
-}));
+jest.mock('@/components/empty-state', () => {
+  const { Text } = jest.requireActual('react-native');
+  return {
+    EmptyState: ({ title, message }: { title: string; message: string }) => (
+      <>
+        <Text>{title}</Text>
+        <Text>{message}</Text>
+      </>
+    ),
+  };
+});
 
-jest.mock('@/components/error-state', () => ({
-  ErrorState: ({ onRetry }: { onRetry?: () => void }) => (
-    <button onClick={onRetry}>Reintentar</button>
-  ),
-}));
+jest.mock('@/components/error-state', () => {
+  const { Text, Pressable } = jest.requireActual('react-native');
+  return {
+    ErrorState: ({ onRetry }: { onRetry?: () => void }) => (
+      <Pressable onPress={onRetry}>
+        <Text>Reintentar</Text>
+      </Pressable>
+    ),
+  };
+});
 
 // ---------------------------------------------------------------------------
 // Import the component under test *after* mocks are set up

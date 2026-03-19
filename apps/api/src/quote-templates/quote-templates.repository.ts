@@ -13,6 +13,7 @@ export class QuoteTemplatesRepository {
     return this.prisma.quoteTemplate.findMany({
       include: INCLUDE_ITEMS,
       orderBy: { createdAt: 'desc' },
+      take: 100,
     });
   }
 

@@ -652,6 +652,7 @@ export class DashboardRepository {
       this.prisma.task.findMany({
         where: { maintenancePlanId: { in: planIds }, deletedAt: null },
         select: { id: true, status: true, priority: true, sector: true, nextDueDate: true },
+        take: 500,
       }),
       this.prisma.taskLog.findMany({
         where: {
@@ -664,6 +665,8 @@ export class DashboardRepository {
           completedAt: true,
           task: { select: { sector: true } },
         },
+        take: 2_000,
+        orderBy: { completedAt: 'desc' },
       }),
       // Older logs for trend comparison (3-6 months ago)
       this.prisma.taskLog.findMany({
@@ -675,6 +678,8 @@ export class DashboardRepository {
           },
         },
         select: { conditionFound: true, actionTaken: true },
+        take: 1_000,
+        orderBy: { completedAt: 'desc' },
       }),
     ]);
 

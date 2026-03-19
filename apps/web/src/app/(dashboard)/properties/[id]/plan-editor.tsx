@@ -22,7 +22,7 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ErrorState } from '@/components/error-state';
@@ -102,7 +102,7 @@ function isCompletable(task: TaskPublic) {
   return COMPLETABLE_STATUSES.includes(task.status);
 }
 
-function CategorySection({
+const CategorySection = memo(function CategorySection({
   categoryName,
   tasks,
   defaultOpen,
@@ -221,7 +221,7 @@ function CategorySection({
       )}
     </div>
   );
-}
+});
 
 export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
   const { data: plan, isLoading, isError, refetch } = usePlan(planId);
@@ -251,6 +251,11 @@ export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
       else next.add(taskId);
       return next;
     });
+  }, []);
+
+  const handleEdit = useCallback((task: TaskPublic) => {
+    setEditingTask(task);
+    setTaskDialogOpen(true);
   }, []);
 
   const exitSelectionMode = useCallback(() => {
@@ -448,10 +453,7 @@ export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
                     categoryName={group.name}
                     tasks={group.tasks}
                     defaultOpen
-                    onEdit={(task) => {
-                      setEditingTask(task);
-                      setTaskDialogOpen(true);
-                    }}
+                    onEdit={handleEdit}
                     onComplete={setCompletingTask}
                     onDelete={setDeleteTaskId}
                     selectionMode={selectionMode}

@@ -7,6 +7,11 @@ jest.mock('expo-haptics', () => ({
   NotificationFeedbackType: { Success: 'Success', Warning: 'Warning', Error: 'Error' },
 }));
 
+// Mock expo-image (native module not available in Jest)
+jest.mock('expo-image', () => ({
+  Image: 'ExpoImage',
+}));
+
 // Mock @react-native-community/netinfo for test environment
 jest.mock('@react-native-community/netinfo', () => ({
   addEventListener: jest.fn(() => jest.fn()),

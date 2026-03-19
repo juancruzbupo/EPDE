@@ -18,12 +18,12 @@ import {
   TASK_TYPE_TO_DEFAULT_ACTION,
 } from '@epde/shared';
 import { parse } from 'date-fns';
+import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -397,7 +397,12 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
           {photoUri ? (
             <View className="mb-4">
               <View className="relative">
-                <Image source={{ uri: photoUri }} className="h-40 w-40 rounded-xl" />
+                <Image
+                  source={photoUri}
+                  contentFit="cover"
+                  transition={200}
+                  className="h-40 w-40 rounded-xl"
+                />
                 {isUploading && (
                   <View className="absolute inset-0 h-40 w-40 items-center justify-center rounded-xl bg-black/40">
                     <ActivityIndicator color="white" />

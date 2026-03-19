@@ -23,6 +23,29 @@ interface BudgetPipelineChartProps {
 
 const formatCurrency = (v: number) => formatARSCompact(v);
 
+function BudgetPipelineTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload: BudgetPipeline & { fill: string } }>;
+  label?: string;
+}) {
+  if (!active || !payload?.length) return null;
+  const item = payload[0]?.payload;
+  if (!item) return null;
+  return (
+    <div className="bg-popover border-border rounded-lg border p-3 shadow-lg">
+      <p className="type-label-md text-foreground mb-1">{label}</p>
+      <p className="type-body-sm">{item.count} presupuestos</p>
+      <p className="type-body-sm text-muted-foreground">
+        Total: {formatCurrency(item.totalAmount)}
+      </p>
+    </div>
+  );
+}
+
 export function BudgetPipelineChart({ data }: BudgetPipelineChartProps) {
   const colors = useChartColors();
   const { shouldAnimate } = useMotionPreference();
@@ -47,21 +70,7 @@ export function BudgetPipelineChart({ data }: BudgetPipelineChartProps) {
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" strokeOpacity={0.5} />
         <XAxis dataKey="label" tick={CHART_AXIS_TICK_SM} axisLine={false} tickLine={false} />
         <YAxis tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} allowDecimals={false} />
-        <Tooltip
-          content={({ active, payload, label }) => {
-            if (!active || !payload?.length) return null;
-            const item = payload[0]?.payload as BudgetPipeline & { fill: string };
-            return (
-              <div className="bg-popover border-border rounded-lg border p-3 shadow-lg">
-                <p className="type-label-md text-foreground mb-1">{label}</p>
-                <p className="type-body-sm">{item.count} presupuestos</p>
-                <p className="type-body-sm text-muted-foreground">
-                  Total: {formatCurrency(item.totalAmount)}
-                </p>
-              </div>
-            );
-          }}
-        />
+        <Tooltip content={<BudgetPipelineTooltip />} />
         <Bar
           dataKey="count"
           name="Presupuestos"

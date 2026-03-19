@@ -1,13 +1,13 @@
 import type { CreateServiceRequestInput, PropertyPublic, TaskListItem } from '@epde/shared';
 import { createServiceRequestSchema, ServiceUrgency } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   ActivityIndicator,
   Alert,
-  Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -499,7 +499,12 @@ export function CreateServiceRequestModal({
           >
             {photos.map((photo, index) => (
               <View key={photo.uri} className="relative">
-                <Image source={{ uri: photo.uri }} className="h-24 w-24 rounded-xl" />
+                <Image
+                  source={photo.uri}
+                  contentFit="cover"
+                  transition={200}
+                  className="h-24 w-24 rounded-xl"
+                />
                 {!photo.uploadedUrl && (
                   <View className="absolute inset-0 h-24 w-24 items-center justify-center rounded-xl bg-black/40">
                     <ActivityIndicator color="white" />

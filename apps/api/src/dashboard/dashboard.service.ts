@@ -131,6 +131,66 @@ export class DashboardService {
     }));
   }
 
+  async getCompletionTrend(months = 6) {
+    const cacheKey = `dashboard:completion-trend:${months}`;
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) return JSON.parse(cached);
+    } catch {
+      /* Redis unavailable */
+    }
+
+    const result = await this.dashboardRepository.getCompletionTrend(months);
+
+    try {
+      await this.redis.setex(cacheKey, ANALYTICS_TTL, JSON.stringify(result));
+    } catch {
+      /* Redis unavailable */
+    }
+
+    return result;
+  }
+
+  async getConditionDistribution() {
+    const cacheKey = 'dashboard:condition-distribution';
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) return JSON.parse(cached);
+    } catch {
+      /* Redis unavailable */
+    }
+
+    const result = await this.dashboardRepository.getConditionDistribution();
+
+    try {
+      await this.redis.setex(cacheKey, ANALYTICS_TTL, JSON.stringify(result));
+    } catch {
+      /* Redis unavailable */
+    }
+
+    return result;
+  }
+
+  async getBudgetPipeline() {
+    const cacheKey = 'dashboard:budget-pipeline';
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) return JSON.parse(cached);
+    } catch {
+      /* Redis unavailable */
+    }
+
+    const result = await this.dashboardRepository.getBudgetPipeline();
+
+    try {
+      await this.redis.setex(cacheKey, ANALYTICS_TTL, JSON.stringify(result));
+    } catch {
+      /* Redis unavailable */
+    }
+
+    return result;
+  }
+
   async getAdminAnalytics(months = 6): Promise<AdminAnalytics> {
     const cacheKey = `dashboard:admin:analytics:${months}`;
     try {

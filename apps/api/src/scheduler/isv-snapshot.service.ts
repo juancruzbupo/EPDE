@@ -50,47 +50,62 @@ export class ISVSnapshotService {
       snapshotDate.setDate(1);
       snapshotDate.setHours(0, 0, 0, 0);
 
+      const BATCH_SIZE = 10;
       let captured = 0;
       let alerts = 0;
 
-      for (const prop of properties) {
+      const eligible = properties.filter((p) => p.maintenancePlan);
+
+      for (let i = 0; i < eligible.length; i += BATCH_SIZE) {
         if (signal.lockLost) return;
-        if (!prop.maintenancePlan) continue;
 
-        try {
-          const index = await this.dashboardRepository.getPropertyHealthIndex([
-            prop.maintenancePlan.id,
-          ]);
+        const batch = eligible.slice(i, i + BATCH_SIZE);
+        const results = await Promise.allSettled(
+          batch.map(async (prop) => {
+            const index = await this.dashboardRepository.getPropertyHealthIndex([
+              prop.maintenancePlan!.id,
+            ]);
 
-          await this.isvRepository.createSnapshot(prop.id, snapshotDate, {
-            score: index.score,
-            label: index.label,
-            compliance: index.dimensions.compliance,
-            condition: index.dimensions.condition,
-            coverage: index.dimensions.coverage,
-            investment: index.dimensions.investment,
-            trend: index.dimensions.trend,
-            sectorScores: index.sectorScores,
-          });
-
-          captured++;
-
-          // Check for significant drop
-          const previous = await this.isvRepository.findPrevious(prop.id, snapshotDate);
-          if (previous && previous.score - index.score >= 15) {
-            void this.notificationsHandler.handleISVAlert({
-              propertyId: prop.id,
-              userId: prop.userId,
-              address: prop.address,
-              previousScore: previous.score,
-              currentScore: index.score,
+            await this.isvRepository.createSnapshot(prop.id, snapshotDate, {
+              score: index.score,
+              label: index.label,
+              compliance: index.dimensions.compliance,
+              condition: index.dimensions.condition,
+              coverage: index.dimensions.coverage,
+              investment: index.dimensions.investment,
+              trend: index.dimensions.trend,
+              sectorScores: index.sectorScores,
             });
-            alerts++;
+
+            // Check for significant drop
+            const previous = await this.isvRepository.findPrevious(prop.id, snapshotDate);
+            let alerted = false;
+            if (previous && previous.score - index.score >= 15) {
+              void this.notificationsHandler.handleISVAlert({
+                propertyId: prop.id,
+                userId: prop.userId,
+                address: prop.address,
+                previousScore: previous.score,
+                currentScore: index.score,
+              });
+              alerted = true;
+            }
+
+            return { alerted };
+          }),
+        );
+
+        for (let j = 0; j < results.length; j++) {
+          const result = results[j]!;
+          if (result.status === 'fulfilled') {
+            captured++;
+            if (result.value.alerted) alerts++;
+          } else if (result.status === 'rejected') {
+            const reason = result.reason as Error | string;
+            this.logger.error(
+              `Failed to capture ISV for property ${batch[j]?.id}: ${reason instanceof Error ? reason.message : reason}`,
+            );
           }
-        } catch (error) {
-          this.logger.error(
-            `Failed to capture ISV for property ${prop.id}: ${(error as Error).message}`,
-          );
         }
       }
 

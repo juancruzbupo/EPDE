@@ -34,6 +34,7 @@ import { TaskDetailSheet } from '../properties/[id]/task-detail-sheet';
 import { CreateServiceDialog } from '../service-requests/create-service-dialog';
 
 const INITIAL_VISIBLE = 5;
+const LOAD_MORE_COUNT = 20;
 
 const PRIORITY_OPTIONS: { value: TaskPriority | 'all'; label: string }[] = [
   { value: 'all', label: 'Todas' },
@@ -149,12 +150,12 @@ function StatusSection({
   onTaskClick: (task: TaskListItem) => void;
 }) {
   const [open, setOpen] = useState(defaultOpen);
-  const [showAll, setShowAll] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
 
   if (tasks.length === 0) return null;
 
-  const visibleTasks = showAll ? tasks : tasks.slice(0, INITIAL_VISIBLE);
-  const hasMore = tasks.length > INITIAL_VISIBLE;
+  const visibleTasks = tasks.slice(0, visibleCount);
+  const hasMore = tasks.length > visibleCount;
   const Icon = TASK_STATUS_ICONS[status];
   const color = TASK_STATUS_COLORS[status];
 
@@ -179,17 +180,17 @@ function StatusSection({
           {visibleTasks.map((task) => (
             <TaskRow key={task.id} task={task} onClick={() => onTaskClick(task)} />
           ))}
-          {hasMore && !showAll && (
+          {hasMore && (
             <button
-              onClick={() => setShowAll(true)}
+              onClick={() => setVisibleCount((c) => c + LOAD_MORE_COUNT)}
               className="text-primary hover:text-primary/80 w-full py-2 text-center text-sm font-medium"
             >
-              Ver {tasks.length - INITIAL_VISIBLE} más
+              Ver {Math.min(LOAD_MORE_COUNT, tasks.length - visibleCount)} más
             </button>
           )}
-          {hasMore && showAll && (
+          {visibleCount > INITIAL_VISIBLE && (
             <button
-              onClick={() => setShowAll(false)}
+              onClick={() => setVisibleCount(INITIAL_VISIBLE)}
               className="text-primary hover:text-primary/80 w-full py-2 text-center text-sm font-medium"
             >
               Ver menos
