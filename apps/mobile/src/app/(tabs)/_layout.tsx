@@ -79,16 +79,7 @@ export default function TabLayout() {
             ),
           }}
         />
-        <Tabs.Screen
-          name="maintenance-plans"
-          options={{
-            title: 'Planes',
-            href: null,
-            tabBarIcon: ({ color, focused }) => (
-              <AnimatedTabIcon emoji="📅" color={color} focused={focused} />
-            ),
-          }}
-        />
+        <Tabs.Screen name="maintenance-plans" options={{ href: null }} />
         <Tabs.Screen
           name="tasks"
           options={{
@@ -110,7 +101,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="notifications"
           options={{
-            title: 'Avisos',
+            title: 'Notificaciones',
             tabBarIcon: ({ color, focused }) => (
               <AnimatedTabIcon emoji="🔔" color={color} focused={focused} />
             ),

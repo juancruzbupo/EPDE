@@ -1,4 +1,4 @@
-import type { ServiceRequestPublic, ServiceStatus } from '@epde/shared';
+import type { ServiceRequestPublic, ServiceStatus, ServiceUrgency } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -57,8 +57,15 @@ export function useCreateServiceRequest() {
 export function useEditServiceRequest() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...dto }: { id: string; title?: string; description?: string }) =>
-      editServiceRequest(id, dto),
+    mutationFn: ({
+      id,
+      ...dto
+    }: {
+      id: string;
+      title?: string;
+      description?: string;
+      urgency?: ServiceUrgency;
+    }) => editServiceRequest(id, dto),
     onSuccess: () => {
       toast.success('Solicitud actualizada');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });

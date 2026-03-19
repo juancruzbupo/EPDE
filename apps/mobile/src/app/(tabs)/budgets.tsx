@@ -218,7 +218,7 @@ export default function BudgetsScreen() {
               message={
                 hasActiveFilters
                   ? 'No se encontraron presupuestos con esos filtros.'
-                  : 'Crea tu primer presupuesto para solicitar una cotizacion.'
+                  : 'Creá tu primer presupuesto para solicitar una cotización.'
               }
             />
           ) : null

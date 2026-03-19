@@ -30,6 +30,7 @@ export default function ProfileScreen() {
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   const handleLogout = () => {
@@ -71,8 +72,12 @@ export default function ProfileScreen() {
   };
 
   const handleChangePassword = async () => {
-    if (!currentPassword || !newPassword) {
-      Alert.alert('Error', 'Completá ambos campos');
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      Alert.alert('Error', 'Completá todos los campos');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      Alert.alert('Error', 'Las contraseñas no coinciden');
       return;
     }
     const result = changePasswordSchema.safeParse({ currentPassword, newPassword });
@@ -85,6 +90,7 @@ export default function ProfileScreen() {
       await authApi.changePassword({ currentPassword, newPassword });
       setCurrentPassword('');
       setNewPassword('');
+      setConfirmPassword('');
       Alert.alert('Listo', 'Contraseña actualizada');
     } catch {
       Alert.alert('Error', 'No se pudo cambiar la contraseña. Verificá tu contraseña actual.');
@@ -258,6 +264,21 @@ export default function ProfileScreen() {
               value={newPassword}
               onChangeText={setNewPassword}
               placeholder="Mín. 8, mayúscula, minúscula, número"
+              secureTextEntry
+              className="border-border bg-background text-foreground rounded-lg border px-3 py-2.5"
+              style={TYPE.bodyMd}
+              placeholderTextColor={COLORS.mutedForeground}
+              returnKeyType="next"
+            />
+          </View>
+          <View>
+            <Text style={TYPE.labelMd} className="text-foreground mb-1">
+              Confirmar contraseña *
+            </Text>
+            <TextInput
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholder="Repetir nueva contraseña"
               secureTextEntry
               className="border-border bg-background text-foreground rounded-lg border px-3 py-2.5"
               style={TYPE.bodyMd}

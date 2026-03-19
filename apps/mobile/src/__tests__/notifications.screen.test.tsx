@@ -123,7 +123,7 @@ describe('NotificationsScreen', () => {
 
     const { getByText } = render(<NotificationsScreen />);
 
-    expect(getByText('Avisos')).toBeTruthy();
+    expect(getByText('Notificaciones')).toBeTruthy();
     expect(getByText('Tarea vencida')).toBeTruthy();
     expect(getByText('Presupuesto cotizado')).toBeTruthy();
   });

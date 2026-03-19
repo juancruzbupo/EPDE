@@ -167,7 +167,7 @@ export default function NotificationsScreen() {
         <View className="mb-4">
           <View className="flex-row items-center justify-between">
             <Text style={TYPE.displayLg} className="text-foreground">
-              Avisos
+              Notificaciones
             </Text>
             {(unreadCount ?? 0) > 0 && (
               <Pressable
@@ -194,7 +194,10 @@ export default function NotificationsScreen() {
       }
       ListEmptyComponent={
         !isLoading ? (
-          <EmptyState title="Sin notificaciones" message="No tienes avisos por el momento." />
+          <EmptyState
+            title="Sin notificaciones"
+            message="No tenés notificaciones por el momento."
+          />
         ) : null
       }
     />
