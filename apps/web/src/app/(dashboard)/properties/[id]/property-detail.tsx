@@ -13,6 +13,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
 import { ErrorState } from '@/components/error-state';
@@ -44,7 +45,8 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
   const { data, isLoading, isError, refetch } = useProperty(id, { initialData });
   const property = data;
   const [editOpen, setEditOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('health');
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') ?? 'health');
 
   if (isError && !property) {
     return <ErrorState message="No se pudo cargar la propiedad" onRetry={refetch} />;
@@ -100,7 +102,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
         }
       />
 
-      <Tabs defaultValue="health" onValueChange={setActiveTab}>
+      <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="health">Salud</TabsTrigger>
           <TabsTrigger value="plan">Plan</TabsTrigger>

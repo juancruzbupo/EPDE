@@ -135,7 +135,7 @@ function MaintenancePlansPageContent() {
   }, [filtered]);
 
   const handlePlanClick = (plan: PlanListItem) => {
-    router.push(`/properties/${plan.property.id}`);
+    router.push(`/properties/${plan.property.id}?tab=plan`);
   };
 
   return (

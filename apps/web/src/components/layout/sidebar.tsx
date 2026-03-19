@@ -2,6 +2,7 @@
 
 import { UserRole } from '@epde/shared';
 import {
+  Bell,
   CheckSquare,
   ChevronsLeft,
   ChevronsRight,
@@ -27,6 +28,7 @@ const navItems = [
   { label: 'Tareas', href: '/tasks', icon: CheckSquare },
   { label: 'Presupuestos', href: '/budgets', icon: FileText },
   { label: 'Servicios', href: '/service-requests', icon: Wrench },
+  { label: 'Notificaciones', href: '/notifications', icon: Bell, clientOnly: true },
   { label: 'Categorías', href: '/categories', icon: Tags, adminOnly: true },
   { label: 'Plantillas', href: '/templates', icon: LayoutTemplate, adminOnly: true },
 ];
@@ -44,7 +46,8 @@ export function Sidebar({ className }: { className?: string }) {
   }, [collapsed]);
 
   const filteredItems = navItems.filter((item) => {
-    if (item.adminOnly && user?.role !== UserRole.ADMIN) return false;
+    if ('adminOnly' in item && item.adminOnly && user?.role !== UserRole.ADMIN) return false;
+    if ('clientOnly' in item && item.clientOnly && user?.role !== UserRole.CLIENT) return false;
     return true;
   });
 

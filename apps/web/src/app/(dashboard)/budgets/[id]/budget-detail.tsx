@@ -176,7 +176,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
       {hasResponse && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Detalle de cotizacion</CardTitle>
+            <CardTitle className="text-lg">Detalle de cotización</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="rounded-md border">
