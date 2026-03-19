@@ -19,41 +19,49 @@ import { use, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { getPropertyReport } from '@/lib/api/properties';
 
+// ─── Priority sorting (highest urgency first) ────────────
+
+const PRIORITY_ORDER: Record<string, number> = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
+const CONDITION_SCORE: Record<string, number> = {
+  EXCELLENT: 100,
+  GOOD: 80,
+  FAIR: 60,
+  POOR: 40,
+  CRITICAL: 20,
+};
+
 // ─── Score helpers ────────────────────────────────────────
 
-function scoreColor(score: number): string {
-  if (score >= 80) return 'text-success';
-  if (score >= 60) return 'text-warning';
-  if (score >= 40) return 'text-caution';
+function scoreColor(s: number) {
+  if (s >= 80) return 'text-success';
+  if (s >= 60) return 'text-warning';
+  if (s >= 40) return 'text-caution';
   return 'text-destructive';
 }
-
-function scoreBg(score: number): string {
-  if (score >= 80) return 'bg-success';
-  if (score >= 60) return 'bg-warning';
-  if (score >= 40) return 'bg-caution';
+function scoreBg(s: number) {
+  if (s >= 80) return 'bg-success';
+  if (s >= 60) return 'bg-warning';
+  if (s >= 40) return 'bg-caution';
   return 'bg-destructive';
 }
-
-function scoreLabel(score: number): string {
-  if (score >= 80) return 'Excelente';
-  if (score >= 60) return 'Bueno';
-  if (score >= 40) return 'Regular';
-  if (score >= 20) return 'Necesita atención';
+function scoreLabel(s: number) {
+  if (s >= 80) return 'Excelente';
+  if (s >= 60) return 'Bueno';
+  if (s >= 40) return 'Regular';
+  if (s >= 20) return 'Necesita atención';
   return 'Crítico';
 }
-
-function statusMessage(score: number): string {
-  if (score >= 80)
+function statusMessage(s: number) {
+  if (s >= 80)
     return 'Tu vivienda está en excelente estado. El mantenimiento preventivo está funcionando correctamente.';
-  if (score >= 60)
+  if (s >= 60)
     return 'Tu vivienda está en buen estado general, pero hay aspectos que necesitan atención para evitar que se acumulen problemas.';
-  if (score >= 40)
+  if (s >= 40)
     return 'Tu vivienda necesita atención. Hay tareas pendientes que podrían generar reparaciones costosas si no se atienden pronto.';
   return 'Tu vivienda necesita atención urgente. Los problemas acumulados pueden derivar en reparaciones mayores. Te recomendamos actuar de inmediato.';
 }
 
-const DIMENSION_LABELS: Record<string, { label: string; hint: string }> = {
+const DIM: Record<string, { label: string; hint: string }> = {
   compliance: { label: 'Cumplimiento', hint: 'Tareas completadas a tiempo' },
   condition: { label: 'Condición', hint: 'Estado general según inspecciones' },
   coverage: { label: 'Cobertura', hint: 'Sectores inspeccionados recientemente' },
@@ -61,42 +69,29 @@ const DIMENSION_LABELS: Record<string, { label: string; hint: string }> = {
   trend: { label: 'Tendencia', hint: 'Evolución reciente del estado' },
 };
 
-// ─── Components ───────────────────────────────────────────
+// ─── Small components ─────────────────────────────────────
 
-function ProgressBar({ value, className }: { value: number; className?: string }) {
+function Bar({ value, className }: { value: number; className?: string }) {
   return (
-    <div className="bg-muted h-3 w-full overflow-hidden rounded-full">
+    <div className="bg-muted h-3 w-full overflow-hidden rounded-full print:border print:border-gray-300">
       <div
-        className={`h-full rounded-full transition-all ${className ?? scoreBg(value)}`}
+        className={`h-full rounded-full ${className ?? scoreBg(value)}`}
         style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
       />
     </div>
   );
 }
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
+function Title({ children }: { children: React.ReactNode }) {
   return (
     <h2 className="type-title-lg text-foreground font-heading mb-4 border-b pb-2">{children}</h2>
   );
 }
 
-function ReportSection({
-  children,
-  pageBreak = false,
-}: {
-  children: React.ReactNode;
-  pageBreak?: boolean;
-}) {
-  return (
-    <section className={`mb-8 ${pageBreak ? 'print:break-before-page' : ''}`}>{children}</section>
-  );
-}
-
-// ─── Main Page ────────────────────────────────────────────
+// ─── Main ─────────────────────────────────────────────────
 
 export default function PropertyReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-
   useEffect(() => {
     document.title = 'Informe Técnico | EPDE';
   }, []);
@@ -115,7 +110,7 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
     return (
       <div
         role="status"
-        aria-label="Cargando informe"
+        aria-label="Cargando"
         className="flex min-h-[60vh] items-center justify-center"
       >
         <div className="text-muted-foreground text-center">
@@ -131,7 +126,7 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
         <p className="text-destructive">No se pudo generar el informe</p>
         <Button variant="outline" asChild>
-          <Link href={`/properties/${id}`}>Volver a la propiedad</Link>
+          <Link href={`/properties/${id}`}>Volver</Link>
         </Button>
       </div>
     );
@@ -147,16 +142,31 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
     recentLogs,
     taskStats,
   } = report;
-  const score = healthIndex.score;
+  const sc = healthIndex.score;
+
+  // Sort by priority/urgency
+  const sortedOverdue = [...overdueTasks].sort(
+    (a, b) => (PRIORITY_ORDER[a.priority] ?? 9) - (PRIORITY_ORDER[b.priority] ?? 9),
+  );
+  const sortedCats = [...categoryBreakdown].sort(
+    (a, b) => b.overdueTasks - a.overdueTasks || b.totalTasks - a.totalTasks,
+  );
+  const sortedSectors = [...sectorBreakdown]
+    .map((s) => ({
+      ...s,
+      score: s.total > 0 ? Math.round(((s.total - s.overdue) / s.total) * 100) : 100,
+    }))
+    .sort((a, b) => a.score - b.score);
+  const logsWithPhotos = recentLogs.filter((l) => l.photoUrl);
 
   return (
-    <div className="mx-auto max-w-4xl">
-      {/* Action bar — hidden in print */}
-      <div className="no-print mb-6 flex items-center justify-between">
-        <Button variant="ghost" asChild>
+    <div className="report-container mx-auto max-w-4xl">
+      {/* ── Sticky print bar (hidden in print) ── */}
+      <div className="no-print bg-background/95 sticky top-0 z-10 mb-6 flex items-center justify-between border-b py-3 backdrop-blur">
+        <Button variant="ghost" size="sm" asChild>
           <Link href={`/properties/${id}`}>
             <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-            Volver a la propiedad
+            Volver
           </Link>
         </Button>
         <Button onClick={() => window.print()}>
@@ -165,8 +175,8 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
         </Button>
       </div>
 
-      {/* ── Section 1: Cover ── */}
-      <ReportSection>
+      {/* ── 1. PORTADA ── */}
+      <section className="report-section mb-10">
         <div className="mb-8 text-center">
           <p className="type-title-lg font-heading text-primary mb-1">EPDE</p>
           <h1 className="type-display-lg font-heading text-foreground mb-2">
@@ -193,44 +203,39 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
             })}
           </p>
         </div>
-
-        {/* ISV Score big */}
         <div className="bg-card border-border mx-auto max-w-md rounded-2xl border p-6 text-center">
           <p className="text-muted-foreground mb-1 text-sm">Índice de Salud de la Vivienda</p>
-          <p className={`text-5xl font-bold ${scoreColor(score)}`}>{score}</p>
-          <p className={`text-lg font-medium ${scoreColor(score)}`}>{scoreLabel(score)}</p>
-          <ProgressBar value={score} className={scoreBg(score)} />
+          <p className={`text-5xl font-bold ${scoreColor(sc)}`}>{sc}</p>
+          <p className={`text-lg font-medium ${scoreColor(sc)}`}>{scoreLabel(sc)}</p>
+          <div className="mt-2">
+            <Bar value={sc} className={scoreBg(sc)} />
+          </div>
         </div>
-      </ReportSection>
+      </section>
 
-      {/* ── Section 2: Executive Summary ── */}
-      <ReportSection pageBreak>
-        <SectionTitle>Resumen Ejecutivo</SectionTitle>
-
+      {/* ── 2. RESUMEN EJECUTIVO ── */}
+      <section className="report-section mb-10 print:break-before-page">
+        <Title>Resumen Ejecutivo</Title>
         <div className="bg-muted/40 mb-6 rounded-xl p-5">
-          <p className="type-body-md text-foreground leading-relaxed">{statusMessage(score)}</p>
+          <p className="type-body-md text-foreground leading-relaxed">{statusMessage(sc)}</p>
         </div>
-
-        {/* 5 dimensions */}
-        <div className="mb-6 grid gap-4 sm:grid-cols-2">
-          {(Object.entries(healthIndex.dimensions) as [string, number][]).map(([key, value]) => {
-            const dim = DIMENSION_LABELS[key];
-            if (!dim) return null;
+        <div className="mb-6 grid gap-4 sm:grid-cols-2 print:grid-cols-2">
+          {(Object.entries(healthIndex.dimensions) as [string, number][]).map(([k, v]) => {
+            const d = DIM[k];
+            if (!d) return null;
             return (
-              <div key={key} className="space-y-1.5">
+              <div key={k} className="report-item space-y-1.5">
                 <div className="flex items-baseline justify-between">
-                  <p className="text-sm font-medium">{dim.label}</p>
-                  <p className={`text-sm font-bold ${scoreColor(value)}`}>{value}/100</p>
+                  <p className="text-sm font-medium">{d.label}</p>
+                  <p className={`text-sm font-bold ${scoreColor(v)}`}>{v}/100</p>
                 </div>
-                <ProgressBar value={value} />
-                <p className="text-muted-foreground text-xs">{dim.hint}</p>
+                <Bar value={v} />
+                <p className="text-muted-foreground text-xs">{d.hint}</p>
               </div>
             );
           })}
         </div>
-
-        {/* Task stats */}
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-4 gap-3 print:grid-cols-4">
           {[
             {
               label: 'Vencidas',
@@ -252,118 +257,112 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
               value: taskStats.completed,
               color: 'text-status-completed bg-status-completed/10',
             },
-          ].map((stat) => (
-            <div key={stat.label} className={`rounded-lg p-3 text-center ${stat.color}`}>
-              <p className="text-2xl font-bold">{stat.value}</p>
-              <p className="text-xs">{stat.label}</p>
+          ].map((st) => (
+            <div key={st.label} className={`report-item rounded-lg p-3 text-center ${st.color}`}>
+              <p className="text-2xl font-bold">{st.value}</p>
+              <p className="text-xs">{st.label}</p>
             </div>
           ))}
         </div>
-      </ReportSection>
+      </section>
 
-      {/* ── Section 3: Sectors ── */}
-      {sectorBreakdown.length > 0 && (
-        <ReportSection pageBreak>
-          <SectionTitle>Estado por Sector</SectionTitle>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {sectorBreakdown.map((s) => {
-              const sectorScore =
-                s.total > 0 ? Math.round(((s.total - s.overdue) / s.total) * 100) : 100;
-              return (
-                <div key={s.sector} className="border-border rounded-lg border p-4">
-                  <div className="mb-2 flex items-center justify-between">
-                    <p className="font-medium">
-                      {PROPERTY_SECTOR_LABELS[s.sector as keyof typeof PROPERTY_SECTOR_LABELS] ??
-                        s.sector}
-                    </p>
-                    <span className={`text-sm font-bold ${scoreColor(sectorScore)}`}>
-                      {sectorScore}%
-                    </span>
-                  </div>
-                  <ProgressBar value={sectorScore} />
-                  <div className="text-muted-foreground mt-2 flex justify-between text-xs">
-                    <span>{s.total} tareas</span>
-                    {s.overdue > 0 && (
-                      <span className="text-destructive">{s.overdue} vencidas</span>
-                    )}
-                  </div>
+      {/* ── 3. ESTADO POR SECTOR (peor primero) ── */}
+      {sortedSectors.length > 0 && (
+        <section className="report-section mb-10 print:break-before-page">
+          <Title>Estado por Sector</Title>
+          <p className="text-muted-foreground mb-4 text-sm">
+            Ordenados del sector que más atención necesita al que mejor está.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 print:grid-cols-2">
+            {sortedSectors.map((s) => (
+              <div key={s.sector} className="report-item border-border rounded-lg border p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="font-medium">
+                    {PROPERTY_SECTOR_LABELS[s.sector as keyof typeof PROPERTY_SECTOR_LABELS] ??
+                      s.sector}
+                  </p>
+                  <span className={`text-sm font-bold ${scoreColor(s.score)}`}>{s.score}%</span>
                 </div>
-              );
-            })}
+                <Bar value={s.score} />
+                <div className="text-muted-foreground mt-2 flex justify-between text-xs">
+                  <span>{s.total} tareas</span>
+                  {s.overdue > 0 && (
+                    <span className="text-destructive font-medium">{s.overdue} vencidas</span>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-        </ReportSection>
+        </section>
       )}
 
-      {/* ── Section 4: Categories ── */}
-      {categoryBreakdown.length > 0 && (
-        <ReportSection pageBreak>
-          <SectionTitle>Hallazgos por Categoría</SectionTitle>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-border border-b">
-                  <th className="py-2 text-left font-medium">Categoría</th>
-                  <th className="py-2 text-center font-medium">Total</th>
-                  <th className="py-2 text-center font-medium">Completadas</th>
-                  <th className="py-2 text-center font-medium">Vencidas</th>
-                  <th className="py-2 text-center font-medium">Condición</th>
+      {/* ── 4. HALLAZGOS POR CATEGORÍA (más vencidas primero) ── */}
+      {sortedCats.length > 0 && (
+        <section className="report-section mb-10 print:break-before-page">
+          <Title>Hallazgos por Categoría</Title>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-border border-b">
+                <th className="py-2 text-left font-medium">Categoría</th>
+                <th className="py-2 text-center font-medium">Total</th>
+                <th className="py-2 text-center font-medium">Completadas</th>
+                <th className="py-2 text-center font-medium">Vencidas</th>
+                <th className="py-2 text-center font-medium">Condición</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedCats.map((c) => (
+                <tr key={c.categoryName} className="border-border border-b">
+                  <td className="py-2 font-medium">{c.categoryName}</td>
+                  <td className="py-2 text-center">{c.totalTasks}</td>
+                  <td className="text-status-completed py-2 text-center">{c.completedTasks}</td>
+                  <td
+                    className={`py-2 text-center ${c.overdueTasks > 0 ? 'text-destructive font-medium' : ''}`}
+                  >
+                    {c.overdueTasks}
+                  </td>
+                  <td className={`py-2 text-center font-medium ${scoreColor(c.avgCondition * 20)}`}>
+                    {c.avgCondition > 0 ? c.avgCondition.toFixed(1) : '—'}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {categoryBreakdown.map((cat) => (
-                  <tr key={cat.categoryName} className="border-border border-b">
-                    <td className="py-2 font-medium">{cat.categoryName}</td>
-                    <td className="py-2 text-center">{cat.totalTasks}</td>
-                    <td className="text-status-completed py-2 text-center">{cat.completedTasks}</td>
-                    <td
-                      className={`py-2 text-center ${cat.overdueTasks > 0 ? 'text-destructive font-medium' : ''}`}
-                    >
-                      {cat.overdueTasks}
-                    </td>
-                    <td
-                      className={`py-2 text-center font-medium ${scoreColor(cat.avgCondition * 20)}`}
-                    >
-                      {cat.avgCondition > 0 ? cat.avgCondition.toFixed(1) : '—'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </ReportSection>
+              ))}
+            </tbody>
+          </table>
+        </section>
       )}
 
-      {/* ── Section 5: Tasks Requiring Attention ── */}
-      {overdueTasks.length > 0 && (
-        <ReportSection pageBreak>
-          <SectionTitle>Tareas que Requieren Atención</SectionTitle>
+      {/* ── 5. TAREAS QUE REQUIEREN ATENCIÓN (urgentes primero) ── */}
+      {sortedOverdue.length > 0 && (
+        <section className="report-section mb-10 print:break-before-page">
+          <Title>Tareas que Requieren Atención</Title>
+          <p className="text-muted-foreground mb-4 text-sm">
+            Ordenadas por prioridad: las más urgentes primero.
+          </p>
           <div className="space-y-2">
-            {overdueTasks.map((task) => (
+            {sortedOverdue.map((t) => (
               <div
-                key={task.id}
-                className="border-destructive/20 bg-destructive/5 rounded-lg border p-3"
+                key={t.id}
+                className="report-item border-destructive/20 bg-destructive/5 rounded-lg border p-3"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <p className="font-medium">{task.name}</p>
+                    <p className="font-medium">{t.name}</p>
                     <p className="text-muted-foreground text-xs">
-                      {task.category.name}
-                      {task.sector &&
-                        ` · ${PROPERTY_SECTOR_LABELS[task.sector as keyof typeof PROPERTY_SECTOR_LABELS] ?? task.sector}`}
+                      {t.category.name}
+                      {t.sector &&
+                        ` · ${PROPERTY_SECTOR_LABELS[t.sector as keyof typeof PROPERTY_SECTOR_LABELS] ?? t.sector}`}
                     </p>
                   </div>
                   <div className="text-right text-xs">
                     <p className="text-destructive font-medium">
-                      {task.nextDueDate
-                        ? formatRelativeDate(new Date(task.nextDueDate))
-                        : 'Sin fecha'}
+                      {t.nextDueDate ? formatRelativeDate(new Date(t.nextDueDate)) : 'Sin fecha'}
                     </p>
                     <p className="text-muted-foreground">
-                      {TASK_PRIORITY_LABELS[task.priority as keyof typeof TASK_PRIORITY_LABELS]}
+                      {TASK_PRIORITY_LABELS[t.priority as keyof typeof TASK_PRIORITY_LABELS]}
                       {' · '}
                       {
                         PROFESSIONAL_REQUIREMENT_LABELS[
-                          task.professionalRequirement as keyof typeof PROFESSIONAL_REQUIREMENT_LABELS
+                          t.professionalRequirement as keyof typeof PROFESSIONAL_REQUIREMENT_LABELS
                         ]
                       }
                     </p>
@@ -372,110 +371,129 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
               </div>
             ))}
           </div>
-        </ReportSection>
+        </section>
       )}
 
-      {/* ── Section 6: Recent Inspections ── */}
+      {/* ── 6. HISTORIAL DE INSPECCIONES (con fotos) ── */}
       {recentLogs.length > 0 && (
-        <ReportSection pageBreak>
-          <SectionTitle>Historial de Inspecciones Recientes</SectionTitle>
+        <section className="report-section mb-10 print:break-before-page">
+          <Title>Historial de Inspecciones Recientes</Title>
           <div className="space-y-3">
-            {recentLogs.slice(0, 12).map((log) => (
-              <div key={log.id} className="border-border rounded-lg border p-3">
+            {recentLogs.slice(0, 12).map((l) => (
+              <div key={l.id} className="report-item border-border rounded-lg border p-3">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <p className="text-sm font-medium">{log.task.name}</p>
-                    <p className="text-muted-foreground text-xs">{log.task.category.name}</p>
+                    <p className="text-sm font-medium">{l.task.name}</p>
+                    <p className="text-muted-foreground text-xs">
+                      {l.task.category.name}
+                      {l.task.sector &&
+                        ` · ${PROPERTY_SECTOR_LABELS[l.task.sector as keyof typeof PROPERTY_SECTOR_LABELS] ?? l.task.sector}`}
+                    </p>
                   </div>
-                  <p className="text-muted-foreground text-xs">
-                    {new Date(log.completedAt).toLocaleDateString('es-AR')}
+                  <p className="text-muted-foreground shrink-0 text-xs">
+                    {new Date(l.completedAt).toLocaleDateString('es-AR')}
                   </p>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
                   <span>
                     Resultado:{' '}
                     <strong>
-                      {TASK_RESULT_LABELS[log.result as keyof typeof TASK_RESULT_LABELS] ??
-                        log.result}
+                      {TASK_RESULT_LABELS[l.result as keyof typeof TASK_RESULT_LABELS] ?? l.result}
                     </strong>
                   </span>
                   <span>
                     Condición:{' '}
-                    <strong
-                      className={scoreColor(
-                        log.conditionFound === 'EXCELLENT'
-                          ? 100
-                          : log.conditionFound === 'GOOD'
-                            ? 80
-                            : log.conditionFound === 'FAIR'
-                              ? 60
-                              : log.conditionFound === 'POOR'
-                                ? 40
-                                : 20,
-                      )}
-                    >
+                    <strong className={scoreColor(CONDITION_SCORE[l.conditionFound] ?? 50)}>
                       {CONDITION_FOUND_LABELS[
-                        log.conditionFound as keyof typeof CONDITION_FOUND_LABELS
-                      ] ?? log.conditionFound}
+                        l.conditionFound as keyof typeof CONDITION_FOUND_LABELS
+                      ] ?? l.conditionFound}
                     </strong>
                   </span>
                   <span>
                     Acción:{' '}
-                    {ACTION_TAKEN_LABELS[log.actionTaken as keyof typeof ACTION_TAKEN_LABELS] ??
-                      log.actionTaken}
+                    {ACTION_TAKEN_LABELS[l.actionTaken as keyof typeof ACTION_TAKEN_LABELS] ??
+                      l.actionTaken}
                   </span>
-                  {log.cost != null && <span>Costo: ${log.cost.toLocaleString('es-AR')}</span>}
+                  {l.cost != null && <span>Costo: ${l.cost.toLocaleString('es-AR')}</span>}
                 </div>
-                {log.notes && (
-                  <p className="text-muted-foreground mt-1 text-xs italic">{log.notes}</p>
+                {l.notes && <p className="text-muted-foreground mt-1 text-xs italic">{l.notes}</p>}
+                {l.photoUrl && (
+                  <img
+                    src={l.photoUrl}
+                    alt={`Foto: ${l.task.name}`}
+                    className="mt-2 max-h-48 rounded-lg object-cover print:max-h-36"
+                    loading="lazy"
+                  />
                 )}
               </div>
             ))}
           </div>
-        </ReportSection>
+        </section>
       )}
 
-      {/* ── Section 7: Upcoming Plan ── */}
-      {upcomingTasks.length > 0 && (
-        <ReportSection pageBreak>
-          <SectionTitle>Plan de Mantenimiento — Próximas Tareas</SectionTitle>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-border border-b">
-                  <th className="py-2 text-left font-medium">Tarea</th>
-                  <th className="py-2 text-left font-medium">Categoría</th>
-                  <th className="py-2 text-center font-medium">Fecha</th>
-                  <th className="py-2 text-center font-medium">Quién</th>
-                </tr>
-              </thead>
-              <tbody>
-                {upcomingTasks.map((task) => (
-                  <tr key={task.id} className="border-border border-b">
-                    <td className="py-2 font-medium">{task.name}</td>
-                    <td className="text-muted-foreground py-2">{task.category.name}</td>
-                    <td className="py-2 text-center">
-                      {task.nextDueDate
-                        ? new Date(task.nextDueDate).toLocaleDateString('es-AR')
-                        : '—'}
-                    </td>
-                    <td className="py-2 text-center text-xs">
-                      {
-                        PROFESSIONAL_REQUIREMENT_LABELS[
-                          task.professionalRequirement as keyof typeof PROFESSIONAL_REQUIREMENT_LABELS
-                        ]
-                      }
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {/* ── 7. REGISTRO FOTOGRÁFICO (galería consolidada) ── */}
+      {logsWithPhotos.length > 1 && (
+        <section className="report-section mb-10 print:break-before-page">
+          <Title>Registro Fotográfico</Title>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 print:grid-cols-3">
+            {logsWithPhotos.map((l) => (
+              <div key={l.id} className="report-item">
+                <img
+                  src={l.photoUrl!}
+                  alt={`Foto: ${l.task.name}`}
+                  className="aspect-[4/3] w-full rounded-lg object-cover"
+                  loading="lazy"
+                />
+                <p className="mt-1 text-xs font-medium">{l.task.name}</p>
+                <p className="text-muted-foreground text-xs">
+                  {new Date(l.completedAt).toLocaleDateString('es-AR')} ·{' '}
+                  {CONDITION_FOUND_LABELS[
+                    l.conditionFound as keyof typeof CONDITION_FOUND_LABELS
+                  ] ?? l.conditionFound}
+                </p>
+              </div>
+            ))}
           </div>
-        </ReportSection>
+        </section>
       )}
 
-      {/* ── Section 8: Footer ── */}
-      <ReportSection>
+      {/* ── 8. PLAN DE MANTENIMIENTO ── */}
+      {upcomingTasks.length > 0 && (
+        <section className="report-section mb-10 print:break-before-page">
+          <Title>Plan de Mantenimiento — Próximas Tareas</Title>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-border border-b">
+                <th className="py-2 text-left font-medium">Tarea</th>
+                <th className="py-2 text-left font-medium">Categoría</th>
+                <th className="py-2 text-center font-medium">Fecha</th>
+                <th className="py-2 text-center font-medium">Quién</th>
+              </tr>
+            </thead>
+            <tbody>
+              {upcomingTasks.map((t) => (
+                <tr key={t.id} className="border-border border-b">
+                  <td className="py-2 font-medium">{t.name}</td>
+                  <td className="text-muted-foreground py-2">{t.category.name}</td>
+                  <td className="py-2 text-center">
+                    {t.nextDueDate ? new Date(t.nextDueDate).toLocaleDateString('es-AR') : '—'}
+                  </td>
+                  <td className="py-2 text-center text-xs">
+                    {
+                      PROFESSIONAL_REQUIREMENT_LABELS[
+                        t.professionalRequirement as keyof typeof PROFESSIONAL_REQUIREMENT_LABELS
+                      ]
+                    }
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
+
+      {/* ── 9. FOOTER ── */}
+      <section className="mb-10">
         <div className="border-border border-t pt-6 text-center">
           <p className="type-title-md font-heading text-primary">EPDE</p>
           <p className="text-muted-foreground text-sm">
@@ -485,11 +503,10 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
             Informe generado el {new Date().toLocaleString('es-AR')}
           </p>
           <p className="text-muted-foreground mt-1 text-xs italic">
-            Este informe refleja el estado de la vivienda al momento de su generación. Los
-            resultados pueden variar según las acciones de mantenimiento realizadas.
+            Este informe refleja el estado de la vivienda al momento de su generación.
           </p>
         </div>
-      </ReportSection>
+      </section>
     </div>
   );
 }

@@ -358,6 +358,41 @@ body {
   .print\:break-before-page {
     break-before: page;
   }
+
+  /* Prevent elements from being cut across pages */
+  .report-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .report-section {
+    break-inside: avoid;
+  }
+
+  /* Tables: keep header with first rows */
+  table {
+    break-inside: auto;
+  }
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  thead {
+    display: table-header-group;
+  }
+
+  /* Images: never split */
+  img {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    max-width: 100% !important;
+  }
+
+  /* Report container: clean margins for A4 */
+  .report-container {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
 }
 
 /* Respect reduced motion */
