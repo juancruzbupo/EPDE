@@ -103,8 +103,7 @@ export function InvestmentSection({ motionProps }: SectionProps) {
           variants={FADE_IN}
           className="type-body-sm text-primary mx-auto mt-6 max-w-3xl text-center font-medium"
         >
-          Solo 10 diagnósticos disponibles este mes en Paraná · Primeros diagnósticos en etapa de
-          lanzamiento
+          Cupos limitados por mes en Paraná · Consultá disponibilidad
         </motion.p>
 
         <motion.p

@@ -55,6 +55,12 @@ export function HeroSection({ motionProps }: SectionProps) {
             </Button>
           </a>
         </motion.div>
+        <motion.p variants={FADE_IN} className="text-muted-foreground mt-4 text-center text-sm">
+          ¿Preferís email?{' '}
+          <a href="mailto:contacto@epde.com.ar" className="text-primary hover:underline">
+            contacto@epde.com.ar
+          </a>
+        </motion.p>
       </motion.div>
     </section>
   );

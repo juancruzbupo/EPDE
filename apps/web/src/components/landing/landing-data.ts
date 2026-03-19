@@ -143,13 +143,14 @@ export const DELIVERABLES: IconTextItem[] = [
   { icon: Bell, text: 'Recordatorios automáticos de tareas programadas' },
   { icon: BarChart3, text: 'Historial estructurado de intervenciones' },
   { icon: Smartphone, text: 'Acceso web y mobile para seguimiento continuo' },
-  { icon: Wrench, text: 'Recomendaciones de proveedores y presupuestos orientativos' },
+  { icon: Wrench, text: 'Gestión de presupuestos y cotizaciones con proveedores' },
 ];
 
 export const INVESTMENT_FEATURES = [
   'Inspección técnica completa de la vivienda',
   'Registro fotográfico de hallazgos',
   'Informe técnico con diagnóstico y prioridades',
+  'Índice de Salud de la Vivienda (ISV) con seguimiento mensual',
   'Recomendaciones de mantenimiento preventivo',
   'Seguimiento continuo para que los problemas no vuelvan',
 ];
