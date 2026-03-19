@@ -67,7 +67,7 @@ export function TaskDetailSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="flex w-full flex-col overflow-y-auto sm:max-w-lg">
+      <SheetContent className="flex w-full flex-col sm:max-w-lg">
         <SheetHeader className="px-6 pb-4">
           <SheetTitle className="text-lg leading-tight">{task.name}</SheetTitle>
           <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -86,76 +86,16 @@ export function TaskDetailSheet({
 
         <Separator />
 
-        <div className="flex-1 space-y-6 px-6 pb-6">
-          {/* Info card */}
+        <div className="flex-1 space-y-6 overflow-y-auto px-6 pb-6">
+          {/* Key info: due date + professional requirement (most important for the user) */}
           <div className="bg-muted/40 space-y-3 rounded-lg p-4">
-            <dl className="grid grid-cols-2 gap-4 text-sm">
+            <div className="flex items-start justify-between gap-4">
               <div className="space-y-1">
-                <dt className="text-muted-foreground flex items-center gap-1.5">
-                  <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-                  Recurrencia
-                </dt>
-                <dd className="font-medium">
-                  {RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}
-                </dd>
-              </div>
-              <div className="space-y-1">
-                <dt className="text-muted-foreground flex items-center gap-1.5">
-                  <Wrench className="h-3.5 w-3.5" aria-hidden="true" />
-                  Tipo de tarea
-                </dt>
-                <dd>
-                  <Badge className={TASK_TYPE_COLORS[task.taskType]}>
-                    {TASK_TYPE_LABELS[task.taskType]}
-                  </Badge>
-                </dd>
-              </div>
-              <div className="space-y-1">
-                <dt className="text-muted-foreground flex items-center gap-1.5">
-                  Profesional requerido
-                </dt>
-                <dd>
-                  <Badge className={PROFESSIONAL_REQ_COLORS[task.professionalRequirement]}>
-                    {PROFESSIONAL_REQUIREMENT_LABELS[task.professionalRequirement]}
-                  </Badge>
-                  <p className="text-muted-foreground mt-0.5 text-xs">
-                    {task.professionalRequirement === ProfessionalRequirement.OWNER_CAN_DO &&
-                      '(Podés hacerla vos mismo)'}
-                    {task.professionalRequirement ===
-                      ProfessionalRequirement.PROFESSIONAL_RECOMMENDED &&
-                      '(Mejor con un profesional, pero podés intentar)'}
-                    {task.professionalRequirement ===
-                      ProfessionalRequirement.PROFESSIONAL_REQUIRED &&
-                      '(Necesariamente debe hacerlo un profesional)'}
-                  </p>
-                  {task.professionalRequirement !== ProfessionalRequirement.OWNER_CAN_DO && (
-                    <p className="type-body-sm text-muted-foreground mt-2">
-                      Las inspecciones preventivas cuestan entre $80.000 y $250.000. Las
-                      reparaciones por falta de prevención pueden superar los $2.000.000.
-                    </p>
-                  )}
-                </dd>
-              </div>
-              {task.estimatedDurationMinutes != null && (
-                <div className="space-y-1">
-                  <dt className="text-muted-foreground flex items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5" aria-hidden="true" />
-                    Duración estimada
-                  </dt>
-                  <dd className="font-medium">
-                    {task.estimatedDurationMinutes} minutos
-                    <span className="text-muted-foreground ml-1 text-xs font-normal">
-                      (para un profesional sin complicaciones)
-                    </span>
-                  </dd>
-                </div>
-              )}
-              <div className="space-y-1">
-                <dt className="text-muted-foreground flex items-center gap-1.5">
+                <p className="text-muted-foreground flex items-center gap-1.5 text-sm">
                   <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
                   Próximo vencimiento
-                </dt>
-                <dd className={`font-medium ${isOverdue ? 'text-destructive' : ''}`}>
+                </p>
+                <p className={`font-medium ${isOverdue ? 'text-destructive' : ''}`}>
                   {task.nextDueDate ? (
                     <>
                       {new Date(task.nextDueDate).toLocaleDateString('es-AR')}
@@ -164,48 +104,23 @@ export function TaskDetailSheet({
                       </span>
                     </>
                   ) : (
-                    <>
-                      Según detección
-                      <span className="text-muted-foreground text-xs">
-                        {' '}
-                        — Se realiza solo si se detectan problemas
-                      </span>
-                    </>
+                    <span className="text-muted-foreground text-sm">Según detección</span>
                   )}
-                </dd>
+                </p>
               </div>
-            </dl>
-
-            {/* Technical description — collapsible */}
-            {task.technicalDescription && (
-              <div className="border-border border-t pt-3">
-                <button
-                  type="button"
-                  className="text-muted-foreground flex w-full items-center justify-between text-sm font-medium"
-                  aria-expanded={techDescOpen}
-                  onClick={() => setTechDescOpen((v) => !v)}
-                >
-                  Descripción técnica
-                  {techDescOpen ? (
-                    <ChevronUp className="h-4 w-4" aria-hidden="true" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" aria-hidden="true" />
-                  )}
-                </button>
-                {techDescOpen && (
-                  <p className="mt-2 text-sm leading-relaxed">{task.technicalDescription}</p>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Description */}
-          {task.description && (
-            <div className="space-y-1.5">
-              <h4 className="text-muted-foreground text-sm font-medium">Descripción</h4>
-              <p className="text-sm leading-relaxed">{task.description}</p>
+              <Badge className={PROFESSIONAL_REQ_COLORS[task.professionalRequirement]}>
+                {PROFESSIONAL_REQUIREMENT_LABELS[task.professionalRequirement]}
+              </Badge>
             </div>
-          )}
+            <p className="text-muted-foreground text-xs">
+              {task.professionalRequirement === ProfessionalRequirement.OWNER_CAN_DO &&
+                'Podés hacerla vos mismo'}
+              {task.professionalRequirement === ProfessionalRequirement.PROFESSIONAL_RECOMMENDED &&
+                'Mejor con un profesional, pero podés intentar'}
+              {task.professionalRequirement === ProfessionalRequirement.PROFESSIONAL_REQUIRED &&
+                'Necesariamente debe hacerlo un profesional'}
+            </p>
+          </div>
 
           {/* Last completion */}
           {lastLog && (
@@ -219,31 +134,75 @@ export function TaskDetailSheet({
             </div>
           )}
 
-          {/* CTA */}
-          <div className="space-y-2">
-            {canComplete && onComplete && (
-              <Button
-                className="w-full"
-                size="lg"
-                onClick={() => onComplete(task)}
-                title="Registrá que completaste esta tarea"
-              >
-                <CheckCircle className="mr-2 h-4 w-4" aria-hidden="true" />
-                Completar Tarea
-              </Button>
-            )}
+          {/* Description */}
+          {task.description && (
+            <div className="space-y-1.5">
+              <h4 className="text-muted-foreground text-sm font-medium">Descripción</h4>
+              <p className="text-sm leading-relaxed">{task.description}</p>
+            </div>
+          )}
 
-            {task.professionalRequirement !== ProfessionalRequirement.OWNER_CAN_DO && (
-              <p className="type-body-sm text-muted-foreground text-center">
-                Esta tarea requiere intervención profesional
-              </p>
-            )}
-
-            {onRequestService && (
-              <Button variant="outline" className="w-full" onClick={() => onRequestService(task)}>
-                <Wrench className="mr-2 h-4 w-4" aria-hidden="true" />
-                Solicitar Servicio
-              </Button>
+          {/* More details — collapsible */}
+          <div className="border-border border-t pt-3">
+            <button
+              type="button"
+              className="text-muted-foreground flex w-full items-center justify-between text-sm font-medium"
+              aria-expanded={techDescOpen}
+              onClick={() => setTechDescOpen((v) => !v)}
+            >
+              Más detalles
+              {techDescOpen ? (
+                <ChevronUp className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <ChevronDown className="h-4 w-4" aria-hidden="true" />
+              )}
+            </button>
+            {techDescOpen && (
+              <dl className="mt-3 grid grid-cols-2 gap-4 text-sm">
+                <div className="space-y-1">
+                  <dt className="text-muted-foreground flex items-center gap-1.5">
+                    <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+                    Recurrencia
+                  </dt>
+                  <dd className="font-medium">
+                    {RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}
+                  </dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-muted-foreground flex items-center gap-1.5">
+                    <Wrench className="h-3.5 w-3.5" aria-hidden="true" />
+                    Tipo de tarea
+                  </dt>
+                  <dd>
+                    <Badge className={TASK_TYPE_COLORS[task.taskType]}>
+                      {TASK_TYPE_LABELS[task.taskType]}
+                    </Badge>
+                  </dd>
+                </div>
+                {task.estimatedDurationMinutes != null && (
+                  <div className="space-y-1">
+                    <dt className="text-muted-foreground flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                      Duración estimada
+                    </dt>
+                    <dd className="font-medium">{task.estimatedDurationMinutes} min</dd>
+                  </div>
+                )}
+                {task.technicalDescription && (
+                  <div className="col-span-2 space-y-1">
+                    <dt className="text-muted-foreground text-xs">Descripción técnica</dt>
+                    <dd className="text-sm leading-relaxed">{task.technicalDescription}</dd>
+                  </div>
+                )}
+                {task.professionalRequirement !== ProfessionalRequirement.OWNER_CAN_DO && (
+                  <div className="col-span-2">
+                    <p className="type-body-sm text-muted-foreground">
+                      Las inspecciones preventivas cuestan entre $80.000 y $250.000. Las
+                      reparaciones por falta de prevención pueden superar los $2.000.000.
+                    </p>
+                  </div>
+                )}
+              </dl>
             )}
           </div>
 
@@ -266,6 +225,38 @@ export function TaskDetailSheet({
               <TaskNotes planId={planId} taskId={task.id} />
             </TabsContent>
           </Tabs>
+        </div>
+
+        {/* Sticky CTA footer — always visible without scrolling */}
+        <div className="border-t px-6 py-4">
+          <div className="flex gap-2">
+            {canComplete && onComplete && (
+              <Button
+                className="flex-1"
+                size="lg"
+                onClick={() => onComplete(task)}
+                title="Registrá que completaste esta tarea"
+              >
+                <CheckCircle className="mr-2 h-4 w-4" aria-hidden="true" />
+                Completar Tarea
+              </Button>
+            )}
+            {onRequestService && (
+              <Button
+                variant="outline"
+                className={canComplete && onComplete ? '' : 'w-full'}
+                onClick={() => onRequestService(task)}
+              >
+                <Wrench className="mr-2 h-4 w-4" aria-hidden="true" />
+                Solicitar Servicio
+              </Button>
+            )}
+          </div>
+          {task.professionalRequirement !== ProfessionalRequirement.OWNER_CAN_DO && (
+            <p className="type-body-sm text-muted-foreground mt-1 text-center">
+              Esta tarea requiere intervención profesional
+            </p>
+          )}
         </div>
       </SheetContent>
     </Sheet>
