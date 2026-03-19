@@ -7,7 +7,6 @@ import type { TaskLogPublic, TaskNotePublic } from '@epde/shared';
 import {
   CONDITION_FOUND_LABELS,
   formatRelativeDate,
-  PROFESSIONAL_REQUIREMENT_LABELS,
   ProfessionalRequirement,
   PROPERTY_SECTOR_LABELS,
   RECURRENCE_TYPE_LABELS,
@@ -138,6 +137,7 @@ export default function TaskDetailScreen() {
   }
 
   const isCompleted = task.status === TaskStatus.COMPLETED;
+  const isOverdue = task.nextDueDate ? new Date(task.nextDueDate) < new Date() : false;
 
   return (
     <View className="bg-background flex-1">
@@ -155,18 +155,11 @@ export default function TaskDetailScreen() {
         contentContainerStyle={{ padding: 16 }}
         refreshControl={<RefreshControl refreshing={taskLoading} onRefresh={onRefresh} />}
       >
-        {/* Task info card */}
+        {/* Key info: name + date + professional requirement */}
         <View className="border-border bg-card mb-4 rounded-xl border p-4">
           <Text style={TYPE.titleLg} className="text-foreground mb-2">
             {task.name}
           </Text>
-
-          {task.description && (
-            <Text style={TYPE.bodyMd} className="text-muted-foreground mb-3">
-              {task.description}
-            </Text>
-          )}
-
           <View className="mb-3 flex-row items-center gap-2">
             <TaskStatusBadge status={task.status} />
             <PriorityBadge priority={task.priority} />
@@ -175,65 +168,71 @@ export default function TaskDetailScreen() {
           <View className="gap-2">
             <View className="flex-row justify-between">
               <Text style={TYPE.bodyMd} className="text-muted-foreground">
+                Próxima fecha
+              </Text>
+              <Text
+                style={TYPE.labelLg}
+                className={isOverdue ? 'text-destructive' : 'text-foreground'}
+              >
+                {task.nextDueDate
+                  ? format(new Date(task.nextDueDate), 'd MMM yyyy', { locale: es })
+                  : 'Según detección'}
+              </Text>
+            </View>
+            <View className="flex-row justify-between">
+              <Text style={TYPE.bodyMd} className="text-muted-foreground">
+                ¿Puedo hacerlo yo?
+              </Text>
+              <Text style={TYPE.labelLg} className="text-foreground">
+                {task.professionalRequirement === ProfessionalRequirement.OWNER_CAN_DO
+                  ? 'Sí, podés hacerla vos'
+                  : task.professionalRequirement ===
+                      ProfessionalRequirement.PROFESSIONAL_RECOMMENDED
+                    ? 'Mejor con profesional'
+                    : 'Requiere profesional'}
+              </Text>
+            </View>
+          </View>
+
+          {task.description && (
+            <Text style={TYPE.bodyMd} className="text-muted-foreground mt-3">
+              {task.description}
+            </Text>
+          )}
+        </View>
+
+        {/* Last completion */}
+        {logs && logs.length > 0 && (
+          <View className="border-border bg-card mb-4 rounded-xl border p-4">
+            <Text style={TYPE.labelLg} className="text-muted-foreground mb-1">
+              Última completación
+            </Text>
+            <Text style={TYPE.bodyMd} className="text-foreground">
+              {format(new Date(logs[0].completedAt), 'd MMM yyyy', { locale: es })}
+              {' · '}
+              {CONDITION_FOUND_LABELS[logs[0].conditionFound]}
+            </Text>
+          </View>
+        )}
+
+        {/* More details — collapsed */}
+        <CollapsibleSection title="Más detalles">
+          <View className="border-border bg-card gap-2 rounded-xl border p-4">
+            <View className="flex-row justify-between">
+              <Text style={TYPE.bodyMd} className="text-muted-foreground">
                 Recurrencia
               </Text>
               <Text style={TYPE.labelLg} className="text-foreground">
                 {RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}
-                {task.recurrenceMonths ? ` (${task.recurrenceMonths} meses)` : ''}
               </Text>
             </View>
             <View className="flex-row justify-between">
               <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                Tipo de tarea
+                Tipo
               </Text>
               <Text style={TYPE.labelLg} className="text-foreground">
                 {TASK_TYPE_LABELS[task.taskType]}
               </Text>
-            </View>
-            <View className="flex-row justify-between">
-              <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                Profesional
-              </Text>
-              <View className="items-end">
-                <Text style={TYPE.labelLg} className="text-foreground">
-                  {PROFESSIONAL_REQUIREMENT_LABELS[task.professionalRequirement]}
-                </Text>
-                <Text style={TYPE.labelSm} className="text-muted-foreground">
-                  {task.professionalRequirement === ProfessionalRequirement.OWNER_CAN_DO
-                    ? '(Podés hacerla vos)'
-                    : task.professionalRequirement ===
-                        ProfessionalRequirement.PROFESSIONAL_RECOMMENDED
-                      ? '(Mejor con profesional)'
-                      : '(Requiere profesional obligatoriamente)'}
-                </Text>
-              </View>
-            </View>
-            {task.estimatedDurationMinutes != null && (
-              <View className="flex-row justify-between">
-                <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                  Duración estimada
-                </Text>
-                <Text style={TYPE.labelLg} className="text-foreground">
-                  {task.estimatedDurationMinutes} minutos
-                </Text>
-              </View>
-            )}
-            <View className="flex-row justify-between">
-              <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                Próxima fecha
-              </Text>
-              <View className="items-end">
-                <Text style={TYPE.labelLg} className="text-foreground">
-                  {task.nextDueDate
-                    ? format(new Date(task.nextDueDate), 'd MMM yyyy', { locale: es })
-                    : 'Según detección'}
-                </Text>
-                {!task.nextDueDate && (
-                  <Text style={TYPE.labelSm} className="text-muted-foreground">
-                    Se realiza solo si se detectan problemas
-                  </Text>
-                )}
-              </View>
             </View>
             <View className="flex-row justify-between">
               <Text style={TYPE.bodyMd} className="text-muted-foreground">
@@ -253,73 +252,28 @@ export default function TaskDetailScreen() {
                 </Text>
               </View>
             )}
+            {task.estimatedDurationMinutes != null && (
+              <View className="flex-row justify-between">
+                <Text style={TYPE.bodyMd} className="text-muted-foreground">
+                  Duración
+                </Text>
+                <Text style={TYPE.labelLg} className="text-foreground">
+                  {task.estimatedDurationMinutes} min
+                </Text>
+              </View>
+            )}
+            {task.technicalDescription && (
+              <View className="border-border mt-1 border-t pt-2">
+                <Text style={TYPE.bodySm} className="text-muted-foreground mb-1">
+                  Descripción técnica
+                </Text>
+                <Text style={TYPE.bodyMd} className="text-foreground">
+                  {task.technicalDescription}
+                </Text>
+              </View>
+            )}
           </View>
-        </View>
-
-        {/* Technical description */}
-        {task.technicalDescription ? (
-          <CollapsibleSection title="Descripción técnica">
-            <View className="border-border bg-card rounded-xl border px-4 py-3">
-              <Text style={TYPE.bodyMd} className="text-foreground leading-relaxed">
-                {task.technicalDescription}
-              </Text>
-            </View>
-          </CollapsibleSection>
-        ) : null}
-
-        {/* Last completion */}
-        {logs && logs.length > 0 && (
-          <View className="border-border bg-card mb-4 rounded-xl border p-4">
-            <Text style={TYPE.labelLg} className="text-muted-foreground mb-1">
-              Última completación
-            </Text>
-            <Text style={TYPE.bodyMd} className="text-foreground">
-              {format(new Date(logs[0].completedAt), 'd MMM yyyy', { locale: es })}
-            </Text>
-            <Text style={TYPE.bodyMd} className="text-foreground">
-              Condición: {CONDITION_FOUND_LABELS[logs[0].conditionFound]}
-            </Text>
-            <Text style={TYPE.bodySm} className="text-muted-foreground">
-              Por: {logs[0].user.name}
-            </Text>
-          </View>
-        )}
-
-        {/* Complete task button */}
-        {!isCompleted && (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Completar tarea"
-            onPress={() => setCompleteModalVisible(true)}
-            className="bg-primary mb-4 items-center rounded-xl py-3"
-          >
-            <Text style={TYPE.titleMd} className="text-primary-foreground">
-              Completar Tarea
-            </Text>
-          </Pressable>
-        )}
-
-        {/* Professional service hint */}
-        {task.professionalRequirement !== ProfessionalRequirement.OWNER_CAN_DO && (
-          <Text style={TYPE.bodySm} className="text-muted-foreground mt-2 text-center">
-            Esta tarea requiere intervención profesional
-          </Text>
-        )}
-
-        {/* Service request button */}
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Solicitar servicio para esta tarea"
-          className="border-border mt-2 mb-4 items-center rounded-xl border p-3"
-          onPress={() => {
-            haptics.light();
-            setShowServiceModal(true);
-          }}
-        >
-          <Text style={TYPE.labelMd} className="text-foreground">
-            Solicitar Servicio
-          </Text>
-        </Pressable>
+        </CollapsibleSection>
 
         {/* Task Logs */}
         <CollapsibleSection title="Historial" count={logs?.length ?? 0}>
@@ -379,6 +333,42 @@ export default function TaskDetailScreen() {
           </View>
         </CollapsibleSection>
       </Animated.ScrollView>
+
+      {/* Sticky CTA footer */}
+      <View className="border-border border-t px-4 py-3">
+        <View className="flex-row gap-2">
+          {!isCompleted && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Completar tarea"
+              onPress={() => setCompleteModalVisible(true)}
+              className="bg-primary flex-1 items-center rounded-xl py-3"
+            >
+              <Text style={TYPE.titleMd} className="text-primary-foreground">
+                Completar Tarea
+              </Text>
+            </Pressable>
+          )}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Solicitar servicio"
+            className={`border-border items-center rounded-xl border py-3 ${!isCompleted ? '' : 'flex-1'}`}
+            onPress={() => {
+              haptics.light();
+              setShowServiceModal(true);
+            }}
+          >
+            <Text style={TYPE.labelMd} className="text-foreground px-4">
+              Solicitar Servicio
+            </Text>
+          </Pressable>
+        </View>
+        {task.professionalRequirement !== ProfessionalRequirement.OWNER_CAN_DO && (
+          <Text style={TYPE.bodySm} className="text-muted-foreground mt-1 text-center">
+            Esta tarea requiere intervención profesional
+          </Text>
+        )}
+      </View>
 
       {/* Complete task modal */}
       <CompleteTaskModal
