@@ -373,6 +373,23 @@ export default function PropertyDetailScreen() {
                     </View>
                   )}
                 </View>
+                {/* Report link — opens web report for print/PDF */}
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Ver informe técnico completo"
+                  onPress={() => {
+                    const baseUrl = process.env.EXPO_PUBLIC_WEB_URL ?? 'https://app.epde.com.ar';
+                    void Linking.openURL(`${baseUrl}/properties/${id}/report`);
+                  }}
+                  className="border-primary/30 bg-primary/5 items-center rounded-xl border p-3"
+                >
+                  <Text style={TYPE.labelMd} className="text-primary">
+                    Ver Informe Técnico Completo
+                  </Text>
+                  <Text style={TYPE.bodySm} className="text-muted-foreground mt-0.5">
+                    Se abre en el navegador para imprimir o descargar PDF
+                  </Text>
+                </Pressable>
               </CollapsibleSection>
             )}
 

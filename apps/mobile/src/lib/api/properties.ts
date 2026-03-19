@@ -12,4 +12,5 @@ export const {
   getPropertyPhotos,
   getPropertyHealthIndex,
   getPropertyHealthHistory,
+  getPropertyReport,
 } = queries;
