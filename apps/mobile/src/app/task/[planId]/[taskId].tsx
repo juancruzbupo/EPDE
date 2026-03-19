@@ -397,8 +397,6 @@ export default function TaskDetailScreen() {
         defaultTitle={`Solicitud: ${task.name}`}
         defaultDescription={`Tarea: ${task.name} — ${task.category?.name ?? ''}`}
       />
-
-      {/* Budget request modal */}
     </View>
   );
 }
