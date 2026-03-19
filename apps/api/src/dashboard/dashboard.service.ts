@@ -17,7 +17,23 @@ export class DashboardService {
   ) {}
 
   async getStats() {
-    return this.dashboardRepository.getAdminStats();
+    const cacheKey = 'dashboard:admin:stats';
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) return JSON.parse(cached);
+    } catch {
+      /* Redis unavailable */
+    }
+
+    const result = await this.dashboardRepository.getAdminStats();
+
+    try {
+      await this.redis.setex(cacheKey, ANALYTICS_TTL, JSON.stringify(result));
+    } catch {
+      /* Redis unavailable */
+    }
+
+    return result;
   }
 
   async getRecentActivity() {
@@ -66,6 +82,14 @@ export class DashboardService {
   }
 
   async getClientStats(userId: string) {
+    const cacheKey = `dashboard:client:${userId}:stats`;
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) return JSON.parse(cached);
+    } catch {
+      /* Redis unavailable */
+    }
+
     const { propertyIds, planIds } =
       await this.dashboardRepository.getClientPropertyAndPlanIds(userId);
 
@@ -74,11 +98,19 @@ export class DashboardService {
       this.dashboardRepository.getClientBudgetAndServiceCounts(propertyIds),
     ]);
 
-    return {
+    const result = {
       totalProperties: propertyIds.length,
       ...taskStats,
       ...budgetServiceStats,
     };
+
+    try {
+      await this.redis.setex(cacheKey, ANALYTICS_TTL, JSON.stringify(result));
+    } catch {
+      /* Redis unavailable */
+    }
+
+    return result;
   }
 
   async getClientUpcomingTasks(userId: string) {

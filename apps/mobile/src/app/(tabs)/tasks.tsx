@@ -170,7 +170,6 @@ export default function TasksScreen() {
         maxToRenderPerBatch={10}
         windowSize={10}
         removeClippedSubviews
-        getItemLayout={(_, index) => ({ length: 82, offset: 82 * index, index })}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
         ListHeaderComponent={
           <View className="mb-4">

@@ -288,8 +288,6 @@ model Task {
 
   @@index([maintenancePlanId])
   @@index([maintenancePlanId, status])
-  @@index([nextDueDate])
-  @@index([status])
   @@index([status, nextDueDate])
   @@index([status, deletedAt])
   @@index([categoryId])
@@ -316,6 +314,8 @@ model TaskLog {
   user User @relation(fields: [completedBy], references: [id], onDelete: Restrict)
 
   @@index([taskId])
+  @@index([taskId, completedAt])
+  @@index([completedAt])
   @@index([completedBy, completedAt])
 }
 

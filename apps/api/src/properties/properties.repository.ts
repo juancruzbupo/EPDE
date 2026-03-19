@@ -149,6 +149,7 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
           task: { select: { name: true, sector: true, category: { select: { name: true } } } },
         },
         orderBy: { completedAt: 'desc' },
+        take: 200,
       }),
       // Approved budget costs
       this.prisma.budgetResponse.findMany({
@@ -286,6 +287,7 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
           serviceRequest: { select: { title: true } },
         },
         orderBy: { createdAt: 'desc' },
+        take: 100,
       }),
       this.prisma.taskLog.findMany({
         where: {
@@ -298,6 +300,7 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
           task: { select: { name: true } },
         },
         orderBy: { completedAt: 'desc' },
+        take: 100,
       }),
     ]);
 

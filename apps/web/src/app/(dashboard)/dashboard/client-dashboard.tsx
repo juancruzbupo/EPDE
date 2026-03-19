@@ -1,5 +1,7 @@
 'use client';
 
+import { QUERY_KEYS } from '@epde/shared';
+import { useQuery } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 
 import { ActionList } from '@/components/action-list';
@@ -11,11 +13,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { WelcomeCard } from '@/components/welcome-card';
-import {
-  useClientAnalytics,
-  useClientDashboardStats,
-  useClientUpcomingTasks,
-} from '@/hooks/use-dashboard';
+import { useClientDashboardStats, useClientUpcomingTasks } from '@/hooks/use-dashboard';
+import { getClientAnalytics } from '@/lib/api/dashboard';
 
 export function ClientDashboard({ userName }: { userName: string }) {
   const {
@@ -32,7 +31,13 @@ export function ClientDashboard({ userName }: { userName: string }) {
   } = useClientUpcomingTasks();
   const [chartMonths, setChartMonths] = useState(6);
   const [showAnalytics, setShowAnalytics] = useState(false);
-  const { data: analytics, isLoading: analyticsLoading } = useClientAnalytics(chartMonths);
+  // Defer analytics fetch until user expands the section
+  const { data: analytics, isLoading: analyticsLoading } = useQuery({
+    queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientAnalytics, chartMonths],
+    queryFn: ({ signal }) => getClientAnalytics(signal, chartMonths).then((r) => r.data),
+    staleTime: 5 * 60_000,
+    enabled: showAnalytics,
+  });
 
   const actionsRef = useRef<HTMLDivElement>(null);
   const analyticsRef = useRef<HTMLDivElement>(null);
