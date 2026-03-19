@@ -4,7 +4,7 @@ import type { PlanListItem } from '@epde/shared';
 import { PLAN_STATUS_LABELS, PLAN_STATUS_VARIANT, PlanStatus } from '@epde/shared';
 import { ChevronDown, ChevronRight, ClipboardList, Home, MapPin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Suspense, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
@@ -34,12 +34,12 @@ function PlanCard({ plan, onClick }: { plan: PlanListItem; onClick: () => void }
 
       <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
         <span className="flex items-center gap-1">
-          <MapPin className="h-3 w-3" />
+          <MapPin className="h-3 w-3" aria-hidden="true" />
           {plan.property.address}, {plan.property.city}
         </span>
         <span className="text-muted-foreground/40">·</span>
         <span className="flex items-center gap-1">
-          <ClipboardList className="h-3 w-3" />
+          <ClipboardList className="h-3 w-3" aria-hidden="true" />
           {plan._count.tasks} tarea{plan._count.tasks !== 1 ? 's' : ''}
         </span>
       </div>
@@ -80,13 +80,14 @@ function StatusSection({
   return (
     <div>
       <button
+        aria-expanded={open}
         onClick={() => setOpen(!open)}
         className="focus-visible:ring-ring/50 mb-2 flex w-full items-center gap-2 rounded py-1 text-left focus-visible:ring-[3px] focus-visible:outline-none"
       >
         {open ? (
-          <ChevronDown className="text-muted-foreground h-4 w-4" />
+          <ChevronDown className="text-muted-foreground h-4 w-4" aria-hidden="true" />
         ) : (
-          <ChevronRight className="text-muted-foreground h-4 w-4" />
+          <ChevronRight className="text-muted-foreground h-4 w-4" aria-hidden="true" />
         )}
         <span className="text-sm font-medium">{PLAN_STATUS_LABELS[status]}</span>
         <span className="text-muted-foreground text-sm">({plans.length})</span>
@@ -103,6 +104,10 @@ function StatusSection({
 }
 
 function MaintenancePlansPageContent() {
+  useEffect(() => {
+    document.title = 'Planes | EPDE';
+  }, []);
+
   const router = useRouter();
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search);

@@ -112,7 +112,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
         action={
           <Button variant="outline" asChild>
             <Link href="/budgets">
-              <ArrowLeft className="mr-2 h-4 w-4" />
+              <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
               Volver
             </Link>
           </Button>
@@ -131,14 +131,14 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
             <dl className="grid gap-4 text-sm sm:grid-cols-2">
               <div className="space-y-1">
                 <dt className="text-muted-foreground flex items-center gap-1.5">
-                  <FileText className="h-3.5 w-3.5" />
+                  <FileText className="h-3.5 w-3.5" aria-hidden="true" />
                   Título
                 </dt>
                 <dd className="font-medium">{budget.title}</dd>
               </div>
               <div className="space-y-1">
                 <dt className="text-muted-foreground flex items-center gap-1.5">
-                  <Home className="h-3.5 w-3.5" />
+                  <Home className="h-3.5 w-3.5" aria-hidden="true" />
                   Propiedad
                 </dt>
                 <dd className="font-medium">
@@ -147,14 +147,14 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
               </div>
               <div className="space-y-1">
                 <dt className="text-muted-foreground flex items-center gap-1.5">
-                  <User className="h-3.5 w-3.5" />
+                  <User className="h-3.5 w-3.5" aria-hidden="true" />
                   Solicitante
                 </dt>
                 <dd className="font-medium">{budget.requester.name}</dd>
               </div>
               <div className="space-y-1">
                 <dt className="text-muted-foreground flex items-center gap-1.5">
-                  <Calendar className="h-3.5 w-3.5" />
+                  <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
                   Fecha
                 </dt>
                 <dd className="font-medium">{formatRelativeDate(new Date(budget.createdAt))}</dd>
@@ -162,7 +162,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
               {budget.description && (
                 <div className="space-y-1 sm:col-span-2">
                   <dt className="text-muted-foreground flex items-center gap-1.5">
-                    <AlignLeft className="h-3.5 w-3.5" />
+                    <AlignLeft className="h-3.5 w-3.5" aria-hidden="true" />
                     Descripción
                   </dt>
                   <dd className="font-medium">{budget.description}</dd>
@@ -214,7 +214,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
                   {budget.response.estimatedDays && (
                     <div className="space-y-1">
                       <dt className="text-muted-foreground flex items-center gap-1.5">
-                        <Clock className="h-3.5 w-3.5" />
+                        <Clock className="h-3.5 w-3.5" aria-hidden="true" />
                         Días estimados
                       </dt>
                       <dd className="font-medium">{budget.response.estimatedDays} días</dd>
@@ -223,7 +223,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
                   {budget.response.validUntil && (
                     <div className="space-y-1">
                       <dt className="text-muted-foreground flex items-center gap-1.5">
-                        <CalendarCheck className="h-3.5 w-3.5" />
+                        <CalendarCheck className="h-3.5 w-3.5" aria-hidden="true" />
                         Válido hasta
                       </dt>
                       <dd className="font-medium">
@@ -234,7 +234,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
                   {budget.response.notes && (
                     <div className="space-y-1 sm:col-span-3">
                       <dt className="text-muted-foreground flex items-center gap-1.5">
-                        <StickyNote className="h-3.5 w-3.5" />
+                        <StickyNote className="h-3.5 w-3.5" aria-hidden="true" />
                         Notas
                       </dt>
                       <dd className="font-medium">{budget.response.notes}</dd>

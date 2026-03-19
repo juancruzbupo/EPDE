@@ -154,6 +154,7 @@ export default function BudgetsScreen() {
             <View className="border-border bg-card mb-3 flex-row items-center rounded-lg border px-3">
               <Text className="text-muted-foreground mr-2">🔍</Text>
               <TextInput
+                accessibilityLabel="Buscar presupuestos"
                 style={TYPE.bodyMd}
                 className="text-foreground flex-1 py-2.5"
                 placeholder="Buscar por título o dirección..."

@@ -30,6 +30,10 @@ const typeOptions = Object.entries(PROPERTY_TYPE_LABELS).map(([value, label]) =>
 }));
 
 export default function PropertiesPage() {
+  useEffect(() => {
+    document.title = 'Propiedades | EPDE';
+  }, []);
+
   const router = useRouter();
   const [urlParams, setUrlParams] = useUrlFilters();
   const user = useAuthStore((s) => s.user);

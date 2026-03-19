@@ -102,13 +102,13 @@ export function ServiceRequestDetail({
           <div className="flex gap-2">
             {canEdit && (
               <Button variant="outline" onClick={() => setEditOpen(true)}>
-                <Pencil className="mr-2 h-4 w-4" />
+                <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />
                 Editar
               </Button>
             )}
             <Button variant="outline" asChild>
               <Link href="/service-requests">
-                <ArrowLeft className="mr-2 h-4 w-4" />
+                <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
                 Volver
               </Link>
             </Button>
@@ -129,14 +129,14 @@ export function ServiceRequestDetail({
               <dl className="grid gap-4 text-sm sm:grid-cols-2">
                 <div className="space-y-1">
                   <dt className="text-muted-foreground flex items-center gap-1.5">
-                    <FileText className="h-3.5 w-3.5" />
+                    <FileText className="h-3.5 w-3.5" aria-hidden="true" />
                     Título
                   </dt>
                   <dd className="font-medium">{request.title}</dd>
                 </div>
                 <div className="space-y-1">
                   <dt className="text-muted-foreground flex items-center gap-1.5">
-                    <Home className="h-3.5 w-3.5" />
+                    <Home className="h-3.5 w-3.5" aria-hidden="true" />
                     Propiedad
                   </dt>
                   <dd className="font-medium">
@@ -145,14 +145,14 @@ export function ServiceRequestDetail({
                 </div>
                 <div className="space-y-1">
                   <dt className="text-muted-foreground flex items-center gap-1.5">
-                    <User className="h-3.5 w-3.5" />
+                    <User className="h-3.5 w-3.5" aria-hidden="true" />
                     Solicitante
                   </dt>
                   <dd className="font-medium">{request.requester.name}</dd>
                 </div>
                 <div className="space-y-1">
                   <dt className="text-muted-foreground flex items-center gap-1.5">
-                    <AlertTriangle className="h-3.5 w-3.5" />
+                    <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
                     Urgencia
                   </dt>
                   <dd>
@@ -163,7 +163,7 @@ export function ServiceRequestDetail({
                 </div>
                 <div className="space-y-1">
                   <dt className="text-muted-foreground flex items-center gap-1.5">
-                    <Calendar className="h-3.5 w-3.5" />
+                    <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
                     Fecha de creación
                   </dt>
                   <dd className="font-medium">{formatRelativeDate(new Date(request.createdAt))}</dd>
@@ -171,7 +171,7 @@ export function ServiceRequestDetail({
                 {request.task && (
                   <div className="space-y-1">
                     <dt className="text-muted-foreground flex items-center gap-1.5">
-                      <Wrench className="h-3.5 w-3.5" />
+                      <Wrench className="h-3.5 w-3.5" aria-hidden="true" />
                       Tarea relacionada
                     </dt>
                     <dd className="font-medium">
@@ -181,7 +181,7 @@ export function ServiceRequestDetail({
                 )}
                 <div className="space-y-1 sm:col-span-2">
                   <dt className="text-muted-foreground flex items-center gap-1.5">
-                    <AlignLeft className="h-3.5 w-3.5" />
+                    <AlignLeft className="h-3.5 w-3.5" aria-hidden="true" />
                     Descripción
                   </dt>
                   <dd className="mt-1 font-medium whitespace-pre-wrap">{request.description}</dd>

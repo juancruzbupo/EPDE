@@ -2,7 +2,7 @@
 
 import type { CategoryTemplate, TaskTemplate } from '@epde/shared';
 import { ChevronDown, ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ErrorState } from '@/components/error-state';
@@ -23,6 +23,10 @@ import { TaskTemplateDialog } from './task-template-dialog';
 import { TaskTemplateTable } from './task-template-table';
 
 export default function TemplatesPage() {
+  useEffect(() => {
+    document.title = 'Plantillas | EPDE';
+  }, []);
+
   const { data: categories, isLoading, isError, refetch } = useCategoryTemplates();
   const deleteCategory = useDeleteCategoryTemplate();
   const deleteTask = useDeleteTaskTemplate();

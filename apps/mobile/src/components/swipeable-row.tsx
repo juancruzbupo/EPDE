@@ -16,6 +16,8 @@ export interface SwipeAction {
   icon: string;
   color: string;
   onPress: () => void;
+  /** Accessibility label for VoiceOver (used in reduced-motion fallback) */
+  label?: string;
 }
 
 interface SwipeableRowProps {
@@ -78,7 +80,22 @@ export function SwipeableRow({
   }));
 
   if (reduced || rightActions.length === 0) {
-    return <>{children}</>;
+    return (
+      <View
+        accessibilityActions={rightActions.map((a) => ({
+          name: a.label ?? a.icon,
+          label: a.label ?? a.icon,
+        }))}
+        onAccessibilityAction={(event) => {
+          const action = rightActions.find(
+            (a) => (a.label ?? a.icon) === event.nativeEvent.actionName,
+          );
+          action?.onPress();
+        }}
+      >
+        {children}
+      </View>
+    );
   }
 
   return (

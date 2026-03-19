@@ -53,7 +53,12 @@ const NotificationCard = memo(function NotificationCard({
             >
               {notification.title}
             </Text>
-            {!notification.read && <View className="bg-primary ml-2 h-2 w-2 rounded-full" />}
+            {!notification.read && (
+              <View
+                className="bg-primary ml-2 h-2 w-2 rounded-full"
+                accessibilityLabel="No leída"
+              />
+            )}
           </View>
           <Text style={TYPE.bodyMd} className="text-muted-foreground mb-1" numberOfLines={2}>
             {notification.message}
@@ -142,6 +147,7 @@ export default function NotificationsScreen() {
                 ? [
                     {
                       icon: '✓',
+                      label: 'Marcar como leída',
                       color: COLORS.success,
                       onPress: () => {
                         haptics.light();

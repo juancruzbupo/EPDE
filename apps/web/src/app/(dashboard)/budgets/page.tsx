@@ -28,6 +28,9 @@ const statusOptions = Object.entries(BUDGET_STATUS_LABELS).map(([value, label]) 
 }));
 
 function BudgetsPageContent() {
+  useEffect(() => {
+    document.title = 'Presupuestos | EPDE';
+  }, []);
   const router = useRouter();
   const [urlParams, setUrlParams] = useUrlFilters();
   const user = useAuthStore((s) => s.user);

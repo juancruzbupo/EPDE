@@ -45,7 +45,11 @@ export function StatusBadge({ label, variant = 'default' }: StatusBadgeProps) {
   const styles = variantStyles[variant];
 
   return (
-    <View className={`rounded-full px-2.5 py-0.5 ${styles.bg}`}>
+    <View
+      className={`rounded-full px-2.5 py-0.5 ${styles.bg}`}
+      accessibilityLabel={label}
+      accessibilityRole="text"
+    >
       <Text style={TYPE.labelMd} className={styles.text}>
         {label}
       </Text>

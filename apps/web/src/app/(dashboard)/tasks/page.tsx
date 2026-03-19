@@ -72,7 +72,7 @@ function StatCard({
         active ? 'ring-primary ring-2' : 'hover:bg-muted/40',
       )}
     >
-      <Icon className={cn('h-5 w-5 shrink-0', color)} />
+      <Icon className={cn('h-5 w-5 shrink-0', color)} aria-hidden="true" />
       <div className="min-w-0">
         <p className={cn('text-xl leading-none font-semibold', color)}>{count}</p>
         <p className="text-muted-foreground mt-0.5 text-xs">{TASK_STATUS_LABELS[status]}</p>
@@ -104,14 +104,14 @@ function TaskRow({ task, onClick }: { task: TaskListItem; onClick: () => void })
         )}
         <span className="text-muted-foreground/40">·</span>
         <span className="flex items-center gap-1">
-          <MapPin className="h-3 w-3" />
+          <MapPin className="h-3 w-3" aria-hidden="true" />
           {task.maintenancePlan.property.address}, {task.maintenancePlan.property.city}
         </span>
         {task.nextDueDate && (
           <>
             <span className="text-muted-foreground/40">·</span>
             <span className="flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
+              <Calendar className="h-3 w-3" aria-hidden="true" />
               {formatRelativeDate(new Date(task.nextDueDate))}
             </span>
           </>
@@ -161,15 +161,16 @@ function StatusSection({
   return (
     <div>
       <button
+        aria-expanded={open}
         onClick={() => setOpen(!open)}
         className="focus-visible:ring-ring/50 mb-2 flex w-full items-center gap-2 rounded py-1 text-left focus-visible:ring-[3px] focus-visible:outline-none"
       >
         {open ? (
-          <ChevronDown className="text-muted-foreground h-4 w-4" />
+          <ChevronDown className="text-muted-foreground h-4 w-4" aria-hidden="true" />
         ) : (
-          <ChevronRight className="text-muted-foreground h-4 w-4" />
+          <ChevronRight className="text-muted-foreground h-4 w-4" aria-hidden="true" />
         )}
-        <Icon className={cn('h-4 w-4', color)} />
+        <Icon className={cn('h-4 w-4', color)} aria-hidden="true" />
         <span className="text-sm font-medium">{TASK_STATUS_LABELS[status]}</span>
         <span className="text-muted-foreground text-sm">({tasks.length})</span>
       </button>
@@ -201,6 +202,10 @@ function StatusSection({
 }
 
 export default function TasksPage() {
+  useEffect(() => {
+    document.title = 'Tareas | EPDE';
+  }, []);
+
   const [search, setSearch] = useState('');
   const [priority, setPriority] = useState<TaskPriority | 'all'>('all');
   const [sectorFilter, setSectorFilter] = useState<PropertySector | 'all'>('all');
@@ -332,6 +337,7 @@ export default function TasksPage() {
           {PRIORITY_OPTIONS.map((opt) => (
             <button
               key={opt.value}
+              aria-pressed={priority === opt.value}
               onClick={() => setPriority(opt.value)}
               className={cn(
                 'rounded-full px-3 py-1 text-xs font-medium transition-colors',
@@ -348,6 +354,7 @@ export default function TasksPage() {
           {SECTOR_OPTIONS.map((opt) => (
             <button
               key={opt.value}
+              aria-pressed={sectorFilter === opt.value}
               onClick={() => setSectorFilter(opt.value)}
               className={cn(
                 'rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors',

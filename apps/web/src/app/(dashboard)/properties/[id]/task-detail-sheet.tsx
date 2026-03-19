@@ -92,7 +92,7 @@ export function TaskDetailSheet({
             <dl className="grid grid-cols-2 gap-4 text-sm">
               <div className="space-y-1">
                 <dt className="text-muted-foreground flex items-center gap-1.5">
-                  <RotateCcw className="h-3.5 w-3.5" />
+                  <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
                   Recurrencia
                 </dt>
                 <dd className="font-medium">
@@ -101,7 +101,7 @@ export function TaskDetailSheet({
               </div>
               <div className="space-y-1">
                 <dt className="text-muted-foreground flex items-center gap-1.5">
-                  <Wrench className="h-3.5 w-3.5" />
+                  <Wrench className="h-3.5 w-3.5" aria-hidden="true" />
                   Tipo de tarea
                 </dt>
                 <dd>
@@ -139,7 +139,7 @@ export function TaskDetailSheet({
               {task.estimatedDurationMinutes != null && (
                 <div className="space-y-1">
                   <dt className="text-muted-foreground flex items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5" />
+                    <Clock className="h-3.5 w-3.5" aria-hidden="true" />
                     Duración estimada
                   </dt>
                   <dd className="font-medium">
@@ -152,7 +152,7 @@ export function TaskDetailSheet({
               )}
               <div className="space-y-1">
                 <dt className="text-muted-foreground flex items-center gap-1.5">
-                  <Calendar className="h-3.5 w-3.5" />
+                  <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
                   Próximo vencimiento
                 </dt>
                 <dd className={`font-medium ${isOverdue ? 'text-destructive' : ''}`}>
@@ -182,13 +182,14 @@ export function TaskDetailSheet({
                 <button
                   type="button"
                   className="text-muted-foreground flex w-full items-center justify-between text-sm font-medium"
+                  aria-expanded={techDescOpen}
                   onClick={() => setTechDescOpen((v) => !v)}
                 >
                   Descripción técnica
                   {techDescOpen ? (
-                    <ChevronUp className="h-4 w-4" />
+                    <ChevronUp className="h-4 w-4" aria-hidden="true" />
                   ) : (
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className="h-4 w-4" aria-hidden="true" />
                   )}
                 </button>
                 {techDescOpen && (
@@ -227,7 +228,7 @@ export function TaskDetailSheet({
                 onClick={() => onComplete(task)}
                 title="Registrá que completaste esta tarea"
               >
-                <CheckCircle className="mr-2 h-4 w-4" />
+                <CheckCircle className="mr-2 h-4 w-4" aria-hidden="true" />
                 Completar Tarea
               </Button>
             )}
@@ -240,7 +241,7 @@ export function TaskDetailSheet({
 
             {onRequestService && (
               <Button variant="outline" className="w-full" onClick={() => onRequestService(task)}>
-                <Wrench className="mr-2 h-4 w-4" />
+                <Wrench className="mr-2 h-4 w-4" aria-hidden="true" />
                 Solicitar Servicio
               </Button>
             )}

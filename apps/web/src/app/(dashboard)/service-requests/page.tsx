@@ -32,6 +32,9 @@ const urgencyOptions = Object.entries(SERVICE_URGENCY_LABELS).map(([value, label
 }));
 
 function ServiceRequestsPageContent() {
+  useEffect(() => {
+    document.title = 'Solicitudes | EPDE';
+  }, []);
   const router = useRouter();
   const [urlParams, setUrlParams] = useUrlFilters();
   const user = useAuthStore((s) => s.user);

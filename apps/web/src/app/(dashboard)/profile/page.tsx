@@ -3,7 +3,7 @@
 import { changePasswordSchema, getErrorMessage, updateProfileSchema, UserRole } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -36,6 +36,10 @@ const passwordSchema = changePasswordSchema
 type PasswordFormData = z.infer<typeof passwordSchema>;
 
 export default function ProfilePage() {
+  useEffect(() => {
+    document.title = 'Mi Perfil | EPDE';
+  }, []);
+
   const { user, checkAuth } = useAuthStore();
 
   if (!user) return null;

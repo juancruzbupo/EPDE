@@ -27,6 +27,10 @@ const statusOptions = Object.entries(USER_STATUS_LABELS).map(([value, label]) =>
 }));
 
 export default function ClientsPage() {
+  useEffect(() => {
+    document.title = 'Clientes | EPDE';
+  }, []);
+
   const router = useRouter();
   const [urlParams, setUrlParams] = useUrlFilters();
   const [search, setSearch] = useState(urlParams.get('search') ?? '');

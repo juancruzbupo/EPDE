@@ -96,12 +96,12 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
           <div className="flex gap-2">
             <Button variant="outline" asChild>
               <Link href="/clients">
-                <ArrowLeft className="mr-2 h-4 w-4" />
+                <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
                 Volver
               </Link>
             </Button>
             <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
-              <Trash2 className="mr-2 h-4 w-4" />
+              <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
               Eliminar
             </Button>
           </div>
@@ -150,35 +150,35 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
               <dl className="grid gap-4 text-sm sm:grid-cols-2">
                 <div className="space-y-1">
                   <dt className="text-muted-foreground flex items-center gap-1.5">
-                    <UserIcon className="h-3.5 w-3.5" />
+                    <UserIcon className="h-3.5 w-3.5" aria-hidden="true" />
                     Nombre
                   </dt>
                   <dd className="font-medium">{client.name}</dd>
                 </div>
                 <div className="space-y-1">
                   <dt className="text-muted-foreground flex items-center gap-1.5">
-                    <Mail className="h-3.5 w-3.5" />
+                    <Mail className="h-3.5 w-3.5" aria-hidden="true" />
                     Email
                   </dt>
                   <dd className="font-medium">{client.email}</dd>
                 </div>
                 <div className="space-y-1">
                   <dt className="text-muted-foreground flex items-center gap-1.5">
-                    <Phone className="h-3.5 w-3.5" />
+                    <Phone className="h-3.5 w-3.5" aria-hidden="true" />
                     Teléfono
                   </dt>
                   <dd className="font-medium">{client.phone || '—'}</dd>
                 </div>
                 <div className="space-y-1">
                   <dt className="text-muted-foreground flex items-center gap-1.5">
-                    <Calendar className="h-3.5 w-3.5" />
+                    <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
                     Fecha de creación
                   </dt>
                   <dd className="font-medium">{formatRelativeDate(new Date(client.createdAt))}</dd>
                 </div>
                 <div className="space-y-1">
                   <dt className="text-muted-foreground flex items-center gap-1.5">
-                    <Calendar className="h-3.5 w-3.5" />
+                    <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
                     Último acceso
                   </dt>
                   <dd className="font-medium">
@@ -229,7 +229,7 @@ function ClientPropertiesSection({ clientId }: { clientId: string }) {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2 text-lg">
-          <Home className="h-4 w-4" />
+          <Home className="h-4 w-4" aria-hidden="true" />
           Propiedades
           {properties.length > 0 && (
             <Badge variant="secondary" className="ml-1">
@@ -280,7 +280,7 @@ function ClientBudgetsSection({ clientId, clientName }: { clientId: string; clie
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2 text-lg">
-          <FileText className="h-4 w-4" />
+          <FileText className="h-4 w-4" aria-hidden="true" />
           Presupuestos
           {budgets.length > 0 && (
             <Badge variant="secondary" className="ml-1">
@@ -342,7 +342,7 @@ function ClientServiceRequestsSection({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2 text-lg">
-          <Wrench className="h-4 w-4" />
+          <Wrench className="h-4 w-4" aria-hidden="true" />
           Solicitudes de Servicio
           {requests.length > 0 && (
             <Badge variant="secondary" className="ml-1">

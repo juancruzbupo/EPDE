@@ -168,6 +168,9 @@ export function CreateBudgetModal({
             {properties.map((property: PropertyPublic) => (
               <Pressable
                 key={property.id}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: selectedPropertyId === property.id }}
+                accessibilityLabel={`${property.address}, ${property.city}`}
                 onPress={() => setValue('propertyId', property.id, { shouldValidate: true })}
                 className={`rounded-xl border px-4 py-3 ${
                   selectedPropertyId === property.id

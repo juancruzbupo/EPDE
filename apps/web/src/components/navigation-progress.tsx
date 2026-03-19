@@ -96,6 +96,8 @@ export function NavigationProgress() {
     <div
       className="fixed top-0 right-0 left-0 z-[9999] h-1"
       role="progressbar"
+      aria-valuemin={0}
+      aria-valuemax={100}
       aria-valuenow={Math.round(progress)}
     >
       <div

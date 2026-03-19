@@ -4,7 +4,7 @@ import type { NotificationType } from '@epde/shared';
 import { formatRelativeDate, NOTIFICATION_TYPE_LABELS } from '@epde/shared';
 import { Bell, CheckCheck, ChevronRight, Clock, FileText, Wrench } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
@@ -36,6 +36,10 @@ function getNotificationHref(n: NotificationPublic): string | null {
 }
 
 export default function NotificationsPage() {
+  useEffect(() => {
+    document.title = 'Notificaciones | EPDE';
+  }, []);
+
   const router = useRouter();
   const { data, isLoading, isError, refetch, hasNextPage, fetchNextPage } = useNotifications();
   const markAsRead = useMarkAsRead();
@@ -62,7 +66,7 @@ export default function NotificationsPage() {
             onClick={() => markAllAsRead.mutate()}
             disabled={markAllAsRead.isPending}
           >
-            <CheckCheck className="mr-2 h-4 w-4" />
+            <CheckCheck className="mr-2 h-4 w-4" aria-hidden="true" />
             Marcar todas como leídas
           </Button>
         }
@@ -103,7 +107,7 @@ export default function NotificationsPage() {
                 }`}
               >
                 <div className="bg-muted mt-0.5 rounded-full p-2">
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-4 w-4" aria-hidden="true" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
@@ -113,7 +117,12 @@ export default function NotificationsPage() {
                     <Badge variant="outline" className="text-xs">
                       {NOTIFICATION_TYPE_LABELS[n.type] ?? n.type}
                     </Badge>
-                    {!n.read && <span className="bg-primary h-2 w-2 rounded-full" />}
+                    {!n.read && (
+                      <>
+                        <span className="bg-primary h-2 w-2 rounded-full" aria-hidden="true" />
+                        <span className="sr-only">No leída</span>
+                      </>
+                    )}
                   </div>
                   <p className="text-muted-foreground mt-0.5 text-sm">{n.message}</p>
                   <span className="text-muted-foreground mt-1 text-xs">
@@ -121,7 +130,10 @@ export default function NotificationsPage() {
                   </span>
                 </div>
                 {getNotificationHref(n) && (
-                  <ChevronRight className="text-muted-foreground mt-1 h-4 w-4 shrink-0" />
+                  <ChevronRight
+                    className="text-muted-foreground mt-1 h-4 w-4 shrink-0"
+                    aria-hidden="true"
+                  />
                 )}
               </li>
             );

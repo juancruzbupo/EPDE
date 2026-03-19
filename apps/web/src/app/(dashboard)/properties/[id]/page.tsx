@@ -1,7 +1,7 @@
 'use client';
 
 import { UserRole } from '@epde/shared';
-import { use } from 'react';
+import { use, useEffect } from 'react';
 
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -15,6 +15,10 @@ export default function PropertyDetailPage({ params }: Props) {
   const { id } = use(params);
   const role = useAuthStore((s) => s.user?.role);
   const isAdmin = role === UserRole.ADMIN;
+
+  useEffect(() => {
+    document.title = 'Propiedad | EPDE';
+  }, []);
 
   return <PropertyDetail id={id} isAdmin={isAdmin} />;
 }

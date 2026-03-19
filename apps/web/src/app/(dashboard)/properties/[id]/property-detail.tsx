@@ -419,6 +419,7 @@ function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
       {/* Row 3 — Collapsible History */}
       <Card>
         <button
+          aria-expanded={historyOpen}
           onClick={() => setHistoryOpen(!historyOpen)}
           className="flex w-full items-center justify-between p-6 text-left"
         >

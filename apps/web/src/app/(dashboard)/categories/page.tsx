@@ -19,7 +19,7 @@ import {
   Trees,
   Zap,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 /** Curated map of icons used by category templates (seed data). */
 const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
@@ -69,6 +69,10 @@ import type { CategoryPublic } from '@/lib/api/categories';
 import { CategoryDialog } from './category-dialog';
 
 export default function CategoriesPage() {
+  useEffect(() => {
+    document.title = 'Categorías | EPDE';
+  }, []);
+
   const { data: categories, isLoading, isError, refetch } = useCategories();
   const { data: categoryTemplates } = useCategoryTemplates();
   const deleteCategory = useDeleteCategory();

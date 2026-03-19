@@ -59,6 +59,8 @@ function TaskCard({ task, planId }: { task: TaskPublic; planId: string }) {
 
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Tarea: ${task.name}`}
       className="border-border bg-card mb-2 rounded-xl border p-3"
       onPress={() => router.push(`/task/${planId}/${task.id}` as never)}
     >
