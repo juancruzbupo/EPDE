@@ -123,7 +123,7 @@ export interface CategoryBreakdownItem {
 }
 
 export interface SectorBreakdownItem {
-  sector: string;
+  sector: PropertySector;
   total: number;
   overdue: number;
   pending: number;

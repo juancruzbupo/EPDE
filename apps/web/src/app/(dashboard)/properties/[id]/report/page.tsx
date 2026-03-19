@@ -272,10 +272,7 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
             {sortedSectors.map((s) => (
               <div key={s.sector} className="report-item border-border rounded-lg border p-4">
                 <div className="mb-2 flex items-center justify-between">
-                  <p className="font-medium">
-                    {PROPERTY_SECTOR_LABELS[s.sector as keyof typeof PROPERTY_SECTOR_LABELS] ??
-                      s.sector}
-                  </p>
+                  <p className="font-medium">{PROPERTY_SECTOR_LABELS[s.sector] ?? s.sector}</p>
                   <span className={`text-sm font-bold ${scoreColor(s.score)}`}>{s.score}%</span>
                 </div>
                 <Bar value={s.score} />

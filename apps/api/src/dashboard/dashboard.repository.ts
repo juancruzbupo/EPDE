@@ -3,6 +3,7 @@ import {
   BudgetStatus,
   CONDITION_FOUND_LABELS,
   type ConditionFound,
+  type PropertySector,
   ServiceStatus,
   TaskStatus,
   UserRole,
@@ -835,21 +836,22 @@ export class DashboardRepository {
     ]);
 
     const map = new Map<
-      string,
+      PropertySector,
       { total: number; overdue: number; pending: number; cost: number }
     >();
     for (const t of tasks) {
       if (!t.sector) continue;
-      const entry = map.get(t.sector) ?? { total: 0, overdue: 0, pending: 0, cost: 0 };
+      const sector = t.sector as PropertySector;
+      const entry = map.get(sector) ?? { total: 0, overdue: 0, pending: 0, cost: 0 };
       entry.total += 1;
       if (t.status === TaskStatus.OVERDUE) entry.overdue += 1;
       if (t.status === TaskStatus.PENDING || t.status === TaskStatus.UPCOMING) entry.pending += 1;
-      map.set(t.sector, entry);
+      map.set(sector, entry);
     }
 
     for (const log of logs) {
       if (!log.task.sector) continue;
-      const entry = map.get(log.task.sector);
+      const entry = map.get(log.task.sector as PropertySector);
       if (entry) entry.cost += Number(log.cost);
     }
 
