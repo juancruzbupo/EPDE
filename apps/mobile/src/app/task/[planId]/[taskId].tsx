@@ -23,7 +23,6 @@ import Animated from 'react-native-reanimated';
 
 import { CollapsibleSection } from '@/components/collapsible-section';
 import { CompleteTaskModal } from '@/components/complete-task-modal';
-import { CreateBudgetModal } from '@/components/create-budget-modal';
 import { CreateServiceRequestModal } from '@/components/create-service-request-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
@@ -84,7 +83,6 @@ export default function TaskDetailScreen() {
   const contentStyle = useSlideIn('bottom');
   const [completeModalVisible, setCompleteModalVisible] = useState(false);
   const [showServiceModal, setShowServiceModal] = useState(false);
-  const [showBudgetModal, setShowBudgetModal] = useState(false);
   const [noteContent, setNoteContent] = useState('');
 
   const {
@@ -308,38 +306,20 @@ export default function TaskDetailScreen() {
           </Text>
         )}
 
-        {/* Service + Budget buttons */}
-        <View className="mt-2 mb-4 flex-row gap-2">
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Solicitar servicio para esta tarea"
-            className="border-border flex-1 items-center rounded-xl border p-3"
-            onPress={() => {
-              haptics.light();
-              setShowServiceModal(true);
-            }}
-          >
-            <Text style={TYPE.labelMd} className="text-foreground">
-              Solicitar Servicio
-            </Text>
-          </Pressable>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Pedir presupuesto para esta tarea"
-            className="border-border flex-1 items-center rounded-xl border p-3"
-            onPress={() => {
-              haptics.light();
-              setShowBudgetModal(true);
-            }}
-          >
-            <Text style={TYPE.labelMd} className="text-foreground">
-              Pedir Presupuesto
-            </Text>
-          </Pressable>
-        </View>
-        <Text style={TYPE.labelSm} className="text-muted-foreground mt-1 mb-3 text-center">
-          Servicio: que lo hagan · Presupuesto: que te pasen un precio
-        </Text>
+        {/* Service request button */}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Solicitar servicio para esta tarea"
+          className="border-border mt-2 mb-4 items-center rounded-xl border p-3"
+          onPress={() => {
+            haptics.light();
+            setShowServiceModal(true);
+          }}
+        >
+          <Text style={TYPE.labelMd} className="text-foreground">
+            Solicitar Servicio
+          </Text>
+        </Pressable>
 
         {/* Task Logs */}
         <CollapsibleSection title="Historial" count={logs?.length ?? 0}>
@@ -419,13 +399,6 @@ export default function TaskDetailScreen() {
       />
 
       {/* Budget request modal */}
-      <CreateBudgetModal
-        visible={showBudgetModal}
-        onClose={() => setShowBudgetModal(false)}
-        defaultPropertyId={plan?.property?.id}
-        defaultTitle={`Presupuesto: ${task.name}`}
-        defaultDescription={`Tarea: ${task.name} — ${task.category?.name ?? ''}`}
-      />
     </View>
   );
 }

@@ -29,7 +29,6 @@ import { useTaskDetail } from '@/hooks/use-task-operations';
 import { TASK_STATUS_COLORS, TASK_STATUS_ICONS, TASK_STATUS_ORDER } from '@/lib/style-maps';
 import { cn } from '@/lib/utils';
 
-import { CreateBudgetDialog } from '../budgets/create-budget-dialog';
 import { CompleteTaskDialog } from '../properties/[id]/complete-task-dialog';
 import { TaskDetailSheet } from '../properties/[id]/task-detail-sheet';
 import { CreateServiceDialog } from '../service-requests/create-service-dialog';
@@ -219,12 +218,6 @@ export default function TasksPage() {
     title: string;
     description: string;
   } | null>(null);
-  const [budgetDialogTask, setBudgetDialogTask] = useState<{
-    propertyId: string;
-    title: string;
-    description: string;
-  } | null>(null);
-
   const searchParams = useSearchParams();
   const { data: tasks, isLoading, isError, refetch } = useAllTasks();
 
@@ -441,15 +434,6 @@ export default function TasksPage() {
           });
           setSelectedTask(null);
         }}
-        onRequestBudget={() => {
-          if (!selectedTask) return;
-          setBudgetDialogTask({
-            propertyId: selectedTask.maintenancePlan.property.id,
-            title: `Presupuesto: ${selectedTask.name}`,
-            description: `Tarea: ${selectedTask.name} — ${selectedTask.category.name}`,
-          });
-          setSelectedTask(null);
-        }}
       />
 
       <CompleteTaskDialog
@@ -468,16 +452,6 @@ export default function TasksPage() {
         defaultTaskId={serviceDialogTask?.taskId}
         defaultTitle={serviceDialogTask?.title}
         defaultDescription={serviceDialogTask?.description}
-      />
-
-      <CreateBudgetDialog
-        open={!!budgetDialogTask}
-        onOpenChange={(open) => {
-          if (!open) setBudgetDialogTask(null);
-        }}
-        defaultPropertyId={budgetDialogTask?.propertyId}
-        defaultTitle={budgetDialogTask?.title}
-        defaultDescription={budgetDialogTask?.description}
       />
     </PageTransition>
   );

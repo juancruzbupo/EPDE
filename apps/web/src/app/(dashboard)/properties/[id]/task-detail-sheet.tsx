@@ -20,7 +20,6 @@ import {
   ChevronDown,
   ChevronUp,
   Clock,
-  FileText,
   RotateCcw,
   Wrench,
 } from 'lucide-react';
@@ -44,7 +43,6 @@ interface TaskDetailSheetProps {
   planId: string;
   onComplete?: (task: TaskPublic) => void;
   onRequestService?: (task: TaskPublic) => void;
-  onRequestBudget?: (task: TaskPublic) => void;
 }
 
 export function TaskDetailSheet({
@@ -54,7 +52,6 @@ export function TaskDetailSheet({
   planId,
   onComplete,
   onRequestService,
-  onRequestBudget,
 }: TaskDetailSheetProps) {
   const [techDescOpen, setTechDescOpen] = useState(false);
 
@@ -241,34 +238,11 @@ export function TaskDetailSheet({
               </p>
             )}
 
-            {(onRequestService || onRequestBudget) && (
-              <>
-                <div className="flex gap-2">
-                  {onRequestService && (
-                    <Button
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => onRequestService(task)}
-                    >
-                      <Wrench className="mr-2 h-4 w-4" />
-                      Solicitar Servicio
-                    </Button>
-                  )}
-                  {onRequestBudget && (
-                    <Button
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => onRequestBudget(task)}
-                    >
-                      <FileText className="mr-2 h-4 w-4" />
-                      Pedir Presupuesto
-                    </Button>
-                  )}
-                </div>
-                <p className="type-body-sm text-muted-foreground mt-1 text-center">
-                  Servicio: que lo hagan · Presupuesto: que te pasen un precio
-                </p>
-              </>
+            {onRequestService && (
+              <Button variant="outline" className="w-full" onClick={() => onRequestService(task)}>
+                <Wrench className="mr-2 h-4 w-4" />
+                Solicitar Servicio
+              </Button>
             )}
           </div>
 

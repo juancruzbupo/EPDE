@@ -27,7 +27,6 @@ import type { TaskPublic } from '@/lib/api/maintenance-plans';
 import { TASK_STATUS_COLORS, TASK_STATUS_ICONS, TASK_STATUS_ORDER } from '@/lib/style-maps';
 import { cn } from '@/lib/utils';
 
-import { CreateBudgetDialog } from '../../budgets/create-budget-dialog';
 import { CreateServiceDialog } from '../../service-requests/create-service-dialog';
 import { CompleteTaskDialog } from './complete-task-dialog';
 import { TaskDetailSheet } from './task-detail-sheet';
@@ -199,10 +198,6 @@ export function PlanViewer({ planId, propertyId }: PlanViewerProps) {
     title: string;
     description: string;
   } | null>(null);
-  const [budgetDialogTask, setBudgetDialogTask] = useState<{
-    title: string;
-    description: string;
-  } | null>(null);
   const [search, setSearch] = useState('');
   const [priority, setPriority] = useState<TaskPriority | 'all'>('all');
   const debouncedSearch = useDebounce(search);
@@ -354,13 +349,6 @@ export function PlanViewer({ planId, propertyId }: PlanViewerProps) {
           });
           setSelectedTask(null);
         }}
-        onRequestBudget={(task) => {
-          setBudgetDialogTask({
-            title: `Presupuesto: ${task.name}`,
-            description: `Tarea: ${task.name} — ${task.category?.name ?? ''}`,
-          });
-          setSelectedTask(null);
-        }}
       />
 
       <CompleteTaskDialog
@@ -379,16 +367,6 @@ export function PlanViewer({ planId, propertyId }: PlanViewerProps) {
         defaultTaskId={serviceDialogTask?.taskId}
         defaultTitle={serviceDialogTask?.title}
         defaultDescription={serviceDialogTask?.description}
-      />
-
-      <CreateBudgetDialog
-        open={!!budgetDialogTask}
-        onOpenChange={(open) => {
-          if (!open) setBudgetDialogTask(null);
-        }}
-        defaultPropertyId={propertyId}
-        defaultTitle={budgetDialogTask?.title}
-        defaultDescription={budgetDialogTask?.description}
       />
     </>
   );
