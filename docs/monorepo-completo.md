@@ -707,7 +707,7 @@ NUNCA usar hex literals en estos archivos — importar siempre desde `DESIGN_TOK
 | ActionList      | L2 piramide: tareas vencidas + proximas esta semana con links directos   |
 | AttentionNeeded | L2 piramide: alertas admin (presupuestos pendientes, servicios abiertos) |
 | AnalyticsTabs   | L3 piramide: charts en tabs (condicion, costos, categorias, sectores)    |
-| HealthIndexCard | ISV detallado: 5 dimensiones, history chart, reporte imprimible          |
+| HealthIndexCard | ISV detallado: 5 dimensiones, history chart, link a informe técnico      |
 | ThemeToggle     | Switch dark mode (light/dark/system, persiste en localStorage)           |
 
 ### Componentes UI (Mobile — custom)

@@ -93,6 +93,7 @@
 80. **`next/dynamic` para componentes de charts** — Chart components (recharts) se importan con `next/dynamic({ ssr: false })` para reducir el bundle inicial. Agregar `loading` fallback con skeleton. Los charts se renderizan solo client-side
 81. **Pre-fill formulario de completar tarea** — `CompleteTaskDialog`/`Modal` pre-seleccionan Executor=OWNER (para clients) y ActionTaken basado en `TASK_TYPE_TO_DEFAULT_ACTION[task.taskType]`. Los campos siguen editables — solo reducen fricción
 82. **Mobile: 5 tabs visibles** — Inicio, Propiedades, Tareas, Notificaciones, Perfil. Servicios y Presupuestos están ocultos (`href: null`) pero accesibles via cards de acceso rápido en el dashboard y deep links desde notificaciones
+83. **Informe técnico en `/properties/{id}/report`** — Página print-first con 9 secciones (portada, resumen, sectores, categorías, tareas urgentes, inspecciones con fotos, galería, plan, footer). Usa `window.print()` para PDF. Datos ordenados por prioridad (urgentes primero). Print CSS con `break-inside: avoid` para evitar cortes. Endpoint `GET /properties/:id/report-data` agrega todo en una llamada (6 queries paralelas). Mobile abre el reporte web via `Linking.openURL`
 
 ### NUNCA
 
