@@ -95,6 +95,10 @@
 82. **Mobile: 5 tabs visibles** — Inicio, Propiedades, Tareas, Notificaciones, Perfil. Servicios y Presupuestos están ocultos (`href: null`) pero accesibles via cards de acceso rápido en el dashboard y deep links desde notificaciones
 83. **Informe técnico en `/properties/{id}/report`** — Página print-first con 9 secciones (portada, resumen, sectores, categorías, tareas urgentes, inspecciones con fotos, galería, plan, footer). Usa `window.print()` para PDF. Datos ordenados por prioridad (urgentes primero). Print CSS con `break-inside: avoid` para evitar cortes. Endpoint `GET /properties/:id/report-data` agrega todo en una llamada (6 queries paralelas). Mobile abre el reporte web via `Linking.openURL`
 84. **Print layout compacto para ISV** — Al imprimir desde property detail, el ISV card cabe en 1 página A4: font 10px, spacing reducido, chart 50px. PageHeader (botones, dirección) oculto via `no-print` (el ISV card tiene su propio print header con EPDE branding). Tabs strip oculta via `data-slot='tabs-list'`. Usar clases `no-print` para ocultar UI chrome, `print:break-inside-avoid` para evitar cortes, `print:break-before-page` para saltos explícitos
+85. **Admin completa tareas desde PlanEditor** — El PlanEditor muestra botón CheckCircle en cada tarea completable (PENDING/UPCOMING/OVERDUE). Abre `CompleteTaskDialog` sin salir de la propiedad. Mismo componente que usa PlanViewer para clients
+86. **Bulk task creation via `POST /maintenance-plans/:id/tasks/bulk`** — Recibe `categoryTemplateId`, crea todas las TaskTemplates como tareas del plan en un `createMany`. Admin-only, throttled, Zod-validated. Reduce ~90 clicks a 1 para poblar un plan completo
+87. **Reporte: compartir via link + WhatsApp** — Botones "Copiar link" y "WhatsApp" en el sticky header del reporte. El link requiere login del cliente. Si score es 0, muestra "Diagnóstico pendiente" con mensaje contextual
+88. **Crear cliente inline desde CreatePropertyDialog** — Link "+ Invitar nuevo cliente" abre InviteClientDialog sin salir del dialog de propiedad. Evita el ida-y-vuelta entre Clientes y Propiedades
 
 ### NUNCA
 
