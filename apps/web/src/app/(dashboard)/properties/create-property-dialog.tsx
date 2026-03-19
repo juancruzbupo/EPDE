@@ -3,6 +3,7 @@
 import { createPropertySchema, PROPERTY_TYPE_LABELS } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, ChevronsUpDown } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -40,6 +41,7 @@ interface CreatePropertyDialogProps {
 }
 
 export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialogProps) {
+  const router = useRouter();
   const createProperty = useCreateProperty();
   const [clientSearch, setClientSearch] = useState('');
   const [clientPopoverOpen, setClientPopoverOpen] = useState(false);
@@ -63,11 +65,15 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
 
   const onSubmit = (data: PropertyFormValues) => {
     createProperty.mutate(data, {
-      onSuccess: () => {
+      onSuccess: (response) => {
         reset();
         setSelectedClientLabel('');
         setClientSearch('');
         onOpenChange(false);
+        const propertyId = response.data?.id;
+        if (propertyId) {
+          router.push(`/properties/${propertyId}`);
+        }
       },
     });
   };

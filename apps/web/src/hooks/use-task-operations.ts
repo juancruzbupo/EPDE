@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import type { TaskNotePublic } from '@/lib/api/maintenance-plans';
 import {
   addTaskNote,
+  bulkAddTasksFromTemplate,
   completeTask,
   getTaskDetail,
   getTaskLogs,
@@ -151,6 +152,21 @@ export function useCompleteTask() {
         queryKey: [QUERY_KEYS.taskDetail, variables.planId, variables.taskId],
       });
     },
+  });
+}
+
+export function useBulkAddTasks() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ planId, categoryTemplateId }: { planId: string; categoryTemplateId: string }) =>
+      bulkAddTasksFromTemplate(planId, categoryTemplateId),
+    onSuccess: (response) => {
+      const count = response.data?.count ?? 0;
+      toast.success(`${count} tarea${count !== 1 ? 's' : ''} agregada${count !== 1 ? 's' : ''}`);
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] });
+      invalidateDashboard(queryClient);
+    },
+    onError: (err) => toast.error(getErrorMessage(err, 'Error al aplicar template')),
   });
 }
 

@@ -89,6 +89,16 @@ export async function updateTask(
   return data;
 }
 
+export async function bulkAddTasksFromTemplate(
+  planId: string,
+  categoryTemplateId: string,
+): Promise<ApiResponse<{ count: number }>> {
+  const { data } = await apiClient.post(`/maintenance-plans/${planId}/tasks/bulk`, {
+    categoryTemplateId,
+  });
+  return data;
+}
+
 export async function removeTask(planId: string, taskId: string): Promise<ApiResponse<null>> {
   const { data } = await apiClient.delete(`/maintenance-plans/${planId}/tasks/${taskId}`);
   return data;
