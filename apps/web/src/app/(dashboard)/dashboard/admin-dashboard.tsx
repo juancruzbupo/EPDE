@@ -19,36 +19,16 @@ import {
   TrendingUp,
   Users,
 } from 'lucide-react';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useState } from 'react';
 
 import { AttentionNeeded } from '@/components/attention-needed';
+import { BudgetPipelineChart } from '@/components/charts/budget-pipeline-chart';
+import { CategoryCostsChart } from '@/components/charts/category-costs-chart';
 import { ChartCard } from '@/components/charts/chart-card';
-
-const BudgetPipelineChart = dynamic(
-  () => import('@/components/charts/budget-pipeline-chart').then((m) => m.BudgetPipelineChart),
-  { ssr: false },
-);
-const CategoryCostsChart = dynamic(
-  () => import('@/components/charts/category-costs-chart').then((m) => m.CategoryCostsChart),
-  { ssr: false },
-);
-const CompletionTrendChart = dynamic(
-  () => import('@/components/charts/completion-trend-chart').then((m) => m.CompletionTrendChart),
-  { ssr: false },
-);
-const ConditionDonutChart = dynamic(
-  () => import('@/components/charts/condition-donut-chart').then((m) => m.ConditionDonutChart),
-  { ssr: false },
-);
-const ProblematicCategoriesChart = dynamic(
-  () =>
-    import('@/components/charts/problematic-categories-chart').then(
-      (m) => m.ProblematicCategoriesChart,
-    ),
-  { ssr: false },
-);
+import { CompletionTrendChart } from '@/components/charts/completion-trend-chart';
+import { ConditionDonutChart } from '@/components/charts/condition-donut-chart';
+import { ProblematicCategoriesChart } from '@/components/charts/problematic-categories-chart';
 import { ErrorState } from '@/components/error-state';
 import { PageHeader } from '@/components/page-header';
 import { SectionErrorBoundary } from '@/components/section-error-boundary';
