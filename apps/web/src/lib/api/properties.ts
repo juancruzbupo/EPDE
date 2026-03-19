@@ -21,7 +21,10 @@ export const {
   getPropertyHealthHistory,
 } = queries;
 
-export async function getPropertyReport(id: string, signal?: AbortSignal) {
+export async function getPropertyReport(
+  id: string,
+  signal?: AbortSignal,
+): Promise<{ data: PropertyReportData }> {
   const { data } = await apiClient.get<{ data: PropertyReportData }>(
     `/properties/${id}/report-data`,
     { signal },

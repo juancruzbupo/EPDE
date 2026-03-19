@@ -1,5 +1,6 @@
 'use client';
 
+import type { ConditionFound, TaskPriority } from '@epde/shared';
 import {
   ACTION_TAKEN_LABELS,
   CONDITION_FOUND_LABELS,
@@ -16,13 +17,14 @@ import { ArrowLeft, Printer } from 'lucide-react';
 import Link from 'next/link';
 import { use, useEffect } from 'react';
 
+import { ErrorState } from '@/components/error-state';
 import { Button } from '@/components/ui/button';
 import { getPropertyReport } from '@/lib/api/properties';
 
 // ─── Priority sorting (highest urgency first) ────────────
 
-const PRIORITY_ORDER: Record<string, number> = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
-const CONDITION_SCORE: Record<string, number> = {
+const PRIORITY_ORDER: Record<TaskPriority, number> = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
+const CONDITION_SCORE: Record<ConditionFound, number> = {
   EXCELLENT: 100,
   GOOD: 80,
   FAIR: 60,
@@ -73,7 +75,7 @@ const DIM: Record<string, { label: string; hint: string }> = {
 
 function Bar({ value, className }: { value: number; className?: string }) {
   return (
-    <div className="bg-muted h-3 w-full overflow-hidden rounded-full print:border print:border-gray-300">
+    <div className="bg-muted print:border-border h-3 w-full overflow-hidden rounded-full print:border">
       <div
         className={`h-full rounded-full ${className ?? scoreBg(value)}`}
         style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
@@ -100,6 +102,7 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
     data: report,
     isLoading,
     isError,
+    refetch,
   } = useQuery({
     queryKey: [QUERY_KEYS.properties, id, 'report'],
     queryFn: ({ signal }) => getPropertyReport(id, signal).then((r) => r.data),
@@ -122,14 +125,7 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
   }
 
   if (isError || !report) {
-    return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
-        <p className="text-destructive">No se pudo generar el informe</p>
-        <Button variant="outline" asChild>
-          <Link href={`/properties/${id}`}>Volver</Link>
-        </Button>
-      </div>
-    );
+    return <ErrorState message="No se pudo generar el informe" onRetry={refetch} />;
   }
 
   const {
@@ -186,8 +182,7 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
             {property.address}, {property.city}
           </p>
           <p className="text-muted-foreground text-sm">
-            {PROPERTY_TYPE_LABELS[property.type as keyof typeof PROPERTY_TYPE_LABELS] ??
-              property.type}
+            {PROPERTY_TYPE_LABELS[property.type] ?? property.type}
             {property.yearBuilt ? ` · Año ${property.yearBuilt}` : ''}
             {property.squareMeters ? ` · ${property.squareMeters} m²` : ''}
           </p>
@@ -349,8 +344,7 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
                     <p className="font-medium">{t.name}</p>
                     <p className="text-muted-foreground text-xs">
                       {t.category.name}
-                      {t.sector &&
-                        ` · ${PROPERTY_SECTOR_LABELS[t.sector as keyof typeof PROPERTY_SECTOR_LABELS] ?? t.sector}`}
+                      {t.sector && ` · ${PROPERTY_SECTOR_LABELS[t.sector] ?? t.sector}`}
                     </p>
                   </div>
                   <div className="text-right text-xs">
@@ -358,13 +352,9 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
                       {t.nextDueDate ? formatRelativeDate(new Date(t.nextDueDate)) : 'Sin fecha'}
                     </p>
                     <p className="text-muted-foreground">
-                      {TASK_PRIORITY_LABELS[t.priority as keyof typeof TASK_PRIORITY_LABELS]}
+                      {TASK_PRIORITY_LABELS[t.priority]}
                       {' · '}
-                      {
-                        PROFESSIONAL_REQUIREMENT_LABELS[
-                          t.professionalRequirement as keyof typeof PROFESSIONAL_REQUIREMENT_LABELS
-                        ]
-                      }
+                      {PROFESSIONAL_REQUIREMENT_LABELS[t.professionalRequirement]}
                     </p>
                   </div>
                 </div>
@@ -387,7 +377,7 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
                     <p className="text-muted-foreground text-xs">
                       {l.task.category.name}
                       {l.task.sector &&
-                        ` · ${PROPERTY_SECTOR_LABELS[l.task.sector as keyof typeof PROPERTY_SECTOR_LABELS] ?? l.task.sector}`}
+                        ` · ${PROPERTY_SECTOR_LABELS[l.task.sector] ?? l.task.sector}`}
                     </p>
                   </div>
                   <p className="text-muted-foreground shrink-0 text-xs">
@@ -396,24 +386,15 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
                 </div>
                 <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
                   <span>
-                    Resultado:{' '}
-                    <strong>
-                      {TASK_RESULT_LABELS[l.result as keyof typeof TASK_RESULT_LABELS] ?? l.result}
-                    </strong>
+                    Resultado: <strong>{TASK_RESULT_LABELS[l.result] ?? l.result}</strong>
                   </span>
                   <span>
                     Condición:{' '}
                     <strong className={scoreColor(CONDITION_SCORE[l.conditionFound] ?? 50)}>
-                      {CONDITION_FOUND_LABELS[
-                        l.conditionFound as keyof typeof CONDITION_FOUND_LABELS
-                      ] ?? l.conditionFound}
+                      {CONDITION_FOUND_LABELS[l.conditionFound] ?? l.conditionFound}
                     </strong>
                   </span>
-                  <span>
-                    Acción:{' '}
-                    {ACTION_TAKEN_LABELS[l.actionTaken as keyof typeof ACTION_TAKEN_LABELS] ??
-                      l.actionTaken}
-                  </span>
+                  <span>Acción: {ACTION_TAKEN_LABELS[l.actionTaken] ?? l.actionTaken}</span>
                   {l.cost != null && <span>Costo: ${l.cost.toLocaleString('es-AR')}</span>}
                 </div>
                 {l.notes && <p className="text-muted-foreground mt-1 text-xs italic">{l.notes}</p>}
@@ -447,9 +428,7 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
                 <p className="mt-1 text-xs font-medium">{l.task.name}</p>
                 <p className="text-muted-foreground text-xs">
                   {new Date(l.completedAt).toLocaleDateString('es-AR')} ·{' '}
-                  {CONDITION_FOUND_LABELS[
-                    l.conditionFound as keyof typeof CONDITION_FOUND_LABELS
-                  ] ?? l.conditionFound}
+                  {CONDITION_FOUND_LABELS[l.conditionFound] ?? l.conditionFound}
                 </p>
               </div>
             ))}
@@ -479,11 +458,7 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
                     {t.nextDueDate ? new Date(t.nextDueDate).toLocaleDateString('es-AR') : '—'}
                   </td>
                   <td className="py-2 text-center text-xs">
-                    {
-                      PROFESSIONAL_REQUIREMENT_LABELS[
-                        t.professionalRequirement as keyof typeof PROFESSIONAL_REQUIREMENT_LABELS
-                      ]
-                    }
+                    {PROFESSIONAL_REQUIREMENT_LABELS[t.professionalRequirement]}
                   </td>
                 </tr>
               ))}

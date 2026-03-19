@@ -1,4 +1,16 @@
-import type { ActivityType, BudgetStatus, ConditionFound, TaskPriority, TaskStatus } from './enums';
+import type {
+  ActionTaken,
+  ActivityType,
+  BudgetStatus,
+  ConditionFound,
+  ProfessionalRequirement,
+  PropertySector,
+  PropertyType,
+  RecurrenceType,
+  TaskPriority,
+  TaskResult,
+  TaskStatus,
+} from './enums';
 
 export interface DashboardStats {
   totalClients: number;
@@ -159,7 +171,7 @@ export interface PropertyReportData {
     id: string;
     address: string;
     city: string;
-    type: string;
+    type: PropertyType;
     yearBuilt: number;
     squareMeters: number;
     userId: string;
@@ -172,32 +184,32 @@ export interface PropertyReportData {
   overdueTasks: Array<{
     id: string;
     name: string;
-    sector: string | null;
-    priority: string;
-    professionalRequirement: string;
+    sector: PropertySector | null;
+    priority: TaskPriority;
+    professionalRequirement: ProfessionalRequirement;
     nextDueDate: string | null;
     category: { name: string };
   }>;
   upcomingTasks: Array<{
     id: string;
     name: string;
-    sector: string | null;
-    priority: string;
-    professionalRequirement: string;
+    sector: PropertySector | null;
+    priority: TaskPriority;
+    professionalRequirement: ProfessionalRequirement;
     nextDueDate: string | null;
-    recurrenceType: string;
+    recurrenceType: RecurrenceType;
     category: { name: string };
   }>;
   recentLogs: Array<{
     id: string;
     completedAt: string;
-    result: string;
-    conditionFound: string;
-    actionTaken: string;
+    result: TaskResult;
+    conditionFound: ConditionFound;
+    actionTaken: ActionTaken;
     cost: number | null;
     notes: string | null;
     photoUrl: string | null;
-    task: { name: string; category: { name: string }; sector: string | null };
+    task: { name: string; category: { name: string }; sector: PropertySector | null };
     user: { name: string };
   }>;
   taskStats: {
