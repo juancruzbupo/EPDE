@@ -40,7 +40,7 @@ apps/mobile/
         _layout.tsx                   # Stack navigator
         login.tsx                     # Pantalla de login
         set-password.tsx              # Configurar password (invitacion)
-      (tabs)/                         # Tab navigator (7 tabs: Inicio, Propiedades, Servicios, Tareas, Presupuestos, Avisos, Perfil)
+      (tabs)/                         # Tab navigator (5 visible: Inicio, Propiedades, Tareas, Notificaciones, Perfil)
         _layout.tsx                   # Configuracion de tabs
         index.tsx                     # Dashboard (Mi Panel)
         properties.tsx                # Mis Propiedades
