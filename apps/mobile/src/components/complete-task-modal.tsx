@@ -432,6 +432,8 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
             </View>
           ) : (
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Subir foto"
               onPress={pickImage}
               className="border-border flex-row items-center gap-2 rounded-xl border border-dashed px-4 py-3"
             >

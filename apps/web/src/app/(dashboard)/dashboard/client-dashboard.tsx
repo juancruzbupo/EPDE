@@ -7,7 +7,12 @@ import { ActionList } from '@/components/action-list';
 
 const AnalyticsTabs = dynamic(
   () => import('@/components/analytics-tabs').then((m) => m.AnalyticsTabs),
-  { ssr: false },
+  {
+    ssr: false,
+    loading: () => (
+      <div role="status" aria-label="Cargando" className="bg-muted h-64 animate-pulse rounded-lg" />
+    ),
+  },
 );
 import { ErrorState } from '@/components/error-state';
 import { HomeStatusCard } from '@/components/home-status-card';

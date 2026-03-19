@@ -26,6 +26,8 @@ const PlanCard = memo(function PlanCard({ plan }: { plan: PlanListItem }) {
 
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={plan.name}
       className="border-border bg-card mb-3 rounded-xl border p-3"
       onPress={() => router.push(`/property/${plan.property.id}` as never)}
     >

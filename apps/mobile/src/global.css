@@ -26,10 +26,10 @@
   --color-success-foreground: #1a1715;
   --color-warning: #c4a030;
   --color-warning-foreground: #1a1715;
-  --color-caution: #c47030;
+  --color-caution: #a85a20;
   --color-caution-foreground: #fafaf8;
   /* Task status tokens */
-  --color-status-pending: #d97706;
+  --color-status-pending: #b45309;
   --color-status-upcoming: #2563eb;
   --color-status-completed: #059669;
   /* Task type color tokens */

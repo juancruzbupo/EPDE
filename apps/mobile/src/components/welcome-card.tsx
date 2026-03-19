@@ -51,6 +51,8 @@ export function WelcomeCard({ userName, hasProperties, hasActivePlan }: WelcomeC
 
       {hasProperties && (
         <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Ver mi propiedad"
           className="bg-primary items-center rounded-lg px-4 py-2.5"
           onPress={() => router.push('/properties' as never)}
         >

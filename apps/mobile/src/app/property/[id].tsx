@@ -521,6 +521,8 @@ export default function PropertyDetailScreen() {
                   {photos.slice(0, 12).map((photo) => (
                     <Pressable
                       key={`${photo.url}-${photo.date}`}
+                      accessibilityRole="button"
+                      accessibilityLabel="Ver foto"
                       onPress={() => Linking.openURL(photo.url)}
                       className="overflow-hidden rounded-lg"
                     >

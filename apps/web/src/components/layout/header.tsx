@@ -57,8 +57,11 @@ export function Header() {
         <NotificationBell />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="text-muted-foreground hover:text-foreground flex items-center gap-2 rounded-md px-2 py-1 text-sm transition-colors">
-              <User className="h-4 w-4" />
+            <button
+              aria-label={`Menú de usuario: ${user?.name ?? 'Mi cuenta'}`}
+              className="text-muted-foreground hover:text-foreground flex items-center gap-2 rounded-md px-2 py-1 text-sm transition-colors"
+            >
+              <User className="h-4 w-4" aria-hidden="true" />
               <span className="hidden sm:inline">{user?.name}</span>
             </button>
           </DropdownMenuTrigger>

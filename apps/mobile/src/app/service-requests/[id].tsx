@@ -106,6 +106,8 @@ function CommentItem({ comment }: { comment: ServiceRequestCommentPublic }) {
 function AttachmentItem({ attachment }: { attachment: ServiceRequestAttachmentPublic }) {
   return (
     <Pressable
+      accessibilityRole="link"
+      accessibilityLabel={attachment.fileName}
       onPress={() => Linking.openURL(attachment.url)}
       className="border-border border-b py-2"
     >
@@ -231,12 +233,19 @@ function EditServiceRequestModal({
                 <Text style={TYPE.labelMd} className="text-foreground mb-2">
                   Urgencia
                 </Text>
-                <View className="mb-4 flex-row gap-2">
+                <View
+                  className="mb-4 flex-row gap-2"
+                  accessibilityRole="radiogroup"
+                  accessibilityLabel="Urgencia"
+                >
                   {URGENCY_OPTIONS.map((opt) => {
                     const isSelected = urgency === opt;
                     return (
                       <Pressable
                         key={opt}
+                        accessibilityRole="radio"
+                        accessibilityState={{ selected: isSelected }}
+                        accessibilityLabel={SERVICE_URGENCY_LABELS[opt]}
                         onPress={() => setUrgency(opt)}
                         className="flex-1 items-center rounded-lg border py-2"
                         style={{
@@ -473,6 +482,8 @@ export default function ServiceRequestDetailScreen() {
           {/* Edit button for OPEN status */}
           {request.status === ServiceStatus.OPEN && (
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Editar solicitud"
               onPress={handleEdit}
               disabled={editRequest.isPending}
               className="bg-primary mt-3 items-center rounded-lg py-2"
@@ -493,7 +504,12 @@ export default function ServiceRequestDetailScreen() {
               contentContainerStyle={{ gap: 8 }}
             >
               {request.photos.map((photo) => (
-                <Pressable key={photo.id} onPress={() => setPreviewPhoto(photo.url)}>
+                <Pressable
+                  key={photo.id}
+                  accessibilityRole="button"
+                  accessibilityLabel="Ver foto"
+                  onPress={() => setPreviewPhoto(photo.url)}
+                >
                   <Image
                     source={{ uri: photo.url, cache: 'force-cache' }}
                     className="h-32 w-32 rounded-xl"
@@ -521,6 +537,8 @@ export default function ServiceRequestDetailScreen() {
           {!isTerminal && (
             <>
               <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Adjuntar archivo"
                 onPress={handleAddAttachment}
                 disabled={isUploadingAttachment}
                 className="bg-primary mt-2 items-center rounded-lg py-2"
@@ -565,6 +583,8 @@ export default function ServiceRequestDetailScreen() {
                 className="border-border bg-card text-foreground rounded-lg border px-3 py-2"
               />
               <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Enviar comentario"
                 onPress={handleAddComment}
                 disabled={!commentText.trim() || addComment.isPending}
                 className="bg-primary rounded-lg px-4 py-2"

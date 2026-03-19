@@ -108,6 +108,8 @@ export default function ResetPasswordScreen() {
                   value={value}
                 />
                 <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   onPress={() => setShowPassword(!showPassword)}
                   className="absolute top-3 right-3"
                   hitSlop={8}
@@ -156,6 +158,10 @@ export default function ResetPasswordScreen() {
                   value={value}
                 />
                 <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                  }
                   onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute top-3 right-3"
                   hitSlop={8}
@@ -174,6 +180,8 @@ export default function ResetPasswordScreen() {
           {error && <Text className="text-destructive mt-2 text-center text-sm">{error}</Text>}
 
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Restablecer contraseña"
             onPress={handleSubmit(onSubmit)}
             disabled={isLoading}
             className="bg-primary mt-5 items-center rounded-lg py-3.5 active:opacity-80"

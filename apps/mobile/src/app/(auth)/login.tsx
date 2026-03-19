@@ -104,6 +104,8 @@ export default function LoginScreen() {
                   value={value}
                 />
                 <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   onPress={() => setShowPassword(!showPassword)}
                   className="absolute top-3 right-3"
                   hitSlop={8}
@@ -120,6 +122,8 @@ export default function LoginScreen() {
           )}
 
           <Pressable
+            accessibilityRole="link"
+            accessibilityLabel="Olvidé mi contraseña"
             onPress={() => router.push('/(auth)/forgot-password')}
             className="mt-2 self-end"
           >
@@ -131,6 +135,8 @@ export default function LoginScreen() {
           {error && <Text className="text-destructive mt-2 text-center text-sm">{error}</Text>}
 
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Ingresar"
             onPress={handleSubmit(onSubmit)}
             disabled={isLoading}
             className="bg-primary mt-5 items-center rounded-lg py-3.5 active:opacity-80"
