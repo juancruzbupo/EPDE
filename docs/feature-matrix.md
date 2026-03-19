@@ -67,7 +67,7 @@ Actualizar cuando se agrega o modifica una feature en cualquier plataforma.
 | ISV score en tab Salud          |     ✅      |      ✅       |        ✅        | 5 dimensiones + sector scores (CollapsibleSection mobile) |
 | ISV historial (chart)           |     ✅      |      ✅       |        ✅        | Barras mensuales (últimos 12 meses)                       |
 | ISV columna en tabla            |     ✅      |      ❌       |        ❌        | Badge color-coded en listado de propiedades               |
-| ISV reporte imprimible          |     ✅      |      ✅       |        ❌        | window.print() con header EPDE                            |
+| ISV reporte imprimible          |     ✅      |      ✅       |        ❌        | window.print() — 1 página A4, sin botones/tabs/duplicados |
 | Informe técnico completo        |     ✅      | ✅ (web link) |        ✅        | /properties/{id}/report — 9 secciones, fotos, print/PDF   |
 | ISV alertas (caída >15 pts)     |     ✅      |      ✅       |        ✅        | Notificación in-app + push                                |
 | ISV snapshots mensuales         |   Backend   |    Backend    |     Backend      | Cron job 1ro de cada mes 02:00 UTC                        |
