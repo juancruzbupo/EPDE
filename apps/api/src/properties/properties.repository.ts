@@ -1,3 +1,4 @@
+import { BudgetStatus } from '@epde/shared';
 import { Injectable } from '@nestjs/common';
 import { PlanStatus, Prisma, Property, PropertyType } from '@prisma/client';
 
@@ -154,7 +155,9 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
         where: {
           budgetRequest: {
             propertyId,
-            status: { in: ['APPROVED', 'IN_PROGRESS', 'COMPLETED'] },
+            status: {
+              in: [BudgetStatus.APPROVED, BudgetStatus.IN_PROGRESS, BudgetStatus.COMPLETED],
+            },
             deletedAt: null,
           },
         },

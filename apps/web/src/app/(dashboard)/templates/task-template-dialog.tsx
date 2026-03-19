@@ -116,7 +116,11 @@ export function TaskTemplateDialog({
           <div className="space-y-2">
             <Label htmlFor="tpl-task-name">Nombre</Label>
             <Input id="tpl-task-name" {...register('name')} />
-            {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
+            {errors.name && (
+              <p role="alert" className="text-destructive text-sm">
+                {errors.name.message}
+              </p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">

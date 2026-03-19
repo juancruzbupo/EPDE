@@ -71,13 +71,19 @@ export function EditServiceRequestDialog({
           <div className="space-y-2">
             <Label htmlFor="edit-title">Título</Label>
             <Input id="edit-title" {...register('title')} />
-            {errors.title && <p className="text-destructive text-sm">{errors.title.message}</p>}
+            {errors.title && (
+              <p role="alert" className="text-destructive text-sm">
+                {errors.title.message}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="edit-description">Descripción</Label>
             <Textarea id="edit-description" {...register('description')} rows={4} />
             {errors.description && (
-              <p className="text-destructive text-sm">{errors.description.message}</p>
+              <p role="alert" className="text-destructive text-sm">
+                {errors.description.message}
+              </p>
             )}
           </div>
           <div className="space-y-2">
@@ -103,7 +109,11 @@ export function EditServiceRequestDialog({
                 </Select>
               )}
             />
-            {errors.urgency && <p className="text-destructive text-sm">{errors.urgency.message}</p>}
+            {errors.urgency && (
+              <p role="alert" className="text-destructive text-sm">
+                {errors.urgency.message}
+              </p>
+            )}
           </div>
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

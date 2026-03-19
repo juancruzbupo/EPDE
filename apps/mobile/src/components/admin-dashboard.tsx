@@ -173,7 +173,7 @@ export function AdminDashboard() {
                       analytics.slaMetrics.avgResponseHours <= 24
                         ? 'text-success'
                         : analytics.slaMetrics.avgResponseHours <= 72
-                          ? 'text-amber-600'
+                          ? 'text-warning'
                           : 'text-destructive'
                     }
                   >

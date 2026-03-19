@@ -126,7 +126,11 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
               <div className="space-y-2">
                 <Label htmlFor="client-name">Nombre</Label>
                 <Input id="client-name" {...register('name')} />
-                {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
+                {errors.name && (
+                  <p role="alert" className="text-destructive text-sm">
+                    {errors.name.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="client-phone">Teléfono</Label>

@@ -329,7 +329,9 @@ export function TaskDialog({ open, onOpenChange, planId, task, activeSectors }: 
                 Dejá vacío para tareas que se detectan visualmente (sin fecha fija).
               </p>
               {errors.nextDueDate && (
-                <p className="text-destructive text-xs">{errors.nextDueDate.message}</p>
+                <p role="alert" className="text-destructive text-xs">
+                  {errors.nextDueDate.message}
+                </p>
               )}
             </div>
           </fieldset>

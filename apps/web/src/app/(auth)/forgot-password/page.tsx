@@ -61,10 +61,18 @@ export default function ForgotPasswordPage() {
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" placeholder="tu@email.com" {...register('email')} />
-              {errors.email && <p className="text-destructive text-sm">{errors.email.message}</p>}
+              {errors.email && (
+                <p role="alert" className="text-destructive text-sm">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
 
-            {error && <p className="text-destructive text-center text-sm">{error}</p>}
+            {error && (
+              <p role="alert" className="text-destructive text-center text-sm">
+                {error}
+              </p>
+            )}
 
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? 'Enviando...' : 'Enviar instrucciones'}

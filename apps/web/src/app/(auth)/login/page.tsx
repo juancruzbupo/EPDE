@@ -53,7 +53,11 @@ export default function LoginPage() {
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" placeholder="tu@email.com" {...register('email')} />
-            {errors.email && <p className="text-destructive text-sm">{errors.email.message}</p>}
+            {errors.email && (
+              <p role="alert" className="text-destructive text-sm">
+                {errors.email.message}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -77,7 +81,9 @@ export default function LoginPage() {
               </button>
             </div>
             {errors.password && (
-              <p className="text-destructive text-sm">{errors.password.message}</p>
+              <p role="alert" className="text-destructive text-sm">
+                {errors.password.message}
+              </p>
             )}
           </div>
 

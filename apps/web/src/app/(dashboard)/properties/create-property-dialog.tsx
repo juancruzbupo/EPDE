@@ -136,17 +136,29 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
                 </Command>
               </PopoverContent>
             </Popover>
-            {errors.userId && <p className="text-destructive text-sm">{errors.userId.message}</p>}
+            {errors.userId && (
+              <p role="alert" className="text-destructive text-sm">
+                {errors.userId.message}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="prop-address">Dirección</Label>
             <Input id="prop-address" {...register('address')} />
-            {errors.address && <p className="text-destructive text-sm">{errors.address.message}</p>}
+            {errors.address && (
+              <p role="alert" className="text-destructive text-sm">
+                {errors.address.message}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="prop-city">Ciudad</Label>
             <Input id="prop-city" {...register('city')} />
-            {errors.city && <p className="text-destructive text-sm">{errors.city.message}</p>}
+            {errors.city && (
+              <p role="alert" className="text-destructive text-sm">
+                {errors.city.message}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="prop-type">Tipo</Label>
@@ -177,7 +189,9 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
                 })}
               />
               {errors.yearBuilt && (
-                <p className="text-destructive text-sm">{errors.yearBuilt.message}</p>
+                <p role="alert" className="text-destructive text-sm">
+                  {errors.yearBuilt.message}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -191,7 +205,9 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
                 })}
               />
               {errors.squareMeters && (
-                <p className="text-destructive text-sm">{errors.squareMeters.message}</p>
+                <p role="alert" className="text-destructive text-sm">
+                  {errors.squareMeters.message}
+                </p>
               )}
             </div>
           </div>

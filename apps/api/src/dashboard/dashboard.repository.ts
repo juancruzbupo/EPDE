@@ -341,7 +341,7 @@ export class DashboardRepository {
   /** Top sectors with most overdue tasks across all properties. */
   async getProblematicSectors() {
     const tasks = await this.prisma.task.findMany({
-      where: { deletedAt: null, status: 'OVERDUE', sector: { not: null } },
+      where: { deletedAt: null, status: TaskStatus.OVERDUE, sector: { not: null } },
       select: { sector: true },
     });
 
@@ -697,7 +697,7 @@ export class DashboardRepository {
     for (const t of tasks) {
       const w = priorityWeight[t.priority] ?? 2;
       totalWeight += w;
-      if (t.status !== 'OVERDUE') onTimeWeight += w;
+      if (t.status !== TaskStatus.OVERDUE) onTimeWeight += w;
     }
     const compliance = totalWeight > 0 ? Math.round((onTimeWeight / totalWeight) * 100) : 100;
 
@@ -769,7 +769,7 @@ export class DashboardRepository {
       if (!t.sector) continue;
       const entry = sectorMap.get(t.sector) ?? { total: 0, overdue: 0 };
       entry.total += 1;
-      if (t.status === 'OVERDUE') entry.overdue += 1;
+      if (t.status === TaskStatus.OVERDUE) entry.overdue += 1;
       sectorMap.set(t.sector, entry);
     }
     const sectorScores = [...sectorMap.entries()]
@@ -853,8 +853,8 @@ export class DashboardRepository {
       if (!t.sector) continue;
       const entry = map.get(t.sector) ?? { total: 0, overdue: 0, pending: 0, cost: 0 };
       entry.total += 1;
-      if (t.status === 'OVERDUE') entry.overdue += 1;
-      if (t.status === 'PENDING' || t.status === 'UPCOMING') entry.pending += 1;
+      if (t.status === TaskStatus.OVERDUE) entry.overdue += 1;
+      if (t.status === TaskStatus.PENDING || t.status === TaskStatus.UPCOMING) entry.pending += 1;
       map.set(t.sector, entry);
     }
 

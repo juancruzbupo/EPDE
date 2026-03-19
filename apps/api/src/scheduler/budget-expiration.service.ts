@@ -1,3 +1,4 @@
+import { BudgetStatus } from '@epde/shared';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
@@ -47,15 +48,15 @@ export class BudgetExpirationService {
           budget.id,
           budget.requestedBy,
           'expired',
-          { status: 'QUOTED' },
-          { status: 'EXPIRED' },
+          { status: BudgetStatus.QUOTED },
+          { status: BudgetStatus.EXPIRED },
         );
 
         void this.notificationsHandler.handleBudgetStatusChanged({
           budgetId: budget.id,
           title: budget.title,
-          oldStatus: 'QUOTED',
-          newStatus: 'EXPIRED',
+          oldStatus: BudgetStatus.QUOTED,
+          newStatus: BudgetStatus.EXPIRED,
           requesterId: budget.requestedBy,
         });
       }

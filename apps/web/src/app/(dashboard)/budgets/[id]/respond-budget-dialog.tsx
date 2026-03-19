@@ -171,7 +171,7 @@ export function RespondBudgetDialog({
                       {...register(`lineItems.${index}.description`)}
                     />
                     {errors.lineItems?.[index]?.description && (
-                      <p className="text-destructive mt-0.5 text-xs">
+                      <p role="alert" className="text-destructive mt-0.5 text-xs">
                         {errors.lineItems[index].description.message}
                       </p>
                     )}
@@ -210,7 +210,9 @@ export function RespondBudgetDialog({
             })}
 
             {errors.lineItems?.root && (
-              <p className="text-destructive text-xs">{errors.lineItems.root.message}</p>
+              <p role="alert" className="text-destructive text-xs">
+                {errors.lineItems.root.message}
+              </p>
             )}
 
             <div className="flex items-center justify-between">
@@ -248,7 +250,9 @@ export function RespondBudgetDialog({
                   })}
                 />
                 {errors.estimatedDays && (
-                  <p className="text-destructive text-xs">{errors.estimatedDays.message}</p>
+                  <p role="alert" className="text-destructive text-xs">
+                    {errors.estimatedDays.message}
+                  </p>
                 )}
               </div>
               <div className="space-y-1.5">

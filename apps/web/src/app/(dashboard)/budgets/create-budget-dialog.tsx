@@ -156,7 +156,9 @@ export function CreateBudgetDialog({
               {...register('description')}
             />
             {errors.description && (
-              <p className="text-destructive text-sm">{errors.description.message}</p>
+              <p role="alert" className="text-destructive text-sm">
+                {errors.description.message}
+              </p>
             )}
           </div>
           <div className="flex justify-end gap-2">

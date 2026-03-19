@@ -85,7 +85,11 @@ export function CategoryTemplateDialog({
           <div className="space-y-2">
             <Label htmlFor="tpl-cat-name">Nombre</Label>
             <Input id="tpl-cat-name" {...register('name')} />
-            {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
+            {errors.name && (
+              <p role="alert" className="text-destructive text-sm">
+                {errors.name.message}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="tpl-cat-description">Descripción (opcional)</Label>

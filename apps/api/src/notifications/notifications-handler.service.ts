@@ -127,7 +127,10 @@ export class NotificationsHandlerService {
 
       const message = statusMessages[payload.newStatus] ?? 'cambió de estado';
 
-      if (['APPROVED', 'REJECTED'].includes(payload.newStatus)) {
+      if (
+        payload.newStatus === BudgetStatus.APPROVED ||
+        payload.newStatus === BudgetStatus.REJECTED
+      ) {
         const adminIds = await this.usersRepository.findAdminIds();
         await this.notificationQueueService.enqueueBatch(
           adminIds.map((adminId) => ({

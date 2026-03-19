@@ -66,7 +66,7 @@ function ResetPasswordForm() {
       </CardHeader>
       <CardContent>
         {!hasToken ? (
-          <p className="text-destructive text-center text-sm">
+          <p role="alert" className="text-destructive text-center text-sm">
             Token no proporcionado. Verificá el enlace de recuperación.
           </p>
         ) : (
@@ -92,7 +92,9 @@ function ResetPasswordForm() {
                 </button>
               </div>
               {errors.newPassword && (
-                <p className="text-destructive text-sm">{errors.newPassword.message}</p>
+                <p role="alert" className="text-destructive text-sm">
+                  {errors.newPassword.message}
+                </p>
               )}
               <ul className="text-muted-foreground space-y-1 text-sm">
                 <li>Mínimo 8 caracteres</li>
@@ -127,11 +129,17 @@ function ResetPasswordForm() {
                 </button>
               </div>
               {errors.confirmPassword && (
-                <p className="text-destructive text-sm">{errors.confirmPassword.message}</p>
+                <p role="alert" className="text-destructive text-sm">
+                  {errors.confirmPassword.message}
+                </p>
               )}
             </div>
 
-            {error && <p className="text-destructive text-center text-sm">{error}</p>}
+            {error && (
+              <p role="alert" className="text-destructive text-center text-sm">
+                {error}
+              </p>
+            )}
 
             <Button type="submit" className="w-full" disabled={isLoading || !hasToken}>
               {isLoading ? 'Actualizando...' : 'Restablecer Contraseña'}

@@ -80,7 +80,9 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
               </Label>
               <Input id="edit-address" {...register('address')} />
               {errors.address && (
-                <p className="text-destructive text-xs">{errors.address.message}</p>
+                <p role="alert" className="text-destructive text-xs">
+                  {errors.address.message}
+                </p>
               )}
             </div>
             <div className="space-y-1.5">
@@ -88,7 +90,11 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
                 Ciudad <span className="text-destructive">*</span>
               </Label>
               <Input id="edit-city" {...register('city')} />
-              {errors.city && <p className="text-destructive text-xs">{errors.city.message}</p>}
+              {errors.city && (
+                <p role="alert" className="text-destructive text-xs">
+                  {errors.city.message}
+                </p>
+              )}
             </div>
           </div>
           <div className="space-y-1.5">
@@ -122,7 +128,9 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
                 })}
               />
               {errors.yearBuilt && (
-                <p className="text-destructive text-sm">{errors.yearBuilt.message}</p>
+                <p role="alert" className="text-destructive text-sm">
+                  {errors.yearBuilt.message}
+                </p>
               )}
             </div>
             <div className="space-y-1.5">
@@ -138,7 +146,9 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
                 })}
               />
               {errors.squareMeters && (
-                <p className="text-destructive text-sm">{errors.squareMeters.message}</p>
+                <p role="alert" className="text-destructive text-sm">
+                  {errors.squareMeters.message}
+                </p>
               )}
             </div>
           </div>

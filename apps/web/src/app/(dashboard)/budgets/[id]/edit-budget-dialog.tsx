@@ -56,7 +56,11 @@ export function EditBudgetDialog({ open, onOpenChange, budget }: EditBudgetDialo
               Título <span className="text-destructive">*</span>
             </Label>
             <Input id="edit-title" {...register('title')} />
-            {errors.title && <p className="text-destructive text-xs">{errors.title.message}</p>}
+            {errors.title && (
+              <p role="alert" className="text-destructive text-xs">
+                {errors.title.message}
+              </p>
+            )}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="edit-description" className="text-muted-foreground">
@@ -64,7 +68,9 @@ export function EditBudgetDialog({ open, onOpenChange, budget }: EditBudgetDialo
             </Label>
             <Textarea id="edit-description" {...register('description')} rows={2} />
             {errors.description && (
-              <p className="text-destructive text-sm">{errors.description.message}</p>
+              <p role="alert" className="text-destructive text-sm">
+                {errors.description.message}
+              </p>
             )}
           </div>
           <div className="flex justify-end gap-2">

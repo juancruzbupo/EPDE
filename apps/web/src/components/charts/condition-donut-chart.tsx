@@ -54,7 +54,10 @@ export function ConditionDonutChart({ data }: ConditionDonutChartProps) {
               animationDuration={800}
             >
               {sorted.map((entry) => (
-                <Cell key={entry.condition} fill={colorMap[entry.condition] ?? '#888'} />
+                <Cell
+                  key={entry.condition}
+                  fill={colorMap[entry.condition] ?? 'var(--muted-foreground)'}
+                />
               ))}
             </Pie>
             <Tooltip content={<ChartTooltip />} />

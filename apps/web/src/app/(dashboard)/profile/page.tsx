@@ -137,7 +137,11 @@ function ProfileForm({
               Nombre <span className="text-destructive">*</span>
             </Label>
             <Input id="name" placeholder="Tu nombre completo" {...register('name')} />
-            {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
+            {errors.name && (
+              <p role="alert" className="text-destructive text-sm">
+                {errors.name.message}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -145,7 +149,11 @@ function ProfileForm({
               Teléfono
             </Label>
             <Input id="phone" placeholder="+54 11 1234-5678" {...register('phone')} />
-            {errors.phone && <p className="text-destructive text-sm">{errors.phone.message}</p>}
+            {errors.phone && (
+              <p role="alert" className="text-destructive text-sm">
+                {errors.phone.message}
+              </p>
+            )}
           </div>
 
           <Button type="submit" disabled={isLoading || !isDirty}>
@@ -220,7 +228,9 @@ function ChangePasswordForm() {
               </button>
             </div>
             {errors.currentPassword && (
-              <p className="text-destructive text-sm">{errors.currentPassword.message}</p>
+              <p role="alert" className="text-destructive text-sm">
+                {errors.currentPassword.message}
+              </p>
             )}
           </div>
 
@@ -247,7 +257,9 @@ function ChangePasswordForm() {
               </button>
             </div>
             {errors.newPassword && (
-              <p className="text-destructive text-sm">{errors.newPassword.message}</p>
+              <p role="alert" className="text-destructive text-sm">
+                {errors.newPassword.message}
+              </p>
             )}
             <ul className="text-muted-foreground space-y-1 text-sm">
               <li>Mínimo 8 caracteres</li>
@@ -280,7 +292,9 @@ function ChangePasswordForm() {
               </button>
             </div>
             {errors.confirmPassword && (
-              <p className="text-destructive text-sm">{errors.confirmPassword.message}</p>
+              <p role="alert" className="text-destructive text-sm">
+                {errors.confirmPassword.message}
+              </p>
             )}
           </div>
 

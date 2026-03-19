@@ -60,14 +60,22 @@ export function InviteClientDialog({ open, onOpenChange }: InviteClientDialogPro
               Email <span className="text-destructive">*</span>
             </Label>
             <Input id="email" type="email" placeholder="cliente@email.com" {...register('email')} />
-            {errors.email && <p className="text-destructive text-xs">{errors.email.message}</p>}
+            {errors.email && (
+              <p role="alert" className="text-destructive text-xs">
+                {errors.email.message}
+              </p>
+            )}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="name">
               Nombre <span className="text-destructive">*</span>
             </Label>
             <Input id="name" placeholder="Nombre completo" {...register('name')} />
-            {errors.name && <p className="text-destructive text-xs">{errors.name.message}</p>}
+            {errors.name && (
+              <p role="alert" className="text-destructive text-xs">
+                {errors.name.message}
+              </p>
+            )}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="phone" className="text-muted-foreground">

@@ -1,4 +1,4 @@
-import type { ServiceRequestPublic, ServiceStatus, ServiceUrgency } from '@epde/shared';
+import { type ServiceRequestPublic, ServiceStatus, type ServiceUrgency } from '@epde/shared';
 import { formatRelativeDate, SERVICE_URGENCY_LABELS } from '@epde/shared';
 import { Stack, useRouter } from 'expo-router';
 import { memo, useCallback, useMemo, useState } from 'react';
@@ -27,11 +27,11 @@ import { defaultScreenOptions } from '@/lib/screen-options';
 
 const STATUS_FILTERS = [
   { key: undefined, label: 'Todos' },
-  { key: 'OPEN', label: 'Abiertos' },
-  { key: 'IN_REVIEW', label: 'En Revisión' },
-  { key: 'IN_PROGRESS', label: 'En Progreso' },
-  { key: 'RESOLVED', label: 'Resueltos' },
-  { key: 'CLOSED', label: 'Cerrados' },
+  { key: ServiceStatus.OPEN, label: 'Abiertos' },
+  { key: ServiceStatus.IN_REVIEW, label: 'En Revisión' },
+  { key: ServiceStatus.IN_PROGRESS, label: 'En Progreso' },
+  { key: ServiceStatus.RESOLVED, label: 'Resueltos' },
+  { key: ServiceStatus.CLOSED, label: 'Cerrados' },
 ] as const;
 
 const URGENCY_FILTERS: { key: ServiceUrgency | undefined; label: string }[] = [

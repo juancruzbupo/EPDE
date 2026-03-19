@@ -87,7 +87,11 @@ export function CategoryDialog({ open, onOpenChange, category }: CategoryDialogP
                 Nombre <span className="text-destructive">*</span>
               </Label>
               <Input id="cat-name" placeholder="Ej: Estructura" {...register('name')} />
-              {errors.name && <p className="text-destructive text-xs">{errors.name.message}</p>}
+              {errors.name && (
+                <p role="alert" className="text-destructive text-xs">
+                  {errors.name.message}
+                </p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="cat-order">

@@ -148,7 +148,11 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
 
       return tx.budgetRequest.update({
         where: { id },
-        data: { status: 'QUOTED', updatedBy: response.updatedBy, version: { increment: 1 } },
+        data: {
+          status: BudgetStatus.QUOTED,
+          updatedBy: response.updatedBy,
+          version: { increment: 1 },
+        },
         include: BUDGET_DETAIL_INCLUDE,
       });
     });

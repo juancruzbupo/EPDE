@@ -1,3 +1,4 @@
+import { ServiceStatus } from '@epde/shared';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
@@ -51,15 +52,15 @@ export class ServiceRequestAutoCloseService {
           request.id,
           request.requestedBy,
           'closed',
-          { status: 'RESOLVED' },
-          { status: 'CLOSED', reason: 'auto-close after 7 days' },
+          { status: ServiceStatus.RESOLVED },
+          { status: ServiceStatus.CLOSED, reason: 'auto-close after 7 days' },
         );
 
         void this.notificationsHandler.handleServiceStatusChanged({
           serviceRequestId: request.id,
           title: request.title,
-          oldStatus: 'RESOLVED',
-          newStatus: 'CLOSED',
+          oldStatus: ServiceStatus.RESOLVED,
+          newStatus: ServiceStatus.CLOSED,
           requesterId: request.requestedBy,
         });
       }

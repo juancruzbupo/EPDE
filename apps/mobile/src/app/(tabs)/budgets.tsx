@@ -1,4 +1,4 @@
-import type { BudgetRequestPublic, BudgetStatus } from '@epde/shared';
+import { type BudgetRequestPublic, BudgetStatus } from '@epde/shared';
 import { formatARS, formatRelativeDate } from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { memo, useCallback, useMemo, useState } from 'react';
@@ -26,12 +26,12 @@ import { haptics } from '@/lib/haptics';
 
 const FILTERS = [
   { key: undefined, label: 'Todos' },
-  { key: 'PENDING', label: 'Pendientes' },
-  { key: 'QUOTED', label: 'Cotizados' },
-  { key: 'APPROVED', label: 'Aprobados' },
-  { key: 'REJECTED', label: 'Rechazados' },
-  { key: 'IN_PROGRESS', label: 'En Progreso' },
-  { key: 'COMPLETED', label: 'Completados' },
+  { key: BudgetStatus.PENDING, label: 'Pendientes' },
+  { key: BudgetStatus.QUOTED, label: 'Cotizados' },
+  { key: BudgetStatus.APPROVED, label: 'Aprobados' },
+  { key: BudgetStatus.REJECTED, label: 'Rechazados' },
+  { key: BudgetStatus.IN_PROGRESS, label: 'En Progreso' },
+  { key: BudgetStatus.COMPLETED, label: 'Completados' },
 ] as const;
 
 const BudgetCard = memo(function BudgetCard({ budget }: { budget: BudgetRequestPublic }) {
