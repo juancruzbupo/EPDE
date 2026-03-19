@@ -1,4 +1,5 @@
 import type {
+  BulkAddTasksInput,
   CompleteTaskInput,
   CreateTaskNoteInput,
   CurrentUser as CurrentUserPayload,
@@ -8,6 +9,7 @@ import type {
   UpdateTaskInput,
 } from '@epde/shared';
 import {
+  bulkAddTasksSchema,
   completeTaskSchema,
   createTaskNoteSchema,
   createTaskSchema,
@@ -115,6 +117,22 @@ export class MaintenancePlansController {
   ) {
     const data = await this.taskLifecycle.addTask(planId, dto, user.id);
     return { data, message: 'Tarea agregada' };
+  }
+
+  @Post(':id/tasks/bulk')
+  @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 5, ttl: 60_000 } })
+  async bulkAddTasks(
+    @Param('id', ParseUUIDPipe) planId: string,
+    @Body(new ZodValidationPipe(bulkAddTasksSchema)) body: BulkAddTasksInput,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    const count = await this.taskLifecycle.bulkAddFromTemplate(
+      planId,
+      body.categoryTemplateId,
+      user.id,
+    );
+    return { data: { count }, message: `${count} tareas agregadas` };
   }
 
   // Static segment MUST be before :taskId to avoid NestJS matching "reorder" as a UUID

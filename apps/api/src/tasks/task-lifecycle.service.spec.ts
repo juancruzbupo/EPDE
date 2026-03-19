@@ -10,6 +10,7 @@ import { BadRequestException, ForbiddenException, NotFoundException } from '@nes
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { MaintenancePlansRepository } from '../maintenance-plans/maintenance-plans.repository';
+import { PrismaService } from '../prisma/prisma.service';
 import { TaskAuditLogRepository } from './task-audit-log.repository';
 import { TaskLifecycleService } from './task-lifecycle.service';
 import { TasksRepository } from './tasks.repository';
@@ -46,6 +47,13 @@ describe('TaskLifecycleService', () => {
         { provide: TasksRepository, useValue: mockTasksRepository },
         { provide: MaintenancePlansRepository, useValue: mockPlansRepository },
         { provide: TaskAuditLogRepository, useValue: mockAuditLogRepository },
+        {
+          provide: PrismaService,
+          useValue: {
+            categoryTemplate: { findUnique: jest.fn() },
+            task: { createMany: jest.fn() },
+          },
+        },
       ],
     }).compile();
 

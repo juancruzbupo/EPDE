@@ -11,7 +11,16 @@ import {
   TaskPriority,
   TaskStatus,
 } from '@epde/shared';
-import { Archive, ChevronDown, ChevronRight, Pencil, Play, Plus, Trash2 } from 'lucide-react';
+import {
+  Archive,
+  CheckCircle,
+  ChevronDown,
+  ChevronRight,
+  Pencil,
+  Play,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { ConfirmDialog } from '@/components/confirm-dialog';
@@ -28,6 +37,7 @@ import type { TaskPublic } from '@/lib/api/maintenance-plans';
 import { TASK_STATUS_COLORS, TASK_STATUS_ICONS, TASK_STATUS_ORDER } from '@/lib/style-maps';
 import { cn } from '@/lib/utils';
 
+import { CompleteTaskDialog } from './complete-task-dialog';
 import { TaskDialog } from './task-dialog';
 
 const SHOW_SEARCH_THRESHOLD = 5;
@@ -77,12 +87,14 @@ function CategorySection({
   defaultOpen,
   onEdit,
   onDelete,
+  onComplete,
 }: {
   categoryName: string;
   tasks: TaskPublic[];
   defaultOpen: boolean;
   onEdit: (task: TaskPublic) => void;
   onDelete: (taskId: string) => void;
+  onComplete: (task: TaskPublic) => void;
 }) {
   const [open, setOpen] = useState(defaultOpen);
 
@@ -136,6 +148,18 @@ function CategorySection({
               </div>
 
               <div className="flex shrink-0 gap-1">
+                {(task.status === TaskStatus.PENDING ||
+                  task.status === TaskStatus.UPCOMING ||
+                  task.status === TaskStatus.OVERDUE) && (
+                  <button
+                    onClick={() => onComplete(task)}
+                    className="text-muted-foreground hover:text-success focus-visible:ring-ring/50 rounded p-2 focus-visible:ring-[3px] focus-visible:outline-none"
+                    aria-label="Completar tarea"
+                    title="Registrar completación"
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                  </button>
+                )}
                 <button
                   onClick={() => onEdit(task)}
                   className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded p-2 focus-visible:ring-[3px] focus-visible:outline-none"
@@ -167,6 +191,7 @@ export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskPublic | null>(null);
   const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
+  const [completingTask, setCompletingTask] = useState<TaskPublic | null>(null);
   const [statusTransition, setStatusTransition] = useState<PlanStatus | null>(null);
   const [search, setSearch] = useState('');
   const [priority, setPriority] = useState<TaskPriority | 'all'>('all');
@@ -318,6 +343,7 @@ export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
                       setEditingTask(task);
                       setTaskDialogOpen(true);
                     }}
+                    onComplete={setCompletingTask}
                     onDelete={setDeleteTaskId}
                   />
                 ))}
@@ -369,6 +395,13 @@ export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
           }
         }}
         isLoading={updatePlan.isPending}
+      />
+
+      <CompleteTaskDialog
+        open={!!completingTask}
+        onOpenChange={() => setCompletingTask(null)}
+        task={completingTask}
+        planId={planId}
       />
     </Card>
   );

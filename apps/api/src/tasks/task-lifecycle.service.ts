@@ -28,6 +28,7 @@ import {
   TaskNotCompletableError,
 } from '../common/exceptions/domain.exceptions';
 import { MaintenancePlansRepository } from '../maintenance-plans/maintenance-plans.repository';
+import { PrismaService } from '../prisma/prisma.service';
 import { TaskAuditLogRepository } from './task-audit-log.repository';
 import { TasksRepository } from './tasks.repository';
 
@@ -42,6 +43,7 @@ export class TaskLifecycleService {
     private readonly tasksRepository: TasksRepository,
     private readonly plansRepository: MaintenancePlansRepository,
     private readonly auditLogRepository: TaskAuditLogRepository,
+    private readonly prisma: PrismaService,
   ) {}
 
   /**
@@ -203,5 +205,69 @@ export class TaskLifecycleService {
       }
       throw error;
     }
+  }
+
+  /**
+   * Creates tasks in bulk from a CategoryTemplate's TaskTemplates.
+   * Finds or creates a Category linked to the template, then creates
+   * one Task per TaskTemplate in the plan.
+   */
+  async bulkAddFromTemplate(
+    planId: string,
+    categoryTemplateId: string,
+    createdBy: string,
+  ): Promise<number> {
+    const plan = await this.plansRepository.findById(planId);
+    if (!plan) {
+      throw new NotFoundException('Plan de mantenimiento no encontrado');
+    }
+
+    const categoryTemplate = await this.prisma.categoryTemplate.findUnique({
+      where: { id: categoryTemplateId },
+      include: { tasks: { orderBy: { displayOrder: 'asc' } } },
+    });
+    if (!categoryTemplate) {
+      throw new NotFoundException('Plantilla de categoría no encontrada');
+    }
+
+    if (categoryTemplate.tasks.length === 0) {
+      throw new BadRequestException('La plantilla no tiene tareas definidas');
+    }
+
+    // Find an existing Category linked to this template, or create one
+    let category = await this.prisma.softDelete.category.findFirst({
+      where: { categoryTemplateId },
+    });
+    if (!category) {
+      category = await this.prisma.category.create({
+        data: {
+          name: categoryTemplate.name,
+          icon: categoryTemplate.icon,
+          description: categoryTemplate.description,
+          categoryTemplateId,
+        },
+      });
+    }
+
+    const maxOrder = await this.tasksRepository.getMaxOrder(planId);
+
+    const taskData = categoryTemplate.tasks.map((tpl, index) => ({
+      maintenancePlanId: planId,
+      categoryId: category.id,
+      name: tpl.name,
+      taskType: tpl.taskType,
+      professionalRequirement: tpl.professionalRequirement,
+      technicalDescription: tpl.technicalDescription,
+      priority: tpl.priority,
+      recurrenceType: tpl.recurrenceType,
+      recurrenceMonths: tpl.recurrenceMonths,
+      estimatedDurationMinutes: tpl.estimatedDurationMinutes,
+      order: maxOrder + 1 + index,
+      status: TaskStatus.PENDING,
+      createdBy,
+    }));
+
+    const result = await this.prisma.task.createMany({ data: taskData });
+    return result.count;
   }
 }

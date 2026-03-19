@@ -98,3 +98,9 @@ export const reorderTasksSchema = z.object({
 });
 
 export type ReorderTasksInput = z.infer<typeof reorderTasksSchema>;
+
+export const bulkAddTasksSchema = z.object({
+  categoryTemplateId: z.string().uuid('ID de plantilla de categoría inválido'),
+});
+
+export type BulkAddTasksInput = z.infer<typeof bulkAddTasksSchema>;

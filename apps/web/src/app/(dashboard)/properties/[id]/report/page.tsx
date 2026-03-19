@@ -16,6 +16,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Printer } from 'lucide-react';
 import Link from 'next/link';
 import { use, useEffect } from 'react';
+import { toast } from 'sonner';
 
 import { ErrorState } from '@/components/error-state';
 import { Button } from '@/components/ui/button';
@@ -165,10 +166,31 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
             Volver
           </Link>
         </Button>
-        <Button onClick={() => window.print()}>
-          <Printer className="mr-2 h-4 w-4" aria-hidden="true" />
-          Imprimir / Descargar PDF
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              void navigator.clipboard.writeText(window.location.href);
+              toast.success('Link copiado al portapapeles');
+            }}
+          >
+            Copiar link
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent('Informe técnico de tu vivienda: ' + (typeof window !== 'undefined' ? window.location.href : ''))}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              WhatsApp
+            </a>
+          </Button>
+          <Button onClick={() => window.print()}>
+            <Printer className="mr-2 h-4 w-4" aria-hidden="true" />
+            Imprimir PDF
+          </Button>
+        </div>
       </div>
 
       {/* ── 1. PORTADA ── */}
@@ -200,12 +222,29 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
         </div>
         <div className="bg-card border-border mx-auto max-w-md rounded-2xl border p-6 text-center">
           <p className="text-muted-foreground mb-1 text-sm">Índice de Salud de la Vivienda</p>
-          <p className={`text-5xl font-bold ${scoreColor(sc)}`}>{sc}</p>
-          <p className={`text-lg font-medium ${scoreColor(sc)}`}>{scoreLabel(sc)}</p>
+          {sc > 0 ? (
+            <>
+              <p className={`text-5xl font-bold ${scoreColor(sc)}`}>{sc}</p>
+              <p className={`text-lg font-medium ${scoreColor(sc)}`}>{scoreLabel(sc)}</p>
+            </>
+          ) : (
+            <>
+              <p className="text-muted-foreground text-2xl font-bold">—</p>
+              <p className="text-muted-foreground text-sm">Diagnóstico pendiente</p>
+            </>
+          )}
           <div className="mt-2">
             <Bar value={sc} className={scoreBg(sc)} />
           </div>
         </div>
+        {taskStats.total === 0 && (
+          <div className="bg-muted/40 mt-6 rounded-xl p-5 text-center">
+            <p className="text-muted-foreground text-sm">
+              Este informe se completará a medida que se realicen las inspecciones programadas. Los
+              datos se actualizan automáticamente con cada tarea completada.
+            </p>
+          </div>
+        )}
       </section>
 
       {/* ── 2. RESUMEN EJECUTIVO ── */}
