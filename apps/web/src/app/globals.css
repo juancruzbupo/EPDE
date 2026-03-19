@@ -398,29 +398,48 @@ body {
     max-width: 100% !important;
   }
 
-  /* ISV card print: prevent chart/sector sections from splitting */
+  /* ISV card print: compact everything to fit 1 page */
   [data-print-target] {
-    font-size: 11px;
+    font-size: 10px;
+    line-height: 1.3;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  [data-print-target] [class*='CardHeader'] {
+    padding: 8px 16px 4px !important;
   }
   [data-print-target] [class*='CardContent'] {
+    padding: 4px 16px 8px !important;
     break-inside: avoid;
-    page-break-inside: avoid;
   }
-
-  /* Charts: keep together, reduce height for A4 */
-  [data-print-target] .recharts-wrapper {
-    break-inside: avoid;
-    page-break-inside: avoid;
-    max-height: 200px !important;
+  /* Reduce spacing between dimension bars */
+  [data-print-target] [class*='space-y-2'] {
+    gap: 2px;
   }
-  [data-print-target] svg.recharts-surface {
-    max-height: 200px !important;
+  [data-print-target] [class*='space-y-4'] {
+    gap: 6px;
   }
-
-  /* Sector grid: keep together */
-  [data-print-target] [class*='grid'] {
-    break-inside: avoid;
-    page-break-inside: avoid;
+  /* Compact dimension hints */
+  [data-print-target] .text-muted-foreground.text-xs {
+    font-size: 8px;
+    margin-top: 0;
+  }
+  /* Reduce sector row padding */
+  [data-print-target] [class*='grid'] a {
+    padding: 1px 4px;
+  }
+  /* Compact chart height */
+  [data-print-target] [style*='height: 80'] {
+    height: 50px !important;
+  }
+  /* Print header compact */
+  [data-print-target] .print\:mb-4 {
+    margin-bottom: 8px !important;
+    padding: 8px 16px !important;
+  }
+  /* Hide hover tooltips */
+  [data-print-target] .group-hover\:block {
+    display: none !important;
   }
 }
 

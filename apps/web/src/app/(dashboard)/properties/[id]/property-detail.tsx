@@ -73,37 +73,39 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={property.address}
-        description={[
-          property.city,
-          PROPERTY_TYPE_LABELS[property.type] ?? property.type,
-          property.yearBuilt && `${property.yearBuilt}`,
-          property.squareMeters && `${property.squareMeters} m²`,
-          property.user && `Cliente: ${property.user.name}`,
-        ]
-          .filter(Boolean)
-          .join(' · ')}
-        action={
-          <div className="no-print flex gap-2">
-            <Button variant="outline" asChild>
-              <Link href="/properties">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Volver
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link href={`/properties/${id}/report`}>Ver Informe</Link>
-            </Button>
-            {isAdmin && (
-              <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Editar
+      <div className="no-print">
+        <PageHeader
+          title={property.address}
+          description={[
+            property.city,
+            PROPERTY_TYPE_LABELS[property.type] ?? property.type,
+            property.yearBuilt && `${property.yearBuilt}`,
+            property.squareMeters && `${property.squareMeters} m²`,
+            property.user && `Cliente: ${property.user.name}`,
+          ]
+            .filter(Boolean)
+            .join(' · ')}
+          action={
+            <div className="no-print flex gap-2">
+              <Button variant="outline" asChild>
+                <Link href="/properties">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Volver
+                </Link>
               </Button>
-            )}
-          </div>
-        }
-      />
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/properties/${id}/report`}>Ver Informe</Link>
+              </Button>
+              {isAdmin && (
+                <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Editar
+                </Button>
+              )}
+            </div>
+          }
+        />
+      </div>
 
       <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
         <TabsList>

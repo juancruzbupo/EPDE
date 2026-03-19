@@ -199,7 +199,7 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
 
         {/* History chart */}
         {history && history.length > 1 && (
-          <div className="border-border border-t pt-3 print:break-before-page">
+          <div className="border-border border-t pt-3">
             <p className="text-foreground mb-2 text-sm font-semibold">Evolución del ISV</p>
             <div className="flex items-end gap-1" style={{ height: 80 }}>
               {history.map((s) => {
