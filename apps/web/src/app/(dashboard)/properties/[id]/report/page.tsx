@@ -170,9 +170,13 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              void navigator.clipboard.writeText(window.location.href);
-              toast.success('Link copiado al portapapeles');
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(window.location.href);
+                toast.success('Link copiado al portapapeles');
+              } catch {
+                toast.error('No se pudo copiar el link');
+              }
             }}
           >
             Copiar link
