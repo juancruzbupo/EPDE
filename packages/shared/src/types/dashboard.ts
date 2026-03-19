@@ -153,6 +153,62 @@ export interface ISVSnapshotPublic {
   trend: number;
 }
 
+/** Aggregated data for generating a property technical report (PDF). */
+export interface PropertyReportData {
+  property: {
+    id: string;
+    address: string;
+    city: string;
+    type: string;
+    yearBuilt: number;
+    squareMeters: number;
+    userId: string;
+    user?: { name: string; email: string };
+  };
+  healthIndex: PropertyHealthIndex;
+  history: ISVSnapshotPublic[];
+  sectorBreakdown: SectorBreakdownItem[];
+  categoryBreakdown: CategoryBreakdownItem[];
+  overdueTasks: Array<{
+    id: string;
+    name: string;
+    sector: string | null;
+    priority: string;
+    professionalRequirement: string;
+    nextDueDate: string | null;
+    category: { name: string };
+  }>;
+  upcomingTasks: Array<{
+    id: string;
+    name: string;
+    sector: string | null;
+    priority: string;
+    professionalRequirement: string;
+    nextDueDate: string | null;
+    recurrenceType: string;
+    category: { name: string };
+  }>;
+  recentLogs: Array<{
+    id: string;
+    completedAt: string;
+    result: string;
+    conditionFound: string;
+    actionTaken: string;
+    cost: number | null;
+    notes: string | null;
+    photoUrl: string | null;
+    task: { name: string; category: { name: string }; sector: string | null };
+    user: { name: string };
+  }>;
+  taskStats: {
+    total: number;
+    overdue: number;
+    pending: number;
+    upcoming: number;
+    completed: number;
+  };
+}
+
 /** Client analytics response */
 export interface ClientAnalytics {
   conditionTrend: Array<{

@@ -1,4 +1,10 @@
-import type { ApiResponse, PropertyPublic, PropertyType, UpdatePropertyInput } from '@epde/shared';
+import type {
+  ApiResponse,
+  PropertyPublic,
+  PropertyReportData,
+  PropertyType,
+  UpdatePropertyInput,
+} from '@epde/shared';
 import { createPropertyQueries } from '@epde/shared';
 
 import { apiClient } from '../api-client';
@@ -14,6 +20,14 @@ export const {
   getPropertyHealthIndex,
   getPropertyHealthHistory,
 } = queries;
+
+export async function getPropertyReport(id: string, signal?: AbortSignal) {
+  const { data } = await apiClient.get<{ data: PropertyReportData }>(
+    `/properties/${id}/report-data`,
+    { signal },
+  );
+  return data;
+}
 
 // Admin-only
 export async function createProperty(dto: {

@@ -1,4 +1,4 @@
-import { BudgetStatus } from '@epde/shared';
+import { BudgetStatus, TaskStatus } from '@epde/shared';
 import { Injectable } from '@nestjs/common';
 import { PlanStatus, Prisma, Property, PropertyType } from '@prisma/client';
 
@@ -192,6 +192,87 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
     const totalCost = items.reduce((sum, item) => sum + item.amount, 0);
 
     return { totalCost, items };
+  }
+
+  /** Fetches overdue tasks, upcoming tasks (next 90 days), and status counts for a plan. */
+  async getReportTasks(planId: string) {
+    const [overdue, upcoming, counts] = await Promise.all([
+      this.prisma.softDelete.task.findMany({
+        where: { maintenancePlanId: planId, status: TaskStatus.OVERDUE },
+        select: {
+          id: true,
+          name: true,
+          sector: true,
+          priority: true,
+          professionalRequirement: true,
+          nextDueDate: true,
+          category: { select: { name: true } },
+        },
+        orderBy: { priority: 'desc' },
+        take: 20,
+      }),
+      this.prisma.softDelete.task.findMany({
+        where: {
+          maintenancePlanId: planId,
+          status: { in: [TaskStatus.PENDING, TaskStatus.UPCOMING] },
+          nextDueDate: {
+            lte: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          sector: true,
+          priority: true,
+          professionalRequirement: true,
+          nextDueDate: true,
+          recurrenceType: true,
+          category: { select: { name: true } },
+        },
+        orderBy: { nextDueDate: 'asc' },
+        take: 30,
+      }),
+      this.prisma.softDelete.task.groupBy({
+        by: ['status'],
+        where: { maintenancePlanId: planId },
+        _count: true,
+      }),
+    ]);
+
+    const stats = { total: 0, overdue: 0, pending: 0, upcoming: 0, completed: 0 };
+    for (const g of counts) {
+      stats[g.status.toLowerCase() as keyof typeof stats] = g._count;
+      stats.total += g._count;
+    }
+
+    return { overdue, upcoming, stats };
+  }
+
+  /** Fetches the most recent task completion logs for a plan. */
+  async getRecentTaskLogs(planId: string) {
+    return this.prisma.taskLog.findMany({
+      where: { task: { maintenancePlanId: planId, deletedAt: null } },
+      select: {
+        id: true,
+        completedAt: true,
+        result: true,
+        conditionFound: true,
+        actionTaken: true,
+        cost: true,
+        notes: true,
+        photoUrl: true,
+        task: {
+          select: {
+            name: true,
+            sector: true,
+            category: { select: { name: true } },
+          },
+        },
+        user: { select: { name: true } },
+      },
+      orderBy: { completedAt: 'desc' },
+      take: 20,
+    });
   }
 
   /** Aggregates all photos for a property from ServiceRequestPhotos + TaskLog photoUrls. */

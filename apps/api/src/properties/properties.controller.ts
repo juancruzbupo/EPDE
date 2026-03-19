@@ -94,6 +94,16 @@ export class PropertiesController {
     return { data };
   }
 
+  @Get(':id/report-data')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  async getReportData(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    const data = await this.propertiesService.getReportData(id, user);
+    return { data };
+  }
+
   @Post()
   @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 5, ttl: 60_000 } })

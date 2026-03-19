@@ -160,6 +160,89 @@ export class PropertiesService {
     return this.propertiesRepository.getPropertyExpenses(id);
   }
 
+  async getReportData(id: string, currentUser: ServiceUser) {
+    const property = await this.propertiesRepository.findWithPlan(id);
+    if (!property) {
+      throw new NotFoundException('Propiedad no encontrada');
+    }
+
+    this.assertOwnership(property.userId, currentUser);
+
+    const planId = property.maintenancePlan?.id;
+
+    if (!planId) {
+      return {
+        property: {
+          id: property.id,
+          address: property.address,
+          city: property.city,
+          type: property.type,
+          yearBuilt: property.yearBuilt,
+          squareMeters: property.squareMeters,
+          userId: property.userId,
+          user: property.user,
+        },
+        healthIndex: {
+          score: 0,
+          label: 'Sin plan',
+          dimensions: { compliance: 0, condition: 0, coverage: 0, investment: 0, trend: 0 },
+          sectorScores: [],
+        },
+        history: [],
+        sectorBreakdown: [],
+        categoryBreakdown: [],
+        overdueTasks: [],
+        upcomingTasks: [],
+        recentLogs: [],
+        taskStats: { total: 0, overdue: 0, pending: 0, upcoming: 0, completed: 0 },
+      };
+    }
+
+    const [healthIndex, snapshots, sectorBreakdown, categoryBreakdown, reportTasks, recentLogs] =
+      await Promise.all([
+        this.dashboardRepository.getPropertyHealthIndex([planId]),
+        this.isvSnapshotRepository.findByProperty(id, 12),
+        this.dashboardRepository.getClientSectorBreakdown([planId]),
+        this.dashboardRepository.getClientCategoryBreakdown([planId]),
+        this.propertiesRepository.getReportTasks(planId),
+        this.propertiesRepository.getRecentTaskLogs(planId),
+      ]);
+
+    const history = snapshots
+      .map((s) => ({
+        month: s.snapshotDate.toISOString().slice(0, 7),
+        score: s.score,
+        label: s.label,
+        compliance: s.compliance,
+        condition: s.condition,
+        coverage: s.coverage,
+        investment: s.investment,
+        trend: s.trend,
+      }))
+      .reverse();
+
+    return {
+      property: {
+        id: property.id,
+        address: property.address,
+        city: property.city,
+        type: property.type,
+        yearBuilt: property.yearBuilt,
+        squareMeters: property.squareMeters,
+        userId: property.userId,
+        user: property.user,
+      },
+      healthIndex,
+      history,
+      sectorBreakdown,
+      categoryBreakdown,
+      overdueTasks: reportTasks.overdue,
+      upcomingTasks: reportTasks.upcoming,
+      recentLogs,
+      taskStats: reportTasks.stats,
+    };
+  }
+
   private assertOwnership(propertyUserId: string, currentUser: ServiceUser) {
     if (currentUser.role === UserRole.CLIENT && propertyUserId !== currentUser.id) {
       throw new ForbiddenException('Acceso denegado a esta propiedad');

@@ -341,13 +341,22 @@ body {
     padding: 0 !important;
   }
 
-  /* Ensure colored badges/bars print correctly */
+  /* Ensure colored elements print correctly */
   .bg-success,
-  .bg-amber-500,
-  .bg-orange-500,
-  .bg-destructive {
+  .bg-warning,
+  .bg-caution,
+  .bg-destructive,
+  .bg-status-pending,
+  .bg-status-upcoming,
+  .bg-status-completed,
+  .bg-muted {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+
+  /* Report page breaks */
+  .print\:break-before-page {
+    break-before: page;
   }
 }
 

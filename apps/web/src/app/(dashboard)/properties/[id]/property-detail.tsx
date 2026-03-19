@@ -92,6 +92,9 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
                 Volver
               </Link>
             </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/properties/${id}/report`}>Ver Informe</Link>
+            </Button>
             {isAdmin && (
               <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
                 <Pencil className="mr-2 h-4 w-4" />
