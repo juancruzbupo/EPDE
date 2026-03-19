@@ -85,7 +85,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
           .filter(Boolean)
           .join(' · ')}
         action={
-          <div className="flex gap-2">
+          <div className="no-print flex gap-2">
             <Button variant="outline" asChild>
               <Link href="/properties">
                 <ArrowLeft className="mr-2 h-4 w-4" />
