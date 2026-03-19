@@ -172,7 +172,7 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
               </div>
             )}
             <p className="text-foreground mb-2 text-sm font-semibold">Salud por sector</p>
-            <div className="grid gap-1.5 sm:grid-cols-2">
+            <div className="grid gap-1.5 sm:grid-cols-2 print:break-inside-avoid">
               {index.sectorScores.map((s) => {
                 const label = PROPERTY_SECTOR_LABELS[s.sector as PropertySector] ?? s.sector;
                 return (
@@ -199,7 +199,7 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
 
         {/* History chart */}
         {history && history.length > 1 && (
-          <div className="border-border border-t pt-3">
+          <div className="border-border border-t pt-3 print:break-before-page">
             <p className="text-foreground mb-2 text-sm font-semibold">Evolución del ISV</p>
             <div className="flex items-end gap-1" style={{ height: 80 }}>
               {history.map((s) => {

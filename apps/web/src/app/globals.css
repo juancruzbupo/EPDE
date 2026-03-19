@@ -358,6 +358,10 @@ body {
   .print\:break-before-page {
     break-before: page;
   }
+  .print\:break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 
   /* Prevent elements from being cut across pages */
   .report-item {
@@ -392,6 +396,31 @@ body {
   .report-container {
     padding: 0 !important;
     max-width: 100% !important;
+  }
+
+  /* ISV card print: prevent chart/sector sections from splitting */
+  [data-print-target] {
+    font-size: 11px;
+  }
+  [data-print-target] [class*='CardContent'] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Charts: keep together, reduce height for A4 */
+  [data-print-target] .recharts-wrapper {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    max-height: 200px !important;
+  }
+  [data-print-target] svg.recharts-surface {
+    max-height: 200px !important;
+  }
+
+  /* Sector grid: keep together */
+  [data-print-target] [class*='grid'] {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 }
 
