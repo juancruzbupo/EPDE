@@ -1,12 +1,20 @@
 import type { AdminAnalytics, ClientAnalytics } from '@epde/shared';
 import { ActivityType } from '@epde/shared';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
+import { RedisService } from '../redis/redis.service';
 import { DashboardRepository } from './dashboard.repository';
+
+const ANALYTICS_TTL = 300; // 5 minutes
 
 @Injectable()
 export class DashboardService {
-  constructor(private readonly dashboardRepository: DashboardRepository) {}
+  private readonly logger = new Logger(DashboardService.name);
+
+  constructor(
+    private readonly dashboardRepository: DashboardRepository,
+    private readonly redis: RedisService,
+  ) {}
 
   async getStats() {
     return this.dashboardRepository.getAdminStats();
@@ -92,6 +100,14 @@ export class DashboardService {
   }
 
   async getAdminAnalytics(months = 6): Promise<AdminAnalytics> {
+    const cacheKey = `dashboard:admin:analytics:${months}`;
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) return JSON.parse(cached) as AdminAnalytics;
+    } catch {
+      // Redis unavailable — continue without cache
+    }
+
     const [
       completionTrend,
       conditionDistribution,
@@ -116,7 +132,7 @@ export class DashboardService {
       this.dashboardRepository.getProblematicSectors(),
     ]);
 
-    return {
+    const result: AdminAnalytics = {
       completionTrend,
       conditionDistribution,
       problematicCategories,
@@ -128,9 +144,25 @@ export class DashboardService {
       slaMetrics,
       problematicSectors,
     };
+
+    try {
+      await this.redis.setex(cacheKey, ANALYTICS_TTL, JSON.stringify(result));
+    } catch {
+      // Redis unavailable — result still returned uncached
+    }
+
+    return result;
   }
 
   async getClientAnalytics(userId: string, months = 6): Promise<ClientAnalytics> {
+    const cacheKey = `dashboard:client:${userId}:analytics:${months}`;
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) return JSON.parse(cached) as ClientAnalytics;
+    } catch {
+      // Redis unavailable
+    }
+
     const { planIds } = await this.dashboardRepository.getClientPropertyAndPlanIds(userId);
 
     const [
@@ -151,7 +183,7 @@ export class DashboardService {
       this.dashboardRepository.getPropertyHealthIndex(planIds),
     ]);
 
-    return {
+    const result = {
       conditionTrend,
       costHistory,
       healthScore: healthData.healthScore,
@@ -160,6 +192,14 @@ export class DashboardService {
       categoryBreakdown,
       sectorBreakdown,
       healthIndex,
-    };
+    } satisfies ClientAnalytics;
+
+    try {
+      await this.redis.setex(cacheKey, ANALYTICS_TTL, JSON.stringify(result));
+    } catch {
+      // Redis unavailable
+    }
+
+    return result;
   }
 }

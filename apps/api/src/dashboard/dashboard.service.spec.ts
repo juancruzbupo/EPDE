@@ -1,8 +1,14 @@
 import { ActivityType, ConditionFound, TaskStatus } from '@epde/shared';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { RedisService } from '../redis/redis.service';
 import { DashboardRepository } from './dashboard.repository';
 import { DashboardService } from './dashboard.service';
+
+const mockRedisService = {
+  get: jest.fn().mockResolvedValue(null),
+  setex: jest.fn().mockResolvedValue(undefined),
+};
 
 const mockDashboardRepository = {
   getAdminStats: jest.fn(),
@@ -40,6 +46,7 @@ describe('DashboardService', () => {
       providers: [
         DashboardService,
         { provide: DashboardRepository, useValue: mockDashboardRepository },
+        { provide: RedisService, useValue: mockRedisService },
       ],
     }).compile();
 

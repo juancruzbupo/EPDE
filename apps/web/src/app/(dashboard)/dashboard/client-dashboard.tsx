@@ -1,9 +1,14 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useRef, useState } from 'react';
 
 import { ActionList } from '@/components/action-list';
-import { AnalyticsTabs } from '@/components/analytics-tabs';
+
+const AnalyticsTabs = dynamic(
+  () => import('@/components/analytics-tabs').then((m) => m.AnalyticsTabs),
+  { ssr: false },
+);
 import { ErrorState } from '@/components/error-state';
 import { HomeStatusCard } from '@/components/home-status-card';
 import { PageHeader } from '@/components/page-header';

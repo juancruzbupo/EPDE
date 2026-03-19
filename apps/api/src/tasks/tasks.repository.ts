@@ -192,6 +192,7 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
         recurrenceType: { not: 'ON_DETECTION' },
       },
       include: taskInclude,
+      take: 500,
     });
   }
 
@@ -214,6 +215,7 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
           },
         },
       },
+      take: 500,
     });
   }
 

@@ -251,23 +251,21 @@ export class DashboardRepository {
   async getCompletionTrend(months: number) {
     const since = subMonths(startOfMonth(new Date()), months - 1);
 
-    const rows = await this.prisma.taskLog.groupBy({
-      by: ['completedAt'],
-      _count: true,
-      where: { completedAt: { gte: since } },
-    });
+    const rows = await this.prisma.$queryRaw<{ month: string; count: bigint }[]>`
+      SELECT to_char("completedAt", 'YYYY-MM') as month, COUNT(*) as count
+      FROM "TaskLog"
+      WHERE "completedAt" >= ${since}
+      GROUP BY month ORDER BY month
+    `;
 
+    // Build full month range with zeros for months without data
     const buckets = new Map<string, number>();
     for (let i = 0; i < months; i++) {
       const d = subMonths(new Date(), months - 1 - i);
       buckets.set(format(d, 'yyyy-MM'), 0);
     }
-
     for (const row of rows) {
-      const key = format(row.completedAt, 'yyyy-MM');
-      if (buckets.has(key)) {
-        buckets.set(key, (buckets.get(key) ?? 0) + row._count);
-      }
+      if (buckets.has(row.month)) buckets.set(row.month, Number(row.count));
     }
 
     return [...buckets.entries()].map(([month, value]) => ({
@@ -340,21 +338,15 @@ export class DashboardRepository {
 
   /** Top sectors with most overdue tasks across all properties. */
   async getProblematicSectors() {
-    const tasks = await this.prisma.task.findMany({
+    const groups = await this.prisma.task.groupBy({
+      by: ['sector'],
       where: { deletedAt: null, status: TaskStatus.OVERDUE, sector: { not: null } },
-      select: { sector: true },
+      _count: { _all: true },
+      orderBy: { _count: { sector: 'desc' } },
+      take: 5,
     });
 
-    const map = new Map<string, number>();
-    for (const t of tasks) {
-      if (!t.sector) continue;
-      map.set(t.sector, (map.get(t.sector) ?? 0) + 1);
-    }
-
-    return [...map.entries()]
-      .map(([sector, count]) => ({ sector, overdueCount: count }))
-      .sort((a, b) => b.overdueCount - a.overdueCount)
-      .slice(0, 5);
+    return groups.map((g) => ({ sector: g.sector!, overdueCount: g._count._all }));
   }
 
   async getCategoryCosts(months: number) {
@@ -432,6 +424,12 @@ export class DashboardRepository {
 
   // ─── Client Analytics Methods ──────────────────────────
 
+  /**
+   * Groups by month AND category with average condition scores.
+   * Kept as in-memory aggregation (not $queryRaw) because the category name
+   * requires a JOIN through Task → Category, and the dataset is bounded to
+   * a single client's planIds — typically dozens of rows, not thousands.
+   */
   async getClientConditionTrend(planIds: string[], months: number) {
     if (planIds.length === 0) return [];
     const since = subMonths(startOfMonth(new Date()), months - 1);
@@ -483,26 +481,24 @@ export class DashboardRepository {
     if (planIds.length === 0) return [];
     const since = subMonths(startOfMonth(new Date()), months - 1);
 
-    const logs = await this.prisma.taskLog.findMany({
-      where: {
-        task: { maintenancePlanId: { in: planIds } },
-        completedAt: { gte: since },
-        cost: { not: null },
-      },
-      select: { completedAt: true, cost: true },
-    });
+    const rows = await this.prisma.$queryRaw<{ month: string; total: number }[]>`
+      SELECT to_char(tl."completedAt", 'YYYY-MM') as month, SUM(tl.cost)::float as total
+      FROM "TaskLog" tl
+      JOIN "Task" t ON t.id = tl."taskId"
+      WHERE t."maintenancePlanId" IN (${Prisma.join(planIds)})
+        AND tl."completedAt" >= ${since}
+        AND tl.cost IS NOT NULL
+      GROUP BY month ORDER BY month
+    `;
 
+    // Build full month range with zeros for months without data
     const buckets = new Map<string, number>();
     for (let i = 0; i < months; i++) {
       const d = subMonths(new Date(), months - 1 - i);
       buckets.set(format(d, 'yyyy-MM'), 0);
     }
-
-    for (const log of logs) {
-      const key = format(log.completedAt, 'yyyy-MM');
-      if (buckets.has(key)) {
-        buckets.set(key, (buckets.get(key) ?? 0) + Number(log.cost));
-      }
+    for (const row of rows) {
+      if (buckets.has(row.month)) buckets.set(row.month, row.total);
     }
 
     return [...buckets.entries()].map(([month, value]) => ({
@@ -791,35 +787,28 @@ export class DashboardRepository {
 
   /** SLA metrics for service requests: average response time and resolution time. */
   async getSlaMetrics() {
-    const requests = await this.prisma.softDelete.serviceRequest.findMany({
-      where: {
-        OR: [{ firstResponseAt: { not: null } }, { resolvedAt: { not: null } }],
-      },
-      select: { createdAt: true, firstResponseAt: true, resolvedAt: true },
-    });
-
-    let totalResponseHours = 0;
-    let responseCount = 0;
-    let totalResolutionHours = 0;
-    let resolutionCount = 0;
-
-    for (const r of requests) {
-      if (r.firstResponseAt) {
-        totalResponseHours +=
-          (r.firstResponseAt.getTime() - r.createdAt.getTime()) / (1000 * 60 * 60);
-        responseCount++;
-      }
-      if (r.resolvedAt) {
-        totalResolutionHours += (r.resolvedAt.getTime() - r.createdAt.getTime()) / (1000 * 60 * 60);
-        resolutionCount++;
-      }
-    }
+    const [result] = await this.prisma.$queryRaw<
+      {
+        avg_response_hours: number | null;
+        avg_resolution_hours: number | null;
+        total_tracked: bigint;
+      }[]
+    >`
+      SELECT
+        AVG(EXTRACT(EPOCH FROM ("firstResponseAt" - "createdAt")) / 3600)::float as avg_response_hours,
+        AVG(EXTRACT(EPOCH FROM ("resolvedAt" - "createdAt")) / 3600)::float as avg_resolution_hours,
+        COUNT(*) as total_tracked
+      FROM "ServiceRequest"
+      WHERE "deletedAt" IS NULL
+        AND ("firstResponseAt" IS NOT NULL OR "resolvedAt" IS NOT NULL)
+    `;
 
     return {
-      avgResponseHours: responseCount > 0 ? Math.round(totalResponseHours / responseCount) : null,
-      avgResolutionHours:
-        resolutionCount > 0 ? Math.round(totalResolutionHours / resolutionCount) : null,
-      totalTracked: requests.length,
+      avgResponseHours: result?.avg_response_hours ? Math.round(result.avg_response_hours) : null,
+      avgResolutionHours: result?.avg_resolution_hours
+        ? Math.round(result.avg_resolution_hours)
+        : null,
+      totalTracked: Number(result?.total_tracked ?? 0),
     };
   }
 
