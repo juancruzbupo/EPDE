@@ -421,7 +421,6 @@ export default function TasksPage() {
         task={taskDetail ?? null}
         planId={selectedTask?.maintenancePlan.id ?? ''}
         onComplete={(task) => {
-          setSelectedTask(null);
           setCompletingTask(task);
         }}
         onRequestService={() => {
@@ -432,7 +431,6 @@ export default function TasksPage() {
             title: `Solicitud: ${selectedTask.name}`,
             description: `Tarea: ${selectedTask.name} — ${selectedTask.category.name}`,
           });
-          setSelectedTask(null);
         }}
       />
 

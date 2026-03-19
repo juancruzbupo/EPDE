@@ -347,7 +347,6 @@ export function PlanViewer({ planId, propertyId }: PlanViewerProps) {
             title: `Solicitud: ${task.name}`,
             description: `Tarea: ${task.name} — ${task.category?.name ?? ''}`,
           });
-          setSelectedTask(null);
         }}
       />
 
