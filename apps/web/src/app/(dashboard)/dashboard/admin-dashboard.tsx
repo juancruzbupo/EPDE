@@ -177,7 +177,7 @@ export function AdminDashboard() {
                             analytics.completionRate >= 80
                               ? 'text-success'
                               : analytics.completionRate >= 60
-                                ? 'text-amber-600'
+                                ? 'text-warning'
                                 : 'text-destructive'
                           }`}
                         >
@@ -314,7 +314,7 @@ export function AdminDashboard() {
                               analytics.completionRate >= 80
                                 ? 'text-success'
                                 : analytics.completionRate >= 60
-                                  ? 'text-amber-600'
+                                  ? 'text-warning'
                                   : 'text-destructive'
                             }`}
                           >
@@ -327,7 +327,7 @@ export function AdminDashboard() {
                                   analytics.completionRate >= 80
                                     ? 'bg-success'
                                     : analytics.completionRate >= 60
-                                      ? 'bg-amber-500'
+                                      ? 'bg-warning'
                                       : 'bg-destructive'
                                 }`}
                                 style={{ width: `${analytics.completionRate}%` }}
@@ -449,7 +449,7 @@ export function AdminDashboard() {
                                     analytics.slaMetrics.avgResponseHours <= 24
                                       ? 'text-success'
                                       : analytics.slaMetrics.avgResponseHours <= 72
-                                        ? 'text-amber-600'
+                                        ? 'text-warning'
                                         : 'text-destructive'
                                   }`}
                                 >
@@ -473,7 +473,7 @@ export function AdminDashboard() {
                                     analytics.slaMetrics.avgResolutionHours <= 48
                                       ? 'text-success'
                                       : analytics.slaMetrics.avgResolutionHours <= 168
-                                        ? 'text-amber-600'
+                                        ? 'text-warning'
                                         : 'text-destructive'
                                   }`}
                                 >

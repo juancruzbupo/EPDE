@@ -77,6 +77,7 @@ export class NotificationsController {
 
   @Post('push-token')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  @Throttle({ medium: { limit: 5, ttl: 60_000 } })
   async registerPushToken(
     @Body(new ZodValidationPipe(registerPushTokenSchema)) body: RegisterPushTokenInput,
     @CurrentUser() user: CurrentUserPayload,
@@ -87,6 +88,7 @@ export class NotificationsController {
 
   @Delete('push-token')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async removePushToken(
     @Body(new ZodValidationPipe(removePushTokenSchema)) body: RemovePushTokenInput,
   ) {

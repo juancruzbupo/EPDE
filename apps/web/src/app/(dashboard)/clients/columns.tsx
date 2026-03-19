@@ -72,7 +72,7 @@ export function clientColumns({
           (Date.now() - new Date(lastLogin).getTime()) / (1000 * 60 * 60 * 24),
         );
         const color =
-          daysAgo <= 7 ? 'text-success' : daysAgo <= 30 ? 'text-amber-600' : 'text-destructive';
+          daysAgo <= 7 ? 'text-success' : daysAgo <= 30 ? 'text-warning' : 'text-destructive';
         return (
           <span className={`text-xs ${color}`}>{formatRelativeDate(new Date(lastLogin))}</span>
         );

@@ -8,7 +8,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { CategoriesService } from './categories.service';
 
-@ApiTags('Categorias')
+@ApiTags('Categorías')
 @ApiBearerAuth()
 @Controller('categories')
 export class CategoriesController {

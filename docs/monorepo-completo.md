@@ -104,7 +104,7 @@ epde/
 │   │   │   │       ├── clients/      # CRUD clientes (ADMIN)
 │   │   │   │       ├── properties/   # CRUD propiedades
 │   │   │   │       ├── categories/   # CRUD categorias (ADMIN)
-│   │   │   │       ├── plans/        # Planes de mantenimiento (client view)
+│   │   │   │       ├── maintenance-plans/ # Planes de mantenimiento (client view)
 │   │   │   │       ├── tasks/        # Tareas globales
 │   │   │   │       ├── budgets/      # Presupuestos
 │   │   │   │       ├── service-requests/  # Solicitudes

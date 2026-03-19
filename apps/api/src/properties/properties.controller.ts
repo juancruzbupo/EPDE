@@ -60,7 +60,8 @@ export class PropertiesController {
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    return this.propertiesService.getPropertyPhotos(id, user);
+    const data = await this.propertiesService.getPropertyPhotos(id, user);
+    return { data };
   }
 
   @Get(':id/health-history')
@@ -69,7 +70,8 @@ export class PropertiesController {
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    return this.propertiesService.getPropertyHealthHistory(id, user);
+    const data = await this.propertiesService.getPropertyHealthHistory(id, user);
+    return { data };
   }
 
   @Get(':id/health-index')
@@ -78,7 +80,8 @@ export class PropertiesController {
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    return this.propertiesService.getPropertyHealthIndex(id, user);
+    const data = await this.propertiesService.getPropertyHealthIndex(id, user);
+    return { data };
   }
 
   @Get(':id/expenses')
@@ -87,7 +90,8 @@ export class PropertiesController {
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    return this.propertiesService.getPropertyExpenses(id, user);
+    const data = await this.propertiesService.getPropertyExpenses(id, user);
+    return { data };
   }
 
   @Post()

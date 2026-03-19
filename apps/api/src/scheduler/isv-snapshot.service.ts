@@ -1,3 +1,4 @@
+import { PlanStatus } from '@epde/shared';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
@@ -34,7 +35,7 @@ export class ISVSnapshotService {
 
       // Fetch all properties with active plans
       const properties = await this.prisma.property.findMany({
-        where: { deletedAt: null, maintenancePlan: { status: 'ACTIVE' } },
+        where: { deletedAt: null, maintenancePlan: { status: PlanStatus.ACTIVE } },
         select: {
           id: true,
           address: true,

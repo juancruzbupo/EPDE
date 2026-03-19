@@ -13,7 +13,13 @@ import type {
   UserStatus,
 } from '../types/enums';
 
-export type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'success';
+export type BadgeVariant =
+  | 'default'
+  | 'secondary'
+  | 'destructive'
+  | 'outline'
+  | 'success'
+  | 'warning';
 
 export const TASK_STATUS_VARIANT = {
   PENDING: 'secondary',

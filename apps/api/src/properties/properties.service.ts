@@ -100,8 +100,7 @@ export class PropertiesService {
 
     this.assertOwnership(property.userId, currentUser);
 
-    const photos = await this.propertiesRepository.getPropertyPhotos(id);
-    return { data: photos };
+    return this.propertiesRepository.getPropertyPhotos(id);
   }
 
   async getPropertyHealthIndex(id: string, currentUser: ServiceUser) {
@@ -115,17 +114,14 @@ export class PropertiesService {
     const planId = property.maintenancePlan?.id;
     if (!planId) {
       return {
-        data: {
-          score: 0,
-          label: 'Sin plan',
-          dimensions: { compliance: 0, condition: 0, coverage: 0, investment: 0, trend: 0 },
-          sectorScores: [],
-        },
+        score: 0,
+        label: 'Sin plan',
+        dimensions: { compliance: 0, condition: 0, coverage: 0, investment: 0, trend: 0 },
+        sectorScores: [],
       };
     }
 
-    const index = await this.dashboardRepository.getPropertyHealthIndex([planId]);
-    return { data: index };
+    return this.dashboardRepository.getPropertyHealthIndex([planId]);
   }
 
   async getPropertyHealthHistory(id: string, currentUser: ServiceUser) {
@@ -150,7 +146,7 @@ export class PropertiesService {
       }))
       .reverse();
 
-    return { data };
+    return data;
   }
 
   async getPropertyExpenses(id: string, currentUser: ServiceUser) {
@@ -161,8 +157,7 @@ export class PropertiesService {
 
     this.assertOwnership(property.userId, currentUser);
 
-    const expenses = await this.propertiesRepository.getPropertyExpenses(id);
-    return { data: expenses };
+    return this.propertiesRepository.getPropertyExpenses(id);
   }
 
   private assertOwnership(propertyUserId: string, currentUser: ServiceUser) {

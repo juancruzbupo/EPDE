@@ -21,15 +21,15 @@ const DIMENSION_LABELS = {
 
 function scoreColor(score: number): string {
   if (score >= 80) return 'text-success';
-  if (score >= 60) return 'text-amber-600';
-  if (score >= 40) return 'text-orange-500';
+  if (score >= 60) return 'text-warning';
+  if (score >= 40) return 'text-caution';
   return 'text-destructive';
 }
 
 function barColor(score: number): string {
   if (score >= 80) return 'bg-success';
-  if (score >= 60) return 'bg-amber-500';
-  if (score >= 40) return 'bg-orange-500';
+  if (score >= 60) return 'bg-warning';
+  if (score >= 40) return 'bg-caution';
   return 'bg-destructive';
 }
 
@@ -51,8 +51,8 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
       {/* Print-only header */}
       <div className="hidden print:mb-4 print:block print:border-b print:px-6 print:pt-6 print:pb-4">
         <p className="text-lg font-bold">EPDE — Estudio Profesional de Diagnóstico Edilicio</p>
-        {address && <p className="text-sm text-gray-600">{address}</p>}
-        <p className="text-xs text-gray-500">
+        {address && <p className="text-muted-foreground text-sm">{address}</p>}
+        <p className="text-muted-foreground text-xs">
           Reporte generado el {new Date().toLocaleDateString('es-AR')}
         </p>
       </div>
@@ -75,7 +75,7 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
               index.score >= 60
                 ? 'bg-success/15 text-success'
                 : index.score >= 40
-                  ? 'bg-amber-500/15 text-amber-600'
+                  ? 'bg-caution/15 text-caution'
                   : 'bg-destructive/15 text-destructive'
             }`}
           >
@@ -141,9 +141,9 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
               'La tendencia indica deterioro. Priorizá las tareas vencidas para revertir el declive.',
             );
           return recs.length > 0 ? (
-            <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3">
-              <p className="mb-1.5 text-xs font-semibold text-amber-700">Recomendaciones</p>
-              <ul className="space-y-1 text-xs text-amber-700">
+            <div className="border-warning/20 bg-warning/10 rounded-lg border p-3">
+              <p className="text-warning mb-1.5 text-xs font-semibold">Recomendaciones</p>
+              <ul className="text-warning space-y-1 text-xs">
                 {recs.map((r, i) => (
                   <li key={i}>• {r}</li>
                 ))}

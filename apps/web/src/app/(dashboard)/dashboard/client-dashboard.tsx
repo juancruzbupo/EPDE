@@ -58,7 +58,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
           userName={userName}
           hasProperties={stats.totalProperties > 0}
           hasActivePlan={stats.pendingTasks + stats.overdueTasks + stats.upcomingTasks > 0}
-          hasCompletedTasks={false}
+          hasCompletedTasks={stats.completedThisMonth > 0}
         />
       )}
 
