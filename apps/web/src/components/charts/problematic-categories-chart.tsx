@@ -3,6 +3,7 @@
 import type { CategoryIssue } from '@epde/shared';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
+import { CHART_AXIS_TICK } from '@/lib/chart-styles';
 import { useMotionPreference } from '@/lib/motion';
 
 import { ChartTooltip } from './chart-tooltip';
@@ -27,7 +28,7 @@ export function ProblematicCategoriesChart({ data }: ProblematicCategoriesChartP
         />
         <XAxis
           type="number"
-          tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+          tick={CHART_AXIS_TICK}
           axisLine={false}
           tickLine={false}
           allowDecimals={false}
@@ -35,7 +36,7 @@ export function ProblematicCategoriesChart({ data }: ProblematicCategoriesChartP
         <YAxis
           dataKey="categoryName"
           type="category"
-          tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+          tick={CHART_AXIS_TICK}
           axisLine={false}
           tickLine={false}
           width={110}

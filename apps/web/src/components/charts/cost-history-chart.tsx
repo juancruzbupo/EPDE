@@ -13,6 +13,7 @@ import {
   YAxis,
 } from 'recharts';
 
+import { CHART_AXIS_TICK } from '@/lib/chart-styles';
 import { useMotionPreference } from '@/lib/motion';
 
 import { ChartTooltip } from './chart-tooltip';
@@ -38,14 +39,9 @@ export function CostHistoryChart({ data }: CostHistoryChartProps) {
     <ResponsiveContainer width="100%" height={280}>
       <BarChart data={data} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" strokeOpacity={0.5} />
-        <XAxis
-          dataKey="label"
-          tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
-          axisLine={false}
-          tickLine={false}
-        />
+        <XAxis dataKey="label" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />
         <YAxis
-          tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+          tick={CHART_AXIS_TICK}
           axisLine={false}
           tickLine={false}
           tickFormatter={(v: number) => formatCurrency(v)}

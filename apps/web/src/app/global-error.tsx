@@ -16,6 +16,16 @@ export default function GlobalError({
 
   return (
     <html lang="es">
+      <head>
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              :root{--primary:#c4704b;--primary-foreground:#fafaf8;--muted-foreground:#4a4542}
+              .dark{--primary:#d4956f;--primary-foreground:#1a1715;--muted-foreground:#a09890}
+            `,
+          }}
+        />
+      </head>
       <body>
         <div
           style={{
@@ -30,7 +40,7 @@ export default function GlobalError({
             <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
               Algo salió mal
             </h1>
-            <p style={{ color: '#666', marginBottom: '1rem' }}>
+            <p style={{ color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
               Ocurrió un error inesperado. Por favor, intentá de nuevo.
             </p>
             <button
@@ -38,8 +48,8 @@ export default function GlobalError({
               style={{
                 padding: '0.5rem 1rem',
                 borderRadius: '0.375rem',
-                background: '#c4704b',
-                color: 'white',
+                background: 'var(--primary)',
+                color: 'var(--primary-foreground)',
                 border: 'none',
                 cursor: 'pointer',
               }}

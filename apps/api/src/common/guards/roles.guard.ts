@@ -1,5 +1,5 @@
 import type { UserRole } from '@epde/shared';
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
@@ -7,6 +7,8 @@ import { ROLES_KEY } from '../decorators/roles.decorator';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
+  private readonly logger = new Logger(RolesGuard.name);
+
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
@@ -21,6 +23,9 @@ export class RolesGuard implements CanActivate {
       context.getClass(),
     ]);
     if (!requiredRoles) {
+      this.logger.warn(
+        `${context.getClass().name}.${context.getHandler().name} has no @Roles() — denied by default`,
+      );
       return false;
     }
     const { user } = context.switchToHttp().getRequest();

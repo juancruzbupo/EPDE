@@ -35,7 +35,8 @@ describe('RolesGuard', () => {
     expect(guard.canActivate(mockContext())).toBe(true);
   });
 
-  it('should deny when no @Roles() decorator (deny-by-default)', () => {
+  it('should deny and log warning when no @Roles() decorator (deny-by-default)', () => {
+    const warnSpy = jest.spyOn((guard as any).logger, 'warn');
     jest.spyOn(reflector, 'getAllAndOverride').mockImplementation(((key: string) => {
       if (key === IS_PUBLIC_KEY) return false;
       if (key === ROLES_KEY) return undefined;
@@ -43,6 +44,7 @@ describe('RolesGuard', () => {
     }) as any);
 
     expect(guard.canActivate(mockContext({ role: UserRole.ADMIN }))).toBe(false);
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('has no @Roles()'));
   });
 
   it('should allow matching role', () => {

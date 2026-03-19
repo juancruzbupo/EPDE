@@ -101,6 +101,7 @@
 88. **Crear cliente inline desde CreatePropertyDialog** — Link "+ Invitar nuevo cliente" abre InviteClientDialog sin salir del dialog de propiedad. Evita el ida-y-vuelta entre Clientes y Propiedades
 89. **Bulk completion con selección múltiple** — PlanEditor tiene modo selección ("Completar varias") que muestra checkboxes en tareas completables. `BulkCompleteDialog` (co-located en `properties/[id]/`) aplica los mismos datos de completación (result, conditionFound, executor, actionTaken) a todas las seleccionadas en secuencia con barra de progreso. Usa el mismo `useCompleteTask` hook por tarea
 90. **Redirect post-creación de entidad** — Al crear una propiedad desde `CreatePropertyDialog`, se redirige a `/properties/${id}` usando `router.push()` con el ID de la response. Patrón aplicable a cualquier dialog de creación donde el admin necesita seguir trabajando en la entidad recién creada
+91. **Circular dependency resolution via data-only modules** — Para romper ciclos entre modules (ej. Tasks ↔ MaintenancePlans), crear un `XxxDataModule` que exporta solo el repository sin service dependencies. Ambos modules importan el data module. NUNCA usar `forwardRef()`. Ref: `plan-data.module.ts`
 
 ### NUNCA
 

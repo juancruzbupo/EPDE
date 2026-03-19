@@ -81,7 +81,7 @@ export class NotificationsRepository extends BaseRepository<Notification, 'notif
     nowAR.setUTCHours(0, 0, 0, 0);
     const todayStart = new Date(nowAR.getTime() + AR_OFFSET_MS);
 
-    const existing = await this.writeModel.findMany({
+    const existing = await this.model.findMany({
       where: {
         type: NotificationType.TASK_REMINDER,
         createdAt: { gte: todayStart },
