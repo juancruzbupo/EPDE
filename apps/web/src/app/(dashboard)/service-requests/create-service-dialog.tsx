@@ -195,7 +195,9 @@ export function CreateServiceDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="min-w-0 space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="propertyId">Propiedad</Label>
+            <Label htmlFor="propertyId">
+              Propiedad <span className="text-destructive">*</span>
+            </Label>
             <Controller
               control={control}
               name="propertyId"
@@ -215,7 +217,9 @@ export function CreateServiceDialog({
               )}
             />
             {errors.propertyId && (
-              <p className="text-destructive text-sm">{errors.propertyId.message}</p>
+              <p role="alert" className="text-destructive text-sm">
+                {errors.propertyId.message}
+              </p>
             )}
           </div>
 
@@ -248,16 +252,26 @@ export function CreateServiceDialog({
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="title">Título</Label>
+            <Label htmlFor="title">
+              Título <span className="text-destructive">*</span>
+            </Label>
             <Input id="title" {...register('title')} />
-            {errors.title && <p className="text-destructive text-sm">{errors.title.message}</p>}
+            {errors.title && (
+              <p role="alert" className="text-destructive text-sm">
+                {errors.title.message}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Descripción</Label>
+            <Label htmlFor="description">
+              Descripción <span className="text-destructive">*</span>
+            </Label>
             <Textarea id="description" {...register('description')} />
             {errors.description && (
-              <p className="text-destructive text-sm">{errors.description.message}</p>
+              <p role="alert" className="text-destructive text-sm">
+                {errors.description.message}
+              </p>
             )}
           </div>
 
@@ -281,7 +295,11 @@ export function CreateServiceDialog({
                 </Select>
               )}
             />
-            {errors.urgency && <p className="text-destructive text-sm">{errors.urgency.message}</p>}
+            {errors.urgency && (
+              <p role="alert" className="text-destructive text-sm">
+                {errors.urgency.message}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">

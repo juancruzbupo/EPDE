@@ -14,7 +14,7 @@ interface ErrorStateProps {
 
 export function ErrorState({ onRetry, message }: ErrorStateProps) {
   return (
-    <View className="flex-1 items-center justify-center p-8">
+    <View className="flex-1 items-center justify-center p-8" accessibilityLiveRegion="polite">
       <Text style={TYPE.titleLg} className="text-foreground mb-2">
         Error al cargar
       </Text>

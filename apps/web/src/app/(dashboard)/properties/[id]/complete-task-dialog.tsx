@@ -178,7 +178,9 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
               )}
             />
             {errors.result && (
-              <p className="text-destructive mt-1 text-sm">{errors.result.message}</p>
+              <p role="alert" className="text-destructive mt-1 text-sm">
+                {errors.result.message}
+              </p>
             )}
           </div>
 
@@ -198,7 +200,9 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
               )}
             />
             {errors.conditionFound && (
-              <p className="text-destructive mt-1 text-sm">{errors.conditionFound.message}</p>
+              <p role="alert" className="text-destructive mt-1 text-sm">
+                {errors.conditionFound.message}
+              </p>
             )}
           </div>
 
@@ -218,7 +222,9 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
               )}
             />
             {errors.executor && (
-              <p className="text-destructive mt-1 text-sm">{errors.executor.message}</p>
+              <p role="alert" className="text-destructive mt-1 text-sm">
+                {errors.executor.message}
+              </p>
             )}
           </div>
 
@@ -238,7 +244,9 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
               )}
             />
             {errors.actionTaken && (
-              <p className="text-destructive mt-1 text-sm">{errors.actionTaken.message}</p>
+              <p role="alert" className="text-destructive mt-1 text-sm">
+                {errors.actionTaken.message}
+              </p>
             )}
           </div>
 

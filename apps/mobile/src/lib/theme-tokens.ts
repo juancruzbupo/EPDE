@@ -27,7 +27,7 @@ export const lightTheme = vars({
   '--color-border': '#e8ddd3',
   '--color-input': '#e8ddd3',
   '--color-ring': '#c4704b',
-  '--color-success': '#6b9b7a',
+  '--color-success': '#4d7d5c',
   '--color-success-foreground': '#1a1715',
   '--color-warning': '#c4a030',
   '--color-warning-foreground': '#1a1715',

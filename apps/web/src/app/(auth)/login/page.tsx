@@ -87,7 +87,11 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          {error && <p className="text-destructive text-center text-sm">{error}</p>}
+          {error && (
+            <p role="alert" className="text-destructive text-center text-sm">
+              {error}
+            </p>
+          )}
 
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? 'Ingresando...' : 'Ingresar'}

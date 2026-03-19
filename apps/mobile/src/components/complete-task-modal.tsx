@@ -61,7 +61,7 @@ function SelectorGroup<T extends string>({
   onChange: (v: T) => void;
 }) {
   return (
-    <View className="mb-4">
+    <View className="mb-4" accessibilityRole="radiogroup" accessibilityLabel={label}>
       <Text style={TYPE.labelLg} className="text-foreground mb-2">
         {label}
       </Text>
@@ -71,8 +71,11 @@ function SelectorGroup<T extends string>({
           return (
             <Pressable
               key={opt}
+              accessibilityRole="radio"
+              accessibilityState={{ selected }}
+              accessibilityLabel={labels[opt] ?? opt}
               onPress={() => onChange(opt)}
-              className={`rounded-lg border px-3 py-1.5 ${
+              className={`rounded-lg border px-4 py-2.5 ${
                 selected ? 'bg-primary border-primary' : 'border-border bg-card'
               }`}
             >
@@ -398,6 +401,8 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
                 )}
                 {uploadFailed && !isUploading && (
                   <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Reintentar subida de foto"
                     onPress={retryUpload}
                     className="absolute inset-0 h-40 w-40 items-center justify-center rounded-xl bg-black/50"
                   >
@@ -407,6 +412,8 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
                   </Pressable>
                 )}
                 <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Eliminar foto"
                   onPress={removePhoto}
                   className="bg-destructive absolute -top-2 -right-2 h-6 w-6 items-center justify-center rounded-full"
                 >
