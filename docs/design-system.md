@@ -558,8 +558,14 @@ Todo `<Label>` debe estar vinculado a su input via `htmlFor`/`id`:
 | `<nav aria-label="Navegación principal">` | Sidebar de navegacion                               |
 | `aria-current="page"`                     | Link activo en sidebar                              |
 | `<ul>/<li>`                               | Listas de items (actividad, notificaciones, tareas) |
-| `role="status"`                           | Indicadores de carga                                |
+| `role="status"`                           | Indicadores de carga (skeletons)                    |
+| `role="alert"`                            | Errores de validacion en formularios                |
 | `aria-expanded={isOpen}`                  | Secciones colapsables                               |
+| `aria-pressed={active}`                   | Filter pills (prioridad, sector)                    |
+| `aria-hidden="true"`                      | Iconos decorativos junto a texto                    |
+| `sr-only`                                 | Texto alternativo para info visual (dots, colores)  |
+| Skip-to-content link                      | Primer focusable en dashboard layout                |
+| `document.title`                          | Cada page.tsx setea titulo para screen readers      |
 | `<Dialog>` (shadcn)                       | Modales con focus trap, Escape, aria-modal          |
 
 ---
