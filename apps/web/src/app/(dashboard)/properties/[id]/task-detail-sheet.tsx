@@ -28,7 +28,13 @@ import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { TaskDetailPublic, TaskPublic } from '@/lib/api/maintenance-plans';
 import { PROFESSIONAL_REQ_COLORS, TASK_TYPE_COLORS } from '@/lib/style-maps';
@@ -70,6 +76,9 @@ export function TaskDetailSheet({
       <SheetContent className="flex w-full flex-col sm:max-w-lg">
         <SheetHeader className="px-6 pb-4">
           <SheetTitle className="text-lg leading-tight">{task.name}</SheetTitle>
+          <SheetDescription className="sr-only">
+            Detalle de tarea, historial y notas
+          </SheetDescription>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <Badge variant={TASK_STATUS_VARIANT[task.status] ?? 'secondary'}>
               {TASK_STATUS_LABELS[task.status] ?? task.status}

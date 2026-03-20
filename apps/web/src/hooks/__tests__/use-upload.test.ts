@@ -25,12 +25,11 @@ describe('useUploadFile', () => {
 
   afterEach(() => vi.clearAllMocks());
 
-  it('should call useMutation with mutationFn only (callers handle toasts)', () => {
+  it('should call useMutation with mutationFn and onError handler', () => {
     renderHook(() => useUploadFile());
     const config = vi.mocked(useMutation).mock.calls[0][0] as Record<string, unknown>;
     expect(config.mutationFn).toEqual(expect.any(Function));
-    expect(config.onSuccess).toBeUndefined();
-    expect(config.onError).toBeUndefined();
+    expect(config.onError).toEqual(expect.any(Function));
   });
 
   it('should validate file before uploading', async () => {
