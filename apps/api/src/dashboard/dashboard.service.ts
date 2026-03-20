@@ -57,12 +57,12 @@ export class DashboardService {
         timestamp: p.createdAt,
         metadata: { propertyId: p.id },
       })),
-      ...recentTasks.map((t) => ({
-        id: t.id,
+      ...recentTasks.map((log) => ({
+        id: log.task.id,
         type: ActivityType.TASK_COMPLETED,
-        description: `Tarea completada: ${t.name}`,
-        timestamp: t.updatedAt,
-        metadata: { taskId: t.id, maintenancePlanId: t.maintenancePlanId },
+        description: `Tarea completada: ${log.task.name}`,
+        timestamp: log.completedAt,
+        metadata: { taskId: log.task.id, maintenancePlanId: log.task.maintenancePlanId },
       })),
       ...recentBudgets.map((b) => ({
         id: b.id,

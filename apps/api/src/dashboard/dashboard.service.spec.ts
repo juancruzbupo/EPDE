@@ -89,8 +89,14 @@ describe('DashboardService', () => {
           { id: 'p2', address: 'Calle 2', city: 'Córdoba', createdAt: makeDate(8) },
         ],
         recentTasks: [
-          { id: 't1', name: 'Tarea 1', updatedAt: makeDate(3) },
-          { id: 't2', name: 'Tarea 2', updatedAt: makeDate(7) },
+          {
+            completedAt: makeDate(3),
+            task: { id: 't1', name: 'Tarea 1', maintenancePlanId: 'plan-1' },
+          },
+          {
+            completedAt: makeDate(7),
+            task: { id: 't2', name: 'Tarea 2', maintenancePlanId: 'plan-1' },
+          },
         ],
         recentBudgets: [
           { id: 'b1', title: 'Presupuesto 1', createdAt: makeDate(4) },
@@ -150,7 +156,10 @@ describe('DashboardService', () => {
           createdAt: new Date(now.getTime() - (i + 5) * 1000),
         })),
         recentTasks: [
-          { id: 't1', name: 'Tarea extra', updatedAt: new Date(now.getTime() - 20000) },
+          {
+            completedAt: new Date(now.getTime() - 20000),
+            task: { id: 't1', name: 'Tarea extra', maintenancePlanId: 'plan-1' },
+          },
         ],
         recentBudgets: [],
         recentServices: [],

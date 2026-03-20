@@ -67,11 +67,14 @@ export class DashboardRepository {
           take: 5,
           select: { id: true, address: true, city: true, createdAt: true },
         }),
-        this.prisma.softDelete.task.findMany({
-          where: { status: TaskStatus.COMPLETED },
-          orderBy: { updatedAt: 'desc' },
+        // Tasks are cyclic — COMPLETED is transient. Query recent TaskLogs instead.
+        this.prisma.taskLog.findMany({
+          orderBy: { completedAt: 'desc' },
           take: 5,
-          select: { id: true, name: true, updatedAt: true, maintenancePlanId: true },
+          select: {
+            completedAt: true,
+            task: { select: { id: true, name: true, maintenancePlanId: true } },
+          },
         }),
         this.prisma.softDelete.budgetRequest.findMany({
           orderBy: { createdAt: 'desc' },

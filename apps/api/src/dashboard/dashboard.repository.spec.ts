@@ -11,7 +11,7 @@ describe('DashboardRepository', () => {
   const mockTaskModel = { count: jest.fn(), findMany: jest.fn() };
   const mockBudgetModel = { count: jest.fn(), findMany: jest.fn() };
   const mockServiceModel = { count: jest.fn(), findMany: jest.fn() };
-  const mockTaskLogModel = { count: jest.fn() };
+  const mockTaskLogModel = { count: jest.fn(), findMany: jest.fn() };
 
   beforeEach(() => {
     const prisma = {
@@ -83,7 +83,7 @@ describe('DashboardRepository', () => {
     it('should return 5 recent lists with take 5 each', async () => {
       mockUserModel.findMany.mockResolvedValue([]);
       mockPropertyModel.findMany.mockResolvedValue([]);
-      mockTaskModel.findMany.mockResolvedValue([]);
+      mockTaskLogModel.findMany.mockResolvedValue([]);
       mockBudgetModel.findMany.mockResolvedValue([]);
       mockServiceModel.findMany.mockResolvedValue([]);
 
@@ -96,18 +96,18 @@ describe('DashboardRepository', () => {
       expect(result).toHaveProperty('recentServices');
     });
 
-    it('should filter completed tasks by status', async () => {
+    it('should query recent task logs ordered by completedAt', async () => {
       mockUserModel.findMany.mockResolvedValue([]);
       mockPropertyModel.findMany.mockResolvedValue([]);
-      mockTaskModel.findMany.mockResolvedValue([]);
+      mockTaskLogModel.findMany.mockResolvedValue([]);
       mockBudgetModel.findMany.mockResolvedValue([]);
       mockServiceModel.findMany.mockResolvedValue([]);
 
       await repository.getRecentActivity();
 
-      expect(mockTaskModel.findMany).toHaveBeenCalledWith(
+      expect(mockTaskLogModel.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { status: TaskStatus.COMPLETED },
+          orderBy: { completedAt: 'desc' },
           take: 5,
         }),
       );
