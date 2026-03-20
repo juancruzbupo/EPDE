@@ -1,9 +1,10 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-const mockPush = vi.fn();
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockPush }),
+vi.mock('next/link', () => ({
+  default: ({ children, ...props }: { children: React.ReactNode; href: string }) => (
+    <a {...props}>{children}</a>
+  ),
 }));
 
 const mockLogin = vi.fn();
@@ -12,11 +13,17 @@ vi.mock('@/stores/auth-store', () => ({
     selector({ login: mockLogin }),
 }));
 
+// Mock window.location.href (used for post-login redirect)
+const locationHrefSpy = vi.spyOn(window, 'location', 'get');
+const mockLocation = { ...window.location, href: '' };
+locationHrefSpy.mockReturnValue(mockLocation as Location);
+
 import LoginPage from '@/app/(auth)/login/page';
 
 describe('LoginPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockLocation.href = '';
   });
 
   it('renders login form with email, password inputs and submit button', () => {
@@ -53,7 +60,7 @@ describe('LoginPage', () => {
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith('admin@epde.com', 'Password1');
     });
-    expect(mockPush).toHaveBeenCalledWith('/dashboard');
+    expect(mockLocation.href).toBe('/dashboard');
   });
 
   it('shows error message on login failure', async () => {
@@ -70,16 +77,12 @@ describe('LoginPage', () => {
         screen.getByText('Credenciales inválidas. Verificá tu email y contraseña.'),
       ).toBeInTheDocument();
     });
-    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockLocation.href).not.toBe('/dashboard');
   });
 
   it('disables button and shows loading text during submission', async () => {
-    let resolveLogin!: () => void;
-    mockLogin.mockReturnValueOnce(
-      new Promise<void>((resolve) => {
-        resolveLogin = resolve;
-      }),
-    );
+    // Login never resolves — simulates in-flight request
+    mockLogin.mockReturnValueOnce(new Promise<void>(() => {}));
     const user = userEvent.setup();
     render(<LoginPage />);
 
@@ -89,12 +92,6 @@ describe('LoginPage', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Ingresando...' })).toBeDisabled();
-    });
-
-    resolveLogin();
-
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Ingresar' })).toBeEnabled();
     });
   });
 });

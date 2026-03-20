@@ -4,7 +4,6 @@ import { type LoginInput, loginSchema } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -15,7 +14,6 @@ import { Label } from '@/components/ui/label';
 import { useAuthStore } from '@/stores/auth-store';
 
 export default function LoginPage() {
-  const router = useRouter();
   const login = useAuthStore((s) => s.login);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,10 +32,12 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await login(data.email, data.password);
-      router.push('/dashboard');
+      // Full page navigation ensures the browser has processed Set-Cookie headers
+      // before the middleware checks for the access_token cookie.
+      // router.push() uses client-side navigation which races with cookie availability.
+      window.location.href = '/dashboard';
     } catch {
       setError('Credenciales inválidas. Verificá tu email y contraseña.');
-    } finally {
       setIsLoading(false);
     }
   }

@@ -1,15 +1,17 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useAuthStore } from '@/stores/auth-store';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const checkAuth = useAuthStore((s) => s.checkAuth);
+  const didCheck = useRef(false);
 
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+    if (didCheck.current) return;
+    didCheck.current = true;
+    useAuthStore.getState().checkAuth();
+  }, []);
 
   return <>{children}</>;
 }
