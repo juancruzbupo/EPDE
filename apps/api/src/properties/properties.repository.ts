@@ -1,6 +1,6 @@
-import { BudgetStatus, TaskStatus } from '@epde/shared';
+import { BudgetStatus, PlanStatus, TaskStatus } from '@epde/shared';
 import { Injectable } from '@nestjs/common';
-import { PlanStatus, Prisma, Property, PropertyType } from '@prisma/client';
+import { Prisma, Property, PropertyType } from '@prisma/client';
 
 import {
   BaseRepository,
@@ -273,6 +273,20 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
       },
       orderBy: { completedAt: 'desc' },
       take: 20,
+    });
+  }
+
+  /** Fetches properties with active maintenance plans (bounded query for scheduler use). */
+  async findWithActivePlans(take: number) {
+    return this.prisma.property.findMany({
+      where: { deletedAt: null, maintenancePlan: { status: PlanStatus.ACTIVE } },
+      select: {
+        id: true,
+        address: true,
+        userId: true,
+        maintenancePlan: { select: { id: true } },
+      },
+      take,
     });
   }
 

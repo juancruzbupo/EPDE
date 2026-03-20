@@ -4,12 +4,12 @@ import { DashboardRepository } from '../dashboard/dashboard.repository';
 import { ISVSnapshotRepository } from '../dashboard/isv-snapshot.repository';
 import { MetricsService } from '../metrics/metrics.service';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { PropertiesRepository } from '../properties/properties.repository';
 import { DistributedLockService } from '../redis/distributed-lock.service';
 import { ISVSnapshotService } from './isv-snapshot.service';
 
-const mockPrisma = {
-  property: { findMany: jest.fn().mockResolvedValue([]) },
+const mockPropertiesRepository = {
+  findWithActivePlans: jest.fn().mockResolvedValue([]),
 };
 const mockDashboardRepository = {
   getPropertyHealthIndex: jest.fn(),
@@ -55,7 +55,7 @@ describe('ISVSnapshotService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ISVSnapshotService,
-        { provide: PrismaService, useValue: mockPrisma },
+        { provide: PropertiesRepository, useValue: mockPropertiesRepository },
         { provide: DashboardRepository, useValue: mockDashboardRepository },
         { provide: ISVSnapshotRepository, useValue: mockISVSnapshotRepository },
         { provide: DistributedLockService, useValue: mockLockService },
@@ -70,7 +70,7 @@ describe('ISVSnapshotService', () => {
 
   it('should acquire lock and process properties with active plans', async () => {
     const prop = makeProperty('prop-1');
-    mockPrisma.property.findMany.mockResolvedValue([prop]);
+    mockPropertiesRepository.findWithActivePlans.mockResolvedValue([prop]);
     mockDashboardRepository.getPropertyHealthIndex.mockResolvedValue(makeHealthIndex(85));
     mockLockService.withLock.mockImplementation(
       async (_key: string, _ttl: number, fn: (signal: { lockLost: boolean }) => Promise<void>) => {
@@ -92,7 +92,7 @@ describe('ISVSnapshotService', () => {
   it('should skip properties without maintenance plan', async () => {
     const propWithPlan = makeProperty('prop-1', 'plan-1');
     const propWithout = makeProperty('prop-2', null);
-    mockPrisma.property.findMany.mockResolvedValue([propWithPlan, propWithout]);
+    mockPropertiesRepository.findWithActivePlans.mockResolvedValue([propWithPlan, propWithout]);
     mockDashboardRepository.getPropertyHealthIndex.mockResolvedValue(makeHealthIndex(80));
     mockLockService.withLock.mockImplementation(
       async (_key: string, _ttl: number, fn: (signal: { lockLost: boolean }) => Promise<void>) => {
@@ -109,7 +109,7 @@ describe('ISVSnapshotService', () => {
   it('should create snapshot with correct dimensions', async () => {
     const prop = makeProperty('prop-1');
     const index = makeHealthIndex(72);
-    mockPrisma.property.findMany.mockResolvedValue([prop]);
+    mockPropertiesRepository.findWithActivePlans.mockResolvedValue([prop]);
     mockDashboardRepository.getPropertyHealthIndex.mockResolvedValue(index);
     mockLockService.withLock.mockImplementation(
       async (_key: string, _ttl: number, fn: (signal: { lockLost: boolean }) => Promise<void>) => {
@@ -137,7 +137,7 @@ describe('ISVSnapshotService', () => {
 
   it('should trigger ISV alert when score drops ≥15 points', async () => {
     const prop = makeProperty('prop-1');
-    mockPrisma.property.findMany.mockResolvedValue([prop]);
+    mockPropertiesRepository.findWithActivePlans.mockResolvedValue([prop]);
     mockDashboardRepository.getPropertyHealthIndex.mockResolvedValue(makeHealthIndex(60));
     mockISVSnapshotRepository.findPrevious.mockResolvedValue({ score: 80 });
     mockLockService.withLock.mockImplementation(
@@ -159,7 +159,7 @@ describe('ISVSnapshotService', () => {
 
   it('should NOT trigger alert when drop < 15 points', async () => {
     const prop = makeProperty('prop-1');
-    mockPrisma.property.findMany.mockResolvedValue([prop]);
+    mockPropertiesRepository.findWithActivePlans.mockResolvedValue([prop]);
     mockDashboardRepository.getPropertyHealthIndex.mockResolvedValue(makeHealthIndex(70));
     mockISVSnapshotRepository.findPrevious.mockResolvedValue({ score: 80 });
     mockLockService.withLock.mockImplementation(
@@ -175,7 +175,7 @@ describe('ISVSnapshotService', () => {
 
   it('should abort when signal.lockLost is true', async () => {
     const prop = makeProperty('prop-1');
-    mockPrisma.property.findMany.mockResolvedValue([prop]);
+    mockPropertiesRepository.findWithActivePlans.mockResolvedValue([prop]);
     mockLockService.withLock.mockImplementation(
       async (_key: string, _ttl: number, fn: (signal: { lockLost: boolean }) => Promise<void>) => {
         await fn({ lockLost: true });
@@ -189,7 +189,7 @@ describe('ISVSnapshotService', () => {
   });
 
   it('should record cron execution metrics', async () => {
-    mockPrisma.property.findMany.mockResolvedValue([]);
+    mockPropertiesRepository.findWithActivePlans.mockResolvedValue([]);
     mockLockService.withLock.mockImplementation(
       async (_key: string, _ttl: number, fn: (signal: { lockLost: boolean }) => Promise<void>) => {
         await fn({ lockLost: false });
@@ -205,7 +205,7 @@ describe('ISVSnapshotService', () => {
   });
 
   it('should handle empty properties list gracefully', async () => {
-    mockPrisma.property.findMany.mockResolvedValue([]);
+    mockPropertiesRepository.findWithActivePlans.mockResolvedValue([]);
     mockLockService.withLock.mockImplementation(
       async (_key: string, _ttl: number, fn: (signal: { lockLost: boolean }) => Promise<void>) => {
         await fn({ lockLost: false });

@@ -14,9 +14,9 @@ export class CategoryTemplatesRepository extends BaseRepository<
   }
 
   async findByIdWithTasks(id: string) {
-    return this.model.findUnique({
+    return this.prisma.categoryTemplate.findUnique({
       where: { id },
-      include: { tasks: { orderBy: { displayOrder: 'asc' } } },
+      include: { tasks: { orderBy: { displayOrder: 'asc' }, take: 100 } },
     });
   }
 

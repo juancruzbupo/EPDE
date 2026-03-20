@@ -39,7 +39,7 @@ describe('CategoryTemplatesRepository', () => {
 
       expect(mockModel.findUnique).toHaveBeenCalledWith({
         where: { id: 'clx1cat00000001' },
-        include: { tasks: { orderBy: { displayOrder: 'asc' } } },
+        include: { tasks: { orderBy: { displayOrder: 'asc' }, take: 100 } },
       });
       expect(result).toEqual(template);
     });

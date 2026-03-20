@@ -6,7 +6,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -49,6 +55,7 @@ export function EditBudgetDialog({ open, onOpenChange, budget }: EditBudgetDialo
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Editar presupuesto</DialogTitle>
+          <DialogDescription>Modificá los datos del presupuesto.</DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-1.5">

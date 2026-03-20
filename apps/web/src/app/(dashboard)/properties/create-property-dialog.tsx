@@ -18,7 +18,13 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -84,6 +90,7 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Nueva Propiedad</DialogTitle>
+            <DialogDescription>Completá los datos de la nueva propiedad.</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">

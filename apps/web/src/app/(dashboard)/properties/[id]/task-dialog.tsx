@@ -17,7 +17,13 @@ import { z } from 'zod';
 
 import { FormSelect } from '@/components/form-select';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -151,11 +157,7 @@ export function TaskDialog({ open, onOpenChange, planId, task, activeSectors }: 
       <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Editar Tarea' : 'Nueva Tarea'}</DialogTitle>
-          <p className="text-muted-foreground text-sm">
-            {isEdit
-              ? 'Modificá los datos de la tarea.'
-              : 'Completá los datos para crear una nueva tarea de mantenimiento.'}
-          </p>
+          <DialogDescription>Configurá los datos de la tarea.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <input type="hidden" {...register('maintenancePlanId')} />

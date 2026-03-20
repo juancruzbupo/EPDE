@@ -1,4 +1,3 @@
-import { PlanStatus } from '@epde/shared';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
@@ -6,7 +5,7 @@ import { DashboardRepository } from '../dashboard/dashboard.repository';
 import { ISVSnapshotRepository } from '../dashboard/isv-snapshot.repository';
 import { MetricsService } from '../metrics/metrics.service';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { PropertiesRepository } from '../properties/properties.repository';
 import { DistributedLockService } from '../redis/distributed-lock.service';
 
 /**
@@ -18,7 +17,7 @@ export class ISVSnapshotService {
   private readonly logger = new Logger(ISVSnapshotService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly propertiesRepository: PropertiesRepository,
     private readonly dashboardRepository: DashboardRepository,
     private readonly isvRepository: ISVSnapshotRepository,
     private readonly lockService: DistributedLockService,
@@ -34,16 +33,7 @@ export class ISVSnapshotService {
       this.logger.log('Starting monthly ISV snapshot capture...');
 
       // Fetch properties with active plans (bounded for safety)
-      const properties = await this.prisma.property.findMany({
-        where: { deletedAt: null, maintenancePlan: { status: PlanStatus.ACTIVE } },
-        select: {
-          id: true,
-          address: true,
-          userId: true,
-          maintenancePlan: { select: { id: true } },
-        },
-        take: 1_000,
-      });
+      const properties = await this.propertiesRepository.findWithActivePlans(1_000);
 
       if (signal.lockLost) return;
 

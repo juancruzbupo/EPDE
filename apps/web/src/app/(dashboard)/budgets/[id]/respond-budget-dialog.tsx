@@ -11,7 +11,13 @@ import { Plus, Trash2 } from 'lucide-react';
 import { useFieldArray, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -112,9 +118,9 @@ export function RespondBudgetDialog({
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Cotizar Presupuesto</DialogTitle>
-          <p className="text-muted-foreground text-sm">
-            Detallá los items, cantidades y precios de la cotización.
-          </p>
+          <DialogDescription>
+            Completá la cotización con los ítems y días estimados.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* ─── Template selector ─── */}

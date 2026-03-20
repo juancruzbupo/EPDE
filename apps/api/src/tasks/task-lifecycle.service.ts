@@ -23,6 +23,7 @@ import {
 } from '@nestjs/common';
 import type { Task } from '@prisma/client';
 
+import { CategoryTemplatesRepository } from '../category-templates/category-templates.repository';
 import {
   TaskAccessDeniedError,
   TaskNotCompletableError,
@@ -43,6 +44,7 @@ export class TaskLifecycleService {
     private readonly tasksRepository: TasksRepository,
     private readonly plansRepository: MaintenancePlansRepository,
     private readonly auditLogRepository: TaskAuditLogRepository,
+    private readonly categoryTemplatesRepository: CategoryTemplatesRepository,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -222,10 +224,8 @@ export class TaskLifecycleService {
       throw new NotFoundException('Plan de mantenimiento no encontrado');
     }
 
-    const categoryTemplate = await this.prisma.categoryTemplate.findUnique({
-      where: { id: categoryTemplateId },
-      include: { tasks: { orderBy: { displayOrder: 'asc' }, take: 100 } },
-    });
+    const categoryTemplate =
+      await this.categoryTemplatesRepository.findByIdWithTasks(categoryTemplateId);
     if (!categoryTemplate) {
       throw new NotFoundException('Plantilla de categoría no encontrada');
     }

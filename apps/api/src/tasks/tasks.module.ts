@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 
+import { CategoryTemplatesModule } from '../category-templates/category-templates.module';
 import { PlanDataModule } from '../maintenance-plans/plan-data.module';
 import { TaskAuditLogRepository } from './task-audit-log.repository';
 import { TaskLifecycleService } from './task-lifecycle.service';
@@ -14,7 +15,7 @@ import { TasksRepository } from './tasks.repository';
  * without creating a circular dependency.
  */
 @Module({
-  imports: [PlanDataModule],
+  imports: [PlanDataModule, CategoryTemplatesModule],
   providers: [
     TasksRepository,
     TaskLogsRepository,

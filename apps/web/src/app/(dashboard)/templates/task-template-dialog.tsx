@@ -13,7 +13,13 @@ import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -111,6 +117,7 @@ export function TaskTemplateDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Editar Tarea Template' : 'Nueva Tarea Template'}</DialogTitle>
+          <DialogDescription>Configurá los datos de la plantilla de tarea.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">

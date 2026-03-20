@@ -9,6 +9,7 @@ import {
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { CategoryTemplatesRepository } from '../category-templates/category-templates.repository';
 import { MaintenancePlansRepository } from '../maintenance-plans/maintenance-plans.repository';
 import { PrismaService } from '../prisma/prisma.service';
 import { TaskAuditLogRepository } from './task-audit-log.repository';
@@ -35,6 +36,10 @@ const mockAuditLogRepository = {
   createAuditLog: jest.fn(),
 };
 
+const mockCategoryTemplatesRepository = {
+  findByIdWithTasks: jest.fn(),
+};
+
 describe('TaskLifecycleService', () => {
   let service: TaskLifecycleService;
 
@@ -47,10 +52,11 @@ describe('TaskLifecycleService', () => {
         { provide: TasksRepository, useValue: mockTasksRepository },
         { provide: MaintenancePlansRepository, useValue: mockPlansRepository },
         { provide: TaskAuditLogRepository, useValue: mockAuditLogRepository },
+        { provide: CategoryTemplatesRepository, useValue: mockCategoryTemplatesRepository },
         {
           provide: PrismaService,
           useValue: {
-            categoryTemplate: { findUnique: jest.fn() },
+            $transaction: jest.fn(),
             task: { createMany: jest.fn() },
           },
         },

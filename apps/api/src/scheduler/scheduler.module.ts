@@ -5,6 +5,7 @@ import { BudgetsModule } from '../budgets/budgets.module';
 import { DashboardModule } from '../dashboard/dashboard.module';
 import { EmailModule } from '../email/email.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { PropertiesModule } from '../properties/properties.module';
 import { ServiceRequestsModule } from '../service-requests/service-requests.module';
 import { TasksModule } from '../tasks/tasks.module';
 import { BudgetExpirationService } from './budget-expiration.service';
@@ -23,6 +24,7 @@ import { TaskStatusService } from './task-status.service';
     BudgetsModule,
     ServiceRequestsModule,
     DashboardModule,
+    PropertiesModule,
   ],
   providers: [
     TaskStatusService,

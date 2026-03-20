@@ -7,7 +7,13 @@ import { useForm } from 'react-hook-form';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useCreateClient } from '@/hooks/use-clients';
@@ -45,9 +51,7 @@ export function InviteClientDialog({ open, onOpenChange }: InviteClientDialogPro
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Invitar Cliente</DialogTitle>
-          <p className="text-muted-foreground text-sm">
-            Se enviará un email de invitación para que configure su contraseña.
-          </p>
+          <DialogDescription>Enviá una invitación por email al nuevo cliente.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {errorMessage && (

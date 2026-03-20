@@ -7,7 +7,13 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -71,6 +77,7 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Editar propiedad</DialogTitle>
+          <DialogDescription>Modificá los datos de la propiedad.</DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
