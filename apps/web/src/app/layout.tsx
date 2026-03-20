@@ -38,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           strategy="beforeInteractive"
         >{`(function(){try{var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.classList.add('dark')}catch(e){}})()`}</Script>
       </head>
-      <body className={`${dmSans.variable} ${dmSerifDisplay.variable}`}>
+      <body className={`${dmSans.variable} ${dmSerifDisplay.variable}`} suppressHydrationWarning>
         <Suspense>
           <NavigationProgress />
         </Suspense>
