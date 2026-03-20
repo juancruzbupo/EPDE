@@ -14,7 +14,7 @@
 2. **Validar con Zod** — Backend usa `ZodValidationPipe`, frontend usa `zodResolver`. No usar class-validator
 3. **Usar enums del shared** — `UserRole.ADMIN` en vez de `'ADMIN'`, `BudgetStatus.PENDING` en vez de `'PENDING'`
 4. **Repository pattern** — Solo los repositorios inyectan `PrismaService`. Los services inyectan repositorios
-5. **Soft-delete** — Los modelos User, Property, Task, Category, BudgetRequest y ServiceRequest usan soft-delete via Prisma extension. Verificar el flag `softDeletable` en el constructor del repo
+5. **Soft-delete** — Los modelos User, Property, Task, Category, BudgetRequest y ServiceRequest usan soft-delete via Prisma extension. Verificar el flag `softDeletable` en el constructor del repo. `this.model` filtra `deletedAt: null` automáticamente (usar para reads); `this.writeModel` accede sin filtro (usar para writes y edge cases)
 6. **Error handling con try-catch** — Event handlers, cron jobs, y operaciones Redis SIEMPRE envueltos en try-catch
 7. **Toast en mutations** — Toda `useMutation` en web DEBE tener `onError` con `toast.error()` usando `getErrorMessage()`
 8. **Cursor-based pagination** — Todas las listas usan `{ data, nextCursor, hasMore, total }`. NUNCA offset-based
@@ -102,6 +102,9 @@
 89. **Bulk completion con selección múltiple** — PlanEditor tiene modo selección ("Completar varias") que muestra checkboxes en tareas completables. `BulkCompleteDialog` (co-located en `properties/[id]/`) aplica los mismos datos de completación (result, conditionFound, executor, actionTaken) a todas las seleccionadas en secuencia con barra de progreso. Usa el mismo `useCompleteTask` hook por tarea
 90. **Redirect post-creación de entidad** — Al crear una propiedad desde `CreatePropertyDialog`, se redirige a `/properties/${id}` usando `router.push()` con el ID de la response. Patrón aplicable a cualquier dialog de creación donde el admin necesita seguir trabajando en la entidad recién creada
 91. **Circular dependency resolution via data-only modules** — Para romper ciclos entre modules (ej. Tasks ↔ MaintenancePlans), crear un `XxxDataModule` que exporta solo el repository sin service dependencies. Ambos modules importan el data module. NUNCA usar `forwardRef()`. Ref: `plan-data.module.ts`
+92. **DialogDescription en todos los dialogs** — Todo `<Dialog>` web DEBE incluir `<DialogDescription>` dentro de `<DialogHeader>` con texto descriptivo para screen readers. Sin esto, los lectores de pantalla no anuncian el propósito del dialog. Texto en español, ej: "Completá los datos para solicitar un presupuesto"
+93. **TaskStatus.COMPLETED es transitorio — usar TaskLog para completaciones** — Las tareas son cíclicas: al completarse, el server resetea status a PENDING con nueva `nextDueDate`. NUNCA contar completaciones por `status === COMPLETED` (siempre será 0). SIEMPRE usar `taskLogs: { some: {} }` en Prisma o `task.taskLogs.length > 0` en memoria. Ref: `getCompletionRate()`, `getClientCategoryBreakdown()`, `getClientHealthScore()`
+94. **Todas las queries de datos van en repositorios** — Refuerzo de SIEMPRE #4: services NUNCA llaman `this.prisma.xxx` directamente. Si un service necesita datos, agregar un método en el repository. Aplica a schedulers (ISVSnapshot usa `PropertiesRepository.findWithActivePlans()`) y bulk operations (TaskLifecycle usa `CategoryTemplatesRepository.findByIdWithTasks()`)
 
 ### NUNCA
 
