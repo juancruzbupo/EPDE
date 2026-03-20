@@ -176,13 +176,17 @@ describe('useCompleteTask', () => {
     });
   });
 
-  it('shows success toast on success', () => {
+  it('shows success toast with next date on success', () => {
     renderHook(() => useCompleteTask());
 
     const config = vi.mocked(useMutation).mock.calls[0][0];
-    (config.onSuccess as () => void)();
+    const mockResponse = {
+      data: { task: { nextDueDate: '2026-06-01T00:00:00.000Z' }, log: {} },
+    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (config.onSuccess as (r: any) => void)(mockResponse);
 
-    expect(toast.success).toHaveBeenCalledWith('Tarea completada');
+    expect(toast.success).toHaveBeenCalledWith(expect.stringContaining('Tarea completada'));
   });
 });
 

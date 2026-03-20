@@ -180,7 +180,6 @@ export interface PropertyReportData {
     user?: { name: string; email: string };
   };
   healthIndex: PropertyHealthIndex;
-  history: ISVSnapshotPublic[];
   sectorBreakdown: SectorBreakdownItem[];
   categoryBreakdown: CategoryBreakdownItem[];
   overdueTasks: Array<{

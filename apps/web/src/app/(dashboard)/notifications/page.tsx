@@ -29,7 +29,7 @@ function getNotificationHref(n: NotificationPublic): string | null {
   if (n.type === 'BUDGET_UPDATE' && d.budgetId) return `/budgets/${d.budgetId}`;
   if (n.type === 'SERVICE_UPDATE' && d.serviceRequestId)
     return `/service-requests/${d.serviceRequestId}`;
-  if (n.type === 'TASK_REMINDER' && d.taskId) return `/tasks?taskId=${d.taskId}`;
+  if (n.type === 'TASK_REMINDER' && d.planId && d.taskId) return `/tasks?taskId=${d.taskId}`;
   return null;
 }
 

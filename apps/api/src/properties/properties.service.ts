@@ -188,7 +188,6 @@ export class PropertiesService {
           dimensions: { compliance: 0, condition: 0, coverage: 0, investment: 0, trend: 0 },
           sectorScores: [],
         },
-        history: [],
         sectorBreakdown: [],
         categoryBreakdown: [],
         overdueTasks: [],
@@ -198,28 +197,14 @@ export class PropertiesService {
       };
     }
 
-    const [healthIndex, snapshots, sectorBreakdown, categoryBreakdown, reportTasks, recentLogs] =
+    const [healthIndex, sectorBreakdown, categoryBreakdown, reportTasks, recentLogs] =
       await Promise.all([
         this.dashboardRepository.getPropertyHealthIndex([planId]),
-        this.isvSnapshotRepository.findByProperty(id, 12),
         this.dashboardRepository.getClientSectorBreakdown([planId]),
         this.dashboardRepository.getClientCategoryBreakdown([planId]),
         this.propertiesRepository.getReportTasks(planId),
         this.propertiesRepository.getRecentTaskLogs(planId),
       ]);
-
-    const history = snapshots
-      .map((s) => ({
-        month: s.snapshotDate.toISOString().slice(0, 7),
-        score: s.score,
-        label: s.label,
-        compliance: s.compliance,
-        condition: s.condition,
-        coverage: s.coverage,
-        investment: s.investment,
-        trend: s.trend,
-      }))
-      .reverse();
 
     return {
       property: {
@@ -233,7 +218,6 @@ export class PropertiesService {
         user: property.user,
       },
       healthIndex,
-      history,
       sectorBreakdown,
       categoryBreakdown,
       overdueTasks: reportTasks.overdue,

@@ -124,8 +124,7 @@ export function useCompleteTask() {
     } & CompleteTaskInput) => completeTask(planId, taskId, dto),
 
     onSuccess: (response) => {
-      const nextDueDate = (response as { data?: { task?: { nextDueDate?: string } } })?.data?.task
-        ?.nextDueDate;
+      const nextDueDate = response.data?.task?.nextDueDate;
       if (nextDueDate) {
         const formatted = new Date(nextDueDate).toLocaleDateString('es-AR', {
           day: 'numeric',

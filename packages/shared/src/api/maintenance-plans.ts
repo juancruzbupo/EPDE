@@ -9,6 +9,7 @@ import type {
   TaskListItem,
   TaskLogPublic,
   TaskNotePublic,
+  TaskPublic,
 } from '../types';
 import type { TaskStatus } from '../types/enums';
 
@@ -83,7 +84,7 @@ export function createMaintenancePlanQueries(apiClient: AxiosInstance) {
       planId: string,
       taskId: string,
       dto: CompleteTaskInput,
-    ): Promise<ApiResponse<TaskLogPublic>> {
+    ): Promise<ApiResponse<{ task: TaskPublic; log: TaskLogPublic }>> {
       const { data } = await apiClient.post(
         `/maintenance-plans/${planId}/tasks/${taskId}/complete`,
         dto,
