@@ -58,7 +58,7 @@ export class DashboardService {
         metadata: { propertyId: p.id },
       })),
       ...recentTasks.map((log) => ({
-        id: log.task.id,
+        id: log.id,
         type: ActivityType.TASK_COMPLETED,
         description: `Tarea completada: ${log.task.name}`,
         timestamp: log.completedAt,

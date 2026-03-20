@@ -90,10 +90,12 @@ describe('DashboardService', () => {
         ],
         recentTasks: [
           {
+            id: 'log-1',
             completedAt: makeDate(3),
             task: { id: 't1', name: 'Tarea 1', maintenancePlanId: 'plan-1' },
           },
           {
+            id: 'log-2',
             completedAt: makeDate(7),
             task: { id: 't2', name: 'Tarea 2', maintenancePlanId: 'plan-1' },
           },
@@ -128,7 +130,7 @@ describe('DashboardService', () => {
       const propertyActivity = result.find((a) => a.id === 'p1');
       expect(propertyActivity?.description).toBe('Nueva propiedad: Calle 1, Buenos Aires');
 
-      const taskActivity = result.find((a) => a.id === 't1');
+      const taskActivity = result.find((a) => a.id === 'log-1');
       expect(taskActivity?.description).toBe('Tarea completada: Tarea 1');
 
       const budgetActivity = result.find((a) => a.id === 'b1');
@@ -157,6 +159,7 @@ describe('DashboardService', () => {
         })),
         recentTasks: [
           {
+            id: 'log-extra',
             completedAt: new Date(now.getTime() - 20000),
             task: { id: 't1', name: 'Tarea extra', maintenancePlanId: 'plan-1' },
           },

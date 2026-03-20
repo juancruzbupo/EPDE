@@ -72,6 +72,7 @@ export class DashboardRepository {
           orderBy: { completedAt: 'desc' },
           take: 5,
           select: {
+            id: true,
             completedAt: true,
             task: { select: { id: true, name: true, maintenancePlanId: true } },
           },
