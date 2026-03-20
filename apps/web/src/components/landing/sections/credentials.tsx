@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { User } from 'lucide-react';
+import Image from 'next/image';
 
 import {
   FADE_IN,
@@ -36,9 +36,14 @@ export function CredentialsSection({ motionProps }: SectionProps) {
             variants={SLIDE_IN_LEFT}
             className="flex shrink-0 justify-center md:justify-start"
           >
-            <div className="bg-primary/10 flex h-32 w-32 items-center justify-center rounded-2xl">
-              <User className="text-primary/40 h-16 w-16" />
-            </div>
+            <Image
+              src="/images/architect-placeholder.jpg"
+              alt="Noelia E. Yuskowich — Arquitecta, fundadora de EPDE"
+              width={128}
+              height={128}
+              className="rounded-2xl object-cover"
+              priority
+            />
           </motion.div>
 
           <motion.div variants={SLIDE_IN_RIGHT} className="space-y-4">

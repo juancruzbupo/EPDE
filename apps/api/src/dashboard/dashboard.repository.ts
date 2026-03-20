@@ -636,6 +636,13 @@ export class DashboardRepository {
    *
    * Safety bounds prevent unbounded result sets for properties with many tasks/logs.
    */
+  /**
+   * Safety bounds for health index queries. Prevents unbounded result sets
+   * for properties with extensive inspection history.
+   * - TASKS: 500 — single property rarely exceeds 200 active tasks
+   * - RECENT_LOGS: 2000 — 12 months × 500 tasks × ~4 completions/year
+   * - OLDER_LOGS: 1000 — 3-month window, fewer expected entries
+   */
   private static readonly HEALTH_INDEX_LIMITS = {
     TASKS: 500,
     RECENT_LOGS: 2_000,
@@ -712,16 +719,16 @@ export class DashboardRepository {
     const compliance = totalWeight > 0 ? Math.round((onTimeWeight / totalWeight) * 100) : 100;
 
     // ─── 2. CONDITION (30%) — avg conditionFound of recent inspections ───
-    const conditionMap = {
+    const conditionMap: Record<string, number> = {
       EXCELLENT: 100,
       GOOD: 80,
       FAIR: 60,
-      MINOR_ISSUE: 40,
-      MAJOR_ISSUE: 20,
-    } as Record<string, number>;
+      POOR: 40,
+      CRITICAL: 20,
+    };
     const conditionScores = recentLogs
       .map((l) => conditionMap[l.conditionFound] ?? 60)
-      .filter(Boolean);
+      .filter((v) => v != null);
     const condition =
       conditionScores.length > 0
         ? Math.round(conditionScores.reduce((a, b) => a + b, 0) / conditionScores.length)

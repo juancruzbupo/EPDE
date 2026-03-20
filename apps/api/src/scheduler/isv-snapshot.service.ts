@@ -33,7 +33,7 @@ export class ISVSnapshotService {
     await this.lockService.withLock('cron:isv-monthly-snapshot', 600, async (signal) => {
       this.logger.log('Starting monthly ISV snapshot capture...');
 
-      // Fetch all properties with active plans
+      // Fetch properties with active plans (bounded for safety)
       const properties = await this.prisma.property.findMany({
         where: { deletedAt: null, maintenancePlan: { status: PlanStatus.ACTIVE } },
         select: {
@@ -42,6 +42,7 @@ export class ISVSnapshotService {
           userId: true,
           maintenancePlan: { select: { id: true } },
         },
+        take: 1_000,
       });
 
       if (signal.lockLost) return;
