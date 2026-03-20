@@ -14,10 +14,10 @@ export default function DashboardPage() {
     document.title = 'Dashboard | EPDE';
   }, []);
 
-  // role comes from server JWT (immediate, no API call)
-  const { role } = useServerUser();
-  // name comes from auth store (populated by checkAuth in background)
-  const userName = useAuthStore((s) => s.user?.name ?? '');
+  // role + email come from server JWT (immediate, no API call)
+  const { role, email } = useServerUser();
+  // name comes from auth store (populated by checkAuth in background); email as fallback
+  const userName = useAuthStore((s) => s.user?.name) || email.split('@')[0] || '';
 
   if (role === UserRole.ADMIN) {
     return <AdminDashboard />;

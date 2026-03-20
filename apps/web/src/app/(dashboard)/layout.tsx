@@ -26,7 +26,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <div className="flex flex-1 flex-col">
         <Header />
         <main id="main-content" className="flex-1 p-6">
-          <ServerUserProvider role={user.role}>{children}</ServerUserProvider>
+          <ServerUserProvider role={user.role} email={user.email}>
+            {children}
+          </ServerUserProvider>
         </main>
       </div>
     </div>

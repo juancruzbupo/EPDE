@@ -30,7 +30,7 @@ describe('DashboardPage', () => {
   });
 
   it('renders AdminDashboard for admin user', () => {
-    vi.mocked(useServerUser).mockReturnValue({ role: UserRole.ADMIN });
+    vi.mocked(useServerUser).mockReturnValue({ role: UserRole.ADMIN, email: 'admin@epde.com' });
     vi.mocked(useAuthStore).mockImplementation((selector) =>
       selector({ user: { id: 'admin-1', role: UserRole.ADMIN, name: 'Admin' } } as never),
     );
@@ -40,7 +40,7 @@ describe('DashboardPage', () => {
   });
 
   it('renders ClientDashboard for client user', () => {
-    vi.mocked(useServerUser).mockReturnValue({ role: UserRole.CLIENT });
+    vi.mocked(useServerUser).mockReturnValue({ role: UserRole.CLIENT, email: 'juan@test.com' });
     vi.mocked(useAuthStore).mockImplementation((selector) =>
       selector({ user: { id: 'client-1', role: UserRole.CLIENT, name: 'Juan' } } as never),
     );
@@ -50,12 +50,13 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Client Dashboard for Juan')).toBeInTheDocument();
   });
 
-  it('renders ClientDashboard with empty name before checkAuth completes', () => {
-    vi.mocked(useServerUser).mockReturnValue({ role: UserRole.CLIENT });
+  it('renders ClientDashboard with email fallback before checkAuth completes', () => {
+    vi.mocked(useServerUser).mockReturnValue({ role: UserRole.CLIENT, email: 'maria@test.com' });
     vi.mocked(useAuthStore).mockImplementation((selector) => selector({ user: null } as never));
 
     render(<DashboardPage />);
-    // Should still render (role from server), just with empty name
+    // Should render with email prefix as fallback name
     expect(screen.getByTestId('client-dashboard')).toBeInTheDocument();
+    expect(screen.getByText('Client Dashboard for maria')).toBeInTheDocument();
   });
 });

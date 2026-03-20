@@ -59,6 +59,9 @@ export function useMarkAsRead() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.notifications] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
+      });
     },
   });
 }
@@ -89,6 +92,9 @@ export function useMarkAllAsRead() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.notifications] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
+      });
     },
   });
 }

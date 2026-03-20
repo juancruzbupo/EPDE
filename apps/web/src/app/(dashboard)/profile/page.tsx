@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PageTransition } from '@/components/ui/page-transition';
+import { Skeleton } from '@/components/ui/skeleton';
 import { changePassword, updateProfile } from '@/lib/auth';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -42,7 +43,14 @@ export default function ProfilePage() {
 
   const { user, checkAuth } = useAuthStore();
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div role="status" aria-label="Cargando perfil" className="space-y-6">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-64 rounded-lg" />
+      </div>
+    );
+  }
 
   return (
     <PageTransition>

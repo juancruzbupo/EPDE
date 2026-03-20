@@ -18,9 +18,9 @@ export default function DashboardError({
   return (
     <div className="flex flex-1 items-center justify-center p-4">
       <div className="max-w-md space-y-4 text-center">
-        <h1 className="text-2xl font-bold">Algo salio mal</h1>
+        <h1 className="text-2xl font-bold">Algo salió mal</h1>
         <p className="text-muted-foreground">
-          Ocurrio un error al cargar esta seccion. El panel lateral sigue disponible.
+          Ocurrió un error al cargar esta sección. El panel lateral sigue disponible.
         </p>
         <Button onClick={reset}>Reintentar</Button>
       </div>
