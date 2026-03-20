@@ -5,6 +5,10 @@ vi.mock('@/stores/auth-store', () => ({
   useAuthStore: vi.fn(),
 }));
 
+vi.mock('@/providers/server-user-provider', () => ({
+  useServerUser: vi.fn(),
+}));
+
 vi.mock('@/app/(dashboard)/dashboard/admin-dashboard', () => ({
   AdminDashboard: () => <div data-testid="admin-dashboard">Admin Dashboard</div>,
 }));
@@ -15,6 +19,7 @@ vi.mock('@/app/(dashboard)/dashboard/client-dashboard', () => ({
   ),
 }));
 
+import { useServerUser } from '@/providers/server-user-provider';
 import { useAuthStore } from '@/stores/auth-store';
 
 import DashboardPage from '../page';
@@ -25,6 +30,7 @@ describe('DashboardPage', () => {
   });
 
   it('renders AdminDashboard for admin user', () => {
+    vi.mocked(useServerUser).mockReturnValue({ role: UserRole.ADMIN });
     vi.mocked(useAuthStore).mockImplementation((selector) =>
       selector({ user: { id: 'admin-1', role: UserRole.ADMIN, name: 'Admin' } } as never),
     );
@@ -34,6 +40,7 @@ describe('DashboardPage', () => {
   });
 
   it('renders ClientDashboard for client user', () => {
+    vi.mocked(useServerUser).mockReturnValue({ role: UserRole.CLIENT });
     vi.mocked(useAuthStore).mockImplementation((selector) =>
       selector({ user: { id: 'client-1', role: UserRole.CLIENT, name: 'Juan' } } as never),
     );
@@ -43,10 +50,12 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Client Dashboard for Juan')).toBeInTheDocument();
   });
 
-  it('returns null when no user', () => {
+  it('renders ClientDashboard with empty name before checkAuth completes', () => {
+    vi.mocked(useServerUser).mockReturnValue({ role: UserRole.CLIENT });
     vi.mocked(useAuthStore).mockImplementation((selector) => selector({ user: null } as never));
 
-    const { container } = render(<DashboardPage />);
-    expect(container.innerHTML).toBe('');
+    render(<DashboardPage />);
+    // Should still render (role from server), just with empty name
+    expect(screen.getByTestId('client-dashboard')).toBeInTheDocument();
   });
 });

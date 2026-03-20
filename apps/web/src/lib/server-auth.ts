@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 
 import { decodeJwtPayload } from './jwt';
 
-interface ServerUser {
+export interface ServerUser {
   id: string;
   email: string;
   role: UserRole;

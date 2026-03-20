@@ -3,11 +3,12 @@ import { redirect } from 'next/navigation';
 import { Header } from '@/components/layout/header';
 import { Sidebar } from '@/components/layout/sidebar';
 import { getServerUser } from '@/lib/server-auth';
+import { ServerUserProvider } from '@/providers/server-user-provider';
 
 /**
  * Dashboard layout — server-side auth gate.
- * Intentionally blocks on getServerUser() to prevent flash of authenticated content.
- * Individual pages handle their own loading states via loading.tsx.
+ * Passes server-decoded user (role) to client via ServerUserProvider,
+ * so dashboard page can render immediately without waiting for GET /auth/me.
  */
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await getServerUser();
@@ -25,7 +26,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <div className="flex flex-1 flex-col">
         <Header />
         <main id="main-content" className="flex-1 p-6">
-          {children}
+          <ServerUserProvider role={user.role}>{children}</ServerUserProvider>
         </main>
       </div>
     </div>
