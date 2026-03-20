@@ -33,7 +33,7 @@ export function useUnreadCount() {
 export function useMarkAsRead() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: markAsRead,
+    mutationFn: (id: string) => markAsRead(id),
     onMutate: async () => {
       await queryClient.cancelQueries({
         queryKey: [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],

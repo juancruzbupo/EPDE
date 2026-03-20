@@ -3,10 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
 
 import {
+  useAdminActivity,
+  useAdminDashboardStats,
   useClientDashboardStats,
   useClientUpcomingTasks,
-  useDashboardActivity,
-  useDashboardStats,
 } from '../use-dashboard';
 
 vi.mock('@tanstack/react-query', () => ({
@@ -26,9 +26,9 @@ beforeEach(() => {
   >);
 });
 
-describe('useDashboardStats', () => {
+describe('useAdminDashboardStats', () => {
   it('should use correct queryKey', () => {
-    renderHook(() => useDashboardStats());
+    renderHook(() => useAdminDashboardStats());
 
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -38,9 +38,9 @@ describe('useDashboardStats', () => {
   });
 });
 
-describe('useDashboardActivity', () => {
+describe('useAdminActivity', () => {
   it('should use correct queryKey', () => {
-    renderHook(() => useDashboardActivity());
+    renderHook(() => useAdminActivity());
 
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({

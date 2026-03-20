@@ -37,7 +37,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAdminAnalytics, useDashboardActivity, useDashboardStats } from '@/hooks/use-dashboard';
+import { useAdminActivity, useAdminAnalytics, useAdminDashboardStats } from '@/hooks/use-dashboard';
 import { FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM, useMotionPreference } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 
@@ -98,13 +98,13 @@ export function AdminDashboard() {
     isLoading: statsLoading,
     isError: statsError,
     refetch: refetchStats,
-  } = useDashboardStats();
+  } = useAdminDashboardStats();
   const {
     data: activity,
     isLoading: activityLoading,
     isError: activityError,
     refetch: refetchActivity,
-  } = useDashboardActivity();
+  } = useAdminActivity();
   const [chartMonths, setChartMonths] = useState(6);
   const [analyticsTab, setAnalyticsTab] = useState('operational');
   const { data: analytics, isLoading: analyticsLoading } = useAdminAnalytics(chartMonths);

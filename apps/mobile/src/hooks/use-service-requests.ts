@@ -111,6 +111,9 @@ export function useAddServiceRequestComment() {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.serviceRequests, serviceRequestId, QUERY_KEYS.serviceRequestComments],
       });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.serviceRequests, serviceRequestId, QUERY_KEYS.serviceRequestAuditLog],
+      });
       Alert.alert('Éxito', 'Comentario agregado');
     },
     onError: (err) => {

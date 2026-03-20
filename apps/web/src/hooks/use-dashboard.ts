@@ -10,14 +10,14 @@ import {
   getDashboardStats,
 } from '@/lib/api/dashboard';
 
-export function useDashboardStats() {
+export function useAdminDashboardStats() {
   return useQuery({
     queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardStats],
     queryFn: ({ signal }) => getDashboardStats(signal).then((r) => r.data),
   });
 }
 
-export function useDashboardActivity() {
+export function useAdminActivity() {
   return useQuery({
     queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardActivity],
     queryFn: ({ signal }) => getDashboardActivity(signal).then((r) => r.data),

@@ -25,7 +25,9 @@ export async function getAdminAnalytics(
   signal?: AbortSignal,
   months?: number,
 ): Promise<ApiResponse<AdminAnalytics>> {
-  const params = months ? `?months=${months}` : '';
-  const { data } = await apiClient.get(`/dashboard/analytics${params}`, { signal });
+  const { data } = await apiClient.get('/dashboard/analytics', {
+    params: months ? { months } : undefined,
+    signal,
+  });
   return data;
 }
