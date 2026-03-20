@@ -88,7 +88,12 @@ export class DashboardService {
     const cacheKey = `dashboard:client:${userId}:stats`;
     try {
       const cached = await this.redis.get(cacheKey);
-      if (cached) return JSON.parse(cached);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        // Invalidate stale cache missing healthScore (added in v1.1)
+        if ('healthScore' in parsed) return parsed;
+        await this.redis.del(cacheKey);
+      }
     } catch {
       /* Redis unavailable */
     }
