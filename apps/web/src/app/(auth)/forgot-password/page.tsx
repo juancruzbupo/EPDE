@@ -60,9 +60,15 @@ export default function ForgotPasswordPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="tu@email.com" {...register('email')} />
+              <Input
+                id="email"
+                type="email"
+                placeholder="tu@email.com"
+                aria-describedby={errors.email ? 'email-error' : undefined}
+                {...register('email')}
+              />
               {errors.email && (
-                <p role="alert" className="text-destructive text-sm">
+                <p id="email-error" role="alert" className="text-destructive text-sm">
                   {errors.email.message}
                 </p>
               )}

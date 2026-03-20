@@ -79,6 +79,7 @@ function ResetPasswordForm() {
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   className="pr-10"
+                  aria-describedby={errors.newPassword ? 'newPassword-error' : undefined}
                   {...register('newPassword')}
                 />
                 <button
@@ -92,7 +93,7 @@ function ResetPasswordForm() {
                 </button>
               </div>
               {errors.newPassword && (
-                <p role="alert" className="text-destructive text-sm">
+                <p id="newPassword-error" role="alert" className="text-destructive text-sm">
                   {errors.newPassword.message}
                 </p>
               )}
@@ -112,6 +113,7 @@ function ResetPasswordForm() {
                   type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   className="pr-10"
+                  aria-describedby={errors.confirmPassword ? 'confirmPassword-error' : undefined}
                   {...register('confirmPassword')}
                 />
                 <button
@@ -129,7 +131,7 @@ function ResetPasswordForm() {
                 </button>
               </div>
               {errors.confirmPassword && (
-                <p role="alert" className="text-destructive text-sm">
+                <p id="confirmPassword-error" role="alert" className="text-destructive text-sm">
                   {errors.confirmPassword.message}
                 </p>
               )}

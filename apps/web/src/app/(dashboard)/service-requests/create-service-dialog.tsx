@@ -203,7 +203,11 @@ export function CreateServiceDialog({
               name="propertyId"
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id="propertyId" className="w-full">
+                  <SelectTrigger
+                    id="propertyId"
+                    className="w-full"
+                    aria-describedby={errors.propertyId ? 'sr-propertyId-error' : undefined}
+                  >
                     <SelectValue placeholder="Seleccionar propiedad" />
                   </SelectTrigger>
                   <SelectContent>
@@ -217,7 +221,7 @@ export function CreateServiceDialog({
               )}
             />
             {errors.propertyId && (
-              <p role="alert" className="text-destructive text-sm">
+              <p id="sr-propertyId-error" role="alert" className="text-destructive text-sm">
                 {errors.propertyId.message}
               </p>
             )}
@@ -255,9 +259,13 @@ export function CreateServiceDialog({
             <Label htmlFor="title">
               Título <span className="text-destructive">*</span>
             </Label>
-            <Input id="title" {...register('title')} />
+            <Input
+              id="title"
+              aria-describedby={errors.title ? 'sr-title-error' : undefined}
+              {...register('title')}
+            />
             {errors.title && (
-              <p role="alert" className="text-destructive text-sm">
+              <p id="sr-title-error" role="alert" className="text-destructive text-sm">
                 {errors.title.message}
               </p>
             )}
@@ -267,9 +275,13 @@ export function CreateServiceDialog({
             <Label htmlFor="description">
               Descripción <span className="text-destructive">*</span>
             </Label>
-            <Textarea id="description" {...register('description')} />
+            <Textarea
+              id="description"
+              aria-describedby={errors.description ? 'sr-description-error' : undefined}
+              {...register('description')}
+            />
             {errors.description && (
-              <p role="alert" className="text-destructive text-sm">
+              <p id="sr-description-error" role="alert" className="text-destructive text-sm">
                 {errors.description.message}
               </p>
             )}
@@ -282,7 +294,11 @@ export function CreateServiceDialog({
               name="urgency"
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id="urgency" className="w-full">
+                  <SelectTrigger
+                    id="urgency"
+                    className="w-full"
+                    aria-describedby={errors.urgency ? 'sr-urgency-error' : undefined}
+                  >
                     <SelectValue placeholder="Seleccionar urgencia" />
                   </SelectTrigger>
                   <SelectContent>
@@ -296,7 +312,7 @@ export function CreateServiceDialog({
               )}
             />
             {errors.urgency && (
-              <p role="alert" className="text-destructive text-sm">
+              <p id="sr-urgency-error" role="alert" className="text-destructive text-sm">
                 {errors.urgency.message}
               </p>
             )}

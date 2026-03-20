@@ -52,9 +52,15 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="tu@email.com" {...register('email')} />
+            <Input
+              id="email"
+              type="email"
+              placeholder="tu@email.com"
+              aria-describedby={errors.email ? 'email-error' : undefined}
+              {...register('email')}
+            />
             {errors.email && (
-              <p role="alert" className="text-destructive text-sm">
+              <p id="email-error" role="alert" className="text-destructive text-sm">
                 {errors.email.message}
               </p>
             )}
@@ -68,6 +74,7 @@ export default function LoginPage() {
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••"
                 className="pr-10"
+                aria-describedby={errors.password ? 'password-error' : undefined}
                 {...register('password')}
               />
               <button
@@ -81,7 +88,7 @@ export default function LoginPage() {
               </button>
             </div>
             {errors.password && (
-              <p role="alert" className="text-destructive text-sm">
+              <p id="password-error" role="alert" className="text-destructive text-sm">
                 {errors.password.message}
               </p>
             )}

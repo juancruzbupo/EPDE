@@ -47,6 +47,7 @@ function LabelSelect({
   onChange,
   placeholder,
   required,
+  errorId,
 }: {
   label: string;
   labels: Record<string, string>;
@@ -54,6 +55,8 @@ function LabelSelect({
   onChange: (value: string) => void;
   placeholder: string;
   required?: boolean;
+  /** When provided, links the trigger to the error message via aria-describedby. */
+  errorId?: string;
 }) {
   return (
     <div className="space-y-1.5">
@@ -61,7 +64,7 @@ function LabelSelect({
         {label} {required && <span className="text-destructive">*</span>}
       </Label>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger>
+        <SelectTrigger aria-describedby={errorId}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
@@ -180,11 +183,12 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
                   onChange={field.onChange}
                   placeholder="¿Cómo resultó?"
                   required
+                  errorId={errors.result ? 'result-error' : undefined}
                 />
               )}
             />
             {errors.result && (
-              <p role="alert" className="text-destructive mt-1 text-sm">
+              <p id="result-error" role="alert" className="text-destructive mt-1 text-sm">
                 {errors.result.message}
               </p>
             )}
@@ -202,11 +206,12 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
                   onChange={field.onChange}
                   placeholder="Estado general"
                   required
+                  errorId={errors.conditionFound ? 'conditionFound-error' : undefined}
                 />
               )}
             />
             {errors.conditionFound && (
-              <p role="alert" className="text-destructive mt-1 text-sm">
+              <p id="conditionFound-error" role="alert" className="text-destructive mt-1 text-sm">
                 {errors.conditionFound.message}
               </p>
             )}
@@ -224,11 +229,12 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
                   onChange={field.onChange}
                   placeholder="Ejecutor"
                   required
+                  errorId={errors.executor ? 'executor-error' : undefined}
                 />
               )}
             />
             {errors.executor && (
-              <p role="alert" className="text-destructive mt-1 text-sm">
+              <p id="executor-error" role="alert" className="text-destructive mt-1 text-sm">
                 {errors.executor.message}
               </p>
             )}
@@ -246,11 +252,12 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
                   onChange={field.onChange}
                   placeholder="¿Qué se hizo?"
                   required
+                  errorId={errors.actionTaken ? 'actionTaken-error' : undefined}
                 />
               )}
             />
             {errors.actionTaken && (
-              <p role="alert" className="text-destructive mt-1 text-sm">
+              <p id="actionTaken-error" role="alert" className="text-destructive mt-1 text-sm">
                 {errors.actionTaken.message}
               </p>
             )}

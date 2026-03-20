@@ -115,9 +115,13 @@ export function TaskTemplateDialog({
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="tpl-task-name">Nombre</Label>
-            <Input id="tpl-task-name" {...register('name')} />
+            <Input
+              id="tpl-task-name"
+              aria-describedby={errors.name ? 'tpl-task-name-error' : undefined}
+              {...register('name')}
+            />
             {errors.name && (
-              <p role="alert" className="text-destructive text-sm">
+              <p id="tpl-task-name-error" role="alert" className="text-destructive text-sm">
                 {errors.name.message}
               </p>
             )}

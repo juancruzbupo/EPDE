@@ -125,9 +125,13 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="client-name">Nombre</Label>
-                <Input id="client-name" {...register('name')} />
+                <Input
+                  id="client-name"
+                  aria-describedby={errors.name ? 'client-name-error' : undefined}
+                  {...register('name')}
+                />
                 {errors.name && (
-                  <p role="alert" className="text-destructive text-sm">
+                  <p id="client-name-error" role="alert" className="text-destructive text-sm">
                     {errors.name.message}
                   </p>
                 )}

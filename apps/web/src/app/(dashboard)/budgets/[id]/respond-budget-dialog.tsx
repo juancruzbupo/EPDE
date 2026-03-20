@@ -168,10 +168,19 @@ export function RespondBudgetDialog({
                     <Input
                       placeholder="Descripción del item"
                       className="h-9 text-sm"
+                      aria-describedby={
+                        errors.lineItems?.[index]?.description
+                          ? `lineItem-${index}-desc-error`
+                          : undefined
+                      }
                       {...register(`lineItems.${index}.description`)}
                     />
                     {errors.lineItems?.[index]?.description && (
-                      <p role="alert" className="text-destructive mt-0.5 text-xs">
+                      <p
+                        id={`lineItem-${index}-desc-error`}
+                        role="alert"
+                        className="text-destructive mt-0.5 text-xs"
+                      >
                         {errors.lineItems[index].description.message}
                       </p>
                     )}
@@ -245,12 +254,13 @@ export function RespondBudgetDialog({
                   min={1}
                   max={365}
                   placeholder="Ej: 5"
+                  aria-describedby={errors.estimatedDays ? 'estimatedDays-error' : undefined}
                   {...register('estimatedDays', {
                     setValueAs: (v: string) => (v === '' ? undefined : Number(v)),
                   })}
                 />
                 {errors.estimatedDays && (
-                  <p role="alert" className="text-destructive text-xs">
+                  <p id="estimatedDays-error" role="alert" className="text-destructive text-xs">
                     {errors.estimatedDays.message}
                   </p>
                 )}

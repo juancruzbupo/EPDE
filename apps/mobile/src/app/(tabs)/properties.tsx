@@ -163,11 +163,13 @@ export default function PropertiesScreen() {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ gap: 8 }}
+            accessibilityRole="radiogroup"
           >
             {TYPE_FILTERS.map((f) => (
               <Pressable
                 key={f.label}
-                accessibilityRole="button"
+                accessibilityRole="radio"
+                accessibilityState={{ selected: typeFilter === f.key }}
                 accessibilityLabel={`Filtrar por ${f.label}`}
                 onPress={() => {
                   haptics.selection();

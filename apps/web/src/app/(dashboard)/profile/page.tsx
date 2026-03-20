@@ -140,9 +140,14 @@ function ProfileForm({
             <Label htmlFor="name">
               Nombre <span className="text-destructive">*</span>
             </Label>
-            <Input id="name" placeholder="Tu nombre completo" {...register('name')} />
+            <Input
+              id="name"
+              placeholder="Tu nombre completo"
+              aria-describedby={errors.name ? 'profile-name-error' : undefined}
+              {...register('name')}
+            />
             {errors.name && (
-              <p role="alert" className="text-destructive text-sm">
+              <p id="profile-name-error" role="alert" className="text-destructive text-sm">
                 {errors.name.message}
               </p>
             )}
@@ -152,9 +157,14 @@ function ProfileForm({
             <Label htmlFor="phone" className="text-muted-foreground">
               Teléfono
             </Label>
-            <Input id="phone" placeholder="+54 11 1234-5678" {...register('phone')} />
+            <Input
+              id="phone"
+              placeholder="+54 11 1234-5678"
+              aria-describedby={errors.phone ? 'profile-phone-error' : undefined}
+              {...register('phone')}
+            />
             {errors.phone && (
-              <p role="alert" className="text-destructive text-sm">
+              <p id="profile-phone-error" role="alert" className="text-destructive text-sm">
                 {errors.phone.message}
               </p>
             )}
@@ -219,6 +229,7 @@ function ChangePasswordForm() {
                 type={showCurrent ? 'text' : 'password'}
                 placeholder="********"
                 className="pr-10"
+                aria-describedby={errors.currentPassword ? 'currentPassword-error' : undefined}
                 {...register('currentPassword')}
               />
               <button
@@ -232,7 +243,7 @@ function ChangePasswordForm() {
               </button>
             </div>
             {errors.currentPassword && (
-              <p role="alert" className="text-destructive text-sm">
+              <p id="currentPassword-error" role="alert" className="text-destructive text-sm">
                 {errors.currentPassword.message}
               </p>
             )}
@@ -248,6 +259,7 @@ function ChangePasswordForm() {
                 type={showNew ? 'text' : 'password'}
                 placeholder="********"
                 className="pr-10"
+                aria-describedby={errors.newPassword ? 'pwd-newPassword-error' : undefined}
                 {...register('newPassword')}
               />
               <button
@@ -261,7 +273,7 @@ function ChangePasswordForm() {
               </button>
             </div>
             {errors.newPassword && (
-              <p role="alert" className="text-destructive text-sm">
+              <p id="pwd-newPassword-error" role="alert" className="text-destructive text-sm">
                 {errors.newPassword.message}
               </p>
             )}
@@ -283,6 +295,7 @@ function ChangePasswordForm() {
                 type={showConfirm ? 'text' : 'password'}
                 placeholder="********"
                 className="pr-10"
+                aria-describedby={errors.confirmPassword ? 'pwd-confirmPassword-error' : undefined}
                 {...register('confirmPassword')}
               />
               <button
@@ -296,7 +309,7 @@ function ChangePasswordForm() {
               </button>
             </div>
             {errors.confirmPassword && (
-              <p role="alert" className="text-destructive text-sm">
+              <p id="pwd-confirmPassword-error" role="alert" className="text-destructive text-sm">
                 {errors.confirmPassword.message}
               </p>
             )}

@@ -84,9 +84,13 @@ export function CategoryTemplateDialog({
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="tpl-cat-name">Nombre</Label>
-            <Input id="tpl-cat-name" {...register('name')} />
+            <Input
+              id="tpl-cat-name"
+              aria-describedby={errors.name ? 'tpl-cat-name-error' : undefined}
+              {...register('name')}
+            />
             {errors.name && (
-              <p role="alert" className="text-destructive text-sm">
+              <p id="tpl-cat-name-error" role="alert" className="text-destructive text-sm">
                 {errors.name.message}
               </p>
             )}

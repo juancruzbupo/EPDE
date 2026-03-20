@@ -18,7 +18,7 @@ interface FilterSelectProps {
 export function FilterSelect({ value, onChange, options, placeholder }: FilterSelectProps) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className="w-[180px]" aria-label={`Filtrar por ${placeholder.toLowerCase()}`}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>

@@ -119,6 +119,7 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
                   <motion.span
+                    role="status"
                     variants={FADE_IN_UP}
                     initial={shouldAnimate ? 'hidden' : false}
                     animate={shouldAnimate ? 'visible' : undefined}

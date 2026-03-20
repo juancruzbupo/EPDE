@@ -179,11 +179,13 @@ export default function BudgetsScreen() {
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ gap: 8 }}
+              accessibilityRole="radiogroup"
             >
               {FILTERS.map((f) => (
                 <Pressable
                   key={f.label}
-                  accessibilityRole="button"
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: statusFilter === f.key }}
                   accessibilityLabel={`Filtrar por ${f.label}`}
                   onPress={() => {
                     haptics.selection();

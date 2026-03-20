@@ -121,6 +121,7 @@ export default function MaintenancePlansScreen() {
           <View className="border-border bg-card flex-row items-center rounded-lg border px-3">
             <Text className="text-muted-foreground mr-2">🔍</Text>
             <TextInput
+              accessibilityLabel="Buscar planes"
               style={TYPE.bodyMd}
               className="text-foreground flex-1 py-2.5"
               placeholder="Buscar plan o dirección..."

@@ -78,9 +78,13 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
               <Label htmlFor="edit-address">
                 Dirección <span className="text-destructive">*</span>
               </Label>
-              <Input id="edit-address" {...register('address')} />
+              <Input
+                id="edit-address"
+                aria-describedby={errors.address ? 'edit-address-error' : undefined}
+                {...register('address')}
+              />
               {errors.address && (
-                <p role="alert" className="text-destructive text-xs">
+                <p id="edit-address-error" role="alert" className="text-destructive text-xs">
                   {errors.address.message}
                 </p>
               )}
@@ -89,9 +93,13 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
               <Label htmlFor="edit-city">
                 Ciudad <span className="text-destructive">*</span>
               </Label>
-              <Input id="edit-city" {...register('city')} />
+              <Input
+                id="edit-city"
+                aria-describedby={errors.city ? 'edit-city-error' : undefined}
+                {...register('city')}
+              />
               {errors.city && (
-                <p role="alert" className="text-destructive text-xs">
+                <p id="edit-city-error" role="alert" className="text-destructive text-xs">
                   {errors.city.message}
                 </p>
               )}
@@ -123,12 +131,13 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
               <Input
                 id="edit-year"
                 type="number"
+                aria-describedby={errors.yearBuilt ? 'edit-yearBuilt-error' : undefined}
                 {...register('yearBuilt', {
                   setValueAs: (v: string) => (v === '' ? undefined : Number(v)),
                 })}
               />
               {errors.yearBuilt && (
-                <p role="alert" className="text-destructive text-sm">
+                <p id="edit-yearBuilt-error" role="alert" className="text-destructive text-sm">
                   {errors.yearBuilt.message}
                 </p>
               )}
@@ -141,12 +150,13 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
                 id="edit-sqm"
                 type="number"
                 step="0.1"
+                aria-describedby={errors.squareMeters ? 'edit-squareMeters-error' : undefined}
                 {...register('squareMeters', {
                   setValueAs: (v: string) => (v === '' ? undefined : Number(v)),
                 })}
               />
               {errors.squareMeters && (
-                <p role="alert" className="text-destructive text-sm">
+                <p id="edit-squareMeters-error" role="alert" className="text-destructive text-sm">
                   {errors.squareMeters.message}
                 </p>
               )}

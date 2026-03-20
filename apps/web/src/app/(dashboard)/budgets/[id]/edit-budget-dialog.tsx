@@ -55,9 +55,13 @@ export function EditBudgetDialog({ open, onOpenChange, budget }: EditBudgetDialo
             <Label htmlFor="edit-title">
               Título <span className="text-destructive">*</span>
             </Label>
-            <Input id="edit-title" {...register('title')} />
+            <Input
+              id="edit-title"
+              aria-describedby={errors.title ? 'edit-budget-title-error' : undefined}
+              {...register('title')}
+            />
             {errors.title && (
-              <p role="alert" className="text-destructive text-xs">
+              <p id="edit-budget-title-error" role="alert" className="text-destructive text-xs">
                 {errors.title.message}
               </p>
             )}
@@ -66,9 +70,18 @@ export function EditBudgetDialog({ open, onOpenChange, budget }: EditBudgetDialo
             <Label htmlFor="edit-description" className="text-muted-foreground">
               Descripción
             </Label>
-            <Textarea id="edit-description" {...register('description')} rows={2} />
+            <Textarea
+              id="edit-description"
+              aria-describedby={errors.description ? 'edit-budget-description-error' : undefined}
+              {...register('description')}
+              rows={2}
+            />
             {errors.description && (
-              <p role="alert" className="text-destructive text-sm">
+              <p
+                id="edit-budget-description-error"
+                role="alert"
+                className="text-destructive text-sm"
+              >
                 {errors.description.message}
               </p>
             )}

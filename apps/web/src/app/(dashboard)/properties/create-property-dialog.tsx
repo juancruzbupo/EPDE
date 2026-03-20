@@ -95,6 +95,7 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
                     variant="outline"
                     role="combobox"
                     aria-expanded={clientPopoverOpen}
+                    aria-describedby={errors.userId ? 'userId-error' : undefined}
                     className="w-full justify-between font-normal"
                   >
                     {selectedClientLabel || 'Seleccionar cliente...'}
@@ -156,25 +157,33 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
                 + Invitar nuevo cliente
               </button>
               {errors.userId && (
-                <p role="alert" className="text-destructive text-sm">
+                <p id="userId-error" role="alert" className="text-destructive text-sm">
                   {errors.userId.message}
                 </p>
               )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="prop-address">Dirección</Label>
-              <Input id="prop-address" {...register('address')} />
+              <Input
+                id="prop-address"
+                aria-describedby={errors.address ? 'address-error' : undefined}
+                {...register('address')}
+              />
               {errors.address && (
-                <p role="alert" className="text-destructive text-sm">
+                <p id="address-error" role="alert" className="text-destructive text-sm">
                   {errors.address.message}
                 </p>
               )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="prop-city">Ciudad</Label>
-              <Input id="prop-city" {...register('city')} />
+              <Input
+                id="prop-city"
+                aria-describedby={errors.city ? 'city-error' : undefined}
+                {...register('city')}
+              />
               {errors.city && (
-                <p role="alert" className="text-destructive text-sm">
+                <p id="city-error" role="alert" className="text-destructive text-sm">
                   {errors.city.message}
                 </p>
               )}
@@ -203,12 +212,13 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
                 <Input
                   id="prop-year"
                   type="number"
+                  aria-describedby={errors.yearBuilt ? 'yearBuilt-error' : undefined}
                   {...register('yearBuilt', {
                     setValueAs: (v: string) => (v === '' ? undefined : Number(v)),
                   })}
                 />
                 {errors.yearBuilt && (
-                  <p role="alert" className="text-destructive text-sm">
+                  <p id="yearBuilt-error" role="alert" className="text-destructive text-sm">
                     {errors.yearBuilt.message}
                   </p>
                 )}
@@ -219,12 +229,13 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
                   id="prop-sqm"
                   type="number"
                   step="0.1"
+                  aria-describedby={errors.squareMeters ? 'squareMeters-error' : undefined}
                   {...register('squareMeters', {
                     setValueAs: (v: string) => (v === '' ? undefined : Number(v)),
                   })}
                 />
                 {errors.squareMeters && (
-                  <p role="alert" className="text-destructive text-sm">
+                  <p id="squareMeters-error" role="alert" className="text-destructive text-sm">
                     {errors.squareMeters.message}
                   </p>
                 )}

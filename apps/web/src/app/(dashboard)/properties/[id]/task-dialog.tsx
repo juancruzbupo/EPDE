@@ -324,12 +324,17 @@ export function TaskDialog({ open, onOpenChange, planId, task, activeSectors }: 
 
             <div className="space-y-1.5">
               <Label htmlFor="task-due-date">Próxima fecha de vencimiento</Label>
-              <Input id="task-due-date" type="date" {...register('nextDueDate')} />
+              <Input
+                id="task-due-date"
+                type="date"
+                aria-describedby={errors.nextDueDate ? 'nextDueDate-error' : undefined}
+                {...register('nextDueDate')}
+              />
               <p className="text-muted-foreground text-xs">
                 Dejá vacío para tareas que se detectan visualmente (sin fecha fija).
               </p>
               {errors.nextDueDate && (
-                <p role="alert" className="text-destructive text-xs">
+                <p id="nextDueDate-error" role="alert" className="text-destructive text-xs">
                   {errors.nextDueDate.message}
                 </p>
               )}

@@ -59,9 +59,15 @@ export function InviteClientDialog({ open, onOpenChange }: InviteClientDialogPro
             <Label htmlFor="email">
               Email <span className="text-destructive">*</span>
             </Label>
-            <Input id="email" type="email" placeholder="cliente@email.com" {...register('email')} />
+            <Input
+              id="email"
+              type="email"
+              placeholder="cliente@email.com"
+              aria-describedby={errors.email ? 'email-error' : undefined}
+              {...register('email')}
+            />
             {errors.email && (
-              <p role="alert" className="text-destructive text-xs">
+              <p id="email-error" role="alert" className="text-destructive text-xs">
                 {errors.email.message}
               </p>
             )}
@@ -70,9 +76,14 @@ export function InviteClientDialog({ open, onOpenChange }: InviteClientDialogPro
             <Label htmlFor="name">
               Nombre <span className="text-destructive">*</span>
             </Label>
-            <Input id="name" placeholder="Nombre completo" {...register('name')} />
+            <Input
+              id="name"
+              placeholder="Nombre completo"
+              aria-describedby={errors.name ? 'name-error' : undefined}
+              {...register('name')}
+            />
             {errors.name && (
-              <p role="alert" className="text-destructive text-xs">
+              <p id="name-error" role="alert" className="text-destructive text-xs">
                 {errors.name.message}
               </p>
             )}

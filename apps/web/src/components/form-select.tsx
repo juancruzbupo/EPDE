@@ -30,11 +30,13 @@ export function FormSelect({
   disabled,
   error,
 }: FormSelectProps) {
+  const errorId = error ? `${id}-error` : undefined;
+
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>{label}</Label>
       <Select value={value} onValueChange={onValueChange} disabled={disabled}>
-        <SelectTrigger id={id}>
+        <SelectTrigger id={id} aria-describedby={errorId}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
@@ -46,7 +48,7 @@ export function FormSelect({
         </SelectContent>
       </Select>
       {error && (
-        <p role="alert" className="text-destructive text-sm">
+        <p id={errorId} role="alert" className="text-destructive text-sm">
           {error}
         </p>
       )}

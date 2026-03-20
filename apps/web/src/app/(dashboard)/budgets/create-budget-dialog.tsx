@@ -153,10 +153,11 @@ export function CreateBudgetDialog({
               id="description"
               rows={2}
               placeholder="Detalles adicionales sobre el trabajo necesario..."
+              aria-describedby={errors.description ? 'description-error' : undefined}
               {...register('description')}
             />
             {errors.description && (
-              <p role="alert" className="text-destructive text-sm">
+              <p id="description-error" role="alert" className="text-destructive text-sm">
                 {errors.description.message}
               </p>
             )}

@@ -86,9 +86,14 @@ export function CategoryDialog({ open, onOpenChange, category }: CategoryDialogP
               <Label htmlFor="cat-name">
                 Nombre <span className="text-destructive">*</span>
               </Label>
-              <Input id="cat-name" placeholder="Ej: Estructura" {...register('name')} />
+              <Input
+                id="cat-name"
+                placeholder="Ej: Estructura"
+                aria-describedby={errors.name ? 'cat-name-error' : undefined}
+                {...register('name')}
+              />
               {errors.name && (
-                <p role="alert" className="text-destructive text-xs">
+                <p id="cat-name-error" role="alert" className="text-destructive text-xs">
                   {errors.name.message}
                 </p>
               )}

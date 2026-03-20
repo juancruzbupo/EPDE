@@ -179,11 +179,12 @@ export default function TasksScreen() {
 
             {/* Stat cards */}
             {tasks && tasks.length > 0 && (
-              <View className="mb-3 flex-row gap-2">
+              <View accessibilityRole="radiogroup" className="mb-3 flex-row gap-2">
                 {STAT_STATUSES.map((status) => (
                   <Pressable
                     key={status}
-                    accessibilityRole="button"
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: statusFilter === status }}
                     accessibilityLabel={`Filtrar por ${TASK_STATUS_LABELS[status]}`}
                     onPress={() => {
                       haptics.selection();
@@ -208,6 +209,7 @@ export default function TasksScreen() {
             <View className="border-border bg-card mb-3 flex-row items-center rounded-lg border px-3">
               <Text className="text-muted-foreground mr-2">🔍</Text>
               <TextInput
+                accessibilityLabel="Buscar tareas"
                 style={TYPE.bodyMd}
                 className="text-foreground flex-1 py-2.5"
                 placeholder="Buscar tarea, categoría o dirección..."
@@ -234,11 +236,13 @@ export default function TasksScreen() {
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ gap: 8 }}
+              accessibilityRole="radiogroup"
             >
               {PRIORITY_FILTERS.map((f) => (
                 <Pressable
                   key={f.label}
-                  accessibilityRole="button"
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: priorityFilter === f.key }}
                   accessibilityLabel={`Filtrar por ${f.label}`}
                   onPress={() => {
                     haptics.selection();

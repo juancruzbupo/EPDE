@@ -11,7 +11,7 @@ interface AnimatedListItemProps {
 }
 
 export function AnimatedListItem({ index, children }: PropsWithChildren<AnimatedListItemProps>) {
-  const entryStyle = useAnimatedEntry(index * 50);
+  const entryStyle = useAnimatedEntry(Math.min(index * 50, 300));
   const { animatedStyle: pressStyle, onPressIn, onPressOut } = usePressAnimation();
 
   const handlePressIn = () => {

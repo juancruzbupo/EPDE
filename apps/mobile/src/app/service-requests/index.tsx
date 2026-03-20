@@ -165,6 +165,7 @@ export default function ServiceRequestsScreen() {
             <View className="border-border bg-card mb-3 flex-row items-center rounded-lg border px-3">
               <Text className="text-muted-foreground mr-2">🔍</Text>
               <TextInput
+                accessibilityLabel="Buscar solicitudes"
                 style={TYPE.bodyMd}
                 className="text-foreground flex-1 py-2.5"
                 placeholder="Buscar por título o dirección..."
@@ -190,11 +191,13 @@ export default function ServiceRequestsScreen() {
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ gap: 8 }}
+              accessibilityRole="radiogroup"
             >
               {STATUS_FILTERS.map((f) => (
                 <Pressable
                   key={f.label}
-                  accessibilityRole="button"
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: statusFilter === f.key }}
                   accessibilityLabel={`Filtrar por ${f.label}`}
                   onPress={() => {
                     haptics.selection();
@@ -222,11 +225,13 @@ export default function ServiceRequestsScreen() {
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ gap: 8 }}
+              accessibilityRole="radiogroup"
             >
               {URGENCY_FILTERS.map((f) => (
                 <Pressable
                   key={f.label}
-                  accessibilityRole="button"
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: urgencyFilter === f.key }}
                   accessibilityLabel={`Filtrar por ${f.label}`}
                   onPress={() => {
                     haptics.selection();

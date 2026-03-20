@@ -70,18 +70,27 @@ export function EditServiceRequestDialog({
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="edit-title">Título</Label>
-            <Input id="edit-title" {...register('title')} />
+            <Input
+              id="edit-title"
+              aria-describedby={errors.title ? 'edit-title-error' : undefined}
+              {...register('title')}
+            />
             {errors.title && (
-              <p role="alert" className="text-destructive text-sm">
+              <p id="edit-title-error" role="alert" className="text-destructive text-sm">
                 {errors.title.message}
               </p>
             )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="edit-description">Descripción</Label>
-            <Textarea id="edit-description" {...register('description')} rows={4} />
+            <Textarea
+              id="edit-description"
+              aria-describedby={errors.description ? 'edit-description-error' : undefined}
+              {...register('description')}
+              rows={4}
+            />
             {errors.description && (
-              <p role="alert" className="text-destructive text-sm">
+              <p id="edit-description-error" role="alert" className="text-destructive text-sm">
                 {errors.description.message}
               </p>
             )}
@@ -96,7 +105,10 @@ export function EditServiceRequestDialog({
                   value={field.value}
                   onValueChange={(v) => field.onChange(v as ServiceUrgency)}
                 >
-                  <SelectTrigger id="edit-urgency">
+                  <SelectTrigger
+                    id="edit-urgency"
+                    aria-describedby={errors.urgency ? 'edit-urgency-error' : undefined}
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -110,7 +122,7 @@ export function EditServiceRequestDialog({
               )}
             />
             {errors.urgency && (
-              <p role="alert" className="text-destructive text-sm">
+              <p id="edit-urgency-error" role="alert" className="text-destructive text-sm">
                 {errors.urgency.message}
               </p>
             )}
