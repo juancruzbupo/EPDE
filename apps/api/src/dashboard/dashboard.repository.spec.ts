@@ -215,4 +215,152 @@ describe('DashboardRepository', () => {
       );
     });
   });
+
+  describe('getConditionDistribution', () => {
+    it('should group by conditionFound and return labels', async () => {
+      mockTaskLogModel.groupBy = jest
+        .fn()
+        .mockResolvedValue([{ conditionFound: 'GOOD', _count: 5 }]);
+
+      const result = await repository.getConditionDistribution();
+
+      expect(mockTaskLogModel.groupBy).toHaveBeenCalledWith({
+        by: ['conditionFound'],
+        _count: true,
+      });
+      expect(result).toEqual([{ condition: 'GOOD', count: 5, label: expect.any(String) }]);
+    });
+  });
+
+  describe('getProblematicSectors', () => {
+    it('should return sectors with overdue tasks', async () => {
+      const mockTask = {
+        groupBy: jest.fn().mockResolvedValue([{ sector: 'ROOF', _count: { _all: 3 } }]),
+      };
+      (repository as unknown as { prisma: { task: typeof mockTask } }).prisma = {
+        ...(repository as unknown as { prisma: PrismaService }).prisma,
+        task: mockTask,
+      } as unknown as PrismaService;
+
+      const result = await repository.getProblematicSectors();
+
+      expect(result).toEqual([{ sector: 'ROOF', overdueCount: 3 }]);
+    });
+  });
+
+  describe('getTotalMaintenanceCost', () => {
+    it('should return aggregate sum of costs', async () => {
+      mockTaskLogModel.aggregate = jest.fn().mockResolvedValue({ _sum: { cost: 50000 } });
+
+      const result = await repository.getTotalMaintenanceCost();
+
+      expect(result).toBe(50000);
+    });
+
+    it('should return 0 when no costs', async () => {
+      mockTaskLogModel.aggregate = jest.fn().mockResolvedValue({ _sum: { cost: null } });
+
+      const result = await repository.getTotalMaintenanceCost();
+
+      expect(result).toBe(0);
+    });
+  });
+
+  describe('getCompletionRate', () => {
+    it('should return percentage of tasks with logs', async () => {
+      mockTaskModel.count.mockResolvedValueOnce(10).mockResolvedValueOnce(7);
+
+      const result = await repository.getCompletionRate();
+
+      expect(result).toBe(70);
+    });
+
+    it('should return 0 when no tasks exist', async () => {
+      mockTaskModel.count.mockResolvedValue(0);
+
+      const result = await repository.getCompletionRate();
+
+      expect(result).toBe(0);
+    });
+  });
+
+  describe('getClientHealthScore', () => {
+    it('should return zero score for empty planIds', async () => {
+      const result = await repository.getClientHealthScore([]);
+
+      expect(result).toEqual({ healthScore: 0, healthLabel: 'Sin datos' });
+    });
+
+    it('should return zero score when no tasks', async () => {
+      mockTaskModel.count.mockResolvedValue(0);
+
+      const result = await repository.getClientHealthScore(['plan-1']);
+
+      expect(result).toEqual({ healthScore: 0, healthLabel: 'Sin datos' });
+    });
+
+    it('should compute health score from completion and overdue ratios', async () => {
+      // total=10, completed=8, overdue=1
+      mockTaskModel.count
+        .mockResolvedValueOnce(10)
+        .mockResolvedValueOnce(8)
+        .mockResolvedValueOnce(1);
+
+      const result = await repository.getClientHealthScore(['plan-1']);
+
+      // score = max(0, min(100, round(8/10 * 100 - 1/10 * 50))) = round(80-5) = 75
+      expect(result.healthScore).toBe(75);
+      expect(result.healthLabel).toBe('Bueno');
+    });
+  });
+
+  describe('getClientConditionDistribution', () => {
+    it('should return empty array for empty planIds', async () => {
+      const result = await repository.getClientConditionDistribution([]);
+
+      expect(result).toEqual([]);
+    });
+
+    it('should group by conditionFound for client planIds', async () => {
+      mockTaskLogModel.groupBy = jest
+        .fn()
+        .mockResolvedValue([{ conditionFound: 'EXCELLENT', _count: 3 }]);
+
+      const result = await repository.getClientConditionDistribution(['plan-1']);
+
+      expect(result).toEqual([{ condition: 'EXCELLENT', count: 3, label: expect.any(String) }]);
+    });
+  });
+
+  describe('getClientConditionTrend', () => {
+    it('should return empty array for empty planIds', async () => {
+      const result = await repository.getClientConditionTrend([], 6);
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getClientCostHistory', () => {
+    it('should return empty array for empty planIds', async () => {
+      const result = await repository.getClientCostHistory([], 6);
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getClientSectorBreakdown', () => {
+    it('should return empty array for empty planIds', async () => {
+      const result = await repository.getClientSectorBreakdown([]);
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getClientCategoryBreakdown', () => {
+    it('should return empty array for empty planIds', async () => {
+      const result = await repository.getClientCategoryBreakdown([]);
+
+      expect(result).toEqual([]);
+    });
+  });
 });

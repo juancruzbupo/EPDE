@@ -207,4 +207,26 @@ describe('PropertiesRepository', () => {
       });
     });
   });
+
+  describe('findWithActivePlans', () => {
+    it('should query non-deleted properties with active plans and bounded take', async () => {
+      const mockProperty = {
+        property: { findMany: jest.fn().mockResolvedValue([{ id: 'prop-1' }]) },
+      };
+      (prisma as unknown as { property: { findMany: jest.Mock } }).property = mockProperty.property;
+
+      await repository.findWithActivePlans(50);
+
+      expect(mockProperty.property.findMany).toHaveBeenCalledWith({
+        where: { deletedAt: null, maintenancePlan: { status: PlanStatus.ACTIVE } },
+        select: {
+          id: true,
+          address: true,
+          userId: true,
+          maintenancePlan: { select: { id: true } },
+        },
+        take: 50,
+      });
+    });
+  });
 });

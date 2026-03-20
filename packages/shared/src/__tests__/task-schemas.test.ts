@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { createTaskSchema, reorderTasksSchema, updateTaskSchema } from '../schemas/task';
+import {
+  createTaskSchema,
+  createTaskWithRecurrenceSchema,
+  reorderTasksSchema,
+  updateTaskSchema,
+  updateTaskWithRecurrenceSchema,
+} from '../schemas/task';
 
 const VALID_UUID = '550e8400-e29b-41d4-a716-446655440000';
 
@@ -254,5 +260,79 @@ describe('reorderTasksSchema', () => {
   it('should reject missing tasks field', () => {
     const result = reorderTasksSchema.safeParse({});
     expect(result.success).toBe(false);
+  });
+});
+
+describe('createTaskWithRecurrenceSchema (superRefine)', () => {
+  const VALID_UUID = '550e8400-e29b-41d4-a716-446655440000';
+  const base = {
+    maintenancePlanId: VALID_UUID,
+    categoryId: VALID_UUID,
+    name: 'Revisar caldera',
+    nextDueDate: '2026-06-15',
+  };
+
+  it('should reject CUSTOM recurrenceType without recurrenceMonths', () => {
+    const result = createTaskWithRecurrenceSchema.safeParse({
+      ...base,
+      recurrenceType: 'CUSTOM',
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.some((i) => i.path.includes('recurrenceMonths'))).toBe(true);
+    }
+  });
+
+  it('should accept CUSTOM recurrenceType with recurrenceMonths', () => {
+    const result = createTaskWithRecurrenceSchema.safeParse({
+      ...base,
+      recurrenceType: 'CUSTOM',
+      recurrenceMonths: 18,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('should reject non-ON_DETECTION recurrenceType without nextDueDate', () => {
+    const result = createTaskWithRecurrenceSchema.safeParse({
+      maintenancePlanId: VALID_UUID,
+      categoryId: VALID_UUID,
+      name: 'Revisar caldera',
+      recurrenceType: 'MONTHLY',
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.some((i) => i.path.includes('nextDueDate'))).toBe(true);
+    }
+  });
+
+  it('should accept ON_DETECTION recurrenceType without nextDueDate', () => {
+    const result = createTaskWithRecurrenceSchema.safeParse({
+      maintenancePlanId: VALID_UUID,
+      categoryId: VALID_UUID,
+      name: 'Revisar caldera',
+      recurrenceType: 'ON_DETECTION',
+    });
+    expect(result.success).toBe(true);
+  });
+});
+
+describe('updateTaskWithRecurrenceSchema (superRefine)', () => {
+  it('should reject CUSTOM recurrenceType without recurrenceMonths', () => {
+    const result = updateTaskWithRecurrenceSchema.safeParse({
+      recurrenceType: 'CUSTOM',
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.some((i) => i.path.includes('recurrenceMonths'))).toBe(true);
+    }
+  });
+
+  it('should accept CUSTOM recurrenceType with recurrenceMonths', () => {
+    const result = updateTaskWithRecurrenceSchema.safeParse({
+      recurrenceType: 'CUSTOM',
+      recurrenceMonths: 6,
+      nextDueDate: '2026-12-01',
+    });
+    expect(result.success).toBe(true);
   });
 });

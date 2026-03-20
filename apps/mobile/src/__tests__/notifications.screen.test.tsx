@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react-native';
+import { fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
 
 // ---------------------------------------------------------------------------
@@ -152,5 +152,17 @@ describe('NotificationsScreen', () => {
     const { getByText } = render(<NotificationsScreen />);
 
     expect(getByText('Reintentar')).toBeTruthy();
+  });
+
+  it('calls markAllAsRead when button is pressed', () => {
+    const mutateMock = jest.fn();
+    mockUseMarkAllAsRead.mockReturnValue({ mutate: mutateMock, isPending: false });
+    mockUseNotifications.mockReturnValue(queryResult(mockNotifications));
+
+    const { getByText } = render(<NotificationsScreen />);
+
+    fireEvent.press(getByText('Marcar todas como leídas'));
+
+    expect(mutateMock).toHaveBeenCalled();
   });
 });

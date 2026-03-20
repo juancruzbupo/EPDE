@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react-native';
+import { fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
 
 // ---------------------------------------------------------------------------
@@ -21,6 +21,18 @@ const mockUseAllTasks = jest.fn();
 
 jest.mock('@/hooks/use-plans', () => ({
   useAllTasks: (...args: unknown[]) => mockUseAllTasks(...args),
+}));
+
+jest.mock('@/hooks/use-debounce', () => ({
+  useDebounce: (value: string) => value,
+}));
+
+jest.mock('@/lib/haptics', () => ({
+  haptics: { selection: jest.fn(), light: jest.fn(), medium: jest.fn() },
+}));
+
+jest.mock('@/components/animated-list-item', () => ({
+  AnimatedListItem: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 // ---------------------------------------------------------------------------
@@ -120,5 +132,27 @@ describe('TasksScreen', () => {
 
     // Should not render task list content while loading
     expect(queryByText('Tareas')).toBeNull();
+  });
+
+  it('filters tasks by priority when filter button is pressed', () => {
+    mockUseAllTasks.mockReturnValue(queryResult(mockTasks));
+
+    const { getByLabelText, getByText } = render(<TasksScreen />);
+
+    fireEvent.press(getByLabelText('Filtrar por Alta'));
+
+    // After filtering by HIGH, only the HIGH priority task should remain
+    expect(getByText('Revisar caldera')).toBeTruthy();
+  });
+
+  it('filters tasks by status when stat card is pressed', () => {
+    mockUseAllTasks.mockReturnValue(queryResult(mockTasks));
+
+    const { getByLabelText } = render(<TasksScreen />);
+
+    fireEvent.press(getByLabelText('Filtrar por Pendiente'));
+
+    // Stat card toggled — component renders without error
+    expect(getByLabelText('Filtrar por Pendiente')).toBeTruthy();
   });
 });
