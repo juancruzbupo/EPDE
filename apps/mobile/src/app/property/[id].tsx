@@ -1,10 +1,10 @@
 import type { TaskPublic } from '@epde/shared';
 import { formatRelativeDate, PROPERTY_SECTOR_LABELS, TaskStatus } from '@epde/shared';
+import { Image } from 'expo-image';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Image,
   Linking,
   Pressable,
   RefreshControl,
@@ -544,9 +544,10 @@ export default function PropertyDetailScreen() {
                       className="overflow-hidden rounded-lg"
                     >
                       <Image
-                        source={{ uri: photo.url }}
+                        source={photo.url}
+                        contentFit="cover"
+                        transition={200}
                         className="h-24 w-24 rounded-lg"
-                        resizeMode="cover"
                         accessibilityLabel={photo.description || 'Foto de la propiedad'}
                       />
                       <View className="absolute inset-x-0 bottom-0 bg-black/50 px-1 py-0.5">

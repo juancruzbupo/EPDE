@@ -74,29 +74,6 @@ describe('CategoryTemplatesController', () => {
     });
   });
 
-  describe('reorder', () => {
-    it('should delegate to service.reorder with dto.ids and return envelope', async () => {
-      const ids = ['id-1', 'id-2', 'id-3'];
-      const dto = { ids };
-      mockService.reorder.mockResolvedValue(undefined);
-
-      const result = await controller.reorder(dto as any);
-
-      expect(mockService.reorder).toHaveBeenCalledWith(ids);
-      expect(result).toEqual({ data: null, message: 'Orden actualizado' });
-    });
-
-    it('should extract ids from dto (not pass the whole dto)', async () => {
-      const ids = ['id-a', 'id-b'];
-      mockService.reorder.mockResolvedValue(undefined);
-
-      await controller.reorder({ ids } as any);
-
-      const [passedArg] = mockService.reorder.mock.calls[0];
-      expect(passedArg).toEqual(ids);
-    });
-  });
-
   describe('update', () => {
     it('should delegate to service.update with id and dto and return { data, message }', async () => {
       const dto = { name: 'Electricidad actualizada' };

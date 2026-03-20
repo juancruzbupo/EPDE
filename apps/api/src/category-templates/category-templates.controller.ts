@@ -1,13 +1,11 @@
 import type {
   CategoryTemplateFiltersInput,
   CreateCategoryTemplateInput,
-  ReorderTemplatesInput,
   UpdateCategoryTemplateInput,
 } from '@epde/shared';
 import {
   categoryTemplateFiltersSchema,
   createCategoryTemplateSchema,
-  reorderTemplatesSchema,
   updateCategoryTemplateSchema,
   UserRole,
 } from '@epde/shared';
@@ -60,14 +58,6 @@ export class CategoryTemplatesController {
   ) {
     const data = await this.service.create(dto);
     return { data, message: 'Categoría template creada' };
-  }
-
-  @Patch('reorder/batch')
-  @Roles(UserRole.ADMIN)
-  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
-  async reorder(@Body(new ZodValidationPipe(reorderTemplatesSchema)) dto: ReorderTemplatesInput) {
-    await this.service.reorder(dto.ids);
-    return { data: null, message: 'Orden actualizado' };
   }
 
   @Patch(':id')
