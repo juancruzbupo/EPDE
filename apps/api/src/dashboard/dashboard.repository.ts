@@ -565,7 +565,9 @@ export class DashboardRepository {
       }
       const entry = catMap.get(name)!;
       entry.totalTasks++;
-      if (task.status === TaskStatus.COMPLETED) entry.completedTasks++;
+      // Tasks are cyclic — COMPLETED is transient (resets to PENDING with new nextDueDate).
+      // Count by TaskLog presence: a task with logs has been completed at least once.
+      if (task.taskLogs.length > 0) entry.completedTasks++;
       if (task.nextDueDate && task.nextDueDate < now && task.status !== TaskStatus.COMPLETED) {
         entry.overdueTasks++;
       }
@@ -600,8 +602,9 @@ export class DashboardRepository {
 
     const [total, completed, overdue] = await Promise.all([
       this.prisma.softDelete.task.count({ where: { maintenancePlanId: { in: planIds } } }),
+      // Tasks are cyclic — COMPLETED is transient. Count by TaskLog presence.
       this.prisma.softDelete.task.count({
-        where: { maintenancePlanId: { in: planIds }, status: TaskStatus.COMPLETED },
+        where: { maintenancePlanId: { in: planIds }, taskLogs: { some: {} } },
       }),
       this.prisma.softDelete.task.count({
         where: {
