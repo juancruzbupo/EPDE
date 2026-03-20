@@ -449,6 +449,8 @@ export class DashboardRepository {
         conditionFound: true,
         task: { select: { category: { select: { name: true } } } },
       },
+      orderBy: { completedAt: 'desc' },
+      take: 5_000,
     });
 
     const buckets = new Map<string, Map<string, number[]>>();

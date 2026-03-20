@@ -8,10 +8,15 @@ describe('DashboardRepository', () => {
 
   const mockUserModel = { count: jest.fn(), findMany: jest.fn() };
   const mockPropertyModel = { count: jest.fn(), findMany: jest.fn() };
-  const mockTaskModel = { count: jest.fn(), findMany: jest.fn() };
+  const mockTaskModel = { count: jest.fn(), findMany: jest.fn(), groupBy: jest.fn() };
   const mockBudgetModel = { count: jest.fn(), findMany: jest.fn() };
   const mockServiceModel = { count: jest.fn(), findMany: jest.fn() };
-  const mockTaskLogModel = { count: jest.fn(), findMany: jest.fn() };
+  const mockTaskLogModel = {
+    count: jest.fn(),
+    findMany: jest.fn(),
+    groupBy: jest.fn(),
+    aggregate: jest.fn(),
+  };
 
   beforeEach(() => {
     const prisma = {
@@ -234,13 +239,12 @@ describe('DashboardRepository', () => {
 
   describe('getProblematicSectors', () => {
     it('should return sectors with overdue tasks', async () => {
-      const mockTask = {
+      // getProblematicSectors uses this.prisma.task (not softDelete.task)
+      const mockDirectTask = {
         groupBy: jest.fn().mockResolvedValue([{ sector: 'ROOF', _count: { _all: 3 } }]),
       };
-      (repository as unknown as { prisma: { task: typeof mockTask } }).prisma = {
-        ...(repository as unknown as { prisma: PrismaService }).prisma,
-        task: mockTask,
-      } as unknown as PrismaService;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (repository as any).prisma.task = mockDirectTask;
 
       const result = await repository.getProblematicSectors();
 

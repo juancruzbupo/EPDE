@@ -1,7 +1,7 @@
 'use client';
 
 import type { UserRole } from '@epde/shared';
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 
 interface ServerUserContext {
   role: UserRole;
@@ -19,7 +19,8 @@ export function ServerUserProvider({
   email: string;
   children: React.ReactNode;
 }) {
-  return <Ctx.Provider value={{ role, email }}>{children}</Ctx.Provider>;
+  const value = useMemo(() => ({ role, email }), [role, email]);
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
 /** Returns the server-decoded user role (available immediately, no API call needed). */

@@ -20,7 +20,7 @@ import {
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { AttentionNeeded } from '@/components/attention-needed';
 import { BudgetPipelineChart } from '@/components/charts/budget-pipeline-chart';
@@ -107,7 +107,14 @@ export function AdminDashboard() {
   } = useAdminActivity();
   const [chartMonths, setChartMonths] = useState(6);
   const [analyticsTab, setAnalyticsTab] = useState('operational');
-  const { data: analytics, isLoading: analyticsLoading } = useAdminAnalytics(chartMonths);
+  // Defer analytics fetch until after stats + activity render (reduces FCP by ~2s)
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  useEffect(() => {
+    setShowAnalytics(true);
+  }, []);
+  const { data: analytics, isLoading: analyticsLoading } = useAdminAnalytics(
+    showAnalytics ? chartMonths : undefined,
+  );
   const { shouldAnimate } = useMotionPreference();
 
   const Wrapper = shouldAnimate ? motion.div : 'div';
