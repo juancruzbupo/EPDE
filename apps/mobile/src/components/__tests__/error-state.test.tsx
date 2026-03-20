@@ -15,8 +15,8 @@ describe('ErrorState', () => {
   });
 
   it('renders custom message', () => {
-    render(<ErrorState message="Algo salio mal" />);
-    expect(screen.getByText('Algo salio mal')).toBeTruthy();
+    render(<ErrorState message="Algo salió mal" />);
+    expect(screen.getByText('Algo salió mal')).toBeTruthy();
   });
 
   it('shows retry button when onRetry is provided', () => {

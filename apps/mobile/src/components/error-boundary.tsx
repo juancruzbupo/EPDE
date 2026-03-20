@@ -31,9 +31,9 @@ export class ErrorBoundary extends React.Component<Props, State> {
     if (this.state.hasError) {
       return (
         <View style={styles.container}>
-          <Text style={styles.title}>Algo salio mal</Text>
+          <Text style={styles.title}>Algo salió mal</Text>
           <Text style={styles.message}>
-            Ocurrio un error inesperado. Por favor, intenta de nuevo.
+            Ocurrió un error inesperado. Por favor, intentá de nuevo.
           </Text>
           <TouchableOpacity
             style={styles.button}
