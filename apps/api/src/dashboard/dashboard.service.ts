@@ -96,15 +96,18 @@ export class DashboardService {
     const { propertyIds, planIds } =
       await this.dashboardRepository.getClientPropertyAndPlanIds(userId);
 
-    const [taskStats, budgetServiceStats] = await Promise.all([
+    const [taskStats, budgetServiceStats, healthIndex] = await Promise.all([
       this.dashboardRepository.getClientTaskStats(planIds, userId),
       this.dashboardRepository.getClientBudgetAndServiceCounts(propertyIds),
+      this.dashboardRepository.getPropertyHealthIndex(planIds),
     ]);
 
     const result = {
       totalProperties: propertyIds.length,
       ...taskStats,
       ...budgetServiceStats,
+      healthScore: healthIndex.score,
+      healthLabel: healthIndex.label,
     };
 
     try {

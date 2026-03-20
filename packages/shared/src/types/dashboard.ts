@@ -30,6 +30,8 @@ export interface ClientDashboardStats {
   completedThisMonth: number;
   pendingBudgets: number;
   openServices: number;
+  healthScore: number;
+  healthLabel: string;
 }
 
 export interface UpcomingTask {

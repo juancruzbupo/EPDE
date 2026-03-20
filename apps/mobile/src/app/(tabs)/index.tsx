@@ -116,8 +116,8 @@ function ClientDashboard() {
         </View>
       ) : stats && !showWelcome ? (
         <HomeStatusCard
-          score={analytics?.healthIndex?.score ?? 0}
-          label={analytics?.healthIndex?.label ?? ''}
+          score={stats.healthScore ?? 0}
+          label={stats.healthLabel ?? ''}
           overdueTasks={stats.overdueTasks}
           upcomingThisWeek={stats.upcomingThisWeek}
           urgentTasks={stats.urgentTasks}

@@ -193,12 +193,14 @@ describe('DashboardService', () => {
       repository.getClientPropertyAndPlanIds.mockResolvedValue({ propertyIds, planIds });
       repository.getClientTaskStats.mockResolvedValue(taskStats);
       repository.getClientBudgetAndServiceCounts.mockResolvedValue(budgetServiceStats);
+      repository.getPropertyHealthIndex.mockResolvedValue({ score: 82, label: 'Bueno' });
 
       const result = await service.getClientStats(userId);
 
       expect(repository.getClientPropertyAndPlanIds).toHaveBeenCalledWith(userId);
       expect(repository.getClientTaskStats).toHaveBeenCalledWith(planIds, userId);
       expect(repository.getClientBudgetAndServiceCounts).toHaveBeenCalledWith(propertyIds);
+      expect(repository.getPropertyHealthIndex).toHaveBeenCalledWith(planIds);
 
       expect(result).toEqual({
         totalProperties: 2,
@@ -208,6 +210,8 @@ describe('DashboardService', () => {
         completedThisMonth: 5,
         pendingBudgets: 2,
         openServices: 1,
+        healthScore: 82,
+        healthLabel: 'Bueno',
       });
     });
 
@@ -223,10 +227,12 @@ describe('DashboardService', () => {
         pendingBudgets: 0,
         openServices: 0,
       });
+      repository.getPropertyHealthIndex.mockResolvedValue({ score: 0, label: 'Sin datos' });
 
       const result = await service.getClientStats('user-empty');
 
       expect(result.totalProperties).toBe(0);
+      expect(result.healthScore).toBe(0);
     });
   });
 

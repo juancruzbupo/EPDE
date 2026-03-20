@@ -49,8 +49,8 @@ export function ClientDashboard({ userName }: { userName: string }) {
   // Show welcome card only for brand-new users with no properties yet
   const showWelcome = stats && stats.totalProperties === 0;
 
-  const score = analytics?.healthIndex?.score ?? 0;
-  const label = analytics?.healthIndex?.label ?? '';
+  const score = stats?.healthScore ?? 0;
+  const label = stats?.healthLabel ?? '';
 
   return (
     <div>

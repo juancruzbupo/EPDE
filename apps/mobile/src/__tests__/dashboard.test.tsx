@@ -69,6 +69,8 @@ const mockStats = {
   completedThisMonth: 7,
   pendingBudgets: 2,
   openServices: 1,
+  healthScore: 75,
+  healthLabel: 'Bueno',
 };
 
 const mockTasks = [
