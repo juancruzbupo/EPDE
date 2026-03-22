@@ -3,23 +3,23 @@ import type { Metadata } from 'next';
 import { LandingPage } from '@/components/landing/landing-page';
 
 export const metadata: Metadata = {
-  title: 'EPDE — Mantenimiento Preventivo para Viviendas | Arq. Noelia E. Yuskowich',
+  title: 'EPDE — Diagnóstico Profesional de Viviendas | Mantenimiento Preventivo',
   description:
-    'Diagnóstico arquitectónico profesional y plan de mantenimiento preventivo con seguimiento digital. Detectamos problemas antes de que sean urgencias. Cupos limitados.',
+    'Diagnóstico profesional para saber cómo está tu casa. Detectamos problemas ocultos, calculamos el Índice de Salud de la Vivienda y organizamos todo el mantenimiento. Precio lanzamiento $35.000.',
   keywords: [
-    'mantenimiento preventivo vivienda',
-    'diagnóstico arquitectónico',
-    'patologías edilicias',
+    'diagnóstico vivienda',
     'mantenimiento preventivo casa',
-    'diagnóstico edilicio',
     'inspección de vivienda',
-    'plan de mantenimiento casa',
-    'prevención humedades',
+    'diagnóstico edilicio',
+    'patologías edilicias',
+    'índice de salud vivienda',
+    'mantenimiento preventivo vivienda',
+    'EPDE Paraná',
   ],
   openGraph: {
-    title: 'EPDE — Detectamos problemas en tu vivienda antes de que sean urgencias',
+    title: 'EPDE — Diagnóstico profesional para saber cómo está tu casa',
     description:
-      'Diagnóstico arquitectónico profesional + plan preventivo personalizado + seguimiento digital. Por Arq. Noelia E. Yuskowich.',
+      'Evaluamos tu vivienda completa, detectamos problemas ocultos y organizamos todo su mantenimiento en un sistema inteligente. Precio lanzamiento $35.000.',
     type: 'website',
   },
 };

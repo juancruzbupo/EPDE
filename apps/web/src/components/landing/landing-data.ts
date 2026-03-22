@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   AlertTriangle,
+  ArrowLeftRight,
   Award,
   BarChart3,
   Bell,
@@ -14,6 +15,7 @@ import {
   Shield,
   Smartphone,
   Thermometer,
+  TrendingDown,
   Wrench,
   Zap,
 } from 'lucide-react';
@@ -31,7 +33,6 @@ export interface ProblemCard {
   icon: LucideIcon;
   title: string;
   description: string;
-  consequence: string;
 }
 
 export interface Step {
@@ -43,6 +44,18 @@ export interface Step {
 
 export interface SectionProps {
   motionProps: Record<string, unknown>;
+}
+
+export interface ComparisonRow {
+  aspect: string;
+  traditional: string;
+  epde: string;
+}
+
+export interface ConsequenceExample {
+  problem: string;
+  preventive: string;
+  emergency: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -57,7 +70,10 @@ export const WHATSAPP_URL = process.env.NEXT_PUBLIC_WHATSAPP_URL || WHATSAPP_PLA
 
 export {
   AlertTriangle,
+  ArrowLeftRight,
   Award,
+  BarChart3,
+  Bell,
   Check,
   ClipboardList,
   Droplets,
@@ -65,7 +81,9 @@ export {
   MonitorSmartphone,
   Search,
   Shield,
+  Smartphone,
   Thermometer,
+  TrendingDown,
   Wrench,
   Zap,
 };
@@ -74,85 +92,109 @@ export {
 // Data
 // ---------------------------------------------------------------------------
 
-export const PROBLEMS: ProblemCard[] = [
+export const MARKET_PROBLEMS: ProblemCard[] = [
   {
     icon: Droplets,
-    title: 'Filtraciones y humedades',
+    title: 'Filtraciones y humedad',
     description:
-      'Sin revisión periódica, avanzan detrás de paredes y bajo pisos sin señales visibles.',
-    consequence: 'Lo que era un ajuste puntual termina comprometiendo el valor de tu propiedad.',
+      'Avanzan detrás de paredes y bajo pisos sin señales visibles hasta que el daño ya es caro.',
   },
   {
     icon: Zap,
-    title: 'Instalaciones sin supervisión',
-    description: 'Cañerías, cables y conexiones envejecen sin que nadie lo controle.',
-    consequence:
-      'El ahorro preventivo se pierde: lo que costaba poco ahora requiere obra completa.',
+    title: 'Problemas eléctricos',
+    description:
+      'Cables y conexiones envejecen sin que nadie lo controle. El riesgo crece en silencio.',
   },
   {
     icon: Thermometer,
-    title: 'Fisuras no monitoreadas',
-    description: 'Los ciclos térmicos generan micro-fisuras que crecen año tras año.',
-    consequence: 'Sin seguimiento técnico, se pierde la ventana de corrección temprana.',
+    title: 'Humedad estructural',
+    description:
+      'Los ciclos térmicos generan fisuras que crecen año tras año y comprometen la estructura.',
+  },
+  {
+    icon: Wrench,
+    title: 'Reparaciones caras',
+    description:
+      'Lo que hoy se resuelve con una intervención menor, mañana requiere obra completa.',
   },
 ];
 
-export const DETECTED_PROBLEMS: IconTextItem[] = [
-  { icon: Droplets, text: 'Humedades ocultas en muros y cubiertas' },
-  { icon: Home, text: 'Fisuras estructurales' },
-  { icon: Wrench, text: 'Impermeabilizaciones deterioradas' },
-  { icon: Zap, text: 'Instalaciones que nunca fueron revisadas' },
-  { icon: Search, text: 'Desgaste en cubiertas, sellados y desagües' },
+export const CONSEQUENCE_EXAMPLES: ConsequenceExample[] = [
+  {
+    problem: 'Filtración en techo',
+    preventive: '$150.000 – $400.000',
+    emergency: '$2.500.000 – $6.000.000',
+  },
+  {
+    problem: 'Humedad de cimientos',
+    preventive: '$300.000 – $800.000',
+    emergency: '$3.500.000 – $9.000.000',
+  },
+  {
+    problem: 'Falla eléctrica',
+    preventive: '$80.000 – $180.000',
+    emergency: '$1.200.000 – $3.500.000',
+  },
+];
+
+export const SOLUTION_POINTS: IconTextItem[] = [
+  { icon: Search, text: 'Diagnostica el estado real de tu vivienda' },
+  { icon: ClipboardList, text: 'Organiza todo el mantenimiento que necesita' },
+  { icon: Shield, text: 'Previene problemas antes de que aparezcan' },
+  { icon: BarChart3, text: 'Te guía con datos para tomar mejores decisiones' },
 ];
 
 export const STEPS: Step[] = [
   {
     number: '01',
     icon: Search,
-    title: 'Evaluación in situ',
-    description: 'Evaluamos tu vivienda: estructura, instalaciones, envolvente y estado general.',
+    title: 'Relevamos tu vivienda',
+    description:
+      'Inspección profesional completa: estructura, instalaciones, envolvente y estado general. Toda la información se carga en el sistema.',
   },
   {
     number: '02',
-    icon: ClipboardList,
-    title: 'Diagnóstico documentado',
+    icon: BarChart3,
+    title: 'Analizamos el estado real',
     description:
-      'Informe con hallazgos, prioridades y plan de acción personalizado. No es una lista de tareas. Es una estrategia técnica adaptada a tu vivienda.',
+      'Calculamos el Índice de Salud de la Vivienda (ISV): un indicador claro del estado actual y las prioridades de intervención.',
   },
   {
     number: '03',
-    icon: MonitorSmartphone,
-    title: 'Seguimiento continuo',
+    icon: ClipboardList,
+    title: 'Organizamos todo el mantenimiento',
     description:
-      'Tu plan se carga en EPDE con tareas programadas y recordatorios automáticos. Los problemas no vuelven a pasar desapercibidos.',
-  },
-  {
-    number: '04',
-    icon: Bell,
-    title: 'Seguimiento periódico',
-    description:
-      'Recordatorios automáticos, historial de intervenciones y acceso permanente desde web y mobile. Tu vivienda siempre bajo control.',
+      'El sistema te dice qué hacer y cuándo hacerlo. Tareas programadas, recordatorios automáticos y seguimiento continuo.',
   },
 ];
 
-export const DELIVERABLES: IconTextItem[] = [
-  { icon: Search, text: 'Evaluación técnica presencial de la vivienda' },
-  { icon: FileText, text: 'Informe de diagnóstico con hallazgos y prioridades' },
-  { icon: ClipboardList, text: 'Plan de mantenimiento preventivo personalizado' },
-  { icon: MonitorSmartphone, text: 'Carga completa en plataforma digital EPDE' },
-  { icon: Bell, text: 'Recordatorios automáticos de tareas programadas' },
-  { icon: BarChart3, text: 'Historial estructurado de intervenciones' },
-  { icon: Smartphone, text: 'Acceso web y mobile para seguimiento continuo' },
-  { icon: Wrench, text: 'Gestión de presupuestos y cotizaciones con proveedores' },
+export const DIAGNOSIS_INCLUDES: IconTextItem[] = [
+  { icon: Search, text: 'Relevamiento completo de la vivienda' },
+  { icon: FileText, text: 'Inspección técnica visual profesional' },
+  { icon: BarChart3, text: 'Índice de Salud de la Vivienda (ISV)' },
+  { icon: ClipboardList, text: 'Plan de mantenimiento preventivo' },
+  { icon: AlertTriangle, text: 'Detección de riesgos y tareas críticas' },
+  { icon: Wrench, text: 'Recomendaciones técnicas' },
+  { icon: MonitorSmartphone, text: 'Acceso al sistema EPDE por 60 días' },
+];
+
+export const SYSTEM_FEATURES: IconTextItem[] = [
+  { icon: BarChart3, text: 'Dashboard de estado de la vivienda' },
+  { icon: ClipboardList, text: 'Historial de intervenciones' },
+  { icon: Bell, text: 'Alertas y recordatorios automáticos' },
+  { icon: Wrench, text: 'Tareas programadas de mantenimiento' },
+  { icon: Smartphone, text: 'Acceso web y mobile' },
+  { icon: Search, text: 'Seguimiento del ISV mes a mes' },
 ];
 
 export const INVESTMENT_FEATURES = [
-  'Inspección técnica completa de la vivienda',
-  'Registro fotográfico de hallazgos',
-  'Informe técnico con diagnóstico y prioridades',
-  'Índice de Salud de la Vivienda (ISV) con seguimiento mensual',
-  'Recomendaciones de mantenimiento preventivo',
-  'Seguimiento continuo para que los problemas no vuelvan',
+  'Relevamiento completo de la vivienda',
+  'Inspección técnica visual profesional',
+  'Índice de Salud de la Vivienda (ISV)',
+  'Plan de mantenimiento preventivo',
+  'Detección de riesgos y tareas críticas',
+  'Recomendaciones técnicas',
+  'Acceso al sistema EPDE por 60 días',
 ];
 
 export const TARGET_PROFILES = [
@@ -162,15 +204,6 @@ export const TARGET_PROFILES = [
   'Valoran criterio profesional sobre soluciones improvisadas',
 ];
 
-export const INSPECTION_AREAS = [
-  'Estado de techos y cubiertas',
-  'Filtraciones y humedad',
-  'Fisuras y grietas estructurales',
-  'Instalaciones sanitarias',
-  'Instalaciones eléctricas',
-  'Estado general de mantenimiento',
-];
-
 export const CREDENTIALS: IconTextItem[] = [
   { icon: Award, text: 'Arquitecta matriculada' },
   { icon: Search, text: 'Especialista en patologías edilicias' },
@@ -178,92 +211,45 @@ export const CREDENTIALS: IconTextItem[] = [
   { icon: ClipboardList, text: 'Cada diagnóstico realizado personalmente' },
 ];
 
-// ---------------------------------------------------------------------------
-// Repair costs (source: docs/actualizacion-costos.md)
-// ---------------------------------------------------------------------------
-
-export interface RepairCost {
-  icon: LucideIcon;
-  problem: string;
-  consequence: string;
-  repairRange: string;
-}
-
-export const REPAIR_COSTS: RepairCost[] = [
+export const COMPARISON_ROWS: ComparisonRow[] = [
   {
-    icon: Droplets,
-    problem: 'Filtración en techo',
-    consequence:
-      'Si no se detecta a tiempo puede generar humedad estructural, daño en cielorraso y moho.',
-    repairRange: '$2.500.000 – $6.000.000',
+    aspect: 'Cuándo se actúa',
+    traditional: 'Cuando algo se rompe',
+    epde: 'Antes de que ocurra',
   },
   {
-    icon: Home,
-    problem: 'Humedad de cimientos',
-    consequence: 'Deterioro de revoques, daño estructural y pérdida de valor de la propiedad.',
-    repairRange: '$3.500.000 – $9.000.000',
+    aspect: 'Costo típico',
+    traditional: 'Reparaciones de emergencia caras',
+    epde: 'Intervenciones preventivas económicas',
   },
   {
-    icon: Zap,
-    problem: 'Falla eléctrica sin diagnóstico',
-    consequence: 'Recableado parcial, daños en paredes y riesgo de incendio.',
-    repairRange: '$1.200.000 – $3.500.000',
+    aspect: 'Planificación',
+    traditional: 'No hay plan, se improvisa',
+    epde: 'Sistema con tareas y recordatorios',
+  },
+  {
+    aspect: 'Seguimiento',
+    traditional: 'No existe',
+    epde: 'Dashboard digital con historial e ISV',
+  },
+  {
+    aspect: 'Criterio técnico',
+    traditional: 'Se consulta al albañil cuando ya hay daño',
+    epde: 'Diagnóstico profesional desde el día uno',
   },
 ];
 
 // ---------------------------------------------------------------------------
-// Cost comparison (preventive vs emergency)
+// Pricing
 // ---------------------------------------------------------------------------
 
-export interface CostComparison {
-  pathology: string;
-  preventive: string;
-  emergency: string;
-  multiplier: string;
-}
+export const LAUNCH_PRICE = '$35.000';
 
-export const COST_COMPARISONS: CostComparison[] = [
-  {
-    pathology: 'Filtraciones en techos',
-    preventive: '$150.000 – $400.000',
-    emergency: '$2.500.000 – $6.000.000',
-    multiplier: '8x – 15x',
-  },
-  {
-    pathology: 'Humedad de cimientos',
-    preventive: '$300.000 – $800.000',
-    emergency: '$3.500.000 – $9.000.000',
-    multiplier: '8x – 12x',
-  },
-  {
-    pathology: 'Fallas eléctricas',
-    preventive: '$80.000 – $180.000',
-    emergency: '$1.200.000 – $3.500.000',
-    multiplier: '10x – 20x',
-  },
-];
+export const PRICE_NOTE =
+  'Válido para viviendas de tamaño estándar. Casas grandes o complejas pueden requerir evaluación adicional.';
 
-// ---------------------------------------------------------------------------
-// Price tiers by m²
-// ---------------------------------------------------------------------------
-
-export interface PriceTier {
-  label: string;
-  range: string;
-}
-
-export const PRICE_TIERS: PriceTier[] = [
-  { label: 'Hasta 60 m²', range: 'desde $150.000' },
-  { label: '60 a 120 m²', range: 'desde $250.000' },
-  { label: '120 a 200 m²', range: 'presupuesto personalizado' },
-];
-
-// ---------------------------------------------------------------------------
-// Disclaimers
-// ---------------------------------------------------------------------------
+export const SUBSCRIPTION_MICROCOPY =
+  'Luego podés continuar con el monitoreo mensual si querés seguir manteniendo tu casa bajo control.';
 
 export const COST_DISCLAIMER =
-  'Costos estimados en base a valores promedio de mercado en Paraná (materiales y mano de obra) actualizados a marzo 2026. Los valores pueden variar según cada caso.';
-
-export const PRICE_DISCLAIMER =
-  'El valor depende del tamaño de la vivienda y del estado general del mantenimiento. Los valores son orientativos y se confirman tras la consulta inicial.';
+  'Costos estimados en base a valores promedio de mercado en Paraná actualizados a marzo 2026. Los valores pueden variar según cada caso.';

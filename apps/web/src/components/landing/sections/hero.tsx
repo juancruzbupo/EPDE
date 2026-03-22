@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowDown, ArrowRight } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER } from '@/lib/motion';
@@ -19,24 +19,17 @@ export function HeroSection({ motionProps }: SectionProps) {
           variants={FADE_IN_UP}
           className="font-heading text-foreground text-4xl leading-[1.1] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
         >
-          El mantenimiento preventivo que evita
+          Sabé realmente
           <br />
-          <span className="text-primary">problemas costosos en tu casa.</span>
+          <span className="text-primary">cómo está tu casa.</span>
         </motion.h1>
 
         <motion.p
           variants={FADE_IN}
-          className="type-body-lg text-foreground/80 mx-auto mt-5 max-w-2xl font-medium"
+          className="type-body-lg text-foreground/80 mx-auto mt-6 max-w-2xl font-medium"
         >
-          Un problema chico hoy puede costarte millones mañana.
-        </motion.p>
-
-        <motion.p
-          variants={FADE_IN}
-          className="type-body-md text-muted-foreground mx-auto mt-4 max-w-2xl"
-        >
-          Detectamos filtraciones, humedad, problemas eléctricos y fallas comunes antes de que se
-          conviertan en reparaciones caras.
+          EPDE diagnostica tu vivienda, detecta problemas ocultos y organiza todo su mantenimiento
+          en un sistema inteligente. Un solo diagnóstico puede evitarte gastos de millones.
         </motion.p>
 
         <motion.div
@@ -45,17 +38,19 @@ export function HeroSection({ motionProps }: SectionProps) {
         >
           <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
             <Button size="lg" className="gap-2">
-              Quiero saber el estado de mi casa
+              Solicitar diagnóstico
               <ArrowRight className="h-4 w-4" />
             </Button>
           </a>
-          <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+          <a href="#como-funciona">
             <Button size="lg" variant="outline" className="gap-2">
-              Consultar por WhatsApp
+              Ver cómo funciona
+              <ArrowDown className="h-4 w-4" />
             </Button>
           </a>
         </motion.div>
-        <motion.p variants={FADE_IN} className="text-muted-foreground mt-4 text-center text-sm">
+
+        <motion.p variants={FADE_IN} className="text-muted-foreground mt-6 text-center text-sm">
           ¿Preferís email?{' '}
           <a href="mailto:contacto@epde.com.ar" className="text-primary hover:underline">
             contacto@epde.com.ar

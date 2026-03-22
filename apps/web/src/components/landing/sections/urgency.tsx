@@ -1,66 +1,51 @@
 import { motion } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
 
-import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/motion';
+import { Button } from '@/components/ui/button';
+import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER } from '@/lib/motion';
 
 import type { SectionProps } from '../landing-data';
-import { AlertTriangle, Shield } from '../landing-data';
-
-const URGENCY_POINTS = [
-  {
-    icon: AlertTriangle,
-    title: 'Los problemas graves empiezan como fallas pequeñas',
-    description:
-      'Una micro-fisura, una mancha de humedad, un cable recalentado. Señales que pasan desapercibidas y que, sin intervención, escalan en meses.',
-  },
-  {
-    icon: Shield,
-    title: 'Detectarlas a tiempo puede evitar reparaciones mucho más costosas',
-    description:
-      'La diferencia entre una intervención preventiva de $150.000 y una reparación de emergencia de $5.000.000 es, simplemente, haberlo detectado antes.',
-  },
-];
+import { WHATSAPP_URL } from '../landing-data';
 
 export function UrgencySection({ motionProps }: SectionProps) {
   return (
     <section className="py-20 md:py-28">
-      <motion.div variants={STAGGER_CONTAINER} {...motionProps} className="mx-auto max-w-4xl px-4">
-        <div className="text-center">
-          <motion.h2
-            variants={FADE_IN_UP}
-            className="font-heading text-foreground text-3xl tracking-tight sm:text-4xl"
-          >
-            ¿Podés esperar?
-          </motion.h2>
-          <motion.p
-            variants={FADE_IN}
-            className="type-body-lg text-muted-foreground mx-auto mt-4 max-w-2xl"
-          >
-            La mayoría de los propietarios postergan el mantenimiento hasta que el problema se
-            vuelve urgente. Para ese momento, la solución ya es otra.
-          </motion.p>
-        </div>
-
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
-          {URGENCY_POINTS.map((point) => (
-            <motion.div
-              key={point.title}
-              variants={STAGGER_ITEM}
-              className="border-border bg-card rounded-xl border p-6"
-            >
-              <div className="bg-warning/10 flex h-10 w-10 items-center justify-center rounded-lg">
-                <point.icon className="text-warning h-5 w-5" strokeWidth={1.5} />
-              </div>
-              <h3 className="type-title-md text-foreground mt-4">{point.title}</h3>
-              <p className="type-body-md text-muted-foreground mt-2">{point.description}</p>
-            </motion.div>
-          ))}
-        </div>
-
+      <motion.div
+        variants={STAGGER_CONTAINER}
+        {...motionProps}
+        className="mx-auto max-w-3xl px-4 text-center"
+      >
         <motion.p
           variants={FADE_IN}
-          className="type-body-lg text-foreground mx-auto mt-10 max-w-2xl text-center font-medium"
+          className="type-label-md text-primary tracking-widest uppercase"
         >
-          No es alarmismo. Es lo que vemos en cada vivienda que evaluamos.
+          Lanzamiento
+        </motion.p>
+        <motion.h2
+          variants={FADE_IN_UP}
+          className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
+        >
+          Estamos implementando EPDE en las primeras viviendas de Paraná.
+        </motion.h2>
+        <motion.p
+          variants={FADE_IN}
+          className="type-body-lg text-muted-foreground mx-auto mt-4 max-w-2xl"
+        >
+          Los cupos por mes son limitados porque cada diagnóstico es realizado personalmente por la
+          Arq. Noelia E. Yuskowich. Si querés ser de los primeros, este es el momento.
+        </motion.p>
+
+        <motion.div variants={FADE_IN} className="mt-8">
+          <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+            <Button size="lg" className="gap-2">
+              Solicitar diagnóstico
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </a>
+        </motion.div>
+
+        <motion.p variants={FADE_IN} className="type-body-sm text-muted-foreground mt-4">
+          Sin compromiso. Respondemos en menos de 24 horas.
         </motion.p>
       </motion.div>
     </section>

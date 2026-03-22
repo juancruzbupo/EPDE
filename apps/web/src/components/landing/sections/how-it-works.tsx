@@ -7,7 +7,7 @@ import { STEPS } from '../landing-data';
 
 export function HowItWorksSection({ motionProps }: SectionProps) {
   return (
-    <section id="como-funciona" className="bg-muted/30 py-20 md:py-28">
+    <section id="como-funciona" className="py-20 md:py-28">
       <motion.div variants={STAGGER_CONTAINER} {...motionProps} className="mx-auto max-w-5xl px-4">
         <div className="text-center">
           <motion.p
@@ -20,13 +20,11 @@ export function HowItWorksSection({ motionProps }: SectionProps) {
             variants={FADE_IN_UP}
             className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
           >
-            Del diagnóstico al seguimiento.
-            <br />
-            <span className="text-muted-foreground">Todo en un solo proceso.</span>
+            Tres pasos. Un sistema completo.
           </motion.h2>
         </div>
 
-        <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-12 grid gap-8 md:grid-cols-3">
           {STEPS.map((step) => (
             <motion.div key={step.number} variants={STAGGER_ITEM}>
               <span className="font-heading text-primary/20 text-5xl">{step.number}</span>

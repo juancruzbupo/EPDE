@@ -42,51 +42,78 @@ describe('LandingPage smoke test', () => {
   });
 
   it('renders hero headline', () => {
-    expect(screen.getByText(/problemas costosos en tu casa/i)).toBeInTheDocument();
+    expect(screen.getByText(/cómo está tu casa/i)).toBeInTheDocument();
   });
 
-  it('renders emotional impact line', () => {
-    expect(
-      screen.getByText(/Un problema chico hoy puede costarte millones mañana/i),
-    ).toBeInTheDocument();
+  it('renders hero subtitle', () => {
+    expect(screen.getByText(/EPDE diagnostica tu vivienda/i)).toBeInTheDocument();
   });
 
   it('renders primary CTA in hero', () => {
-    const ctas = screen.getAllByText(/Quiero saber el estado de mi casa/i);
+    const ctas = screen.getAllByText(/Solicitar diagnóstico/i);
     expect(ctas.length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders secondary CTA', () => {
-    const secondary = screen.getAllByText(/Consultar por WhatsApp/i);
-    expect(secondary.length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/Ver cómo funciona/i)).toBeInTheDocument();
   });
 
-  it('renders immediate promise section', () => {
-    expect(screen.getByText(/En una sola visita vas a saber/i)).toBeInTheDocument();
-    expect(screen.getByText(/Qué problemas tiene tu casa/i)).toBeInTheDocument();
+  it('renders market problem section', () => {
+    expect(screen.getByText(/El problema que nadie está resolviendo/i)).toBeInTheDocument();
   });
 
-  it('renders urgency message', () => {
-    const urgency = screen.getAllByText(/Solo 10 diagnósticos disponibles/i);
-    expect(urgency.length).toBeGreaterThanOrEqual(1);
+  it('renders consequence section', () => {
+    expect(screen.getByText(/Detectar tarde siempre sale más caro/i)).toBeInTheDocument();
   });
 
-  it('renders price tiers', () => {
-    expect(screen.getByText('desde $150.000')).toBeInTheDocument();
-    expect(screen.getByText('desde $250.000')).toBeInTheDocument();
-    expect(screen.getByText('presupuesto personalizado')).toBeInTheDocument();
+  it('renders solution section', () => {
+    expect(screen.getByText(/diagnóstico \+ sistema \+ prevención/i)).toBeInTheDocument();
   });
 
-  it('renders cost disclaimer', () => {
-    const disclaimers = screen.getAllByText(/Costos estimados en base a valores promedio/i);
-    expect(disclaimers.length).toBeGreaterThanOrEqual(1);
+  it('renders ISV block', () => {
+    const matches = screen.getAllByText(/Índice de Salud/i);
+    expect(matches.length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/un número claro sobre el estado/i)).toBeInTheDocument();
+  });
+
+  it('renders how it works with 3 steps', () => {
+    expect(screen.getByText(/Relevamos tu vivienda/i)).toBeInTheDocument();
+    expect(screen.getByText(/Analizamos el estado real/i)).toBeInTheDocument();
+    expect(screen.getByText(/Organizamos todo el mantenimiento/i)).toBeInTheDocument();
+  });
+
+  it('renders launch price', () => {
+    expect(screen.getByText('$35.000')).toBeInTheDocument();
+  });
+
+  it('renders 60-day access in pricing', () => {
+    const matches = screen.getAllByText(/acceso al sistema EPDE por 60 días/i);
+    expect(matches.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('renders subscription microcopy', () => {
+    expect(screen.getByText(/continuar con el monitoreo mensual/i)).toBeInTheDocument();
+  });
+
+  it('renders interventions note', () => {
+    const matches = screen.getAllByText(/intervenciones específicas se cotizan aparte/i);
+    expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders credentials section', () => {
     expect(screen.getByText(/Arquitecta matriculada/i)).toBeInTheDocument();
   });
 
-  it('renders decision-forcing copy', () => {
-    expect(screen.getByText(/Cuanto antes lo hagas, más problemas evitás/i)).toBeInTheDocument();
+  it('renders urgency section', () => {
+    expect(screen.getByText(/primeras viviendas de Paraná/i)).toBeInTheDocument();
+  });
+
+  it('renders final CTA', () => {
+    expect(screen.getByText(/Tu casa necesita mantenimiento profesional/i)).toBeInTheDocument();
+  });
+
+  it('renders cost disclaimer', () => {
+    const disclaimers = screen.getAllByText(/Costos estimados en base a valores promedio/i);
+    expect(disclaimers.length).toBeGreaterThanOrEqual(1);
   });
 });
