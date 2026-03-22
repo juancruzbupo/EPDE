@@ -4,9 +4,9 @@ import { FADE_IN, FADE_IN_UP, SCALE_IN, STAGGER_CONTAINER } from '@/lib/motion';
 
 import type { SectionProps } from '../landing-data';
 
-/** SVG gauge showing an ISV score — purely illustrative. */
+/** SVG gauge showing an ISV score — illustrative example with "Regular" state. */
 function IsvGauge() {
-  const score = 72;
+  const score = 54;
   const radius = 54;
   const circumference = Math.PI * radius; // semicircle
   const progress = (score / 100) * circumference;
@@ -31,7 +31,7 @@ function IsvGauge() {
           strokeWidth={8}
           strokeLinecap="round"
           strokeDasharray={`${progress} ${circumference}`}
-          className="text-primary"
+          className="text-warning"
         />
         {/* Score */}
         <text
@@ -51,7 +51,7 @@ function IsvGauge() {
           de 100
         </text>
       </svg>
-      <p className="type-label-md text-primary mt-2 font-medium">Estado: Bueno</p>
+      <p className="type-label-md text-warning mt-2 font-medium">Estado actual: Regular</p>
     </div>
   );
 }
@@ -89,6 +89,25 @@ export function IsvBlockSection({ motionProps }: SectionProps) {
               El Índice de Salud de la Vivienda resume en un solo valor qué tan bien está tu casa.
               Se calcula a partir del diagnóstico profesional y se actualiza con cada intervención.
             </motion.p>
+
+            {/* Interpretation — emotional urgency */}
+            <motion.div
+              variants={FADE_IN}
+              className="border-warning/30 bg-warning/5 mt-5 rounded-lg border p-4"
+            >
+              <p className="type-body-md text-foreground font-medium">
+                Ejemplo: ISV 54 — Estado Regular
+              </p>
+              <p className="type-body-sm text-muted-foreground mt-1">
+                Esto significa que hay problemas que pueden empeorar si no se corrigen a tiempo.
+                EPDE te dice exactamente cuáles son y qué hacer primero.
+              </p>
+              <p className="type-body-sm text-warning mt-2 font-medium">
+                Este nivel puede derivar en reparaciones costosas si no se actúa. La mayoría de las
+                viviendas en este estado ya tiene problemas en desarrollo.
+              </p>
+            </motion.div>
+
             <motion.ul
               variants={FADE_IN}
               className="type-body-md text-foreground/80 mt-4 space-y-2"

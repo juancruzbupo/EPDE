@@ -26,8 +26,9 @@ export function SolutionSection({ motionProps }: SectionProps) {
             variants={FADE_IN}
             className="type-body-lg text-muted-foreground mx-auto mt-4 max-w-2xl"
           >
-            No es un servicio de reparación. Es un sistema profesional que te muestra el estado real
-            de tu vivienda y te ayuda a mantenerla bajo control.
+            No es una inspección técnica tradicional. No es un servicio de reparación. Es un sistema
+            profesional que te muestra el estado real de tu vivienda y te ayuda a mantenerla bajo
+            control con seguimiento continuo.
           </motion.p>
         </div>
 
@@ -46,12 +47,19 @@ export function SolutionSection({ motionProps }: SectionProps) {
           ))}
         </div>
 
-        <motion.p
+        {/* Humanizing microcopy */}
+        <motion.div
           variants={FADE_IN}
-          className="type-body-lg text-foreground mx-auto mt-10 max-w-2xl text-center font-medium"
+          className="mx-auto mt-10 flex max-w-md flex-col items-center gap-1 text-center"
         >
-          Un solo diagnóstico te da visibilidad completa sobre tu vivienda.
-        </motion.p>
+          <p className="type-body-md text-foreground font-medium">
+            Un solo diagnóstico te da visibilidad completa sobre tu vivienda.
+          </p>
+          <p className="type-body-sm text-muted-foreground">
+            No es una reparación. Es prevenir problemas antes de que aparezcan. Trabajamos
+            directamente en viviendas de Paraná.
+          </p>
+        </motion.div>
       </motion.div>
     </section>
   );

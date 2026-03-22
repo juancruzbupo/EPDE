@@ -50,7 +50,7 @@ export function CredentialsSection({ motionProps }: SectionProps) {
             <div>
               <p className="type-body-lg text-foreground">
                 Soy <span className="font-medium">Noelia E. Yuskowich</span>, arquitecta. Creé EPDE
-                porque no existía un sistema profesional de prevención para viviendas unifamiliares.
+                porque no existía un sistema profesional de prevención para viviendas residenciales.
               </p>
               <div className="text-muted-foreground mt-2 flex flex-wrap gap-x-3 gap-y-1">
                 <span className="type-body-sm">Arquitecta</span>

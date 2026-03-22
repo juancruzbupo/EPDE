@@ -2,7 +2,7 @@ import { ArrowRight } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
-import { WHATSAPP_URL } from '../landing-data';
+import { PRIMARY_CTA_LABEL, WHATSAPP_URL } from '../landing-data';
 
 export function Footer() {
   return (
@@ -27,10 +27,10 @@ export function Footer() {
       </footer>
 
       {/* Mobile Sticky CTA */}
-      <div className="border-border bg-background/95 fixed right-0 bottom-0 left-0 z-50 border-t p-2 backdrop-blur-sm md:hidden">
+      <div className="border-border bg-background/95 fixed right-0 bottom-0 left-0 z-40 border-t p-2 backdrop-blur-sm md:hidden">
         <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="block">
           <Button size="sm" className="w-full gap-2">
-            Solicitar diagnóstico
+            {PRIMARY_CTA_LABEL}
             <ArrowRight className="h-3.5 w-3.5" />
           </Button>
         </a>

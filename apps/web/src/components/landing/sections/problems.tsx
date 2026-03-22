@@ -20,14 +20,14 @@ export function ProblemsSection({ motionProps }: SectionProps) {
             variants={FADE_IN_UP}
             className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
           >
-            El problema que nadie está resolviendo.
+            Tu casa se deteriora sin que lo notes.
           </motion.h2>
           <motion.p
             variants={FADE_IN}
             className="type-body-lg text-muted-foreground mx-auto mt-4 max-w-2xl"
           >
-            La mayoría de las viviendas en Argentina no tienen mantenimiento preventivo. Las
-            personas arreglan la casa cuando ya es caro. Eso genera:
+            La mayoría de las viviendas no tienen mantenimiento preventivo. El deterioro es
+            progresivo, invisible y acumulativo. Cuando aparece el problema, ya es otro presupuesto.
           </motion.p>
         </div>
 
@@ -51,7 +51,7 @@ export function ProblemsSection({ motionProps }: SectionProps) {
           variants={FADE_IN}
           className="type-body-lg text-foreground mx-auto mt-10 max-w-2xl text-center font-medium"
         >
-          EPDE cambia ese modelo.
+          Cada mes sin revisión, el costo de la solución crece.
         </motion.p>
       </motion.div>
     </section>

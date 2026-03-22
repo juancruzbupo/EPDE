@@ -63,7 +63,7 @@ export interface ConsequenceExample {
 // ---------------------------------------------------------------------------
 
 const WHATSAPP_PLACEHOLDER =
-  'https://wa.me/5493001234567?text=Hola%20Noelia%2C%20quiero%20coordinar%20el%20diagn%C3%B3stico.';
+  'https://wa.me/5493001234567?text=Hola%2C%20quiero%20saber%20c%C3%B3mo%20est%C3%A1%20mi%20casa%20y%20evitar%20problemas%20a%20futuro';
 
 /** WhatsApp CTA URL. Set NEXT_PUBLIC_WHATSAPP_URL in production to override placeholder. */
 export const WHATSAPP_URL = process.env.NEXT_PUBLIC_WHATSAPP_URL || WHATSAPP_PLACEHOLDER;
@@ -95,25 +95,25 @@ export {
 export const MARKET_PROBLEMS: ProblemCard[] = [
   {
     icon: Droplets,
-    title: 'Filtraciones y humedad',
+    title: 'Deterioro invisible',
     description:
-      'Avanzan detrás de paredes y bajo pisos sin señales visibles hasta que el daño ya es caro.',
+      'Filtraciones y humedad avanzan detrás de paredes sin señales visibles. Cuando aparecen, el daño ya es caro.',
   },
   {
     icon: Zap,
-    title: 'Problemas eléctricos',
+    title: 'Instalaciones sin control',
     description:
-      'Cables y conexiones envejecen sin que nadie lo controle. El riesgo crece en silencio.',
+      'Cables, cañerías y conexiones envejecen sin que nadie los revise. El riesgo crece cada año.',
   },
   {
     icon: Thermometer,
-    title: 'Humedad estructural',
+    title: 'Mantenimiento inexistente',
     description:
-      'Los ciclos térmicos generan fisuras que crecen año tras año y comprometen la estructura.',
+      'La mayoría de las casas no tienen un plan. Los problemas se acumulan hasta que son urgentes.',
   },
   {
     icon: Wrench,
-    title: 'Reparaciones caras',
+    title: 'Problemas que aparecen tarde',
     description:
       'Lo que hoy se resuelve con una intervención menor, mañana requiere obra completa.',
   },
@@ -194,11 +194,11 @@ export const INVESTMENT_FEATURES = [
   'Plan de mantenimiento preventivo',
   'Detección de riesgos y tareas críticas',
   'Recomendaciones técnicas',
-  'Acceso al sistema EPDE por 60 días',
+  'Acceso al sistema EPDE',
 ];
 
 export const TARGET_PROFILES = [
-  'Tienen vivienda unifamiliar propia',
+  'Tienen vivienda propia y son responsables de su mantenimiento',
   'Prefieren planificar antes que reaccionar',
   'Buscan orden y previsión en el mantenimiento',
   'Valoran criterio profesional sobre soluciones improvisadas',
@@ -207,7 +207,7 @@ export const TARGET_PROFILES = [
 export const CREDENTIALS: IconTextItem[] = [
   { icon: Award, text: 'Arquitecta matriculada' },
   { icon: Search, text: 'Especialista en patologías edilicias' },
-  { icon: Home, text: 'Foco en viviendas unifamiliares' },
+  { icon: Home, text: 'Foco en viviendas residenciales' },
   { icon: ClipboardList, text: 'Cada diagnóstico realizado personalmente' },
 ];
 
@@ -253,3 +253,9 @@ export const SUBSCRIPTION_MICROCOPY =
 
 export const COST_DISCLAIMER =
   'Costos estimados en base a valores promedio de mercado en Paraná actualizados a marzo 2026. Los valores pueden variar según cada caso.';
+
+// ---------------------------------------------------------------------------
+// CTA labels (unified across sections)
+// ---------------------------------------------------------------------------
+
+export const PRIMARY_CTA_LABEL = 'Quiero saber cómo está mi casa';

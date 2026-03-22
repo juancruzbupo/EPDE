@@ -453,3 +453,45 @@ body {
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Landing page typography overrides
+ * Scoped to .landing — does NOT affect dashboard or other app pages.
+ * Bumps up type sizes for marketing readability + conversion.
+ * ------------------------------------------------------------------------- */
+
+.landing .type-body-lg {
+  font-size: 18px;
+  line-height: 28px;
+}
+
+.landing .type-body-md {
+  font-size: 16px;
+  line-height: 26px;
+}
+
+.landing .type-body-sm {
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.landing .type-title-lg {
+  font-size: 20px;
+  line-height: 28px;
+}
+
+.landing .type-title-md {
+  font-size: 18px;
+  line-height: 26px;
+}
+
+.landing .type-label-md {
+  font-size: 13px;
+  line-height: 18px;
+}
+
+/* Max-width for readable prose paragraphs */
+.prose-container {
+  max-width: 680px;
+  margin-inline: auto;
+}

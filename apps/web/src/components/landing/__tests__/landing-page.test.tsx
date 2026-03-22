@@ -41,52 +41,72 @@ describe('LandingPage smoke test', () => {
     render(<LandingPage />);
   });
 
+  it('renders hero micro-hook', () => {
+    expect(screen.getByText(/casas tiene problemas que no se ven/i)).toBeInTheDocument();
+  });
+
   it('renders hero headline', () => {
-    expect(screen.getByText(/cómo está tu casa/i)).toBeInTheDocument();
+    expect(screen.getByText(/perdiendo plata/i)).toBeInTheDocument();
+    expect(screen.getByText(/en tu casa sin darte cuenta/i)).toBeInTheDocument();
   });
 
   it('renders hero subtitle', () => {
-    expect(screen.getByText(/EPDE diagnostica tu vivienda/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Detectamos problemas antes de que se vuelvan costosos/i),
+    ).toBeInTheDocument();
   });
 
-  it('renders primary CTA in hero', () => {
-    const ctas = screen.getAllByText(/Solicitar diagnóstico/i);
-    expect(ctas.length).toBeGreaterThanOrEqual(1);
+  it('renders social proof badge', () => {
+    expect(screen.getByText(/primeras viviendas en Paraná/i)).toBeInTheDocument();
+  });
+
+  it('renders unified CTA label', () => {
+    const ctas = screen.getAllByText(/Quiero saber cómo está mi casa/i);
+    expect(ctas.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('renders WhatsApp links in hero and pricing', () => {
+    const waLinks = screen.getAllByText(/Hablar por WhatsApp/i);
+    expect(waLinks.length).toBeGreaterThanOrEqual(2);
   });
 
   it('renders secondary CTA', () => {
     expect(screen.getByText(/Ver cómo funciona/i)).toBeInTheDocument();
   });
 
-  it('renders market problem section', () => {
-    expect(screen.getByText(/El problema que nadie está resolviendo/i)).toBeInTheDocument();
+  it('renders problem section', () => {
+    expect(screen.getByText(/Tu casa se deteriora sin que lo notes/i)).toBeInTheDocument();
   });
 
-  it('renders consequence section', () => {
-    expect(screen.getByText(/Detectar tarde siempre sale más caro/i)).toBeInTheDocument();
+  it('renders consequence section with inaction block', () => {
+    expect(screen.getByText(/filtración no detectada/i)).toBeInTheDocument();
+    expect(screen.getByText(/Si no hacés mantenimiento preventivo/i)).toBeInTheDocument();
   });
 
-  it('renders solution section', () => {
+  it('renders solution section with psychological reinforcement', () => {
     expect(screen.getByText(/diagnóstico \+ sistema \+ prevención/i)).toBeInTheDocument();
+    expect(screen.getByText(/No es una reparación/i)).toBeInTheDocument();
   });
 
-  it('renders ISV block', () => {
-    const matches = screen.getAllByText(/Índice de Salud/i);
-    expect(matches.length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(/un número claro sobre el estado/i)).toBeInTheDocument();
+  it('renders ISV block with urgency line', () => {
+    expect(screen.getByText(/Estado actual: Regular/i)).toBeInTheDocument();
+    expect(screen.getByText(/puede derivar en reparaciones costosas/i)).toBeInTheDocument();
+    expect(screen.getByText(/ya tiene problemas en desarrollo/i)).toBeInTheDocument();
   });
 
   it('renders how it works with 3 steps', () => {
     expect(screen.getByText(/Relevamos tu vivienda/i)).toBeInTheDocument();
     expect(screen.getByText(/Analizamos el estado real/i)).toBeInTheDocument();
-    expect(screen.getByText(/Organizamos todo el mantenimiento/i)).toBeInTheDocument();
+    const matches = screen.getAllByText(/Organizamos todo el mantenimiento/i);
+    expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('renders launch price', () => {
+  it('renders pricing with emotional close', () => {
     expect(screen.getByText('$35.000')).toBeInTheDocument();
+    expect(screen.getByText(/decisión simple hoy/i)).toBeInTheDocument();
   });
 
-  it('renders 60-day access in pricing', () => {
+  it('renders 60-day access', () => {
     const matches = screen.getAllByText(/acceso al sistema EPDE por 60 días/i);
     expect(matches.length).toBeGreaterThanOrEqual(1);
   });
@@ -100,16 +120,20 @@ describe('LandingPage smoke test', () => {
     expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 
+  it('renders urgency with limited capacity', () => {
+    expect(screen.getByText(/número limitado de propiedades/i)).toBeInTheDocument();
+  });
+
   it('renders credentials section', () => {
     expect(screen.getByText(/Arquitecta matriculada/i)).toBeInTheDocument();
   });
 
-  it('renders urgency section', () => {
-    expect(screen.getByText(/primeras viviendas de Paraná/i)).toBeInTheDocument();
+  it('renders final CTA with loss-aversion', () => {
+    expect(screen.getByText(/No esperes a que un problema te salga caro/i)).toBeInTheDocument();
   });
 
-  it('renders final CTA', () => {
-    expect(screen.getByText(/Tu casa necesita mantenimiento profesional/i)).toBeInTheDocument();
+  it('renders WhatsApp floating button', () => {
+    expect(screen.getByLabelText(/Hablar por WhatsApp/i)).toBeInTheDocument();
   });
 
   it('renders cost disclaimer', () => {

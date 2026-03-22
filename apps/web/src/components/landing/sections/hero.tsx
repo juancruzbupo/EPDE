@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion';
-import { ArrowDown, ArrowRight } from 'lucide-react';
+import { ArrowDown, ArrowRight, MessageCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER } from '@/lib/motion';
 
 import type { SectionProps } from '../landing-data';
-import { WHATSAPP_URL } from '../landing-data';
+import { PRIMARY_CTA_LABEL, WHATSAPP_URL } from '../landing-data';
 
 export function HeroSection({ motionProps }: SectionProps) {
   return (
@@ -15,21 +15,29 @@ export function HeroSection({ motionProps }: SectionProps) {
         {...motionProps}
         className="mx-auto max-w-5xl px-4 text-center"
       >
+        {/* Micro-hook */}
+        <motion.p
+          variants={FADE_IN}
+          className="type-body-md text-muted-foreground mb-4 font-medium"
+        >
+          La mayoría de las casas tiene problemas que no se ven.
+        </motion.p>
+
         <motion.h1
           variants={FADE_IN_UP}
           className="font-heading text-foreground text-4xl leading-[1.1] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
         >
-          Sabé realmente
+          Podés estar perdiendo plata
           <br />
-          <span className="text-primary">cómo está tu casa.</span>
+          <span className="text-primary">en tu casa sin darte cuenta.</span>
         </motion.h1>
 
         <motion.p
           variants={FADE_IN}
           className="type-body-lg text-foreground/80 mx-auto mt-6 max-w-2xl font-medium"
         >
-          EPDE diagnostica tu vivienda, detecta problemas ocultos y organiza todo su mantenimiento
-          en un sistema inteligente. Un solo diagnóstico puede evitarte gastos de millones.
+          Detectamos problemas antes de que se vuelvan costosos y organizamos todo el mantenimiento
+          de tu vivienda en un sistema inteligente.
         </motion.p>
 
         <motion.div
@@ -38,7 +46,7 @@ export function HeroSection({ motionProps }: SectionProps) {
         >
           <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
             <Button size="lg" className="gap-2">
-              Solicitar diagnóstico
+              {PRIMARY_CTA_LABEL}
               <ArrowRight className="h-4 w-4" />
             </Button>
           </a>
@@ -50,11 +58,25 @@ export function HeroSection({ motionProps }: SectionProps) {
           </a>
         </motion.div>
 
-        <motion.p variants={FADE_IN} className="text-muted-foreground mt-6 text-center text-sm">
-          ¿Preferís email?{' '}
-          <a href="mailto:contacto@epde.com.ar" className="text-primary hover:underline">
-            contacto@epde.com.ar
+        {/* WhatsApp direct link */}
+        <motion.div variants={FADE_IN} className="mt-4">
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-sm transition-colors"
+          >
+            <MessageCircle className="h-4 w-4" />
+            Hablar por WhatsApp
           </a>
+        </motion.div>
+
+        {/* Social proof */}
+        <motion.p
+          variants={FADE_IN}
+          className="type-body-sm text-primary mx-auto mt-6 max-w-md rounded-full border border-current/20 bg-current/5 px-4 py-1.5 font-medium"
+        >
+          Ya estamos trabajando con las primeras viviendas en Paraná
         </motion.p>
       </motion.div>
     </section>

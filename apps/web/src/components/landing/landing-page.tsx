@@ -19,6 +19,7 @@ import { ProblemsSection } from './sections/problems';
 import { SolutionSection } from './sections/solution';
 import { TargetAudienceSection } from './sections/target-audience';
 import { UrgencySection } from './sections/urgency';
+import { WhatsAppFloat } from './sections/whatsapp-float';
 
 export function LandingPage() {
   const { isAuthenticated, isLoading } = useAuthStore();
@@ -36,29 +37,29 @@ export function LandingPage() {
     : {};
 
   return (
-    <div className="flex min-h-screen flex-col pb-16 md:pb-0">
+    <div className="landing flex min-h-screen flex-col pb-16 md:pb-0">
       <Header ctaHref={ctaHref} ctaLabel={ctaLabel} />
-      {/* 1. Hook — qué es y por qué importa */}
+      {/* 1. Hook — por qué importa */}
       <HeroSection motionProps={motionProps} />
-      {/* 2. Problema — por qué necesitás esto */}
+      {/* 2. Problema — deterioro invisible */}
       <ProblemsSection motionProps={motionProps} />
       {/* 3. Consecuencia — cuánto sale no prevenir */}
       <ConsequenceSection motionProps={motionProps} />
       {/* 4. Solución — qué es EPDE */}
       <SolutionSection motionProps={motionProps} />
-      {/* 5. ISV — el indicador clave */}
+      {/* 5. ISV — el indicador con interpretación */}
       <IsvBlockSection motionProps={motionProps} />
       {/* 6. Cómo funciona — 3 pasos */}
       <HowItWorksSection motionProps={motionProps} />
-      {/* 7. Qué incluye — entregables concretos */}
+      {/* 7. Qué incluye — entregables */}
       <DeliverablesSection motionProps={motionProps} />
-      {/* 8. Sistema — la plataforma digital */}
+      {/* 8. Sistema — la plataforma */}
       <DigitalSystemSection motionProps={motionProps} />
-      {/* 9. Comparación — tradicional vs EPDE */}
+      {/* 9. Comparación */}
       <DifferentiationSection motionProps={motionProps} />
-      {/* 10. Credenciales — quién está detrás */}
+      {/* 10. Credenciales */}
       <CredentialsSection motionProps={motionProps} />
-      {/* 11. Para quién — target */}
+      {/* 11. Para quién */}
       <TargetAudienceSection motionProps={motionProps} />
       {/* 12. Pricing */}
       <InvestmentSection motionProps={motionProps} />
@@ -67,6 +68,8 @@ export function LandingPage() {
       {/* 14. CTA final */}
       <FinalCtaSection motionProps={motionProps} />
       <Footer />
+      {/* Floating WhatsApp */}
+      <WhatsAppFloat />
     </div>
   );
 }

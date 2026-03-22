@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER } from '@/lib/motion';
 
 import type { SectionProps } from '../landing-data';
-import { WHATSAPP_URL } from '../landing-data';
+import { PRIMARY_CTA_LABEL, WHATSAPP_URL } from '../landing-data';
 
 export function UrgencySection({ motionProps }: SectionProps) {
   return (
@@ -31,14 +31,14 @@ export function UrgencySection({ motionProps }: SectionProps) {
           variants={FADE_IN}
           className="type-body-lg text-muted-foreground mx-auto mt-4 max-w-2xl"
         >
-          Los cupos por mes son limitados porque cada diagnóstico es realizado personalmente por la
-          Arq. Noelia E. Yuskowich. Si querés ser de los primeros, este es el momento.
+          Trabajamos con un número limitado de propiedades para garantizar calidad. Cada diagnóstico
+          es realizado personalmente por la Arq. Noelia E. Yuskowich.
         </motion.p>
 
         <motion.div variants={FADE_IN} className="mt-8">
           <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
             <Button size="lg" className="gap-2">
-              Solicitar diagnóstico
+              {PRIMARY_CTA_LABEL}
               <ArrowRight className="h-4 w-4" />
             </Button>
           </a>

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, MessageCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER } from '@/lib/motion';
@@ -10,6 +10,7 @@ import {
   INVESTMENT_FEATURES,
   LAUNCH_PRICE,
   PRICE_NOTE,
+  PRIMARY_CTA_LABEL,
   SUBSCRIPTION_MICROCOPY,
   WHATSAPP_URL,
 } from '../landing-data';
@@ -31,6 +32,14 @@ export function InvestmentSection({ motionProps }: SectionProps) {
           >
             Diagnóstico EPDE
           </motion.h2>
+          {/* Pre-price value framing */}
+          <motion.p
+            variants={FADE_IN}
+            className="type-body-lg text-muted-foreground mx-auto mt-4 max-w-xl"
+          >
+            El objetivo de EPDE es evitar problemas que pueden volverse mucho más costosos con el
+            tiempo.
+          </motion.p>
         </div>
 
         {/* Single price card */}
@@ -54,12 +63,26 @@ export function InvestmentSection({ motionProps }: SectionProps) {
             ))}
           </div>
 
-          <div className="mt-8">
+          {/* Emotional close before CTA */}
+          <p className="type-body-sm text-foreground/70 mx-auto mt-6 max-w-xs font-medium italic">
+            Es una decisión simple hoy para evitar un problema grande mañana.
+          </p>
+
+          <div className="mt-6 space-y-3">
             <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
               <Button size="lg" className="w-full gap-2">
-                Solicitar diagnóstico
+                {PRIMARY_CTA_LABEL}
                 <ArrowRight className="h-4 w-4" />
               </Button>
+            </a>
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-foreground flex items-center justify-center gap-1.5 text-sm transition-colors"
+            >
+              <MessageCircle className="h-4 w-4" />
+              Hablar por WhatsApp
             </a>
           </div>
         </motion.div>

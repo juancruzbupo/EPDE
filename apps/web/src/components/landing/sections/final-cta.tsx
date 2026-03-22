@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER } from '@/lib/motion';
 
 import type { SectionProps } from '../landing-data';
-import { LAUNCH_PRICE, WHATSAPP_URL } from '../landing-data';
+import { LAUNCH_PRICE, PRIMARY_CTA_LABEL, WHATSAPP_URL } from '../landing-data';
 
 export function FinalCtaSection({ motionProps }: SectionProps) {
   return (
@@ -19,7 +19,7 @@ export function FinalCtaSection({ motionProps }: SectionProps) {
           variants={FADE_IN_UP}
           className="font-heading text-background text-3xl sm:text-4xl"
         >
-          Tu casa necesita mantenimiento profesional.
+          No esperes a que un problema te salga caro.
         </motion.h2>
         <motion.p
           variants={FADE_IN}
@@ -31,7 +31,7 @@ export function FinalCtaSection({ motionProps }: SectionProps) {
         <motion.div variants={FADE_IN} className="mt-8">
           <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
             <Button size="lg" variant="secondary" className="gap-2">
-              Solicitar diagnóstico ahora
+              {PRIMARY_CTA_LABEL}
               <ArrowRight className="h-4 w-4" />
             </Button>
           </a>
