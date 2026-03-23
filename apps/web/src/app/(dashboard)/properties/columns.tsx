@@ -58,7 +58,14 @@ export function propertyColumns({ isAdmin }: { isAdmin: boolean }): ColumnDef<Pr
       cell: ({ row }) => {
         const isv = row.original.latestISV;
         if (!isv) return <span className="text-muted-foreground">—</span>;
-        const variant = isv.score >= 60 ? 'success' : isv.score >= 40 ? 'warning' : 'destructive';
+        const variant =
+          isv.score >= 80
+            ? 'success'
+            : isv.score >= 60
+              ? 'success'
+              : isv.score >= 40
+                ? 'warning'
+                : 'destructive';
         return (
           <Badge variant={variant}>
             {isv.score} · {isv.label}

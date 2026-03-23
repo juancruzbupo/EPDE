@@ -31,11 +31,20 @@ export class PropertiesService {
       type: filters.type,
     });
 
-    // Enrich with latest ISV scores
-    const propertyIds = result.data.map((p) => p.id);
-    const isvScores = await this.isvSnapshotRepository.findLatestForProperties(propertyIds);
+    // Enrich with real-time ISV scores (same source as detail page + dashboard)
+    const propertiesWithPlan = result.data.filter(
+      (p) => (p as Record<string, unknown>).maintenancePlan,
+    );
+    const isvResults = await Promise.all(
+      propertiesWithPlan.map(async (p) => {
+        const plan = (p as Record<string, unknown>).maintenancePlan as { id: string } | null;
+        if (!plan) return { propertyId: p.id, score: 0, label: 'Sin plan' };
+        const health = await this.dashboardRepository.getPropertyHealthIndex([plan.id]);
+        return { propertyId: p.id, score: health.score, label: health.label };
+      }),
+    );
     const isvMap = new Map(
-      isvScores.map((s) => [s.propertyId, { score: s.score, label: s.label }]),
+      isvResults.map((r) => [r.propertyId, { score: r.score, label: r.label }]),
     );
 
     return {

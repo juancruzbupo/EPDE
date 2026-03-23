@@ -1,6 +1,6 @@
 # EPDE - Documentacion del Proyecto
 
-**EPDE** (Estudio Profesional de Diagnostico Edilicio) es una plataforma de mantenimiento preventivo para viviendas unifamiliares. Dos interfaces: panel de administracion y portal de cliente. Dos roles: `ADMIN` y `CLIENT`.
+**EPDE** (Estudio Profesional de Diagnostico Edilicio) es una plataforma de mantenimiento preventivo para viviendas residenciales. Dos interfaces: panel de administracion y portal de cliente. Dos roles: `ADMIN` y `CLIENT`.
 
 ## Indice
 

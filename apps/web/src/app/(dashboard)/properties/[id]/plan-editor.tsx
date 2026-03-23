@@ -182,7 +182,7 @@ const CategorySection = memo(function CategorySection({
                   <span>
                     {task.nextDueDate
                       ? `Próxima: ${new Date(task.nextDueDate).toLocaleDateString('es-AR')}`
-                      : 'Según detección'}
+                      : RECURRENCE_TYPE_LABELS.ON_DETECTION}
                   </span>
                 </div>
               </div>

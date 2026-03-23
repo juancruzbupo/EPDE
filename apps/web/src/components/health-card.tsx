@@ -21,30 +21,37 @@ function getHealthInfo(total: number, overdue: number) {
       barColor: 'var(--muted-foreground)',
     };
   const percent = Math.round(((total - overdue) / total) * 100);
-  if (percent > 90)
+  if (percent >= 80)
     return {
       percent,
       label: 'Excelente',
       colorClass: 'text-success',
       barColor: 'var(--success)',
     };
-  if (percent > 70)
+  if (percent >= 60)
     return {
       percent,
       label: 'Bueno',
       colorClass: 'text-primary',
       barColor: 'var(--primary)',
     };
-  if (percent > 50)
+  if (percent >= 40)
     return {
       percent,
-      label: 'Necesita atencion',
+      label: 'Regular',
       colorClass: 'text-warning',
       barColor: 'var(--warning)',
     };
+  if (percent >= 20)
+    return {
+      percent,
+      label: 'Necesita atención',
+      colorClass: 'text-caution',
+      barColor: 'var(--caution)',
+    };
   return {
     percent,
-    label: 'Critico',
+    label: 'Crítico',
     colorClass: 'text-destructive',
     barColor: 'var(--destructive)',
   };

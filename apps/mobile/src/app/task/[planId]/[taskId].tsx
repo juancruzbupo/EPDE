@@ -174,7 +174,7 @@ export default function TaskDetailScreen() {
               >
                 {task.nextDueDate
                   ? format(new Date(task.nextDueDate), 'd MMM yyyy', { locale: es })
-                  : 'Según detección'}
+                  : RECURRENCE_TYPE_LABELS.ON_DETECTION}
               </Text>
             </View>
             <View className="flex-row justify-between">

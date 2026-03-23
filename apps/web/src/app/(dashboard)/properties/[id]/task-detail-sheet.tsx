@@ -113,7 +113,9 @@ export function TaskDetailSheet({
                       </span>
                     </>
                   ) : (
-                    <span className="text-muted-foreground text-sm">Según detección</span>
+                    <span className="text-muted-foreground text-sm">
+                      {RECURRENCE_TYPE_LABELS.ON_DETECTION}
+                    </span>
                   )}
                 </p>
               </div>

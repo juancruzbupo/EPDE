@@ -157,7 +157,7 @@ function CategorySection({
                       <span className={isOverdue ? 'text-destructive font-medium' : ''}>
                         {task.nextDueDate
                           ? formatRelativeDate(new Date(task.nextDueDate))
-                          : 'Según detección'}
+                          : RECURRENCE_TYPE_LABELS.ON_DETECTION}
                       </span>
                     </div>
                   </div>

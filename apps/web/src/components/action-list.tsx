@@ -5,6 +5,7 @@ import {
   formatRelativeDate,
   PRIORITY_VARIANT,
   ProfessionalRequirement,
+  RECURRENCE_TYPE_LABELS,
   TASK_PRIORITY_LABELS,
 } from '@epde/shared';
 import { motion } from 'framer-motion';
@@ -72,7 +73,7 @@ function TaskItem({ task }: { task: UpcomingTask }) {
                 ? overdue
                   ? `Vencida ${formatRelativeDate(new Date(task.nextDueDate))}`
                   : formatRelativeDate(new Date(task.nextDueDate))
-                : 'Según detección'}
+                : RECURRENCE_TYPE_LABELS.ON_DETECTION}
             </span>
           </div>
         </div>

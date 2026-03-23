@@ -28,7 +28,6 @@ const mockDashboardRepository = {
   getCompletionRate: jest.fn(),
   getClientConditionTrend: jest.fn(),
   getClientCostHistory: jest.fn(),
-  getClientHealthScore: jest.fn(),
   getClientConditionDistribution: jest.fn(),
   getClientCategoryBreakdown: jest.fn(),
   getClientSectorBreakdown: jest.fn(),
@@ -377,7 +376,6 @@ describe('DashboardService', () => {
 
       const mockTrend = [{ month: '2026-01', label: 'Ene', categories: { Electricidad: 4.2 } }];
       const mockCost = [{ month: '2026-01', label: 'Ene', value: 300 }];
-      const mockHealth = { healthScore: 75, healthLabel: 'Bueno' };
       const mockCondDist = [{ condition: ConditionFound.EXCELLENT, count: 5, label: 'Excelente' }];
       const mockBreakdown = [
         {
@@ -391,7 +389,6 @@ describe('DashboardService', () => {
 
       repository.getClientConditionTrend.mockResolvedValue(mockTrend);
       repository.getClientCostHistory.mockResolvedValue(mockCost);
-      repository.getClientHealthScore.mockResolvedValue(mockHealth);
       repository.getClientConditionDistribution.mockResolvedValue(mockCondDist);
       repository.getClientCategoryBreakdown.mockResolvedValue(mockBreakdown);
       const mockSectorBreakdown = [
@@ -413,7 +410,7 @@ describe('DashboardService', () => {
       expect(repository.getClientCostHistory).toHaveBeenCalledWith(planIds, 6);
       expect(result.conditionTrend).toEqual(mockTrend);
       expect(result.costHistory).toEqual(mockCost);
-      expect(result.healthScore).toBe(75);
+      expect(result.healthScore).toBe(70);
       expect(result.healthLabel).toBe('Bueno');
       expect(result.conditionDistribution).toEqual(mockCondDist);
       expect(result.categoryBreakdown).toEqual(mockBreakdown);
@@ -428,10 +425,6 @@ describe('DashboardService', () => {
       });
       repository.getClientConditionTrend.mockResolvedValue([]);
       repository.getClientCostHistory.mockResolvedValue([]);
-      repository.getClientHealthScore.mockResolvedValue({
-        healthScore: 0,
-        healthLabel: 'Sin datos',
-      });
       repository.getClientConditionDistribution.mockResolvedValue([]);
       repository.getClientCategoryBreakdown.mockResolvedValue([]);
       repository.getClientSectorBreakdown.mockResolvedValue([]);

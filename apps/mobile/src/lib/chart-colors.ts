@@ -16,10 +16,4 @@ export const CONDITION_COLORS: Record<string, string> = {
   CRITICAL: DESIGN_TOKENS_LIGHT.destructive,
 };
 
-export const CONDITION_LABELS: Record<string, string> = {
-  EXCELLENT: 'Excelente',
-  GOOD: 'Bueno',
-  FAIR: 'Regular',
-  POOR: 'Pobre',
-  CRITICAL: 'Critico',
-};
+export { CONDITION_FOUND_LABELS as CONDITION_LABELS } from '@epde/shared';

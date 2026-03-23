@@ -1,5 +1,11 @@
 import type { TaskPublic } from '@epde/shared';
-import { formatRelativeDate, PROPERTY_SECTOR_LABELS, TaskStatus } from '@epde/shared';
+import {
+  formatRelativeDate,
+  PROPERTY_SECTOR_LABELS,
+  RECURRENCE_TYPE_LABELS,
+  TASK_STATUS_LABELS,
+  TaskStatus,
+} from '@epde/shared';
 import { Image } from 'expo-image';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
@@ -43,8 +49,8 @@ type StatusFilter = 'ALL' | typeof TaskStatus.UPCOMING | typeof TaskStatus.OVERD
 
 const FILTERS: { key: StatusFilter; label: string }[] = [
   { key: 'ALL', label: 'Todas' },
-  { key: TaskStatus.UPCOMING, label: 'Próximas' },
-  { key: TaskStatus.OVERDUE, label: 'Vencidas' },
+  { key: TaskStatus.UPCOMING, label: TASK_STATUS_LABELS.UPCOMING },
+  { key: TaskStatus.OVERDUE, label: TASK_STATUS_LABELS.OVERDUE },
 ];
 
 function TaskCard({ task, planId }: { task: TaskPublic; planId: string }) {
@@ -81,7 +87,9 @@ function TaskCard({ task, planId }: { task: TaskPublic; planId: string }) {
           )}
         </View>
         <Text style={TYPE.bodySm} className="text-muted-foreground">
-          {task.nextDueDate ? formatRelativeDate(new Date(task.nextDueDate)) : 'Según detección'}
+          {task.nextDueDate
+            ? formatRelativeDate(new Date(task.nextDueDate))
+            : RECURRENCE_TYPE_LABELS.ON_DETECTION}
         </Text>
       </View>
     </Pressable>
@@ -274,7 +282,9 @@ export default function PropertyDetailScreen() {
                             ? 'text-primary'
                             : healthIndex.score >= 40
                               ? 'text-warning'
-                              : 'text-destructive'
+                              : healthIndex.score >= 20
+                                ? 'text-caution'
+                                : 'text-destructive'
                       }
                     >
                       {healthIndex.score}
@@ -334,7 +344,9 @@ export default function PropertyDetailScreen() {
                                   ? 'text-primary font-semibold'
                                   : value >= 40
                                     ? 'text-warning font-semibold'
-                                    : 'text-destructive font-semibold'
+                                    : value >= 20
+                                      ? 'text-caution font-semibold'
+                                      : 'text-destructive font-semibold'
                             }
                           >
                             {value}
@@ -342,7 +354,7 @@ export default function PropertyDetailScreen() {
                         </View>
                         <View className="bg-muted mt-1 h-1.5 overflow-hidden rounded-full">
                           <View
-                            className={`h-full rounded-full ${value >= 80 ? 'bg-success' : value >= 60 ? 'bg-primary' : value >= 40 ? 'bg-warning' : 'bg-destructive'}`}
+                            className={`h-full rounded-full ${value >= 80 ? 'bg-success' : value >= 60 ? 'bg-primary' : value >= 40 ? 'bg-warning' : value >= 20 ? 'bg-caution' : 'bg-destructive'}`}
                             style={{ width: `${value}%` }}
                           />
                         </View>
@@ -360,7 +372,7 @@ export default function PropertyDetailScreen() {
                           return (
                             <View key={s.month} className="flex-1 items-center">
                               <View
-                                className={`w-full rounded-t ${s.score >= 80 ? 'bg-success' : s.score >= 60 ? 'bg-primary' : s.score >= 40 ? 'bg-warning' : 'bg-destructive'}`}
+                                className={`w-full rounded-t ${s.score >= 80 ? 'bg-success' : s.score >= 60 ? 'bg-primary' : s.score >= 40 ? 'bg-warning' : s.score >= 20 ? 'bg-caution' : 'bg-destructive'}`}
                                 style={{ height: h }}
                               />
                               <Text className="text-muted-foreground mt-0.5 text-[8px]">

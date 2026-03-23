@@ -277,7 +277,6 @@ export class DashboardService {
     const [
       conditionTrend,
       costHistory,
-      healthData,
       conditionDistribution,
       categoryBreakdown,
       sectorBreakdown,
@@ -285,7 +284,6 @@ export class DashboardService {
     ] = await Promise.all([
       this.dashboardRepository.getClientConditionTrend(planIds, months),
       this.dashboardRepository.getClientCostHistory(planIds, months),
-      this.dashboardRepository.getClientHealthScore(planIds),
       this.dashboardRepository.getClientConditionDistribution(planIds),
       this.dashboardRepository.getClientCategoryBreakdown(planIds),
       this.dashboardRepository.getClientSectorBreakdown(planIds),
@@ -295,8 +293,8 @@ export class DashboardService {
     const result = {
       conditionTrend,
       costHistory,
-      healthScore: healthData.healthScore,
-      healthLabel: healthData.healthLabel,
+      healthScore: healthIndex.score,
+      healthLabel: healthIndex.label,
       conditionDistribution,
       categoryBreakdown,
       sectorBreakdown,

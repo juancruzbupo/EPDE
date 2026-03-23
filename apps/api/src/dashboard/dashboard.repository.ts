@@ -602,43 +602,6 @@ export class DashboardRepository {
       .sort((a, b) => b.totalTasks - a.totalTasks);
   }
 
-  async getClientHealthScore(planIds: string[]) {
-    if (planIds.length === 0) return { healthScore: 0, healthLabel: 'Sin datos' };
-    const now = new Date();
-
-    const [total, completed, overdue] = await Promise.all([
-      this.prisma.softDelete.task.count({ where: { maintenancePlanId: { in: planIds } } }),
-      // Tasks are cyclic — COMPLETED is transient. Count by TaskLog presence.
-      this.prisma.softDelete.task.count({
-        where: { maintenancePlanId: { in: planIds }, taskLogs: { some: {} } },
-      }),
-      this.prisma.softDelete.task.count({
-        where: {
-          maintenancePlanId: { in: planIds },
-          nextDueDate: { lt: now },
-          status: { not: TaskStatus.COMPLETED },
-        },
-      }),
-    ]);
-
-    if (total === 0) return { healthScore: 0, healthLabel: 'Sin datos' };
-
-    const completionRatio = completed / total;
-    const overdueRatio = overdue / total;
-    const score = Math.max(0, Math.min(100, Math.round(completionRatio * 100 - overdueRatio * 50)));
-
-    const labels: [number, string][] = [
-      [80, 'Excelente'],
-      [60, 'Bueno'],
-      [40, 'Regular'],
-      [20, 'Pobre'],
-      [0, 'Crítico'],
-    ];
-    const healthLabel = labels.find(([threshold]) => score >= threshold)?.[1] ?? 'Crítico';
-
-    return { healthScore: score, healthLabel };
-  }
-
   /**
    * Property Health Index (ISV) — 5-dimensional score.
    * Uses only existing data (Task, TaskLog, sector).

@@ -2,6 +2,7 @@ import type { TaskPriority, TaskStatus } from '@epde/shared';
 import {
   formatRelativeDate,
   PROPERTY_SECTOR_LABELS,
+  TASK_PRIORITY_LABELS,
   TASK_STATUS_LABELS,
   TaskStatus as TS,
 } from '@epde/shared';
@@ -31,9 +32,9 @@ import { haptics } from '@/lib/haptics';
 
 const PRIORITY_FILTERS: { key: TaskPriority | undefined; label: string }[] = [
   { key: undefined, label: 'Todas' },
-  { key: 'HIGH', label: 'Alta' },
-  { key: 'MEDIUM', label: 'Media' },
-  { key: 'LOW', label: 'Baja' },
+  { key: 'HIGH', label: TASK_PRIORITY_LABELS.HIGH },
+  { key: 'MEDIUM', label: TASK_PRIORITY_LABELS.MEDIUM },
+  { key: 'LOW', label: TASK_PRIORITY_LABELS.LOW },
 ];
 
 /** Status order for stat cards: actionable first.

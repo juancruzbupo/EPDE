@@ -22,9 +22,10 @@ interface HealthCardProps {
 function getHealthInfo(total: number, overdue: number) {
   if (total === 0) return { percent: 100, label: 'Sin tareas', color: COLORS.mutedForeground };
   const percent = Math.round(((total - overdue) / total) * 100);
-  if (percent > 90) return { percent, label: 'Excelente', color: COLORS.success };
-  if (percent > 70) return { percent, label: 'Bueno', color: COLORS.primary };
-  if (percent > 50) return { percent, label: 'Necesita atención', color: COLORS.warning };
+  if (percent >= 80) return { percent, label: 'Excelente', color: COLORS.success };
+  if (percent >= 60) return { percent, label: 'Bueno', color: COLORS.primary };
+  if (percent >= 40) return { percent, label: 'Regular', color: COLORS.warning };
+  if (percent >= 20) return { percent, label: 'Necesita atención', color: COLORS.caution };
   return { percent, label: 'Crítico', color: COLORS.destructive };
 }
 

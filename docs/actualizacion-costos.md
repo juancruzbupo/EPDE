@@ -153,7 +153,7 @@ const COST_COMPARISONS: CostComparison[] = [
 
 ## Supuestos de la estimación actual (marzo 2026)
 
-- **Vivienda tipo**: unifamiliar, 100-150 m², planta baja, losa o techo inclinado
+- **Vivienda tipo**: residencial, 100-150 m², planta baja, losa o techo inclinado
 - **Ubicación**: barrios residenciales de Paraná, Entre Ríos
 - **Zona UOCRA**: A
 - **Ajuste Paraná vs CABA**: mano de obra -10% a -15%, materiales +5% (flete)

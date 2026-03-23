@@ -120,13 +120,13 @@ CategoryTemplate ─1:N─ TaskTemplate
 
 ### ConditionFound
 
-| Valor       | Label     |
-| ----------- | --------- |
-| `EXCELLENT` | Excelente |
-| `GOOD`      | Bueno     |
-| `FAIR`      | Regular   |
-| `POOR`      | Malo      |
-| `CRITICAL`  | Critico   |
+| Valor       | Label       |
+| ----------- | ----------- |
+| `EXCELLENT` | Excelente   |
+| `GOOD`      | Bueno       |
+| `FAIR`      | Aceptable   |
+| `POOR`      | Deteriorado |
+| `CRITICAL`  | Crítico     |
 
 ### TaskExecutor
 

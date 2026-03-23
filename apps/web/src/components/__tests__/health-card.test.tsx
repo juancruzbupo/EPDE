@@ -42,14 +42,16 @@ describe('HealthCard', () => {
     expect(screen.getByText('Excelente')).toBeInTheDocument();
   });
 
-  it('shows "Bueno" when health > 70%', () => {
-    render(<HealthCard totalTasks={10} completedTasks={7} overdueTasks={2} />);
+  it('shows "Bueno" when health >= 60 and < 80', () => {
+    // 10 tasks, 3 overdue → percent = 70 → Bueno
+    render(<HealthCard totalTasks={10} completedTasks={7} overdueTasks={3} />);
     expect(screen.getByText('Bueno')).toBeInTheDocument();
   });
 
-  it('shows "Critico" when health <= 50%', () => {
-    render(<HealthCard totalTasks={10} completedTasks={3} overdueTasks={6} />);
-    expect(screen.getByText('Critico')).toBeInTheDocument();
+  it('shows "Crítico" when health < 20', () => {
+    // 10 tasks, 9 overdue → percent = 10 → Crítico
+    render(<HealthCard totalTasks={10} completedTasks={1} overdueTasks={9} />);
+    expect(screen.getByText('Crítico')).toBeInTheDocument();
   });
 
   it('displays completed and overdue counts', () => {

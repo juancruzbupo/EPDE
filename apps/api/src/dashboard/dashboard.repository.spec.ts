@@ -288,36 +288,6 @@ describe('DashboardRepository', () => {
     });
   });
 
-  describe('getClientHealthScore', () => {
-    it('should return zero score for empty planIds', async () => {
-      const result = await repository.getClientHealthScore([]);
-
-      expect(result).toEqual({ healthScore: 0, healthLabel: 'Sin datos' });
-    });
-
-    it('should return zero score when no tasks', async () => {
-      mockTaskModel.count.mockResolvedValue(0);
-
-      const result = await repository.getClientHealthScore(['plan-1']);
-
-      expect(result).toEqual({ healthScore: 0, healthLabel: 'Sin datos' });
-    });
-
-    it('should compute health score from completion and overdue ratios', async () => {
-      // total=10, completed=8, overdue=1
-      mockTaskModel.count
-        .mockResolvedValueOnce(10)
-        .mockResolvedValueOnce(8)
-        .mockResolvedValueOnce(1);
-
-      const result = await repository.getClientHealthScore(['plan-1']);
-
-      // score = max(0, min(100, round(8/10 * 100 - 1/10 * 50))) = round(80-5) = 75
-      expect(result.healthScore).toBe(75);
-      expect(result.healthLabel).toBe('Bueno');
-    });
-  });
-
   describe('getClientConditionDistribution', () => {
     it('should return empty array for empty planIds', async () => {
       const result = await repository.getClientConditionDistribution([]);

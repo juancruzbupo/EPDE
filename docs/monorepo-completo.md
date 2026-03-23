@@ -6,7 +6,7 @@ Documento exhaustivo que describe la estructura, tecnologias, patrones de diseno
 
 ## 1. Vision General
 
-**EPDE** (Estudio Profesional de Diagnostico Edilicio) es una plataforma de mantenimiento preventivo para viviendas unifamiliares. Consta de tres aplicaciones y una libreria compartida organizadas en un monorepo.
+**EPDE** (Estudio Profesional de Diagnostico Edilicio) es una plataforma de mantenimiento preventivo para viviendas residenciales. Consta de tres aplicaciones y una libreria compartida organizadas en un monorepo.
 
 ### Aplicaciones
 
@@ -895,24 +895,24 @@ User ─1:N─ PushToken
 
 Snapshot mensual del Indice de Salud de la Vivienda (ISV). Generado por cron job el 1ro de cada mes (02:00 UTC).
 
-| Campo        | Tipo       | Notas                                    |
-| ------------ | ---------- | ---------------------------------------- |
-| id           | UUID       | PK                                       |
-| propertyId   | String     | FK -> Property                           |
-| snapshotDate | DateTime   | Fecha del snapshot (1ro mes)             |
-| score        | Int        | Score global ISV (0-100)                 |
-| label        | String(50) | Excelente/Bueno/Regular/Critico          |
-| compliance   | Int        | Dimension: cumplimiento (35%)            |
-| condition    | Int        | Dimension: condicion (30%)               |
-| coverage     | Int        | Dimension: cobertura (20%)               |
-| investment   | Int        | Dimension: inversion (15%)               |
-| trend        | Int        | Tendencia (>50 mejora, <50 declina)      |
-| sectorScores | Json       | Array de {sector, score, overdue, total} |
-| createdAt    | DateTime   |                                          |
+| Campo        | Tipo       | Notas                                             |
+| ------------ | ---------- | ------------------------------------------------- |
+| id           | UUID       | PK                                                |
+| propertyId   | String     | FK -> Property                                    |
+| snapshotDate | DateTime   | Fecha del snapshot (1ro mes)                      |
+| score        | Int        | Score global ISV (0-100)                          |
+| label        | String(50) | Excelente/Bueno/Regular/Necesita atención/Crítico |
+| compliance   | Int        | Dimension: cumplimiento (35%)                     |
+| condition    | Int        | Dimension: condicion (30%)                        |
+| coverage     | Int        | Dimension: cobertura (20%)                        |
+| investment   | Int        | Dimension: inversion (15%)                        |
+| trend        | Int        | Tendencia (>50 mejora, <50 declina)               |
+| sectorScores | Json       | Array de {sector, score, overdue, total}          |
+| createdAt    | DateTime   |                                                   |
 
 **Indices:** `propertyId`, `@@unique([propertyId, snapshotDate])`
 **Cascade:** onDelete de Property elimina sus ISVSnapshots
-**ISV Label:** score >=80 "Excelente", >=60 "Bueno", >=40 "Regular", >=20 "Necesita atencion", <20 "Critico"
+**ISV Label:** score >=80 "Excelente", >=60 "Bueno", >=40 "Regular", >=20 "Necesita atención", <20 "Crítico"
 
 ### Campos adicionales relevantes
 

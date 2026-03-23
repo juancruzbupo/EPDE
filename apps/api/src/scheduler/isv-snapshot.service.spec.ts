@@ -43,7 +43,7 @@ const makeProperty = (id: string, planId: string | null = 'plan-1') => ({
 
 const makeHealthIndex = (score: number) => ({
   score,
-  label: score >= 70 ? 'Bueno' : 'Regular',
+  label: score >= 80 ? 'Excelente' : score >= 60 ? 'Bueno' : 'Regular',
   dimensions: { compliance: 80, condition: 75, coverage: 70, investment: 65, trend: 60 },
   sectorScores: [{ sector: 'Electricidad', score: 80 }],
 });

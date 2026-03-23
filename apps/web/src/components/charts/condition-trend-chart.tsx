@@ -25,7 +25,8 @@ interface ConditionTrendChartProps {
   }>;
 }
 
-const CONDITION_LABELS = ['', 'Crítico', 'Pobre', 'Regular', 'Bueno', 'Excelente'];
+/** Maps numeric 1–5 condition score to label (aligned with CONDITION_FOUND_LABELS SSoT). */
+const CONDITION_LABELS = ['', 'Crítico', 'Deteriorado', 'Aceptable', 'Bueno', 'Excelente'];
 
 export function ConditionTrendChart({ data }: ConditionTrendChartProps) {
   const colors = useChartColors();

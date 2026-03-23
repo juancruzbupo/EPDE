@@ -1,5 +1,5 @@
 import type { CreateServiceRequestInput, PropertyPublic, TaskListItem } from '@epde/shared';
-import { createServiceRequestSchema, ServiceUrgency } from '@epde/shared';
+import { createServiceRequestSchema, SERVICE_URGENCY_LABELS, ServiceUrgency } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
@@ -31,10 +31,10 @@ import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 
 const URGENCY_OPTIONS = [
-  { key: ServiceUrgency.LOW, label: 'Baja' },
-  { key: ServiceUrgency.MEDIUM, label: 'Media' },
-  { key: ServiceUrgency.HIGH, label: 'Alta' },
-  { key: ServiceUrgency.URGENT, label: 'Urgente' },
+  { key: ServiceUrgency.LOW, label: SERVICE_URGENCY_LABELS.LOW },
+  { key: ServiceUrgency.MEDIUM, label: SERVICE_URGENCY_LABELS.MEDIUM },
+  { key: ServiceUrgency.HIGH, label: SERVICE_URGENCY_LABELS.HIGH },
+  { key: ServiceUrgency.URGENT, label: SERVICE_URGENCY_LABELS.URGENT },
 ] as const;
 
 interface CreateServiceRequestModalProps {
