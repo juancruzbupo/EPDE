@@ -22,7 +22,8 @@ import { UrgencySection } from './sections/urgency';
 import { WhatsAppFloat } from './sections/whatsapp-float';
 
 export function LandingPage() {
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isLoading = useAuthStore((s) => s.isLoading);
   const { shouldAnimate } = useMotionPreference();
 
   const ctaHref = isLoading ? '/login' : isAuthenticated ? '/dashboard' : '/login';

@@ -169,7 +169,9 @@ describe('PropertiesRepository', () => {
         include: {
           user: { select: { id: true, name: true, email: true } },
           maintenancePlan: {
-            include: { tasks: { include: { category: true }, orderBy: { order: 'asc' } } },
+            include: {
+              tasks: { include: { category: true }, orderBy: { order: 'asc' }, take: 500 },
+            },
           },
         },
       });

@@ -41,7 +41,8 @@ export default function ProfilePage() {
     document.title = 'Mi Perfil | EPDE';
   }, []);
 
-  const { user, checkAuth } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
+  const checkAuth = useAuthStore((s) => s.checkAuth);
 
   if (!user) {
     return (

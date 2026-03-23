@@ -4,6 +4,7 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 2 * 60_000, // 2 min — avoid refetch on every mount (aligned with mobile)
+      refetchOnWindowFocus: false, // prevent unnecessary refetches on tab switch
       retry: (failureCount, error) => {
         const status = (error as { response?: { status?: number } })?.response?.status;
         // Retry 429 (rate-limited) and 503 (service unavailable) with backoff

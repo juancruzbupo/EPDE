@@ -128,6 +128,7 @@ export class ServiceRequestsRepository extends BaseRepository<ServiceRequest, 's
         updatedAt: { lt: olderThan },
       },
       select: { id: true, title: true, requestedBy: true },
+      take: 1_000, // Safety bound for scheduler batch
     });
   }
 

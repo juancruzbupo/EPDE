@@ -19,7 +19,8 @@ import { useAuthStore } from '@/stores/auth-store';
 import { Sidebar } from './sidebar';
 
 export function Header() {
-  const { user, logout } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
 
   const handleLogout = async () => {
     try {
