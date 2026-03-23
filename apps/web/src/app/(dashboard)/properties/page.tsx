@@ -12,6 +12,7 @@ import { ErrorState } from '@/components/error-state';
 import { FilterSelect } from '@/components/filter-select';
 import { PageHeader } from '@/components/page-header';
 import { SearchInput } from '@/components/search-input';
+import { SearchableFilterSelect } from '@/components/searchable-filter-select';
 import { Button } from '@/components/ui/button';
 import { PageTransition } from '@/components/ui/page-transition';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -132,7 +133,7 @@ export default function PropertiesPage() {
           placeholder="Estado del plan"
         />
         {isAdmin && clientOptions.length > 1 && (
-          <FilterSelect
+          <SearchableFilterSelect
             value={clientFilter}
             onChange={setClientFilter}
             options={clientOptions}

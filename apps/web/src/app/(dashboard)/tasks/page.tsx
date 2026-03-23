@@ -17,9 +17,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
-import { FilterSelect } from '@/components/filter-select';
 import { PageHeader } from '@/components/page-header';
 import { SearchInput } from '@/components/search-input';
+import { SearchableFilterSelect } from '@/components/searchable-filter-select';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { PageTransition } from '@/components/ui/page-transition';
@@ -346,7 +346,7 @@ export default function TasksPage() {
       {/* Filters */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
         {propertyOptions.length > 1 && (
-          <FilterSelect
+          <SearchableFilterSelect
             value={propertyFilter}
             onChange={setPropertyFilter}
             options={propertyOptions}
