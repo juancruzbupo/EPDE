@@ -204,6 +204,14 @@ Si mejora → Resuelto     Si no mejora → Reaparece
 
 No hay estado manual. Todo derivado de datos reales.
 
+### UX del flujo
+
+- **Web:** Card de problema es clickeable → navega al tab Plan y abre el detalle de la tarea automáticamente. Botón "Solicitar servicio" abre dialog pre-rellenado (con `stopPropagation`)
+- **Mobile:** Row presionable → abre modal de ServiceRequest
+- **Post-creación de SR:** Toast "Este problema ya está en proceso" con botón "Ver servicio" que navega al detalle del SR creado
+- **Invalidación:** Completar tarea o crear SR invalida la query de problemas — el problema desaparece si la condición mejoró o si tiene SR activo
+- **Mensajes de impacto:** Diferenciados por sector + severidad (ej: ROOF/CRITICAL → "Puede generar filtraciones activas y dañar interiores")
+
 ---
 
 ## 6. Sectores de vivienda

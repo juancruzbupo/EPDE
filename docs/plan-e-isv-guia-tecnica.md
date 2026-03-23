@@ -422,8 +422,9 @@ Si condición sigue mala → Reaparece en la lista
 
 ### Dónde se muestra
 
-| Plataforma | Ubicación                            | Comportamiento                                                       |
-| ---------- | ------------------------------------ | -------------------------------------------------------------------- |
-| Web        | Property detail → tab Salud          | Sección "Esto puede generarte gastos" con botón "Solicitar servicio" |
-| Mobile     | Property detail → sección colapsable | Rows presionables → abren modal de ServiceRequest                    |
-| Tab badge  | Web tab "Salud (3)"                  | Muestra cantidad de problemas activos                                |
+| Plataforma | Ubicación                            | Comportamiento                                                                          |
+| ---------- | ------------------------------------ | --------------------------------------------------------------------------------------- |
+| Web        | Property detail → tab Salud          | Card clickeable → navega a tab Plan y abre detalle de tarea. Botón "Solicitar servicio" |
+| Mobile     | Property detail → sección colapsable | Rows presionables → abren modal de ServiceRequest                                       |
+| Tab badge  | Web tab "Salud (3)"                  | Muestra cantidad de problemas activos                                                   |
+| Post-SR    | Toast (web) / Alert (mobile)         | "Este problema ya está en proceso" + botón "Ver servicio" con navegación directa        |
