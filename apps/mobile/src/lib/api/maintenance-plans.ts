@@ -1,9 +1,4 @@
-/**
- * Mobile maintenance-plan API — client-only.
- * Only query factories and client mutations (completeTask, addTaskNote) are exported.
- * Admin operations (updatePlan, addTask, updateTask, removeTask, reorderTasks)
- * live exclusively in web's maintenance-plans.ts.
- */
+import type { ApiResponse, PlanPublic, PlanStatus } from '@epde/shared';
 import { createMaintenancePlanQueries } from '@epde/shared';
 
 import { apiClient } from '../api-client';
@@ -20,3 +15,12 @@ export const {
   completeTask,
   addTaskNote,
 } = queries;
+
+// Admin-only
+export async function updatePlan(
+  id: string,
+  dto: { name?: string; status?: PlanStatus },
+): Promise<ApiResponse<PlanPublic>> {
+  const { data } = await apiClient.patch(`/maintenance-plans/${id}`, dto);
+  return data;
+}

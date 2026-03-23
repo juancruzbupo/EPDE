@@ -1,9 +1,4 @@
-/**
- * Mobile service request hooks — client operations only.
- * `useUpdateServiceStatus` is omitted because status transitions
- * are admin-only (`@Roles(UserRole.ADMIN)` on the endpoint).
- */
-import type { ServiceRequestPublic, ServiceUrgency } from '@epde/shared';
+import type { ServiceRequestPublic, ServiceStatus, ServiceUrgency } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
@@ -18,6 +13,7 @@ import {
   getServiceRequestComments,
   getServiceRequests,
   type ServiceRequestFilters,
+  updateServiceStatus,
 } from '@/lib/api/service-requests';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
 
@@ -82,6 +78,42 @@ export function useEditServiceRequest() {
     },
     onError: (err) => {
       Alert.alert('Error', getErrorMessage(err, 'Error al editar solicitud'));
+    },
+  });
+}
+
+export function useUpdateServiceStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, status, note }: { id: string; status: ServiceStatus; note?: string }) =>
+      updateServiceStatus(id, status, note),
+
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey: [QUERY_KEYS.serviceRequests, variables.id] });
+      const previous = queryClient.getQueryData<ServiceRequestPublic>([
+        QUERY_KEYS.serviceRequests,
+        variables.id,
+      ]);
+      queryClient.setQueryData<ServiceRequestPublic>(
+        [QUERY_KEYS.serviceRequests, variables.id],
+        (old) => {
+          if (!old) return old;
+          return { ...old, status: variables.status };
+        },
+      );
+      return { previous };
+    },
+
+    onError: (_err, variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData([QUERY_KEYS.serviceRequests, variables.id], context.previous);
+      }
+      Alert.alert('Error', getErrorMessage(_err, 'Error al actualizar estado'));
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
+      invalidateClientDashboard(queryClient);
     },
   });
 }

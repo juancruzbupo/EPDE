@@ -85,6 +85,7 @@ export default function ServiceRequestsScreen() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<ServiceStatus | undefined>(undefined);
   const [urgencyFilter, setUrgencyFilter] = useState<ServiceUrgency | undefined>(undefined);
+  const [propertyFilter, setPropertyFilter] = useState<string | undefined>(undefined);
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const debouncedSearch = useDebounce(search);
 
@@ -100,8 +101,26 @@ export default function ServiceRequestsScreen() {
   const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useServiceRequests(filters);
 
-  const requests = data?.pages.flatMap((page) => page.data) ?? [];
-  const hasActiveFilters = !!debouncedSearch || !!statusFilter || !!urgencyFilter;
+  const allRequestsRaw = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
+
+  const propertyOptions = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const r of allRequestsRaw) {
+      if (!seen.has(r.propertyId)) seen.set(r.propertyId, r.property.address);
+    }
+    return [...seen.entries()].map(([id, address]) => ({ key: id, label: address }));
+  }, [allRequestsRaw]);
+
+  const requests = useMemo(
+    () =>
+      propertyFilter
+        ? allRequestsRaw.filter((r) => r.propertyId === propertyFilter)
+        : allRequestsRaw,
+    [allRequestsRaw, propertyFilter],
+  );
+
+  const hasActiveFilters =
+    !!debouncedSearch || !!statusFilter || !!urgencyFilter || !!propertyFilter;
 
   const onRefresh = useCallback(() => {
     refetch();
@@ -222,6 +241,56 @@ export default function ServiceRequestsScreen() {
                 </Pressable>
               ))}
             </ScrollView>
+
+            {/* Property filter — only shown when >1 property */}
+            {propertyOptions.length > 1 && (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 8, marginTop: 8 }}
+                accessibilityRole="radiogroup"
+                accessibilityLabel="Filtrar por propiedad"
+              >
+                <Pressable
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: !propertyFilter }}
+                  onPress={() => {
+                    haptics.selection();
+                    setPropertyFilter(undefined);
+                  }}
+                  className={`rounded-full px-3 py-2 ${!propertyFilter ? 'bg-primary' : 'bg-card border-border border'}`}
+                >
+                  <Text
+                    style={TYPE.labelSm}
+                    className={!propertyFilter ? 'text-primary-foreground' : 'text-foreground'}
+                  >
+                    Todas
+                  </Text>
+                </Pressable>
+                {propertyOptions.map((p) => (
+                  <Pressable
+                    key={p.key}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: propertyFilter === p.key }}
+                    onPress={() => {
+                      haptics.selection();
+                      setPropertyFilter(p.key);
+                    }}
+                    className={`rounded-full px-3 py-2 ${propertyFilter === p.key ? 'bg-primary' : 'bg-card border-border border'}`}
+                  >
+                    <Text
+                      style={TYPE.labelSm}
+                      className={
+                        propertyFilter === p.key ? 'text-primary-foreground' : 'text-foreground'
+                      }
+                      numberOfLines={1}
+                    >
+                      {p.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            )}
 
             {/* Urgency filter */}
             <Text style={TYPE.labelMd} className="text-muted-foreground mt-3 mb-1">

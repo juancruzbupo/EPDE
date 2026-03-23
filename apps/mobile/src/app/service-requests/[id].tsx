@@ -7,9 +7,11 @@ import {
   formatRelativeDate,
   isServiceRequestTerminal,
   SERVICE_AUDIT_ACTION_LABELS,
+  SERVICE_STATUS_LABELS,
   SERVICE_URGENCY_LABELS,
   ServiceStatus,
   ServiceUrgency,
+  UserRole,
 } from '@epde/shared';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -35,6 +37,7 @@ import {
 import Animated from 'react-native-reanimated';
 
 import { CollapsibleSection } from '@/components/collapsible-section';
+import { CreateBudgetModal } from '@/components/create-budget-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { ServiceStatusBadge, UrgencyBadge } from '@/components/status-badge';
@@ -45,6 +48,7 @@ import {
   useServiceRequest,
   useServiceRequestAuditLog,
   useServiceRequestComments,
+  useUpdateServiceStatus,
 } from '@/hooks/use-service-requests';
 import { useUploadFile } from '@/hooks/use-upload';
 import { useSlideIn } from '@/lib/animations';
@@ -52,6 +56,21 @@ import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { defaultScreenOptions } from '@/lib/screen-options';
+import { useAuthStore } from '@/stores/auth-store';
+
+const STATUS_TRANSITIONS: Partial<Record<ServiceStatus, ServiceStatus>> = {
+  [ServiceStatus.OPEN]: ServiceStatus.IN_REVIEW,
+  [ServiceStatus.IN_REVIEW]: ServiceStatus.IN_PROGRESS,
+  [ServiceStatus.IN_PROGRESS]: ServiceStatus.RESOLVED,
+  [ServiceStatus.RESOLVED]: ServiceStatus.CLOSED,
+};
+
+const TRANSITION_LABELS: Partial<Record<ServiceStatus, string>> = {
+  [ServiceStatus.IN_REVIEW]: 'Pasar a En Revisión',
+  [ServiceStatus.IN_PROGRESS]: 'Pasar a En Progreso',
+  [ServiceStatus.RESOLVED]: 'Marcar como Resuelto',
+  [ServiceStatus.CLOSED]: 'Cerrar solicitud',
+};
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -295,9 +314,13 @@ function EditServiceRequestModal({
 
 export default function ServiceRequestDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const user = useAuthStore((s) => s.user);
+  const isAdmin = user?.role === UserRole.ADMIN;
+  const isClient = user?.role === UserRole.CLIENT;
   const contentStyle = useSlideIn('bottom');
   const { data: request, isLoading, error, refetch } = useServiceRequest(id);
   const editRequest = useEditServiceRequest();
+  const updateStatus = useUpdateServiceStatus();
   const { data: auditLog } = useServiceRequestAuditLog(id);
   const { data: comments } = useServiceRequestComments(id);
   const addComment = useAddServiceRequestComment();
@@ -308,8 +331,11 @@ export default function ServiceRequestDetailScreen() {
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
   const [editTitleVisible, setEditTitleVisible] = useState(false);
+  const [statusNote, setStatusNote] = useState('');
+  const [createBudgetVisible, setCreateBudgetVisible] = useState(false);
 
   const isTerminal = request ? isServiceRequestTerminal(request.status) : false;
+  const nextStatus = request ? STATUS_TRANSITIONS[request.status] : undefined;
 
   const handleEdit = () => {
     if (!request) return;
@@ -473,8 +499,8 @@ export default function ServiceRequestDetailScreen() {
             )}
           </View>
 
-          {/* Edit button for OPEN status */}
-          {request.status === ServiceStatus.OPEN && (
+          {/* Client: Edit button for OPEN status */}
+          {isClient && request.status === ServiceStatus.OPEN && (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Editar solicitud"
@@ -488,6 +514,67 @@ export default function ServiceRequestDetailScreen() {
             </Pressable>
           )}
         </View>
+
+        {/* Admin: Status transition + Generate budget */}
+        {isAdmin && nextStatus && (
+          <View className="border-border bg-card mb-4 rounded-xl border p-4">
+            <TextInput
+              value={statusNote}
+              onChangeText={setStatusNote}
+              placeholder="Nota opcional para el cambio de estado..."
+              placeholderTextColor={COLORS.mutedForeground}
+              multiline
+              style={[TYPE.bodyMd, { maxHeight: 80 }]}
+              className="border-border text-foreground mb-3 rounded-lg border px-3 py-2"
+            />
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={TRANSITION_LABELS[nextStatus]}
+              onPress={() => {
+                haptics.medium();
+                Alert.alert(
+                  'Cambiar estado',
+                  `¿Estás seguro de que querés cambiar el estado a "${SERVICE_STATUS_LABELS[nextStatus]}"?`,
+                  [
+                    { text: 'Cancelar', style: 'cancel' },
+                    {
+                      text: 'Confirmar',
+                      onPress: () => {
+                        updateStatus.mutate(
+                          { id, status: nextStatus, note: statusNote.trim() || undefined },
+                          { onSuccess: () => setStatusNote('') },
+                        );
+                      },
+                    },
+                  ],
+                );
+              }}
+              disabled={updateStatus.isPending}
+              className="bg-primary items-center rounded-xl py-3"
+            >
+              <Text style={TYPE.titleMd} className="text-primary-foreground">
+                {TRANSITION_LABELS[nextStatus]}
+              </Text>
+            </Pressable>
+          </View>
+        )}
+
+        {/* Admin: Generate budget from SR */}
+        {isAdmin && !isTerminal && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Generar presupuesto para este servicio"
+            onPress={() => {
+              haptics.light();
+              setCreateBudgetVisible(true);
+            }}
+            className="border-border mb-4 items-center rounded-xl border py-3"
+          >
+            <Text style={TYPE.labelLg} className="text-primary">
+              Generar presupuesto para este servicio
+            </Text>
+          </Pressable>
+        )}
 
         {/* Photos */}
         {request.photos && request.photos.length > 0 && (
@@ -615,6 +702,15 @@ export default function ServiceRequestDetailScreen() {
           editRequest.mutate({ id, title, description, urgency })
         }
         onClose={() => setEditTitleVisible(false)}
+      />
+
+      {/* Create budget from SR */}
+      <CreateBudgetModal
+        visible={createBudgetVisible}
+        onClose={() => setCreateBudgetVisible(false)}
+        defaultPropertyId={request.propertyId}
+        defaultTitle={`Presupuesto: ${request.title}`}
+        defaultDescription={request.description}
       />
 
       {/* Full-screen photo preview */}

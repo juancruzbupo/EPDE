@@ -1,7 +1,3 @@
-/**
- * Mobile budget API — client-only.
- * Admin mutations (respondToBudget) live exclusively in web's budgets.ts.
- */
 import { createBudgetQueries } from '@epde/shared';
 
 import { apiClient } from '../api-client';
@@ -15,6 +11,7 @@ export const {
   createBudgetRequest,
   updateBudgetStatus,
   editBudgetRequest,
+  respondToBudget,
   getBudgetAuditLog,
   getBudgetComments,
   createBudgetComment,

@@ -79,6 +79,7 @@ const BudgetCard = memo(function BudgetCard({ budget }: { budget: BudgetRequestP
 export default function BudgetsScreen() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<BudgetStatus | undefined>(undefined);
+  const [propertyFilter, setPropertyFilter] = useState<string | undefined>(undefined);
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const debouncedSearch = useDebounce(search);
 
@@ -93,8 +94,23 @@ export default function BudgetsScreen() {
   const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useBudgets(filters);
 
-  const budgets = data?.pages.flatMap((page) => page.data) ?? [];
-  const hasActiveFilters = !!debouncedSearch || !!statusFilter;
+  const allBudgetsRaw = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
+
+  const propertyOptions = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const b of allBudgetsRaw) {
+      if (!seen.has(b.propertyId)) seen.set(b.propertyId, b.property.address);
+    }
+    return [...seen.entries()].map(([id, address]) => ({ key: id, label: address }));
+  }, [allBudgetsRaw]);
+
+  const budgets = useMemo(
+    () =>
+      propertyFilter ? allBudgetsRaw.filter((b) => b.propertyId === propertyFilter) : allBudgetsRaw,
+    [allBudgetsRaw, propertyFilter],
+  );
+
+  const hasActiveFilters = !!debouncedSearch || !!statusFilter || !!propertyFilter;
 
   const onRefresh = useCallback(() => {
     refetch();
@@ -209,6 +225,56 @@ export default function BudgetsScreen() {
                 </Pressable>
               ))}
             </ScrollView>
+
+            {/* Property filter — only shown when >1 property */}
+            {propertyOptions.length > 1 && (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 8, marginTop: 8 }}
+                accessibilityRole="radiogroup"
+                accessibilityLabel="Filtrar por propiedad"
+              >
+                <Pressable
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: !propertyFilter }}
+                  onPress={() => {
+                    haptics.selection();
+                    setPropertyFilter(undefined);
+                  }}
+                  className={`rounded-full px-3 py-2 ${!propertyFilter ? 'bg-primary' : 'bg-card border-border border'}`}
+                >
+                  <Text
+                    style={TYPE.labelSm}
+                    className={!propertyFilter ? 'text-primary-foreground' : 'text-foreground'}
+                  >
+                    Todas
+                  </Text>
+                </Pressable>
+                {propertyOptions.map((p) => (
+                  <Pressable
+                    key={p.key}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: propertyFilter === p.key }}
+                    onPress={() => {
+                      haptics.selection();
+                      setPropertyFilter(p.key);
+                    }}
+                    className={`rounded-full px-3 py-2 ${propertyFilter === p.key ? 'bg-primary' : 'bg-card border-border border'}`}
+                  >
+                    <Text
+                      style={TYPE.labelSm}
+                      className={
+                        propertyFilter === p.key ? 'text-primary-foreground' : 'text-foreground'
+                      }
+                      numberOfLines={1}
+                    >
+                      {p.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            )}
           </View>
         }
         ListFooterComponent={

@@ -94,12 +94,23 @@ const TaskCard = memo(function TaskCard({ task }: { task: TaskListItem }) {
 export default function TasksScreen() {
   const [statusFilter, setStatusFilter] = useState<TaskStatus | undefined>(undefined);
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | undefined>(undefined);
+  const [propertyFilter, setPropertyFilter] = useState<string | undefined>(undefined);
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search);
 
   const { data: tasks, isLoading, error, refetch } = useAllTasks();
 
-  /** Client-side filtering: status + priority + search. */
+  const propertyOptions = useMemo(() => {
+    if (!tasks) return [];
+    const seen = new Map<string, string>();
+    for (const t of tasks) {
+      const prop = t.maintenancePlan.property;
+      if (!seen.has(prop.id)) seen.set(prop.id, prop.address);
+    }
+    return [...seen.entries()].map(([id, address]) => ({ key: id, label: address }));
+  }, [tasks]);
+
+  /** Client-side filtering: status + priority + property + search. */
   const filtered = useMemo(() => {
     if (!tasks) return [];
     let result = tasks;
@@ -110,6 +121,10 @@ export default function TasksScreen() {
 
     if (priorityFilter) {
       result = result.filter((t) => t.priority === priorityFilter);
+    }
+
+    if (propertyFilter) {
+      result = result.filter((t) => t.maintenancePlan.property.id === propertyFilter);
     }
 
     if (debouncedSearch) {
@@ -124,7 +139,7 @@ export default function TasksScreen() {
     }
 
     return result;
-  }, [tasks, statusFilter, priorityFilter, debouncedSearch]);
+  }, [tasks, statusFilter, priorityFilter, propertyFilter, debouncedSearch]);
 
   /** Counts per status (from full dataset, ignoring priority/search filters). */
   const statusCounts = useMemo(() => {
@@ -142,7 +157,8 @@ export default function TasksScreen() {
     refetch();
   }, [refetch]);
 
-  const hasActiveFilters = !!statusFilter || !!priorityFilter || !!debouncedSearch;
+  const hasActiveFilters =
+    !!statusFilter || !!priorityFilter || !!propertyFilter || !!debouncedSearch;
 
   if (error && !tasks) {
     return <ErrorState onRetry={refetch} />;
@@ -264,6 +280,56 @@ export default function TasksScreen() {
                 </Pressable>
               ))}
             </ScrollView>
+
+            {/* Property filter — only shown when >1 property */}
+            {propertyOptions.length > 1 && (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 8, marginTop: 8 }}
+                accessibilityRole="radiogroup"
+                accessibilityLabel="Filtrar por propiedad"
+              >
+                <Pressable
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: !propertyFilter }}
+                  onPress={() => {
+                    haptics.selection();
+                    setPropertyFilter(undefined);
+                  }}
+                  className={`rounded-full px-3 py-2 ${!propertyFilter ? 'bg-primary' : 'bg-card border-border border'}`}
+                >
+                  <Text
+                    style={TYPE.labelSm}
+                    className={!propertyFilter ? 'text-primary-foreground' : 'text-foreground'}
+                  >
+                    Todas
+                  </Text>
+                </Pressable>
+                {propertyOptions.map((p) => (
+                  <Pressable
+                    key={p.key}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: propertyFilter === p.key }}
+                    onPress={() => {
+                      haptics.selection();
+                      setPropertyFilter(p.key);
+                    }}
+                    className={`rounded-full px-3 py-2 ${propertyFilter === p.key ? 'bg-primary' : 'bg-card border-border border'}`}
+                  >
+                    <Text
+                      style={TYPE.labelSm}
+                      className={
+                        propertyFilter === p.key ? 'text-primary-foreground' : 'text-foreground'
+                      }
+                      numberOfLines={1}
+                    >
+                      {p.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            )}
 
             {/* Count */}
             <Text style={TYPE.bodySm} className="text-muted-foreground mt-2">

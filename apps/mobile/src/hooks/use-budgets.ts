@@ -3,6 +3,7 @@ import type {
   BudgetStatus,
   CreateBudgetCommentInput,
   EditBudgetRequestInput,
+  RespondBudgetInput,
 } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -18,6 +19,7 @@ import {
   getBudgetAuditLog,
   getBudgetComments,
   getBudgets,
+  respondToBudget,
   updateBudgetStatus,
 } from '@/lib/api/budgets';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
@@ -70,6 +72,21 @@ export function useEditBudgetRequest() {
     },
     onError: (err) => {
       Alert.alert('Error', getErrorMessage(err, 'Error al actualizar presupuesto'));
+    },
+  });
+}
+
+export function useRespondToBudget() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...dto }: { id: string } & RespondBudgetInput) => respondToBudget(id, dto),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
+      invalidateClientDashboard(queryClient);
+      Alert.alert('Éxito', 'Cotización enviada');
+    },
+    onError: (err) => {
+      Alert.alert('Error', getErrorMessage(err, 'Error al enviar cotización'));
     },
   });
 }

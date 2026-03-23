@@ -2,19 +2,23 @@ import type { ConditionFound, DetectedProblem, TaskPublic } from '@epde/shared';
 import {
   CONDITION_FOUND_LABELS,
   formatRelativeDate,
+  PlanStatus,
   PROPERTY_SECTOR_LABELS,
   RECURRENCE_TYPE_LABELS,
   TASK_STATUS_LABELS,
   TaskStatus,
+  UserRole,
 } from '@epde/shared';
 import { Image } from 'expo-image';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Linking,
   Pressable,
   RefreshControl,
+  ScrollView,
   SectionList,
   Text,
   View,
@@ -34,7 +38,7 @@ import {
   TaskStatusBadge,
 } from '@/components/status-badge';
 import { SwipeableRow } from '@/components/swipeable-row';
-import { usePlan } from '@/hooks/use-plans';
+import { usePlan, useUpdatePlan } from '@/hooks/use-plans';
 import {
   useProperty,
   usePropertyExpenses,
@@ -48,6 +52,7 @@ import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { defaultScreenOptions } from '@/lib/screen-options';
+import { useAuthStore } from '@/stores/auth-store';
 
 type StatusFilter = 'ALL' | typeof TaskStatus.UPCOMING | typeof TaskStatus.OVERDUE;
 
@@ -138,9 +143,13 @@ function TaskCard({ task, planId }: { task: TaskPublic; planId: string }) {
 
 export default function PropertyDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const user = useAuthStore((s) => s.user);
+  const isAdmin = user?.role === UserRole.ADMIN;
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
+  const [categoryFilter, setCategoryFilter] = useState<string | undefined>(undefined);
   const [completeTask, setCompleteTask] = useState<TaskPublic | null>(null);
   const [showServiceModal, setShowServiceModal] = useState(false);
+  const updatePlan = useUpdatePlan();
 
   const infoCardStyle = useAnimatedEntry();
   const {
@@ -214,21 +223,35 @@ export default function PropertyDetailScreen() {
     };
   }, [expenses]);
 
+  const categoryOptions = useMemo(() => {
+    if (!plan?.tasks) return [];
+    const seen = new Map<string, string>();
+    for (const t of plan.tasks) {
+      if (!seen.has(t.category.id)) seen.set(t.category.id, t.category.name);
+    }
+    return [...seen.entries()].map(([cid, name]) => ({ key: cid, label: name }));
+  }, [plan?.tasks]);
+
   const sections = useMemo(() => {
     if (!plan?.tasks) return [];
 
-    const filtered =
-      statusFilter === 'ALL' ? plan.tasks : plan.tasks.filter((t) => t.status === statusFilter);
+    let result = plan.tasks;
+    if (statusFilter !== 'ALL') {
+      result = result.filter((t) => t.status === statusFilter);
+    }
+    if (categoryFilter) {
+      result = result.filter((t) => t.category.id === categoryFilter);
+    }
 
     const grouped = new Map<string, TaskPublic[]>();
-    for (const task of filtered) {
+    for (const task of result) {
       const cat = task.category.name;
       if (!grouped.has(cat)) grouped.set(cat, []);
       grouped.get(cat)!.push(task);
     }
 
     return Array.from(grouped.entries()).map(([title, data]) => ({ title, data }));
-  }, [plan?.tasks, statusFilter]);
+  }, [plan?.tasks, statusFilter, categoryFilter]);
 
   const onRefresh = useCallback(() => {
     refetchProperty();
@@ -457,6 +480,58 @@ export default function PropertyDetailScreen() {
               )}
             </View>
 
+            {/* Admin: Plan actions (Activate / Archive) */}
+            {isAdmin && planId && property?.maintenancePlan?.status === PlanStatus.DRAFT && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Activar plan"
+                onPress={() => {
+                  haptics.medium();
+                  Alert.alert('Activar Plan', '¿Estás seguro de que querés activar este plan?', [
+                    { text: 'Cancelar', style: 'cancel' },
+                    {
+                      text: 'Activar',
+                      onPress: () => updatePlan.mutate({ id: planId, status: PlanStatus.ACTIVE }),
+                    },
+                  ]);
+                }}
+                disabled={updatePlan.isPending}
+                className="bg-primary mb-3 items-center rounded-xl py-3"
+              >
+                <Text style={TYPE.titleMd} className="text-primary-foreground">
+                  Activar Plan
+                </Text>
+              </Pressable>
+            )}
+            {isAdmin && planId && property?.maintenancePlan?.status === PlanStatus.ACTIVE && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Archivar plan"
+                onPress={() => {
+                  haptics.medium();
+                  Alert.alert(
+                    'Archivar Plan',
+                    '¿Estás seguro de que querés archivar este plan? Las tareas dejarán de generar vencimientos.',
+                    [
+                      { text: 'Cancelar', style: 'cancel' },
+                      {
+                        text: 'Archivar',
+                        style: 'destructive',
+                        onPress: () =>
+                          updatePlan.mutate({ id: planId, status: PlanStatus.ARCHIVED }),
+                      },
+                    ],
+                  );
+                }}
+                disabled={updatePlan.isPending}
+                className="border-destructive mb-3 items-center rounded-xl border py-3"
+              >
+                <Text style={TYPE.titleMd} className="text-destructive">
+                  Archivar Plan
+                </Text>
+              </Pressable>
+            )}
+
             {!planId && (
               <EmptyState
                 title="Sin plan asignado"
@@ -672,7 +747,7 @@ export default function PropertyDetailScreen() {
 
             {/* Status filter tabs */}
             {planId && (
-              <View className="mb-4 flex-row gap-2">
+              <View className="mb-2 flex-row gap-2">
                 {FILTERS.map((f) => (
                   <Pressable
                     key={f.key}
@@ -694,6 +769,56 @@ export default function PropertyDetailScreen() {
                   </Pressable>
                 ))}
               </View>
+            )}
+
+            {/* Category filter */}
+            {planId && categoryOptions.length > 1 && (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 8, marginBottom: 16 }}
+                accessibilityRole="radiogroup"
+                accessibilityLabel="Filtrar por categoría"
+              >
+                <Pressable
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: !categoryFilter }}
+                  onPress={() => {
+                    haptics.selection();
+                    setCategoryFilter(undefined);
+                  }}
+                  className={`rounded-full px-3 py-2 ${!categoryFilter ? 'bg-primary' : 'bg-card border-border border'}`}
+                >
+                  <Text
+                    style={TYPE.labelSm}
+                    className={!categoryFilter ? 'text-primary-foreground' : 'text-foreground'}
+                  >
+                    Todas
+                  </Text>
+                </Pressable>
+                {categoryOptions.map((c) => (
+                  <Pressable
+                    key={c.key}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: categoryFilter === c.key }}
+                    onPress={() => {
+                      haptics.selection();
+                      setCategoryFilter(c.key);
+                    }}
+                    className={`rounded-full px-3 py-2 ${categoryFilter === c.key ? 'bg-primary' : 'bg-card border-border border'}`}
+                  >
+                    <Text
+                      style={TYPE.labelSm}
+                      className={
+                        categoryFilter === c.key ? 'text-primary-foreground' : 'text-foreground'
+                      }
+                      numberOfLines={1}
+                    >
+                      {c.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
             )}
           </View>
         }

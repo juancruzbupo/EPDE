@@ -10,6 +10,7 @@ import {
   formatARS,
   formatRelativeDate,
   isBudgetTerminal,
+  UserRole,
 } from '@epde/shared';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -35,6 +36,7 @@ import Animated from 'react-native-reanimated';
 import { CollapsibleSection } from '@/components/collapsible-section';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
+import { RespondBudgetModal } from '@/components/respond-budget-modal';
 import { BudgetStatusBadge } from '@/components/status-badge';
 import {
   useAddBudgetAttachments,
@@ -51,6 +53,7 @@ import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { defaultScreenOptions } from '@/lib/screen-options';
+import { useAuthStore } from '@/stores/auth-store';
 
 // ─── Sub-components ─────────────────────────────────────────
 
@@ -248,6 +251,9 @@ function EditBudgetModal({
 
 export default function BudgetDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const user = useAuthStore((s) => s.user);
+  const isAdmin = user?.role === UserRole.ADMIN;
+  const isClient = user?.role === UserRole.CLIENT;
   const { data: budget, isLoading, error, refetch } = useBudget(id);
   const contentStyle = useSlideIn('bottom');
   const updateStatus = useUpdateBudgetStatus();
@@ -261,6 +267,7 @@ export default function BudgetDetailScreen() {
 
   const [commentText, setCommentText] = useState('');
   const [editTitleVisible, setEditTitleVisible] = useState(false);
+  const [respondVisible, setRespondVisible] = useState(false);
 
   const isTerminal = budget ? isBudgetTerminal(budget.status) : false;
 
@@ -283,6 +290,28 @@ export default function BudgetDetailScreen() {
         text: 'Rechazar',
         style: 'destructive',
         onPress: () => updateStatus.mutate({ id, status: BudgetStatus.REJECTED }),
+      },
+    ]);
+  };
+
+  const handleStartWork = () => {
+    haptics.medium();
+    Alert.alert('Iniciar Trabajo', '¿Estás seguro de que querés iniciar el trabajo?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Iniciar',
+        onPress: () => updateStatus.mutate({ id, status: BudgetStatus.IN_PROGRESS }),
+      },
+    ]);
+  };
+
+  const handleMarkCompleted = () => {
+    haptics.medium();
+    Alert.alert('Marcar Completado', '¿Estás seguro de que querés marcar como completado?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Completar',
+        onPress: () => updateStatus.mutate({ id, status: BudgetStatus.COMPLETED }),
       },
     ]);
   };
@@ -434,8 +463,8 @@ export default function BudgetDetailScreen() {
             </View>
           </View>
 
-          {/* Edit button for PENDING status */}
-          {budget.status === BudgetStatus.PENDING && (
+          {/* Client: Edit button for PENDING status */}
+          {isClient && budget.status === BudgetStatus.PENDING && (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Editar presupuesto"
@@ -510,8 +539,40 @@ export default function BudgetDetailScreen() {
           </>
         )}
 
-        {/* Action buttons for QUOTED status */}
-        {budget.status === BudgetStatus.QUOTED && (
+        {/* Admin: Cotizar / Re-cotizar */}
+        {isAdmin && budget.status === BudgetStatus.PENDING && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Cotizar presupuesto"
+            onPress={() => {
+              haptics.light();
+              setRespondVisible(true);
+            }}
+            className="bg-primary mb-4 items-center rounded-xl py-3"
+          >
+            <Text style={TYPE.titleMd} className="text-primary-foreground">
+              Cotizar
+            </Text>
+          </Pressable>
+        )}
+        {isAdmin && budget.status === BudgetStatus.QUOTED && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Re-cotizar presupuesto"
+            onPress={() => {
+              haptics.light();
+              setRespondVisible(true);
+            }}
+            className="border-border mb-4 items-center rounded-xl border py-3"
+          >
+            <Text style={TYPE.titleMd} className="text-foreground">
+              Re-cotizar
+            </Text>
+          </Pressable>
+        )}
+
+        {/* Client: Approve / Reject for QUOTED */}
+        {isClient && budget.status === BudgetStatus.QUOTED && (
           <View className="mb-4 flex-row gap-3">
             <Pressable
               accessibilityRole="button"
@@ -536,6 +597,34 @@ export default function BudgetDetailScreen() {
               </Text>
             </Pressable>
           </View>
+        )}
+
+        {/* Admin: Start Work / Mark Completed */}
+        {isAdmin && budget.status === BudgetStatus.APPROVED && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Iniciar trabajo"
+            onPress={handleStartWork}
+            disabled={updateStatus.isPending}
+            className="bg-primary mb-4 items-center rounded-xl py-3"
+          >
+            <Text style={TYPE.titleMd} className="text-primary-foreground">
+              Iniciar Trabajo
+            </Text>
+          </Pressable>
+        )}
+        {isAdmin && budget.status === BudgetStatus.IN_PROGRESS && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Marcar completado"
+            onPress={handleMarkCompleted}
+            disabled={updateStatus.isPending}
+            className="bg-primary mb-4 items-center rounded-xl py-3"
+          >
+            <Text style={TYPE.titleMd} className="text-primary-foreground">
+              Marcar Completado
+            </Text>
+          </Pressable>
         )}
 
         {/* Attachments */}
@@ -633,6 +722,20 @@ export default function BudgetDetailScreen() {
         defaultDescription={budget.description ?? null}
         onSubmit={({ title, description }) => editBudget.mutate({ id, title, description })}
         onClose={() => setEditTitleVisible(false)}
+      />
+
+      <RespondBudgetModal
+        visible={respondVisible}
+        onClose={() => setRespondVisible(false)}
+        budgetId={id}
+        initialLineItems={budget.status === BudgetStatus.QUOTED ? budget.lineItems : undefined}
+        initialEstimatedDays={
+          budget.status === BudgetStatus.QUOTED ? budget.response?.estimatedDays : undefined
+        }
+        initialValidUntil={
+          budget.status === BudgetStatus.QUOTED ? budget.response?.validUntil : undefined
+        }
+        initialNotes={budget.status === BudgetStatus.QUOTED ? budget.response?.notes : undefined}
       />
     </View>
   );

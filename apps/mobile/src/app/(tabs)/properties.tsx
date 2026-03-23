@@ -1,5 +1,5 @@
-import type { PropertyPublic, PropertyType } from '@epde/shared';
-import { PROPERTY_TYPE_LABELS } from '@epde/shared';
+import type { PlanStatus, PropertyPublic, PropertyType } from '@epde/shared';
+import { PLAN_STATUS_LABELS, PROPERTY_TYPE_LABELS } from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { memo, useCallback, useMemo, useState } from 'react';
 import {
@@ -30,6 +30,13 @@ const TYPE_FILTERS: { key: PropertyType | undefined; label: string }[] = [
   { key: 'DUPLEX', label: PROPERTY_TYPE_LABELS.DUPLEX },
   { key: 'COUNTRY_HOUSE', label: PROPERTY_TYPE_LABELS.COUNTRY_HOUSE },
   { key: 'OTHER', label: PROPERTY_TYPE_LABELS.OTHER },
+];
+
+const PLAN_FILTERS: { key: PlanStatus | undefined; label: string }[] = [
+  { key: undefined, label: 'Todos' },
+  { key: 'ACTIVE', label: PLAN_STATUS_LABELS.ACTIVE },
+  { key: 'DRAFT', label: PLAN_STATUS_LABELS.DRAFT },
+  { key: 'ARCHIVED', label: PLAN_STATUS_LABELS.ARCHIVED },
 ];
 
 const PropertyCard = memo(function PropertyCard({ property }: { property: PropertyPublic }) {
@@ -70,6 +77,7 @@ const PropertyCard = memo(function PropertyCard({ property }: { property: Proper
 export default function PropertiesScreen() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<PropertyType | undefined>(undefined);
+  const [planStatusFilter, setPlanStatusFilter] = useState<PlanStatus | undefined>(undefined);
   const debouncedSearch = useDebounce(search);
 
   const filters = useMemo(
@@ -83,7 +91,15 @@ export default function PropertiesScreen() {
   const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useProperties(filters);
 
-  const properties = data?.pages.flatMap((page) => page.data) ?? [];
+  const allProperties = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
+
+  const properties = useMemo(
+    () =>
+      planStatusFilter
+        ? allProperties.filter((p) => p.maintenancePlan?.status === planStatusFilter)
+        : allProperties,
+    [allProperties, planStatusFilter],
+  );
 
   const onRefresh = useCallback(() => {
     refetch();
@@ -95,7 +111,7 @@ export default function PropertiesScreen() {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const hasActiveFilters = !!debouncedSearch || !!typeFilter;
+  const hasActiveFilters = !!debouncedSearch || !!typeFilter || !!planStatusFilter;
 
   if (error && !data) {
     return <ErrorState onRetry={refetch} />;
@@ -182,6 +198,40 @@ export default function PropertiesScreen() {
                 <Text
                   style={TYPE.labelMd}
                   className={typeFilter === f.key ? 'text-primary-foreground' : 'text-foreground'}
+                >
+                  {f.label}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+
+          {/* Plan status filter */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap: 8, marginTop: 8 }}
+            accessibilityRole="radiogroup"
+            accessibilityLabel="Filtrar por estado del plan"
+          >
+            {PLAN_FILTERS.map((f) => (
+              <Pressable
+                key={f.label}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: planStatusFilter === f.key }}
+                accessibilityLabel={`Plan: ${f.label}`}
+                onPress={() => {
+                  haptics.selection();
+                  setPlanStatusFilter(f.key);
+                }}
+                className={`rounded-full px-3 py-2 ${
+                  planStatusFilter === f.key ? 'bg-primary' : 'bg-card border-border border'
+                }`}
+              >
+                <Text
+                  style={TYPE.labelSm}
+                  className={
+                    planStatusFilter === f.key ? 'text-primary-foreground' : 'text-foreground'
+                  }
                 >
                   {f.label}
                 </Text>
