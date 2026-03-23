@@ -11,6 +11,7 @@ import { ErrorState } from '@/components/error-state';
 import { FilterSelect } from '@/components/filter-select';
 import { PageHeader } from '@/components/page-header';
 import { SearchInput } from '@/components/search-input';
+import { SearchableFilterSelect } from '@/components/searchable-filter-select';
 import { Button } from '@/components/ui/button';
 import { PageTransition } from '@/components/ui/page-transition';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -46,6 +47,7 @@ function ServiceRequestsPageContent() {
   const [urgency, setUrgency] = useState<ServiceUrgency | 'all'>(
     (urlParams.get('urgency') as ServiceUrgency) || 'all',
   );
+  const [propertyFilter, setPropertyFilter] = useState('all');
   const [createOpen, setCreateOpen] = useState(false);
 
   const debouncedSearch = useDebounce(search);
@@ -67,7 +69,21 @@ function ServiceRequestsPageContent() {
   const { data, isLoading, isError, refetch, hasNextPage, fetchNextPage } =
     useServiceRequests(filters);
 
-  const allRequests = useMemo(() => data?.pages.flatMap((p) => p.data) ?? [], [data]);
+  const allRequestsRaw = useMemo(() => data?.pages.flatMap((p) => p.data) ?? [], [data]);
+
+  const propertyOptions = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const r of allRequestsRaw) {
+      if (!seen.has(r.propertyId)) seen.set(r.propertyId, r.property.address);
+    }
+    return [...seen.entries()].map(([id, address]) => ({ value: id, label: address }));
+  }, [allRequestsRaw]);
+
+  const allRequests = useMemo(() => {
+    if (propertyFilter === 'all') return allRequestsRaw;
+    return allRequestsRaw.filter((r) => r.propertyId === propertyFilter);
+  }, [allRequestsRaw, propertyFilter]);
+
   const total = data?.pages[0]?.total;
 
   return (
@@ -86,11 +102,15 @@ function ServiceRequestsPageContent() {
       />
 
       <div className="mb-4 flex flex-wrap gap-3">
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Buscar por título o dirección..."
-        />
+        {propertyOptions.length > 1 && (
+          <SearchableFilterSelect
+            value={propertyFilter}
+            onChange={setPropertyFilter}
+            options={propertyOptions}
+            placeholder="Propiedad"
+          />
+        )}
+        <SearchInput value={search} onChange={setSearch} placeholder="Buscar por título..." />
         <FilterSelect
           value={status}
           onChange={(v: string) => setStatus(v as ServiceStatus | 'all')}
