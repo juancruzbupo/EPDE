@@ -15,8 +15,8 @@ vi.mock('@/components/ui/select', () => ({
   SelectTrigger: ({ children }: React.PropsWithChildren) => (
     <button data-testid="select-trigger">{children}</button>
   ),
-  SelectValue: ({ placeholder }: { placeholder?: string }) => (
-    <span data-testid="select-value">{placeholder}</span>
+  SelectValue: ({ children }: React.PropsWithChildren) => (
+    <span data-testid="select-value">{children}</span>
   ),
   SelectContent: ({ children }: React.PropsWithChildren) => (
     <div data-testid="select-content">{children}</div>
@@ -41,20 +41,20 @@ const options = [
 ];
 
 describe('FilterSelect', () => {
-  it('renders with placeholder', () => {
-    render(<FilterSelect value="" onChange={vi.fn()} options={options} placeholder="Estado" />);
+  it('renders placeholder when value is "all"', () => {
+    render(<FilterSelect value="all" onChange={vi.fn()} options={options} placeholder="Estado" />);
 
     expect(screen.getByText('Estado')).toBeInTheDocument();
   });
 
-  it('renders "Todos" as first option', () => {
-    render(<FilterSelect value="" onChange={vi.fn()} options={options} placeholder="Estado" />);
+  it('renders "Todos" option with placeholder context', () => {
+    render(<FilterSelect value="all" onChange={vi.fn()} options={options} placeholder="Estado" />);
 
-    expect(screen.getByText('Todos')).toBeInTheDocument();
+    expect(screen.getByText('Estado: Todos')).toBeInTheDocument();
   });
 
   it('renders options from array', () => {
-    render(<FilterSelect value="" onChange={vi.fn()} options={options} placeholder="Estado" />);
+    render(<FilterSelect value="all" onChange={vi.fn()} options={options} placeholder="Estado" />);
 
     expect(screen.getByText('Pendiente')).toBeInTheDocument();
     expect(screen.getByText('Aprobado')).toBeInTheDocument();
@@ -64,7 +64,7 @@ describe('FilterSelect', () => {
     const user = userEvent.setup();
     const handleChange = vi.fn();
     render(
-      <FilterSelect value="" onChange={handleChange} options={options} placeholder="Estado" />,
+      <FilterSelect value="all" onChange={handleChange} options={options} placeholder="Estado" />,
     );
 
     await user.click(screen.getByTestId('select-item-pending'));
@@ -72,11 +72,12 @@ describe('FilterSelect', () => {
     expect(handleChange).toHaveBeenCalledWith('pending');
   });
 
-  it('renders all option items including Todos', () => {
-    render(<FilterSelect value="" onChange={vi.fn()} options={options} placeholder="Estado" />);
+  it('shows selected value label instead of placeholder', () => {
+    render(
+      <FilterSelect value="pending" onChange={vi.fn()} options={options} placeholder="Estado" />,
+    );
 
-    expect(screen.getByTestId('select-item-all')).toBeInTheDocument();
-    expect(screen.getByTestId('select-item-pending')).toBeInTheDocument();
-    expect(screen.getByTestId('select-item-approved')).toBeInTheDocument();
+    const selectValue = screen.getByTestId('select-value');
+    expect(selectValue).toHaveTextContent('Pendiente');
   });
 });

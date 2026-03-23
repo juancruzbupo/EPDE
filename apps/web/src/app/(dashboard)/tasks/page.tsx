@@ -17,6 +17,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
+import { FilterSelect } from '@/components/filter-select';
 import { PageHeader } from '@/components/page-header';
 import { SearchInput } from '@/components/search-input';
 import { Badge } from '@/components/ui/badge';
@@ -345,18 +346,12 @@ export default function TasksPage() {
       {/* Filters */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
         {propertyOptions.length > 1 && (
-          <select
+          <FilterSelect
             value={propertyFilter}
-            onChange={(e) => setPropertyFilter(e.target.value)}
-            className="border-border bg-background text-foreground rounded-md border px-3 py-1.5 text-sm"
-          >
-            <option value="all">Todas las propiedades</option>
-            {propertyOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+            onChange={setPropertyFilter}
+            options={propertyOptions}
+            placeholder="Propiedad"
+          />
         )}
         <SearchInput
           value={search}

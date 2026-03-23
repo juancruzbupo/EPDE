@@ -18,11 +18,13 @@ interface FilterSelectProps {
 export function FilterSelect({ value, onChange, options, placeholder }: FilterSelectProps) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-[180px]" aria-label={`Filtrar por ${placeholder.toLowerCase()}`}>
-        <SelectValue placeholder={placeholder} />
+      <SelectTrigger className="w-[200px]" aria-label={`Filtrar por ${placeholder.toLowerCase()}`}>
+        <SelectValue>
+          {value === 'all' ? placeholder : (options.find((o) => o.value === value)?.label ?? value)}
+        </SelectValue>
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">Todos</SelectItem>
+        <SelectItem value="all">{placeholder}: Todos</SelectItem>
         {options.map((opt) => (
           <SelectItem key={opt.value} value={opt.value}>
             {opt.label}
