@@ -117,7 +117,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
         />
       </div>
 
-      <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="health">
             Salud{problemsCount && problemsCount.length > 0 ? ` (${problemsCount.length})` : ''}
