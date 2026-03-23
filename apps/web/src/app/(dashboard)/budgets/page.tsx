@@ -11,6 +11,7 @@ import { ErrorState } from '@/components/error-state';
 import { FilterSelect } from '@/components/filter-select';
 import { PageHeader } from '@/components/page-header';
 import { SearchInput } from '@/components/search-input';
+import { SearchableFilterSelect } from '@/components/searchable-filter-select';
 import { Button } from '@/components/ui/button';
 import { PageTransition } from '@/components/ui/page-transition';
 import { useBudgets } from '@/hooks/use-budgets';
@@ -39,6 +40,7 @@ function BudgetsPageContent() {
   const [status, setStatus] = useState<BudgetStatus | 'all'>(
     (urlParams.get('status') as BudgetStatus) || 'all',
   );
+  const [propertyFilter, setPropertyFilter] = useState('all');
   const [createOpen, setCreateOpen] = useState(false);
 
   const debouncedSearch = useDebounce(search);
@@ -58,7 +60,21 @@ function BudgetsPageContent() {
 
   const { data, isLoading, isError, refetch, hasNextPage, fetchNextPage } = useBudgets(filters);
 
-  const allBudgets = useMemo(() => data?.pages.flatMap((p) => p.data) ?? [], [data]);
+  const allBudgetsRaw = useMemo(() => data?.pages.flatMap((p) => p.data) ?? [], [data]);
+
+  const propertyOptions = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const b of allBudgetsRaw) {
+      if (!seen.has(b.propertyId)) seen.set(b.propertyId, b.property.address);
+    }
+    return [...seen.entries()].map(([id, address]) => ({ value: id, label: address }));
+  }, [allBudgetsRaw]);
+
+  const allBudgets = useMemo(() => {
+    if (propertyFilter === 'all') return allBudgetsRaw;
+    return allBudgetsRaw.filter((b) => b.propertyId === propertyFilter);
+  }, [allBudgetsRaw, propertyFilter]);
+
   const total = data?.pages[0]?.total;
 
   return (
@@ -77,11 +93,15 @@ function BudgetsPageContent() {
       />
 
       <div className="mb-4 flex flex-wrap gap-3">
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Buscar por título o dirección..."
-        />
+        {propertyOptions.length > 1 && (
+          <SearchableFilterSelect
+            value={propertyFilter}
+            onChange={setPropertyFilter}
+            options={propertyOptions}
+            placeholder="Propiedad"
+          />
+        )}
+        <SearchInput value={search} onChange={setSearch} placeholder="Buscar por título..." />
         <FilterSelect
           value={status}
           onChange={(v: string) => setStatus(v as BudgetStatus | 'all')}
