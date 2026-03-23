@@ -393,4 +393,36 @@ export class NotificationsHandlerService {
       );
     }
   }
+
+  /** Notify admins when a task completion reveals a POOR/CRITICAL condition. */
+  async handleProblemDetected(payload: {
+    taskName: string;
+    propertyAddress: string;
+    propertyId: string;
+    conditionLabel: string;
+  }): Promise<void> {
+    try {
+      const adminIds = await this.usersRepository.findAdminIds();
+      if (adminIds.length === 0) return;
+
+      const title = `Problema detectado: ${payload.taskName}`;
+      const message = `Se detectó un problema (${payload.conditionLabel}) en ${payload.propertyAddress}. Considerá generar un presupuesto o servicio.`;
+
+      await this.notificationQueueService.enqueueBatch(
+        adminIds.map((userId) => ({
+          userId,
+          type: 'SYSTEM' as const,
+          title,
+          message,
+          data: { propertyId: payload.propertyId },
+        })),
+      );
+
+      this.sendPush(adminIds, title, message, { propertyId: payload.propertyId });
+    } catch (error) {
+      this.logger.error(
+        `Error handling problem detection for ${payload.taskName}: ${(error as Error).message}`,
+      );
+    }
+  }
 }

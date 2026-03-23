@@ -40,7 +40,9 @@ export function useTaskNotes(planId: string, taskId: string) {
 /** Completes a task and shows rescheduling feedback.
  *  No optimistic status change — the server resets status to PENDING with a new nextDueDate
  *  (preventive maintenance model: tasks are cyclic, completion = reschedule). */
-export function useCompleteTask() {
+export function useCompleteTask(options?: {
+  onProblemDetected?: (info: { taskId: string; taskName: string }) => void;
+}) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -51,9 +53,10 @@ export function useCompleteTask() {
     }: {
       planId: string;
       taskId: string;
+      taskName?: string;
     } & CompleteTaskInput) => completeTask(planId, taskId, dto),
 
-    onSuccess: (response) => {
+    onSuccess: (response, variables) => {
       const nextDueDate = response.data?.task?.nextDueDate;
       if (nextDueDate) {
         const formatted = new Date(nextDueDate).toLocaleDateString('es-AR', {
@@ -64,6 +67,13 @@ export function useCompleteTask() {
         Alert.alert('Tarea completada', `Reprogramada para el ${formatted}`);
       } else {
         Alert.alert('Éxito', 'Tarea completada');
+      }
+
+      if (response.data?.problemDetected) {
+        options?.onProblemDetected?.({
+          taskId: variables.taskId,
+          taskName: variables.taskName ?? response.data.task?.name ?? 'Tarea',
+        });
       }
     },
 

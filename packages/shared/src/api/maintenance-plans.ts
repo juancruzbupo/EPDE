@@ -84,7 +84,7 @@ export function createMaintenancePlanQueries(apiClient: AxiosInstance) {
       planId: string,
       taskId: string,
       dto: CompleteTaskInput,
-    ): Promise<ApiResponse<{ task: TaskPublic; log: TaskLogPublic }>> {
+    ): Promise<ApiResponse<{ task: TaskPublic; log: TaskLogPublic; problemDetected: boolean }>> {
       const { data } = await apiClient.post(
         `/maintenance-plans/${planId}/tasks/${taskId}/complete`,
         dto,

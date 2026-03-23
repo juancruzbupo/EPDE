@@ -47,6 +47,7 @@ interface CompleteTaskModalProps {
   onClose: () => void;
   task: TaskPublic;
   planId: string;
+  onProblemDetected?: () => void;
 }
 
 function SelectorGroup<T extends string>({
@@ -95,7 +96,13 @@ function SelectorGroup<T extends string>({
   );
 }
 
-export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTaskModalProps) {
+export function CompleteTaskModal({
+  visible,
+  onClose,
+  task,
+  planId,
+  onProblemDetected,
+}: CompleteTaskModalProps) {
   const insets = useSafeAreaInsets();
   const contentStyle = useSlideIn('bottom');
   const [result, setResult] = useState<TaskResult | null>(null);
@@ -110,7 +117,9 @@ export function CompleteTaskModal({ visible, onClose, task, planId }: CompleteTa
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
 
-  const completeTask = useCompleteTask();
+  const completeTask = useCompleteTask({
+    onProblemDetected: onProblemDetected ? () => onProblemDetected() : undefined,
+  });
   const uploadFile = useUploadFile();
 
   const isUploading = uploadFile.isPending;

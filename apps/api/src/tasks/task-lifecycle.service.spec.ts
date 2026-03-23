@@ -11,6 +11,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { CategoryTemplatesRepository } from '../category-templates/category-templates.repository';
 import { MaintenancePlansRepository } from '../maintenance-plans/maintenance-plans.repository';
+import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { TaskAuditLogRepository } from './task-audit-log.repository';
 import { TaskLifecycleService } from './task-lifecycle.service';
@@ -40,6 +41,10 @@ const mockCategoryTemplatesRepository = {
   findByIdWithTasks: jest.fn(),
 };
 
+const mockNotificationsHandler = {
+  handleProblemDetected: jest.fn(),
+};
+
 describe('TaskLifecycleService', () => {
   let service: TaskLifecycleService;
 
@@ -53,6 +58,7 @@ describe('TaskLifecycleService', () => {
         { provide: MaintenancePlansRepository, useValue: mockPlansRepository },
         { provide: TaskAuditLogRepository, useValue: mockAuditLogRepository },
         { provide: CategoryTemplatesRepository, useValue: mockCategoryTemplatesRepository },
+        { provide: NotificationsHandlerService, useValue: mockNotificationsHandler },
         {
           provide: PrismaService,
           useValue: {
@@ -212,7 +218,7 @@ describe('TaskLifecycleService', () => {
         dto,
         expect.any(Date),
       );
-      expect(result).toEqual(completionResult);
+      expect(result).toEqual({ ...completionResult, problemDetected: false });
     });
 
     it('should complete ON_DETECTION task with null due date', async () => {

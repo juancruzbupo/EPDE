@@ -6,6 +6,8 @@ import type {
   UpdateTaskInput,
 } from '@epde/shared';
 import {
+  CONDITION_FOUND_LABELS,
+  ConditionFound,
   getNextDueDate,
   ProfessionalRequirement,
   RecurrenceType,
@@ -29,6 +31,7 @@ import {
   TaskNotCompletableError,
 } from '../common/exceptions/domain.exceptions';
 import { MaintenancePlansRepository } from '../maintenance-plans/maintenance-plans.repository';
+import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { TaskAuditLogRepository } from './task-audit-log.repository';
 import { TasksRepository } from './tasks.repository';
@@ -46,6 +49,7 @@ export class TaskLifecycleService {
     private readonly auditLogRepository: TaskAuditLogRepository,
     private readonly categoryTemplatesRepository: CategoryTemplatesRepository,
     private readonly prisma: PrismaService,
+    private readonly notificationsHandler: NotificationsHandlerService,
   ) {}
 
   /**
@@ -200,7 +204,31 @@ export class TaskLifecycleService {
         newDueDate = getNextDueDate(task.nextDueDate, recurrenceMonths);
       }
 
-      return this.tasksRepository.completeAndReschedule(taskId, userId, dto, newDueDate);
+      const result = await this.tasksRepository.completeAndReschedule(
+        taskId,
+        userId,
+        dto,
+        newDueDate,
+      );
+
+      const problemDetected =
+        dto.conditionFound === ConditionFound.POOR ||
+        dto.conditionFound === ConditionFound.CRITICAL;
+
+      if (problemDetected) {
+        const plan = await this.plansRepository.findWithProperty(task.maintenancePlanId);
+        const address = plan?.property?.address ?? 'Propiedad';
+        const condLabel =
+          CONDITION_FOUND_LABELS[dto.conditionFound as ConditionFound] ?? dto.conditionFound;
+        void this.notificationsHandler.handleProblemDetected({
+          taskName: task.name,
+          propertyAddress: address,
+          propertyId: plan?.property?.id ?? '',
+          conditionLabel: condLabel,
+        });
+      }
+
+      return { ...result, problemDetected };
     } catch (error) {
       if (error instanceof TaskNotCompletableError) {
         throw new BadRequestException(error.message);

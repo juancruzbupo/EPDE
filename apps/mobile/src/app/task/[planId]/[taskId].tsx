@@ -376,6 +376,16 @@ export default function TaskDetailScreen() {
         onClose={() => setCompleteModalVisible(false)}
         task={task}
         planId={planId}
+        onProblemDetected={() => {
+          Alert.alert(
+            'Problema detectado',
+            'Se detectó un problema en esta tarea. ¿Querés solicitar un servicio?',
+            [
+              { text: 'No', style: 'cancel' },
+              { text: 'Solicitar servicio', onPress: () => setShowServiceModal(true) },
+            ],
+          );
+        }}
       />
 
       {/* Service request modal */}
