@@ -153,6 +153,7 @@ export function useCompleteTask(options?: {
 
     onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
       invalidateDashboard(queryClient);
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.taskLogs, variables.planId, variables.taskId],
