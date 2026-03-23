@@ -2,6 +2,7 @@ import { MessageCircle } from 'lucide-react';
 
 import { WHATSAPP_URL } from '../landing-data';
 
+/** WhatsApp brand colors (#25D366/#20BD5A) are hardcoded intentionally — not part of EPDE design tokens. */
 export function WhatsAppFloat() {
   return (
     <a

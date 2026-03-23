@@ -182,6 +182,8 @@ export default function TaskDetailScreen() {
                 ¿Puedo hacerlo yo?
               </Text>
               <Text style={TYPE.labelLg} className="text-foreground">
+                {/* Intentional: mobile uses conversational labels (vs shared's formal
+                    PROFESSIONAL_REQUIREMENT_LABELS) for better homeowner UX. */}
                 {task.professionalRequirement === ProfessionalRequirement.OWNER_CAN_DO
                   ? 'Sí, podés hacerla vos'
                   : task.professionalRequirement ===

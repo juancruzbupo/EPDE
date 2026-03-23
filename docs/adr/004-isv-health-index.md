@@ -27,3 +27,4 @@ El Índice de Salud de la Vivienda (ISV) necesita ser consistente entre todas la
 - Todas las vistas muestran exactamente el mismo número
 - La lista de properties hace 2 DB queries (batch) en vez de 3×N (individual)
 - Los snapshots mensuales sirven solo para historial (gráfico de evolución) y alertas de caída
+- El cron de snapshots (`ISVSnapshotService`, 1ro de cada mes 02:00 UTC) sigue existiendo intencionalmente — no es redundante con el cálculo real-time. Propósito: registro histórico para el gráfico de evolución + detección de caídas >=15 puntos para alertar al propietario
