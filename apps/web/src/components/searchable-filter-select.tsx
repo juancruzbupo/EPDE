@@ -41,13 +41,13 @@ export function SearchableFilterSelect({
           role="combobox"
           aria-expanded={open}
           aria-label={`Filtrar por ${placeholder.toLowerCase()}`}
-          className="w-[200px] justify-between font-normal"
+          className="w-[280px] justify-between font-normal"
         >
           <span className="truncate">{selectedLabel}</span>
           <ChevronsUpDown className="text-muted-foreground ml-2 h-4 w-4 shrink-0" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0" align="start">
+      <PopoverContent className="w-[280px] p-0" align="start">
         <Command>
           <CommandInput placeholder={`Buscar ${placeholder.toLowerCase()}...`} />
           <CommandList>
