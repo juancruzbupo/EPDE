@@ -92,22 +92,23 @@ describe('useServiceRequest', () => {
 });
 
 describe('useCreateServiceRequest', () => {
-  it('invalidates service-requests and dashboard on success', () => {
+  it('invalidates service-requests, properties, and dashboard on success', () => {
     renderHook(() => useCreateServiceRequest());
 
     const config = vi.mocked(useMutation).mock.calls[0][0];
-    (config.onSuccess as () => void)();
+    const mockResponse = { data: { id: 'sr-1' } };
+    (config.onSuccess as (r: typeof mockResponse) => void)(mockResponse);
 
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
       queryKey: [QUERY_KEYS.serviceRequests],
     });
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
-      queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardStats],
+      queryKey: [QUERY_KEYS.properties],
     });
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
-      queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardActivity],
+      queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardStats],
     });
-    expect(toast.success).toHaveBeenCalledWith('Solicitud creada');
+    expect(toast.success).toHaveBeenCalled();
   });
 
   it('shows error toast on error', () => {

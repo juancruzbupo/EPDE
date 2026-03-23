@@ -41,9 +41,18 @@ export function useCreateServiceRequest() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createServiceRequest,
-    onSuccess: () => {
-      toast.success('Solicitud creada');
+    onSuccess: (response) => {
+      const srId = response.data?.id;
+      toast.success('Solicitud creada. Este problema ya está en proceso.', {
+        action: srId
+          ? {
+              label: 'Ver servicio',
+              onClick: () => (window.location.href = `/service-requests/${srId}`),
+            }
+          : undefined,
+      });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
       invalidateDashboard(queryClient);
     },
     onError: (err) => {

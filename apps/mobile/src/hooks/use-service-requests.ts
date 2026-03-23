@@ -49,8 +49,12 @@ export function useCreateServiceRequest() {
     mutationFn: createServiceRequest,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
       invalidateClientDashboard(queryClient);
-      Alert.alert('Éxito', 'Solicitud creada correctamente');
+      Alert.alert(
+        'Solicitud creada',
+        'Este problema ya está en proceso. Podés seguir el estado en la sección de servicios.',
+      );
     },
     onError: (err) => {
       Alert.alert('Error', getErrorMessage(err, 'Error al crear solicitud'));
