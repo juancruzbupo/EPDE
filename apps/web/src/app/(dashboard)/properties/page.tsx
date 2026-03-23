@@ -1,7 +1,7 @@
 'use client';
 
 import type { PropertyType } from '@epde/shared';
-import { PROPERTY_TYPE_LABELS, QUERY_KEYS, UserRole } from '@epde/shared';
+import { PLAN_STATUS_LABELS, PROPERTY_TYPE_LABELS, QUERY_KEYS, UserRole } from '@epde/shared';
 import { useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -29,6 +29,11 @@ const typeOptions = Object.entries(PROPERTY_TYPE_LABELS).map(([value, label]) =>
   label,
 }));
 
+const planStatusOptions = Object.entries(PLAN_STATUS_LABELS).map(([value, label]) => ({
+  value,
+  label,
+}));
+
 export default function PropertiesPage() {
   useEffect(() => {
     document.title = 'Propiedades | EPDE';
@@ -41,6 +46,8 @@ export default function PropertiesPage() {
 
   const [search, setSearch] = useState(urlParams.get('search') ?? '');
   const [type, setType] = useState(urlParams.get('type') ?? 'all');
+  const [clientFilter, setClientFilter] = useState('all');
+  const [planStatus, setPlanStatus] = useState('all');
   const [createOpen, setCreateOpen] = useState(false);
 
   const debouncedSearch = useDebounce(search);
@@ -71,7 +78,29 @@ export default function PropertiesPage() {
     [queryClient],
   );
 
-  const allProperties = useMemo(() => data?.pages.flatMap((p) => p.data) ?? [], [data]);
+  const allPropertiesRaw = useMemo(() => data?.pages.flatMap((p) => p.data) ?? [], [data]);
+
+  // Derive client options from loaded data (admin only)
+  const clientOptions = useMemo(() => {
+    if (!isAdmin) return [];
+    const seen = new Map<string, string>();
+    for (const p of allPropertiesRaw) {
+      if (p.user && !seen.has(p.user.id)) seen.set(p.user.id, p.user.name);
+    }
+    return [...seen.entries()].map(([id, name]) => ({ value: id, label: name }));
+  }, [allPropertiesRaw, isAdmin]);
+
+  // Client-side filtering for client + plan status
+  const allProperties = useMemo(() => {
+    let result = allPropertiesRaw;
+    if (clientFilter !== 'all') {
+      result = result.filter((p) => p.user?.id === clientFilter);
+    }
+    if (planStatus !== 'all') {
+      result = result.filter((p) => p.maintenancePlan?.status === planStatus);
+    }
+    return result;
+  }, [allPropertiesRaw, clientFilter, planStatus]);
   const total = data?.pages[0]?.total;
 
   return (
@@ -96,6 +125,20 @@ export default function PropertiesPage() {
           placeholder="Buscar por dirección o ciudad..."
         />
         <FilterSelect value={type} onChange={setType} options={typeOptions} placeholder="Tipo" />
+        <FilterSelect
+          value={planStatus}
+          onChange={setPlanStatus}
+          options={planStatusOptions}
+          placeholder="Estado del plan"
+        />
+        {isAdmin && clientOptions.length > 1 && (
+          <FilterSelect
+            value={clientFilter}
+            onChange={setClientFilter}
+            options={clientOptions}
+            placeholder="Cliente"
+          />
+        )}
       </div>
 
       {isError && (

@@ -33,7 +33,7 @@ import { CompleteTaskDialog } from '../properties/[id]/complete-task-dialog';
 import { TaskDetailSheet } from '../properties/[id]/task-detail-sheet';
 import { CreateServiceDialog } from '../service-requests/create-service-dialog';
 
-const INITIAL_VISIBLE = 5;
+const INITIAL_VISIBLE = 15;
 const LOAD_MORE_COUNT = 20;
 
 const PRIORITY_OPTIONS: { value: TaskPriority | 'all'; label: string }[] = [
