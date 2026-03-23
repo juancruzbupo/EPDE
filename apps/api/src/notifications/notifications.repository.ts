@@ -95,4 +95,12 @@ export class NotificationsRepository extends BaseRepository<Notification, 'notif
         .map((n: { data: unknown }) => (n.data as { taskId: string }).taskId),
     );
   }
+
+  /** Delete read notifications older than the given date. Returns count deleted. */
+  async deleteOldRead(olderThan: Date): Promise<number> {
+    const { count } = await this.prisma.notification.deleteMany({
+      where: { read: true, createdAt: { lt: olderThan } },
+    });
+    return count;
+  }
 }

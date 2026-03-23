@@ -2,10 +2,16 @@
 
 import { QUERY_KEYS } from '@epde/shared';
 import { useQuery } from '@tanstack/react-query';
+import dynamic from 'next/dynamic';
 import { useRef, useState } from 'react';
 
 import { ActionList } from '@/components/action-list';
-import { AnalyticsTabs } from '@/components/analytics-tabs';
+
+/* Recharts deferred — AnalyticsTabs only loaded when user clicks "Ver estadísticas" */
+const AnalyticsTabs = dynamic(
+  () => import('@/components/analytics-tabs').then((m) => m.AnalyticsTabs),
+  { ssr: false },
+);
 import { ErrorState } from '@/components/error-state';
 import { HomeStatusCard } from '@/components/home-status-card';
 import { PageHeader } from '@/components/page-header';

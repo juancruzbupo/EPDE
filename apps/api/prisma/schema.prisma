@@ -544,6 +544,7 @@ model Notification {
 
   @@index([userId, read])
   @@index([userId, type, createdAt])
+  @@index([type, createdAt])
   @@index([createdAt])
 }
 
