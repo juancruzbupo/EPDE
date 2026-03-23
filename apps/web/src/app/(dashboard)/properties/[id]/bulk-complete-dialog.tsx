@@ -142,7 +142,7 @@ export function BulkCompleteDialog({
       onOpenChange(false);
       onDone();
     },
-    [tasks, planId, completeTask, reset, onOpenChange, onDone],
+    [tasks, planId, completeTask, reset, onOpenChange, onDone, photoUrl],
   );
 
   return (
@@ -334,11 +334,11 @@ export function BulkCompleteDialog({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              disabled={!!progress}
+              disabled={!!progress || uploadFile.isPending}
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={!!progress}>
+            <Button type="submit" disabled={!!progress || uploadFile.isPending}>
               {progress
                 ? `Completando ${progress.current}/${progress.total}...`
                 : 'Completar todas'}
