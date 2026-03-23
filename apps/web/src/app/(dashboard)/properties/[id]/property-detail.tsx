@@ -566,22 +566,40 @@ function PropertyPhotosTab({ propertyId }: { propertyId: string }) {
 
 // ─── Health Tab ──────────────────────────────────────────
 
-function getImpactMessage(sector: string | null): string {
+function getImpactMessage(sector: string | null, severity: 'high' | 'medium' = 'medium'): string {
+  const critical = severity === 'high';
   switch (sector) {
     case 'ROOF':
-      return 'Puede generar filtraciones y daños mayores';
+      return critical
+        ? 'Puede generar filtraciones activas y dañar interiores. Resolverlo ahora evita reparaciones mucho más costosas.'
+        : 'Puede convertirse en filtraciones con el tiempo. Conviene resolverlo antes de que avance.';
     case 'BATHROOM':
     case 'KITCHEN':
-      return 'Puede provocar humedad y deterioro';
+      return critical
+        ? 'Puede provocar humedad constante y filtraciones a otros ambientes.'
+        : 'Puede generar humedad y desgaste progresivo. Atenderlo a tiempo evita reparaciones más complejas.';
     case 'INSTALLATIONS':
-      return 'Puede afectar la seguridad de la instalación';
+      return critical
+        ? 'Puede comprometer la seguridad de la instalación. Es recomendable resolverlo cuanto antes.'
+        : 'Puede afectar el funcionamiento y volverse un problema más serio con el tiempo.';
     case 'BASEMENT':
-      return 'Puede comprometer la estructura';
+      return critical
+        ? 'Puede afectar la estabilidad de la estructura. Resolverlo evita intervenciones más complejas.'
+        : 'Puede evolucionar y generar daños estructurales si no se controla.';
     case 'EXTERIOR':
     case 'GARDEN':
-      return 'Puede empeorar con la intemperie';
+    case 'TERRACE':
+      return critical
+        ? 'Puede afectar drenajes y generar acumulación de agua. Resolverlo evita problemas mayores.'
+        : 'Puede empeorar con el clima y generar desgaste progresivo.';
+    case 'INTERIOR':
+      return critical
+        ? 'Puede expandirse y afectar otros ambientes. Resolverlo ahora evita daños mayores.'
+        : 'Puede deteriorarse progresivamente. Conviene corregirlo antes de que empeore.';
     default:
-      return 'Puede empeorar si no se trata a tiempo';
+      return critical
+        ? 'Puede empeorar rápidamente y generar daños mayores. Resolverlo ahora evita costos más altos.'
+        : 'Puede evolucionar con el tiempo y volverse más costoso de reparar.';
   }
 }
 
@@ -656,7 +674,7 @@ function PropertyHealthTab({ propertyId, address }: { propertyId: string; addres
                     </Badge>
                   </div>
                   <span className="type-body-sm text-muted-foreground">
-                    {getImpactMessage(problem.sector)}
+                    {getImpactMessage(problem.sector, problem.severity)}
                   </span>
                   {problem.severity === 'high' && (
                     <p className="type-body-sm text-destructive mt-0.5 font-medium">

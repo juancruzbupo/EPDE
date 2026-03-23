@@ -55,19 +55,39 @@ const FILTERS: { key: StatusFilter; label: string }[] = [
   { key: TaskStatus.OVERDUE, label: TASK_STATUS_LABELS.OVERDUE },
 ];
 
-function getMobileImpactMessage(sector: string | null): string {
+function getMobileImpactMessage(
+  sector: string | null,
+  severity: 'high' | 'medium' = 'medium',
+): string {
+  const critical = severity === 'high';
   switch (sector) {
     case 'ROOF':
-      return 'Puede generar filtraciones y daños mayores';
+      return critical
+        ? 'Puede generar filtraciones activas y dañar interiores.'
+        : 'Puede convertirse en filtraciones con el tiempo.';
     case 'BATHROOM':
     case 'KITCHEN':
-      return 'Puede provocar humedad y deterioro';
+      return critical
+        ? 'Puede provocar humedad constante y afectar otros ambientes.'
+        : 'Puede generar humedad y desgaste progresivo.';
     case 'INSTALLATIONS':
-      return 'Puede afectar la seguridad de la instalación';
+      return critical
+        ? 'Puede comprometer la seguridad de la instalación.'
+        : 'Puede volverse un problema más serio con el tiempo.';
     case 'BASEMENT':
-      return 'Puede comprometer la estructura';
+      return critical
+        ? 'Puede afectar la estabilidad de la estructura.'
+        : 'Puede generar daños estructurales si no se controla.';
+    case 'EXTERIOR':
+    case 'GARDEN':
+    case 'TERRACE':
+      return critical
+        ? 'Puede generar acumulación de agua y daños mayores.'
+        : 'Puede empeorar con el clima.';
     default:
-      return 'Puede empeorar si no se trata a tiempo';
+      return critical
+        ? 'Puede empeorar rápidamente y generar daños mayores.'
+        : 'Puede evolucionar y volverse más costoso de reparar.';
   }
 }
 
@@ -479,7 +499,7 @@ export default function PropertyDetailScreen() {
                           </View>
                         </View>
                         <Text style={TYPE.bodySm} className="text-muted-foreground">
-                          {getMobileImpactMessage(problem.sector)}
+                          {getMobileImpactMessage(problem.sector, problem.severity)}
                         </Text>
                         {problem.severity === 'high' && (
                           <Text style={TYPE.labelSm} className="text-destructive mt-0.5">
