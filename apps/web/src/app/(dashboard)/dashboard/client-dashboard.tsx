@@ -52,8 +52,10 @@ export function ClientDashboard({ userName }: { userName: string }) {
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  // Show welcome card only for brand-new users with no properties yet
-  const showWelcome = stats && stats.totalProperties === 0;
+  // Show welcome card until client has properties with active tasks
+  const hasTasks =
+    (stats?.pendingTasks ?? 0) + (stats?.overdueTasks ?? 0) + (stats?.upcomingTasks ?? 0) > 0;
+  const showWelcome = stats && (stats.totalProperties === 0 || !hasTasks);
 
   const score = stats?.healthScore ?? 0;
   const label = stats?.healthLabel ?? '';

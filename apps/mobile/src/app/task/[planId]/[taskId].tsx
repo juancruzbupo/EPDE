@@ -348,12 +348,12 @@ export default function TaskDetailScreen() {
           {!isCompleted && (
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Completar tarea"
+              accessibilityLabel="Registrar inspección"
               onPress={() => setCompleteModalVisible(true)}
               className="bg-primary flex-1 items-center rounded-xl py-3"
             >
               <Text style={TYPE.titleMd} className="text-primary-foreground">
-                Completar Tarea
+                Registrar Inspección
               </Text>
             </Pressable>
           )}

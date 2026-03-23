@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { AlertTriangle, ArrowRight, CheckCircle, Clock, FileText } from 'lucide-react';
+import Link from 'next/link';
 
 import { AnimatedNumber } from '@/components/ui/animated-number';
 import { Button } from '@/components/ui/button';
@@ -118,6 +119,7 @@ export function HomeStatusCard({
       hint: 'Presupuestos esperando tu decisión. Revisalos para avanzar.',
       value: pendingBudgets,
       color: 'text-foreground',
+      href: '/budgets',
     },
   ];
 
@@ -194,8 +196,8 @@ export function HomeStatusCard({
           <div className="border-border grid grid-cols-4 gap-3 border-t pt-4">
             {miniStats.map((stat, i) => {
               const Icon = miniIcons[i]!;
-              return (
-                <div key={stat.label} className="text-center">
+              const content = (
+                <div className="text-center">
                   <div className="mb-1 flex justify-center">
                     <Icon className={`h-4 w-4 ${stat.color}`} />
                   </div>
@@ -206,6 +208,17 @@ export function HomeStatusCard({
                     {stat.label}
                   </p>
                 </div>
+              );
+              return stat.href ? (
+                <Link
+                  key={stat.label}
+                  href={stat.href}
+                  className="transition-opacity hover:opacity-80"
+                >
+                  {content}
+                </Link>
+              ) : (
+                <div key={stat.label}>{content}</div>
               );
             })}
           </div>

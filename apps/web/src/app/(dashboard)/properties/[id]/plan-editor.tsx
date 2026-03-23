@@ -193,8 +193,8 @@ const CategorySection = memo(function CategorySection({
                     <button
                       onClick={() => onComplete(task)}
                       className="text-muted-foreground hover:text-success focus-visible:ring-ring/50 rounded p-2 focus-visible:ring-[3px] focus-visible:outline-none"
-                      aria-label="Completar tarea"
-                      title="Registrar completación"
+                      aria-label="Registrar inspección"
+                      title="Registrar inspección"
                     >
                       <CheckCircle className="h-4 w-4" />
                     </button>

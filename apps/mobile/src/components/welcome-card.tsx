@@ -7,15 +7,21 @@ interface WelcomeCardProps {
   userName: string;
   hasProperties: boolean;
   hasActivePlan: boolean;
+  hasCompletedTasks?: boolean;
 }
 
-export function WelcomeCard({ userName, hasProperties, hasActivePlan }: WelcomeCardProps) {
+export function WelcomeCard({
+  userName,
+  hasProperties,
+  hasActivePlan,
+  hasCompletedTasks,
+}: WelcomeCardProps) {
   const router = useRouter();
 
   const steps = [
     { label: 'Tu propiedad fue registrada', done: hasProperties },
     { label: 'Tu plan de mantenimiento está activo', done: hasActivePlan },
-    { label: 'Completá tu primera tarea cuando llegue la fecha', done: false },
+    { label: 'Completá tu primera tarea cuando llegue la fecha', done: !!hasCompletedTasks },
   ];
 
   const completedSteps = steps.filter((s) => s.done).length;
