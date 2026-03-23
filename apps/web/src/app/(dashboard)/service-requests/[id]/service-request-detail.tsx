@@ -14,6 +14,7 @@ import {
   AlignLeft,
   ArrowLeft,
   Calendar,
+  DollarSign,
   FileText,
   Home,
   Pencil,
@@ -34,6 +35,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useServiceRequest, useUpdateServiceStatus } from '@/hooks/use-service-requests';
 
+import { CreateBudgetDialog } from '../../budgets/create-budget-dialog';
 import { EditServiceRequestDialog } from './edit-service-request-dialog';
 import { ServiceRequestAttachments } from './service-request-attachments';
 import { ServiceRequestComments } from './service-request-comments';
@@ -73,6 +75,7 @@ export function ServiceRequestDetail({
   const [statusNote, setStatusNote] = useState('');
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
   const [editOpen, setEditOpen] = useState(false);
+  const [budgetOpen, setBudgetOpen] = useState(false);
 
   const request = data;
 
@@ -92,6 +95,8 @@ export function ServiceRequestDetail({
 
   const nextStatus = STATUS_TRANSITIONS[request.status];
   const canEdit = isClient && request.status === ServiceStatus.OPEN;
+  const isTerminal =
+    request.status === ServiceStatus.RESOLVED || request.status === ServiceStatus.CLOSED;
 
   return (
     <div>
@@ -234,6 +239,14 @@ export function ServiceRequestDetail({
           </Card>
         )}
 
+        {/* Generate budget from service request */}
+        {isAdmin && !isTerminal && (
+          <Button variant="outline" className="w-full gap-2" onClick={() => setBudgetOpen(true)}>
+            <DollarSign className="h-4 w-4" />
+            Generar presupuesto para este servicio
+          </Button>
+        )}
+
         <ServiceRequestAttachments
           serviceRequestId={id}
           attachments={request.attachments}
@@ -289,6 +302,15 @@ export function ServiceRequestDetail({
           serviceRequest={request}
         />
       )}
+
+      {/* Budget dialog pre-filled from service request */}
+      <CreateBudgetDialog
+        open={budgetOpen}
+        onOpenChange={setBudgetOpen}
+        defaultPropertyId={request.propertyId}
+        defaultTitle={`Presupuesto: ${request.title}`}
+        defaultDescription={request.description}
+      />
     </div>
   );
 }
