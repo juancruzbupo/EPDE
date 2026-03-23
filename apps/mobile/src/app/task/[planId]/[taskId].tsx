@@ -350,7 +350,8 @@ export default function TaskDetailScreen() {
               accessibilityRole="button"
               accessibilityLabel="Registrar inspección"
               onPress={() => setCompleteModalVisible(true)}
-              className="bg-primary flex-1 items-center rounded-xl py-3"
+              className="bg-primary flex-1 items-center justify-center rounded-xl"
+              style={{ minHeight: 44 }}
             >
               <Text style={TYPE.titleMd} className="text-primary-foreground">
                 Registrar Inspección
@@ -360,7 +361,8 @@ export default function TaskDetailScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Solicitar servicio"
-            className={`border-border items-center rounded-xl border py-3 ${!isCompleted ? '' : 'flex-1'}`}
+            className={`border-border items-center justify-center rounded-xl border ${!isCompleted ? '' : 'flex-1'}`}
+            style={{ minHeight: 44 }}
             onPress={() => {
               haptics.light();
               setShowServiceModal(true);

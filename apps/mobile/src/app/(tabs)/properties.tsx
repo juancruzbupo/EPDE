@@ -49,8 +49,8 @@ const PropertyCard = memo(function PropertyCard({ property }: { property: Proper
       className="border-border bg-card mb-3 rounded-xl border p-3"
       onPress={() => router.push(`/property/${property.id}` as never)}
     >
-      <View className="mb-1 flex-row items-center justify-between">
-        <Text style={TYPE.titleMd} className="text-foreground flex-1" numberOfLines={1}>
+      <View className="mb-1 flex-row items-center justify-between gap-2">
+        <Text style={TYPE.titleMd} className="text-foreground flex-1 flex-shrink" numberOfLines={1}>
           {property.address}
         </Text>
         <PropertyTypeBadge type={property.type} />

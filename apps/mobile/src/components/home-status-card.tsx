@@ -83,7 +83,7 @@ const MiniStat = memo(function MiniStat({ label, value, color, accessibilityHint
       <Text style={[TYPE.numberMd, color ? { color } : undefined]} className="text-foreground">
         {value}
       </Text>
-      <Text style={TYPE.labelSm} className="text-muted-foreground">
+      <Text style={TYPE.labelSm} className="text-muted-foreground" numberOfLines={1}>
         {label}
       </Text>
     </View>

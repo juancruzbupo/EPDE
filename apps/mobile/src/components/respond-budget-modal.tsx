@@ -174,8 +174,8 @@ export function RespondBudgetModal({
                     />
                   )}
                 />
-                <View className="flex-row items-center gap-3">
-                  <View className="flex-1">
+                <View className="flex-row items-center gap-2">
+                  <View style={{ width: 64 }}>
                     <Text style={TYPE.bodySm} className="text-muted-foreground mb-1">
                       Cant.
                     </Text>
@@ -213,11 +213,11 @@ export function RespondBudgetModal({
                       )}
                     />
                   </View>
-                  <View className="items-end">
+                  <View className="items-end" style={{ minWidth: 80 }}>
                     <Text style={TYPE.bodySm} className="text-muted-foreground mb-1">
                       Subtotal
                     </Text>
-                    <Text style={TYPE.labelLg} className="text-foreground py-1.5">
+                    <Text style={TYPE.labelLg} className="text-foreground py-1.5" numberOfLines={1}>
                       {formatARS(subtotal)}
                     </Text>
                   </View>

@@ -117,21 +117,19 @@ function TaskCard({ task, planId }: { task: TaskPublic; planId: string }) {
     >
       <View className="mb-1 flex-row items-center gap-2">
         <View className={`h-2.5 w-2.5 rounded-full ${statusDotColor}`} />
-        <Text style={TYPE.titleSm} className="text-foreground flex-1" numberOfLines={1}>
+        <Text style={TYPE.titleSm} className="text-foreground flex-1 flex-shrink" numberOfLines={2}>
           {task.name}
         </Text>
         <PriorityBadge priority={task.priority} />
       </View>
-      <View className="ml-4 flex-row items-center justify-between">
-        <View className="flex-row items-center gap-2">
-          <TaskStatusBadge status={task.status} />
-          {task.sector && (
-            <Text style={TYPE.labelMd} className="text-muted-foreground">
-              {PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}
-            </Text>
-          )}
-        </View>
-        <Text style={TYPE.bodySm} className="text-muted-foreground">
+      <View className="ml-4 flex-row flex-wrap items-center gap-x-2 gap-y-0.5">
+        <TaskStatusBadge status={task.status} />
+        {task.sector && (
+          <Text style={TYPE.labelMd} className="text-muted-foreground" numberOfLines={1}>
+            {PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}
+          </Text>
+        )}
+        <Text style={TYPE.bodySm} className="text-muted-foreground ml-auto" numberOfLines={1}>
           {task.nextDueDate
             ? formatRelativeDate(new Date(task.nextDueDate))
             : RECURRENCE_TYPE_LABELS.ON_DETECTION}
@@ -549,7 +547,7 @@ export default function PropertyDetailScreen() {
                   {problems.slice(0, 5).map((problem: DetectedProblem) => (
                     <Pressable
                       key={problem.taskId}
-                      className="border-border bg-card flex-row items-center justify-between rounded-lg border p-3"
+                      className="border-border bg-card rounded-lg border p-3"
                       onPress={() => {
                         haptics.light();
                         setShowServiceModal(true);
@@ -557,36 +555,38 @@ export default function PropertyDetailScreen() {
                       accessibilityRole="button"
                       accessibilityLabel={`Problema: ${problem.taskName}`}
                     >
-                      <View className="flex-1">
-                        <View className="flex-row items-center gap-2">
-                          <Text style={TYPE.titleSm} className="text-foreground">
-                            {problem.taskName}
-                          </Text>
-                          <View
-                            className={`rounded-full px-2 py-0.5 ${problem.severity === 'high' ? 'bg-destructive/15' : 'bg-warning/15'}`}
-                          >
-                            <Text
-                              style={TYPE.labelSm}
-                              className={
-                                problem.severity === 'high' ? 'text-destructive' : 'text-warning'
-                              }
-                            >
-                              {CONDITION_FOUND_LABELS[problem.conditionFound as ConditionFound] ??
-                                problem.conditionFound}
-                            </Text>
-                          </View>
-                        </View>
-                        <Text style={TYPE.bodySm} className="text-muted-foreground">
-                          {getMobileImpactMessage(problem.sector, problem.severity)}
+                      <View className="mb-1 flex-row items-start justify-between gap-2">
+                        <Text
+                          style={TYPE.titleSm}
+                          className="text-foreground flex-1 flex-shrink"
+                          numberOfLines={2}
+                        >
+                          {problem.taskName}
                         </Text>
-                        {problem.severity === 'high' && (
-                          <Text style={TYPE.labelSm} className="text-destructive mt-0.5">
-                            Recomendado resolver cuanto antes
+                        <View
+                          className={`rounded-full px-2 py-0.5 ${problem.severity === 'high' ? 'bg-destructive/15' : 'bg-warning/15'}`}
+                        >
+                          <Text
+                            style={TYPE.labelSm}
+                            className={
+                              problem.severity === 'high' ? 'text-destructive' : 'text-warning'
+                            }
+                          >
+                            {CONDITION_FOUND_LABELS[problem.conditionFound as ConditionFound] ??
+                              problem.conditionFound}
                           </Text>
-                        )}
+                        </View>
                       </View>
-                      <Text style={TYPE.labelMd} className="text-primary">
-                        Solicitar &gt;
+                      <Text style={TYPE.bodySm} className="text-muted-foreground" numberOfLines={2}>
+                        {getMobileImpactMessage(problem.sector, problem.severity)}
+                      </Text>
+                      {problem.severity === 'high' && (
+                        <Text style={TYPE.labelSm} className="text-destructive mt-0.5">
+                          Recomendado resolver cuanto antes
+                        </Text>
+                      )}
+                      <Text style={TYPE.labelMd} className="text-primary mt-1.5">
+                        Solicitar servicio →
                       </Text>
                     </Pressable>
                   ))}

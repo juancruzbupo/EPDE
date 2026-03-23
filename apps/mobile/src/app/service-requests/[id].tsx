@@ -461,7 +461,7 @@ export default function ServiceRequestDetailScreen() {
             </Text>
           </View>
 
-          <View className="mb-3 flex-row items-center gap-2">
+          <View className="mb-3 flex-row flex-wrap items-center gap-2">
             <ServiceStatusBadge status={request.status} />
             <UrgencyBadge urgency={request.urgency} />
           </View>
@@ -471,11 +471,15 @@ export default function ServiceRequestDetailScreen() {
           </Text>
 
           <View className="gap-2">
-            <View className="flex-row justify-between">
+            <View className="flex-row justify-between gap-2">
               <Text style={TYPE.bodyMd} className="text-muted-foreground">
                 Propiedad
               </Text>
-              <Text style={TYPE.labelLg} className="text-foreground">
+              <Text
+                style={TYPE.labelLg}
+                className="text-foreground flex-1 flex-shrink text-right"
+                numberOfLines={1}
+              >
                 {request.property.address}
               </Text>
             </View>
@@ -488,11 +492,15 @@ export default function ServiceRequestDetailScreen() {
               </Text>
             </View>
             {request.task && (
-              <View className="flex-row justify-between">
+              <View className="flex-row justify-between gap-2">
                 <Text style={TYPE.bodyMd} className="text-muted-foreground">
                   Tarea
                 </Text>
-                <Text style={TYPE.labelLg} className="text-foreground" numberOfLines={1}>
+                <Text
+                  style={TYPE.labelLg}
+                  className="text-foreground flex-1 flex-shrink text-right"
+                  numberOfLines={1}
+                >
                   {request.task.category.name} — {request.task.name}
                 </Text>
               </View>

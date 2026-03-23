@@ -49,18 +49,18 @@ const BudgetCard = memo(function BudgetCard({ budget }: { budget: BudgetRequestP
       className="border-border bg-card mb-3 rounded-xl border p-3"
       onPress={() => router.push(`/budget/${budget.id}` as never)}
     >
-      <View className="mb-1 flex-row items-center justify-between">
-        <Text style={TYPE.titleSm} className="text-foreground flex-1" numberOfLines={1}>
+      <View className="mb-1 flex-row items-center justify-between gap-2">
+        <Text style={TYPE.titleSm} className="text-foreground flex-1 flex-shrink" numberOfLines={1}>
           {budget.title}
         </Text>
         <BudgetStatusBadge status={budget.status} />
       </View>
-      <Text style={TYPE.bodySm} className="text-muted-foreground mb-2">
+      <Text style={TYPE.bodySm} className="text-muted-foreground mb-2" numberOfLines={1}>
         {budget.property.address}, {budget.property.city}
       </Text>
-      <View className="flex-row items-center justify-between">
+      <View className="flex-row items-center justify-between gap-2">
         {budget.response ? (
-          <Text style={TYPE.titleSm} className="text-foreground">
+          <Text style={TYPE.titleSm} className="text-foreground flex-shrink" numberOfLines={1}>
             {formatARS(budget.response.totalAmount)}
           </Text>
         ) : (
@@ -68,7 +68,7 @@ const BudgetCard = memo(function BudgetCard({ budget }: { budget: BudgetRequestP
             Sin cotizar
           </Text>
         )}
-        <Text style={TYPE.bodySm} className="text-muted-foreground">
+        <Text style={TYPE.bodySm} className="text-muted-foreground" numberOfLines={1}>
           {formatRelativeDate(new Date(budget.createdAt))}
         </Text>
       </View>

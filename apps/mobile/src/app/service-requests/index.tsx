@@ -62,18 +62,18 @@ const ServiceRequestCard = memo(function ServiceRequestCard({
       className="border-border bg-card mb-3 rounded-xl border p-4"
       onPress={() => router.push(`/service-requests/${request.id}` as never)}
     >
-      <View className="mb-1 flex-row items-center justify-between">
-        <Text style={TYPE.titleSm} className="text-foreground flex-1" numberOfLines={1}>
+      <View className="mb-1 flex-row items-center justify-between gap-2">
+        <Text style={TYPE.titleSm} className="text-foreground flex-1 flex-shrink" numberOfLines={1}>
           {request.title}
         </Text>
         <ServiceStatusBadge status={request.status} />
       </View>
-      <Text style={TYPE.bodySm} className="text-muted-foreground mb-2">
+      <Text style={TYPE.bodySm} className="text-muted-foreground mb-2" numberOfLines={1}>
         {request.property.address}, {request.property.city}
       </Text>
-      <View className="flex-row items-center justify-between">
+      <View className="flex-row items-center justify-between gap-2">
         <UrgencyBadge urgency={request.urgency} />
-        <Text style={TYPE.bodySm} className="text-muted-foreground">
+        <Text style={TYPE.bodySm} className="text-muted-foreground" numberOfLines={1}>
           {formatRelativeDate(new Date(request.createdAt))}
         </Text>
       </View>

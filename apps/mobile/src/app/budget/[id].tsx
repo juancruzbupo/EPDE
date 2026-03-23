@@ -431,8 +431,12 @@ export default function BudgetDetailScreen() {
       >
         {/* Budget info card */}
         <View className="border-border bg-card mb-4 rounded-xl border p-4">
-          <View className="mb-2 flex-row items-center justify-between">
-            <Text style={TYPE.titleLg} className="text-foreground flex-1" numberOfLines={2}>
+          <View className="mb-2 flex-row items-start justify-between gap-2">
+            <Text
+              style={TYPE.titleLg}
+              className="text-foreground flex-1 flex-shrink"
+              numberOfLines={2}
+            >
               {budget.title}
             </Text>
             <BudgetStatusBadge status={budget.status} />
@@ -445,15 +449,19 @@ export default function BudgetDetailScreen() {
           )}
 
           <View className="gap-2">
-            <View className="flex-row justify-between">
+            <View className="flex-row justify-between gap-2">
               <Text style={TYPE.bodyMd} className="text-muted-foreground">
                 Propiedad
               </Text>
-              <Text style={TYPE.labelLg} className="text-foreground">
+              <Text
+                style={TYPE.labelLg}
+                className="text-foreground flex-1 flex-shrink text-right"
+                numberOfLines={1}
+              >
                 {budget.property.address}
               </Text>
             </View>
-            <View className="flex-row justify-between">
+            <View className="flex-row justify-between gap-2">
               <Text style={TYPE.bodyMd} className="text-muted-foreground">
                 Fecha
               </Text>
