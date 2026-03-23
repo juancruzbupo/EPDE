@@ -13,6 +13,8 @@ import {
 } from '@epde/shared';
 import {
   Archive,
+  ArrowDown,
+  ArrowUp,
   CheckCircle,
   ChevronDown,
   ChevronRight,
@@ -42,7 +44,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useCategoryTemplates } from '@/hooks/use-category-templates';
 import { useDebounce } from '@/hooks/use-debounce';
 import { usePlan, useUpdatePlan } from '@/hooks/use-plans';
-import { useBulkAddTasks, useRemoveTask } from '@/hooks/use-task-operations';
+import { useBulkAddTasks, useRemoveTask, useReorderTasks } from '@/hooks/use-task-operations';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
 import { TASK_STATUS_COLORS, TASK_STATUS_ICONS, TASK_STATUS_ORDER } from '@/lib/style-maps';
 import { cn } from '@/lib/utils';
@@ -117,6 +119,7 @@ const CategorySection = memo(function CategorySection({
   onEdit,
   onDelete,
   onComplete,
+  onMove,
   selectionMode,
   selectedIds,
   onToggleSelect,
@@ -127,6 +130,7 @@ const CategorySection = memo(function CategorySection({
   onEdit: (task: TaskPublic) => void;
   onDelete: (taskId: string) => void;
   onComplete: (task: TaskPublic) => void;
+  onMove: (taskId: string, direction: 'up' | 'down') => void;
   selectionMode: boolean;
   selectedIds: Set<string>;
   onToggleSelect: (taskId: string) => void;
@@ -208,6 +212,22 @@ const CategorySection = memo(function CategorySection({
                     </button>
                   )}
                   <button
+                    onClick={() => onMove(task.id, 'up')}
+                    className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded p-1 focus-visible:ring-[3px] focus-visible:outline-none"
+                    aria-label="Mover arriba"
+                    title="Mover arriba"
+                  >
+                    <ArrowUp className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={() => onMove(task.id, 'down')}
+                    className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded p-1 focus-visible:ring-[3px] focus-visible:outline-none"
+                    aria-label="Mover abajo"
+                    title="Mover abajo"
+                  >
+                    <ArrowDown className="h-3.5 w-3.5" />
+                  </button>
+                  <button
                     onClick={() => onEdit(task)}
                     className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded p-2 focus-visible:ring-[3px] focus-visible:outline-none"
                     aria-label="Editar tarea"
@@ -234,6 +254,24 @@ const CategorySection = memo(function CategorySection({
 export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
   const { data: plan, isLoading, isError, refetch } = usePlan(planId);
   const removeTask = useRemoveTask();
+  const reorderTasks = useReorderTasks();
+
+  const handleMoveTask = useCallback(
+    (taskId: string, direction: 'up' | 'down') => {
+      const allTasks = plan?.tasks ?? [];
+      const idx = allTasks.findIndex((t) => t.id === taskId);
+      if (idx < 0) return;
+      const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+      if (swapIdx < 0 || swapIdx >= allTasks.length) return;
+      const reordered = allTasks.map((t, i) => ({
+        id: t.id,
+        order:
+          i === idx ? allTasks[swapIdx]!.order : i === swapIdx ? allTasks[idx]!.order : t.order,
+      }));
+      reorderTasks.mutate({ planId, tasks: reordered });
+    },
+    [plan?.tasks, planId, reorderTasks],
+  );
   const updatePlan = useUpdatePlan();
   const bulkAdd = useBulkAddTasks();
   const { data: categoryTemplates } = useCategoryTemplates();
@@ -491,6 +529,7 @@ export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
                     onEdit={handleEdit}
                     onComplete={setCompletingTask}
                     onDelete={setDeleteTaskId}
+                    onMove={handleMoveTask}
                     selectionMode={selectionMode}
                     selectedIds={selectedTaskIds}
                     onToggleSelect={toggleSelect}

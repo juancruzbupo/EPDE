@@ -25,6 +25,7 @@ import Link from 'next/link';
 import { VisuallyHidden } from 'radix-ui';
 import { useState } from 'react';
 
+import { Breadcrumbs } from '@/components/breadcrumbs';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ErrorState } from '@/components/error-state';
 import { PageHeader } from '@/components/page-header';
@@ -100,6 +101,9 @@ export function ServiceRequestDetail({
 
   return (
     <div>
+      <Breadcrumbs
+        items={[{ label: 'Servicios', href: '/service-requests' }, { label: request.title }]}
+      />
       <PageHeader
         title={request.title}
         description={`Solicitud #${request.id.slice(0, 8)}`}

@@ -24,6 +24,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
+import { Breadcrumbs } from '@/components/breadcrumbs';
 import { ErrorState } from '@/components/error-state';
 import { HealthIndexCard } from '@/components/health-index-card';
 import { PageHeader } from '@/components/page-header';
@@ -88,6 +89,9 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
   return (
     <div className="space-y-6">
       <div className="no-print">
+        <Breadcrumbs
+          items={[{ label: 'Propiedades', href: '/properties' }, { label: property.address }]}
+        />
         <PageHeader
           title={property.address}
           description={[

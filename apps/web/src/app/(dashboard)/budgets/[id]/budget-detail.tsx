@@ -22,6 +22,7 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 
+import { Breadcrumbs } from '@/components/breadcrumbs';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ErrorState } from '@/components/error-state';
 import { PageHeader } from '@/components/page-header';
@@ -106,6 +107,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: 'Presupuestos', href: '/budgets' }, { label: budget.title }]} />
       <PageHeader
         title={budget.title}
         description={`Solicitado por ${budget.requester.name}`}

@@ -11,7 +11,8 @@ import {
   TASK_TYPE_TO_DEFAULT_ACTION,
 } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useState } from 'react';
+import { Camera, Loader2, X } from 'lucide-react';
+import { useCallback, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useCompleteTask } from '@/hooks/use-task-operations';
+import { useUploadFile } from '@/hooks/use-upload';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
 
 interface BulkCompleteDialogProps {
@@ -89,7 +91,21 @@ export function BulkCompleteDialog({
   onDone,
 }: BulkCompleteDialogProps) {
   const completeTask = useCompleteTask();
+  const uploadFile = useUploadFile();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
+
+  const handlePhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const url = await uploadFile.mutateAsync({ file, folder: 'task-photos' });
+      setPhotoUrl(url);
+    } catch {
+      // upload error handled by hook
+    }
+  };
 
   const mostCommonTaskType = tasks[0]?.taskType as TaskType | undefined;
 
@@ -115,7 +131,7 @@ export function BulkCompleteDialog({
         setProgress({ current: i + 1, total: tasks.length });
         await new Promise<void>((resolve, reject) => {
           completeTask.mutate(
-            { planId, taskId: task.id, ...data },
+            { planId, taskId: task.id, ...data, photoUrl: photoUrl ?? undefined },
             { onSuccess: () => resolve(), onError: (err) => reject(err) },
           );
         });
@@ -254,6 +270,49 @@ export function BulkCompleteDialog({
               className="resize-none"
               rows={2}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Foto (opcional, se aplica a todas las tareas)</Label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoSelect}
+            />
+            {photoUrl ? (
+              <div className="relative inline-block">
+                <img
+                  src={photoUrl}
+                  alt="Foto adjunta"
+                  className="h-20 w-20 rounded-md object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => setPhotoUrl(null)}
+                  className="bg-destructive absolute -top-2 -right-2 rounded-full p-0.5 text-white"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadFile.isPending}
+                className="gap-2"
+              >
+                {uploadFile.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Camera className="h-4 w-4" />
+                )}
+                Agregar foto
+              </Button>
+            )}
           </div>
 
           {progress && (
