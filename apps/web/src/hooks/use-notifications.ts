@@ -58,10 +58,8 @@ export function useMarkAsRead() {
       }
     },
     onSettled: () => {
+      // Prefix [notifications] covers [notifications, unread-count] — single invalidation suffices
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.notifications] });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
-      });
     },
   });
 }
@@ -92,9 +90,6 @@ export function useMarkAllAsRead() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.notifications] });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
-      });
     },
   });
 }

@@ -26,5 +26,6 @@ export function useClientAnalytics(months?: number) {
     queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientAnalytics, months],
     queryFn: ({ signal }) => getClientAnalytics(signal, months).then((r) => r.data),
     staleTime: 5 * 60_000,
+    enabled: months != null,
   });
 }

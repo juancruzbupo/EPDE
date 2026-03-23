@@ -55,18 +55,29 @@ describe('useClientUpcomingTasks', () => {
 });
 
 describe('useClientAnalytics', () => {
-  it('calls useQuery with correct queryKey', () => {
+  it('calls useQuery with correct queryKey and enabled guard', () => {
+    renderHook(() => useClientAnalytics(6));
+
+    expect(useQuery).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientAnalytics, 6],
+        enabled: true,
+      }),
+    );
+  });
+
+  it('disables query when months is undefined', () => {
     renderHook(() => useClientAnalytics());
 
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientAnalytics],
+        enabled: false,
       }),
     );
   });
 
   it('uses extended staleTime of 5 minutes', () => {
-    renderHook(() => useClientAnalytics());
+    renderHook(() => useClientAnalytics(6));
 
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
