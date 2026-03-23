@@ -156,17 +156,18 @@ Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
 
 ### Propiedades
 
-| Metodo | Ruta                             | Auth | Rol   | Descripcion              |
-| ------ | -------------------------------- | ---- | ----- | ------------------------ |
-| GET    | `/properties`                    | Si   | Ambos | Listar propiedades       |
-| GET    | `/properties/:id`                | Si   | Ambos | Detalle                  |
-| POST   | `/properties`                    | Si   | ADMIN | Crear propiedad          |
-| PATCH  | `/properties/:id`                | Si   | ADMIN | Actualizar               |
-| DELETE | `/properties/:id`                | Si   | ADMIN | Eliminar (soft)          |
-| GET    | `/properties/:id/health-index`   | Si   | Ambos | ISV en tiempo real       |
-| GET    | `/properties/:id/health-history` | Si   | Ambos | Historial ISV (12 meses) |
-| GET    | `/properties/:id/expenses`       | Si   | Ambos | Gastos de la propiedad   |
-| GET    | `/properties/:id/photos`         | Si   | Ambos | Galería de fotos         |
+| Metodo | Ruta                             | Auth | Rol   | Descripcion                                        |
+| ------ | -------------------------------- | ---- | ----- | -------------------------------------------------- |
+| GET    | `/properties`                    | Si   | Ambos | Listar propiedades                                 |
+| GET    | `/properties/:id`                | Si   | Ambos | Detalle                                            |
+| POST   | `/properties`                    | Si   | ADMIN | Crear propiedad                                    |
+| PATCH  | `/properties/:id`                | Si   | ADMIN | Actualizar                                         |
+| DELETE | `/properties/:id`                | Si   | ADMIN | Eliminar (soft)                                    |
+| GET    | `/properties/:id/health-index`   | Si   | Ambos | ISV en tiempo real                                 |
+| GET    | `/properties/:id/health-history` | Si   | Ambos | Historial ISV (12 meses)                           |
+| GET    | `/properties/:id/problems`       | Si   | Ambos | Problemas detectados (POOR/CRITICAL sin SR activo) |
+| GET    | `/properties/:id/expenses`       | Si   | Ambos | Gastos de la propiedad                             |
+| GET    | `/properties/:id/photos`         | Si   | Ambos | Galería de fotos                                   |
 
 **GET /properties** — Query params:
 
@@ -218,6 +219,28 @@ Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
   }
 }
 ```
+
+**GET /properties/:id/problems** — Problemas detectados sin ServiceRequest activo:
+
+```json
+{
+  "data": [
+    {
+      "taskId": "uuid",
+      "taskName": "Inspección de cubierta",
+      "sector": "ROOF",
+      "conditionFound": "CRITICAL",
+      "severity": "high",
+      "notes": "Humedad visible en cielorraso",
+      "completedAt": "2026-03-15T...",
+      "propertyId": "uuid",
+      "propertyAddress": "Av. Libertador 4500"
+    }
+  ]
+}
+```
+
+Derivado de TaskLog + ServiceRequest existentes. No requiere entidades adicionales. `severity`: CRITICAL → "high", POOR → "medium". Problemas desaparecen cuando se crea un SR con ese `taskId`, o cuando la tarea se re-completa con mejor condición.
 
 **GET /properties/:id/health-history** — Últimos 12 snapshots mensuales:
 

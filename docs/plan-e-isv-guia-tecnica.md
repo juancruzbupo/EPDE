@@ -371,3 +371,59 @@ ISV = 80 × 0.35 + 60 × 0.30 + 67 × 0.20 + 67 × 0.15
 - ROOF: 2 tareas, 0 vencidas → 100%
 - BATHROOM: 1 tarea, 1 vencida → 0%
 - INSTALLATIONS: 1 tarea, 0 vencidas → 100%
+
+---
+
+## 8. Problemas Detectados (flujo automático)
+
+### Cuándo aparece un problema
+
+Cuando se completa una tarea con `conditionFound` = **POOR** o **CRITICAL**:
+
+1. Backend retorna `problemDetected: true` en la respuesta de completación
+2. Admin recibe notificación push + in-app
+3. Mobile muestra Alert preguntando si quiere solicitar servicio
+4. El problema aparece en `GET /properties/:id/problems`
+
+### Qué muestra el endpoint
+
+**`GET /api/v1/properties/:id/problems`**
+
+Retorna TaskLogs con condición POOR/CRITICAL que **no tienen un ServiceRequest activo** asociado:
+
+- Deduplica por `taskId` (solo el último log por tarea)
+- Excluye tareas con ServiceRequest en status != RESOLVED/CLOSED
+- Ordena: CRITICAL primero, luego por fecha
+- Límite: 20 problemas
+
+Cada problema incluye: `taskId`, `taskName`, `sector`, `conditionFound`, `severity` (high/medium), `notes`, `completedAt`, `propertyId`, `propertyAddress`.
+
+### Ciclo de vida de un problema
+
+```
+Inspección detecta POOR/CRITICAL → Problema aparece en UI
+         ↓
+Usuario solicita servicio → Problema sale de la lista (tiene SR activo)
+         ↓
+Servicio se completa → SR pasa a RESOLVED/CLOSED
+         ↓
+Tarea se re-inspecciona en su próximo ciclo
+         ↓
+Si condición mejora (GOOD/EXCELLENT) → Resuelto definitivamente
+Si condición sigue mala → Reaparece en la lista
+```
+
+### Reglas clave
+
+- **No hay estado manual** — el problema se resuelve cuando los datos reales lo confirman
+- **No hay entidades nuevas** — derivado de TaskLog + ServiceRequest existentes
+- **No afecta el ISV directamente** — el ISV ya penaliza condiciones malas en su dimensión Condición
+- **Mensajes de impacto** diferenciados por sector + severidad (ej: ROOF/CRITICAL → "Puede generar filtraciones activas")
+
+### Dónde se muestra
+
+| Plataforma | Ubicación                            | Comportamiento                                                       |
+| ---------- | ------------------------------------ | -------------------------------------------------------------------- |
+| Web        | Property detail → tab Salud          | Sección "Esto puede generarte gastos" con botón "Solicitar servicio" |
+| Mobile     | Property detail → sección colapsable | Rows presionables → abren modal de ServiceRequest                    |
+| Tab badge  | Web tab "Salud (3)"                  | Muestra cantidad de problemas activos                                |

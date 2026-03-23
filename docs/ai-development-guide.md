@@ -113,6 +113,8 @@
     3. `npx prisma migrate dev --name add_pool_sector` (agrega el valor al enum de PostgreSQL)
     4. Zero cambios de UI — los filtros, toggles de activeSectors y selectores se generan automáticamente desde `PROPERTY_SECTOR_LABELS`/`PROPERTY_SECTOR_VALUES`. Los ISV sectorScores incluyen sectores nuevos automáticamente si tienen tareas asignadas
 98. **Agregar un enum value a cualquier enum compartido** — Mismo patrón que PropertySector: (1) agregar al enum + values array en `enums.ts`, (2) agregar label en `constants/index.ts`, (3) migración Prisma si el enum existe en schema. Los schemas Zod usan `z.enum(XXX_VALUES)` y se actualizan automáticamente. Badge variants en `badge-variants.ts` pueden necesitar mapeo si el enum tiene badge visual
+99. **Problemas detectados — derivados, no persistidos** — Los problemas se derivan de TaskLog (`conditionFound IN POOR/CRITICAL`) filtrado contra ServiceRequest activos. NO crear entidades nuevas (Opportunity, Problem, etc.). El endpoint `GET /properties/:id/problems` consulta datos existentes. Un problema desaparece cuando: (a) se crea un ServiceRequest con `taskId` asociado, o (b) la tarea se re-completa con mejor condición. No hay campo `problemDetected` ni `problemResolved` en TaskLog — son derivables de `conditionFound`
+100. **Detección automática en completeTask** — Cuando `conditionFound` es POOR o CRITICAL, el backend retorna `problemDetected: true` y dispara `notificationsHandler.handleProblemDetected()` (fire-and-forget). Los hooks `useCompleteTask` aceptan `onProblemDetected` callback para que las páginas padres muestren prompt de crear ServiceRequest
 
 ### NUNCA
 
