@@ -19,6 +19,7 @@ export const {
   getPropertyPhotos,
   getPropertyHealthIndex,
   getPropertyHealthHistory,
+  getPropertyProblems,
 } = queries;
 
 export async function getPropertyReport(

@@ -84,6 +84,16 @@ export class PropertiesController {
     return { data };
   }
 
+  @Get(':id/problems')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  async getPropertyProblems(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    const data = await this.propertiesService.getPropertyProblems(id, user);
+    return { data };
+  }
+
   @Get(':id/expenses')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   async getPropertyExpenses(

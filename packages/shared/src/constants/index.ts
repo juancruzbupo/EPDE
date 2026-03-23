@@ -347,6 +347,7 @@ export const QUERY_KEYS = {
   propertyPhotos: 'photos',
   propertyHealthIndex: 'health-index',
   propertyHealthHistory: 'health-history',
+  propertyProblems: 'problems',
   // Plan sub-keys
   plansList: 'list',
   plansTasks: 'tasks',

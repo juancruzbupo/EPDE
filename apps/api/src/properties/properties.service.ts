@@ -157,6 +157,17 @@ export class PropertiesService {
     return data;
   }
 
+  async getPropertyProblems(id: string, currentUser: ServiceUser) {
+    const property = await this.propertiesRepository.findById(id);
+    if (!property) {
+      throw new NotFoundException('Propiedad no encontrada');
+    }
+
+    this.assertOwnership(property.userId, currentUser);
+
+    return this.propertiesRepository.getOpenProblems(id);
+  }
+
   async getPropertyExpenses(id: string, currentUser: ServiceUser) {
     const property = await this.propertiesRepository.findById(id);
     if (!property) {

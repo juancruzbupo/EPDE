@@ -34,6 +34,14 @@ export function createPropertyQueries(apiClient: AxiosInstance) {
       return data;
     },
 
+    async getPropertyProblems(
+      id: string,
+      signal?: AbortSignal,
+    ): Promise<ApiResponse<import('../types/dashboard').DetectedProblem[]>> {
+      const { data } = await apiClient.get(`/properties/${id}/problems`, { signal });
+      return data;
+    },
+
     async getPropertyExpenses(
       id: string,
       signal?: AbortSignal,

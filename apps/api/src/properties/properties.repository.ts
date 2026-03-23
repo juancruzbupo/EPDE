@@ -1,4 +1,10 @@
-import { BudgetStatus, PlanStatus, TaskStatus } from '@epde/shared';
+import {
+  BudgetStatus,
+  type ConditionFound,
+  PlanStatus,
+  ServiceStatus,
+  TaskStatus,
+} from '@epde/shared';
 import { Injectable } from '@nestjs/common';
 import { Prisma, Property, PropertyType } from '@prisma/client';
 
@@ -337,5 +343,80 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
         source: 'task' as const,
       })),
     ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }
+
+  /** Detected problems: POOR/CRITICAL task logs without an active ServiceRequest. */
+  async getOpenProblems(propertyId: string) {
+    const [problemLogs, activeServiceTaskIds] = await Promise.all([
+      this.prisma.taskLog.findMany({
+        where: {
+          conditionFound: { in: ['POOR', 'CRITICAL'] },
+          task: { maintenancePlan: { propertyId }, deletedAt: null },
+        },
+        select: {
+          taskId: true,
+          conditionFound: true,
+          notes: true,
+          completedAt: true,
+          task: {
+            select: {
+              name: true,
+              sector: true,
+              maintenancePlan: {
+                select: { property: { select: { id: true, address: true } } },
+              },
+            },
+          },
+        },
+        orderBy: { completedAt: 'desc' },
+        take: 200,
+      }),
+      this.prisma.serviceRequest.findMany({
+        where: {
+          propertyId,
+          taskId: { not: null },
+          status: { notIn: [ServiceStatus.RESOLVED, ServiceStatus.CLOSED] },
+          deletedAt: null,
+        },
+        select: { taskId: true },
+      }),
+    ]);
+
+    const activeTaskIds = new Set(activeServiceTaskIds.map((s) => s.taskId));
+    const seen = new Set<string>();
+    const problems: {
+      taskId: string;
+      taskName: string;
+      sector: string | null;
+      conditionFound: string;
+      severity: 'high' | 'medium';
+      notes: string | null;
+      completedAt: string;
+      propertyId: string;
+      propertyAddress: string;
+    }[] = [];
+
+    for (const log of problemLogs) {
+      if (seen.has(log.taskId) || activeTaskIds.has(log.taskId)) continue;
+      seen.add(log.taskId);
+      problems.push({
+        taskId: log.taskId,
+        taskName: log.task.name,
+        sector: log.task.sector,
+        conditionFound: log.conditionFound as ConditionFound,
+        severity: log.conditionFound === 'CRITICAL' ? 'high' : 'medium',
+        notes: log.notes,
+        completedAt: log.completedAt.toISOString(),
+        propertyId,
+        propertyAddress: log.task.maintenancePlan.property.address,
+      });
+    }
+
+    problems.sort((a, b) => {
+      if (a.severity !== b.severity) return a.severity === 'high' ? -1 : 1;
+      return new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime();
+    });
+
+    return problems.slice(0, 20);
   }
 }

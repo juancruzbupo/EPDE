@@ -155,6 +155,19 @@ export interface PropertyHealthIndex {
   sectorScores: { sector: string; score: number; overdue: number; total: number }[];
 }
 
+/** A task inspection with POOR or CRITICAL condition that lacks an active ServiceRequest. */
+export interface DetectedProblem {
+  taskId: string;
+  taskName: string;
+  sector: PropertySector | null;
+  conditionFound: ConditionFound;
+  severity: 'high' | 'medium';
+  notes: string | null;
+  completedAt: string;
+  propertyId: string;
+  propertyAddress: string;
+}
+
 /** Monthly ISV snapshot for history chart. */
 export interface ISVSnapshotPublic {
   month: string;
