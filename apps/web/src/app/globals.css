@@ -82,7 +82,7 @@ body {
   --popover: #ffffff;
   --popover-foreground: #2e2a27;
   --primary: #c4704b;
-  --primary-foreground: #fafaf8;
+  --primary-foreground: #ffffff;
   --secondary: #e8ddd3;
   --secondary-foreground: #2e2a27;
   --muted: #f5f0eb;
@@ -147,8 +147,8 @@ body {
   --accent-foreground: #f5f0eb;
   --destructive: #c45b4b;
   --destructive-foreground: #ffffff;
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.15);
+  --border: rgba(255, 255, 255, 0.15);
+  --input: rgba(255, 255, 255, 0.2);
   --ring: #d4956f;
   --chart-1: #d4956f;
   --chart-2: #6b9b7a;

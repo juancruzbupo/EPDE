@@ -17,7 +17,7 @@
 /** Light mode (default) palette */
 export const DESIGN_TOKENS_LIGHT = {
   primary: '#c4704b',
-  primaryForeground: '#fafaf8',
+  primaryForeground: '#ffffff',
   secondary: '#e8ddd3',
   secondaryForeground: '#2e2a27',
   background: '#fafaf8',
@@ -62,8 +62,8 @@ export const DESIGN_TOKENS_DARK = {
   accentForeground: '#f5f0eb',
   destructive: '#c45b4b',
   destructiveForeground: '#ffffff',
-  border: 'rgba(255, 255, 255, 0.1)',
-  input: 'rgba(255, 255, 255, 0.15)',
+  border: 'rgba(255, 255, 255, 0.15)',
+  input: 'rgba(255, 255, 255, 0.2)',
   ring: '#d4956f',
   success: '#7ab588',
   successForeground: '#1a1715',
