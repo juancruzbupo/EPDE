@@ -212,6 +212,83 @@ export const TASK_TYPE_TO_DEFAULT_ACTION: Record<TaskType, ActionTaken> = {
   EVALUATION: 'INSPECTION_ONLY',
 };
 
+// ─── Condition Score Scales ──────────────────────────────
+
+/** ConditionFound → 1-5 scale for chart averaging (trend, category breakdown). */
+export const CONDITION_SCORE: Record<ConditionFound, number> = {
+  EXCELLENT: 5,
+  GOOD: 4,
+  FAIR: 3,
+  POOR: 2,
+  CRITICAL: 1,
+};
+
+/** ConditionFound → 0-100 scale for ISV condition dimension. Relationship: percent = (score - 1) * 25. */
+export const CONDITION_SCORE_PERCENT: Record<ConditionFound, number> = {
+  EXCELLENT: 100,
+  GOOD: 80,
+  FAIR: 60,
+  POOR: 40,
+  CRITICAL: 20,
+};
+
+// ─── ISV Classification ─────────────────────────────────
+
+/** ActionTaken values classified as preventive (vs corrective) for ISV investment dimension. */
+export const PREVENTIVE_ACTIONS: readonly ActionTaken[] = [
+  'INSPECTION_ONLY',
+  'CLEANING',
+  'ADJUSTMENT',
+  'SEALING',
+] as const;
+
+// ─── Plural Labels (for filter tabs) ────────────────────
+
+export const BUDGET_STATUS_PLURAL_LABELS = {
+  PENDING: 'Pendientes',
+  QUOTED: 'Cotizados',
+  APPROVED: 'Aprobados',
+  REJECTED: 'Rechazados',
+  IN_PROGRESS: 'En Progreso',
+  COMPLETED: 'Completados',
+  EXPIRED: 'Expirados',
+} satisfies Record<BudgetStatus, string>;
+
+export const SERVICE_STATUS_PLURAL_LABELS = {
+  OPEN: 'Abiertos',
+  IN_REVIEW: 'En Revisión',
+  IN_PROGRESS: 'En Progreso',
+  RESOLVED: 'Resueltos',
+  CLOSED: 'Cerrados',
+} satisfies Record<ServiceStatus, string>;
+
+// ─── Audit Action Labels ────────────────────────────────
+
+export const BUDGET_AUDIT_ACTION_LABELS: Record<string, string> = {
+  created: 'Creó el presupuesto',
+  edited: 'Editó el presupuesto',
+  quoted: 'Envió cotización',
+  're-quoted': 'Re-cotizó',
+  approved: 'Aprobó',
+  rejected: 'Rechazó',
+  'in-progress': 'Marcó en progreso',
+  completed: 'Completó',
+  expired: 'Expiró',
+  comment_added: 'Agregó comentario',
+  attachments_added: 'Agregó adjuntos',
+};
+
+export const SERVICE_AUDIT_ACTION_LABELS: Record<string, string> = {
+  created: 'Creó la solicitud',
+  edited: 'Editó la solicitud',
+  'in-review': 'Pasó a revisión',
+  'in-progress': 'Marcó en progreso',
+  resolved: 'Marcó como resuelta',
+  closed: 'Cerró la solicitud',
+  comment_added: 'Agregó comentario',
+  attachments_added: 'Agregó adjuntos',
+};
+
 // ─── Default Categories ─────────────────────────────────
 
 export const CATEGORY_DEFAULTS = [

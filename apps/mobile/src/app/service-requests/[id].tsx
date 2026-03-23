@@ -6,6 +6,7 @@ import type {
 import {
   formatRelativeDate,
   isServiceRequestTerminal,
+  SERVICE_AUDIT_ACTION_LABELS,
   SERVICE_URGENCY_LABELS,
   ServiceStatus,
   ServiceUrgency,
@@ -57,14 +58,7 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 // ─── Sub-components ─────────────────────────────────────────
 
 function AuditLogEntry({ entry }: { entry: ServiceRequestAuditLogPublic }) {
-  const ACTION_LABELS: Record<string, string> = {
-    created: 'Creó la solicitud',
-    edited: 'Editó la solicitud',
-    'in-review': 'Pasó a revisión',
-    'in-progress': 'Marcó en progreso',
-    resolved: 'Marcó como resuelta',
-    closed: 'Cerró la solicitud',
-  };
+  const ACTION_LABELS = SERVICE_AUDIT_ACTION_LABELS;
 
   const note = (entry.after as Record<string, unknown>)?.note as string | undefined;
 

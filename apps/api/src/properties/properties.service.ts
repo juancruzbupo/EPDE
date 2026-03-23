@@ -31,21 +31,20 @@ export class PropertiesService {
       type: filters.type,
     });
 
-    // Enrich with real-time ISV scores (same source as detail page + dashboard)
-    const propertiesWithPlan = result.data.filter(
-      (p) => (p as Record<string, unknown>).maintenancePlan,
-    );
-    const isvResults = await Promise.all(
-      propertiesWithPlan.map(async (p) => {
-        const plan = (p as Record<string, unknown>).maintenancePlan as { id: string } | null;
-        if (!plan) return { propertyId: p.id, score: 0, label: 'Sin plan' };
-        const health = await this.dashboardRepository.getPropertyHealthIndex([plan.id]);
-        return { propertyId: p.id, score: health.score, label: health.label };
-      }),
-    );
-    const isvMap = new Map(
-      isvResults.map((r) => [r.propertyId, { score: r.score, label: r.label }]),
-    );
+    // Enrich with real-time ISV scores — batch calculation (3 queries total, not 3×N)
+    const planIdToPropertyId = new Map<string, string>();
+    for (const p of result.data) {
+      const plan = (p as Record<string, unknown>).maintenancePlan as { id: string } | null;
+      if (plan) planIdToPropertyId.set(plan.id, p.id);
+    }
+    const batchResults = await this.dashboardRepository.getPropertyHealthIndexBatch([
+      ...planIdToPropertyId.keys(),
+    ]);
+    const isvMap = new Map<string, { score: number; label: string }>();
+    for (const [planId, propertyId] of planIdToPropertyId) {
+      const health = batchResults.get(planId);
+      if (health) isvMap.set(propertyId, health);
+    }
 
     return {
       ...result,

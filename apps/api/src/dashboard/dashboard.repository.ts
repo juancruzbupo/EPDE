@@ -2,7 +2,10 @@ import {
   BUDGET_STATUS_LABELS,
   BudgetStatus,
   CONDITION_FOUND_LABELS,
+  CONDITION_SCORE,
+  CONDITION_SCORE_PERCENT,
   type ConditionFound,
+  PREVENTIVE_ACTIONS,
   type PropertySector,
   ServiceStatus,
   TaskStatus,
@@ -25,14 +28,8 @@ import { PrismaService } from '../prisma/prisma.service';
  */
 @Injectable()
 export class DashboardRepository {
-  /** ConditionFound → numeric score for averaging. Default 3 (FAIR) for unknown values. */
-  private static readonly CONDITION_SCORES: Record<ConditionFound, number> = {
-    EXCELLENT: 5,
-    GOOD: 4,
-    FAIR: 3,
-    POOR: 2,
-    CRITICAL: 1,
-  };
+  /** Alias for CONDITION_SCORE from shared — used in chart averaging methods. */
+  private static readonly CONDITION_SCORES = CONDITION_SCORE;
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -691,15 +688,8 @@ export class DashboardRepository {
     const compliance = totalWeight > 0 ? Math.round((onTimeWeight / totalWeight) * 100) : 100;
 
     // ─── 2. CONDITION (30%) — avg conditionFound of recent inspections ───
-    const conditionMap: Record<string, number> = {
-      EXCELLENT: 100,
-      GOOD: 80,
-      FAIR: 60,
-      POOR: 40,
-      CRITICAL: 20,
-    };
     const conditionScores = recentLogs
-      .map((l) => conditionMap[l.conditionFound] ?? 60)
+      .map((l) => CONDITION_SCORE_PERCENT[l.conditionFound as ConditionFound] ?? 60)
       .filter((v) => v != null);
     const condition =
       conditionScores.length > 0
@@ -713,9 +703,8 @@ export class DashboardRepository {
       allSectors.size > 0 ? Math.round((inspectedSectors.size / allSectors.size) * 100) : 0;
 
     // ─── 4. INVESTMENT (15%) — preventive vs corrective ratio ───
-    const preventiveActions = ['INSPECTION_ONLY', 'CLEANING', 'ADJUSTMENT', 'SEALING'];
     const preventiveCount = recentLogs.filter((l) =>
-      preventiveActions.includes(l.actionTaken),
+      (PREVENTIVE_ACTIONS as readonly string[]).includes(l.actionTaken),
     ).length;
     const _correctiveCount = recentLogs.length - preventiveCount;
     const investment =
@@ -724,8 +713,10 @@ export class DashboardRepository {
     // ─── 5. TREND — compare current quarter condition vs previous ───
     const recentConditionAvg = recentLogs
       .filter((l) => l.completedAt >= threeMonthsAgo)
-      .map((l) => conditionMap[l.conditionFound] ?? 60);
-    const olderConditionAvg = olderLogs.map((l) => conditionMap[l.conditionFound] ?? 60);
+      .map((l) => CONDITION_SCORE_PERCENT[l.conditionFound as ConditionFound] ?? 60);
+    const olderConditionAvg = olderLogs.map(
+      (l) => CONDITION_SCORE_PERCENT[l.conditionFound as ConditionFound] ?? 60,
+    );
 
     const avgRecent =
       recentConditionAvg.length > 0
@@ -776,6 +767,118 @@ export class DashboardRepository {
       dimensions: { compliance, condition, coverage, investment, trend },
       sectorScores,
     };
+  }
+
+  /**
+   * Batch ISV calculation — fetches data once for ALL planIds, then computes per-plan.
+   * Returns a Map<planId, HealthIndex>. Used by properties list to avoid N+1 queries.
+   */
+  async getPropertyHealthIndexBatch(
+    planIds: string[],
+  ): Promise<Map<string, { score: number; label: string }>> {
+    const result = new Map<string, { score: number; label: string }>();
+    if (planIds.length === 0) return result;
+
+    const now = new Date();
+    const twelveMonthsAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+
+    // 3 queries total (not 3 × N)
+    const [allTasks, allRecentLogs] = await Promise.all([
+      this.prisma.task.findMany({
+        where: { maintenancePlanId: { in: planIds }, deletedAt: null },
+        select: {
+          maintenancePlanId: true,
+          status: true,
+          priority: true,
+          sector: true,
+        },
+      }),
+      this.prisma.taskLog.findMany({
+        where: {
+          task: { maintenancePlanId: { in: planIds } },
+          completedAt: { gte: twelveMonthsAgo },
+        },
+        select: {
+          conditionFound: true,
+          actionTaken: true,
+          task: { select: { maintenancePlanId: true, sector: true } },
+        },
+      }),
+    ]);
+
+    // Group by planId
+    const tasksByPlan = new Map<string, typeof allTasks>();
+    for (const t of allTasks) {
+      const arr = tasksByPlan.get(t.maintenancePlanId) ?? [];
+      arr.push(t);
+      tasksByPlan.set(t.maintenancePlanId, arr);
+    }
+    const logsByPlan = new Map<string, typeof allRecentLogs>();
+    for (const l of allRecentLogs) {
+      const pid = l.task.maintenancePlanId;
+      const arr = logsByPlan.get(pid) ?? [];
+      arr.push(l);
+      logsByPlan.set(pid, arr);
+    }
+
+    const priorityWeight = { HIGH: 3, URGENT: 4, MEDIUM: 2, LOW: 1 } as Record<string, number>;
+    const labels: [number, string][] = [
+      [80, 'Excelente'],
+      [60, 'Bueno'],
+      [40, 'Regular'],
+      [20, 'Necesita atención'],
+      [0, 'Crítico'],
+    ];
+
+    for (const planId of planIds) {
+      const tasks = tasksByPlan.get(planId) ?? [];
+      const logs = logsByPlan.get(planId) ?? [];
+
+      if (tasks.length === 0) {
+        result.set(planId, { score: 0, label: 'Sin datos' });
+        continue;
+      }
+
+      // Compliance
+      let totalW = 0;
+      let onTimeW = 0;
+      for (const t of tasks) {
+        const w = priorityWeight[t.priority] ?? 2;
+        totalW += w;
+        if (t.status !== TaskStatus.OVERDUE) onTimeW += w;
+      }
+      const compliance = totalW > 0 ? Math.round((onTimeW / totalW) * 100) : 100;
+
+      // Condition
+      const condScores = logs
+        .map((l) => CONDITION_SCORE_PERCENT[l.conditionFound as ConditionFound] ?? 60)
+        .filter((v) => v != null);
+      const condition =
+        condScores.length > 0
+          ? Math.round(condScores.reduce((a, b) => a + b, 0) / condScores.length)
+          : 50;
+
+      // Coverage
+      const allSectors = new Set(tasks.map((t) => t.sector).filter(Boolean));
+      const inspected = new Set(logs.map((l) => l.task.sector).filter(Boolean));
+      const coverage =
+        allSectors.size > 0 ? Math.round((inspected.size / allSectors.size) * 100) : 0;
+
+      // Investment
+      const prevCount = logs.filter((l) =>
+        (PREVENTIVE_ACTIONS as readonly string[]).includes(l.actionTaken),
+      ).length;
+      const investment = logs.length > 0 ? Math.round((prevCount / logs.length) * 100) : 50;
+
+      const score = Math.round(
+        compliance * 0.35 + condition * 0.3 + coverage * 0.2 + investment * 0.15,
+      );
+      const label = labels.find(([threshold]) => score >= threshold)?.[1] ?? 'Crítico';
+
+      result.set(planId, { score, label });
+    }
+
+    return result;
   }
 
   /** SLA metrics for service requests: average response time and resolution time. */

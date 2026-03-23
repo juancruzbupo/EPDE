@@ -1,10 +1,9 @@
 import { UserRole } from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Linking, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 
 import { ActionList } from '@/components/action-list';
-import { AdminDashboard } from '@/components/admin-dashboard';
 import { AnalyticsSection } from '@/components/analytics-section';
 import { ErrorState } from '@/components/error-state';
 import { HomeStatusCard } from '@/components/home-status-card';
@@ -15,6 +14,7 @@ import {
   useClientDashboardStats,
   useClientUpcomingTasks,
 } from '@/hooks/use-dashboard';
+import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { useAuthStore } from '@/stores/auth-store';
@@ -23,7 +23,29 @@ export default function DashboardScreen() {
   const userRole = useAuthStore((s) => s.user?.role);
 
   if (userRole === UserRole.ADMIN) {
-    return <AdminDashboard />;
+    return (
+      <View className="bg-background flex-1 items-center justify-center p-6">
+        <Text style={TYPE.displayLg} className="text-foreground text-center">
+          Panel de Administración
+        </Text>
+        <Text style={TYPE.bodyMd} className="text-muted-foreground mt-3 text-center">
+          La administración de EPDE se realiza desde la versión web.
+        </Text>
+        <Pressable
+          accessibilityRole="link"
+          onPress={() => {
+            haptics.light();
+            void Linking.openURL('https://epde.com.ar/dashboard');
+          }}
+          className="mt-6 rounded-xl px-6 py-3"
+          style={{ backgroundColor: COLORS.primary }}
+        >
+          <Text style={TYPE.titleSm} className="text-center text-white">
+            Abrir panel web
+          </Text>
+        </Pressable>
+      </View>
+    );
   }
 
   return <ClientDashboard />;

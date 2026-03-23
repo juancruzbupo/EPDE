@@ -4,7 +4,13 @@ import type {
   BudgetCommentPublic,
   BudgetLineItemPublic,
 } from '@epde/shared';
-import { BudgetStatus, formatARS, formatRelativeDate, isBudgetTerminal } from '@epde/shared';
+import {
+  BUDGET_AUDIT_ACTION_LABELS,
+  BudgetStatus,
+  formatARS,
+  formatRelativeDate,
+  isBudgetTerminal,
+} from '@epde/shared';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import * as ImagePicker from 'expo-image-picker';
@@ -67,17 +73,7 @@ function LineItem({ item }: { item: BudgetLineItemPublic }) {
 }
 
 function AuditLogEntry({ entry }: { entry: BudgetAuditLogPublic }) {
-  const ACTION_LABELS: Record<string, string> = {
-    created: 'Creó el presupuesto',
-    edited: 'Editó el presupuesto',
-    quoted: 'Envió cotización',
-    're-quoted': 'Re-cotizó',
-    approved: 'Aprobó',
-    rejected: 'Rechazó',
-    'in-progress': 'Marcó en progreso',
-    completed: 'Completó',
-    expired: 'Expiró',
-  };
+  const ACTION_LABELS = BUDGET_AUDIT_ACTION_LABELS;
 
   return (
     <View className="border-border border-b py-2">

@@ -1,5 +1,10 @@
-import { type BudgetRequestPublic, BudgetStatus } from '@epde/shared';
-import { formatARS, formatRelativeDate } from '@epde/shared';
+import {
+  BUDGET_STATUS_PLURAL_LABELS,
+  type BudgetRequestPublic,
+  BudgetStatus,
+  formatARS,
+  formatRelativeDate,
+} from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { memo, useCallback, useMemo, useState } from 'react';
 import {
@@ -26,12 +31,12 @@ import { haptics } from '@/lib/haptics';
 
 const FILTERS = [
   { key: undefined, label: 'Todos' },
-  { key: BudgetStatus.PENDING, label: 'Pendientes' },
-  { key: BudgetStatus.QUOTED, label: 'Cotizados' },
-  { key: BudgetStatus.APPROVED, label: 'Aprobados' },
-  { key: BudgetStatus.REJECTED, label: 'Rechazados' },
-  { key: BudgetStatus.IN_PROGRESS, label: 'En Progreso' },
-  { key: BudgetStatus.COMPLETED, label: 'Completados' },
+  { key: BudgetStatus.PENDING, label: BUDGET_STATUS_PLURAL_LABELS.PENDING },
+  { key: BudgetStatus.QUOTED, label: BUDGET_STATUS_PLURAL_LABELS.QUOTED },
+  { key: BudgetStatus.APPROVED, label: BUDGET_STATUS_PLURAL_LABELS.APPROVED },
+  { key: BudgetStatus.REJECTED, label: BUDGET_STATUS_PLURAL_LABELS.REJECTED },
+  { key: BudgetStatus.IN_PROGRESS, label: BUDGET_STATUS_PLURAL_LABELS.IN_PROGRESS },
+  { key: BudgetStatus.COMPLETED, label: BUDGET_STATUS_PLURAL_LABELS.COMPLETED },
 ] as const;
 
 const BudgetCard = memo(function BudgetCard({ budget }: { budget: BudgetRequestPublic }) {

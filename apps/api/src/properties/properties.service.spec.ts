@@ -22,6 +22,8 @@ const mockDashboardRepository = {
   getClientStats: jest.fn(),
   getRecentActivity: jest.fn(),
   getClientUpcoming: jest.fn(),
+  getPropertyHealthIndex: jest.fn(),
+  getPropertyHealthIndexBatch: jest.fn().mockResolvedValue(new Map()),
 };
 
 const mockISVSnapshotRepository = {
