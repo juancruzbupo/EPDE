@@ -11,7 +11,10 @@ export function NotificationBell() {
 
   return (
     <Button variant="ghost" size="icon" className="relative" asChild>
-      <Link href="/notifications" aria-label="Notificaciones">
+      <Link
+        href="/notifications"
+        aria-label={count ? `${count} notificaciones sin leer` : 'Notificaciones'}
+      >
         <Bell className="h-4 w-4" />
         {count != null && count > 0 && (
           <span className="bg-destructive absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[11px] font-bold text-white">
