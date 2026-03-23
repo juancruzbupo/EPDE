@@ -1,5 +1,6 @@
-import type { TaskPublic } from '@epde/shared';
+import type { ConditionFound, DetectedProblem, PropertySector, TaskPublic } from '@epde/shared';
 import {
+  CONDITION_FOUND_LABELS,
   formatRelativeDate,
   PROPERTY_SECTOR_LABELS,
   RECURRENCE_TYPE_LABELS,
@@ -39,6 +40,7 @@ import {
   usePropertyHealthHistory,
   usePropertyHealthIndex,
   usePropertyPhotos,
+  usePropertyProblems,
 } from '@/hooks/use-properties';
 import { useAnimatedEntry } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
@@ -114,6 +116,7 @@ export default function PropertyDetailScreen() {
   const { data: photos } = usePropertyPhotos(id);
   const { data: healthIndex } = usePropertyHealthIndex(id);
   const { data: healthHistory } = usePropertyHealthHistory(id);
+  const { data: problems } = usePropertyProblems(id);
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('es-AR', {
@@ -420,6 +423,56 @@ export default function PropertyDetailScreen() {
                 title="Sin plan asignado"
                 message="Esta propiedad aun no tiene un plan de mantenimiento."
               />
+            )}
+
+            {/* Detected problems */}
+            {problems && problems.length > 0 && (
+              <CollapsibleSection title={`Problemas detectados (${problems.length})`} defaultOpen>
+                <View className="gap-2">
+                  {problems.slice(0, 5).map((problem: DetectedProblem) => (
+                    <Pressable
+                      key={problem.taskId}
+                      className="border-border bg-card flex-row items-center justify-between rounded-lg border p-3"
+                      onPress={() => {
+                        haptics.light();
+                        setShowServiceModal(true);
+                      }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Problema: ${problem.taskName}`}
+                    >
+                      <View className="flex-1">
+                        <View className="flex-row items-center gap-2">
+                          <Text style={TYPE.titleSm} className="text-foreground">
+                            {problem.taskName}
+                          </Text>
+                          <View
+                            className={`rounded-full px-2 py-0.5 ${problem.severity === 'high' ? 'bg-destructive/15' : 'bg-warning/15'}`}
+                          >
+                            <Text
+                              style={TYPE.labelSm}
+                              className={
+                                problem.severity === 'high' ? 'text-destructive' : 'text-warning'
+                              }
+                            >
+                              {CONDITION_FOUND_LABELS[problem.conditionFound as ConditionFound] ??
+                                problem.conditionFound}
+                            </Text>
+                          </View>
+                        </View>
+                        {problem.sector && (
+                          <Text style={TYPE.bodySm} className="text-muted-foreground">
+                            {PROPERTY_SECTOR_LABELS[problem.sector as PropertySector] ??
+                              problem.sector}
+                          </Text>
+                        )}
+                      </View>
+                      <Text style={TYPE.labelMd} className="text-primary">
+                        Solicitar &gt;
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </CollapsibleSection>
             )}
 
             {/* Expenses section — with analytics (parity with web) */}

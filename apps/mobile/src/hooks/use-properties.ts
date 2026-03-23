@@ -15,6 +15,7 @@ import {
   getPropertyHealthHistory,
   getPropertyHealthIndex,
   getPropertyPhotos,
+  getPropertyProblems,
   type PropertyFilters,
 } from '@/lib/api/properties';
 
@@ -66,6 +67,14 @@ export function usePropertyHealthHistory(id: string) {
   return useQuery({
     queryKey: [QUERY_KEYS.properties, id, QUERY_KEYS.propertyHealthHistory],
     queryFn: ({ signal }) => getPropertyHealthHistory(id, signal).then((r) => r.data),
+    enabled: !!id,
+  });
+}
+
+export function usePropertyProblems(id: string) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.properties, id, QUERY_KEYS.propertyProblems],
+    queryFn: ({ signal }) => getPropertyProblems(id, signal).then((r) => r.data),
     enabled: !!id,
   });
 }

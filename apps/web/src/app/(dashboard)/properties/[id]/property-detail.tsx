@@ -1,8 +1,15 @@
 'use client';
 
-import type { PropertyPublic } from '@epde/shared';
-import { PROPERTY_SECTOR_LABELS, PROPERTY_TYPE_LABELS, type PropertySector } from '@epde/shared';
+import type { DetectedProblem, PropertyPublic } from '@epde/shared';
 import {
+  CONDITION_FOUND_LABELS,
+  type ConditionFound,
+  PROPERTY_SECTOR_LABELS,
+  PROPERTY_TYPE_LABELS,
+  type PropertySector,
+} from '@epde/shared';
+import {
+  AlertTriangle,
   ArrowLeft,
   Camera,
   ChevronDown,
@@ -29,8 +36,10 @@ import {
   usePropertyHealthHistory,
   usePropertyHealthIndex,
   usePropertyPhotos,
+  usePropertyProblems,
 } from '@/hooks/use-properties';
 
+import { CreateServiceDialog } from '../../service-requests/create-service-dialog';
 import { EditPropertyDialog } from './edit-property-dialog';
 import { PlanEditor } from './plan-editor';
 import { PlanViewer } from './plan-viewer';
@@ -557,6 +566,8 @@ function PropertyPhotosTab({ propertyId }: { propertyId: string }) {
 function PropertyHealthTab({ propertyId, address }: { propertyId: string; address: string }) {
   const { data: healthIndex, isLoading } = usePropertyHealthIndex(propertyId);
   const { data: history } = usePropertyHealthHistory(propertyId);
+  const { data: problems } = usePropertyProblems(propertyId);
+  const [serviceDialogProblem, setServiceDialogProblem] = useState<DetectedProblem | null>(null);
 
   if (isLoading) {
     return (
@@ -585,5 +596,78 @@ function PropertyHealthTab({ propertyId, address }: { propertyId: string; addres
     );
   }
 
-  return <HealthIndexCard index={healthIndex} history={history} address={address} />;
+  return (
+    <div className="space-y-6">
+      <HealthIndexCard index={healthIndex} history={history} address={address} />
+
+      {/* Detected problems */}
+      {problems && problems.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="text-destructive h-4 w-4" />
+              <CardTitle className="text-base">
+                Problemas detectados
+                <Badge variant="destructive" className="ml-2">
+                  {problems.length}
+                </Badge>
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {problems.map((problem) => (
+              <div
+                key={problem.taskId}
+                className="border-border flex items-center justify-between rounded-lg border p-3"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="type-body-md text-foreground truncate font-medium">
+                      {problem.taskName}
+                    </span>
+                    <Badge variant={problem.severity === 'high' ? 'destructive' : 'warning'}>
+                      {CONDITION_FOUND_LABELS[problem.conditionFound as ConditionFound] ??
+                        problem.conditionFound}
+                    </Badge>
+                  </div>
+                  {problem.sector && (
+                    <span className="type-body-sm text-muted-foreground">
+                      {PROPERTY_SECTOR_LABELS[problem.sector as PropertySector] ?? problem.sector}
+                    </span>
+                  )}
+                  {problem.notes && (
+                    <p className="type-body-sm text-muted-foreground mt-1 truncate">
+                      {problem.notes}
+                    </p>
+                  )}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setServiceDialogProblem(problem)}
+                >
+                  Solicitar servicio
+                </Button>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Service request dialog triggered from problem */}
+      {serviceDialogProblem && (
+        <CreateServiceDialog
+          open={!!serviceDialogProblem}
+          onOpenChange={(open) => !open && setServiceDialogProblem(null)}
+          defaultPropertyId={propertyId}
+          defaultTaskId={serviceDialogProblem.taskId}
+          defaultTitle={`Problema: ${serviceDialogProblem.taskName}`}
+          defaultDescription={
+            serviceDialogProblem.notes ??
+            `Condición: ${CONDITION_FOUND_LABELS[serviceDialogProblem.conditionFound as ConditionFound] ?? serviceDialogProblem.conditionFound}`
+          }
+        />
+      )}
+    </div>
+  );
 }
