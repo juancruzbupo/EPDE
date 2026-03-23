@@ -24,6 +24,7 @@ import Animated from 'react-native-reanimated';
 import { AnimatedListItem } from '@/components/animated-list-item';
 import { CollapsibleSection } from '@/components/collapsible-section';
 import { CompleteTaskModal } from '@/components/complete-task-modal';
+import { CreateServiceRequestModal } from '@/components/create-service-request-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import {
@@ -45,6 +46,7 @@ import {
 import { useAnimatedEntry } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
+import { haptics } from '@/lib/haptics';
 import { defaultScreenOptions } from '@/lib/screen-options';
 
 type StatusFilter = 'ALL' | typeof TaskStatus.UPCOMING | typeof TaskStatus.OVERDUE;
@@ -138,6 +140,7 @@ export default function PropertyDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
   const [completeTask, setCompleteTask] = useState<TaskPublic | null>(null);
+  const [showServiceModal, setShowServiceModal] = useState(false);
 
   const infoCardStyle = useAnimatedEntry();
   const {
@@ -730,6 +733,13 @@ export default function PropertyDetailScreen() {
           planId={planId}
         />
       )}
+
+      {/* Service request modal from detected problems */}
+      <CreateServiceRequestModal
+        visible={showServiceModal}
+        onClose={() => setShowServiceModal(false)}
+        defaultPropertyId={property?.id}
+      />
     </View>
   );
 }

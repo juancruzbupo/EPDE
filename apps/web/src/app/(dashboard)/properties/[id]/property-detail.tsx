@@ -16,6 +16,7 @@ import {
   ChevronRight,
   ClipboardList,
   DollarSign,
+  Heart,
   Pencil,
   TrendingUp,
 } from 'lucide-react';
@@ -647,7 +648,7 @@ function PropertyHealthTab({
     return (
       <Card>
         <CardContent className="flex flex-col items-center gap-2 py-12">
-          <DollarSign className="text-muted-foreground/60 h-8 w-8" />
+          <Heart className="text-muted-foreground/60 h-8 w-8" />
           <p className="text-muted-foreground text-sm">
             No hay datos suficientes para calcular el índice de salud.
           </p>
