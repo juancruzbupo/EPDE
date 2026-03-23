@@ -33,18 +33,18 @@ function getScoreTheme(score: number) {
   if (score >= 60)
     return {
       title: 'Tu casa necesita algo de atención',
-      bg: 'bg-primary/5',
-      border: 'border-primary/20',
-      barColor: 'var(--primary)',
-      textColor: 'text-primary',
-    };
-  if (score >= 40)
-    return {
-      title: 'Tu casa necesita atención',
       bg: 'bg-warning/5',
       border: 'border-warning/20',
       barColor: 'var(--warning)',
       textColor: 'text-warning',
+    };
+  if (score >= 40)
+    return {
+      title: 'Tu casa necesita atención',
+      bg: 'bg-caution/5',
+      border: 'border-caution/20',
+      barColor: 'var(--caution)',
+      textColor: 'text-caution',
     };
   return {
     title: 'Tu casa necesita atención urgente',

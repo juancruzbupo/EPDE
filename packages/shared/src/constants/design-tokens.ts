@@ -36,7 +36,7 @@ export const DESIGN_TOKENS_LIGHT = {
   // Semantic status colors
   success: '#4d7d5c',
   successForeground: '#1a1715',
-  warning: '#c4a030',
+  warning: '#917718',
   warningForeground: '#1a1715',
   caution: '#a85a20',
   cautionForeground: '#fafaf8',

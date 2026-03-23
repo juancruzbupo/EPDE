@@ -62,9 +62,9 @@ export function propertyColumns({ isAdmin }: { isAdmin: boolean }): ColumnDef<Pr
           isv.score >= 80
             ? 'success'
             : isv.score >= 60
-              ? 'success'
+              ? 'warning'
               : isv.score >= 40
-                ? 'warning'
+                ? 'caution'
                 : 'destructive';
         return (
           <Badge variant={variant}>

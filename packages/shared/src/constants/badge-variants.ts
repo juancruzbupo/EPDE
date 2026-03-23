@@ -19,18 +19,19 @@ export type BadgeVariant =
   | 'destructive'
   | 'outline'
   | 'success'
-  | 'warning';
+  | 'warning'
+  | 'caution';
 
 export const TASK_STATUS_VARIANT = {
-  PENDING: 'secondary',
-  UPCOMING: 'default',
+  PENDING: 'warning',
+  UPCOMING: 'secondary',
   OVERDUE: 'destructive',
   COMPLETED: 'success',
 } satisfies Record<TaskStatus, BadgeVariant>;
 
 export const BUDGET_STATUS_VARIANT = {
   PENDING: 'secondary',
-  QUOTED: 'default',
+  QUOTED: 'warning',
   APPROVED: 'success',
   REJECTED: 'destructive',
   IN_PROGRESS: 'default',
@@ -40,7 +41,7 @@ export const BUDGET_STATUS_VARIANT = {
 
 export const SERVICE_STATUS_VARIANT = {
   OPEN: 'secondary',
-  IN_REVIEW: 'default',
+  IN_REVIEW: 'warning',
   IN_PROGRESS: 'default',
   RESOLVED: 'success',
   CLOSED: 'outline',
@@ -49,14 +50,14 @@ export const SERVICE_STATUS_VARIANT = {
 export const URGENCY_VARIANT = {
   LOW: 'outline',
   MEDIUM: 'secondary',
-  HIGH: 'default',
+  HIGH: 'warning',
   URGENT: 'destructive',
 } satisfies Record<ServiceUrgency, BadgeVariant>;
 
 export const PRIORITY_VARIANT = {
   LOW: 'outline',
   MEDIUM: 'secondary',
-  HIGH: 'default',
+  HIGH: 'warning',
   URGENT: 'destructive',
 } satisfies Record<TaskPriority, BadgeVariant>;
 

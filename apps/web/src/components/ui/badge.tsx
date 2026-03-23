@@ -17,6 +17,7 @@ const badgeVariants = cva(
           'border-border text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground',
         success: 'bg-success/15 text-success border-success/20 [a&]:hover:bg-success/25',
         warning: 'bg-warning/15 text-warning border-warning/20 [a&]:hover:bg-warning/25',
+        caution: 'bg-caution/15 text-caution border-caution/20 [a&]:hover:bg-caution/25',
       },
     },
     defaultVariants: {
