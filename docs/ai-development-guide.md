@@ -121,6 +121,14 @@
 104. **Tabs controlados para navegación programática** — Usar `<Tabs value={activeTab}>` (controlado) en vez de `<Tabs defaultValue={...}>` (no controlado). `defaultValue` solo se lee en el primer render — cambios posteriores de state no surten efecto
 105. **DataTable overflow-x-auto** — El wrapper de DataTable tiene `overflow-x-auto` para scroll horizontal en mobile. Sin esto, tablas con muchas columnas se clipean
 106. **Toaster config** — `<Toaster richColors position="top-right" closeButton toastOptions={{ duration: 5000 }} />`. Duration 5s (no default 4s) para errores legibles. `closeButton` permite dismiss manual
+107. **SearchableFilterSelect para datos dinámicos** — Usar `SearchableFilterSelect` (cmdk + Popover) para dropdowns que crecen con datos (Cliente, Propiedad, Categoría). Usar `FilterSelect` simple para enums fijos (Tipo, Estado, Prioridad, Sector). Ref: `searchable-filter-select.tsx`
+108. **FilterSelect muestra placeholder como label** — Cuando value es "all", muestra el placeholder (ej: "Tipo") en vez de "Todos" genérico. En el dropdown, primera opción es "{Placeholder}: Todos". Esto da contexto sin labels externos
+109. **DataTable column sorting** — `getSortedRowModel()` habilitado. Columnas con `accessorKey`/`accessorFn` son auto-sorteables (click en header). Columnas con solo `id` (sin accessor) no se pueden sortear — agregar `accessorFn` si se necesita
+110. **Breadcrumbs en detail pages** — Componente `Breadcrumbs` con `aria-label="Breadcrumb"` usado en property detail, budget detail, service request detail. Último item es texto plano (no link)
+111. **Admin default tab es Plan** — Property detail usa `isAdmin ? 'plan' : 'health'` como tab default. Admin trabaja sobre el plan; cliente consulta la salud. Respeta `?tab=` URL param
+112. **PlanEditor status filter** — Default "Por inspeccionar" (OVERDUE+PENDING+UPCOMING). Admin puede cambiar a "Todas" para ver completadas. Category filter via SearchableFilterSelect
+113. **Generar presupuesto desde ServiceRequest** — Botón "Generar presupuesto para este servicio" en detail page (admin only, non-terminal). Abre `CreateBudgetDialog` pre-rellenado con propertyId + título + descripción del SR
+114. **Bulk complete con foto** — `BulkCompleteDialog` acepta foto compartida que se aplica a todas las tareas del batch. `photoUrl` en dependency array del `useCallback` (stale closure fix). Submit disabled durante upload
 
 ### NUNCA
 
