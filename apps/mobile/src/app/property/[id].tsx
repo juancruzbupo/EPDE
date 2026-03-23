@@ -375,7 +375,7 @@ export default function PropertyDetailScreen() {
                                 className={`w-full rounded-t ${s.score >= 80 ? 'bg-success' : s.score >= 60 ? 'bg-primary' : s.score >= 40 ? 'bg-warning' : s.score >= 20 ? 'bg-caution' : 'bg-destructive'}`}
                                 style={{ height: h }}
                               />
-                              <Text className="text-muted-foreground mt-0.5 text-[8px]">
+                              <Text className="text-muted-foreground mt-0.5 text-[10px]">
                                 {s.month.slice(5)}
                               </Text>
                             </View>
@@ -563,7 +563,7 @@ export default function PropertyDetailScreen() {
                         accessibilityLabel={photo.description || 'Foto de la propiedad'}
                       />
                       <View className="absolute inset-x-0 bottom-0 bg-black/50 px-1 py-0.5">
-                        <Text className="text-center text-[9px] text-white" numberOfLines={1}>
+                        <Text className="text-center text-[10px] text-white" numberOfLines={1}>
                           {photo.source === 'task' ? 'Tarea' : 'Solicitud'}
                         </Text>
                       </View>

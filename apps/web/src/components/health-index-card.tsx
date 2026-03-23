@@ -210,10 +210,10 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
                       className={`w-full rounded-t ${barColor(s.score)}`}
                       style={{ height: h }}
                     />
-                    <span className="text-muted-foreground mt-1 text-[9px]">
+                    <span className="text-muted-foreground mt-1 text-[11px]">
                       {s.month.slice(5)}
                     </span>
-                    <div className="pointer-events-none absolute -top-6 hidden rounded bg-black/80 px-1.5 py-0.5 text-[10px] text-white group-hover:block">
+                    <div className="pointer-events-none absolute -top-6 hidden rounded bg-black/80 px-1.5 py-0.5 text-[11px] text-white group-hover:block">
                       {s.score}
                     </div>
                   </div>
