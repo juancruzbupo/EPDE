@@ -29,6 +29,7 @@ import { memo, useCallback, useMemo, useState } from 'react';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ErrorState } from '@/components/error-state';
 import { SearchInput } from '@/components/search-input';
+import { SearchableFilterSelect } from '@/components/searchable-filter-select';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -289,6 +290,7 @@ export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
   const [search, setSearch] = useState('');
   const [priority, setPriority] = useState<TaskPriority | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<TaskStatus | 'all' | 'actionable'>('actionable');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const debouncedSearch = useDebounce(search);
 
   const toggleSelect = useCallback((taskId: string) => {
@@ -314,6 +316,14 @@ export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
 
   const completableTasks = useMemo(() => tasks.filter(isCompletable), [tasks]);
 
+  const categoryOptions = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const t of tasks) {
+      if (!seen.has(t.category.id)) seen.set(t.category.id, t.category.name);
+    }
+    return [...seen.entries()].map(([id, name]) => ({ value: id, label: name }));
+  }, [tasks]);
+
   const ACTIONABLE_STATUSES: TaskStatus[] = [
     TaskStatus.OVERDUE,
     TaskStatus.PENDING,
@@ -322,6 +332,9 @@ export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
 
   const filtered = useMemo(() => {
     let result = tasks;
+    if (categoryFilter !== 'all') {
+      result = result.filter((t) => t.category.id === categoryFilter);
+    }
     if (statusFilter === 'actionable') {
       result = result.filter((t) => ACTIONABLE_STATUSES.includes(t.status));
     } else if (statusFilter !== 'all') {
@@ -332,12 +345,10 @@ export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
     }
     if (debouncedSearch) {
       const q = debouncedSearch.toLowerCase();
-      result = result.filter(
-        (t) => t.name.toLowerCase().includes(q) || t.category.name.toLowerCase().includes(q),
-      );
+      result = result.filter((t) => t.name.toLowerCase().includes(q));
     }
     return result;
-  }, [tasks, statusFilter, priority, debouncedSearch]);
+  }, [tasks, categoryFilter, statusFilter, priority, debouncedSearch]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, { name: string; tasks: TaskPublic[] }>();
@@ -430,12 +441,16 @@ export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
             <StatusSummary tasks={tasks} />
 
             <div className="flex flex-wrap items-center gap-3">
-              {tasks.length >= SHOW_SEARCH_THRESHOLD && (
-                <SearchInput
-                  value={search}
-                  onChange={setSearch}
-                  placeholder="Buscar tarea o categoría..."
+              {categoryOptions.length > 1 && (
+                <SearchableFilterSelect
+                  value={categoryFilter}
+                  onChange={setCategoryFilter}
+                  options={categoryOptions}
+                  placeholder="Categoría"
                 />
+              )}
+              {tasks.length >= SHOW_SEARCH_THRESHOLD && (
+                <SearchInput value={search} onChange={setSearch} placeholder="Buscar tarea..." />
               )}
               <div className="flex flex-wrap gap-1">
                 {STATUS_OPTIONS.map((opt) => (
