@@ -58,7 +58,9 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
   const [editOpen, setEditOpen] = useState(false);
   const [highlightTaskId, setHighlightTaskId] = useState<string | null>(null);
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') ?? 'health');
+  const [activeTab, setActiveTab] = useState(
+    searchParams.get('tab') ?? (isAdmin ? 'plan' : 'health'),
+  );
 
   if (isError && !property) {
     return <ErrorState message="No se pudo cargar la propiedad" onRetry={refetch} />;

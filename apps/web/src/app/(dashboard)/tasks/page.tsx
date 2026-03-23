@@ -210,6 +210,7 @@ export default function TasksPage() {
   const [search, setSearch] = useState('');
   const [priority, setPriority] = useState<TaskPriority | 'all'>('all');
   const [sectorFilter, setSectorFilter] = useState<PropertySector | 'all'>('all');
+  const [propertyFilter, setPropertyFilter] = useState<string>('all');
   const [activeStatus, setActiveStatus] = useState<TaskStatus | null>(null);
   const debouncedSearch = useDebounce(search);
 
@@ -246,9 +247,23 @@ export default function TasksPage() {
     selectedTask?.id ?? '',
   );
 
+  const propertyOptions = useMemo(() => {
+    if (!tasks) return [];
+    const seen = new Map<string, string>();
+    for (const t of tasks) {
+      const p = t.maintenancePlan.property;
+      if (!seen.has(p.id)) seen.set(p.id, p.address);
+    }
+    return [...seen.entries()].map(([id, address]) => ({ value: id, label: address }));
+  }, [tasks]);
+
   const filtered = useMemo(() => {
     if (!tasks) return [];
     let result = tasks;
+
+    if (propertyFilter !== 'all') {
+      result = result.filter((t) => t.maintenancePlan.property.id === propertyFilter);
+    }
 
     if (priority !== 'all') {
       result = result.filter((t) => t.priority === priority);
@@ -270,7 +285,7 @@ export default function TasksPage() {
     }
 
     return result;
-  }, [tasks, priority, sectorFilter, debouncedSearch]);
+  }, [tasks, propertyFilter, priority, sectorFilter, debouncedSearch]);
 
   const grouped = useMemo(() => {
     const map = new Map<TaskStatus, TaskListItem[]>();
@@ -329,6 +344,20 @@ export default function TasksPage() {
 
       {/* Filters */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
+        {propertyOptions.length > 1 && (
+          <select
+            value={propertyFilter}
+            onChange={(e) => setPropertyFilter(e.target.value)}
+            className="border-border bg-background text-foreground rounded-md border px-3 py-1.5 text-sm"
+          >
+            <option value="all">Todas las propiedades</option>
+            {propertyOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        )}
         <SearchInput
           value={search}
           onChange={setSearch}

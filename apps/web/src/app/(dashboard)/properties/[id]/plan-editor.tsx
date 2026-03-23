@@ -60,6 +60,14 @@ const PRIORITY_OPTIONS: { value: TaskPriority | 'all'; label: string }[] = [
   { value: TaskPriority.LOW, label: 'Baja' },
 ];
 
+const STATUS_OPTIONS: { value: TaskStatus | 'all' | 'actionable'; label: string }[] = [
+  { value: 'actionable', label: 'Por inspeccionar' },
+  { value: 'all', label: 'Todas' },
+  { value: TaskStatus.OVERDUE, label: TASK_STATUS_LABELS.OVERDUE },
+  { value: TaskStatus.PENDING, label: TASK_STATUS_LABELS.PENDING },
+  { value: TaskStatus.UPCOMING, label: TASK_STATUS_LABELS.UPCOMING },
+];
+
 interface PlanEditorProps {
   planId: string;
   activeSectors?: string[];
@@ -242,6 +250,7 @@ export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
   const [bulkCompleteOpen, setBulkCompleteOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [priority, setPriority] = useState<TaskPriority | 'all'>('all');
+  const [statusFilter, setStatusFilter] = useState<TaskStatus | 'all' | 'actionable'>('actionable');
   const debouncedSearch = useDebounce(search);
 
   const toggleSelect = useCallback((taskId: string) => {
@@ -267,8 +276,19 @@ export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
 
   const completableTasks = useMemo(() => tasks.filter(isCompletable), [tasks]);
 
+  const ACTIONABLE_STATUSES: TaskStatus[] = [
+    TaskStatus.OVERDUE,
+    TaskStatus.PENDING,
+    TaskStatus.UPCOMING,
+  ];
+
   const filtered = useMemo(() => {
     let result = tasks;
+    if (statusFilter === 'actionable') {
+      result = result.filter((t) => ACTIONABLE_STATUSES.includes(t.status));
+    } else if (statusFilter !== 'all') {
+      result = result.filter((t) => t.status === statusFilter);
+    }
     if (priority !== 'all') {
       result = result.filter((t) => t.priority === priority);
     }
@@ -279,7 +299,7 @@ export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
       );
     }
     return result;
-  }, [tasks, priority, debouncedSearch]);
+  }, [tasks, statusFilter, priority, debouncedSearch]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, { name: string; tasks: TaskPublic[] }>();
@@ -379,7 +399,22 @@ export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
                   placeholder="Buscar tarea o categoría..."
                 />
               )}
-              <div className="flex gap-1">
+              <div className="flex flex-wrap gap-1">
+                {STATUS_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setStatusFilter(opt.value)}
+                    className={cn(
+                      'rounded-full px-3 py-1 text-xs font-medium transition-colors',
+                      statusFilter === opt.value
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80',
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+                <span className="text-border mx-1">|</span>
                 {PRIORITY_OPTIONS.map((opt) => (
                   <button
                     key={opt.value}

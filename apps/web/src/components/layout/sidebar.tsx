@@ -28,7 +28,7 @@ const navItems = [
   { label: 'Tareas', href: '/tasks', icon: CheckSquare },
   { label: 'Presupuestos', href: '/budgets', icon: FileText },
   { label: 'Servicios', href: '/service-requests', icon: Wrench },
-  { label: 'Notificaciones', href: '/notifications', icon: Bell, clientOnly: true },
+  { label: 'Notificaciones', href: '/notifications', icon: Bell },
   { label: 'Categorías', href: '/categories', icon: Tags, adminOnly: true },
   { label: 'Plantillas', href: '/templates', icon: LayoutTemplate, adminOnly: true },
 ];
