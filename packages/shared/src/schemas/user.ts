@@ -7,6 +7,7 @@ export const createClientSchema = z.object({
   email: z
     .string()
     .trim()
+    .toLowerCase()
     .email('Email inválido')
     .max(254, 'El email no puede superar 254 caracteres'),
   name: z

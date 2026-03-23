@@ -107,55 +107,58 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
       updatedBy?: string;
     },
   ) {
-    return this.prisma.$transaction(async (tx) => {
-      // Re-check status + version inside transaction for TOCTOU safety
-      const budget = await tx.budgetRequest.findUnique({ where: { id } });
-      if (
-        !budget ||
-        (budget.status !== BudgetStatus.PENDING && budget.status !== BudgetStatus.QUOTED)
-      ) {
-        throw new BudgetNotQuotableError();
-      }
-      if (budget.version !== expectedVersion) {
-        throw new BudgetVersionConflictError();
-      }
+    return this.prisma.$transaction(
+      async (tx) => {
+        // Re-check status + version inside transaction for TOCTOU safety
+        const budget = await tx.budgetRequest.findUnique({ where: { id } });
+        if (
+          !budget ||
+          (budget.status !== BudgetStatus.PENDING && budget.status !== BudgetStatus.QUOTED)
+        ) {
+          throw new BudgetNotQuotableError();
+        }
+        if (budget.version !== expectedVersion) {
+          throw new BudgetVersionConflictError();
+        }
 
-      // Re-quoting: delete existing line items + response before creating new ones
-      if (budget.status === BudgetStatus.QUOTED) {
-        await tx.budgetLineItem.deleteMany({ where: { budgetRequestId: id } });
-        await tx.budgetResponse.deleteMany({ where: { budgetRequestId: id } });
-      }
+        // Re-quoting: delete existing line items + response before creating new ones
+        if (budget.status === BudgetStatus.QUOTED) {
+          await tx.budgetLineItem.deleteMany({ where: { budgetRequestId: id } });
+          await tx.budgetResponse.deleteMany({ where: { budgetRequestId: id } });
+        }
 
-      await tx.budgetLineItem.createMany({
-        data: lineItems.map((item) => ({
-          budgetRequestId: id,
-          description: item.description,
-          quantity: new Prisma.Decimal(item.quantity),
-          unitPrice: new Prisma.Decimal(item.unitPrice),
-          subtotal: new Prisma.Decimal(item.quantity).mul(new Prisma.Decimal(item.unitPrice)),
-        })),
-      });
+        await tx.budgetLineItem.createMany({
+          data: lineItems.map((item) => ({
+            budgetRequestId: id,
+            description: item.description,
+            quantity: new Prisma.Decimal(item.quantity),
+            unitPrice: new Prisma.Decimal(item.unitPrice),
+            subtotal: new Prisma.Decimal(item.quantity).mul(new Prisma.Decimal(item.unitPrice)),
+          })),
+        });
 
-      await tx.budgetResponse.create({
-        data: {
-          budgetRequestId: id,
-          totalAmount: response.totalAmount,
-          estimatedDays: response.estimatedDays,
-          notes: response.notes,
-          validUntil: response.validUntil,
-        },
-      });
+        await tx.budgetResponse.create({
+          data: {
+            budgetRequestId: id,
+            totalAmount: response.totalAmount,
+            estimatedDays: response.estimatedDays,
+            notes: response.notes,
+            validUntil: response.validUntil,
+          },
+        });
 
-      return tx.budgetRequest.update({
-        where: { id },
-        data: {
-          status: BudgetStatus.QUOTED,
-          updatedBy: response.updatedBy,
-          version: { increment: 1 },
-        },
-        include: BUDGET_DETAIL_INCLUDE,
-      });
-    });
+        return tx.budgetRequest.update({
+          where: { id },
+          data: {
+            status: BudgetStatus.QUOTED,
+            updatedBy: response.updatedBy,
+            version: { increment: 1 },
+          },
+          include: BUDGET_DETAIL_INCLUDE,
+        });
+      },
+      { timeout: 10_000 },
+    );
   }
 
   /**
@@ -167,21 +170,24 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
     data: { title?: string; description?: string | null },
     updatedBy: string,
   ) {
-    return this.prisma.$transaction(async (tx) => {
-      const budget = await tx.budgetRequest.findUnique({ where: { id } });
-      if (!budget || budget.status !== BudgetStatus.PENDING) {
-        throw new BudgetNotEditableError();
-      }
-      if (budget.version !== expectedVersion) {
-        throw new BudgetVersionConflictError();
-      }
+    return this.prisma.$transaction(
+      async (tx) => {
+        const budget = await tx.budgetRequest.findUnique({ where: { id } });
+        if (!budget || budget.status !== BudgetStatus.PENDING) {
+          throw new BudgetNotEditableError();
+        }
+        if (budget.version !== expectedVersion) {
+          throw new BudgetVersionConflictError();
+        }
 
-      return tx.budgetRequest.update({
-        where: { id },
-        data: { ...data, updatedBy, version: { increment: 1 } },
-        include: BUDGET_DETAIL_INCLUDE,
-      });
-    });
+        return tx.budgetRequest.update({
+          where: { id },
+          data: { ...data, updatedBy, version: { increment: 1 } },
+          include: BUDGET_DETAIL_INCLUDE,
+        });
+      },
+      { timeout: 10_000 },
+    );
   }
 
   /**
@@ -213,19 +219,22 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
     expectedVersion: number,
     updatedBy: string,
   ) {
-    return this.prisma.$transaction(async (tx) => {
-      const budget = await tx.budgetRequest.findUnique({ where: { id } });
-      if (!budget) return null;
-      if (budget.version !== expectedVersion) {
-        throw new BudgetVersionConflictError();
-      }
+    return this.prisma.$transaction(
+      async (tx) => {
+        const budget = await tx.budgetRequest.findUnique({ where: { id } });
+        if (!budget) return null;
+        if (budget.version !== expectedVersion) {
+          throw new BudgetVersionConflictError();
+        }
 
-      return tx.budgetRequest.update({
-        where: { id },
-        data: { status: newStatus, updatedBy, version: { increment: 1 } },
-        include: BUDGET_DETAIL_INCLUDE,
-      });
-    });
+        return tx.budgetRequest.update({
+          where: { id },
+          data: { status: newStatus, updatedBy, version: { increment: 1 } },
+          include: BUDGET_DETAIL_INCLUDE,
+        });
+      },
+      { timeout: 10_000 },
+    );
   }
 
   /**

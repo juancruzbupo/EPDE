@@ -53,26 +53,29 @@ export class QuoteTemplatesRepository {
       items?: { description: string; quantity: number; unitPrice: number; displayOrder?: number }[];
     },
   ) {
-    return this.prisma.$transaction(async (tx) => {
-      if (data.items) {
-        await tx.quoteTemplateItem.deleteMany({ where: { templateId: id } });
-        await tx.quoteTemplateItem.createMany({
-          data: data.items.map((item, i) => ({
-            templateId: id,
-            description: item.description,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-            displayOrder: item.displayOrder ?? i,
-          })),
-        });
-      }
+    return this.prisma.$transaction(
+      async (tx) => {
+        if (data.items) {
+          await tx.quoteTemplateItem.deleteMany({ where: { templateId: id } });
+          await tx.quoteTemplateItem.createMany({
+            data: data.items.map((item, i) => ({
+              templateId: id,
+              description: item.description,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              displayOrder: item.displayOrder ?? i,
+            })),
+          });
+        }
 
-      return tx.quoteTemplate.update({
-        where: { id },
-        data: { name: data.name },
-        include: INCLUDE_ITEMS,
-      });
-    });
+        return tx.quoteTemplate.update({
+          where: { id },
+          data: { name: data.name },
+          include: INCLUDE_ITEMS,
+        });
+      },
+      { timeout: 10_000 },
+    );
   }
 
   async delete(id: string) {

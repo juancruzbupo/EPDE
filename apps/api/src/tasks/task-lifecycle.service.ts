@@ -235,41 +235,44 @@ export class TaskLifecycleService {
     }
 
     // Wrap category find-or-create + task creation in a transaction
-    return this.prisma.$transaction(async (tx) => {
-      let category = await tx.category.findFirst({
-        where: { categoryTemplateId, deletedAt: null },
-      });
-      if (!category) {
-        category = await tx.category.create({
-          data: {
-            name: categoryTemplate.name,
-            icon: categoryTemplate.icon,
-            description: categoryTemplate.description,
-            categoryTemplateId,
-          },
+    return this.prisma.$transaction(
+      async (tx) => {
+        let category = await tx.category.findFirst({
+          where: { categoryTemplateId, deletedAt: null },
         });
-      }
+        if (!category) {
+          category = await tx.category.create({
+            data: {
+              name: categoryTemplate.name,
+              icon: categoryTemplate.icon,
+              description: categoryTemplate.description,
+              categoryTemplateId,
+            },
+          });
+        }
 
-      const maxOrder = await this.tasksRepository.getMaxOrder(planId);
+        const maxOrder = await this.tasksRepository.getMaxOrder(planId);
 
-      const taskData = categoryTemplate.tasks.map((tpl, index) => ({
-        maintenancePlanId: planId,
-        categoryId: category.id,
-        name: tpl.name,
-        taskType: tpl.taskType,
-        professionalRequirement: tpl.professionalRequirement,
-        technicalDescription: tpl.technicalDescription,
-        priority: tpl.priority,
-        recurrenceType: tpl.recurrenceType,
-        recurrenceMonths: tpl.recurrenceMonths,
-        estimatedDurationMinutes: tpl.estimatedDurationMinutes,
-        order: maxOrder + 1 + index,
-        status: TaskStatus.PENDING,
-        createdBy,
-      }));
+        const taskData = categoryTemplate.tasks.map((tpl, index) => ({
+          maintenancePlanId: planId,
+          categoryId: category.id,
+          name: tpl.name,
+          taskType: tpl.taskType,
+          professionalRequirement: tpl.professionalRequirement,
+          technicalDescription: tpl.technicalDescription,
+          priority: tpl.priority,
+          recurrenceType: tpl.recurrenceType,
+          recurrenceMonths: tpl.recurrenceMonths,
+          estimatedDurationMinutes: tpl.estimatedDurationMinutes,
+          order: maxOrder + 1 + index,
+          status: TaskStatus.PENDING,
+          createdBy,
+        }));
 
-      const result = await tx.task.createMany({ data: taskData });
-      return result.count;
-    });
+        const result = await tx.task.createMany({ data: taskData });
+        return result.count;
+      },
+      { timeout: 10_000 },
+    );
   }
 }

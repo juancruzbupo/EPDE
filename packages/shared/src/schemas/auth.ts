@@ -4,6 +4,7 @@ export const loginSchema = z.object({
   email: z
     .string()
     .trim()
+    .toLowerCase()
     .email('Email inválido')
     .max(254, 'El email no puede superar 254 caracteres'),
   password: z
@@ -28,7 +29,7 @@ export const setPasswordSchema = z.object({
 export type SetPasswordInput = z.infer<typeof setPasswordSchema>;
 
 export const forgotPasswordSchema = z.object({
-  email: z.string().trim().email('Email inválido').max(254),
+  email: z.string().trim().toLowerCase().email('Email inválido').max(254),
 });
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 

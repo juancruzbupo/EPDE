@@ -26,6 +26,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
     this.client = new Redis(url, {
       maxRetriesPerRequest: 3,
+      retryStrategy: (times) => Math.min(times * 200, 5_000), // Exponential backoff, max 5s
       ...(url.startsWith('rediss://') && { tls: { rejectUnauthorized: true } }),
     });
     this.client.on('connect', () => {

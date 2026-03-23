@@ -107,31 +107,34 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
     },
     newDueDate: Date | null,
   ) {
-    return this.prisma.$transaction(async (tx) => {
-      const log = await tx.taskLog.create({
-        data: {
-          taskId,
-          completedBy: userId,
-          completedAt: dto.completedAt ?? new Date(),
-          result: dto.result,
-          conditionFound: dto.conditionFound,
-          executor: dto.executor,
-          actionTaken: dto.actionTaken,
-          cost: dto.cost,
-          notes: dto.note,
-          photoUrl: dto.photoUrl,
-        },
-        include: { user: { select: { id: true, name: true } } },
-      });
+    return this.prisma.$transaction(
+      async (tx) => {
+        const log = await tx.taskLog.create({
+          data: {
+            taskId,
+            completedBy: userId,
+            completedAt: dto.completedAt ?? new Date(),
+            result: dto.result,
+            conditionFound: dto.conditionFound,
+            executor: dto.executor,
+            actionTaken: dto.actionTaken,
+            cost: dto.cost,
+            notes: dto.note,
+            photoUrl: dto.photoUrl,
+          },
+          include: { user: { select: { id: true, name: true } } },
+        });
 
-      const updatedTask = await tx.task.update({
-        where: { id: taskId },
-        data: { status: TaskStatus.PENDING, nextDueDate: newDueDate },
-        include: { category: true },
-      });
+        const updatedTask = await tx.task.update({
+          where: { id: taskId },
+          data: { status: TaskStatus.PENDING, nextDueDate: newDueDate },
+          include: { category: true },
+        });
 
-      return { task: updatedTask, log };
-    });
+        return { task: updatedTask, log };
+      },
+      { timeout: 10_000 },
+    );
   }
 
   async markOverdue(): Promise<number> {

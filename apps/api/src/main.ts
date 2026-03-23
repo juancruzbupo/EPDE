@@ -43,6 +43,7 @@ async function bootstrap() {
         },
       },
       crossOriginResourcePolicy: { policy: 'cross-origin' },
+      hsts: { maxAge: 31_536_000, includeSubDomains: true, preload: true },
     }),
   );
   app.use(compression());
