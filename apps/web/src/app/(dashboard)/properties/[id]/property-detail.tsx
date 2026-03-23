@@ -159,7 +159,11 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
 
         <TabsContent value="health" className="mt-4">
           {activeTab === 'health' && (
-            <PropertyHealthTab propertyId={property.id} address={property.address} />
+            <PropertyHealthTab
+              propertyId={property.id}
+              address={property.address}
+              onNavigateToTask={() => setActiveTab('plan')}
+            />
           )}
         </TabsContent>
       </Tabs>
@@ -603,7 +607,15 @@ function getImpactMessage(sector: string | null, severity: 'high' | 'medium' = '
   }
 }
 
-function PropertyHealthTab({ propertyId, address }: { propertyId: string; address: string }) {
+function PropertyHealthTab({
+  propertyId,
+  address,
+  onNavigateToTask,
+}: {
+  propertyId: string;
+  address: string;
+  onNavigateToTask?: () => void;
+}) {
   const { data: healthIndex, isLoading } = usePropertyHealthIndex(propertyId);
   const { data: history } = usePropertyHealthHistory(propertyId);
   const { data: problems } = usePropertyProblems(propertyId);
@@ -661,7 +673,11 @@ function PropertyHealthTab({ propertyId, address }: { propertyId: string; addres
             {problems.map((problem) => (
               <div
                 key={problem.taskId}
-                className="border-border hover:border-primary/30 flex items-center justify-between rounded-lg border p-3 transition-colors"
+                role="button"
+                tabIndex={0}
+                className="border-border hover:border-primary/30 flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors"
+                onClick={() => onNavigateToTask?.()}
+                onKeyDown={(e) => e.key === 'Enter' && onNavigateToTask?.()}
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
@@ -685,7 +701,10 @@ function PropertyHealthTab({ propertyId, address }: { propertyId: string; addres
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setServiceDialogProblem(problem)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setServiceDialogProblem(problem);
+                  }}
                 >
                   Solicitar servicio
                 </Button>
