@@ -107,6 +107,12 @@
 94. **Todas las queries de datos van en repositorios** — Refuerzo de SIEMPRE #4: services NUNCA llaman `this.prisma.xxx` directamente. Si un service necesita datos, agregar un método en el repository. Aplica a schedulers (ISVSnapshot usa `PropertiesRepository.findWithActivePlans()`) y bulk operations (TaskLifecycle usa `CategoryTemplatesRepository.findByIdWithTasks()`)
 95. **ServerUserProvider para datos de auth inmediatos** — El dashboard layout decodifica el JWT server-side y pasa `role` + `email` al client via `ServerUserProvider` context. Dashboard page usa `useServerUser()` para renderizar inmediatamente sin esperar `GET /auth/me`. El auth store se puebla en background via `checkAuth()` para datos completos (name, phone, etc.). Esto elimina el doble skeleton en first load
 96. **Login redirect con `window.location.href`** — Después de login exitoso, usar `window.location.href = '/dashboard'` (full page navigation) en vez de `router.push()`. Esto asegura que el browser procese los Set-Cookie headers antes de que el middleware verifique la cookie. `router.push()` causa race condition donde el middleware redirige de vuelta a `/login`
+97. **Agregar un PropertySector (sector de vivienda)** — Los sectores son un enum fijo (9 valores: EXTERIOR, ROOF, TERRACE, INTERIOR, KITCHEN, BATHROOM, BASEMENT, GARDEN, INSTALLATIONS). Para agregar uno nuevo (ej. POOL):
+    1. `packages/shared/src/types/enums.ts`: agregar `POOL: 'POOL'` a `PropertySector` + agregar a `PROPERTY_SECTOR_VALUES`
+    2. `packages/shared/src/constants/index.ts`: agregar `POOL: 'Piscina'` a `PROPERTY_SECTOR_LABELS`
+    3. `npx prisma migrate dev --name add_pool_sector` (agrega el valor al enum de PostgreSQL)
+    4. Zero cambios de UI — los filtros, toggles de activeSectors y selectores se generan automáticamente desde `PROPERTY_SECTOR_LABELS`/`PROPERTY_SECTOR_VALUES`. Los ISV sectorScores incluyen sectores nuevos automáticamente si tienen tareas asignadas
+98. **Agregar un enum value a cualquier enum compartido** — Mismo patrón que PropertySector: (1) agregar al enum + values array en `enums.ts`, (2) agregar label en `constants/index.ts`, (3) migración Prisma si el enum existe en schema. Los schemas Zod usan `z.enum(XXX_VALUES)` y se actualizan automáticamente. Badge variants en `badge-variants.ts` pueden necesitar mapeo si el enum tiene badge visual
 
 ### NUNCA
 
