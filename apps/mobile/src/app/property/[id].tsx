@@ -1,4 +1,4 @@
-import type { ConditionFound, DetectedProblem, PropertySector, TaskPublic } from '@epde/shared';
+import type { ConditionFound, DetectedProblem, TaskPublic } from '@epde/shared';
 import {
   CONDITION_FOUND_LABELS,
   formatRelativeDate,
@@ -54,6 +54,22 @@ const FILTERS: { key: StatusFilter; label: string }[] = [
   { key: TaskStatus.UPCOMING, label: TASK_STATUS_LABELS.UPCOMING },
   { key: TaskStatus.OVERDUE, label: TASK_STATUS_LABELS.OVERDUE },
 ];
+
+function getMobileImpactMessage(sector: string | null): string {
+  switch (sector) {
+    case 'ROOF':
+      return 'Puede generar filtraciones y daños mayores';
+    case 'BATHROOM':
+    case 'KITCHEN':
+      return 'Puede provocar humedad y deterioro';
+    case 'INSTALLATIONS':
+      return 'Puede afectar la seguridad de la instalación';
+    case 'BASEMENT':
+      return 'Puede comprometer la estructura';
+    default:
+      return 'Puede empeorar si no se trata a tiempo';
+  }
+}
 
 function TaskCard({ task, planId }: { task: TaskPublic; planId: string }) {
   const router = useRouter();
@@ -427,7 +443,10 @@ export default function PropertyDetailScreen() {
 
             {/* Detected problems */}
             {problems && problems.length > 0 && (
-              <CollapsibleSection title={`Problemas detectados (${problems.length})`} defaultOpen>
+              <CollapsibleSection title={`Puede generarte gastos (${problems.length})`} defaultOpen>
+                <Text style={TYPE.bodySm} className="text-muted-foreground mb-2">
+                  Detectamos problemas que pueden empeorar con el tiempo.
+                </Text>
                 <View className="gap-2">
                   {problems.slice(0, 5).map((problem: DetectedProblem) => (
                     <Pressable
@@ -459,10 +478,12 @@ export default function PropertyDetailScreen() {
                             </Text>
                           </View>
                         </View>
-                        {problem.sector && (
-                          <Text style={TYPE.bodySm} className="text-muted-foreground">
-                            {PROPERTY_SECTOR_LABELS[problem.sector as PropertySector] ??
-                              problem.sector}
+                        <Text style={TYPE.bodySm} className="text-muted-foreground">
+                          {getMobileImpactMessage(problem.sector)}
+                        </Text>
+                        {problem.severity === 'high' && (
+                          <Text style={TYPE.labelSm} className="text-destructive mt-0.5">
+                            Recomendado resolver cuanto antes
                           </Text>
                         )}
                       </View>

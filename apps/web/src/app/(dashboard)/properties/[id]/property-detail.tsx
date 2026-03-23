@@ -53,6 +53,7 @@ interface PropertyDetailProps {
 export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps) {
   const { data, isLoading, isError, refetch } = useProperty(id, { initialData });
   const property = data;
+  const { data: problemsCount } = usePropertyProblems(id);
   const [editOpen, setEditOpen] = useState(false);
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') ?? 'health');
@@ -118,7 +119,9 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
 
       <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="health">Salud</TabsTrigger>
+          <TabsTrigger value="health">
+            Salud{problemsCount && problemsCount.length > 0 ? ` (${problemsCount.length})` : ''}
+          </TabsTrigger>
           <TabsTrigger value="plan">Plan</TabsTrigger>
           <TabsTrigger value="expenses">Gastos</TabsTrigger>
           <TabsTrigger value="photos">Fotos</TabsTrigger>
@@ -563,6 +566,25 @@ function PropertyPhotosTab({ propertyId }: { propertyId: string }) {
 
 // ─── Health Tab ──────────────────────────────────────────
 
+function getImpactMessage(sector: string | null): string {
+  switch (sector) {
+    case 'ROOF':
+      return 'Puede generar filtraciones y daños mayores';
+    case 'BATHROOM':
+    case 'KITCHEN':
+      return 'Puede provocar humedad y deterioro';
+    case 'INSTALLATIONS':
+      return 'Puede afectar la seguridad de la instalación';
+    case 'BASEMENT':
+      return 'Puede comprometer la estructura';
+    case 'EXTERIOR':
+    case 'GARDEN':
+      return 'Puede empeorar con la intemperie';
+    default:
+      return 'Puede empeorar si no se trata a tiempo';
+  }
+}
+
 function PropertyHealthTab({ propertyId, address }: { propertyId: string; address: string }) {
   const { data: healthIndex, isLoading } = usePropertyHealthIndex(propertyId);
   const { data: history } = usePropertyHealthHistory(propertyId);
@@ -607,18 +629,21 @@ function PropertyHealthTab({ propertyId, address }: { propertyId: string; addres
             <div className="flex items-center gap-2">
               <AlertTriangle className="text-destructive h-4 w-4" />
               <CardTitle className="text-base">
-                Problemas detectados
+                Esto puede generarte gastos si no lo resolvés
                 <Badge variant="destructive" className="ml-2">
                   {problems.length}
                 </Badge>
               </CardTitle>
             </div>
+            <p className="type-body-sm text-muted-foreground mt-1">
+              Detectamos problemas que pueden empeorar con el tiempo.
+            </p>
           </CardHeader>
           <CardContent className="space-y-3">
             {problems.map((problem) => (
               <div
                 key={problem.taskId}
-                className="border-border flex items-center justify-between rounded-lg border p-3"
+                className="border-border hover:border-primary/30 flex items-center justify-between rounded-lg border p-3 transition-colors"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
@@ -630,14 +655,12 @@ function PropertyHealthTab({ propertyId, address }: { propertyId: string; addres
                         problem.conditionFound}
                     </Badge>
                   </div>
-                  {problem.sector && (
-                    <span className="type-body-sm text-muted-foreground">
-                      {PROPERTY_SECTOR_LABELS[problem.sector as PropertySector] ?? problem.sector}
-                    </span>
-                  )}
-                  {problem.notes && (
-                    <p className="type-body-sm text-muted-foreground mt-1 truncate">
-                      {problem.notes}
+                  <span className="type-body-sm text-muted-foreground">
+                    {getImpactMessage(problem.sector)}
+                  </span>
+                  {problem.severity === 'high' && (
+                    <p className="type-body-sm text-destructive mt-0.5 font-medium">
+                      Recomendado resolver cuanto antes
                     </p>
                   )}
                 </div>
