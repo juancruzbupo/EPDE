@@ -357,6 +357,7 @@ export default function TasksPage() {
           value={search}
           onChange={setSearch}
           placeholder="Buscar tarea, categoría o dirección..."
+          className="min-w-[360px]"
         />
         <div className="flex gap-1">
           {PRIORITY_OPTIONS.map((opt) => (

@@ -8,11 +8,17 @@ interface SearchInputProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  className?: string;
 }
 
-export function SearchInput({ value, onChange, placeholder = 'Buscar...' }: SearchInputProps) {
+export function SearchInput({
+  value,
+  onChange,
+  placeholder = 'Buscar...',
+  className,
+}: SearchInputProps) {
   return (
-    <div className="relative min-w-[280px]">
+    <div className={`relative min-w-[280px] ${className ?? ''}`}>
       <Search
         aria-hidden="true"
         className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
