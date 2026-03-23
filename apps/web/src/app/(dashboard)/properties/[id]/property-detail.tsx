@@ -55,6 +55,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
   const property = data;
   const { data: problemsCount } = usePropertyProblems(id);
   const [editOpen, setEditOpen] = useState(false);
+  const [highlightTaskId, setHighlightTaskId] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') ?? 'health');
 
@@ -135,7 +136,11 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
                 activeSectors={property.activeSectors}
               />
             ) : (
-              <PlanViewer planId={property.maintenancePlan.id} propertyId={property.id} />
+              <PlanViewer
+                planId={property.maintenancePlan.id}
+                propertyId={property.id}
+                highlightTaskId={highlightTaskId}
+              />
             )
           ) : (
             <Card>
@@ -162,7 +167,10 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
             <PropertyHealthTab
               propertyId={property.id}
               address={property.address}
-              onNavigateToTask={() => setActiveTab('plan')}
+              onNavigateToTask={(taskId) => {
+                setHighlightTaskId(taskId);
+                setActiveTab('plan');
+              }}
             />
           )}
         </TabsContent>
@@ -614,7 +622,7 @@ function PropertyHealthTab({
 }: {
   propertyId: string;
   address: string;
-  onNavigateToTask?: () => void;
+  onNavigateToTask?: (taskId: string) => void;
 }) {
   const { data: healthIndex, isLoading } = usePropertyHealthIndex(propertyId);
   const { data: history } = usePropertyHealthHistory(propertyId);
@@ -676,8 +684,8 @@ function PropertyHealthTab({
                 role="button"
                 tabIndex={0}
                 className="border-border hover:border-primary/30 flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors"
-                onClick={() => onNavigateToTask?.()}
-                onKeyDown={(e) => e.key === 'Enter' && onNavigateToTask?.()}
+                onClick={() => onNavigateToTask?.(problem.taskId)}
+                onKeyDown={(e) => e.key === 'Enter' && onNavigateToTask?.(problem.taskId)}
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">

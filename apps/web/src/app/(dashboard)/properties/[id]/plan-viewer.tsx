@@ -13,7 +13,7 @@ import {
   TaskStatus,
 } from '@epde/shared';
 import { CheckCircle, ChevronDown, ChevronRight, ClipboardList } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { ErrorState } from '@/components/error-state';
 import { SearchInput } from '@/components/search-input';
@@ -43,6 +43,8 @@ const PRIORITY_OPTIONS: { value: TaskPriority | 'all'; label: string }[] = [
 interface PlanViewerProps {
   planId: string;
   propertyId: string;
+  /** When set, auto-opens the task detail sheet for this task ID on mount. */
+  highlightTaskId?: string | null;
 }
 
 function StatusSummary({ tasks }: { tasks: TaskPublic[] }) {
@@ -186,10 +188,20 @@ function CategorySection({
   );
 }
 
-export function PlanViewer({ planId, propertyId }: PlanViewerProps) {
+export function PlanViewer({ planId, propertyId, highlightTaskId }: PlanViewerProps) {
   const { data: plan, isLoading, isError, refetch } = usePlan(planId);
 
   const [selectedTask, setSelectedTask] = useState<TaskPublic | null>(null);
+
+  // Auto-open task detail when navigating from problems section
+  const highlightedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (highlightTaskId && plan && highlightTaskId !== highlightedRef.current) {
+      highlightedRef.current = highlightTaskId;
+      const task = (plan.tasks ?? []).find((t: TaskPublic) => t.id === highlightTaskId);
+      if (task) setSelectedTask(task);
+    }
+  }, [highlightTaskId, plan]);
   const [completingTask, setCompletingTask] = useState<TaskPublic | null>(null);
 
   // Service / budget dialog state (pre-filled from task detail sheet)
