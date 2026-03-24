@@ -1,4 +1,5 @@
 import type { UpcomingTask } from '@epde/shared';
+import { PROPERTY_SECTOR_LABELS } from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { memo, useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -101,7 +102,8 @@ const ActionTaskCard = memo(function ActionTaskCard({
                 ·
               </Text>
               <Text style={TYPE.bodySm} className="text-muted-foreground">
-                {task.sector}
+                {PROPERTY_SECTOR_LABELS[task.sector as keyof typeof PROPERTY_SECTOR_LABELS] ??
+                  task.sector}
               </Text>
             </>
           )}

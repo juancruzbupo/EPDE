@@ -50,7 +50,7 @@ const STATUS_TRANSITIONS: Partial<Record<ServiceStatus, ServiceStatus>> = {
 };
 
 const TRANSITION_LABELS: Partial<Record<ServiceStatus, string>> = {
-  [ServiceStatus.IN_REVIEW]: 'Pasar a En Revision',
+  [ServiceStatus.IN_REVIEW]: 'Pasar a En Revisión',
   [ServiceStatus.IN_PROGRESS]: 'Pasar a En Progreso',
   [ServiceStatus.RESOLVED]: 'Marcar como Resuelto',
   [ServiceStatus.CLOSED]: 'Cerrar solicitud',

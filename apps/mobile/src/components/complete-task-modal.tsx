@@ -143,11 +143,11 @@ export function CompleteTaskModal({
   const pickImage = () => {
     Alert.alert('Subir foto', 'Elegir origen', [
       {
-        text: 'Camara',
+        text: 'Cámara',
         onPress: async () => {
           const permission = await ImagePicker.requestCameraPermissionsAsync();
           if (!permission.granted) {
-            Alert.alert('Permiso requerido', 'Se necesita acceso a la camara.');
+            Alert.alert('Permiso requerido', 'Se necesita acceso a la cámara.');
             return;
           }
           const res = await ImagePicker.launchCameraAsync({
@@ -160,11 +160,11 @@ export function CompleteTaskModal({
         },
       },
       {
-        text: 'Galeria',
+        text: 'Galería',
         onPress: async () => {
           const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
           if (!permission.granted) {
-            Alert.alert('Permiso requerido', 'Se necesita acceso a la galeria.');
+            Alert.alert('Permiso requerido', 'Se necesita acceso a la galería.');
             return;
           }
           const res = await ImagePicker.launchImageLibraryAsync({
