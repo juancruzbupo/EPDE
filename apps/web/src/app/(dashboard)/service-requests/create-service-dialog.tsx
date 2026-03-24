@@ -199,8 +199,8 @@ export function CreateServiceDialog({
         <DialogHeader>
           <DialogTitle>Nueva Solicitud de Servicio</DialogTitle>
           <DialogDescription>
-            Describí el problema para crear una solicitud de servicio. Sujeto a evaluación
-            profesional.
+            Describí el problema para crear una solicitud de servicio. El equipo de EPDE evaluará tu
+            solicitud.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="min-w-0 space-y-4">

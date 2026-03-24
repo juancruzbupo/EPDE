@@ -548,7 +548,7 @@ export default function PropertyDetailScreen() {
               <CollapsibleSection title={`Puede generarte gastos (${problems.length})`} defaultOpen>
                 <Text style={TYPE.bodySm} className="text-muted-foreground mb-2">
                   Detectamos problemas que pueden empeorar con el tiempo. Basado en observaciones
-                  visuales — se recomienda confirmación por un profesional.
+                  visuales — se recomienda evaluación por un especialista en el área afectada.
                 </Text>
                 <View className="gap-2">
                   {problems.slice(0, 5).map((problem: DetectedProblem) => (

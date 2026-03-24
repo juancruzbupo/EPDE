@@ -281,7 +281,7 @@ export function CreateServiceRequestModal({
 
         <Animated.ScrollView style={contentStyle} contentContainerStyle={{ padding: 16 }}>
           <Text style={TYPE.bodySm} className="text-muted-foreground mb-4">
-            Describí el problema. Sujeto a evaluación profesional.
+            Describí el problema. El equipo de EPDE evaluará tu solicitud.
           </Text>
 
           {/* Property selector */}
