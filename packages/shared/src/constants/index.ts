@@ -180,6 +180,15 @@ export const CONDITION_FOUND_LABELS = {
   CRITICAL: 'Crítico',
 } satisfies Record<ConditionFound, string>;
 
+/** Descriptive hints for condition options — help non-technical homeowners judge condition. */
+export const CONDITION_FOUND_HINTS = {
+  EXCELLENT: 'Sin desgaste visible, como nuevo',
+  GOOD: 'Buen estado general, sin problemas',
+  FAIR: 'Desgaste menor, funciona correctamente',
+  POOR: 'Daño visible: grietas, manchas o desgaste importante',
+  CRITICAL: 'Daño grave: goteras, roturas, requiere intervención urgente',
+} satisfies Record<ConditionFound, string>;
+
 export const TASK_EXECUTOR_LABELS = {
   OWNER: 'Yo (propietario)',
   HIRED_PROFESSIONAL: 'Profesional contratado',

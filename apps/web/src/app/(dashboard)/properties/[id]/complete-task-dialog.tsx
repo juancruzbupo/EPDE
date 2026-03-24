@@ -5,6 +5,7 @@ import {
   ACTION_TAKEN_LABELS,
   type CompleteTaskInput,
   completeTaskSchema,
+  CONDITION_FOUND_HINTS,
   CONDITION_FOUND_LABELS,
   getErrorMessage,
   TASK_EXECUTOR_LABELS,
@@ -208,15 +209,22 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
               control={control}
               name="conditionFound"
               render={({ field }) => (
-                <LabelSelect
-                  label="Condición encontrada"
-                  labels={CONDITION_FOUND_LABELS}
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder="Estado general"
-                  required
-                  errorId={errors.conditionFound ? 'conditionFound-error' : undefined}
-                />
+                <>
+                  <LabelSelect
+                    label="¿En qué estado está?"
+                    labels={CONDITION_FOUND_LABELS}
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Estado general"
+                    required
+                    errorId={errors.conditionFound ? 'conditionFound-error' : undefined}
+                  />
+                  {field.value && (
+                    <p className="text-muted-foreground mt-1 text-xs">
+                      {CONDITION_FOUND_HINTS[field.value as keyof typeof CONDITION_FOUND_HINTS]}
+                    </p>
+                  )}
+                </>
               )}
             />
             {errors.conditionFound && (
@@ -290,6 +298,9 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
 
           <div className="space-y-2">
             <Label>Foto (opcional)</Label>
+            <p className="text-muted-foreground text-xs">
+              Foto del área inspeccionada para registro.
+            </p>
             {preview ? (
               <div className="relative inline-block">
                 {/* User-uploaded blob URL — next/image doesn't support blob: protocol */}

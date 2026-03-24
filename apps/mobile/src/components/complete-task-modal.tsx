@@ -9,6 +9,7 @@ import type {
 import {
   ACTION_TAKEN_LABELS,
   ACTION_TAKEN_VALUES,
+  CONDITION_FOUND_HINTS,
   CONDITION_FOUND_LABELS,
   CONDITION_FOUND_VALUES,
   TASK_EXECUTOR_LABELS,
@@ -296,7 +297,7 @@ export function CompleteTaskModal({
             </Text>
           </Pressable>
           <Text style={TYPE.titleMd} className="text-foreground">
-            Completar Tarea
+            Registrar Inspección
           </Text>
           <Pressable
             accessibilityRole="button"
@@ -320,7 +321,7 @@ export function CompleteTaskModal({
             {task.name}
           </Text>
           <Text style={TYPE.bodyMd} className="text-muted-foreground mb-4">
-            Completá los campos requeridos para registrar la tarea.
+            Completá los campos para registrar lo que encontraste.
           </Text>
 
           <SelectorGroup
@@ -332,15 +333,20 @@ export function CompleteTaskModal({
           />
 
           <SelectorGroup
-            label="Condición encontrada *"
+            label="¿En qué estado está? *"
             options={CONDITION_FOUND_VALUES}
             labels={CONDITION_FOUND_LABELS}
             value={conditionFound}
             onChange={setConditionFound}
           />
+          {conditionFound && (
+            <Text style={TYPE.bodySm} className="text-muted-foreground -mt-2 mb-4">
+              {CONDITION_FOUND_HINTS[conditionFound]}
+            </Text>
+          )}
 
           <SelectorGroup
-            label="Ejecutor *"
+            label="¿Quién lo hizo? *"
             options={TASK_EXECUTOR_VALUES}
             labels={TASK_EXECUTOR_LABELS}
             value={executor}
@@ -400,8 +406,11 @@ export function CompleteTaskModal({
             className="border-border bg-card text-foreground mb-4 rounded-xl border p-3"
           />
 
-          <Text style={TYPE.labelLg} className="text-foreground mb-2">
+          <Text style={TYPE.labelLg} className="text-foreground mb-1">
             Foto (opcional)
+          </Text>
+          <Text style={TYPE.bodySm} className="text-muted-foreground mb-2">
+            Foto del área inspeccionada para registro.
           </Text>
           {photoUri ? (
             <View className="mb-4">

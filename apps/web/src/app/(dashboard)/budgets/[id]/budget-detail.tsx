@@ -175,6 +175,13 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
         </CardContent>
       </Card>
 
+      {isClient && budget.status === BudgetStatus.PENDING && (
+        <div className="bg-muted/40 text-muted-foreground rounded-lg p-3 text-sm">
+          Tu solicitud fue recibida. El equipo de EPDE preparará una cotización y te notificará
+          cuando esté lista.
+        </div>
+      )}
+
       {hasResponse && (
         <Card>
           <CardHeader>

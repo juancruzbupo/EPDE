@@ -487,6 +487,16 @@ export default function BudgetDetailScreen() {
           )}
         </View>
 
+        {/* Client: Awaiting quote hint */}
+        {isClient && budget.status === BudgetStatus.PENDING && (
+          <View className="bg-muted/40 mb-4 rounded-xl p-3">
+            <Text style={TYPE.bodySm} className="text-muted-foreground">
+              Tu solicitud fue recibida. El equipo de EPDE preparará una cotización y te notificará
+              cuando esté lista.
+            </Text>
+          </View>
+        )}
+
         {/* Quote response card */}
         {budget.response && (
           <>
