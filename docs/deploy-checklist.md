@@ -42,6 +42,38 @@
 - [ ] Sentry projects creados (API + Web)
 - [ ] DNS configurado (dominio → Vercel web, subdominio API → Render)
 
+## Infraestructura de producción
+
+### Render: plan Starter ($7/mes) obligatorio
+
+El free tier duerme la app después de 15 min de inactividad. Los 7 cron jobs (task scheduler, ISV recalc, notification cleanup, etc.) solo corren si el proceso está activo. En free tier los crons no son confiables.
+
+- [ ] Upgrade a Render Starter ($7/mes) para background workers confiables
+- [ ] Verificar que los 3 schedulers loguean ejecución en las primeras 24h post-deploy
+
+### Integraciones externas
+
+El código ya implementa las 3 integraciones, pero sin las env vars configuradas operan en modo no-op:
+
+- [ ] **Resend** — Crear cuenta, obtener API key, configurar `RESEND_API_KEY`. Sin esto: invitaciones de cliente, notificaciones por email y reset de password no se envían
+- [ ] **Cloudflare R2** — Crear bucket, configurar las 5 vars `R2_*`. Sin esto: fotos de tareas, adjuntos de presupuestos y fotos de solicitudes de servicio no se suben
+- [ ] **Sentry** — Crear 2 projects (API + Web), configurar `SENTRY_DSN` y `NEXT_PUBLIC_SENTRY_DSN`. Sin esto: errores en producción no se reportan
+
+### Mobile: primer build Android
+
+EAS está configurado (`eas.json` con profiles development/preview/production). Para los primeros clientes:
+
+- [ ] Correr `eas build --profile preview --platform android` para generar APK de testing
+- [ ] Distribuir APK a los 10 primeros clientes vía link directo o TestFlight/internal testing
+- [ ] Para App Store/Play Store: correr `eas build --profile production` + `eas submit`
+
+### SSL y dominios
+
+- [ ] Certificado SSL en dominio principal (Vercel lo maneja automático)
+- [ ] Subdominio API con HTTPS (`api.epde.com.ar`)
+- [ ] `EXPO_PUBLIC_API_URL` en mobile apuntando al dominio de producción
+- [ ] `EXPO_PUBLIC_WEB_URL` en mobile apuntando al dominio web
+
 ## Verificaciones post-deploy
 
 - [ ] `GET /api/v1/health` retorna `{ status: "ok", info: { database: { status: "up" }, redis: { status: "up" } } }`
