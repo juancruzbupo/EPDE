@@ -556,7 +556,7 @@ export default function BudgetDetailScreen() {
               haptics.light();
               setRespondVisible(true);
             }}
-            className="bg-primary mb-4 items-center rounded-xl py-3"
+            className="bg-primary mb-4 items-center rounded-xl py-3 active:opacity-80"
           >
             <Text style={TYPE.titleMd} className="text-primary-foreground">
               Cotizar
@@ -587,7 +587,7 @@ export default function BudgetDetailScreen() {
               accessibilityLabel="Aprobar presupuesto"
               onPress={handleApprove}
               disabled={updateStatus.isPending}
-              className="bg-success flex-1 items-center rounded-xl py-3"
+              className="bg-success flex-1 items-center rounded-xl py-3 active:opacity-80"
             >
               <Text style={TYPE.titleMd} className="text-white">
                 Aprobar
@@ -598,7 +598,7 @@ export default function BudgetDetailScreen() {
               accessibilityLabel="Rechazar presupuesto"
               onPress={handleReject}
               disabled={updateStatus.isPending}
-              className="bg-destructive flex-1 items-center rounded-xl py-3"
+              className="bg-destructive flex-1 items-center rounded-xl py-3 active:opacity-80"
             >
               <Text style={TYPE.titleMd} className="text-destructive-foreground">
                 Rechazar
@@ -614,7 +614,7 @@ export default function BudgetDetailScreen() {
             accessibilityLabel="Iniciar trabajo"
             onPress={handleStartWork}
             disabled={updateStatus.isPending}
-            className="bg-primary mb-4 items-center rounded-xl py-3"
+            className="bg-primary mb-4 items-center rounded-xl py-3 active:opacity-80"
           >
             <Text style={TYPE.titleMd} className="text-primary-foreground">
               Iniciar Trabajo
@@ -627,7 +627,7 @@ export default function BudgetDetailScreen() {
             accessibilityLabel="Marcar completado"
             onPress={handleMarkCompleted}
             disabled={updateStatus.isPending}
-            className="bg-primary mb-4 items-center rounded-xl py-3"
+            className="bg-primary mb-4 items-center rounded-xl py-3 active:opacity-80"
           >
             <Text style={TYPE.titleMd} className="text-primary-foreground">
               Marcar Completado

@@ -568,7 +568,7 @@ export default function ServiceRequestDetailScreen() {
                 );
               }}
               disabled={updateStatus.isPending}
-              className="bg-primary items-center rounded-xl py-3"
+              className="bg-primary items-center rounded-xl py-3 active:opacity-80"
             >
               <Text style={TYPE.titleMd} className="text-primary-foreground">
                 {TRANSITION_LABELS[nextStatus]}

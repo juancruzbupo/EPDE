@@ -63,6 +63,7 @@ export function CollapsibleSection({
       <Pressable
         onPress={toggle}
         className="mb-2 flex-row items-center justify-between"
+        style={{ minHeight: 44 }}
         accessibilityRole="button"
         accessibilityLabel={title}
         accessibilityState={{ expanded: open }}

@@ -494,7 +494,7 @@ export default function PropertyDetailScreen() {
                   ]);
                 }}
                 disabled={updatePlan.isPending}
-                className="bg-primary mb-3 items-center rounded-xl py-3"
+                className="bg-primary mb-3 items-center rounded-xl py-3 active:opacity-80"
               >
                 <Text style={TYPE.titleMd} className="text-primary-foreground">
                   Activar Plan

@@ -24,27 +24,24 @@ export function SkeletonPlaceholder({
   className,
 }: SkeletonPlaceholderProps) {
   const reduced = useReducedMotion();
-  const opacity = useSharedValue(1);
+  const shimmer = useSharedValue(0);
 
   useEffect(() => {
-    if (reduced) {
-      opacity.value = 0.5;
-      return;
-    }
-    opacity.value = withRepeat(
-      withTiming(0.4, { duration: 1000, easing: Easing.inOut(Easing.quad) }),
+    if (reduced) return;
+    shimmer.value = withRepeat(
+      withTiming(1, { duration: 1200, easing: Easing.inOut(Easing.quad) }),
       -1,
-      true,
+      false,
     );
-  }, [reduced, opacity]);
+  }, [reduced, shimmer]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
+    opacity: reduced ? 0.5 : 0.4 + shimmer.value * 0.5,
   }));
 
   return (
     <Animated.View style={animatedStyle} className={className}>
-      <View className="bg-muted" style={{ width, height, borderRadius }} />
+      <View className="bg-muted overflow-hidden" style={{ width, height, borderRadius }} />
     </Animated.View>
   );
 }
