@@ -148,12 +148,6 @@ export const HomeStatusCard = memo(function HomeStatusCard({
         </Text>
       )}
 
-      {/* ISV explanation */}
-      <Text style={TYPE.labelSm} className="text-muted-foreground/70 mb-3">
-        Índice de Salud: resume el estado de tu casa según las inspecciones. Arriba de 60 evita
-        reparaciones costosas.
-      </Text>
-
       {/* Mini stats row */}
       <View className="flex-row">
         <MiniStat

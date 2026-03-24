@@ -172,12 +172,6 @@ export function HomeStatusCard({
             <span className="type-body-sm text-muted-foreground">/ 100</span>
           </div>
 
-          {/* ISV explanation */}
-          <p className="text-muted-foreground/70 mb-4 text-xs">
-            Índice de Salud de tu Vivienda: resume el estado general según tus inspecciones.
-            Mantenerlo por encima de 60 ayuda a evitar reparaciones costosas.
-          </p>
-
           {/* Action buttons */}
           <div className="mb-5 flex gap-3">
             <Button
