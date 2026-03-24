@@ -74,7 +74,7 @@ function getHumanMessage(overdue: number, urgent: number, upcoming: number): str
     return `Tenés ${urgent} tarea${urgent !== 1 ? 's' : ''} urgente${urgent !== 1 ? 's' : ''}. Completá${urgent !== 1 ? 'las' : 'la'} esta semana.`;
   if (upcoming > 0)
     return `Tenés ${upcoming} tarea${upcoming !== 1 ? 's' : ''} programada${upcoming !== 1 ? 's' : ''} esta semana.`;
-  return 'Todo al día. ¡Tu casa está en buen estado!';
+  return 'Todo bajo control. Seguí así y tu hogar se va a mantener en excelente estado.';
 }
 
 export function HomeStatusCard({

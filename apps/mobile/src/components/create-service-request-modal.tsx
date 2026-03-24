@@ -123,7 +123,7 @@ export function CreateServiceRequestModal({
 
   const pickImage = () => {
     if (photos.length >= 5) {
-      Alert.alert('Limite', 'Maximo 5 fotos por solicitud.');
+      Alert.alert('Límite', 'Máximo 5 fotos por solicitud.');
       return;
     }
 

@@ -175,7 +175,7 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Completar: {task.name}</DialogTitle>
+          <DialogTitle>Registrar: {task.name}</DialogTitle>
           <DialogDescription>
             Registrá el resultado basado en lo observado durante la inspección.
           </DialogDescription>

@@ -134,7 +134,7 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
             );
           if (index.dimensions.investment < 40)
             recs.push(
-              'La mayoría de las acciones son correctivas. Invertí más en inspecciones preventivas.',
+              'La mayoría de las acciones son correctivas. Priorizá las inspecciones preventivas sobre las reparaciones.',
             );
           if (index.dimensions.trend < 45)
             recs.push(
