@@ -27,11 +27,11 @@ export function Footer() {
       </footer>
 
       {/* Mobile Sticky CTA */}
-      <div className="border-border bg-background/95 fixed right-0 bottom-0 left-0 z-40 border-t p-2 backdrop-blur-sm md:hidden">
+      <div className="border-border bg-background/95 fixed right-0 bottom-0 left-0 z-40 border-t p-3 backdrop-blur-sm md:hidden">
         <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="block">
-          <Button size="sm" className="w-full gap-2">
+          <Button size="default" className="w-full gap-2">
             {PRIMARY_CTA_LABEL}
-            <ArrowRight className="h-3.5 w-3.5" />
+            <ArrowRight className="h-4 w-4" />
           </Button>
         </a>
       </div>

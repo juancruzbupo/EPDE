@@ -9,23 +9,20 @@ import { PRIMARY_CTA_LABEL, WHATSAPP_URL } from '../landing-data';
 
 export function HeroSection({ motionProps }: SectionProps) {
   return (
-    <section className="pt-32 pb-20 md:pt-44 md:pb-28">
+    <section className="pt-28 pb-20 md:pt-44 md:pb-28">
       <motion.div
         variants={STAGGER_CONTAINER}
         {...motionProps}
         className="mx-auto max-w-5xl px-4 text-center"
       >
         {/* Micro-hook */}
-        <motion.p
-          variants={FADE_IN}
-          className="type-body-md text-muted-foreground mb-4 font-medium"
-        >
+        <motion.p variants={FADE_IN} className="type-body-md text-foreground/70 mb-4 font-medium">
           La mayoría de las casas tiene problemas que no se ven.
         </motion.p>
 
         <motion.h1
           variants={FADE_IN_UP}
-          className="font-heading text-foreground text-4xl leading-[1.1] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
+          className="font-heading text-foreground text-4xl leading-[1.1] tracking-tight sm:text-5xl sm:leading-[1.15] md:text-6xl lg:text-7xl lg:leading-[1.12]"
         >
           Podés estar perdiendo plata
           <br />

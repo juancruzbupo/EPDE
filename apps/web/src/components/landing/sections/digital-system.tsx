@@ -44,8 +44,7 @@ export function DigitalSystemSection({ motionProps }: SectionProps) {
               alt="Panel de usuario EPDE — vista web"
               width={920}
               height={449}
-              className="h-auto w-[280px] sm:w-[400px] md:w-[520px] lg:w-[600px]"
-              priority
+              className="h-auto w-[320px] sm:w-[400px] md:w-[520px] lg:w-[600px]"
             />
           </div>
           <div className="border-border overflow-hidden rounded-2xl border shadow-sm">
@@ -54,8 +53,7 @@ export function DigitalSystemSection({ motionProps }: SectionProps) {
               alt="Panel de usuario EPDE — vista mobile"
               width={375}
               height={812}
-              className="h-auto w-[100px] sm:w-[130px] md:w-[160px] lg:w-[180px]"
-              priority
+              className="h-auto w-[140px] sm:w-[150px] md:w-[160px] lg:w-[180px]"
             />
           </div>
         </motion.div>
