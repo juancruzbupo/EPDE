@@ -129,6 +129,19 @@
 112. **PlanEditor status filter** — Default "Por inspeccionar" (OVERDUE+PENDING+UPCOMING). Admin puede cambiar a "Todas" para ver completadas. Category filter via SearchableFilterSelect
 113. **Generar presupuesto desde ServiceRequest** — Botón "Generar presupuesto para este servicio" en detail page (admin only, non-terminal). Abre `CreateBudgetDialog` pre-rellenado con propertyId + título + descripción del SR
 114. **Bulk complete con foto** — `BulkCompleteDialog` acepta foto compartida que se aplica a todas las tareas del batch. `photoUrl` en dependency array del `useCallback` (stale closure fix). Submit disabled durante upload
+115. **Mobile admin parity** — Mobile exporta `respondToBudget`, `updateServiceStatus`, `updatePlan` desde API files y tiene hooks (`useRespondToBudget`, `useUpdateServiceStatus`, `useUpdatePlan`). Budget detail: admin puede Cotizar, Re-cotizar, Iniciar Trabajo, Marcar Completado. SR detail: admin tiene transiciones de estado + "Generar presupuesto". Property detail: admin puede Activar/Archivar plan. `RespondBudgetModal` es un pageSheet con line items dinámicos
+116. **Typography mínimos mobile** — `bodySm` = 13pt (no 12pt), `labelSm` = 12pt (no 11pt). El piso de font size es 12pt. NUNCA usar `text-[10px]` hardcoded — usar `TYPE.labelSm` como token mínimo. Esto aplica a chart labels, photo captions, filter pills, MiniStat labels
+117. **flex-row overflow prevention** — Toda fila `flex-row` con texto dinámico + badge debe tener: (1) `gap-2` entre elementos, (2) `flex-1 flex-shrink` en el texto, (3) `numberOfLines={1-2}` para truncar. Filas label-valor (ej: "Propiedad" | dirección) necesitan `flex-1 flex-shrink text-right` en el valor. Filas con 3+ elementos que pueden no entrar: usar `flex-wrap`
+118. **Touch targets 44pt mínimo** — Todo `Pressable` interactivo debe tener `minHeight: 44` (iOS HIG). Aplica a: CollapsibleSection header, task detail footer buttons, filter chips. Usar `style={{ minHeight: 44 }}` o padding suficiente
+119. **active:opacity-80 en botones mobile** — Todo `Pressable` con `bg-primary`, `bg-success` o `bg-destructive` debe incluir `active:opacity-80` para feedback táctil visual. Auth screens ya lo usan — extender a todas las pantallas
+120. **Skeleton shimmer** — `SkeletonPlaceholder` usa wave de opacidad (0.4→0.9, 1200ms loop) en vez de pulse estático. Respetar `useReducedMotion()` con fallback a opacity 0.5 fija
+121. **SR OPEN feedback hint** — Cuando un cliente ve su ServiceRequest en estado OPEN, mostrar hint: "Tu solicitud fue recibida. El equipo de EPDE la revisará y te notificará cuando haya novedades." Aplica a web (div con bg-muted/40) y mobile (View con bg-muted/40). Se muestra solo para `isClient && status === OPEN`
+122. **Property filter en listas mobile** — Budgets, SRs y Tasks derivan `propertyOptions` del dataset cargado (`Map<id, address>`). Chips de propiedad solo se muestran si hay >1 propiedad. Filtrado es client-side sobre `allDataRaw`
+123. **Plan status filter en properties** — Mobile properties list filtra por `maintenancePlan?.status` (ACTIVE/DRAFT/ARCHIVED). Es client-side sobre las propiedades cargadas
+124. **Landing: WhatsApp float desktop-only** — `hidden md:flex` en WhatsApp float. En mobile, el sticky footer CTA ya cubre la conversión. Evitar doble CTA flotante
+125. **Landing: sticky footer sizing** — `size="default"` (h-9, 36px) + `p-3` padding. El `size="sm"` anterior (32px) no cumplía touch target. Header mobile: `h-14 md:h-16` para ganar 8px de viewport
+126. **Web button press feedback** — `active:scale-[0.98]` en la base de `buttonVariants` (CVA). Todos los variants heredan el micro-press. Input/textarea: `focus-visible:bg-accent/5` para feedback sutil de foco
+127. **Dark mode muted-foreground** — `#b8a89a` (no `#a09890`). El valor anterior tenía ~6.8:1 contraste, el nuevo ~8:1 contra `#1a1715` background
 
 ### NUNCA
 
