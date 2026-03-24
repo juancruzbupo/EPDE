@@ -41,12 +41,13 @@ describe('useNotifications', () => {
     } as ReturnType<typeof useInfiniteQuery>);
   });
 
-  it('should call useInfiniteQuery with correct queryKey', () => {
+  it('should call useInfiniteQuery with correct queryKey and maxPages', () => {
     renderHook(() => useNotifications());
 
     expect(useInfiniteQuery).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: [QUERY_KEYS.notifications],
+        maxPages: 10,
       }),
     );
   });

@@ -19,10 +19,10 @@ Documento exhaustivo que describe la estructura, tecnologias, patrones de diseno
 
 ### Roles
 
-| Rol      | Web | Mobile | Descripcion                                   |
-| -------- | --- | ------ | --------------------------------------------- |
-| `ADMIN`  | Si  | No     | Gestion completa: clientes, propiedades, etc. |
-| `CLIENT` | Si  | Si     | Consulta propiedades, tareas, presupuestos    |
+| Rol      | Web | Mobile  | Descripcion                                                                                                        |
+| -------- | --- | ------- | ------------------------------------------------------------------------------------------------------------------ |
+| `ADMIN`  | Si  | Parcial | Web: gestión completa. Mobile: cotizar/re-cotizar presupuestos, transiciones de estado SR, activar/archivar planes |
+| `CLIENT` | Si  | Si      | Consulta propiedades, tareas, presupuestos, solicitudes de servicio                                                |
 
 ---
 

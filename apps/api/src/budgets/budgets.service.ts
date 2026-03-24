@@ -151,7 +151,7 @@ export class BudgetsService {
     return result;
   }
 
-  async respondToBudget(id: string, dto: RespondBudgetInput, userId?: string) {
+  async respondToBudget(id: string, dto: RespondBudgetInput, currentUser: ServiceUser) {
     const budget = await this.budgetsRepository.findById(id);
     if (!budget) {
       throw new NotFoundException('Presupuesto no encontrado');
@@ -179,7 +179,7 @@ export class BudgetsService {
           estimatedDays: dto.estimatedDays,
           notes: dto.notes,
           validUntil: dto.validUntil ? new Date(dto.validUntil) : null,
-          updatedBy: userId,
+          updatedBy: currentUser.id,
         },
       );
     } catch (error) {
@@ -192,15 +192,13 @@ export class BudgetsService {
       throw error;
     }
 
-    if (userId) {
-      void this.auditLogRepository.createAuditLog(
-        id,
-        userId,
-        wasQuoted ? 're-quoted' : 'quoted',
-        { status: budget.status },
-        { status: BudgetStatus.QUOTED, totalAmount: totalAmount.toNumber() },
-      );
-    }
+    void this.auditLogRepository.createAuditLog(
+      id,
+      currentUser.id,
+      wasQuoted ? 're-quoted' : 'quoted',
+      { status: budget.status },
+      { status: BudgetStatus.QUOTED, totalAmount: totalAmount.toNumber() },
+    );
 
     void this.notificationsHandler.handleBudgetQuoted({
       budgetId: id,

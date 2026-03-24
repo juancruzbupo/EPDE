@@ -44,13 +44,14 @@ describe('useProperties', () => {
     );
   });
 
-  it('should call useInfiniteQuery with correct queryKey', () => {
+  it('should call useInfiniteQuery with correct queryKey and maxPages', () => {
     const filters = { userId: 'user-1' };
     renderHook(() => useProperties(filters));
 
     expect(useInfiniteQuery).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: [QUERY_KEYS.properties, filters],
+        maxPages: 10,
       }),
     );
   });

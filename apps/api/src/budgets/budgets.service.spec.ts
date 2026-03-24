@@ -253,7 +253,7 @@ describe('BudgetsService', () => {
       };
       budgetsRepository.respondToBudget.mockResolvedValue(respondedBudget);
 
-      const result = await service.respondToBudget('budget-1', dto);
+      const result = await service.respondToBudget('budget-1', dto, adminUser);
 
       expect(result).toEqual(respondedBudget);
       // totalAmount = (2 * 5000) + (1 * 30000) = 40000
@@ -262,7 +262,7 @@ describe('BudgetsService', () => {
         estimatedDays: 5,
         notes: 'Incluye garantia',
         validUntil: new Date('2026-12-31'),
-        updatedBy: undefined,
+        updatedBy: 'admin-1',
       });
       expect(notificationsHandler.handleBudgetQuoted).toHaveBeenCalledWith({
         budgetId: 'budget-1',
@@ -283,13 +283,17 @@ describe('BudgetsService', () => {
         new BadRequestException('El presupuesto ya no está en estado PENDING'),
       );
 
-      await expect(service.respondToBudget('budget-1', dto)).rejects.toThrow(BadRequestException);
+      await expect(service.respondToBudget('budget-1', dto, adminUser)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw NotFoundException if budget not found', async () => {
       budgetsRepository.findById.mockResolvedValue(null);
 
-      await expect(service.respondToBudget('budget-1', dto)).rejects.toThrow(NotFoundException);
+      await expect(service.respondToBudget('budget-1', dto, adminUser)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should pass null validUntil when not provided', async () => {
@@ -309,7 +313,7 @@ describe('BudgetsService', () => {
         lineItems: [{ description: 'Item', quantity: 1, unitPrice: 1000 }],
       };
 
-      await service.respondToBudget('budget-1', dtoWithoutDate);
+      await service.respondToBudget('budget-1', dtoWithoutDate, adminUser);
 
       expect(budgetsRepository.respondToBudget).toHaveBeenCalledWith(
         'budget-1',

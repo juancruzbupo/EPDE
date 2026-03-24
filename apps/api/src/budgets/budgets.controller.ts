@@ -88,7 +88,7 @@ export class BudgetsController {
     @Body(new ZodValidationPipe(respondBudgetSchema)) dto: RespondBudgetInput,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const data = await this.budgetsService.respondToBudget(id, dto, user.id);
+    const data = await this.budgetsService.respondToBudget(id, dto, user);
     return { data, message: 'Presupuesto cotizado' };
   }
 

@@ -57,7 +57,7 @@ export const DESIGN_TOKENS_DARK = {
   card: '#2e2a27',
   cardForeground: '#f5f0eb',
   muted: '#3d3835',
-  mutedForeground: '#a09890',
+  mutedForeground: '#b8a89a',
   accent: '#3d3835',
   accentForeground: '#f5f0eb',
   destructive: '#c45b4b',

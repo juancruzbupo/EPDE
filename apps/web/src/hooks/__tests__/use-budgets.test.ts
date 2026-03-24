@@ -44,13 +44,14 @@ describe('useBudgets', () => {
     );
   });
 
-  it('should call useInfiniteQuery with correct queryKey', () => {
+  it('should call useInfiniteQuery with correct queryKey and maxPages', () => {
     const filters = { status: BudgetStatus.PENDING };
     renderHook(() => useBudgets(filters));
 
     expect(useInfiniteQuery).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: [QUERY_KEYS.budgets, filters],
+        maxPages: 10,
       }),
     );
   });
