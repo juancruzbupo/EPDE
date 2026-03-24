@@ -227,6 +227,13 @@ export function ServiceRequestDetail({
           </Card>
         )}
 
+        {isClient && request.status === ServiceStatus.OPEN && (
+          <div className="bg-muted/40 text-muted-foreground rounded-lg p-3 text-sm">
+            Tu solicitud fue recibida. El equipo de EPDE la revisará y te notificará cuando haya
+            novedades.
+          </div>
+        )}
+
         {isAdmin && nextStatus && (
           <Card>
             <CardContent className="space-y-3 p-4">

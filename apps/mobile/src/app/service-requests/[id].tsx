@@ -523,6 +523,16 @@ export default function ServiceRequestDetailScreen() {
           )}
         </View>
 
+        {/* Client: Awaiting review hint */}
+        {isClient && request.status === ServiceStatus.OPEN && (
+          <View className="bg-muted/40 mb-4 rounded-xl p-3">
+            <Text style={TYPE.bodySm} className="text-muted-foreground">
+              Tu solicitud fue recibida. El equipo de EPDE la revisará y te notificará cuando haya
+              novedades.
+            </Text>
+          </View>
+        )}
+
         {/* Admin: Status transition + Generate budget */}
         {isAdmin && nextStatus && (
           <View className="border-border bg-card mb-4 rounded-xl border p-4">
