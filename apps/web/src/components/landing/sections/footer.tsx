@@ -8,20 +8,37 @@ export function Footer() {
   return (
     <>
       <footer className="border-border border-t py-10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 sm:flex-row">
-          <div>
-            <span className="font-heading text-primary text-lg">EPDE</span>
-            <p className="type-body-sm text-muted-foreground mt-0.5">
-              por Arq. Noelia E. Yuskowich
+        <div className="mx-auto max-w-6xl px-4">
+          {/* Disclaimer */}
+          <div className="border-border mb-8 border-b pb-8">
+            <p className="type-label-md text-muted-foreground mb-2 font-medium">
+              Alcance del servicio
+            </p>
+            <p className="type-body-sm text-muted-foreground/70 max-w-3xl">
+              EPDE realiza un diagnóstico edilicio basado en inspección visual con fines
+              informativos y preventivos. No reemplaza estudios técnicos especializados (como
+              análisis estructural o de suelos) ni garantiza la detección de todos los problemas
+              existentes o futuros. El servicio no incluye ejecución de obras ni reparaciones. Las
+              decisiones tomadas a partir del informe son responsabilidad del propietario.
             </p>
           </div>
-          <div className="text-center sm:text-right">
-            <p className="type-body-sm text-muted-foreground">
-              Diagnóstico profesional y mantenimiento preventivo de viviendas.
-            </p>
-            <p className="type-body-sm text-muted-foreground/60 mt-1">
-              &copy; {new Date().getFullYear()} EPDE. Todos los derechos reservados.
-            </p>
+
+          {/* Footer content */}
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+            <div>
+              <span className="font-heading text-primary text-lg">EPDE</span>
+              <p className="type-body-sm text-muted-foreground mt-0.5">
+                por Arq. Noelia E. Yuskowich
+              </p>
+            </div>
+            <div className="text-center sm:text-right">
+              <p className="type-body-sm text-muted-foreground">
+                Diagnóstico profesional y mantenimiento preventivo de viviendas.
+              </p>
+              <p className="type-body-sm text-muted-foreground/60 mt-1">
+                &copy; {new Date().getFullYear()} EPDE. Todos los derechos reservados.
+              </p>
+            </div>
           </div>
         </div>
       </footer>
