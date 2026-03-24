@@ -222,6 +222,11 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
             </div>
           </div>
         )}
+        {/* ISV disclaimer */}
+        <p className="text-muted-foreground/60 border-border border-t pt-3 text-xs">
+          El ISV es un indicador orientativo basado en inspecciones realizadas. No constituye una
+          certificación técnica ni garantiza el estado estructural de la propiedad.
+        </p>
       </CardContent>
     </Card>
   );

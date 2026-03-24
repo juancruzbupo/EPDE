@@ -449,6 +449,12 @@ export default function PropertyDetailScreen() {
                   )}
                 </View>
                 {/* Report link — opens web report for print/PDF */}
+                {/* ISV disclaimer */}
+                <Text style={TYPE.bodySm} className="text-muted-foreground/60 mb-3">
+                  El ISV es un indicador orientativo basado en inspecciones. No constituye una
+                  certificación técnica ni garantiza el estado estructural.
+                </Text>
+
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel="Ver informe técnico completo"
@@ -541,7 +547,8 @@ export default function PropertyDetailScreen() {
             {problems && problems.length > 0 && (
               <CollapsibleSection title={`Puede generarte gastos (${problems.length})`} defaultOpen>
                 <Text style={TYPE.bodySm} className="text-muted-foreground mb-2">
-                  Detectamos problemas que pueden empeorar con el tiempo.
+                  Detectamos problemas que pueden empeorar con el tiempo. Basado en observaciones
+                  visuales — se recomienda confirmación por un profesional.
                 </Text>
                 <View className="gap-2">
                   {problems.slice(0, 5).map((problem: DetectedProblem) => (

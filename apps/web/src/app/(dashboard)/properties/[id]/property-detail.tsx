@@ -681,7 +681,8 @@ function PropertyHealthTab({
               </CardTitle>
             </div>
             <p className="type-body-sm text-muted-foreground mt-1">
-              Detectamos problemas que pueden empeorar con el tiempo.
+              Detectamos problemas que pueden empeorar con el tiempo. Basado en observaciones
+              visuales — se recomienda confirmación por un profesional especializado.
             </p>
           </CardHeader>
           <CardContent className="space-y-3">

@@ -280,6 +280,10 @@ export function CreateServiceRequestModal({
         </View>
 
         <Animated.ScrollView style={contentStyle} contentContainerStyle={{ padding: 16 }}>
+          <Text style={TYPE.bodySm} className="text-muted-foreground mb-4">
+            Describí el problema. Sujeto a evaluación profesional.
+          </Text>
+
           {/* Property selector */}
           <Text style={TYPE.labelLg} className="text-foreground mb-2">
             Propiedad

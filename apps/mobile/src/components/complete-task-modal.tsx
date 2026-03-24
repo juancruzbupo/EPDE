@@ -321,7 +321,7 @@ export function CompleteTaskModal({
             {task.name}
           </Text>
           <Text style={TYPE.bodyMd} className="text-muted-foreground mb-4">
-            Completá los campos para registrar lo que encontraste.
+            Registrá lo observado durante la inspección.
           </Text>
 
           <SelectorGroup

@@ -177,7 +177,7 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
         <DialogHeader>
           <DialogTitle>Completar: {task.name}</DialogTitle>
           <DialogDescription>
-            Registrá el resultado de la inspección o mantenimiento.
+            Registrá el resultado basado en lo observado durante la inspección.
           </DialogDescription>
         </DialogHeader>
         <form
