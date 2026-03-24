@@ -180,7 +180,11 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
             Registrá el resultado de la inspección o mantenimiento.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4"
+          aria-busy={completeTask.isPending}
+        >
           <div>
             <Controller
               control={control}
@@ -340,7 +344,7 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
               accept="image/*"
               onChange={handleFileSelect}
               className="hidden"
-              aria-label="Seleccionar foto"
+              aria-label="Seleccionar foto de inspección"
             />
           </div>
 

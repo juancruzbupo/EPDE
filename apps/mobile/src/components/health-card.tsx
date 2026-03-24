@@ -51,7 +51,11 @@ export const HealthCard = memo(function HealthCard({
   }));
 
   return (
-    <View className="border-border bg-card mb-3 rounded-xl border p-3">
+    <View
+      className="border-border bg-card mb-3 rounded-xl border p-3"
+      accessibilityRole="summary"
+      accessibilityLabel={`Salud del mantenimiento: ${percent} de 100, ${label}`}
+    >
       <View className="mb-2 flex-row items-center justify-between">
         <Text style={TYPE.titleMd} className="text-foreground">
           Salud del Mantenimiento

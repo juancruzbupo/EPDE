@@ -33,6 +33,7 @@ export default function DashboardScreen() {
         </Text>
         <Pressable
           accessibilityRole="link"
+          accessibilityLabel="Abrir panel de administración web"
           onPress={() => {
             haptics.light();
             void Linking.openURL('https://epde.com.ar/dashboard');

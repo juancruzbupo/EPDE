@@ -122,7 +122,11 @@ export function RespondBudgetDialog({
             Completá la cotización con los ítems y días estimados.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-6"
+          aria-busy={respondToBudget.isPending}
+        >
           {/* ─── Template selector ─── */}
           {quoteTemplates && quoteTemplates.length > 0 && (
             <div className="space-y-1.5">
@@ -174,6 +178,7 @@ export function RespondBudgetDialog({
                     <Input
                       placeholder="Descripción del item"
                       className="h-9 text-sm"
+                      aria-label={`Descripción del item ${index + 1}`}
                       aria-describedby={
                         errors.lineItems?.[index]?.description
                           ? `lineItem-${index}-desc-error`
@@ -196,12 +201,14 @@ export function RespondBudgetDialog({
                     placeholder="1"
                     min={1}
                     className="h-9 text-sm"
+                    aria-label={`Cantidad del item ${index + 1}`}
                     {...register(`lineItems.${index}.quantity`)}
                   />
                   <Input
                     type="number"
                     placeholder="0"
                     min={0}
+                    aria-label={`Precio unitario del item ${index + 1}`}
                     step="0.01"
                     className="h-9 text-sm"
                     {...register(`lineItems.${index}.unitPrice`)}

@@ -68,6 +68,7 @@ export function Sidebar({ className }: { className?: string }) {
           onClick={() => setCollapsed(!collapsed)}
           className="text-sidebar-foreground/60 hover:text-sidebar-foreground rounded p-1 transition-colors"
           aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'}
+          aria-expanded={!collapsed}
         >
           {collapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
         </button>

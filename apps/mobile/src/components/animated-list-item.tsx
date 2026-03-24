@@ -25,6 +25,8 @@ export function AnimatedListItem({ index, children }: PropsWithChildren<Animated
       onTouchStart={handlePressIn}
       onTouchEnd={onPressOut}
       onTouchCancel={onPressOut}
+      accessible={false}
+      importantForAccessibility="no"
     >
       {children}
     </Animated.View>
