@@ -196,7 +196,11 @@ export default function TasksScreen() {
 
             {/* Stat cards */}
             {tasks && tasks.length > 0 && (
-              <View accessibilityRole="radiogroup" className="mb-3 flex-row gap-2">
+              <View
+                accessibilityRole="radiogroup"
+                accessibilityLabel="Filtrar por estado"
+                className="mb-3 flex-row gap-2"
+              >
                 {STAT_STATUSES.map((status) => (
                   <Pressable
                     key={status}
@@ -254,6 +258,7 @@ export default function TasksScreen() {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ gap: 8 }}
               accessibilityRole="radiogroup"
+              accessibilityLabel="Filtrar por prioridad"
             >
               {PRIORITY_FILTERS.map((f) => (
                 <Pressable

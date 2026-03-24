@@ -217,6 +217,7 @@ export default function ServiceRequestsScreen() {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ gap: 8 }}
               accessibilityRole="radiogroup"
+              accessibilityLabel="Filtrar por estado"
             >
               {STATUS_FILTERS.map((f) => (
                 <Pressable
@@ -301,6 +302,7 @@ export default function ServiceRequestsScreen() {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ gap: 8 }}
               accessibilityRole="radiogroup"
+              accessibilityLabel="Filtrar por urgencia"
             >
               {URGENCY_FILTERS.map((f) => (
                 <Pressable

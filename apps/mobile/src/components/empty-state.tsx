@@ -10,7 +10,7 @@ interface EmptyStateProps {
 
 export const EmptyState = memo(function EmptyState({ title, message }: EmptyStateProps) {
   return (
-    <View className="flex-1 items-center justify-center p-8">
+    <View className="flex-1 items-center justify-center p-8" accessibilityLiveRegion="polite">
       <Text style={TYPE.titleLg} className="text-foreground mb-2">
         {title}
       </Text>

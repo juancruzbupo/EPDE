@@ -201,6 +201,7 @@ export default function BudgetsScreen() {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ gap: 8 }}
               accessibilityRole="radiogroup"
+              accessibilityLabel="Filtrar por estado"
             >
               {FILTERS.map((f) => (
                 <Pressable

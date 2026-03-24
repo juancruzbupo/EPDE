@@ -11,9 +11,13 @@ export function OfflineBanner() {
   if (isConnected) return null;
 
   return (
-    <View style={{ paddingTop: insets.top }} className="bg-warning items-center pb-2">
+    <View
+      style={{ paddingTop: insets.top }}
+      className="bg-warning items-center pb-2"
+      accessibilityLiveRegion="assertive"
+    >
       <Text style={TYPE.labelMd} className="text-white">
-        Sin conexion a internet
+        Sin conexión a internet
       </Text>
     </View>
   );

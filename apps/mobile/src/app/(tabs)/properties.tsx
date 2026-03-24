@@ -180,6 +180,7 @@ export default function PropertiesScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ gap: 8 }}
             accessibilityRole="radiogroup"
+            accessibilityLabel="Filtrar por tipo"
           >
             {TYPE_FILTERS.map((f) => (
               <Pressable

@@ -44,6 +44,7 @@ export function DigitalSystemSection({ motionProps }: SectionProps) {
               alt="Panel de usuario EPDE — vista web"
               width={920}
               height={449}
+              sizes="(max-width: 640px) 320px, (max-width: 768px) 400px, (max-width: 1024px) 520px, 600px"
               className="h-auto w-[320px] sm:w-[400px] md:w-[520px] lg:w-[600px]"
             />
           </div>
@@ -53,6 +54,7 @@ export function DigitalSystemSection({ motionProps }: SectionProps) {
               alt="Panel de usuario EPDE — vista mobile"
               width={375}
               height={812}
+              sizes="(max-width: 640px) 140px, (max-width: 768px) 150px, (max-width: 1024px) 160px, 180px"
               className="h-auto w-[140px] sm:w-[150px] md:w-[160px] lg:w-[180px]"
             />
           </div>
