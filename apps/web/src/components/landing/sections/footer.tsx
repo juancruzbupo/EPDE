@@ -18,8 +18,9 @@ export function Footer() {
               EPDE realiza un diagnóstico edilicio basado en inspección visual con fines
               informativos y preventivos. No reemplaza estudios técnicos especializados (como
               análisis estructural o de suelos) ni garantiza la detección de todos los problemas
-              existentes o futuros. El servicio no incluye ejecución de obras ni reparaciones. Las
-              decisiones tomadas a partir del informe son responsabilidad del propietario.
+              existentes o futuros. Los trabajos de inspección, reparación o mejora se presupuestan
+              y contratan de forma independiente al diagnóstico inicial. Las decisiones tomadas a
+              partir del informe son responsabilidad del propietario.
             </p>
           </div>
 
