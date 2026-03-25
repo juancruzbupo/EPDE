@@ -148,6 +148,7 @@
 131. **File splitting por LOC** — Componentes >400 LOC: extraer sub-componentes a archivos separados en el mismo directorio. Screens >600 LOC: extraer tabs/sections. El patrón es: tab content → `property-expenses-tab.tsx`, memoized component → `category-section.tsx`, modal → `edit-budget-modal.tsx`
 132. **CollapsibleSection onToggle** — El componente acepta `onToggle?: (open: boolean) => void` para reaccionar a cambios de estado. Usar para deferred loading (ej: analytics carga solo cuando el usuario expande la sección)
 133. **type-\* classes obligatorias en web** — NUNCA usar `text-xs`, `text-sm`, `text-xl`, `text-3xl` hardcoded para contenido. Usar `type-body-sm`, `type-label-lg`, `type-number-md`, etc. Las clases type-\* están definidas en globals.css y garantizan consistencia tipográfica. Excepción: componentes shadcn/ui internos que usan text-sm por convención del framework
+134. **SchedulerModule es hot zone** — Importa 7 feature modules. Cambios a BudgetsModule, ServiceRequestsModule, TasksModule, PropertiesModule, NotificationsModule, EmailModule o DashboardModule pueden afectar cron jobs. PRs que tocan estos módulos deben verificar que los schedulers siguen funcionando (E2E o manual)
 
 ### NUNCA
 

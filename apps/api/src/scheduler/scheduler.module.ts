@@ -16,6 +16,17 @@ import { TaskReminderService } from './task-reminder.service';
 import { TaskSafetyService } from './task-safety.service';
 import { TaskStatusService } from './task-status.service';
 
+/**
+ * SchedulerModule — HOT ZONE for PRs.
+ *
+ * Imports 7 feature modules to run cron jobs across all domains.
+ * Any change to BudgetsModule, ServiceRequestsModule, TasksModule,
+ * PropertiesModule, NotificationsModule, EmailModule, or DashboardModule
+ * can affect scheduler behavior.
+ *
+ * **PR rule:** Changes to any imported module MUST include E2E verification
+ * that cron jobs still execute correctly (check scheduler spec files).
+ */
 @Module({
   imports: [
     ScheduleModule.forRoot(),
