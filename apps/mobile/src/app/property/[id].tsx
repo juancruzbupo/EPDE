@@ -1,16 +1,14 @@
 import type { ConditionFound, DetectedProblem, TaskPublic } from '@epde/shared';
 import {
   CONDITION_FOUND_LABELS,
-  formatRelativeDate,
   PlanStatus,
   PROPERTY_SECTOR_LABELS,
-  RECURRENCE_TYPE_LABELS,
   TASK_STATUS_LABELS,
   TaskStatus,
   UserRole,
 } from '@epde/shared';
 import { Image } from 'expo-image';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
@@ -31,12 +29,8 @@ import { CompleteTaskModal } from '@/components/complete-task-modal';
 import { CreateServiceRequestModal } from '@/components/create-service-request-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
-import {
-  PlanStatusBadge,
-  PriorityBadge,
-  PropertyTypeBadge,
-  TaskStatusBadge,
-} from '@/components/status-badge';
+import { PropertyTaskCard } from '@/components/property-task-card';
+import { PlanStatusBadge, PropertyTypeBadge } from '@/components/status-badge';
 import { SwipeableRow } from '@/components/swipeable-row';
 import { usePlan, useUpdatePlan } from '@/hooks/use-plans';
 import {
@@ -51,6 +45,7 @@ import { useAnimatedEntry } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
+import { getMobileImpactMessage } from '@/lib/impact-message';
 import { defaultScreenOptions } from '@/lib/screen-options';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -61,83 +56,6 @@ const FILTERS: { key: StatusFilter; label: string }[] = [
   { key: TaskStatus.UPCOMING, label: TASK_STATUS_LABELS.UPCOMING },
   { key: TaskStatus.OVERDUE, label: TASK_STATUS_LABELS.OVERDUE },
 ];
-
-function getMobileImpactMessage(
-  sector: string | null,
-  severity: 'high' | 'medium' = 'medium',
-): string {
-  const critical = severity === 'high';
-  switch (sector) {
-    case 'ROOF':
-      return critical
-        ? 'Puede generar filtraciones activas y dañar interiores.'
-        : 'Puede convertirse en filtraciones con el tiempo.';
-    case 'BATHROOM':
-    case 'KITCHEN':
-      return critical
-        ? 'Puede provocar humedad constante y afectar otros ambientes.'
-        : 'Puede generar humedad y desgaste progresivo.';
-    case 'INSTALLATIONS':
-      return critical
-        ? 'Puede comprometer la seguridad de la instalación.'
-        : 'Puede volverse un problema más serio con el tiempo.';
-    case 'BASEMENT':
-      return critical
-        ? 'Puede afectar la estabilidad de la estructura.'
-        : 'Puede generar daños estructurales si no se controla.';
-    case 'EXTERIOR':
-    case 'GARDEN':
-    case 'TERRACE':
-      return critical
-        ? 'Puede generar acumulación de agua y daños mayores.'
-        : 'Puede empeorar con el clima.';
-    default:
-      return critical
-        ? 'Puede empeorar rápidamente y generar daños mayores.'
-        : 'Puede evolucionar y volverse más costoso de reparar.';
-  }
-}
-
-function TaskCard({ task, planId }: { task: TaskPublic; planId: string }) {
-  const router = useRouter();
-
-  const statusDotColor =
-    task.status === TaskStatus.OVERDUE
-      ? 'bg-destructive'
-      : task.status === TaskStatus.UPCOMING
-        ? 'bg-primary'
-        : 'bg-muted-foreground';
-
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={`Tarea: ${task.name}`}
-      className="border-border bg-card mb-2 rounded-xl border p-3"
-      onPress={() => router.push(`/task/${planId}/${task.id}` as never)}
-    >
-      <View className="mb-1 flex-row items-center gap-2">
-        <View className={`h-2.5 w-2.5 rounded-full ${statusDotColor}`} />
-        <Text style={TYPE.titleSm} className="text-foreground flex-1 flex-shrink" numberOfLines={2}>
-          {task.name}
-        </Text>
-        <PriorityBadge priority={task.priority} />
-      </View>
-      <View className="ml-4 flex-row flex-wrap items-center gap-x-2 gap-y-0.5">
-        <TaskStatusBadge status={task.status} />
-        {task.sector && (
-          <Text style={TYPE.labelMd} className="text-muted-foreground" numberOfLines={1}>
-            {PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}
-          </Text>
-        )}
-        <Text style={TYPE.bodySm} className="text-muted-foreground ml-auto" numberOfLines={1}>
-          {task.nextDueDate
-            ? formatRelativeDate(new Date(task.nextDueDate))
-            : RECURRENCE_TYPE_LABELS.ON_DETECTION}
-        </Text>
-      </View>
-    </Pressable>
-  );
-}
 
 export default function PropertyDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -842,7 +760,7 @@ export default function PropertyDetailScreen() {
                   : []
               }
             >
-              <TaskCard task={item} planId={planId!} />
+              <PropertyTaskCard task={item} planId={planId!} />
             </SwipeableRow>
           </AnimatedListItem>
         )}
