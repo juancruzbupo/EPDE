@@ -52,7 +52,7 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
       <div className="hidden print:mb-4 print:block print:border-b print:px-6 print:pt-6 print:pb-4">
         <p className="text-lg font-bold">EPDE — Estudio Profesional de Diagnóstico Edilicio</p>
         {address && <p className="text-muted-foreground text-sm">{address}</p>}
-        <p className="text-muted-foreground text-xs">
+        <p className="text-muted-foreground type-body-sm">
           Reporte generado el {new Date().toLocaleDateString('es-AR')}
         </p>
       </div>
@@ -71,7 +71,7 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
         </div>
         <div className="flex items-center gap-2">
           <span
-            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+            className={`type-body-sm rounded-full px-2 py-0.5 font-medium ${
               index.score >= 60
                 ? 'bg-success/15 text-success'
                 : index.score >= 40
@@ -82,7 +82,7 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
             {index.label}
           </span>
           <TrendIcon value={index.dimensions.trend} />
-          <span className="text-muted-foreground text-xs">
+          <span className="text-muted-foreground type-body-sm">
             {index.dimensions.trend > 55
               ? 'Mejorando'
               : index.dimensions.trend < 45
@@ -100,10 +100,8 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
             return (
               <div key={key}>
                 <div className="mb-0.5 flex items-center justify-between">
-                  <span className="text-sm font-medium">{name}</span>
-                  <span className={`text-sm font-medium tabular-nums ${scoreColor(value)}`}>
-                    {value}
-                  </span>
+                  <span className="type-label-lg">{name}</span>
+                  <span className={`type-label-lg tabular-nums ${scoreColor(value)}`}>{value}</span>
                 </div>
                 <div className="bg-muted h-1.5 overflow-hidden rounded-full">
                   <div
@@ -111,7 +109,7 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
                     style={{ width: `${value}%` }}
                   />
                 </div>
-                <p className="text-muted-foreground mt-0.5 text-xs">{hint}</p>
+                <p className="text-muted-foreground type-body-sm mt-0.5">{hint}</p>
               </div>
             );
           })}
@@ -142,8 +140,8 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
             );
           return recs.length > 0 ? (
             <div className="border-warning/20 bg-warning/10 rounded-lg border p-3">
-              <p className="text-warning mb-1.5 text-xs font-semibold">Recomendaciones</p>
-              <ul className="text-warning space-y-1 text-xs">
+              <p className="text-warning type-body-sm mb-1.5 font-semibold">Recomendaciones</p>
+              <ul className="text-warning type-body-sm space-y-1">
                 {recs.map((r, i) => (
                   <li key={i}>• {r}</li>
                 ))}
@@ -151,7 +149,7 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
             </div>
           ) : (
             <div className="bg-success/10 border-success/20 rounded-lg border p-3">
-              <p className="text-success text-xs font-semibold">
+              <p className="text-success type-body-sm font-semibold">
                 ¡Tu vivienda está en excelente estado! Seguí manteniendo el ritmo de inspecciones.
               </p>
             </div>
@@ -171,7 +169,7 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
                 </p>
               </div>
             )}
-            <p className="text-foreground mb-2 text-sm font-semibold">Salud por sector</p>
+            <p className="type-title-sm text-foreground mb-2">Salud por sector</p>
             <div className="grid gap-1.5 sm:grid-cols-2 print:break-inside-avoid">
               {index.sectorScores.map((s) => {
                 const label = PROPERTY_SECTOR_LABELS[s.sector as PropertySector] ?? s.sector;
@@ -181,8 +179,10 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
                     href={`/tasks?sector=${s.sector}`}
                     className="hover:bg-muted/50 flex items-center justify-between rounded px-2 py-1 transition-colors"
                   >
-                    <span className="text-xs">{label}</span>
-                    <span className={`text-xs font-medium tabular-nums ${scoreColor(s.score)}`}>
+                    <span className="type-body-sm">{label}</span>
+                    <span
+                      className={`type-body-sm font-medium tabular-nums ${scoreColor(s.score)}`}
+                    >
                       {s.score}%
                       {s.overdue > 0 && (
                         <span className="text-destructive ml-1">
@@ -200,7 +200,7 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
         {/* History chart */}
         {history && history.length > 1 && (
           <div className="border-border border-t pt-3">
-            <p className="text-foreground mb-2 text-sm font-semibold">Evolución del ISV</p>
+            <p className="type-title-sm text-foreground mb-2">Evolución del ISV</p>
             <div className="flex items-end gap-1" style={{ height: 80 }}>
               {history.map((s) => {
                 const h = Math.max(4, (s.score / 100) * 72);
@@ -210,10 +210,10 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
                       className={`w-full rounded-t ${barColor(s.score)}`}
                       style={{ height: h }}
                     />
-                    <span className="text-muted-foreground mt-1 text-[11px]">
+                    <span className="text-muted-foreground type-label-sm mt-1">
                       {s.month.slice(5)}
                     </span>
-                    <div className="pointer-events-none absolute -top-6 hidden rounded bg-black/80 px-1.5 py-0.5 text-[11px] text-white group-hover:block">
+                    <div className="type-label-sm pointer-events-none absolute -top-6 hidden rounded bg-black/80 px-1.5 py-0.5 text-white group-hover:block">
                       {s.score}
                     </div>
                   </div>
@@ -223,7 +223,7 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
           </div>
         )}
         {/* ISV disclaimer */}
-        <p className="text-muted-foreground/60 border-border border-t pt-3 text-xs">
+        <p className="text-muted-foreground/60 border-border type-body-sm border-t pt-3">
           El ISV es un indicador orientativo basado en inspecciones realizadas. No constituye una
           certificación técnica ni garantiza el estado estructural de la propiedad.
         </p>

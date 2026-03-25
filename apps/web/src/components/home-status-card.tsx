@@ -139,7 +139,7 @@ export function HomeStatusCard({
 
           {/* Human message */}
           <p className="type-body-md text-muted-foreground mb-1">{message}</p>
-          {consequence && <p className="text-muted-foreground mb-4 text-xs">{consequence}</p>}
+          {consequence && <p className="type-body-sm text-muted-foreground mb-4">{consequence}</p>}
           {!consequence && <div className="mb-4" />}
 
           {/* Score + progress bar */}

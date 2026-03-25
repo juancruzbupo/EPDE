@@ -16,7 +16,7 @@
 
 /** Light mode (default) palette */
 export const DESIGN_TOKENS_LIGHT = {
-  primary: '#c4704b',
+  primary: '#b5613e',
   primaryForeground: '#ffffff',
   secondary: '#e8ddd3',
   secondaryForeground: '#2e2a27',
@@ -28,16 +28,16 @@ export const DESIGN_TOKENS_LIGHT = {
   mutedForeground: '#3d3a37',
   accent: '#e8ddd3',
   accentForeground: '#2e2a27',
-  destructive: '#c45b4b',
+  destructive: '#b04a3a',
   destructiveForeground: '#ffffff',
   border: '#e8ddd3',
   input: '#e8ddd3',
-  ring: '#c4704b',
+  ring: '#b5613e',
   // Semantic status colors
   success: '#4d7d5c',
-  successForeground: '#1a1715',
-  warning: '#917718',
-  warningForeground: '#1a1715',
+  successForeground: '#ffffff',
+  warning: '#7a6514',
+  warningForeground: '#ffffff',
   caution: '#a85a20',
   cautionForeground: '#fafaf8',
   // Task status colors (semantic — used in task list/detail views)
@@ -60,7 +60,7 @@ export const DESIGN_TOKENS_DARK = {
   mutedForeground: '#c9b8aa',
   accent: '#3d3835',
   accentForeground: '#f5f0eb',
-  destructive: '#c45b4b',
+  destructive: '#b04a3a',
   destructiveForeground: '#ffffff',
   border: 'rgba(255, 255, 255, 0.15)',
   input: 'rgba(255, 255, 255, 0.2)',
@@ -110,21 +110,21 @@ export type TaskTypeTokens = typeof TASK_TYPE_TOKENS_LIGHT;
 export const PROFESSIONAL_REQ_TOKENS_LIGHT = {
   ownerCanDo: '#6b9b7a',
   professionalRecommended: '#c4a030',
-  professionalRequired: '#c45b4b',
+  professionalRequired: '#b04a3a',
 } as const;
 
 /** Professional requirement color tokens — dark mode */
 export const PROFESSIONAL_REQ_TOKENS_DARK = {
   ownerCanDo: '#7ab588',
   professionalRecommended: '#d4b050',
-  professionalRequired: '#c45b4b',
+  professionalRequired: '#b04a3a',
 } as const;
 
 export type ProfessionalReqTokens = typeof PROFESSIONAL_REQ_TOKENS_LIGHT;
 
 /** Chart color tokens — light mode */
 export const CHART_TOKENS_LIGHT = {
-  chart1: '#c4704b',
+  chart1: '#b5613e',
   chart2: '#6b9b7a',
   chart3: '#5b8ec4',
   chart4: '#d4a843',
@@ -137,7 +137,7 @@ export const CHART_TOKENS_DARK = {
   chart2: '#6b9b7a',
   chart3: '#5b8ec4',
   chart4: '#d4a843',
-  chart5: '#c4704b',
+  chart5: '#b5613e',
 } as const;
 
 export type ChartTokens = typeof CHART_TOKENS_LIGHT;

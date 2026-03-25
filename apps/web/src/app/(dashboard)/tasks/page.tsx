@@ -76,8 +76,8 @@ function StatCard({
     >
       <Icon className={cn('h-5 w-5 shrink-0', color)} aria-hidden="true" />
       <div className="min-w-0">
-        <p className={cn('text-xl leading-none font-semibold', color)}>{count}</p>
-        <p className="text-muted-foreground mt-0.5 text-xs">{TASK_STATUS_LABELS[status]}</p>
+        <p className={cn('type-number-md leading-none', color)}>{count}</p>
+        <p className="type-body-sm text-muted-foreground mt-0.5">{TASK_STATUS_LABELS[status]}</p>
       </div>
     </button>
   );
