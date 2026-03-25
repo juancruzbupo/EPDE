@@ -58,6 +58,7 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
         user: { select: { id: true, name: true, email: true } },
         maintenancePlan: { select: { id: true, name: true, status: true } },
       },
+      count: false,
     };
 
     return this.findMany(findParams);

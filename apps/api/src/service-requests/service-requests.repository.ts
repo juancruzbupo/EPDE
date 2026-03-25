@@ -80,6 +80,7 @@ export class ServiceRequestsRepository extends BaseRepository<ServiceRequest, 's
       take: params.take,
       where,
       include: SERVICE_REQUEST_LIST_INCLUDE,
+      count: false,
     };
 
     return this.findMany(findParams);

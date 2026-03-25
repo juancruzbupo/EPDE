@@ -30,6 +30,7 @@ export class NotificationsRepository extends BaseRepository<Notification, 'notif
       cursor,
       take,
       orderBy: { createdAt: 'desc' },
+      count: false,
     });
   }
 

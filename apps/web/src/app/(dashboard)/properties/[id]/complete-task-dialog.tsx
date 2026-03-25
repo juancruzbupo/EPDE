@@ -177,7 +177,8 @@ export function CompleteTaskDialog({ open, onOpenChange, task, planId }: Complet
         <DialogHeader>
           <DialogTitle>Registrar: {task.name}</DialogTitle>
           <DialogDescription>
-            Registrá el resultado basado en lo observado durante la inspección.
+            Registrá el resultado basado en lo observado durante la inspección. Los campos marcados
+            con <span className="text-destructive">*</span> son obligatorios.
           </DialogDescription>
         </DialogHeader>
         <form

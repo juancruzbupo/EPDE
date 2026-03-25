@@ -14,7 +14,7 @@ import { haptics } from '@/lib/haptics';
 interface AnalyticsSectionProps {
   analytics: ClientAnalytics | undefined;
   isLoading: boolean;
-  chartMonths: number;
+  chartMonths: number | undefined;
   onMonthsChange: (months: number) => void;
 }
 
@@ -54,7 +54,13 @@ export const AnalyticsSection = memo(function AnalyticsSection({
   };
 
   return (
-    <CollapsibleSection title="Ver analisis completo" defaultOpen={false}>
+    <CollapsibleSection
+      title="Ver analisis completo"
+      defaultOpen={false}
+      onToggle={(open) => {
+        if (open && chartMonths == null) onMonthsChange(6);
+      }}
+    >
       {/* Month selector pills */}
       <View className="mb-3 flex-row items-center justify-end gap-1">
         {CHART_MONTH_OPTIONS.map((opt) => (

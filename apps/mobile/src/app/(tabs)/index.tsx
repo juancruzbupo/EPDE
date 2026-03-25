@@ -55,7 +55,7 @@ export default function DashboardScreen() {
 function ClientDashboard() {
   const router = useRouter();
   const userName = useAuthStore((s) => s.user?.name ?? '');
-  const [chartMonths, setChartMonths] = useState(6);
+  const [chartMonths, setChartMonths] = useState<number | undefined>(undefined);
 
   const {
     data: stats,

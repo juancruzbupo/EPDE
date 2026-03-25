@@ -15,6 +15,7 @@ interface CollapsibleSectionProps {
   title: string;
   count?: number;
   defaultOpen?: boolean;
+  onToggle?: (open: boolean) => void;
   children: ReactNode;
 }
 
@@ -22,6 +23,7 @@ export function CollapsibleSection({
   title,
   count,
   defaultOpen = true,
+  onToggle,
   children,
 }: CollapsibleSectionProps) {
   const [open, setOpen] = useState(defaultOpen);
@@ -33,6 +35,7 @@ export function CollapsibleSection({
     haptics.light();
     const nextOpen = !open;
     setOpen(nextOpen);
+    onToggle?.(nextOpen);
 
     if (reduced) {
       rotation.value = nextOpen ? 1 : 0;

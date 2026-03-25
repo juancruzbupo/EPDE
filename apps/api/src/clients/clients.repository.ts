@@ -47,6 +47,7 @@ export class ClientsRepository extends BaseRepository<User, 'user'> {
       take: params.take,
       where,
       include: { _count: { select: { properties: true } } },
+      count: false,
     };
 
     return this.findMany(findParams);

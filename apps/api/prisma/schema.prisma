@@ -317,6 +317,8 @@ model TaskLog {
   @@index([taskId, completedAt])
   @@index([completedAt])
   @@index([completedBy, completedAt])
+  @@index([conditionFound, taskId]) // getOpenProblems: POOR/CRITICAL filter + taskId join
+  @@index([cost, completedAt]) // getPropertyExpenses: cost filter + date sort
 }
 
 model TaskNote {
@@ -401,6 +403,8 @@ model BudgetResponse {
   respondedAt     DateTime  @default(now())
 
   budgetRequest BudgetRequest @relation(fields: [budgetRequestId], references: [id], onDelete: Cascade)
+
+  @@index([respondedAt]) // getPropertyExpenses: date sort on budget responses
 }
 
 model BudgetAuditLog {

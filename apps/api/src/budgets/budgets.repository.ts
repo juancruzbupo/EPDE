@@ -74,6 +74,7 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
       take: params.take,
       where,
       include: BUDGET_LIST_INCLUDE,
+      count: false,
     };
 
     return this.findMany(findParams);
