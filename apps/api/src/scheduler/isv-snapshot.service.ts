@@ -51,11 +51,15 @@ export class ISVSnapshotService {
         if (signal.lockLost) return;
 
         const batch = eligible.slice(i, i + BATCH_SIZE);
+        const planIds = batch.map((p) => p.maintenancePlan!.id);
+
+        // Batch ISV calculation: 2 queries for N properties instead of 3×N
+        const batchIndex = await this.dashboardRepository.getPropertyHealthIndexBatch(planIds);
+
         const results = await Promise.allSettled(
           batch.map(async (prop) => {
-            const index = await this.dashboardRepository.getPropertyHealthIndex([
-              prop.maintenancePlan!.id,
-            ]);
+            const index = batchIndex.get(prop.maintenancePlan!.id);
+            if (!index) return { alerted: false };
 
             await this.isvRepository.createSnapshot(prop.id, snapshotDate, {
               score: index.score,

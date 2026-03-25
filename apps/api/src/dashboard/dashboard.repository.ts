@@ -534,6 +534,7 @@ export class DashboardRepository {
 
     const tasks = await this.prisma.softDelete.task.findMany({
       where: { maintenancePlanId: { in: planIds } },
+      take: 500,
       select: {
         status: true,
         nextDueDate: true,
@@ -773,10 +774,36 @@ export class DashboardRepository {
    * Batch ISV calculation — fetches data once for ALL planIds, then computes per-plan.
    * Returns a Map<planId, HealthIndex>. Used by properties list to avoid N+1 queries.
    */
-  async getPropertyHealthIndexBatch(
-    planIds: string[],
-  ): Promise<Map<string, { score: number; label: string }>> {
-    const result = new Map<string, { score: number; label: string }>();
+  async getPropertyHealthIndexBatch(planIds: string[]): Promise<
+    Map<
+      string,
+      {
+        score: number;
+        label: string;
+        dimensions: {
+          compliance: number;
+          condition: number;
+          coverage: number;
+          investment: number;
+          trend: number;
+        };
+        sectorScores: { sector: string; score: number; overdue: number }[];
+      }
+    >
+  > {
+    type HealthResult = {
+      score: number;
+      label: string;
+      dimensions: {
+        compliance: number;
+        condition: number;
+        coverage: number;
+        investment: number;
+        trend: number;
+      };
+      sectorScores: { sector: string; score: number; overdue: number }[];
+    };
+    const result = new Map<string, HealthResult>();
     if (planIds.length === 0) return result;
 
     const now = new Date();
@@ -835,7 +862,12 @@ export class DashboardRepository {
       const logs = logsByPlan.get(planId) ?? [];
 
       if (tasks.length === 0) {
-        result.set(planId, { score: 0, label: 'Sin datos' });
+        result.set(planId, {
+          score: 0,
+          label: 'Sin datos',
+          dimensions: { compliance: 0, condition: 0, coverage: 0, investment: 0, trend: 50 },
+          sectorScores: [],
+        });
         continue;
       }
 
@@ -875,7 +907,38 @@ export class DashboardRepository {
       );
       const label = labels.find(([threshold]) => score >= threshold)?.[1] ?? 'Crítico';
 
-      result.set(planId, { score, label });
+      // Sector scores
+      const sectorMap = new Map<
+        string,
+        { total: number; overdue: number; condSum: number; condCount: number }
+      >();
+      for (const t of tasks) {
+        if (!t.sector) continue;
+        const s = sectorMap.get(t.sector) ?? { total: 0, overdue: 0, condSum: 0, condCount: 0 };
+        s.total++;
+        if (t.status === TaskStatus.OVERDUE) s.overdue++;
+        sectorMap.set(t.sector, s);
+      }
+      for (const l of logs) {
+        if (!l.task.sector) continue;
+        const s = sectorMap.get(l.task.sector);
+        if (s) {
+          s.condSum += CONDITION_SCORE_PERCENT[l.conditionFound as ConditionFound] ?? 60;
+          s.condCount++;
+        }
+      }
+      const sectorScores = [...sectorMap.entries()].map(([sector, s]) => ({
+        sector,
+        score: s.condCount > 0 ? Math.round(s.condSum / s.condCount) : 50,
+        overdue: s.overdue,
+      }));
+
+      result.set(planId, {
+        score,
+        label,
+        dimensions: { compliance, condition, coverage, investment, trend: 50 },
+        sectorScores,
+      });
     }
 
     return result;
