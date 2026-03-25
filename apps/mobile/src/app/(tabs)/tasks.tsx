@@ -98,7 +98,11 @@ export default function TasksScreen() {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search);
 
-  const { data: tasks, isLoading, error, refetch } = useAllTasks();
+  // Server-side status filtering: pass status to API when stat card is active.
+  // Stat counts always use the full dataset (no status filter).
+  const serverParams = statusFilter ? { status: statusFilter } : undefined;
+  const { data: tasks, isLoading, error, refetch } = useAllTasks(serverParams);
+  const { data: allTasksForCounts } = useAllTasks();
 
   const propertyOptions = useMemo(() => {
     if (!tasks) return [];
@@ -110,14 +114,10 @@ export default function TasksScreen() {
     return [...seen.entries()].map(([id, address]) => ({ key: id, label: address }));
   }, [tasks]);
 
-  /** Client-side filtering: status + priority + property + search. */
+  /** Client-side filtering: priority + property + search (status is server-side). */
   const filtered = useMemo(() => {
     if (!tasks) return [];
     let result = tasks;
-
-    if (statusFilter) {
-      result = result.filter((t) => t.status === statusFilter);
-    }
 
     if (priorityFilter) {
       result = result.filter((t) => t.priority === priorityFilter);
@@ -141,17 +141,17 @@ export default function TasksScreen() {
     return result;
   }, [tasks, statusFilter, priorityFilter, propertyFilter, debouncedSearch]);
 
-  /** Counts per status (from full dataset, ignoring priority/search filters). */
+  /** Counts per status (from full dataset, independent of active status filter). */
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const s of STAT_STATUSES) counts[s] = 0;
-    if (tasks) {
-      for (const t of tasks) {
-        if (counts[t.status] !== undefined) counts[t.status]++;
+    if (allTasksForCounts) {
+      for (const t of allTasksForCounts) {
+        if (t.status in counts) counts[t.status] = (counts[t.status] ?? 0) + 1;
       }
     }
     return counts;
-  }, [tasks]);
+  }, [allTasksForCounts]);
 
   const onRefresh = useCallback(() => {
     refetch();

@@ -227,7 +227,11 @@ export default function TasksPage() {
     description: string;
   } | null>(null);
   const searchParams = useSearchParams();
-  const { data: tasks, isLoading, isError, refetch } = useAllTasks();
+  // Server-side status filtering: pass status to API when stat card is active.
+  // Stat counts always use the full dataset (no status filter).
+  const serverParams = activeStatus ? { status: activeStatus } : undefined;
+  const { data: tasks, isLoading, isError, refetch } = useAllTasks(serverParams);
+  const { data: allTasksForCounts } = useAllTasks();
 
   // Auto-open task detail when navigating with ?taskId=xxx (e.g. from dashboard ActionList)
   const handledTaskId = useRef<string | null>(null);
@@ -297,6 +301,18 @@ export default function TasksPage() {
     return map;
   }, [filtered]);
 
+  /** Stat card counts — always from full dataset, independent of active status filter. */
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const s of TASK_STATUS_ORDER) counts[s] = 0;
+    if (allTasksForCounts) {
+      for (const t of allTasksForCounts) {
+        if (t.status in counts) counts[t.status] = (counts[t.status] ?? 0) + 1;
+      }
+    }
+    return counts;
+  }, [allTasksForCounts]);
+
   /** Tasks to display — all or filtered by clicked stat card. */
   const displayStatuses = activeStatus ? [activeStatus] : TASK_STATUS_ORDER;
 
@@ -335,7 +351,7 @@ export default function TasksPage() {
             <StatCard
               key={status}
               status={status}
-              count={grouped.get(status)?.length ?? 0}
+              count={statusCounts[status] ?? 0}
               active={activeStatus === status}
               onClick={() => toggleStatus(status)}
             />
