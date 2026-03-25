@@ -10,7 +10,7 @@ import { vars } from 'nativewind';
  */
 
 export const lightTheme = vars({
-  '--color-primary': '#b5613e',
+  '--color-primary': '#a65636',
   '--color-primary-foreground': '#ffffff',
   '--color-secondary': '#e8ddd3',
   '--color-secondary-foreground': '#2e2a27',
@@ -26,7 +26,7 @@ export const lightTheme = vars({
   '--color-accent-foreground': '#2e2a27',
   '--color-border': '#e8ddd3',
   '--color-input': '#e8ddd3',
-  '--color-ring': '#b5613e',
+  '--color-ring': '#a65636',
   '--color-success': '#4d7d5c',
   '--color-success-foreground': '#ffffff',
   '--color-warning': '#7a6514',
@@ -60,8 +60,8 @@ export const darkTheme = vars({
   '--color-muted-foreground': '#c9b8aa',
   '--color-accent': '#3d3835',
   '--color-accent-foreground': '#f5f0eb',
-  '--color-destructive': '#b04a3a',
-  '--color-destructive-foreground': '#ffffff',
+  '--color-destructive': '#e5736a',
+  '--color-destructive-foreground': '#1a1715',
   '--color-border': 'rgba(255, 255, 255, 0.15)',
   '--color-input': 'rgba(255, 255, 255, 0.2)',
   '--color-ring': '#d4956f',

@@ -16,7 +16,7 @@
 
 /** Light mode (default) palette */
 export const DESIGN_TOKENS_LIGHT = {
-  primary: '#b5613e',
+  primary: '#a65636',
   primaryForeground: '#ffffff',
   secondary: '#e8ddd3',
   secondaryForeground: '#2e2a27',
@@ -32,7 +32,7 @@ export const DESIGN_TOKENS_LIGHT = {
   destructiveForeground: '#ffffff',
   border: '#e8ddd3',
   input: '#e8ddd3',
-  ring: '#b5613e',
+  ring: '#a65636',
   // Semantic status colors
   success: '#4d7d5c',
   successForeground: '#ffffff',
@@ -60,8 +60,8 @@ export const DESIGN_TOKENS_DARK = {
   mutedForeground: '#c9b8aa',
   accent: '#3d3835',
   accentForeground: '#f5f0eb',
-  destructive: '#b04a3a',
-  destructiveForeground: '#ffffff',
+  destructive: '#e5736a',
+  destructiveForeground: '#1a1715',
   border: 'rgba(255, 255, 255, 0.15)',
   input: 'rgba(255, 255, 255, 0.2)',
   ring: '#d4956f',
@@ -110,21 +110,21 @@ export type TaskTypeTokens = typeof TASK_TYPE_TOKENS_LIGHT;
 export const PROFESSIONAL_REQ_TOKENS_LIGHT = {
   ownerCanDo: '#6b9b7a',
   professionalRecommended: '#c4a030',
-  professionalRequired: '#b04a3a',
+  professionalRequired: '#a65636',
 } as const;
 
 /** Professional requirement color tokens — dark mode */
 export const PROFESSIONAL_REQ_TOKENS_DARK = {
   ownerCanDo: '#7ab588',
   professionalRecommended: '#d4b050',
-  professionalRequired: '#b04a3a',
+  professionalRequired: '#e5736a',
 } as const;
 
 export type ProfessionalReqTokens = typeof PROFESSIONAL_REQ_TOKENS_LIGHT;
 
 /** Chart color tokens — light mode */
 export const CHART_TOKENS_LIGHT = {
-  chart1: '#b5613e',
+  chart1: '#a65636',
   chart2: '#6b9b7a',
   chart3: '#5b8ec4',
   chart4: '#d4a843',
@@ -137,7 +137,7 @@ export const CHART_TOKENS_DARK = {
   chart2: '#6b9b7a',
   chart3: '#5b8ec4',
   chart4: '#d4a843',
-  chart5: '#b5613e',
+  chart5: '#a65636',
 } as const;
 
 export type ChartTokens = typeof CHART_TOKENS_LIGHT;
