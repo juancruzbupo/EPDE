@@ -12,16 +12,19 @@
 
 ### Paleta Principal
 
-| Token            | Hex       | Uso                                              |
-| ---------------- | --------- | ------------------------------------------------ |
-| Primary          | `#c4704b` | Botones principales, links, acentos (terracotta) |
-| Secondary        | `#e8ddd3` | Backgrounds suaves, hover states (arena)         |
-| Background       | `#fafaf8` | Fondo principal                                  |
-| Foreground       | `#2e2a27` | Texto principal                                  |
-| Muted            | `#f5f0eb` | Fondos secundarios                               |
-| Muted Foreground | `#4a4542` | Texto secundario                                 |
-| Destructive      | `#c45b4b` | Acciones destructivas, errores                   |
-| Border           | `#e8ddd3` | Bordes                                           |
+| Token            | Hex       | Uso                                              | Contraste vs blanco |
+| ---------------- | --------- | ------------------------------------------------ | ------------------- |
+| Primary          | `#b5613e` | Botones principales, links, acentos (terracotta) | 4.7:1 (AA ✓)        |
+| Secondary        | `#e8ddd3` | Backgrounds suaves, hover states (arena)         | —                   |
+| Background       | `#fafaf8` | Fondo principal                                  | —                   |
+| Foreground       | `#2e2a27` | Texto principal                                  | 13.6:1 (AAA ✓)      |
+| Muted            | `#f5f0eb` | Fondos secundarios                               | —                   |
+| Muted Foreground | `#3d3a37` | Texto secundario                                 | 10.8:1 (AAA ✓)      |
+| Destructive      | `#b04a3a` | Acciones destructivas, errores                   | 5.2:1 (AA ✓)        |
+| Success          | `#4d7d5c` | Estados exitosos, badges completado              | 4.8:1 (AA ✓)        |
+| Warning          | `#7a6514` | Alertas, badges pendiente                        | 5.1:1 (AA ✓)        |
+| Caution          | `#a85a20` | Atención, prioridad media                        | 5.1:1 (AA ✓)        |
+| Border           | `#e8ddd3` | Bordes                                           | —                   |
 
 ### Configuracion CSS (Tailwind CSS 4)
 

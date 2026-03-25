@@ -142,6 +142,12 @@
 125. **Landing: sticky footer sizing** — `size="default"` (h-9, 36px) + `p-3` padding. El `size="sm"` anterior (32px) no cumplía touch target. Header mobile: `h-14 md:h-16` para ganar 8px de viewport
 126. **Web button press feedback** — `active:scale-[0.98]` en la base de `buttonVariants` (CVA). Todos los variants heredan el micro-press. Input/textarea: `focus-visible:bg-accent/5` para feedback sutil de foco
 127. **Dark mode muted-foreground** — `#b8a89a` (no `#a09890`). El valor anterior tenía ~6.8:1 contraste, el nuevo ~8:1 contra `#1a1715` background
+128. **WCAG AA contrast mínimo** — Todo par color texto/fondo debe tener ≥4.5:1 ratio (normal text) o ≥3:1 (large text 18px+). Primary `#b5613e` = 4.7:1, Destructive `#b04a3a` = 5.2:1, Success foreground = `#ffffff` (blanco sobre verde). Verificar en design-tokens.ts antes de cambiar colores
+129. **count:false en infinite scroll** — Todos los repositories que usan cursor-based pagination para infinite scroll deben pasar `count: false` a `findMany()`. Esto evita un `COUNT(*)` innecesario por request. Solo usar `count: true` si la UI muestra "Página X de Y"
+130. **ISV batch query** — Para calcular ISV de múltiples propiedades usar `getPropertyHealthIndexBatch(planIds)` (2 queries para N propiedades). NUNCA llamar `getPropertyHealthIndex([planId])` en un loop — produce 3×N queries. El scheduler ISV usa batch
+131. **File splitting por LOC** — Componentes >400 LOC: extraer sub-componentes a archivos separados en el mismo directorio. Screens >600 LOC: extraer tabs/sections. El patrón es: tab content → `property-expenses-tab.tsx`, memoized component → `category-section.tsx`, modal → `edit-budget-modal.tsx`
+132. **CollapsibleSection onToggle** — El componente acepta `onToggle?: (open: boolean) => void` para reaccionar a cambios de estado. Usar para deferred loading (ej: analytics carga solo cuando el usuario expande la sección)
+133. **type-\* classes obligatorias en web** — NUNCA usar `text-xs`, `text-sm`, `text-xl`, `text-3xl` hardcoded para contenido. Usar `type-body-sm`, `type-label-lg`, `type-number-md`, etc. Las clases type-\* están definidas en globals.css y garantizan consistencia tipográfica. Excepción: componentes shadcn/ui internos que usan text-sm por convención del framework
 
 ### NUNCA
 
