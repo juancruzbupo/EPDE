@@ -54,14 +54,14 @@ describe('CompleteTaskModal', () => {
   it('renders modal with task name', () => {
     render(<CompleteTaskModal {...defaultProps} />);
     expect(screen.getByText('Test Task')).toBeTruthy();
-    expect(screen.getByText('Completar Tarea')).toBeTruthy();
+    expect(screen.getByText('Registrar Inspección')).toBeTruthy();
   });
 
   it('renders all selector groups', () => {
     render(<CompleteTaskModal {...defaultProps} />);
     expect(screen.getByText('Resultado *')).toBeTruthy();
-    expect(screen.getByText('Condición encontrada *')).toBeTruthy();
-    expect(screen.getByText('Ejecutor *')).toBeTruthy();
+    expect(screen.getByText('¿En qué estado está? *')).toBeTruthy();
+    expect(screen.getByText('¿Quién lo hizo? *')).toBeTruthy();
     expect(screen.getByText('Acción realizada *')).toBeTruthy();
   });
 

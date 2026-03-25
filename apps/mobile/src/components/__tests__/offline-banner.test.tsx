@@ -22,18 +22,18 @@ describe('OfflineBanner', () => {
   it('does not render when connected', () => {
     mockIsConnected = true;
     render(<OfflineBanner />);
-    expect(screen.queryByText('Sin conexion a internet')).toBeNull();
+    expect(screen.queryByText('Sin conexión a internet')).toBeNull();
   });
 
   it('renders banner when disconnected', () => {
     mockIsConnected = false;
     render(<OfflineBanner />);
-    expect(screen.getByText('Sin conexion a internet')).toBeTruthy();
+    expect(screen.getByText('Sin conexión a internet')).toBeTruthy();
   });
 
   it('shows correct offline text', () => {
     mockIsConnected = false;
     render(<OfflineBanner />);
-    expect(screen.getByText('Sin conexion a internet')).toBeTruthy();
+    expect(screen.getByText('Sin conexión a internet')).toBeTruthy();
   });
 });

@@ -18,6 +18,13 @@ jest.mock('@epde/shared', () => ({
     RESOLVED: 'RESOLVED',
     CLOSED: 'CLOSED',
   },
+  SERVICE_STATUS_PLURAL_LABELS: {
+    OPEN: 'Abiertos',
+    IN_REVIEW: 'En Revisión',
+    IN_PROGRESS: 'En Progreso',
+    RESOLVED: 'Resueltos',
+    CLOSED: 'Cerrados',
+  },
   SERVICE_URGENCY_LABELS: {
     URGENT: 'Urgente',
     HIGH: 'Alta',

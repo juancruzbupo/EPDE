@@ -25,6 +25,11 @@ jest.mock('expo-image-picker', () => ({
   launchImageLibraryAsync: jest.fn(),
 }));
 
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+  SafeAreaProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 const mockUseBudget = jest.fn();
 const mockUseBudgetAuditLog = jest.fn();
 const mockUseBudgetComments = jest.fn();
@@ -41,6 +46,7 @@ jest.mock('@/hooks/use-budgets', () => ({
   useUpdateBudgetStatus: () => mockUseUpdateBudgetStatus(),
   useEditBudgetRequest: () => mockUseEditBudgetRequest(),
   useAddBudgetAttachments: () => mockUseAddBudgetAttachments(),
+  useRespondToBudget: () => ({ mutate: jest.fn(), isPending: false }),
 }));
 
 jest.mock('@/hooks/use-upload', () => ({

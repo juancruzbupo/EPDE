@@ -39,12 +39,24 @@ jest.mock('@epde/shared', () => ({
     HIGH: 'HIGH',
     URGENT: 'URGENT',
   },
+  UserRole: {
+    ADMIN: 'ADMIN',
+    CLIENT: 'CLIENT',
+  },
   SERVICE_URGENCY_LABELS: {
     URGENT: 'Urgente',
     HIGH: 'Alta',
     MEDIUM: 'Media',
     LOW: 'Baja',
   },
+  SERVICE_STATUS_LABELS: {
+    OPEN: 'Abierta',
+    IN_REVIEW: 'En Revisión',
+    IN_PROGRESS: 'En Progreso',
+    RESOLVED: 'Resuelta',
+    CLOSED: 'Cerrada',
+  },
+  SERVICE_AUDIT_ACTION_LABELS: {},
   formatRelativeDate: () => 'hace 2 días',
   isServiceRequestTerminal: (status: string) => status === 'RESOLVED' || status === 'CLOSED',
 }));
@@ -68,6 +80,11 @@ jest.mock('@/hooks/use-service-requests', () => ({
   useServiceRequestComments: () => mockUseServiceRequestComments(),
   useAddServiceRequestComment: () => mockUseAddServiceRequestComment(),
   useAddServiceRequestAttachments: () => mockUseAddServiceRequestAttachments(),
+  useUpdateServiceStatus: () => ({ mutate: jest.fn(), isPending: false }),
+}));
+
+jest.mock('@/stores/auth-store', () => ({
+  useAuthStore: () => ({ role: 'CLIENT' }),
 }));
 
 jest.mock('@/hooks/use-upload', () => ({
@@ -116,6 +133,10 @@ jest.mock('@/lib/fonts', () => ({
 
 jest.mock('@/components/collapsible-section', () => ({
   CollapsibleSection: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+jest.mock('@/components/create-budget-modal', () => ({
+  CreateBudgetModal: () => null,
 }));
 
 jest.mock('@/components/status-badge', () => ({

@@ -13,6 +13,7 @@ const mockPropertiesRepository = {
 };
 const mockDashboardRepository = {
   getPropertyHealthIndex: jest.fn(),
+  getPropertyHealthIndexBatch: jest.fn(),
 };
 const mockISVSnapshotRepository = {
   createSnapshot: jest.fn().mockResolvedValue({}),
@@ -71,7 +72,9 @@ describe('ISVSnapshotService', () => {
   it('should acquire lock and process properties with active plans', async () => {
     const prop = makeProperty('prop-1');
     mockPropertiesRepository.findWithActivePlans.mockResolvedValue([prop]);
-    mockDashboardRepository.getPropertyHealthIndex.mockResolvedValue(makeHealthIndex(85));
+    mockDashboardRepository.getPropertyHealthIndexBatch.mockResolvedValue(
+      new Map([['plan-1', makeHealthIndex(85)]]),
+    );
     mockLockService.withLock.mockImplementation(
       async (_key: string, _ttl: number, fn: (signal: { lockLost: boolean }) => Promise<void>) => {
         await fn({ lockLost: false });
@@ -85,7 +88,7 @@ describe('ISVSnapshotService', () => {
       600,
       expect.any(Function),
     );
-    expect(mockDashboardRepository.getPropertyHealthIndex).toHaveBeenCalledWith(['plan-1']);
+    expect(mockDashboardRepository.getPropertyHealthIndexBatch).toHaveBeenCalledWith(['plan-1']);
     expect(mockISVSnapshotRepository.createSnapshot).toHaveBeenCalledTimes(1);
   });
 
@@ -93,7 +96,9 @@ describe('ISVSnapshotService', () => {
     const propWithPlan = makeProperty('prop-1', 'plan-1');
     const propWithout = makeProperty('prop-2', null);
     mockPropertiesRepository.findWithActivePlans.mockResolvedValue([propWithPlan, propWithout]);
-    mockDashboardRepository.getPropertyHealthIndex.mockResolvedValue(makeHealthIndex(80));
+    mockDashboardRepository.getPropertyHealthIndexBatch.mockResolvedValue(
+      new Map([['plan-1', makeHealthIndex(80)]]),
+    );
     mockLockService.withLock.mockImplementation(
       async (_key: string, _ttl: number, fn: (signal: { lockLost: boolean }) => Promise<void>) => {
         await fn({ lockLost: false });
@@ -102,7 +107,7 @@ describe('ISVSnapshotService', () => {
 
     await service.captureMonthlySnapshots();
 
-    expect(mockDashboardRepository.getPropertyHealthIndex).toHaveBeenCalledTimes(1);
+    expect(mockDashboardRepository.getPropertyHealthIndexBatch).toHaveBeenCalledTimes(1);
     expect(mockISVSnapshotRepository.createSnapshot).toHaveBeenCalledTimes(1);
   });
 
@@ -110,7 +115,9 @@ describe('ISVSnapshotService', () => {
     const prop = makeProperty('prop-1');
     const index = makeHealthIndex(72);
     mockPropertiesRepository.findWithActivePlans.mockResolvedValue([prop]);
-    mockDashboardRepository.getPropertyHealthIndex.mockResolvedValue(index);
+    mockDashboardRepository.getPropertyHealthIndexBatch.mockResolvedValue(
+      new Map([['plan-1', index]]),
+    );
     mockLockService.withLock.mockImplementation(
       async (_key: string, _ttl: number, fn: (signal: { lockLost: boolean }) => Promise<void>) => {
         await fn({ lockLost: false });
@@ -138,7 +145,9 @@ describe('ISVSnapshotService', () => {
   it('should trigger ISV alert when score drops ≥15 points', async () => {
     const prop = makeProperty('prop-1');
     mockPropertiesRepository.findWithActivePlans.mockResolvedValue([prop]);
-    mockDashboardRepository.getPropertyHealthIndex.mockResolvedValue(makeHealthIndex(60));
+    mockDashboardRepository.getPropertyHealthIndexBatch.mockResolvedValue(
+      new Map([['plan-1', makeHealthIndex(60)]]),
+    );
     mockISVSnapshotRepository.findPrevious.mockResolvedValue({ score: 80 });
     mockLockService.withLock.mockImplementation(
       async (_key: string, _ttl: number, fn: (signal: { lockLost: boolean }) => Promise<void>) => {
@@ -160,7 +169,9 @@ describe('ISVSnapshotService', () => {
   it('should NOT trigger alert when drop < 15 points', async () => {
     const prop = makeProperty('prop-1');
     mockPropertiesRepository.findWithActivePlans.mockResolvedValue([prop]);
-    mockDashboardRepository.getPropertyHealthIndex.mockResolvedValue(makeHealthIndex(70));
+    mockDashboardRepository.getPropertyHealthIndexBatch.mockResolvedValue(
+      new Map([['plan-1', makeHealthIndex(70)]]),
+    );
     mockISVSnapshotRepository.findPrevious.mockResolvedValue({ score: 80 });
     mockLockService.withLock.mockImplementation(
       async (_key: string, _ttl: number, fn: (signal: { lockLost: boolean }) => Promise<void>) => {
@@ -184,7 +195,7 @@ describe('ISVSnapshotService', () => {
 
     await service.captureMonthlySnapshots();
 
-    expect(mockDashboardRepository.getPropertyHealthIndex).not.toHaveBeenCalled();
+    expect(mockDashboardRepository.getPropertyHealthIndexBatch).not.toHaveBeenCalled();
     expect(mockISVSnapshotRepository.createSnapshot).not.toHaveBeenCalled();
   });
 
@@ -214,7 +225,7 @@ describe('ISVSnapshotService', () => {
 
     await service.captureMonthlySnapshots();
 
-    expect(mockDashboardRepository.getPropertyHealthIndex).not.toHaveBeenCalled();
+    expect(mockDashboardRepository.getPropertyHealthIndexBatch).not.toHaveBeenCalled();
     expect(mockISVSnapshotRepository.createSnapshot).not.toHaveBeenCalled();
     expect(mockNotificationsHandler.handleISVAlert).not.toHaveBeenCalled();
     expect(mockMetricsService.recordCronExecution).toHaveBeenCalled();

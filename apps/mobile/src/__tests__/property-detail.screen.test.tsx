@@ -16,6 +16,7 @@ const mockUsePropertyExpenses = jest.fn();
 const mockUsePropertyPhotos = jest.fn();
 const mockUsePropertyHealthIndex = jest.fn();
 const mockUsePropertyHealthHistory = jest.fn();
+const mockUsePropertyProblems = jest.fn();
 
 jest.mock('@/hooks/use-properties', () => ({
   useProperty: (...args: unknown[]) => mockUseProperty(...args),
@@ -23,12 +24,14 @@ jest.mock('@/hooks/use-properties', () => ({
   usePropertyPhotos: (...args: unknown[]) => mockUsePropertyPhotos(...args),
   usePropertyHealthIndex: (...args: unknown[]) => mockUsePropertyHealthIndex(...args),
   usePropertyHealthHistory: (...args: unknown[]) => mockUsePropertyHealthHistory(...args),
+  usePropertyProblems: (...args: unknown[]) => mockUsePropertyProblems(...args),
 }));
 
 const mockUsePlan = jest.fn();
 
 jest.mock('@/hooks/use-plans', () => ({
   usePlan: (...args: unknown[]) => mockUsePlan(...args),
+  useUpdatePlan: () => ({ mutate: jest.fn(), isPending: false }),
 }));
 
 jest.mock('@/components/collapsible-section', () => ({
@@ -47,11 +50,105 @@ jest.mock('@/components/complete-task-modal', () => ({
   CompleteTaskModal: () => null,
 }));
 
+jest.mock('@/components/create-service-request-modal', () => ({
+  CreateServiceRequestModal: () => null,
+}));
+
+jest.mock('@/components/property-task-card', () => ({
+  PropertyTaskCard: () => null,
+}));
+
 jest.mock('@/components/status-badge', () => ({
   PlanStatusBadge: ({ status }: { status: string }) => status,
   PriorityBadge: ({ priority }: { priority: string }) => priority,
   PropertyTypeBadge: ({ type }: { type: string }) => type,
   TaskStatusBadge: ({ status }: { status: string }) => status,
+}));
+
+jest.mock('@/components/error-state', () => {
+  const { Text, Pressable } = jest.requireActual('react-native');
+  return {
+    ErrorState: ({ onRetry }: { onRetry?: () => void }) => (
+      <Pressable onPress={onRetry}>
+        <Text>Reintentar</Text>
+      </Pressable>
+    ),
+  };
+});
+
+jest.mock('@/components/empty-state', () => {
+  const { Text } = jest.requireActual('react-native');
+  return {
+    EmptyState: ({ title, message }: { title: string; message: string }) => (
+      <>
+        <Text>{title}</Text>
+        <Text>{message}</Text>
+      </>
+    ),
+  };
+});
+
+jest.mock('@/lib/animations', () => ({
+  useAnimatedEntry: () => ({}),
+}));
+
+jest.mock('@/lib/colors', () => ({
+  COLORS: {
+    background: '#fff',
+    foreground: '#000',
+    primary: '#0066ff',
+    mutedForeground: '#999',
+    border: '#ddd',
+  },
+}));
+
+jest.mock('@/lib/fonts', () => ({
+  TYPE: {
+    titleSm: {},
+    titleMd: {},
+    titleLg: {},
+    bodyMd: {},
+    bodySm: {},
+    labelMd: {},
+    labelLg: {},
+    labelSm: {},
+  },
+}));
+
+jest.mock('@/lib/haptics', () => ({
+  haptics: { selection: jest.fn(), light: jest.fn(), success: jest.fn() },
+}));
+
+jest.mock('@/lib/screen-options', () => ({
+  defaultScreenOptions: {},
+}));
+
+jest.mock('@/lib/impact-message', () => ({
+  getMobileImpactMessage: () => 'mock impact message',
+}));
+
+jest.mock('@/stores/auth-store', () => ({
+  useAuthStore: () => ({ role: 'CLIENT' }),
+}));
+
+jest.mock('@epde/shared', () => ({
+  PlanStatus: { ACTIVE: 'ACTIVE', DRAFT: 'DRAFT', ARCHIVED: 'ARCHIVED' },
+  TaskStatus: {
+    UPCOMING: 'UPCOMING',
+    OVERDUE: 'OVERDUE',
+    COMPLETED: 'COMPLETED',
+    PENDING: 'PENDING',
+  },
+  UserRole: { ADMIN: 'ADMIN', CLIENT: 'CLIENT' },
+  CONDITION_FOUND_LABELS: {},
+  TASK_STATUS_LABELS: {
+    UPCOMING: 'Próximas',
+    OVERDUE: 'Vencidas',
+    COMPLETED: 'Completadas',
+    PENDING: 'Pendiente',
+  },
+  PROPERTY_SECTOR_LABELS: {},
+  formatRelativeDate: () => 'hace 2 días',
 }));
 
 // ---------------------------------------------------------------------------
@@ -119,6 +216,7 @@ function setupDefaultMocks() {
   mockUsePropertyPhotos.mockReturnValue(queryResult(undefined));
   mockUsePropertyHealthIndex.mockReturnValue(queryResult(undefined));
   mockUsePropertyHealthHistory.mockReturnValue(queryResult(undefined));
+  mockUsePropertyProblems.mockReturnValue(queryResult(undefined));
 }
 
 // ---------------------------------------------------------------------------
@@ -147,6 +245,7 @@ describe('PropertyDetailScreen', () => {
     mockUsePropertyPhotos.mockReturnValue(queryResult(undefined));
     mockUsePropertyHealthIndex.mockReturnValue(queryResult(undefined));
     mockUsePropertyHealthHistory.mockReturnValue(queryResult(undefined));
+    mockUsePropertyProblems.mockReturnValue(queryResult(undefined));
 
     const { queryByText } = render(<PropertyDetailScreen />);
 
@@ -160,6 +259,7 @@ describe('PropertyDetailScreen', () => {
     mockUsePropertyPhotos.mockReturnValue(queryResult(undefined));
     mockUsePropertyHealthIndex.mockReturnValue(queryResult(undefined));
     mockUsePropertyHealthHistory.mockReturnValue(queryResult(undefined));
+    mockUsePropertyProblems.mockReturnValue(queryResult(undefined));
 
     const { getByText } = render(<PropertyDetailScreen />);
 

@@ -135,14 +135,13 @@ describe('ClientsRepository', () => {
       expect(result.data).toHaveLength(5);
     });
 
-    it('should include total count by default', async () => {
-      mockModel.count.mockResolvedValue(42);
+    it('should skip count for infinite scroll (count: false)', async () => {
       mockModel.findMany.mockResolvedValue([]);
 
       const result = await repository.findClients({});
 
-      expect(mockModel.count).toHaveBeenCalled();
-      expect(result.total).toBe(42);
+      expect(mockModel.count).not.toHaveBeenCalled();
+      expect(result.total).toBe(0);
     });
 
     it('should create a client via writeModel', async () => {

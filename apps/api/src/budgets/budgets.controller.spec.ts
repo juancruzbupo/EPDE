@@ -129,18 +129,18 @@ describe('BudgetsController', () => {
 
       const result = await controller.respondToBudget(budgetId, dto as any, adminUser);
 
-      expect(mockBudgetsService.respondToBudget).toHaveBeenCalledWith(budgetId, dto, adminUser.id);
+      expect(mockBudgetsService.respondToBudget).toHaveBeenCalledWith(budgetId, dto, adminUser);
       expect(result).toEqual({ data: respondedBudget, message: 'Presupuesto cotizado' });
     });
 
-    it('should pass the admin user id (not the full user) to the service', async () => {
+    it('should pass the full admin user to the service', async () => {
       const dto = { lineItems: [{ description: 'Item', quantity: 1, unitPrice: 1000 }] };
       mockBudgetsService.respondToBudget.mockResolvedValue({ id: budgetId });
 
       await controller.respondToBudget(budgetId, dto as any, adminUser);
 
-      const [, , passedUserId] = mockBudgetsService.respondToBudget.mock.calls[0];
-      expect(passedUserId).toBe('admin-1');
+      const [, , passedUser] = mockBudgetsService.respondToBudget.mock.calls[0];
+      expect(passedUser).toEqual(adminUser);
     });
   });
 

@@ -147,7 +147,7 @@ describe('TaskDetailScreen', () => {
 
     const { getByText } = render(<TaskDetailScreen />);
 
-    expect(getByText('Completar Tarea')).toBeTruthy();
+    expect(getByText('Registrar Inspección')).toBeTruthy();
   });
 
   it('hides complete task button for completed tasks', () => {
@@ -158,6 +158,6 @@ describe('TaskDetailScreen', () => {
 
     const { queryByText } = render(<TaskDetailScreen />);
 
-    expect(queryByText('Completar Tarea')).toBeNull();
+    expect(queryByText('Registrar Inspección')).toBeNull();
   });
 });

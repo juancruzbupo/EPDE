@@ -73,11 +73,15 @@ describe('HomeStatusCard', () => {
     ).toBeInTheDocument();
   });
 
-  it('shows "Todo al día" message when all counts are 0', () => {
+  it('shows "Todo bajo control" message when all counts are 0', () => {
     render(
       <HomeStatusCard {...defaultProps} overdueTasks={0} urgentTasks={0} upcomingThisWeek={0} />,
     );
-    expect(screen.getByText('Todo al día. ¡Tu casa está en buen estado!')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Todo bajo control. Seguí así y tu hogar se va a mantener en excelente estado.',
+      ),
+    ).toBeInTheDocument();
   });
 
   it('renders 4 mini-stats with correct values', () => {

@@ -23,21 +23,27 @@ describe('HealthCard', () => {
     expect(screen.getByText('Excelente')).toBeTruthy();
   });
 
-  it('shows "Bueno" when overdue ratio yields 71-90%', () => {
-    // 100 total, 20 overdue → (100-20)/100 = 80%
-    render(<HealthCard totalTasks={100} completedTasks={60} overdueTasks={20} />);
+  it('shows "Bueno" when overdue ratio yields 60-79%', () => {
+    // 100 total, 30 overdue → (100-30)/100 = 70%
+    render(<HealthCard totalTasks={100} completedTasks={60} overdueTasks={30} />);
     expect(screen.getByText('Bueno')).toBeTruthy();
   });
 
-  it('shows "Necesita atención" when overdue ratio yields 51-70%', () => {
-    // 100 total, 40 overdue → (100-40)/100 = 60%
-    render(<HealthCard totalTasks={100} completedTasks={30} overdueTasks={40} />);
+  it('shows "Regular" when overdue ratio yields 40-59%', () => {
+    // 100 total, 50 overdue → (100-50)/100 = 50%
+    render(<HealthCard totalTasks={100} completedTasks={30} overdueTasks={50} />);
+    expect(screen.getByText('Regular')).toBeTruthy();
+  });
+
+  it('shows "Necesita atención" when overdue ratio yields 20-39%', () => {
+    // 100 total, 70 overdue → (100-70)/100 = 30%
+    render(<HealthCard totalTasks={100} completedTasks={10} overdueTasks={70} />);
     expect(screen.getByText('Necesita atención')).toBeTruthy();
   });
 
-  it('shows "Crítico" when overdue ratio yields ≤ 50%', () => {
-    // 100 total, 60 overdue → (100-60)/100 = 40%
-    render(<HealthCard totalTasks={100} completedTasks={10} overdueTasks={60} />);
+  it('shows "Crítico" when overdue ratio yields < 20%', () => {
+    // 100 total, 90 overdue → (100-90)/100 = 10%
+    render(<HealthCard totalTasks={100} completedTasks={5} overdueTasks={90} />);
     expect(screen.getByText('Crítico')).toBeTruthy();
   });
 
@@ -61,7 +67,7 @@ describe('HealthCard', () => {
   });
 
   it('renders "Crítico" when all tasks are overdue', () => {
-    // 10 total, 10 overdue → (10-10)/10 = 0%
+    // 10 total, 10 overdue → (10-10)/10 = 0% → Crítico (< 20%)
     render(<HealthCard totalTasks={10} completedTasks={0} overdueTasks={10} />);
     expect(screen.getByText('Crítico')).toBeTruthy();
   });
