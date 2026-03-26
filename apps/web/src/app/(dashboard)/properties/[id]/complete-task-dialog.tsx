@@ -45,6 +45,7 @@ interface CompleteTaskDialogProps {
   onOpenChange: (open: boolean) => void;
   task: TaskPublic | null;
   planId: string;
+  onProblemDetected?: (info: { taskId: string; taskName: string; propertyId?: string }) => void;
 }
 
 function LabelSelect({
@@ -86,8 +87,14 @@ function LabelSelect({
   );
 }
 
-export function CompleteTaskDialog({ open, onOpenChange, task, planId }: CompleteTaskDialogProps) {
-  const completeTask = useCompleteTask();
+export function CompleteTaskDialog({
+  open,
+  onOpenChange,
+  task,
+  planId,
+  onProblemDetected,
+}: CompleteTaskDialogProps) {
+  const completeTask = useCompleteTask({ onProblemDetected });
   const uploadFile = useUploadFile();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const currentObjectUrl = useRef<string | null>(null);

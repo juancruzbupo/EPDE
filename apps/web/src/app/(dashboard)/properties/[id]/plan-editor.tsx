@@ -34,6 +34,7 @@ import type { TaskPublic } from '@/lib/api/maintenance-plans';
 import { TASK_STATUS_COLORS, TASK_STATUS_ICONS, TASK_STATUS_ORDER } from '@/lib/style-maps';
 import { cn } from '@/lib/utils';
 
+import { CreateServiceDialog } from '../../service-requests/create-service-dialog';
 import { BulkCompleteDialog } from './bulk-complete-dialog';
 import { CategorySection, isCompletable } from './category-section';
 import { CompleteTaskDialog } from './complete-task-dialog';
@@ -57,6 +58,7 @@ const STATUS_OPTIONS: { value: TaskStatus | 'all' | 'actionable'; label: string 
 ];
 
 interface PlanEditorProps {
+  propertyId: string;
   planId: string;
   activeSectors?: string[];
 }
@@ -88,7 +90,7 @@ function StatusSummary({ tasks }: { tasks: TaskPublic[] }) {
   );
 }
 
-export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
+export function PlanEditor({ propertyId, planId, activeSectors }: PlanEditorProps) {
   const { data: plan, isLoading, isError, refetch } = usePlan(planId);
   const removeTask = useRemoveTask();
   const reorderTasks = useReorderTasks();
@@ -127,6 +129,12 @@ export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
   const [priority, setPriority] = useState<TaskPriority | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<TaskStatus | 'all' | 'actionable'>('actionable');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [serviceDialogTask, setServiceDialogTask] = useState<{
+    propertyId: string;
+    taskId: string;
+    title: string;
+    description: string;
+  } | null>(null);
   const debouncedSearch = useDebounce(search);
 
   const toggleSelect = useCallback((taskId: string) => {
@@ -441,6 +449,25 @@ export function PlanEditor({ planId, activeSectors }: PlanEditorProps) {
         onOpenChange={() => setCompletingTask(null)}
         task={completingTask}
         planId={planId}
+        onProblemDetected={(info) => {
+          setServiceDialogTask({
+            propertyId,
+            taskId: info.taskId,
+            title: `Solicitud: ${info.taskName}`,
+            description: `Problema detectado en: ${info.taskName}`,
+          });
+        }}
+      />
+
+      <CreateServiceDialog
+        open={!!serviceDialogTask}
+        onOpenChange={(open) => {
+          if (!open) setServiceDialogTask(null);
+        }}
+        defaultPropertyId={serviceDialogTask?.propertyId}
+        defaultTaskId={serviceDialogTask?.taskId}
+        defaultTitle={serviceDialogTask?.title}
+        defaultDescription={serviceDialogTask?.description}
       />
 
       <BulkCompleteDialog

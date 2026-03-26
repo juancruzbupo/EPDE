@@ -488,6 +488,15 @@ export default function TasksPage() {
         onOpenChange={() => setCompletingTask(null)}
         task={completingTask}
         planId={selectedTask?.maintenancePlan.id ?? completingTask?.maintenancePlanId ?? ''}
+        onProblemDetected={(info) => {
+          if (!selectedTask) return;
+          setServiceDialogTask({
+            propertyId: selectedTask.maintenancePlan.property.id,
+            taskId: info.taskId,
+            title: `Solicitud: ${info.taskName}`,
+            description: `Problema detectado en: ${info.taskName} — ${selectedTask.category.name}`,
+          });
+        }}
       />
 
       <CreateServiceDialog

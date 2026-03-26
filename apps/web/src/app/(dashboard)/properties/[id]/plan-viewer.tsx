@@ -367,6 +367,13 @@ export function PlanViewer({ planId, propertyId, highlightTaskId }: PlanViewerPr
         onOpenChange={() => setCompletingTask(null)}
         task={completingTask}
         planId={planId}
+        onProblemDetected={(info) => {
+          setServiceDialogTask({
+            taskId: info.taskId,
+            title: `Solicitud: ${info.taskName}`,
+            description: `Problema detectado en: ${info.taskName}`,
+          });
+        }}
       />
 
       <CreateServiceDialog

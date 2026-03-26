@@ -115,6 +115,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
           {property.maintenancePlan ? (
             isAdmin ? (
               <PlanEditor
+                propertyId={property.id}
                 planId={property.maintenancePlan.id}
                 activeSectors={property.activeSectors}
               />
