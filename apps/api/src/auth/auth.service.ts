@@ -1,5 +1,5 @@
 import { BCRYPT_SALT_ROUNDS, UserStatus } from '@epde/shared';
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
@@ -16,6 +16,8 @@ interface LoginMeta {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -116,8 +118,10 @@ export class AuthService {
       { expiresIn: '1h' },
     );
 
-    // Fire-and-forget — queue email
-    void this.emailQueueService.enqueuePasswordReset(user.email, user.name, token);
+    // Fire-and-forget — queue email (catch prevents silent failure)
+    void this.emailQueueService
+      .enqueuePasswordReset(user.email, user.name, token)
+      .catch((err) => this.logger.error('Failed to enqueue password reset email', err));
   }
 
   async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
