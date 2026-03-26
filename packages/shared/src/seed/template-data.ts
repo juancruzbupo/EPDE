@@ -844,4 +844,101 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
       },
     ],
   },
+  {
+    name: 'Mobiliario y Equipamiento Fijo',
+    icon: '🪑',
+    description:
+      'Inspección de muebles fijos, mesadas, sanitarios y artefactos integrados a la vivienda',
+    displayOrder: 13,
+    tasks: [
+      {
+        name: 'Inspección de alacenas y bajo-mesadas',
+        taskType: 'INSPECTION',
+        professionalRequirement: 'OWNER_CAN_DO',
+        technicalDescription:
+          'Revisar bisagras, estantes, fondo de muebles en busca de humedad, hinchazón de melamina o signos de termitas. Verificar que las puertas cierren correctamente.',
+        priority: 'MEDIUM',
+        recurrenceType: 'ANNUAL',
+        recurrenceMonths: 12,
+        estimatedDurationMinutes: 20,
+      },
+      {
+        name: 'Inspección de mesada y bacha',
+        taskType: 'INSPECTION',
+        professionalRequirement: 'OWNER_CAN_DO',
+        technicalDescription:
+          'Verificar sellado de la mesada contra la pared (silicona o junta). Revisar estado de la bacha, desagüe y griferías. Buscar manchas de humedad debajo.',
+        priority: 'MEDIUM',
+        recurrenceType: 'ANNUAL',
+        recurrenceMonths: 12,
+        estimatedDurationMinutes: 15,
+      },
+      {
+        name: 'Limpieza de filtros de extractor de cocina',
+        taskType: 'CLEANING',
+        professionalRequirement: 'OWNER_CAN_DO',
+        technicalDescription:
+          'Retirar filtros de grasa del extractor/campana, lavar con desengrasante, secar y reinstalar. Verificar que el motor funcione correctamente.',
+        priority: 'MEDIUM',
+        recurrenceType: 'QUARTERLY',
+        recurrenceMonths: 3,
+        estimatedDurationMinutes: 20,
+      },
+      {
+        name: 'Inspección de campana extractora',
+        taskType: 'INSPECTION',
+        professionalRequirement: 'OWNER_CAN_DO',
+        technicalDescription:
+          'Revisar estado del motor, ducto de salida al exterior, conexión eléctrica y fijación a pared. Verificar que la extracción sea efectiva (prueba con papel).',
+        priority: 'LOW',
+        recurrenceType: 'ANNUAL',
+        recurrenceMonths: 12,
+        estimatedDurationMinutes: 15,
+      },
+      {
+        name: 'Inspección de mueble de baño/vanitory',
+        taskType: 'INSPECTION',
+        professionalRequirement: 'OWNER_CAN_DO',
+        technicalDescription:
+          'Revisar estado del mueble: humedad, hinchazón, bisagras, sellado contra pared. Verificar que no haya pérdidas en las conexiones debajo del lavatorio.',
+        priority: 'MEDIUM',
+        recurrenceType: 'ANNUAL',
+        recurrenceMonths: 12,
+        estimatedDurationMinutes: 15,
+      },
+      {
+        name: 'Control de mecanismo de descarga de inodoro',
+        taskType: 'INSPECTION',
+        professionalRequirement: 'OWNER_CAN_DO',
+        technicalDescription:
+          'Verificar funcionamiento del botón/palanca de descarga. Escuchar si el agua sigue corriendo después de la descarga (indica pérdida en la válvula). Revisar flotante.',
+        priority: 'MEDIUM',
+        recurrenceType: 'ANNUAL',
+        recurrenceMonths: 12,
+        estimatedDurationMinutes: 10,
+      },
+      {
+        name: 'Verificación de fijación de sanitarios',
+        taskType: 'INSPECTION',
+        professionalRequirement: 'OWNER_CAN_DO',
+        technicalDescription:
+          'Verificar que inodoro y bidet estén firmes al piso (sin movimiento). Revisar sellado de la base con silicona. Buscar signos de pérdida de agua alrededor.',
+        priority: 'LOW',
+        recurrenceType: 'ANNUAL',
+        recurrenceMonths: 12,
+        estimatedDurationMinutes: 10,
+      },
+      {
+        name: 'Control de conexiones de lavarropas',
+        taskType: 'INSPECTION',
+        professionalRequirement: 'OWNER_CAN_DO',
+        technicalDescription:
+          'Revisar canilla de paso (apertura/cierre), manguera de entrada (sin fisuras ni hinchazón), desagüe (sin obstrucciones) y nivel del equipo.',
+        priority: 'MEDIUM',
+        recurrenceType: 'ANNUAL',
+        recurrenceMonths: 12,
+        estimatedDurationMinutes: 10,
+      },
+    ],
+  },
 ];
