@@ -14,7 +14,7 @@
 
 | Token            | Hex       | Uso                                              | Contraste vs blanco |
 | ---------------- | --------- | ------------------------------------------------ | ------------------- |
-| Primary          | `#b5613e` | Botones principales, links, acentos (terracotta) | 4.7:1 (AA ✓)        |
+| Primary          | `#a65636` | Botones principales, links, acentos (terracotta) | 4.87:1 (AA ✓)       |
 | Secondary        | `#e8ddd3` | Backgrounds suaves, hover states (arena)         | —                   |
 | Background       | `#fafaf8` | Fondo principal                                  | —                   |
 | Foreground       | `#2e2a27` | Texto principal                                  | 13.6:1 (AAA ✓)      |
@@ -58,7 +58,7 @@ El proyecto usa Tailwind CSS 4 con `@theme inline` en `globals.css`. Los tokens 
   --radius: 0.625rem;
   --background: #fafaf8;
   --foreground: #2e2a27;
-  --primary: #c4704b; /* Terracotta */
+  --primary: #a65636; /* Terracotta */
   --primary-foreground: #fafaf8;
   --secondary: #e8ddd3; /* Arena */
   --secondary-foreground: #2e2a27;
@@ -67,9 +67,9 @@ El proyecto usa Tailwind CSS 4 con `@theme inline` en `globals.css`. Los tokens 
   --accent: #e8ddd3;
   --destructive: #c45b4b;
   --border: #e8ddd3;
-  --ring: #c4704b;
+  --ring: #a65636;
   /* Chart tokens (5 colores para series de datos) */
-  --chart-1: #c4704b;  /* primary/terracotta */
+  --chart-1: #a65636;  /* primary/terracotta */
   --chart-2: #6b9b7a;  /* success/green */
   --chart-3: #c4a030;  /* warning/amber */
   --chart-4: #5b8ec4;  /* info/blue */
@@ -586,7 +586,7 @@ La app mobile replica el design system web usando **NativeWind 5** (Tailwind CSS
 @import 'nativewind/theme';
 
 @theme {
-  --color-primary: #c4704b;
+  --color-primary: #a65636;
   --color-background: #fafaf8;
   --color-foreground: #2e2a27;
   /* ... 30+ tokens ... */
