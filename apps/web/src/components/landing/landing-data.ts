@@ -170,7 +170,7 @@ export const STEPS: Step[] = [
 
 export const DIAGNOSIS_INCLUDES: IconTextItem[] = [
   { icon: Search, text: 'Inspección visual completa de la vivienda' },
-  { icon: FileText, text: 'Informe técnico profesional' },
+  { icon: FileText, text: 'Informe técnico imprimible' },
   { icon: BarChart3, text: 'Índice de Salud de la Vivienda (ISV)' },
   { icon: ClipboardList, text: 'Plan de mantenimiento preventivo' },
   { icon: AlertTriangle, text: 'Detección de riesgos y tareas críticas' },
@@ -189,7 +189,7 @@ export const SYSTEM_FEATURES: IconTextItem[] = [
 
 export const INVESTMENT_FEATURES = [
   'Inspección visual completa de la vivienda',
-  'Informe técnico profesional',
+  'Informe técnico imprimible',
   'Índice de Salud de la Vivienda (ISV)',
   'Plan de mantenimiento preventivo',
   'Detección de riesgos y tareas críticas',
