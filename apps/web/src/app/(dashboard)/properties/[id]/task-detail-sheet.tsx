@@ -246,10 +246,10 @@ export function TaskDetailSheet({
                 className="flex-1"
                 size="lg"
                 onClick={() => onComplete(task)}
-                title="Registrá que completaste esta tarea"
+                title="Registrar inspección de esta tarea"
               >
                 <CheckCircle className="mr-2 h-4 w-4" aria-hidden="true" />
-                Completar Tarea
+                Registrar inspección
               </Button>
             )}
             {onRequestService && (
