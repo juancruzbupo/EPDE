@@ -117,8 +117,13 @@ async function main() {
 
   // Create category + task templates
   const existingTemplates = await prisma.categoryTemplate.count();
-  if (existingTemplates === 0) {
-    for (const category of TEMPLATE_SEED_DATA) {
+  const existingNames = new Set(
+    (await prisma.categoryTemplate.findMany({ select: { name: true } })).map((t) => t.name),
+  );
+  const missingCategories = TEMPLATE_SEED_DATA.filter((c) => !existingNames.has(c.name));
+
+  if (missingCategories.length > 0) {
+    for (const category of missingCategories) {
       const created = await prisma.categoryTemplate.create({
         data: {
           name: category.name,
@@ -143,9 +148,9 @@ async function main() {
       });
       console.log(`  ${category.icon} ${created.name} (${created.tasks.length} tareas)`);
     }
-    console.log(`${TEMPLATE_SEED_DATA.length} category templates created`);
+    console.log(`${missingCategories.length} new category templates created`);
   } else {
-    console.log(`Category templates already exist (${existingTemplates}), skipping`);
+    console.log(`All ${existingTemplates} category templates up to date`);
   }
 
   // Link categories to their matching templates via FK
