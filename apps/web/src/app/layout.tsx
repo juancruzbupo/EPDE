@@ -8,6 +8,7 @@ import { Toaster } from 'sonner';
 
 import { NavigationProgress } from '@/components/navigation-progress';
 import { AuthProvider } from '@/providers/auth-provider';
+import { MotionProvider } from '@/providers/motion-provider';
 import { QueryProvider } from '@/providers/query-provider';
 
 const dmSans = DM_Sans({
@@ -48,7 +49,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <NavigationProgress />
         </Suspense>
         <QueryProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <MotionProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </MotionProvider>
         </QueryProvider>
         <Toaster
           richColors

@@ -5,7 +5,9 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { randomUUID } from 'crypto';
 import { IncomingMessage } from 'http';
+import Redis from 'ioredis';
 import { LoggerModule } from 'nestjs-pino';
+import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 
 import { ConfigModule } from '../config/config.module';
 import { HealthModule } from '../health/health.module';
@@ -18,10 +20,21 @@ import { RedisModule } from '../redis/redis.module';
   imports: [
     SentryModule.forRoot(),
     ConfigModule,
-    ThrottlerModule.forRoot([
-      { name: 'short', ttl: 1000, limit: 5 },
-      { name: 'medium', ttl: 10000, limit: 30 },
-    ]),
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        throttlers: [
+          { name: 'short', ttl: 1000, limit: 5 },
+          { name: 'medium', ttl: 10000, limit: 30 },
+        ],
+        storage: new ThrottlerStorageRedisService(
+          new Redis(config.get<string>('REDIS_URL', 'redis://localhost:6379'), {
+            maxRetriesPerRequest: 5,
+            enableOfflineQueue: false,
+          }),
+        ),
+      }),
+    }),
     LoggerModule.forRoot({
       pinoHttp: {
         redact: {

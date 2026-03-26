@@ -52,6 +52,7 @@ export default function PropertiesPage() {
   const [createOpen, setCreateOpen] = useState(false);
 
   const debouncedSearch = useDebounce(search);
+  const columns = useMemo(() => propertyColumns({ isAdmin: !!isAdmin }), [isAdmin]);
 
   useEffect(() => {
     setUrlParams({ search: debouncedSearch, type });
@@ -151,7 +152,7 @@ export default function PropertiesPage() {
       )}
 
       <DataTable
-        columns={propertyColumns({ isAdmin: !!isAdmin })}
+        columns={columns}
         data={allProperties}
         isLoading={isLoading}
         hasMore={hasNextPage}

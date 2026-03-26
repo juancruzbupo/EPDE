@@ -140,6 +140,22 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   private readonly logger = new Logger(PrismaService.name);
   private _extended: ReturnType<typeof this.createExtended> | undefined;
 
+  constructor() {
+    super({
+      log:
+        process.env.NODE_ENV === 'production'
+          ? [
+              { emit: 'event', level: 'warn' },
+              { emit: 'event', level: 'error' },
+            ]
+          : [
+              { emit: 'event', level: 'query' },
+              { emit: 'event', level: 'warn' },
+              { emit: 'event', level: 'error' },
+            ],
+    });
+  }
+
   async onModuleInit() {
     await this.$connect();
     this.logger.log('Database connected');
