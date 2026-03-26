@@ -3,8 +3,12 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 /**
- * Standalone repository for budget attachments. Pre-uploaded URLs are stored
- * as records (following ServiceRequestPhoto pattern).
+ * Append-only repository for budget attachments — does NOT extend BaseRepository.
+ *
+ * Rationale: Attachments are immutable records (insert + read, never update/delete).
+ * BaseRepository's soft-delete extension, pagination, and ownership filtering
+ * add complexity without value for this use case. Same pattern as
+ * ServiceRequestAttachmentsRepository and all AuditLog repositories.
  */
 @Injectable()
 export class BudgetAttachmentsRepository {
