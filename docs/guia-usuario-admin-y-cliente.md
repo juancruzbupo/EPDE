@@ -326,18 +326,22 @@ ABIERTO → EN REVISIÓN → EN PROGRESO → RESUELTO → CERRADO
 
 ### Categorías
 
-Son los **tipos de trabajo** que organizan las tareas. Vienen 10 por defecto:
+Son los **tipos de trabajo** que organizan las tareas. Vienen 14 por defecto:
 
-1. Electricidad
-2. Plomería
-3. Pintura
-4. Techos y Cubiertas
-5. Jardín y Exteriores
-6. Climatización
-7. Seguridad
-8. Limpieza General
-9. Estructural
-10. Aberturas
+1. Estructura
+2. Techos y Cubiertas
+3. Instalación Eléctrica
+4. Instalación Sanitaria
+5. Gas y Calefacción
+6. Aberturas
+7. Pintura y Revestimientos
+8. Jardín y Exteriores
+9. Climatización
+10. Humedad e Impermeabilización
+11. Seguridad contra Incendio
+12. Control de Plagas
+13. Pisos y Contrapisos
+14. Mobiliario y Equipamiento Fijo
 
 Podés crear nuevas, editar las existentes, reordenarlas, o eliminarlas (si no tienen tareas asociadas).
 

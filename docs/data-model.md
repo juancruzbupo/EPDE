@@ -275,7 +275,7 @@ CategoryTemplate ─1:N─ TaskTemplate
 
 **Indices:** `[deletedAt]`
 **Soft delete:** Si — via Prisma extension (misma mecanica que User, Property, Task). El unique compuesto `[name, deletedAt]` permite recrear categorias con el mismo nombre si la anterior fue soft-deleted.
-**Categorias por defecto (seed):** Estructura, Techos y Cubiertas, Instalación Eléctrica, Instalación Sanitaria, Gas y Calefacción, Aberturas, Pintura y Revestimientos, Jardín y Exteriores, Climatización, Humedad e Impermeabilización, Seguridad contra Incendio, Control de Plagas, Pisos y Contrapisos (13 categorias, vinculadas a CategoryTemplates via FK)
+**Categorias por defecto (seed):** Estructura, Techos y Cubiertas, Instalación Eléctrica, Instalación Sanitaria, Gas y Calefacción, Aberturas, Pintura y Revestimientos, Jardín y Exteriores, Climatización, Humedad e Impermeabilización, Seguridad contra Incendio, Control de Plagas, Pisos y Contrapisos, Mobiliario y Equipamiento Fijo (14 categorias, vinculadas a CategoryTemplates via FK)
 
 ### Task
 
@@ -547,8 +547,8 @@ En el backend se usa `Prisma.Decimal` para aritmetica. Los valores se serializan
 El seed (`prisma/seed.ts`) crea:
 
 1. Usuario admin: `admin@epde.com` / password configurable via `SEED_ADMIN_PASSWORD` (default: `Admin123!`, warning si usa default)
-2. 13 categorias de mantenimiento por defecto (vinculadas a CategoryTemplates via FK)
-3. 13 CategoryTemplates con 65 TaskTemplates (nomenclador de tareas)
+2. 14 categorias de mantenimiento por defecto (vinculadas a CategoryTemplates via FK)
+3. 14 CategoryTemplates con ~90 TaskTemplates (nomenclador de tareas). Seed usa upsert por nombre — solo inserta categorías faltantes
 4. Datos demo (`prisma/seed-demo.ts`) — 3 usuarios cliente con propiedades, planes, tareas, historial, presupuestos, solicitudes y notificaciones
 
 ### Seed Demo
