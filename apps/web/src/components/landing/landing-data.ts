@@ -169,7 +169,7 @@ export const STEPS: Step[] = [
 ];
 
 export const DIAGNOSIS_INCLUDES: IconTextItem[] = [
-  { icon: Search, text: 'Relevamiento completo de la vivienda' },
+  { icon: Search, text: 'Inspección visual completa de la vivienda' },
   { icon: FileText, text: 'Inspección técnica visual profesional' },
   { icon: BarChart3, text: 'Índice de Salud de la Vivienda (ISV)' },
   { icon: ClipboardList, text: 'Plan de mantenimiento preventivo' },
@@ -188,7 +188,7 @@ export const SYSTEM_FEATURES: IconTextItem[] = [
 ];
 
 export const INVESTMENT_FEATURES = [
-  'Relevamiento completo de la vivienda',
+  'Inspección visual completa de la vivienda',
   'Inspección técnica visual profesional',
   'Índice de Salud de la Vivienda (ISV)',
   'Plan de mantenimiento preventivo',
