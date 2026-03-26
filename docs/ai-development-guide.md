@@ -149,6 +149,12 @@
 132. **CollapsibleSection onToggle** — El componente acepta `onToggle?: (open: boolean) => void` para reaccionar a cambios de estado. Usar para deferred loading (ej: analytics carga solo cuando el usuario expande la sección)
 133. **type-\* classes obligatorias en web** — NUNCA usar `text-xs`, `text-sm`, `text-xl`, `text-3xl` hardcoded para contenido. Usar `type-body-sm`, `type-label-lg`, `type-number-md`, etc. Las clases type-\* están definidas en globals.css y garantizan consistencia tipográfica. Excepción: componentes shadcn/ui internos que usan text-sm por convención del framework
 134. **SchedulerModule es hot zone** — Importa 7 feature modules. Cambios a BudgetsModule, ServiceRequestsModule, TasksModule, PropertiesModule, NotificationsModule, EmailModule o DashboardModule pueden afectar cron jobs. PRs que tocan estos módulos deben verificar que los schedulers siguen funcionando (E2E o manual)
+135. **PrismaService logging** — El constructor pasa `log: ['warn', 'error']` en prod y agrega `'query'` en dev. No quitar los event emitters — son la única visibilidad de queries lentas y errores de DB
+136. **ReactQueryDevtools solo en dev** — `query-provider.tsx` renderiza `<ReactQueryDevtools>` condicionado a `process.env.NODE_ENV === 'development'`. El import de `@tanstack/react-query-devtools` es tree-shaken en prod
+137. **Column defs estables** — Las column definitions de `@tanstack/react-table` deben ser estables (module-level const o useMemo). Si se pasan inline, la tabla se re-inicializa en cada render. Ref: `propertyColumns` usa `useMemo(() => propertyColumns({ isAdmin }), [isAdmin])`
+138. **LazyMotion wrapper** — `MotionProvider` envuelve la app con `<LazyMotion features={domAnimation}>`. Esto difiere la carga del bundle de animaciones (~30KB). Los componentes pueden usar `motion.*` normalmente — LazyMotion es transparente
+139. **expo-haptics platform guard** — `haptics.ts` usa `Platform.OS === 'web'` check lazy (en call time, no en import time) para no-op en web. expo-haptics es iOS/Android only — llamarlo en web crashea. El guard es lazy porque Jest no tiene `Platform` disponible en module evaluation
+140. **Throttler Redis storage** — `ThrottlerModule.forRootAsync` usa `ThrottlerStorageRedisService` con ioredis. Sin esto, cada instancia del API tiene rate limits independientes (el límite efectivo se multiplica por N instancias). Obligatorio para multi-instance deploy
 
 ### NUNCA
 
