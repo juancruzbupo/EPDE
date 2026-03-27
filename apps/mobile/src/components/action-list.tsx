@@ -141,13 +141,13 @@ const NextInspectionCard = memo(function NextInspectionCard({ task }: { task: Up
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`Próxima inspección: ${task.name}`}
-      className="border-primary/20 bg-primary/5 mb-4 flex-row items-center rounded-xl border p-3"
+      className="border-status-upcoming/20 bg-status-upcoming/5 mb-4 flex-row items-center rounded-xl border p-3"
       onPress={() => {
         haptics.light();
         router.push(`/task/${task.maintenancePlanId}/${task.id}` as never);
       }}
     >
-      <View className="bg-primary/10 mr-3 h-10 w-10 items-center justify-center rounded-lg">
+      <View className="bg-status-upcoming/10 mr-3 h-10 w-10 items-center justify-center rounded-lg">
         <Text style={{ fontSize: 20 }}>📋</Text>
       </View>
       <View className="flex-1">
@@ -169,7 +169,7 @@ const NextInspectionCard = memo(function NextInspectionCard({ task }: { task: Up
           haptics.medium();
           router.push(`/task/${task.maintenancePlanId}/${task.id}` as never);
         }}
-        className="bg-primary rounded-lg px-3 py-2"
+        className="bg-status-upcoming rounded-lg px-3 py-2"
       >
         <Text style={TYPE.labelSm} className="text-primary-foreground">
           Registrar

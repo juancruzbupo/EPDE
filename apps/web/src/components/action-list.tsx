@@ -95,11 +95,11 @@ function TaskItem({ task, showRegister }: { task: UpcomingTask; showRegister?: b
 /** Highlighted card for the next upcoming inspection — shown above ActionList sections. */
 function NextInspectionCard({ task }: { task: UpcomingTask }) {
   return (
-    <Card className="border-primary/20 bg-primary/5 mb-4">
+    <Card className="border-status-upcoming/20 bg-status-upcoming/5 mb-4">
       <CardContent className="p-4">
         <div className="flex items-center gap-3">
-          <div className="bg-primary/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
-            <Calendar className="text-primary h-5 w-5" />
+          <div className="bg-status-upcoming/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
+            <Calendar className="text-status-upcoming h-5 w-5" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="type-body-sm text-muted-foreground">Próxima inspección</p>
