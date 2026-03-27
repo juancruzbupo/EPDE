@@ -292,3 +292,15 @@ Marketing page con 16 secciones optimizadas para conversión:
 - **Continuidad:** suscripción mensual opcional después de los 60 días
 - **Revenue adicional:** servicios profesionales y presupuestos (se cotizan aparte)
 - **Mercado:** propietarios de viviendas residenciales en Paraná, Argentina
+
+---
+
+## 11. Modelo de suscripción
+
+- **Activación:** Al setear password (`set-password`), se registra `activatedAt` y se calcula `subscriptionExpiresAt` = activatedAt + 60 días
+- **Verificación:** `SubscriptionGuard` (4to guard global, después de RolesGuard) verifica `subscriptionExpiresAt > now()` en cada request autenticado de CLIENT. Salta `@Public()`, endpoints de auth, y usuarios ADMIN
+- **Expiración:** Si la suscripción expiró, retorna HTTP 402 (Payment Required). El frontend intercepta 402 y redirige a página de suscripción expirada
+- **Renovación:** Solo ADMIN puede extender `subscriptionExpiresAt` desde el panel de clientes (no hay auto-renovación ni pago online)
+- **Recordatorios:** Cron job `subscription-reminder` (10:30 UTC diario) envía notificación in-app + email a clientes con 7, 3 y 1 días restantes. Deduplicación por día
+- **Campos en User:** `activatedAt: DateTime?`, `subscriptionExpiresAt: DateTime?`
+- **Índice:** `@@index([status, subscriptionExpiresAt])` para queries eficientes del scheduler

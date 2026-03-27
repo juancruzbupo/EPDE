@@ -68,7 +68,7 @@ epde/
 │   │   │   ├── dashboard/            # Estadisticas agregadas (DashboardRepository standalone — queries multi-modelo)
 │   │   │   ├── email/                # Servicio de emails (Resend)
 │   │   │   ├── upload/               # Upload a Cloudflare R2
-│   │   │   ├── scheduler/            # Cron jobs (6 jobs: 5 diarios + 1 mensual, distributed lock)
+│   │   │   ├── scheduler/            # Cron jobs (7 jobs: 6 diarios + 1 mensual, distributed lock)
 │   │   │   ├── redis/                # RedisModule (global) + DistributedLockService
 │   │   │   ├── health/              # HealthModule (@nestjs/terminus, DB + Redis)
 │   │   │   ├── metrics/             # MetricsModule (OpenTelemetry, Prometheus :9464)
@@ -375,11 +375,12 @@ feature/
 
 ### P4: Guard Composition
 
-Tres guards globales en orden via `APP_GUARD`:
+Cuatro guards globales en orden via `APP_GUARD`:
 
 1. **ThrottlerGuard** — Rate limiting (5/s corto, 30/10s medio, 5/min login/refresh, 3/s + 20/min upload, 3/hora + 1/5s burst set-password)
 2. **JwtAuthGuard** — Valida JWT. Salta `@Public()` endpoints
 3. **RolesGuard** — Primero verifica `@Public()` (permite sin auth). Luego verifica `user.role` contra `@Roles()`. **Sin `@Roles()` ni `@Public()` = deniega (403)** — deny-by-default para prevenir escalation of privilege. Todo endpoint autenticado requiere `@Roles()` explicito
+4. **SubscriptionGuard** — Verifica suscripcion activa (`subscriptionExpiresAt > now`). Salta `@Public()`, auth endpoints y ADMIN. Retorna HTTP 402 si expirada
 
 ### P5: Decorators Personalizados
 
@@ -462,16 +463,17 @@ Cliente → POST /upload (multipart/form-data) → { url }
 
 ### P11: Cron Jobs (Distributed Lock)
 
-6 jobs programados, cada uno envuelto en `DistributedLockService.withLock()` (Redis SETNX, TTL 5min):
+7 jobs programados, cada uno envuelto en `DistributedLockService.withLock()` (Redis SETNX, TTL 5min):
 
-| Job                        | Cron              | Descripcion                                          |
-| -------------------------- | ----------------- | ---------------------------------------------------- |
-| task-status-recalculation  | 09:00 UTC diario  | PENDING -> UPCOMING (30 dias) -> OVERDUE             |
-| task-upcoming-reminders    | 09:05 UTC diario  | Notificaciones + email para tareas proximas/vencidas |
-| task-safety-sweep          | 09:10 UTC diario  | Correccion de edge cases en tareas completadas       |
-| budget-expiration-check    | 09:30 UTC diario  | Expiracion de presupuestos con validUntil vencido    |
-| service-request-auto-close | 10:00 UTC diario  | Auto-cierre de solicitudes resueltas hace >7 dias    |
-| isv-monthly-snapshot       | 02:00 UTC 1ro/mes | Snapshot mensual del ISV por propiedad               |
+| Job                        | Cron              | Descripcion                                                           |
+| -------------------------- | ----------------- | --------------------------------------------------------------------- |
+| task-status-recalculation  | 09:00 UTC diario  | PENDING -> UPCOMING (30 dias) -> OVERDUE                              |
+| task-upcoming-reminders    | 09:05 UTC diario  | Notificaciones + email para tareas proximas/vencidas                  |
+| task-safety-sweep          | 09:10 UTC diario  | Correccion de edge cases en tareas completadas                        |
+| budget-expiration-check    | 09:30 UTC diario  | Expiracion de presupuestos con validUntil vencido                     |
+| service-request-auto-close | 10:00 UTC diario  | Auto-cierre de solicitudes resueltas hace >7 dias                     |
+| subscription-reminder      | 10:30 UTC diario  | Recordatorios de vencimiento de suscripcion (7, 3 y 1 dias restantes) |
+| isv-monthly-snapshot       | 02:00 UTC 1ro/mes | Snapshot mensual del ISV por propiedad                                |
 
 Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en deployments multi-instancia. Incluye **watchdog** que extiende TTL automaticamente cada mitad del periodo. El callback recibe `signal: { lockLost: boolean }` — los jobs verifican el flag antes de operaciones costosas y abortan si el lock se perdio. **Batch processing**: tareas procesadas en lotes de `BATCH_SIZE=50` para evitar timeouts en datasets grandes.
 

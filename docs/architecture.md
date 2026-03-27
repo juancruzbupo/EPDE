@@ -185,17 +185,19 @@ feature/
 
 ### 4. Guard Composition
 
-Tres guards globales aplicados en orden via `APP_GUARD`:
+Cuatro guards globales aplicados en orden via `APP_GUARD`:
 
 1. **ThrottlerGuard** — Rate limiting global. Salta endpoints marcados con `@SkipThrottle()`
 2. **JwtAuthGuard** — Valida JWT en cookie `access_token`. Salta endpoints marcados con `@Public()`
 3. **RolesGuard** — Primero verifica `@Public()` (permite sin auth). Luego verifica que `user.role` este en los roles permitidos via `@Roles(UserRole.ADMIN)`. **Deny by default:** si no hay `@Roles()` ni `@Public()`, retorna `false` (403). Todo endpoint autenticado DEBE tener `@Roles()` explicito
+4. **SubscriptionGuard** — Verifica que el cliente tenga suscripcion activa (`subscriptionExpiresAt > now`). Salta `@Public()`, endpoints de auth, y usuarios ADMIN. Retorna HTTP 402 (Payment Required) si la suscripcion expiro. El frontend intercepta 402 y redirige a pagina de suscripcion expirada
 
 ```typescript
 // app.module.ts providers
 { provide: APP_GUARD, useClass: ThrottlerGuard },
 { provide: APP_GUARD, useClass: JwtAuthGuard },
 { provide: APP_GUARD, useClass: RolesGuard },
+{ provide: APP_GUARD, useClass: SubscriptionGuard },
 ```
 
 **Rate limiting:**
@@ -328,14 +330,15 @@ Frontend (ADMIN) → POST /upload (multipart/form-data)
 
 ### 11. Cron Jobs (Scheduler + Distributed Lock)
 
-`SchedulerModule` con `@Cron()` — cinco jobs diarios + uno mensual:
+`SchedulerModule` con `@Cron()` — seis jobs diarios + uno mensual:
 
 1. **task-status-recalculation** (09:00 UTC diario): PENDING → UPCOMING (30 dias) → OVERDUE (pasada fecha), y reset UPCOMING → PENDING si se alejo
 2. **task-upcoming-reminders** (09:05 UTC diario): Notificaciones in-app + email para tareas en 7 dias y vencidas. Deduplicacion por dia. Overdue tambien notifica admins
 3. **task-safety-sweep** (09:10 UTC diario): Fix para tareas COMPLETED con nextDueDate vencida que no se avanzaron (edge case crash)
 4. **budget-expiration** (09:30 UTC diario): Expira presupuestos QUOTED con `validUntil` vencida
 5. **service-request-auto-close** (10:00 UTC diario): Cierra solicitudes RESOLVED con >30 días sin actividad
-6. **isv-snapshot** (02:00 UTC, 1ro de cada mes): Captura ISV (Índice de Salud de la Vivienda) para todas las propiedades con plan ACTIVE. Compara con snapshot anterior — si bajó >15 puntos → dispara alerta via `NotificationsHandlerService.handleISVAlert()` (notificación in-app + push)
+6. **subscription-reminder** (10:30 UTC diario): Envía recordatorios de vencimiento de suscripción a clientes con 7, 3 y 1 días restantes. Notificación in-app + email. Deduplicación por día
+7. **isv-snapshot** (02:00 UTC, 1ro de cada mes): Captura ISV (Índice de Salud de la Vivienda) para todas las propiedades con plan ACTIVE. Compara con snapshot anterior — si bajó >15 puntos → dispara alerta via `NotificationsHandlerService.handleISVAlert()` (notificación in-app + push)
 
 **Batch Processing:** Las tareas se procesan en lotes de `BATCH_SIZE=50`, verificando `signal.lockLost` entre cada batch para abortar si el lock se perdio.
 

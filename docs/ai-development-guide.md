@@ -155,6 +155,9 @@
 138. **LazyMotion wrapper** — `MotionProvider` envuelve la app con `<LazyMotion features={domAnimation}>`. Esto difiere la carga del bundle de animaciones (~30KB). Los componentes pueden usar `motion.*` normalmente — LazyMotion es transparente
 139. **expo-haptics platform guard** — `haptics.ts` usa `Platform.OS === 'web'` check lazy (en call time, no en import time) para no-op en web. expo-haptics es iOS/Android only — llamarlo en web crashea. El guard es lazy porque Jest no tiene `Platform` disponible en module evaluation
 140. **Throttler Redis storage** — `ThrottlerModule.forRootAsync` usa `ThrottlerStorageRedisService` con ioredis. Sin esto, cada instancia del API tiene rate limits independientes (el límite efectivo se multiplica por N instancias). Obligatorio para multi-instance deploy
+141. **SubscriptionGuard en cadena de guards** — 4to guard global (después de RolesGuard). Verifica `subscriptionExpiresAt > now()` para CLIENTs. Salta `@Public()`, auth endpoints y ADMIN. Retorna HTTP 402 (Payment Required) si expirada. Registrado via `APP_GUARD` en `app.module.ts`
+142. **Campos de suscripción en User** — `activatedAt: DateTime?` (set en set-password) y `subscriptionExpiresAt: DateTime?` (activatedAt + 60 días). Índice compuesto `[status, subscriptionExpiresAt]` para el scheduler de recordatorios. Ambos campos nullable (null = nunca activado)
+143. **402 handling en api-client interceptors** — El interceptor de refresh (`attachRefreshInterceptor`) DEBE skipear 402 (no intentar refresh). El frontend intercepta 402 y redirige a página de suscripción expirada (`/subscription-expired` en web, pantalla modal en mobile). NUNCA tratar 402 como 401
 
 ### NUNCA
 

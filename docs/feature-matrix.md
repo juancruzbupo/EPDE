@@ -78,6 +78,11 @@ Actualizar cuando se agrega o modifica una feature en cualquier plataforma.
 | Informe técnico completo         |     ✅      | ✅ (web link) |        ✅        |                 ✅                 | /properties/{id}/report                     |
 | ISV alertas (caída >15 pts)      |     ✅      |      ✅       |        ✅        |     Notificación in-app + push     |
 | ISV snapshots mensuales          |   Backend   |    Backend    |     Backend      | Cron job 1ro de cada mes 02:00 UTC |
+| **Suscripción**                  |             |               |                  |                                    |                                             |
+| Estado de suscripción            |     ✅      |      ✅       |        ✅        |                 ✅                 | SubscriptionGuard verifica en cada request  |
+| Página suscripción expirada      |     ❌      |      ✅       |        ✅        |                 ❌                 | Redirect automático en 402                  |
+| Renovar suscripción (admin)      | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Admin extiende subscriptionExpiresAt        |
+| Recordatorios de vencimiento     |   Backend   |    Backend    |     Backend      |    Cron diario 7/3/1 días antes    | Notificación in-app + email                 |
 | **Categorías**                   |             |               |                  |                                    |
 | Gestionar categorías             | ✅ (admin)  |      ❌       |        ❌        |      Categorías operacionales      |
 

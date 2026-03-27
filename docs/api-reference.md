@@ -633,6 +633,7 @@ Todas las respuestas incluyen el header `x-request-id` para trazabilidad.
 | ------ | --------------------- | ---------------------------------------------------------- |
 | 400    | Bad Request           | Validacion fallida                                         |
 | 401    | Unauthorized          | Token invalido o expirado                                  |
+| 402    | Payment Required      | Suscripcion expirada (SubscriptionGuard)                   |
 | 403    | Forbidden             | Sin permiso (rol o propiedad ajena)                        |
 | 404    | Not Found             | Recurso no encontrado                                      |
 | 409    | Conflict              | Email ya registrado, version conflict (optimistic locking) |

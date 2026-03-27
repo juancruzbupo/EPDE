@@ -208,20 +208,22 @@ CategoryTemplate ─1:N─ TaskTemplate
 
 ### User
 
-| Campo        | Tipo       | Notas                                    |
-| ------------ | ---------- | ---------------------------------------- |
-| id           | UUID       | PK, auto-generated                       |
-| email        | String     | Unique                                   |
-| passwordHash | String?    | Null hasta que el cliente setea password |
-| name         | String     |                                          |
-| phone        | String?    |                                          |
-| role         | UserRole   | Default: CLIENT                          |
-| status       | UserStatus | Default: INVITED                         |
-| createdAt    | DateTime   |                                          |
-| updatedAt    | DateTime   |                                          |
-| deletedAt    | DateTime?  | Soft delete                              |
+| Campo                 | Tipo       | Notas                                         |
+| --------------------- | ---------- | --------------------------------------------- |
+| id                    | UUID       | PK, auto-generated                            |
+| email                 | String     | Unique                                        |
+| passwordHash          | String?    | Null hasta que el cliente setea password      |
+| name                  | String     |                                               |
+| phone                 | String?    |                                               |
+| role                  | UserRole   | Default: CLIENT                               |
+| status                | UserStatus | Default: INVITED                              |
+| activatedAt           | DateTime?  | Fecha de activacion (set-password)            |
+| subscriptionExpiresAt | DateTime?  | Fin de suscripcion (60 dias desde activacion) |
+| createdAt             | DateTime   |                                               |
+| updatedAt             | DateTime   |                                               |
+| deletedAt             | DateTime?  | Soft delete                                   |
 
-**Indices:** `email`, `[role, deletedAt]`
+**Indices:** `email`, `[role, deletedAt]`, `[status, subscriptionExpiresAt]`
 **Soft delete:** Si — `findByEmail` debe usar `writeModel` para encontrar eliminados
 
 ### Property
