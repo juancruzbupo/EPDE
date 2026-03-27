@@ -233,11 +233,11 @@ export const ActionList = memo(function ActionList({ tasks, nextUpcoming }: Mobi
           <Text style={TYPE.titleMd} className="text-destructive mb-2">
             Necesitan atención ({overdue.length})
           </Text>
-          {overdue.slice(0, 10).map((task) => {
+          {overdue.slice(0, 5).map((task) => {
             const idx = globalIndex++;
             return <ActionTaskCard key={task.id} task={task} index={idx} isOverdue />;
           })}
-          {overdue.length > 10 && (
+          {overdue.length > 5 && (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={`Ver las ${overdue.length} tareas vencidas`}

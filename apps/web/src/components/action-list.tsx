@@ -179,13 +179,13 @@ export function ActionList({ tasks, nextUpcoming }: ActionListProps) {
                 : {})}
             >
               <ul className="space-y-2">
-                {overdueTasks.slice(0, 10).map((task) => (
+                {overdueTasks.slice(0, 5).map((task) => (
                   <Item key={task.id} {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
                     <TaskItem task={task} showRegister />
                   </Item>
                 ))}
               </ul>
-              {overdueTasks.length > 10 && (
+              {overdueTasks.length > 5 && (
                 <Link
                   href="/tasks"
                   className="text-destructive hover:text-destructive/80 mt-3 block text-center text-sm font-medium"
