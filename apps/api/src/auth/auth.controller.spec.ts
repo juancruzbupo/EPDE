@@ -71,6 +71,7 @@ const clientUser: CurrentUserPayload = {
   role: UserRole.CLIENT,
   email: 'client@epde.ar',
   exp: Math.floor(Date.now() / 1000) + 900,
+  subscriptionExpiresAt: null,
   jti: 'jti-abc',
   family: 'family-abc',
 };
@@ -371,6 +372,7 @@ describe('AuthController', () => {
         id: 'u-1',
         role: UserRole.CLIENT,
         email: 'x@x.ar',
+        subscriptionExpiresAt: null,
         jti: 'jti-noexp',
       };
 

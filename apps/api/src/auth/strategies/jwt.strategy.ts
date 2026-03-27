@@ -69,6 +69,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jti: payload.jti,
       family: payload.family,
       exp: payload.exp,
+      subscriptionExpiresAt: payload.subExp ?? null,
     };
   }
 }

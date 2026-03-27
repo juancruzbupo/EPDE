@@ -33,6 +33,11 @@ export const BCRYPT_SALT_ROUNDS = 12;
 export const JWT_ACCESS_EXPIRATION = '15m';
 export const JWT_REFRESH_EXPIRATION = '7d';
 
+/** Initial subscription duration in days after first activation (set-password). */
+export const SUBSCRIPTION_INITIAL_DAYS = 60;
+/** Days before expiration to send reminder notifications. */
+export const SUBSCRIPTION_REMINDER_DAYS = [7, 3, 1] as const;
+
 // ─── Enum Labels (Spanish) ──────────────────────────────
 
 export const TASK_STATUS_LABELS = {

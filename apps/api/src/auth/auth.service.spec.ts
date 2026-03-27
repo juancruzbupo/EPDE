@@ -74,7 +74,7 @@ describe('AuthService', () => {
         },
         {
           provide: EmailQueueService,
-          useValue: { enqueuePasswordReset: jest.fn() },
+          useValue: { enqueuePasswordReset: jest.fn().mockResolvedValue(undefined) },
         },
         {
           provide: AuthAuditService,
@@ -150,7 +150,13 @@ describe('AuthService', () => {
 
       const result = await authService.login(loginInput);
 
-      expect(tokenService.generateTokenPair).toHaveBeenCalledWith(loginInput);
+      expect(tokenService.generateTokenPair).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: loginInput.id,
+          email: loginInput.email,
+          role: loginInput.role,
+        }),
+      );
       expect(usersService.findById).toHaveBeenCalledWith('user-1');
       expect(result.accessToken).toBe('mock-access-token');
       expect(result.refreshToken).toBe('mock-refresh-token');
@@ -221,10 +227,15 @@ describe('AuthService', () => {
       expect(jwtService.verify).toHaveBeenCalledWith('valid-invite-token');
       expect(usersService.findById).toHaveBeenCalledWith('user-2');
       expect(bcrypt.hash).toHaveBeenCalledWith('NewPassword123!', BCRYPT_SALT_ROUNDS);
-      expect(usersService.update).toHaveBeenCalledWith('user-2', {
-        passwordHash: 'new-hashed-password',
-        status: UserStatus.ACTIVE,
-      });
+      expect(usersService.update).toHaveBeenCalledWith(
+        'user-2',
+        expect.objectContaining({
+          passwordHash: 'new-hashed-password',
+          status: UserStatus.ACTIVE,
+          activatedAt: expect.any(Date),
+          subscriptionExpiresAt: expect.any(Date),
+        }),
+      );
       expect(result).toEqual({ message: 'Contraseña configurada correctamente' });
     });
 

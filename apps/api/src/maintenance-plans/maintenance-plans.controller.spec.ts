@@ -34,6 +34,7 @@ const adminUser: CurrentUserPayload = {
   id: 'admin-1',
   role: UserRole.ADMIN,
   email: 'admin@epde.ar',
+  subscriptionExpiresAt: null,
   jti: 'jti-admin-1',
 };
 
@@ -41,6 +42,7 @@ const clientUser: CurrentUserPayload = {
   id: 'client-1',
   role: UserRole.CLIENT,
   email: 'client@epde.ar',
+  subscriptionExpiresAt: null,
   jti: 'jti-client-1',
 };
 

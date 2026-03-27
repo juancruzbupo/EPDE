@@ -9,6 +9,7 @@ import { CategoryTemplatesModule } from './category-templates/category-templates
 import { ClientsModule } from './clients/clients.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
+import { SubscriptionGuard } from './common/guards/subscription.guard';
 import { CoreModule } from './core/core.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { MaintenancePlansModule } from './maintenance-plans/maintenance-plans.module';
@@ -46,6 +47,7 @@ import { UsersModule } from './users/users.module';
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    { provide: APP_GUARD, useClass: SubscriptionGuard },
     { provide: APP_INTERCEPTOR, useClass: MetricsInterceptor },
   ],
 })

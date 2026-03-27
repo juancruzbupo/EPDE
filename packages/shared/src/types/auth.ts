@@ -33,6 +33,8 @@ export interface JwtPayload {
   role: UserRole;
   jti: string;
   family?: string;
+  /** ISO string of subscription expiration (CLIENT only). */
+  subExp?: string;
   iat?: number;
   exp?: number;
 }
@@ -45,6 +47,8 @@ export interface CurrentUser {
   jti: string;
   family?: string;
   exp?: number;
+  /** ISO string — null for admins and pre-subscription users. */
+  subscriptionExpiresAt: string | null;
 }
 
 /** Minimal user context needed by domain services (id + role). */

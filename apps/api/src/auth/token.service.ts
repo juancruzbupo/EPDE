@@ -1,4 +1,6 @@
 import {
+  forwardRef,
+  Inject,
   Injectable,
   Logger,
   ServiceUnavailableException,
@@ -10,6 +12,7 @@ import { randomUUID } from 'crypto';
 
 import { MetricsService } from '../metrics/metrics.service';
 import { RedisService } from '../redis/redis.service';
+import { UsersService } from '../users/users.service';
 import { AuthAuditService } from './auth-audit.service';
 
 interface TokenPair {
@@ -58,6 +61,8 @@ export class TokenService {
     private readonly redisService: RedisService,
     private readonly authAudit: AuthAuditService,
     private readonly metricsService: MetricsService,
+    @Inject(forwardRef(() => UsersService))
+    private readonly usersService: UsersService,
   ) {}
 
   /**
@@ -66,7 +71,12 @@ export class TokenService {
    * without persistence is a security risk. Both login and refresh fail consistently
    * when Redis is unavailable.
    */
-  async generateTokenPair(user: { id: string; email: string; role: string }): Promise<TokenPair> {
+  async generateTokenPair(user: {
+    id: string;
+    email: string;
+    role: string;
+    subscriptionExpiresAt?: Date | null;
+  }): Promise<TokenPair> {
     const family = randomUUID();
     const generation = 0;
 
@@ -138,7 +148,14 @@ export class TokenService {
     }
 
     this.metricsService.recordTokenRotation('success');
-    const user = { id: sub, email, role };
+    // Fetch fresh subscriptionExpiresAt so token reflects admin extensions
+    const freshUser = await this.usersService.findById(sub);
+    const user = {
+      id: sub,
+      email,
+      role,
+      subscriptionExpiresAt: freshUser?.subscriptionExpiresAt ?? null,
+    };
     const accessToken = this.createAccessToken(user, family);
     const newRefreshToken = this.createRefreshToken(user, family, newGeneration);
 
@@ -174,12 +191,19 @@ export class TokenService {
   }
 
   private createAccessToken(
-    user: { id: string; email: string; role: string },
+    user: { id: string; email: string; role: string; subscriptionExpiresAt?: Date | null },
     family: string,
   ): string {
     const jti = randomUUID();
     return this.jwtService.sign(
-      { sub: user.id, email: user.email, role: user.role, jti, family },
+      {
+        sub: user.id,
+        email: user.email,
+        role: user.role,
+        jti,
+        family,
+        ...(user.subscriptionExpiresAt && { subExp: user.subscriptionExpiresAt.toISOString() }),
+      },
       { expiresIn: this.configService.get('JWT_EXPIRATION', '15m') },
     );
   }

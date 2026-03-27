@@ -6,6 +6,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { MetricsService } from '../metrics/metrics.service';
 import { RedisService } from '../redis/redis.service';
+import { UsersService } from '../users/users.service';
 import { AuthAuditService } from './auth-audit.service';
 import { TokenService } from './token.service';
 
@@ -37,6 +38,10 @@ const mockMetricsService = {
   recordTokenRotation: jest.fn(),
 };
 
+const mockUsersService = {
+  findById: jest.fn().mockResolvedValue({ subscriptionExpiresAt: null }),
+};
+
 const TEST_USER = { id: 'user-1', email: 'test@test.com', role: UserRole.CLIENT };
 
 const REFRESH_PAYLOAD = {
@@ -60,6 +65,7 @@ describe('TokenService', () => {
         { provide: RedisService, useValue: mockRedisService },
         { provide: AuthAuditService, useValue: mockAuthAudit },
         { provide: MetricsService, useValue: mockMetricsService },
+        { provide: UsersService, useValue: mockUsersService },
       ],
     }).compile();
 

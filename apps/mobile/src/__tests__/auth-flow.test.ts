@@ -33,6 +33,8 @@ const mockUser: UserPublic = {
   updatedAt: '2025-01-01T00:00:00.000Z',
   deletedAt: null,
   lastLoginAt: null,
+  activatedAt: '2025-01-01T00:00:00.000Z',
+  subscriptionExpiresAt: '2025-03-02T00:00:00.000Z',
 };
 
 // ---------------------------------------------------------------------------

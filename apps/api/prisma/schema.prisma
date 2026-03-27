@@ -164,11 +164,13 @@ model User {
   name         String     @db.VarChar(200)
   phone        String?    @db.VarChar(30)
   role         UserRole   @default(CLIENT)
-  status       UserStatus @default(INVITED)
-  lastLoginAt  DateTime?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  deletedAt    DateTime?
+  status                UserStatus @default(INVITED)
+  lastLoginAt           DateTime?
+  activatedAt           DateTime?
+  subscriptionExpiresAt DateTime?
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+  deletedAt             DateTime?
 
   properties      Property[]
   taskLogs        TaskLog[]
@@ -187,6 +189,7 @@ model User {
 
   @@index([email])
   @@index([role, deletedAt])
+  @@index([status, subscriptionExpiresAt])
 }
 
 model Property {

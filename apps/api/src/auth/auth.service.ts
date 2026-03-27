@@ -1,4 +1,4 @@
-import { BCRYPT_SALT_ROUNDS, UserStatus } from '@epde/shared';
+import { BCRYPT_SALT_ROUNDS, SUBSCRIPTION_INITIAL_DAYS, UserStatus } from '@epde/shared';
 import { BadRequestException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -41,8 +41,15 @@ export class AuthService {
     return user;
   }
 
-  async login(user: { id: string; email: string; role: string }, meta?: LoginMeta) {
-    const { accessToken, refreshToken } = await this.tokenService.generateTokenPair(user);
+  async login(
+    user: { id: string; email: string; role: string; subscriptionExpiresAt?: Date | string | null },
+    meta?: LoginMeta,
+  ) {
+    const subExp = user.subscriptionExpiresAt ? new Date(user.subscriptionExpiresAt) : null;
+    const { accessToken, refreshToken } = await this.tokenService.generateTokenPair({
+      ...user,
+      subscriptionExpiresAt: subExp,
+    });
 
     // Track last login timestamp (fire-and-forget — don't block login on failure)
     void this.usersService.update(user.id, { lastLoginAt: new Date() }).catch(() => {});
@@ -89,9 +96,14 @@ export class AuthService {
 
       const hash = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
 
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + SUBSCRIPTION_INITIAL_DAYS * 24 * 60 * 60_000);
+
       await this.usersService.update(user.id, {
         passwordHash: hash,
         status: UserStatus.ACTIVE,
+        activatedAt: now,
+        subscriptionExpiresAt: expiresAt,
       });
 
       this.authAudit.logPasswordSet(user.id);

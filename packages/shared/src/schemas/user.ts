@@ -29,6 +29,7 @@ export const updateClientSchema = z.object({
     .optional(),
   phone: z.string().trim().max(30, 'El teléfono no puede superar 30 caracteres').optional(),
   status: z.enum(USER_STATUS_VALUES).optional(),
+  subscriptionExpiresAt: z.coerce.date().optional(),
 });
 
 export type UpdateClientInput = z.infer<typeof updateClientSchema>;
