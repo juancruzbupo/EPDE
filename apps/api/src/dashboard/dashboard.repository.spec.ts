@@ -214,7 +214,7 @@ describe('DashboardRepository', () => {
               expect.objectContaining({ status: { not: TaskStatus.COMPLETED } }),
             ]),
           }),
-          take: 10,
+          take: 50,
           orderBy: { nextDueDate: 'asc' },
         }),
       );

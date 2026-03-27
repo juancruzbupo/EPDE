@@ -225,7 +225,7 @@ export class DashboardRepository {
         },
       },
       orderBy: { nextDueDate: 'asc' },
-      take: 10,
+      take: 50,
     });
   }
 
