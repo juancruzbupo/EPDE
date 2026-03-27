@@ -30,6 +30,7 @@ interface AccessPayload {
 interface RefreshPayload extends AccessPayload {
   family: string;
   generation: number;
+  subExp?: string;
 }
 
 @Injectable()
@@ -148,14 +149,15 @@ export class TokenService {
     }
 
     this.metricsService.recordTokenRotation('success');
-    // Fetch fresh subscriptionExpiresAt so token reflects admin extensions
-    const freshUser = await this.usersService.findById(sub);
-    const user = {
-      id: sub,
-      email,
-      role,
-      subscriptionExpiresAt: freshUser?.subscriptionExpiresAt ?? null,
-    };
+    // Use subExp from refresh payload. Only fetch fresh from DB if subscription
+    // expires within 24h (to pick up admin extensions promptly near expiry).
+    let subExpDate: Date | null = payload.subExp ? new Date(payload.subExp) : null;
+    const nearExpiry = subExpDate && subExpDate.getTime() - Date.now() < 24 * 60 * 60_000;
+    if (nearExpiry) {
+      const freshUser = await this.usersService.findById(sub);
+      subExpDate = freshUser?.subscriptionExpiresAt ?? subExpDate;
+    }
+    const user = { id: sub, email, role, subscriptionExpiresAt: subExpDate };
     const accessToken = this.createAccessToken(user, family);
     const newRefreshToken = this.createRefreshToken(user, family, newGeneration);
 
@@ -209,13 +211,21 @@ export class TokenService {
   }
 
   private createRefreshToken(
-    user: { id: string; email: string; role: string },
+    user: { id: string; email: string; role: string; subscriptionExpiresAt?: Date | null },
     family: string,
     generation: number,
   ): string {
     const jti = randomUUID();
     return this.jwtService.sign(
-      { sub: user.id, email: user.email, role: user.role, jti, family, generation },
+      {
+        sub: user.id,
+        email: user.email,
+        role: user.role,
+        jti,
+        family,
+        generation,
+        ...(user.subscriptionExpiresAt && { subExp: user.subscriptionExpiresAt.toISOString() }),
+      },
       { expiresIn: this.configService.get('JWT_REFRESH_EXPIRATION', '7d') },
     );
   }

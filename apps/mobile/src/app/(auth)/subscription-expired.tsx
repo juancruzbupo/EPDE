@@ -20,6 +20,8 @@ export default function SubscriptionExpiredScreen() {
         administrador para renovar tu suscripción.
       </Text>
       <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Contactar por WhatsApp para renovar suscripción"
         className="bg-primary w-full items-center rounded-xl py-3.5"
         onPress={() =>
           Linking.openURL(
@@ -32,6 +34,8 @@ export default function SubscriptionExpiredScreen() {
         </Text>
       </Pressable>
       <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Volver al inicio de sesión"
         className="mt-3 w-full items-center py-3"
         onPress={() => router.replace('/(auth)/login')}
       >

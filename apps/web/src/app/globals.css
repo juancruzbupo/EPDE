@@ -104,7 +104,7 @@ body {
   --success-foreground: #ffffff;
   --warning: #7a6514;
   --warning-foreground: #ffffff;
-  --caution: #a85a20;
+  --caution: #965018;
   --caution-foreground: #fafaf8;
   /* Task type tokens */
   --task-inspection: #3b82f6;
@@ -117,7 +117,7 @@ body {
   --task-measurement: #14b8a6;
   --task-evaluation: #8b5cf6;
   /* Task status tokens */
-  --status-pending: #b45309;
+  --status-pending: #924408;
   --status-upcoming: #2563eb;
   --status-completed: #059669;
   --sidebar: #f5f0eb;

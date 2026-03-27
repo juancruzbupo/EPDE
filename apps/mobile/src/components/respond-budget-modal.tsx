@@ -168,6 +168,7 @@ export function RespondBudgetModal({
                       value={value}
                       onChangeText={onChange}
                       placeholder="Descripción del item"
+                      accessibilityLabel="Descripción del item"
                       placeholderTextColor={COLORS.mutedForeground}
                       style={TYPE.bodyMd}
                       className="text-foreground mb-2"
@@ -184,6 +185,7 @@ export function RespondBudgetModal({
                       name={`lineItems.${index}.quantity`}
                       render={({ field: { onChange, value } }) => (
                         <TextInput
+                          accessibilityLabel="Cantidad"
                           value={String(value ?? '')}
                           onChangeText={(v) => onChange(v === '' ? '' : Number(v))}
                           keyboardType="numeric"
@@ -203,6 +205,7 @@ export function RespondBudgetModal({
                       name={`lineItems.${index}.unitPrice`}
                       render={({ field: { onChange, value } }) => (
                         <TextInput
+                          accessibilityLabel="Precio unitario"
                           value={String(value ?? '')}
                           onChangeText={(v) => onChange(v === '' ? '' : Number(v))}
                           keyboardType="numeric"
@@ -269,6 +272,7 @@ export function RespondBudgetModal({
                 name="estimatedDays"
                 render={({ field: { onChange, value } }) => (
                   <TextInput
+                    accessibilityLabel="Días estimados"
                     value={value != null ? String(value) : ''}
                     onChangeText={(v) => onChange(v === '' ? undefined : Number(v))}
                     keyboardType="numeric"
@@ -289,6 +293,7 @@ export function RespondBudgetModal({
                 name="validUntil"
                 render={({ field: { onChange, value } }) => (
                   <TextInput
+                    accessibilityLabel="Válido hasta"
                     value={value ?? ''}
                     onChangeText={(v) => onChange(v || undefined)}
                     placeholder="YYYY-MM-DD"
@@ -309,6 +314,7 @@ export function RespondBudgetModal({
             name="notes"
             render={({ field: { onChange, value } }) => (
               <TextInput
+                accessibilityLabel="Notas del presupuesto"
                 value={value ?? ''}
                 onChangeText={(v) => onChange(v || undefined)}
                 placeholder="Incluye materiales, garantía, etc."

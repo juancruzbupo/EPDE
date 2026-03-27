@@ -38,10 +38,10 @@ export const DESIGN_TOKENS_LIGHT = {
   successForeground: '#ffffff',
   warning: '#7a6514',
   warningForeground: '#ffffff',
-  caution: '#a85a20',
+  caution: '#965018',
   cautionForeground: '#fafaf8',
   // Task status colors (semantic — used in task list/detail views)
-  statusPending: '#b45309',
+  statusPending: '#924408',
   statusUpcoming: '#2563eb',
   statusCompleted: '#059669',
 } as const;

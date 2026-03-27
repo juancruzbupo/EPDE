@@ -409,27 +409,35 @@ function SubscriptionCard({ client, clientId }: { client: ClientPublic; clientId
   const updateClient = useUpdateClient();
   const [extending, setExtending] = useState(false);
 
-  const expiresAt = client.subscriptionExpiresAt ? new Date(client.subscriptionExpiresAt) : null;
-  const isExpired = expiresAt ? expiresAt < new Date() : false;
-  const daysLeft = expiresAt
-    ? Math.ceil((expiresAt.getTime() - Date.now()) / (24 * 60 * 60_000))
-    : null;
+  const { expiresAt, statusLabel, statusVariant } = useMemo(() => {
+    const exp = client.subscriptionExpiresAt ? new Date(client.subscriptionExpiresAt) : null;
+    const expired = exp ? exp.getTime() < Date.now() : false;
+    const days = exp ? Math.ceil((exp.getTime() - Date.now()) / (24 * 60 * 60_000)) : null;
 
-  const statusLabel = useMemo(() => {
-    if (!expiresAt) return 'Sin suscripción';
-    if (isExpired) return 'Expirada';
-    if (daysLeft !== null && daysLeft <= 7)
-      return `Vence en ${daysLeft} día${daysLeft === 1 ? '' : 's'}`;
-    return 'Activa';
-  }, [expiresAt, isExpired, daysLeft]);
+    let label: string;
+    let variant: 'destructive' | 'secondary' | 'warning' | 'success';
+    if (!exp) {
+      label = 'Sin suscripción';
+      variant = 'secondary';
+    } else if (expired) {
+      label = 'Expirada';
+      variant = 'destructive';
+    } else if (days !== null && days <= 7) {
+      label = `Vence en ${days} día${days === 1 ? '' : 's'}`;
+      variant = 'warning';
+    } else {
+      label = 'Activa';
+      variant = 'success';
+    }
 
-  const statusVariant = isExpired
-    ? ('destructive' as const)
-    : !expiresAt
-      ? ('secondary' as const)
-      : daysLeft !== null && daysLeft <= 7
-        ? ('warning' as const)
-        : ('success' as const);
+    return {
+      expiresAt: exp,
+      isExpired: expired,
+      daysLeft: days,
+      statusLabel: label,
+      statusVariant: variant,
+    };
+  }, [client.subscriptionExpiresAt]);
 
   const handleExtend = (days: number) => {
     setExtending(true);
