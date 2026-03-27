@@ -180,6 +180,7 @@ const NextInspectionCard = memo(function NextInspectionCard({ task }: { task: Up
 });
 
 export const ActionList = memo(function ActionList({ tasks, nextUpcoming }: MobileActionListProps) {
+  const router = useRouter();
   const { overdue, upcoming } = useMemo(() => {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
@@ -232,10 +233,25 @@ export const ActionList = memo(function ActionList({ tasks, nextUpcoming }: Mobi
           <Text style={TYPE.titleMd} className="text-destructive mb-2">
             Necesitan atención ({overdue.length})
           </Text>
-          {overdue.map((task) => {
+          {overdue.slice(0, 10).map((task) => {
             const idx = globalIndex++;
             return <ActionTaskCard key={task.id} task={task} index={idx} isOverdue />;
           })}
+          {overdue.length > 10 && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Ver las ${overdue.length} tareas vencidas`}
+              onPress={() => {
+                haptics.light();
+                router.push('/tasks' as never);
+              }}
+              className="mb-3 items-center py-2"
+            >
+              <Text style={TYPE.labelMd} className="text-destructive">
+                Ver las {overdue.length} tareas vencidas →
+              </Text>
+            </Pressable>
+          )}
         </>
       )}
 
