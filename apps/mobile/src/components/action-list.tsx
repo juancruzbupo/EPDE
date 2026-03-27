@@ -141,6 +141,7 @@ const NextInspectionCard = memo(function NextInspectionCard({ task }: { task: Up
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`Próxima inspección: ${task.name}`}
+      accessibilityHint="Toca para ver detalles de la tarea"
       className="border-status-upcoming/20 bg-status-upcoming/5 mb-4 flex-row items-center rounded-xl border p-3"
       onPress={() => {
         haptics.light();

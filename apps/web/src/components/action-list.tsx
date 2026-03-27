@@ -78,12 +78,12 @@ function TaskItem({ task, showRegister }: { task: UpcomingTask; showRegister?: b
           </div>
         </Link>
         {showRegister ? (
-          <Link href={`/tasks?taskId=${task.id}&action=complete`}>
-            <Button size="sm" variant="destructive" className="shrink-0 gap-1.5">
+          <Button size="sm" variant="destructive" className="shrink-0 gap-1.5" asChild>
+            <Link href={`/tasks?taskId=${task.id}&action=complete`}>
               <ClipboardCheck className="h-3.5 w-3.5" />
               Registrar
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         ) : (
           <ChevronRight className="text-muted-foreground h-4 w-4 shrink-0" />
         )}
@@ -110,7 +110,7 @@ function NextInspectionCard({ task }: { task: UpcomingTask }) {
                 {task.nextDueDate && ` · ${formatRelativeDate(new Date(task.nextDueDate))}`}
               </p>
             </div>
-            <ChevronRight className="text-muted-foreground h-4 w-4 shrink-0" />
+            <ChevronRight className="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
           </div>
         </CardContent>
       </Card>
