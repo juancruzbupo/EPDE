@@ -103,7 +103,7 @@ qué priorizar y cómo mantenerla bajo control.
 ```
 El diagnóstico completo tiene un valor de $35.000, pago único.
 Incluye la inspección, el ISV (índice de salud de tu vivienda),
-plan de mantenimiento y acceso al sistema por 60 días.
+plan de mantenimiento y acceso al sistema por 6 meses.
 
 Es una inversión que puede evitarte problemas de cientos de miles
 o millones más adelante.
@@ -140,7 +140,7 @@ Incluye:
 • Índice de Salud de la Vivienda (ISV)
 • Plan de mantenimiento con prioridades
 • Detección de riesgos y tareas críticas
-• Acceso al sistema EPDE por 60 días
+• Acceso al sistema EPDE por 6 meses
 
 Todo queda cargado en una plataforma donde podés hacer
 seguimiento, ver tareas y recibir alertas.

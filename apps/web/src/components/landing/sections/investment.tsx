@@ -92,7 +92,7 @@ export function InvestmentSection({ motionProps }: SectionProps) {
           variants={FADE_IN}
           className="type-body-md text-foreground/80 mx-auto mt-6 max-w-md text-center"
         >
-          Incluye acceso al sistema EPDE por 60 días.
+          Incluye acceso al sistema EPDE por 6 meses.
         </motion.p>
         <motion.p
           variants={FADE_IN}

@@ -175,7 +175,7 @@ export const DIAGNOSIS_INCLUDES: IconTextItem[] = [
   { icon: ClipboardList, text: 'Plan de mantenimiento preventivo' },
   { icon: AlertTriangle, text: 'Detección de riesgos y tareas críticas' },
   { icon: Wrench, text: 'Recomendaciones técnicas' },
-  { icon: MonitorSmartphone, text: 'Acceso al sistema EPDE por 60 días' },
+  { icon: MonitorSmartphone, text: 'Acceso al sistema EPDE por 6 meses' },
 ];
 
 export const SYSTEM_FEATURES: IconTextItem[] = [

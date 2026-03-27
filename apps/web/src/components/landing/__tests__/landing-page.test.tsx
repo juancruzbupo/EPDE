@@ -106,8 +106,8 @@ describe('LandingPage smoke test', () => {
     expect(screen.getByText(/decisión simple hoy/i)).toBeInTheDocument();
   });
 
-  it('renders 60-day access', () => {
-    const matches = screen.getAllByText(/acceso al sistema EPDE por 60 días/i);
+  it('renders 6-month access', () => {
+    const matches = screen.getAllByText(/acceso al sistema EPDE por 6 meses/i);
     expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 

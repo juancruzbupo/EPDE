@@ -218,7 +218,7 @@ CategoryTemplate ─1:N─ TaskTemplate
 | role                  | UserRole   | Default: CLIENT                               |
 | status                | UserStatus | Default: INVITED                              |
 | activatedAt           | DateTime?  | Fecha de activacion (set-password)            |
-| subscriptionExpiresAt | DateTime?  | Fin de suscripcion (60 dias desde activacion) |
+| subscriptionExpiresAt | DateTime?  | Fin de suscripcion (6 meses desde activacion) |
 | createdAt             | DateTime   |                                               |
 | updatedAt             | DateTime   |                                               |
 | deletedAt             | DateTime?  | Soft delete                                   |

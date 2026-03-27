@@ -277,7 +277,7 @@ Marketing page con 16 secciones optimizadas para conversión:
 9. Comparación tradicional vs EPDE
 10. Credenciales (arquitecta)
 11. Para quién
-12. Pricing ($35.000 pago único, 60 días acceso)
+12. Pricing ($35.000 pago único, 6 meses acceso)
 13. Urgencia (cupos limitados)
 14. CTA final
 15. Footer
@@ -288,8 +288,8 @@ Marketing page con 16 secciones optimizadas para conversión:
 ## 10. Modelo de negocio
 
 - **Producto:** Diagnóstico EPDE — $35.000 (pago único)
-- **Incluye:** inspección completa, ISV, plan de mantenimiento, acceso al sistema por 60 días
-- **Continuidad:** suscripción mensual opcional después de los 60 días
+- **Incluye:** inspección completa, ISV, plan de mantenimiento, acceso al sistema por 6 meses
+- **Continuidad:** suscripción mensual opcional después de los 6 meses
 - **Revenue adicional:** servicios profesionales y presupuestos (se cotizan aparte)
 - **Mercado:** propietarios de viviendas residenciales en Paraná, Argentina
 
@@ -297,7 +297,7 @@ Marketing page con 16 secciones optimizadas para conversión:
 
 ## 11. Modelo de suscripción
 
-- **Activación:** Al setear password (`set-password`), se registra `activatedAt` y se calcula `subscriptionExpiresAt` = activatedAt + 60 días
+- **Activación:** Al setear password (`set-password`), se registra `activatedAt` y se calcula `subscriptionExpiresAt` = activatedAt + 6 meses
 - **Verificación:** `SubscriptionGuard` (4to guard global, después de RolesGuard) verifica `subscriptionExpiresAt > now()` en cada request autenticado de CLIENT. Salta `@Public()`, endpoints de auth, y usuarios ADMIN
 - **Expiración:** Si la suscripción expiró, retorna HTTP 402 (Payment Required). El frontend intercepta 402 y redirige a página de suscripción expirada
 - **Renovación:** Solo ADMIN puede extender `subscriptionExpiresAt` desde el panel de clientes (no hay auto-renovación ni pago online)

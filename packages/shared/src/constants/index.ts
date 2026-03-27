@@ -33,8 +33,10 @@ export const BCRYPT_SALT_ROUNDS = 12;
 export const JWT_ACCESS_EXPIRATION = '15m';
 export const JWT_REFRESH_EXPIRATION = '7d';
 
-/** Initial subscription duration in days after first activation (set-password). */
-export const SUBSCRIPTION_INITIAL_DAYS = 60;
+/** Initial subscription duration in days after first activation (set-password).
+ * 180 days (6 months) gives clients enough time to complete 2 quarterly cycles,
+ * accumulate ISV trend data, and build dependency on the platform before renewal. */
+export const SUBSCRIPTION_INITIAL_DAYS = 180;
 /** Days before expiration to send reminder notifications. */
 export const SUBSCRIPTION_REMINDER_DAYS = [7, 3, 1] as const;
 /** WhatsApp contact number for subscription renewal and support. */
