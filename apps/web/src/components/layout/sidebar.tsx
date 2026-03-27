@@ -2,7 +2,6 @@
 
 import { UserRole } from '@epde/shared';
 import {
-  Bell,
   CheckSquare,
   ChevronsLeft,
   ChevronsRight,
@@ -28,19 +27,18 @@ const adminNavItems = [
   { label: 'Tareas', href: '/tasks', icon: CheckSquare },
   { label: 'Presupuestos', href: '/budgets', icon: FileText },
   { label: 'Servicios', href: '/service-requests', icon: Wrench },
-  { label: 'Notificaciones', href: '/notifications', icon: Bell },
   { label: 'Categorías', href: '/categories', icon: Tags },
   { label: 'Plantillas', href: '/templates', icon: LayoutTemplate },
 ];
 
-/** Client order: Tareas promoted to #2 (most used action) */
+/** Client order: Tareas promoted to #2 (most used action).
+ * Notificaciones omitted — accessible via bell icon in header. */
 const clientNavItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Tareas', href: '/tasks', icon: CheckSquare },
   { label: 'Propiedades', href: '/properties', icon: Home },
   { label: 'Presupuestos', href: '/budgets', icon: FileText },
   { label: 'Servicios', href: '/service-requests', icon: Wrench },
-  { label: 'Notificaciones', href: '/notifications', icon: Bell },
 ];
 
 export function Sidebar({ className }: { className?: string }) {
