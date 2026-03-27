@@ -39,7 +39,12 @@ export default function LoginScreen() {
     setIsLoading(true);
     try {
       await login(data.email, data.password);
-    } catch {
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      if (status === 402) {
+        router.replace('/(auth)/subscription-expired' as never);
+        return;
+      }
       setError('Credenciales inválidas. Verificá tu email y contraseña.');
     } finally {
       setIsLoading(false);

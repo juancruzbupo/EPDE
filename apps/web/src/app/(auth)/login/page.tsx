@@ -37,7 +37,12 @@ export default function LoginPage() {
       // before the middleware checks for the access_token cookie.
       // router.push() uses client-side navigation which races with cookie availability.
       window.location.href = '/dashboard';
-    } catch {
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      if (status === 402) {
+        window.location.href = '/subscription-expired';
+        return;
+      }
       setError('Credenciales inválidas. Verificá tu email y contraseña.');
       setIsLoading(false);
     }
