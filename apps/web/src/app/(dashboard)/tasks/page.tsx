@@ -234,14 +234,20 @@ export default function TasksPage() {
   const { data: allTasksForCounts } = useAllTasks();
 
   // Auto-open task detail when navigating with ?taskId=xxx (e.g. from dashboard ActionList)
+  // If ?action=complete, also auto-open the complete dialog
   const handledTaskId = useRef<string | null>(null);
   useEffect(() => {
     const taskId = searchParams.get('taskId');
+    const action = searchParams.get('action');
     if (taskId && tasks && taskId !== handledTaskId.current) {
       const found = tasks.find((t) => t.id === taskId);
       if (found) {
         setSelectedTask(found);
         handledTaskId.current = taskId;
+        if (action === 'complete') {
+          // Defer to allow task detail to load first
+          setTimeout(() => setCompletingTask(found as unknown as TaskPublic), 300);
+        }
       }
     }
   }, [searchParams, tasks]);

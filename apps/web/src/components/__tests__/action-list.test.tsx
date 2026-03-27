@@ -103,7 +103,7 @@ describe('ActionList', () => {
       nextDueDate: new Date(Date.now() - 86400000).toISOString(),
     });
     render(<ActionList tasks={[task]} />);
-    const link = screen.getByRole('link');
-    expect(link).toHaveAttribute('href', '/tasks?taskId=task-abc');
+    const links = screen.getAllByRole('link');
+    expect(links[0]).toHaveAttribute('href', '/tasks?taskId=task-abc');
   });
 });

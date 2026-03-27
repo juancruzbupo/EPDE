@@ -155,9 +155,9 @@ describe('DashboardScreen', () => {
     expect(getAllByText('Pendientes').length).toBeGreaterThanOrEqual(1);
     expect(getAllByText('Completadas').length).toBeGreaterThanOrEqual(1);
 
-    // Task names from ActionList
-    expect(getByText('Revisar caldera')).toBeTruthy();
-    expect(getByText('Limpiar canaletas')).toBeTruthy();
+    // Task names from ActionList (may appear in NextInspectionCard + list)
+    expect(getAllByText('Revisar caldera').length).toBeGreaterThanOrEqual(1);
+    expect(getAllByText('Limpiar canaletas').length).toBeGreaterThanOrEqual(1);
   });
 
   it('shows positive message when no tasks', () => {

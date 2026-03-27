@@ -1,6 +1,6 @@
 import { UserRole } from '@epde/shared';
 import { useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Linking, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 
 import { ActionList } from '@/components/action-list';
@@ -78,6 +78,13 @@ function ClientDashboard() {
   } = useClientAnalytics(chartMonths);
 
   const isLoading = statsLoading || tasksLoading;
+
+  // First non-overdue task = "Próxima inspección"
+  const nextUpcoming = useMemo(() => {
+    if (!tasks) return null;
+    const now = Date.now();
+    return tasks.find((t) => t.nextDueDate && new Date(t.nextDueDate).getTime() >= now) ?? null;
+  }, [tasks]);
 
   const onRefresh = useCallback(() => {
     refetchStats();
@@ -159,7 +166,7 @@ function ClientDashboard() {
           </View>
         </View>
       ) : tasks && !showWelcome ? (
-        <ActionList tasks={tasks} />
+        <ActionList tasks={tasks} nextUpcoming={nextUpcoming} />
       ) : null}
 
       {/* Quick access cards */}

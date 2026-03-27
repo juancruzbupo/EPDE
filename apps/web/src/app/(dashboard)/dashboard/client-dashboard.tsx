@@ -3,7 +3,7 @@
 import { QUERY_KEYS } from '@epde/shared';
 import { useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import { ActionList } from '@/components/action-list';
 
@@ -44,6 +44,13 @@ export function ClientDashboard({ userName }: { userName: string }) {
     staleTime: 5 * 60_000,
     enabled: showAnalytics,
   });
+
+  // First non-overdue upcoming task = "Próxima inspección"
+  const nextUpcoming = useMemo(() => {
+    if (!upcoming) return null;
+    const now = Date.now();
+    return upcoming.find((t) => t.nextDueDate && new Date(t.nextDueDate).getTime() >= now) ?? null;
+  }, [upcoming]);
 
   const actionsRef = useRef<HTMLDivElement>(null);
   const analyticsRef = useRef<HTMLDivElement>(null);
@@ -122,7 +129,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
         ) : upcomingError ? (
           <ErrorState message="No se pudieron cargar las tareas" onRetry={refetchUpcoming} />
         ) : upcoming ? (
-          <ActionList tasks={upcoming} />
+          <ActionList tasks={upcoming} nextUpcoming={nextUpcoming} />
         ) : null}
       </div>
 

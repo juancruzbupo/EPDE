@@ -10,6 +10,7 @@ import { haptics } from '@/lib/haptics';
 
 interface MobileActionListProps {
   tasks: UpcomingTask[];
+  nextUpcoming?: UpcomingTask | null;
 }
 
 function getDaysUntil(dateStr: string): number {
@@ -58,6 +59,11 @@ const ActionTaskCard = memo(function ActionTaskCard({
     router.push(`/task/${task.maintenancePlanId}/${task.id}` as never);
   };
 
+  const handleRegister = () => {
+    haptics.medium();
+    router.push(`/task/${task.maintenancePlanId}/${task.id}` as never);
+  };
+
   const needsProfessional =
     task.professionalRequirement === 'PROFESSIONAL_REQUIRED' ||
     task.professionalRequirement === 'PROFESSIONAL_RECOMMENDED';
@@ -92,20 +98,34 @@ const ActionTaskCard = memo(function ActionTaskCard({
           </Text>
         )}
 
-        <View className="flex-row items-center gap-2">
-          <Text style={TYPE.labelMd} className="text-muted-foreground">
-            {task.categoryName}
-          </Text>
-          {task.sector && (
-            <>
-              <Text style={TYPE.bodySm} className="text-muted-foreground">
-                ·
+        <View className="flex-row items-center justify-between">
+          <View className="flex-1 flex-row items-center gap-2">
+            <Text style={TYPE.labelMd} className="text-muted-foreground">
+              {task.categoryName}
+            </Text>
+            {task.sector && (
+              <>
+                <Text style={TYPE.bodySm} className="text-muted-foreground">
+                  ·
+                </Text>
+                <Text style={TYPE.bodySm} className="text-muted-foreground">
+                  {PROPERTY_SECTOR_LABELS[task.sector as keyof typeof PROPERTY_SECTOR_LABELS] ??
+                    task.sector}
+                </Text>
+              </>
+            )}
+          </View>
+          {isOverdue && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Registrar inspección de ${task.name}`}
+              onPress={handleRegister}
+              className="bg-primary/10 rounded-lg px-3 py-1.5"
+            >
+              <Text style={TYPE.labelSm} className="text-primary">
+                Registrar
               </Text>
-              <Text style={TYPE.bodySm} className="text-muted-foreground">
-                {PROPERTY_SECTOR_LABELS[task.sector as keyof typeof PROPERTY_SECTOR_LABELS] ??
-                  task.sector}
-              </Text>
-            </>
+            </Pressable>
           )}
         </View>
       </Pressable>
@@ -113,7 +133,53 @@ const ActionTaskCard = memo(function ActionTaskCard({
   );
 });
 
-export const ActionList = memo(function ActionList({ tasks }: MobileActionListProps) {
+/** Highlighted card for the next upcoming inspection */
+const NextInspectionCard = memo(function NextInspectionCard({ task }: { task: UpcomingTask }) {
+  const router = useRouter();
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Próxima inspección: ${task.name}`}
+      className="border-primary/20 bg-primary/5 mb-4 flex-row items-center rounded-xl border p-3"
+      onPress={() => {
+        haptics.light();
+        router.push(`/task/${task.maintenancePlanId}/${task.id}` as never);
+      }}
+    >
+      <View className="bg-primary/10 mr-3 h-10 w-10 items-center justify-center rounded-lg">
+        <Text style={{ fontSize: 20 }}>📋</Text>
+      </View>
+      <View className="flex-1">
+        <Text style={TYPE.bodySm} className="text-muted-foreground">
+          Próxima inspección
+        </Text>
+        <Text style={TYPE.titleSm} className="text-foreground" numberOfLines={1}>
+          {task.name}
+        </Text>
+        <Text style={TYPE.bodySm} className="text-muted-foreground">
+          {task.propertyAddress}
+          {task.nextDueDate && ` · ${formatDueLabel(task.nextDueDate)}`}
+        </Text>
+      </View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Registrar inspección"
+        onPress={() => {
+          haptics.medium();
+          router.push(`/task/${task.maintenancePlanId}/${task.id}` as never);
+        }}
+        className="bg-primary rounded-lg px-3 py-2"
+      >
+        <Text style={TYPE.labelSm} className="text-primary-foreground">
+          Registrar
+        </Text>
+      </Pressable>
+    </Pressable>
+  );
+});
+
+export const ActionList = memo(function ActionList({ tasks, nextUpcoming }: MobileActionListProps) {
   const { overdue, upcoming } = useMemo(() => {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
@@ -159,6 +225,8 @@ export const ActionList = memo(function ActionList({ tasks }: MobileActionListPr
 
   return (
     <View className="mb-4">
+      {nextUpcoming && <NextInspectionCard task={nextUpcoming} />}
+
       {overdue.length > 0 && (
         <>
           <Text style={TYPE.titleMd} className="text-destructive mb-2">
