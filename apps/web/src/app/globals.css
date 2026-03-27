@@ -196,6 +196,15 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  /* Restore Tailwind v3 behavior: interactive elements show pointer cursor */
+  button,
+  [role='button'],
+  [type='button'],
+  [type='submit'],
+  [type='reset'],
+  summary {
+    cursor: pointer;
+  }
 }
 
 @layer utilities {
