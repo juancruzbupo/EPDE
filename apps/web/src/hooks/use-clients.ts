@@ -1,4 +1,4 @@
-import type { ClientPublic, UserStatus } from '@epde/shared';
+import type { ClientPublic, UpdateClientInput } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -53,15 +53,8 @@ export function useCreateClient() {
 export function useUpdateClient() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      id,
-      ...dto
-    }: {
-      id: string;
-      name?: string;
-      phone?: string;
-      status?: UserStatus;
-    }) => updateClient(id, dto),
+    mutationFn: ({ id, ...dto }: { id: string } & Partial<UpdateClientInput>) =>
+      updateClient(id, dto),
     onSuccess: () => {
       toast.success('Cliente actualizado');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.clients] });

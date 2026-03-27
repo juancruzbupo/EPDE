@@ -12,6 +12,7 @@ interface AuthState {
   user: UserPublic | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  subscriptionExpired: boolean;
 
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -22,6 +23,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
+  subscriptionExpired: false,
 
   /** Mobile login: authApi.login returns `UserPublic` directly (tokens stored via SecureStore).
    * (Web's authApi.login returns `{ user, message }` because tokens go in HTTP-only cookies.) */

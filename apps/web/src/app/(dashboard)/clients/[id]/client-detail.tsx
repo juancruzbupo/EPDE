@@ -17,6 +17,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   ArrowLeft,
   Calendar,
+  Clock,
   FileText,
   Home,
   Mail,
@@ -27,8 +28,9 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ErrorState } from '@/components/error-state';
@@ -196,6 +198,9 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
           )}
         </CardContent>
       </Card>
+
+      {/* ─── Subscription Section ──────────────────────────── */}
+      <SubscriptionCard client={client} clientId={client.id} />
 
       {/* ─── Properties Section ─────────────────────────────── */}
       <ClientPropertiesSection clientId={client.id} />
@@ -393,6 +398,99 @@ function ClientServiceRequestsSection({
             ))}
           </ul>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Subscription Card ────────────────────────────────────
+
+function SubscriptionCard({ client, clientId }: { client: ClientPublic; clientId: string }) {
+  const updateClient = useUpdateClient();
+  const [extending, setExtending] = useState(false);
+
+  const expiresAt = client.subscriptionExpiresAt ? new Date(client.subscriptionExpiresAt) : null;
+  const isExpired = expiresAt ? expiresAt < new Date() : false;
+  const daysLeft = expiresAt
+    ? Math.ceil((expiresAt.getTime() - Date.now()) / (24 * 60 * 60_000))
+    : null;
+
+  const statusLabel = useMemo(() => {
+    if (!expiresAt) return 'Sin suscripción';
+    if (isExpired) return 'Expirada';
+    if (daysLeft !== null && daysLeft <= 7)
+      return `Vence en ${daysLeft} día${daysLeft === 1 ? '' : 's'}`;
+    return 'Activa';
+  }, [expiresAt, isExpired, daysLeft]);
+
+  const statusVariant = isExpired
+    ? ('destructive' as const)
+    : !expiresAt
+      ? ('secondary' as const)
+      : daysLeft !== null && daysLeft <= 7
+        ? ('warning' as const)
+        : ('success' as const);
+
+  const handleExtend = (days: number) => {
+    setExtending(true);
+    const baseDate = expiresAt && expiresAt > new Date() ? expiresAt : new Date();
+    const newExpiry = new Date(baseDate.getTime() + days * 24 * 60 * 60_000);
+    updateClient.mutate(
+      { id: clientId, subscriptionExpiresAt: newExpiry },
+      {
+        onSuccess: () => {
+          toast.success(`Suscripción extendida ${days} días`);
+          setExtending(false);
+        },
+        onError: () => setExtending(false),
+      },
+    );
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-4 w-4" aria-hidden="true" />
+            Suscripción
+          </CardTitle>
+          <Badge variant={statusVariant}>{statusLabel}</Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <dl className="grid grid-cols-2 gap-4 text-sm">
+          <div className="space-y-1">
+            <dt className="text-muted-foreground">Activación</dt>
+            <dd className="font-medium">
+              {client.activatedAt
+                ? formatRelativeDate(new Date(client.activatedAt))
+                : 'No activado'}
+            </dd>
+          </div>
+          <div className="space-y-1">
+            <dt className="text-muted-foreground">Vencimiento</dt>
+            <dd className="font-medium">
+              {expiresAt ? expiresAt.toLocaleDateString('es-AR') : '—'}
+            </dd>
+          </div>
+        </dl>
+        <div className="mt-4 flex gap-2">
+          <Button size="sm" variant="outline" onClick={() => handleExtend(30)} disabled={extending}>
+            +30 días
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => handleExtend(60)} disabled={extending}>
+            +60 días
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handleExtend(365)}
+            disabled={extending}
+          >
+            +1 año
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

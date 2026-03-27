@@ -43,4 +43,16 @@ attachRefreshInterceptor({
   },
 });
 
+// 402 Payment Required → subscription expired, redirect to renewal page
+apiClient.interceptors.response.use(undefined, (error) => {
+  if (
+    error.response?.status === 402 &&
+    typeof window !== 'undefined' &&
+    !window.location.pathname.startsWith('/subscription-expired')
+  ) {
+    window.location.href = '/subscription-expired';
+  }
+  return Promise.reject(error);
+});
+
 export { apiClient };

@@ -99,3 +99,13 @@ attachRefreshInterceptor({
     config.headers.Authorization = `Bearer ${newToken}`;
   },
 });
+
+// 402 Payment Required → subscription expired, force logout with flag
+apiClient.interceptors.response.use(undefined, async (error) => {
+  if (error.response?.status === 402) {
+    const { useAuthStore } = await import('../stores/auth-store');
+    useAuthStore.setState({ subscriptionExpired: true });
+    await useAuthStore.getState().logout();
+  }
+  return Promise.reject(error);
+});

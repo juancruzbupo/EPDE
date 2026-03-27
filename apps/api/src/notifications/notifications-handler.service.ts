@@ -425,4 +425,30 @@ export class NotificationsHandlerService {
       );
     }
   }
+
+  async handleSubscriptionReminder(payload: {
+    userId: string;
+    userName: string;
+    daysLeft: number;
+    expiresAt: Date;
+  }) {
+    try {
+      const daysText = payload.daysLeft === 1 ? 'mañana' : `en ${payload.daysLeft} días`;
+      const title = 'Tu suscripción está por vencer';
+      const message = `${payload.userName}, tu acceso a EPDE vence ${daysText}. Contactá al administrador para renovar.`;
+
+      await this.notificationsService.createNotification({
+        userId: payload.userId,
+        type: 'SYSTEM',
+        title,
+        message,
+      });
+
+      this.sendPush([payload.userId], title, message);
+    } catch (error) {
+      this.logger.error(
+        `Error sending subscription reminder for ${payload.userId}: ${(error as Error).message}`,
+      );
+    }
+  }
 }

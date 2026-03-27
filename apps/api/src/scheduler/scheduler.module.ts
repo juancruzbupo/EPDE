@@ -12,6 +12,7 @@ import { BudgetExpirationService } from './budget-expiration.service';
 import { ISVSnapshotService } from './isv-snapshot.service';
 import { NotificationCleanupService } from './notification-cleanup.service';
 import { ServiceRequestAutoCloseService } from './service-request-auto-close.service';
+import { SubscriptionReminderService } from './subscription-reminder.service';
 import { TaskReminderService } from './task-reminder.service';
 import { TaskSafetyService } from './task-safety.service';
 import { TaskStatusService } from './task-status.service';
@@ -46,6 +47,7 @@ import { TaskStatusService } from './task-status.service';
     ServiceRequestAutoCloseService,
     ISVSnapshotService,
     NotificationCleanupService,
+    SubscriptionReminderService,
   ],
 })
 export class SchedulerModule {}

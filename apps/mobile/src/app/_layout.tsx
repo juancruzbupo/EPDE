@@ -32,18 +32,21 @@ function AuthGate() {
   const segments = useSegments();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isLoading = useAuthStore((s) => s.isLoading);
+  const subscriptionExpired = useAuthStore((s) => s.subscriptionExpired);
 
   useEffect(() => {
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === '(auth)';
 
-    if (!isAuthenticated && !inAuthGroup) {
+    if (subscriptionExpired && !inAuthGroup) {
+      router.replace('/(auth)/subscription-expired' as never);
+    } else if (!isAuthenticated && !inAuthGroup) {
       router.replace('/(auth)/login');
-    } else if (isAuthenticated && inAuthGroup) {
+    } else if (isAuthenticated && inAuthGroup && !subscriptionExpired) {
       router.replace('/(tabs)');
     }
-  }, [isAuthenticated, isLoading, segments, router]);
+  }, [isAuthenticated, isLoading, subscriptionExpired, segments, router]);
 
   // Register push notifications when authenticated
   useEffect(() => {
