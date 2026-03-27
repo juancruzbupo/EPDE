@@ -35,7 +35,8 @@ export class SubscriptionReminderService {
       for (const daysLeft of SUBSCRIPTION_REMINDER_DAYS) {
         if (signal.lockLost) return;
 
-        // Find users whose subscription expires in exactly `daysLeft` days (± 12h window)
+        // Find users whose subscription expires in exactly `daysLeft` days (± 12h window).
+        // Window compensates for timezone variance — subscriptionExpiresAt is stored as UTC in DB.
         const targetDate = new Date(now.getTime() + daysLeft * 24 * 60 * 60_000);
         const windowStart = new Date(targetDate.getTime() - 12 * 60 * 60_000);
         const windowEnd = new Date(targetDate.getTime() + 12 * 60 * 60_000);

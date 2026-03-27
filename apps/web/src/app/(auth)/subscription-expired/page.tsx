@@ -1,5 +1,6 @@
 'use client';
 
+import { WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
 import { Clock } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -21,7 +22,7 @@ export default function SubscriptionExpiredPage() {
             size="lg"
             onClick={() => {
               window.open(
-                'https://wa.me/5493435043696?text=Hola, quiero renovar mi suscripción a EPDE',
+                `https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=Hola, quiero renovar mi suscripción a EPDE`,
                 '_blank',
               );
             }}

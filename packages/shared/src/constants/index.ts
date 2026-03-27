@@ -37,6 +37,8 @@ export const JWT_REFRESH_EXPIRATION = '7d';
 export const SUBSCRIPTION_INITIAL_DAYS = 60;
 /** Days before expiration to send reminder notifications. */
 export const SUBSCRIPTION_REMINDER_DAYS = [7, 3, 1] as const;
+/** WhatsApp contact number for subscription renewal and support. */
+export const WHATSAPP_CONTACT_NUMBER = '5493435043696';
 
 // ─── Enum Labels (Spanish) ──────────────────────────────
 

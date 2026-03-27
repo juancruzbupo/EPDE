@@ -1,3 +1,4 @@
+import { WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { Linking, Pressable, Text, View } from 'react-native';
 
@@ -22,7 +23,7 @@ export default function SubscriptionExpiredScreen() {
         className="bg-primary w-full items-center rounded-xl py-3.5"
         onPress={() =>
           Linking.openURL(
-            'https://wa.me/5493435043696?text=Hola, quiero renovar mi suscripción a EPDE',
+            `https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=Hola, quiero renovar mi suscripción a EPDE`,
           )
         }
       >
