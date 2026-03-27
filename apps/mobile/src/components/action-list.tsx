@@ -162,19 +162,9 @@ const NextInspectionCard = memo(function NextInspectionCard({ task }: { task: Up
           {task.nextDueDate && ` · ${formatDueLabel(task.nextDueDate)}`}
         </Text>
       </View>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Registrar inspección"
-        onPress={() => {
-          haptics.medium();
-          router.push(`/task/${task.maintenancePlanId}/${task.id}` as never);
-        }}
-        className="border-border rounded-lg border px-3 py-2"
-      >
-        <Text style={TYPE.labelSm} className="text-foreground">
-          Registrar
-        </Text>
-      </Pressable>
+      <Text className="text-muted-foreground" style={TYPE.titleSm}>
+        &gt;
+      </Text>
     </Pressable>
   );
 });

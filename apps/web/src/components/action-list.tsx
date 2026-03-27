@@ -95,34 +95,26 @@ function TaskItem({ task, showRegister }: { task: UpcomingTask; showRegister?: b
 /** Highlighted card for the next upcoming inspection — shown above ActionList sections. */
 function NextInspectionCard({ task }: { task: UpcomingTask }) {
   return (
-    <Card className="border-status-upcoming/20 bg-status-upcoming/5 mb-4">
-      <CardContent className="p-4">
-        <div className="flex items-center gap-3">
-          <div className="bg-status-upcoming/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
-            <Calendar className="text-status-upcoming h-5 w-5" />
+    <Link href={`/tasks?taskId=${task.id}`} className="block">
+      <Card className="border-status-upcoming/20 bg-status-upcoming/5 hover:bg-status-upcoming/10 mb-4 transition-colors">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-status-upcoming/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
+              <Calendar className="text-status-upcoming h-5 w-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="type-body-sm text-muted-foreground">Próxima inspección</p>
+              <p className="type-title-sm text-foreground">{task.name}</p>
+              <p className="type-body-sm text-muted-foreground mt-0.5">
+                {task.propertyAddress}
+                {task.nextDueDate && ` · ${formatRelativeDate(new Date(task.nextDueDate))}`}
+              </p>
+            </div>
+            <ChevronRight className="text-muted-foreground h-4 w-4 shrink-0" />
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="type-body-sm text-muted-foreground">Próxima inspección</p>
-            <Link
-              href={`/tasks?taskId=${task.id}`}
-              className="type-title-sm text-foreground hover:underline"
-            >
-              {task.name}
-            </Link>
-            <p className="type-body-sm text-muted-foreground mt-0.5">
-              {task.propertyAddress}
-              {task.nextDueDate && ` · ${formatRelativeDate(new Date(task.nextDueDate))}`}
-            </p>
-          </div>
-          <Link href={`/tasks?taskId=${task.id}&action=complete`}>
-            <Button size="sm" variant="outline" className="shrink-0 gap-1.5">
-              <ClipboardCheck className="h-3.5 w-3.5" />
-              Registrar
-            </Button>
-          </Link>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
 
