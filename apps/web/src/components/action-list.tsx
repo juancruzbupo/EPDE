@@ -163,10 +163,7 @@ export function ActionList({ tasks, nextUpcoming }: ActionListProps) {
 
   return (
     <div className="space-y-4">
-      {/* Next upcoming inspection — prominent card */}
-      {nextUpcoming && <NextInspectionCard task={nextUpcoming} />}
-
-      {/* Overdue section */}
+      {/* Overdue section — most urgent, action required */}
       {overdueTasks.length > 0 && (
         <Card className="border-destructive/20 bg-destructive/5">
           <CardHeader className="pb-2">
@@ -197,6 +194,9 @@ export function ActionList({ tasks, nextUpcoming }: ActionListProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Next upcoming inspection — what to prepare for */}
+      {nextUpcoming && <NextInspectionCard task={nextUpcoming} />}
 
       {/* This week section */}
       {upcomingTasks.length > 0 && (

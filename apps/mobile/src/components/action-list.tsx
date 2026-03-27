@@ -226,8 +226,6 @@ export const ActionList = memo(function ActionList({ tasks, nextUpcoming }: Mobi
 
   return (
     <View className="mb-4">
-      {nextUpcoming && <NextInspectionCard task={nextUpcoming} />}
-
       {overdue.length > 0 && (
         <>
           <Text style={TYPE.titleMd} className="text-destructive mb-2">
@@ -254,6 +252,8 @@ export const ActionList = memo(function ActionList({ tasks, nextUpcoming }: Mobi
           )}
         </>
       )}
+
+      {nextUpcoming && <NextInspectionCard task={nextUpcoming} />}
 
       {upcoming.length > 0 && (
         <>
