@@ -1,9 +1,10 @@
-import { changePasswordSchema } from '@epde/shared';
+import { changePasswordSchema, WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
 import Constants from 'expo-constants';
 import { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Linking,
   Pressable,
   ScrollView,
   Text,
@@ -235,6 +236,11 @@ export default function ProfileScreen() {
         </View>
       </View>
 
+      {/* Subscription info — clients only */}
+      {user?.role === 'CLIENT' && user.subscriptionExpiresAt && (
+        <MobileSubscriptionInfo expiresAt={user.subscriptionExpiresAt} />
+      )}
+
       {/* Change password card */}
       <View className="border-border bg-card mb-4 rounded-xl border p-4">
         <Text style={TYPE.titleSm} className="text-foreground mb-3">
@@ -374,5 +380,65 @@ export default function ProfileScreen() {
         </Text>
       </Pressable>
     </ScrollView>
+  );
+}
+
+function MobileSubscriptionInfo({ expiresAt }: { expiresAt: string }) {
+  const exp = new Date(expiresAt);
+  const daysLeft = Math.ceil((exp.getTime() - Date.now()) / (24 * 60 * 60_000));
+  const isExpired = daysLeft < 0;
+  const isNearExpiry = !isExpired && daysLeft <= 7;
+
+  const badgeColor = isExpired ? 'bg-destructive' : isNearExpiry ? 'bg-warning' : 'bg-success';
+  const badgeTextColor = isExpired || isNearExpiry ? 'text-white' : 'text-success-foreground';
+  const label = isExpired ? 'Expirada' : `${daysLeft} día${daysLeft === 1 ? '' : 's'} restantes`;
+
+  return (
+    <View className="border-border bg-card mb-4 rounded-xl border p-4">
+      <View className="mb-3 flex-row items-center justify-between">
+        <Text style={TYPE.titleSm} className="text-foreground">
+          Tu suscripción
+        </Text>
+        <View className={`${badgeColor} rounded-full px-2.5 py-0.5`}>
+          <Text style={TYPE.labelSm} className={badgeTextColor}>
+            {label}
+          </Text>
+        </View>
+      </View>
+      <View className="flex-row gap-6">
+        <View>
+          <Text style={TYPE.bodySm} className="text-muted-foreground">
+            Vencimiento
+          </Text>
+          <Text style={TYPE.bodyMd} className="text-foreground">
+            {exp.toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' })}
+          </Text>
+        </View>
+        <View>
+          <Text style={TYPE.bodySm} className="text-muted-foreground">
+            Estado
+          </Text>
+          <Text style={TYPE.bodyMd} className="text-foreground">
+            {isExpired ? 'Sin acceso' : 'Acceso completo'}
+          </Text>
+        </View>
+      </View>
+      {(isExpired || isNearExpiry) && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Contactar para renovar suscripción"
+          className="mt-3"
+          onPress={() =>
+            Linking.openURL(
+              `https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=Hola, quiero renovar mi suscripción a EPDE`,
+            )
+          }
+        >
+          <Text style={TYPE.labelMd} className="text-primary">
+            Contactar para renovar →
+          </Text>
+        </Pressable>
+      )}
+    </View>
   );
 }

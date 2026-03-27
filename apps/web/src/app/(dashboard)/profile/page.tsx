@@ -1,14 +1,21 @@
 'use client';
 
-import { changePasswordSchema, getErrorMessage, updateProfileSchema, UserRole } from '@epde/shared';
+import {
+  changePasswordSchema,
+  getErrorMessage,
+  updateProfileSchema,
+  UserRole,
+  WHATSAPP_CONTACT_NUMBER,
+} from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Clock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { PageHeader } from '@/components/page-header';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -93,6 +100,11 @@ export default function ProfilePage() {
           </dl>
         </CardContent>
       </Card>
+
+      {/* Subscription card — clients only */}
+      {user.role === UserRole.CLIENT && user.subscriptionExpiresAt && (
+        <SubscriptionInfo expiresAt={user.subscriptionExpiresAt} />
+      )}
 
       {/* Edit profile */}
       <ProfileForm user={user} onSuccess={checkAuth} />
@@ -329,6 +341,63 @@ function ChangePasswordForm() {
             Cambiar contraseña
           </Button>
         </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Subscription Info (Client only) ──────────────────────
+
+function SubscriptionInfo({ expiresAt }: { expiresAt: string }) {
+  const exp = new Date(expiresAt);
+  const daysLeft = Math.ceil((exp.getTime() - Date.now()) / (24 * 60 * 60_000));
+  const isExpired = daysLeft < 0;
+  const isNearExpiry = !isExpired && daysLeft <= 7;
+
+  const variant = isExpired
+    ? ('destructive' as const)
+    : isNearExpiry
+      ? ('warning' as const)
+      : ('success' as const);
+
+  const label = isExpired ? 'Expirada' : `${daysLeft} día${daysLeft === 1 ? '' : 's'} restantes`;
+
+  return (
+    <Card className="mb-6">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-4 w-4" aria-hidden="true" />
+            Tu suscripción
+          </CardTitle>
+          <Badge variant={variant}>{label}</Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <dl className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <dt className="text-muted-foreground text-sm">Vencimiento</dt>
+            <dd className="text-sm font-medium">
+              {exp.toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground text-sm">Estado</dt>
+            <dd className="text-sm font-medium">{isExpired ? 'Sin acceso' : 'Acceso completo'}</dd>
+          </div>
+        </dl>
+        {(isExpired || isNearExpiry) && (
+          <div className="mt-4">
+            <a
+              href={`https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=Hola, quiero renovar mi suscripción a EPDE`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:text-primary/80 text-sm font-medium"
+            >
+              Contactar para renovar →
+            </a>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

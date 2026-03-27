@@ -1,7 +1,8 @@
 'use client';
 
-import { QUERY_KEYS } from '@epde/shared';
+import { QUERY_KEYS, WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
 import { useQuery } from '@tanstack/react-query';
+import { AlertTriangle } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useMemo, useRef, useState } from 'react';
 
@@ -21,6 +22,36 @@ import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { WelcomeCard } from '@/components/welcome-card';
 import { useClientDashboardStats, useClientUpcomingTasks } from '@/hooks/use-dashboard';
 import { getClientAnalytics } from '@/lib/api/dashboard';
+import { useAuthStore } from '@/stores/auth-store';
+
+function SubscriptionWarningBanner() {
+  const user = useAuthStore((s) => s.user);
+  if (!user?.subscriptionExpiresAt) return null;
+  const daysLeft = Math.ceil(
+    (new Date(user.subscriptionExpiresAt).getTime() - Date.now()) / (24 * 60 * 60_000),
+  );
+  if (daysLeft > 7) return null;
+
+  return (
+    <div className="border-warning/30 bg-warning/5 mb-4 flex items-center gap-3 rounded-lg border p-3">
+      <AlertTriangle className="text-warning h-5 w-5 shrink-0" aria-hidden="true" />
+      <div className="flex-1">
+        <p className="type-body-sm text-foreground font-medium">
+          Tu suscripción vence{' '}
+          {daysLeft <= 0 ? 'hoy' : daysLeft === 1 ? 'mañana' : `en ${daysLeft} días`}
+        </p>
+        <a
+          href={`https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=Hola, quiero renovar mi suscripción a EPDE`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary hover:text-primary/80 type-body-sm font-medium"
+        >
+          Contactar para renovar →
+        </a>
+      </div>
+    </div>
+  );
+}
 
 export function ClientDashboard({ userName }: { userName: string }) {
   const {
@@ -73,6 +104,8 @@ export function ClientDashboard({ userName }: { userName: string }) {
         title={`Bienvenido, ${userName}`}
         description="Resumen de tus propiedades y tareas"
       />
+
+      <SubscriptionWarningBanner />
 
       {/* Welcome Card — shown until client has first activity */}
       {showWelcome && (

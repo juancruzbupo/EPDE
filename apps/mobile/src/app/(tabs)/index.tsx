@@ -1,4 +1,4 @@
-import { UserRole } from '@epde/shared';
+import { UserRole, WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { Linking, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
@@ -54,7 +54,8 @@ export default function DashboardScreen() {
 
 function ClientDashboard() {
   const router = useRouter();
-  const userName = useAuthStore((s) => s.user?.name ?? '');
+  const user = useAuthStore((s) => s.user);
+  const userName = user?.name ?? '';
   const [chartMonths, setChartMonths] = useState<number | undefined>(undefined);
 
   const {
@@ -124,6 +125,38 @@ function ClientDashboard() {
       <Text style={TYPE.bodySm} className="text-muted-foreground mb-4">
         Resumen de tus propiedades y tareas
       </Text>
+
+      {/* Subscription warning */}
+      {user?.subscriptionExpiresAt &&
+        (() => {
+          const daysLeft = Math.ceil(
+            (new Date(user.subscriptionExpiresAt!).getTime() - Date.now()) / (24 * 60 * 60_000),
+          );
+          if (daysLeft > 7) return null;
+          return (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Tu suscripción está por vencer. Toca para renovar."
+              className="border-warning/30 bg-warning/5 mb-4 flex-row items-center gap-3 rounded-xl border p-3"
+              onPress={() =>
+                Linking.openURL(
+                  `https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=Hola, quiero renovar mi suscripción a EPDE`,
+                )
+              }
+            >
+              <Text style={{ fontSize: 20 }}>⚠️</Text>
+              <View className="flex-1">
+                <Text style={TYPE.bodySm} className="text-foreground font-medium">
+                  Tu suscripción vence{' '}
+                  {daysLeft <= 0 ? 'hoy' : daysLeft === 1 ? 'mañana' : `en ${daysLeft} días`}
+                </Text>
+                <Text style={TYPE.bodySm} className="text-primary">
+                  Contactar para renovar →
+                </Text>
+              </View>
+            </Pressable>
+          );
+        })()}
 
       {/* Welcome Card — shown until client has tasks */}
       {showWelcome && (

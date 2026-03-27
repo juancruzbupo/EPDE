@@ -455,6 +455,20 @@ function SubscriptionCard({ client, clientId }: { client: ClientPublic; clientId
     );
   };
 
+  const handleRemove = () => {
+    setExtending(true);
+    updateClient.mutate(
+      { id: clientId, subscriptionExpiresAt: null },
+      {
+        onSuccess: () => {
+          toast.success('Suscripción removida');
+          setExtending(false);
+        },
+        onError: () => setExtending(false),
+      },
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -498,6 +512,17 @@ function SubscriptionCard({ client, clientId }: { client: ClientPublic; clientId
           >
             +1 año
           </Button>
+          {expiresAt && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-destructive hover:text-destructive/80"
+              onClick={handleRemove}
+              disabled={extending}
+            >
+              Quitar
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
