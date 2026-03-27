@@ -79,7 +79,7 @@ function TaskItem({ task, showRegister }: { task: UpcomingTask; showRegister?: b
         </Link>
         {showRegister ? (
           <Link href={`/tasks?taskId=${task.id}&action=complete`}>
-            <Button size="sm" variant="outline" className="shrink-0 gap-1.5">
+            <Button size="sm" variant="destructive" className="shrink-0 gap-1.5">
               <ClipboardCheck className="h-3.5 w-3.5" />
               Registrar
             </Button>
@@ -115,7 +115,7 @@ function NextInspectionCard({ task }: { task: UpcomingTask }) {
             </p>
           </div>
           <Link href={`/tasks?taskId=${task.id}&action=complete`}>
-            <Button size="sm" className="shrink-0 gap-1.5">
+            <Button size="sm" variant="outline" className="shrink-0 gap-1.5">
               <ClipboardCheck className="h-3.5 w-3.5" />
               Registrar
             </Button>

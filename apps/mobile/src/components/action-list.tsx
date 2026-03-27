@@ -120,9 +120,9 @@ const ActionTaskCard = memo(function ActionTaskCard({
               accessibilityRole="button"
               accessibilityLabel={`Registrar inspección de ${task.name}`}
               onPress={handleRegister}
-              className="bg-primary/10 rounded-lg px-3 py-1.5"
+              className="bg-destructive rounded-lg px-3 py-1.5"
             >
-              <Text style={TYPE.labelSm} className="text-primary">
+              <Text style={TYPE.labelSm} className="text-destructive-foreground">
                 Registrar
               </Text>
             </Pressable>
@@ -169,9 +169,9 @@ const NextInspectionCard = memo(function NextInspectionCard({ task }: { task: Up
           haptics.medium();
           router.push(`/task/${task.maintenancePlanId}/${task.id}` as never);
         }}
-        className="bg-status-upcoming rounded-lg px-3 py-2"
+        className="border-border rounded-lg border px-3 py-2"
       >
-        <Text style={TYPE.labelSm} className="text-primary-foreground">
+        <Text style={TYPE.labelSm} className="text-foreground">
           Registrar
         </Text>
       </Pressable>
