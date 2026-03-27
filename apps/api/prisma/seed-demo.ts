@@ -1139,6 +1139,8 @@ export async function seedDemo(prisma: PrismaClient) {
       status: 'ACTIVE',
       createdAt: monthsAgo(18),
       lastLoginAt: daysAgo(2),
+      activatedAt: monthsAgo(18),
+      subscriptionExpiresAt: daysAgo(-90),
     },
   });
 
@@ -2148,6 +2150,8 @@ export async function seedDemo(prisma: PrismaClient) {
       status: 'ACTIVE',
       createdAt: monthsAgo(6),
       lastLoginAt: daysAgo(8),
+      activatedAt: monthsAgo(6),
+      subscriptionExpiresAt: daysAgo(-90),
     },
   });
 
@@ -2502,6 +2506,8 @@ export async function seedDemo(prisma: PrismaClient) {
       status: 'ACTIVE',
       createdAt: monthsAgo(1),
       lastLoginAt: daysAgo(1),
+      activatedAt: monthsAgo(1),
+      subscriptionExpiresAt: daysAgo(-150),
     },
   });
 
