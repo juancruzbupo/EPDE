@@ -63,6 +63,27 @@ export function clientColumns({
       ),
     },
     {
+      id: 'subscription',
+      header: 'Suscripción',
+      cell: ({ row }) => {
+        const expiresAt = row.original.subscriptionExpiresAt;
+        if (!expiresAt) return <span className="text-muted-foreground text-xs">—</span>;
+        const daysLeft = Math.ceil(
+          (new Date(expiresAt).getTime() - Date.now()) / (24 * 60 * 60_000),
+        );
+        if (daysLeft < 0) {
+          return <Badge variant="destructive">Expirada</Badge>;
+        }
+        if (daysLeft <= 7) {
+          return <Badge variant="warning">{daysLeft}d restantes</Badge>;
+        }
+        if (daysLeft <= 30) {
+          return <Badge variant="caution">{daysLeft}d restantes</Badge>;
+        }
+        return <span className="text-success text-xs">{daysLeft}d restantes</span>;
+      },
+    },
+    {
       id: 'lastLogin',
       header: 'Último acceso',
       cell: ({ row }) => {
