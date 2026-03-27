@@ -62,6 +62,15 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="tasks"
+          options={{
+            title: 'Tareas',
+            tabBarIcon: ({ color, focused }) => (
+              <AnimatedTabIcon emoji="✅" color={color} focused={focused} />
+            ),
+          }}
+        />
+        <Tabs.Screen
           name="properties"
           options={{
             title: 'Propiedades',
@@ -72,15 +81,6 @@ export default function TabLayout() {
         />
         <Tabs.Screen name="service-requests" options={{ href: null }} />
         <Tabs.Screen name="maintenance-plans" options={{ href: null }} />
-        <Tabs.Screen
-          name="tasks"
-          options={{
-            title: 'Tareas',
-            tabBarIcon: ({ color, focused }) => (
-              <AnimatedTabIcon emoji="✅" color={color} focused={focused} />
-            ),
-          }}
-        />
         <Tabs.Screen name="budgets" options={{ href: null }} />
         <Tabs.Screen
           name="notifications"

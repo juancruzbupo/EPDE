@@ -21,16 +21,26 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 
-const navItems = [
+const adminNavItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Clientes', href: '/clients', icon: Users, adminOnly: true },
+  { label: 'Clientes', href: '/clients', icon: Users },
   { label: 'Propiedades', href: '/properties', icon: Home },
   { label: 'Tareas', href: '/tasks', icon: CheckSquare },
   { label: 'Presupuestos', href: '/budgets', icon: FileText },
   { label: 'Servicios', href: '/service-requests', icon: Wrench },
   { label: 'Notificaciones', href: '/notifications', icon: Bell },
-  { label: 'Categorías', href: '/categories', icon: Tags, adminOnly: true },
-  { label: 'Plantillas', href: '/templates', icon: LayoutTemplate, adminOnly: true },
+  { label: 'Categorías', href: '/categories', icon: Tags },
+  { label: 'Plantillas', href: '/templates', icon: LayoutTemplate },
+];
+
+/** Client order: Tareas promoted to #2 (most used action) */
+const clientNavItems = [
+  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Tareas', href: '/tasks', icon: CheckSquare },
+  { label: 'Propiedades', href: '/properties', icon: Home },
+  { label: 'Presupuestos', href: '/budgets', icon: FileText },
+  { label: 'Servicios', href: '/service-requests', icon: Wrench },
+  { label: 'Notificaciones', href: '/notifications', icon: Bell },
 ];
 
 export function Sidebar({ className }: { className?: string }) {
@@ -45,11 +55,8 @@ export function Sidebar({ className }: { className?: string }) {
     localStorage.setItem('sidebar-collapsed', String(collapsed));
   }, [collapsed]);
 
-  const filteredItems = navItems.filter((item) => {
-    if ('adminOnly' in item && item.adminOnly && user?.role !== UserRole.ADMIN) return false;
-    if ('clientOnly' in item && item.clientOnly && user?.role !== UserRole.CLIENT) return false;
-    return true;
-  });
+  const isAdmin = user?.role === UserRole.ADMIN;
+  const filteredItems = isAdmin ? adminNavItems : clientNavItems;
 
   return (
     <aside
