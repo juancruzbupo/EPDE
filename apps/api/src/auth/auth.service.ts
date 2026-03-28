@@ -1,12 +1,5 @@
-import { BCRYPT_SALT_ROUNDS, SUBSCRIPTION_INITIAL_DAYS, UserRole, UserStatus } from '@epde/shared';
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-  Logger,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BCRYPT_SALT_ROUNDS, SUBSCRIPTION_INITIAL_DAYS, UserStatus } from '@epde/shared';
+import { BadRequestException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
@@ -44,20 +37,6 @@ export class AuthService {
     }
     if (user.status !== UserStatus.ACTIVE) {
       return null;
-    }
-    // Block login if CLIENT subscription expired (admins bypass)
-    if (
-      user.role === UserRole.CLIENT &&
-      user.subscriptionExpiresAt &&
-      new Date(user.subscriptionExpiresAt) < new Date()
-    ) {
-      throw new HttpException(
-        {
-          statusCode: 402,
-          message: 'Tu suscripción ha expirado. Contactá al administrador para renovarla.',
-        },
-        HttpStatus.PAYMENT_REQUIRED,
-      );
     }
     return user;
   }

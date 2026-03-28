@@ -25,6 +25,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  HttpException,
   HttpStatus,
   Patch,
   Post,
@@ -99,7 +100,25 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const user = req.user as CurrentUserPayload;
+    // req.user is the full Prisma User from LocalStrategy.validate() → validateUser()
+    const user = req.user as CurrentUserPayload & { subscriptionExpiresAt?: Date | string | null };
+
+    // Block login if CLIENT subscription expired (checked here, not in validateUser,
+    // because Passport swallows non-401 exceptions from strategy.validate())
+    if (
+      user.role === UserRole.CLIENT &&
+      user.subscriptionExpiresAt &&
+      new Date(user.subscriptionExpiresAt) < new Date()
+    ) {
+      throw new HttpException(
+        {
+          statusCode: 402,
+          message: 'Tu suscripción ha expirado. Contactá al administrador para renovarla.',
+        },
+        HttpStatus.PAYMENT_REQUIRED,
+      );
+    }
+
     const isMobile = req.headers[CLIENT_TYPE_HEADER] === CLIENT_TYPES.MOBILE;
     const result = await this.authService.login(user, {
       clientType: isMobile ? 'mobile' : 'web',
