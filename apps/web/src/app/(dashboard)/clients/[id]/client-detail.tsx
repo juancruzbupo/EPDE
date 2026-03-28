@@ -455,13 +455,27 @@ function SubscriptionCard({ client, clientId }: { client: ClientPublic; clientId
     );
   };
 
-  const handleRemove = () => {
+  const handleSuspend = () => {
+    setExtending(true);
+    updateClient.mutate(
+      { id: clientId, subscriptionExpiresAt: new Date() },
+      {
+        onSuccess: () => {
+          toast.success('Suscripción suspendida — el cliente ya no tiene acceso');
+          setExtending(false);
+        },
+        onError: () => setExtending(false),
+      },
+    );
+  };
+
+  const handleRemoveLimit = () => {
     setExtending(true);
     updateClient.mutate(
       { id: clientId, subscriptionExpiresAt: null },
       {
         onSuccess: () => {
-          toast.success('Suscripción removida');
+          toast.success('Límite de suscripción removido — acceso ilimitado');
           setExtending(false);
         },
         onError: () => setExtending(false),
@@ -512,17 +526,18 @@ function SubscriptionCard({ client, clientId }: { client: ClientPublic; clientId
           >
             +1 año
           </Button>
-          {expiresAt && (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-destructive hover:text-destructive/80"
-              onClick={handleRemove}
-              disabled={extending}
-            >
-              Quitar
-            </Button>
-          )}
+          <Button size="sm" variant="destructive" onClick={handleSuspend} disabled={extending}>
+            Suspender
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-muted-foreground hover:text-foreground"
+            onClick={handleRemoveLimit}
+            disabled={extending}
+          >
+            Quitar límite
+          </Button>
         </div>
       </CardContent>
     </Card>
