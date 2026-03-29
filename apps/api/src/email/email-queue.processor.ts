@@ -36,7 +36,7 @@ export type EmailJobData =
       budgetId: string;
     };
 
-@Processor(EMAIL_QUEUE, { concurrency: 3 })
+@Processor(EMAIL_QUEUE, { concurrency: 15 })
 export class EmailQueueProcessor extends WorkerHost {
   private readonly logger = new Logger(EmailQueueProcessor.name);
 

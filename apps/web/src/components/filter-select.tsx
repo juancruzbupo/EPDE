@@ -18,7 +18,10 @@ interface FilterSelectProps {
 export function FilterSelect({ value, onChange, options, placeholder }: FilterSelectProps) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-[200px]" aria-label={`Filtrar por ${placeholder.toLowerCase()}`}>
+      <SelectTrigger
+        className="w-full sm:w-[200px]"
+        aria-label={`Filtrar por ${placeholder.toLowerCase()}`}
+      >
         <SelectValue>
           {value === 'all' ? placeholder : (options.find((o) => o.value === value)?.label ?? value)}
         </SelectValue>

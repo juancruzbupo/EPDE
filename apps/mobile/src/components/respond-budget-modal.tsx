@@ -111,6 +111,7 @@ export function RespondBudgetModal({
       animationType="slide"
       presentationStyle="pageSheet"
       onRequestClose={onClose}
+      accessibilityViewIsModal={true}
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -220,7 +221,12 @@ export function RespondBudgetModal({
                     <Text style={TYPE.bodySm} className="text-muted-foreground mb-1">
                       Subtotal
                     </Text>
-                    <Text style={TYPE.labelLg} className="text-foreground py-1.5" numberOfLines={1}>
+                    <Text
+                      style={TYPE.labelLg}
+                      className="text-foreground py-1.5"
+                      ellipsizeMode="tail"
+                      numberOfLines={1}
+                    >
                       {formatARS(subtotal)}
                     </Text>
                   </View>

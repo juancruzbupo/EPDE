@@ -18,7 +18,7 @@ export function SearchInput({
   className,
 }: SearchInputProps) {
   return (
-    <div className={`relative min-w-[280px] ${className ?? ''}`}>
+    <div className={`relative w-full sm:min-w-[280px] ${className ?? ''}`}>
       <Search
         aria-hidden="true"
         className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"

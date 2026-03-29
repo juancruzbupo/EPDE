@@ -48,6 +48,12 @@ async function bootstrap() {
   );
   app.use(compression());
 
+  // Guard against oversized JSON payloads (DoS prevention)
+  app
+    .getHttpAdapter()
+    .getInstance()
+    .use((await import('express')).json({ limit: '1mb' }));
+
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
 

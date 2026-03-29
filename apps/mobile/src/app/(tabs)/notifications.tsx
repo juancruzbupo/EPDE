@@ -49,6 +49,7 @@ const NotificationCard = memo(function NotificationCard({
             <Text
               style={notification.read ? TYPE.labelLg : TYPE.titleSm}
               className="text-foreground flex-1"
+              ellipsizeMode="tail"
               numberOfLines={1}
             >
               {notification.title}
@@ -60,7 +61,12 @@ const NotificationCard = memo(function NotificationCard({
               />
             )}
           </View>
-          <Text style={TYPE.bodyMd} className="text-muted-foreground mb-1" numberOfLines={2}>
+          <Text
+            style={TYPE.bodyMd}
+            className="text-muted-foreground mb-1"
+            ellipsizeMode="tail"
+            numberOfLines={2}
+          >
             {notification.message}
           </Text>
           <View className="flex-row items-center gap-2">

@@ -18,6 +18,8 @@ interface ConfirmDialogProps {
   onConfirm: () => void;
   isLoading?: boolean;
   variant?: 'destructive' | 'default';
+  /** Custom label for the confirm button (defaults to "Confirmar"). */
+  confirmLabel?: string;
 }
 
 export function ConfirmDialog({
@@ -28,6 +30,7 @@ export function ConfirmDialog({
   onConfirm,
   isLoading = false,
   variant = 'destructive',
+  confirmLabel = 'Confirmar',
 }: ConfirmDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -41,7 +44,7 @@ export function ConfirmDialog({
             Cancelar
           </Button>
           <Button variant={variant} onClick={onConfirm} disabled={isLoading}>
-            {isLoading ? 'Procesando...' : 'Confirmar'}
+            {isLoading ? 'Procesando...' : confirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

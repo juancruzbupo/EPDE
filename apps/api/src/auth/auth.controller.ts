@@ -52,6 +52,7 @@ const REFRESH_COOKIE_NAME = 'refresh_token';
 
 @ApiTags('Autenticación')
 @ApiBearerAuth()
+@Throttle({ short: { limit: 5, ttl: 60_000 } })
 @Controller('auth')
 export class AuthController {
   constructor(

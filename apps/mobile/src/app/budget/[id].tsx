@@ -12,8 +12,6 @@ import {
   isBudgetTerminal,
   UserRole,
 } from '@epde/shared';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
@@ -47,6 +45,7 @@ import {
 import { useUploadFile } from '@/hooks/use-upload';
 import { useSlideIn } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
+import { formatDateES } from '@/lib/date-format';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { defaultScreenOptions } from '@/lib/screen-options';
@@ -58,7 +57,12 @@ function LineItem({ item }: { item: BudgetLineItemPublic }) {
   return (
     <View className="border-border border-b py-3">
       <View className="flex-row items-center justify-between">
-        <Text style={TYPE.labelLg} className="text-foreground flex-1" numberOfLines={2}>
+        <Text
+          style={TYPE.labelLg}
+          className="text-foreground flex-1"
+          ellipsizeMode="tail"
+          numberOfLines={2}
+        >
           {item.description}
         </Text>
         <Text style={TYPE.titleSm} className="text-foreground ml-2">
@@ -113,7 +117,7 @@ function AttachmentItem({ attachment }: { attachment: BudgetAttachmentPublic }) 
       onPress={() => Linking.openURL(attachment.url)}
       className="border-border border-b py-2"
     >
-      <Text style={TYPE.labelMd} className="text-primary" numberOfLines={1}>
+      <Text style={TYPE.labelMd} className="text-primary" ellipsizeMode="tail" numberOfLines={1}>
         {attachment.fileName}
       </Text>
       <Text style={TYPE.bodySm} className="text-muted-foreground">
@@ -311,6 +315,7 @@ export default function BudgetDetailScreen() {
             <Text
               style={TYPE.titleLg}
               className="text-foreground flex-1 flex-shrink"
+              ellipsizeMode="tail"
               numberOfLines={2}
             >
               {budget.title}
@@ -332,6 +337,7 @@ export default function BudgetDetailScreen() {
               <Text
                 style={TYPE.labelLg}
                 className="text-foreground flex-1 flex-shrink text-right"
+                ellipsizeMode="tail"
                 numberOfLines={1}
               >
                 {budget.property.address}
@@ -342,7 +348,7 @@ export default function BudgetDetailScreen() {
                 Fecha
               </Text>
               <Text style={TYPE.labelLg} className="text-foreground">
-                {format(new Date(budget.createdAt), 'd MMM yyyy', { locale: es })}
+                {formatDateES(new Date(budget.createdAt))}
               </Text>
             </View>
           </View>
@@ -414,7 +420,7 @@ export default function BudgetDetailScreen() {
                       Válido hasta
                     </Text>
                     <Text style={TYPE.labelLg} className="text-foreground">
-                      {format(new Date(budget.response.validUntil), 'd MMM yyyy', { locale: es })}
+                      {formatDateES(new Date(budget.response.validUntil))}
                     </Text>
                   </View>
                 )}

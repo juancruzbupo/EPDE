@@ -80,7 +80,12 @@ const ActionTaskCard = memo(function ActionTaskCard({
         onPress={handlePress}
       >
         <View className="mb-1 flex-row items-center justify-between">
-          <Text style={TYPE.titleSm} className="text-foreground flex-1" numberOfLines={1}>
+          <Text
+            style={TYPE.titleSm}
+            className="text-foreground flex-1"
+            ellipsizeMode="tail"
+            numberOfLines={1}
+          >
             {task.name}
           </Text>
           {needsProfessional && (
@@ -155,7 +160,12 @@ const NextInspectionCard = memo(function NextInspectionCard({ task }: { task: Up
         <Text style={TYPE.bodySm} className="text-muted-foreground">
           Próxima inspección
         </Text>
-        <Text style={TYPE.titleSm} className="text-foreground" numberOfLines={1}>
+        <Text
+          style={TYPE.titleSm}
+          className="text-foreground"
+          ellipsizeMode="tail"
+          numberOfLines={1}
+        >
           {task.name}
         </Text>
         <Text style={TYPE.bodySm} className="text-muted-foreground">

@@ -35,7 +35,12 @@ export function PropertyTaskCard({ task, planId }: PropertyTaskCardProps) {
     >
       <View className="mb-1 flex-row items-center gap-2">
         <View className={`h-2.5 w-2.5 rounded-full ${statusDotColor}`} />
-        <Text style={TYPE.titleSm} className="text-foreground flex-1 flex-shrink" numberOfLines={2}>
+        <Text
+          style={TYPE.titleSm}
+          className="text-foreground flex-1 flex-shrink"
+          ellipsizeMode="tail"
+          numberOfLines={2}
+        >
           {task.name}
         </Text>
         <PriorityBadge priority={task.priority} />
@@ -43,11 +48,21 @@ export function PropertyTaskCard({ task, planId }: PropertyTaskCardProps) {
       <View className="ml-4 flex-row flex-wrap items-center gap-x-2 gap-y-0.5">
         <TaskStatusBadge status={task.status} />
         {task.sector && (
-          <Text style={TYPE.labelMd} className="text-muted-foreground" numberOfLines={1}>
+          <Text
+            style={TYPE.labelMd}
+            className="text-muted-foreground"
+            ellipsizeMode="tail"
+            numberOfLines={1}
+          >
             {PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}
           </Text>
         )}
-        <Text style={TYPE.bodySm} className="text-muted-foreground ml-auto" numberOfLines={1}>
+        <Text
+          style={TYPE.bodySm}
+          className="text-muted-foreground ml-auto"
+          ellipsizeMode="tail"
+          numberOfLines={1}
+        >
           {task.nextDueDate
             ? formatRelativeDate(new Date(task.nextDueDate))
             : RECURRENCE_TYPE_LABELS.ON_DETECTION}

@@ -381,6 +381,7 @@ model BudgetRequest {
   @@index([requestedBy, status])
   @@index([status])
   @@index([status, createdAt])
+  @@index([status, deletedAt])
 }
 
 model BudgetLineItem {
@@ -483,6 +484,7 @@ model ServiceRequest {
   @@index([status])
   @@index([status, urgency])
   @@index([taskId])
+  @@index([status, deletedAt])
 }
 
 model ServiceRequestPhoto {
@@ -645,6 +647,7 @@ model PushToken {
   @@index([userId])
 }
 
+/** Monthly property health snapshots. Retention: 24 months per property (enforced by cleanup scheduler). */
 model ISVSnapshot {
   id           String   @id @default(uuid())
   propertyId   String

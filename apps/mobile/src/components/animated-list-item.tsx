@@ -11,7 +11,8 @@ interface AnimatedListItemProps {
 }
 
 export function AnimatedListItem({ index, children }: PropsWithChildren<AnimatedListItemProps>) {
-  const entryStyle = useAnimatedEntry(Math.min(index * 50, 300));
+  const skipEntry = index >= 30;
+  const entryStyle = useAnimatedEntry(skipEntry ? 0 : Math.min(index * 50, 300));
   const { animatedStyle: pressStyle, onPressIn, onPressOut } = usePressAnimation();
 
   const handlePressIn = () => {
@@ -21,7 +22,7 @@ export function AnimatedListItem({ index, children }: PropsWithChildren<Animated
 
   return (
     <Animated.View
-      style={[entryStyle, pressStyle]}
+      style={[skipEntry ? undefined : entryStyle, pressStyle]}
       onTouchStart={handlePressIn}
       onTouchEnd={onPressOut}
       onTouchCancel={onPressOut}

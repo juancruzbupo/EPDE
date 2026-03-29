@@ -12,6 +12,7 @@ import { ErrorState } from '@/components/error-state';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProperty, usePropertyProblems } from '@/hooks/use-properties';
 
@@ -46,12 +47,12 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
   if (isLoading && !property) {
     return (
       <div className="space-y-6">
-        <div className="bg-muted/40 h-10 w-64 animate-pulse rounded" />
+        <SkeletonShimmer className="h-10 w-64" />
         <Card>
           <CardContent className="p-6">
             <div className="space-y-3">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="bg-muted/40 h-6 animate-pulse rounded" />
+                <SkeletonShimmer key={i} className="h-6 w-full" />
               ))}
             </div>
           </CardContent>

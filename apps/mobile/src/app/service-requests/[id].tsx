@@ -13,8 +13,6 @@ import {
   ServiceUrgency,
   UserRole,
 } from '@epde/shared';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams } from 'expo-router';
@@ -53,6 +51,7 @@ import {
 import { useUploadFile } from '@/hooks/use-upload';
 import { useSlideIn } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
+import { formatDateES } from '@/lib/date-format';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { defaultScreenOptions } from '@/lib/screen-options';
@@ -124,7 +123,7 @@ function AttachmentItem({ attachment }: { attachment: ServiceRequestAttachmentPu
       onPress={() => Linking.openURL(attachment.url)}
       className="border-border border-b py-2"
     >
-      <Text style={TYPE.labelMd} className="text-primary" numberOfLines={1}>
+      <Text style={TYPE.labelMd} className="text-primary" ellipsizeMode="tail" numberOfLines={1}>
         {attachment.fileName}
       </Text>
       <Text style={TYPE.bodySm} className="text-muted-foreground">
@@ -191,7 +190,13 @@ function EditServiceRequestModal({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
+      accessibilityViewIsModal={true}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -438,7 +443,10 @@ export default function ServiceRequestDetailScreen() {
   }
 
   return (
-    <View className="bg-background flex-1">
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      className="bg-background flex-1"
+    >
       <Stack.Screen
         options={{
           headerShown: true,
@@ -449,6 +457,7 @@ export default function ServiceRequestDetailScreen() {
       />
 
       <Animated.ScrollView
+        keyboardShouldPersistTaps="handled"
         style={contentStyle}
         contentContainerStyle={{ padding: 16 }}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => refetch()} />}
@@ -456,7 +465,12 @@ export default function ServiceRequestDetailScreen() {
         {/* Request info card */}
         <View className="border-border bg-card mb-4 rounded-xl border p-4">
           <View className="mb-2 flex-row items-center justify-between">
-            <Text style={TYPE.titleLg} className="text-foreground flex-1" numberOfLines={2}>
+            <Text
+              style={TYPE.titleLg}
+              className="text-foreground flex-1"
+              ellipsizeMode="tail"
+              numberOfLines={2}
+            >
               {request.title}
             </Text>
           </View>
@@ -478,6 +492,7 @@ export default function ServiceRequestDetailScreen() {
               <Text
                 style={TYPE.labelLg}
                 className="text-foreground flex-1 flex-shrink text-right"
+                ellipsizeMode="tail"
                 numberOfLines={1}
               >
                 {request.property.address}
@@ -488,7 +503,7 @@ export default function ServiceRequestDetailScreen() {
                 Fecha
               </Text>
               <Text style={TYPE.labelLg} className="text-foreground">
-                {format(new Date(request.createdAt), 'd MMM yyyy', { locale: es })}
+                {formatDateES(new Date(request.createdAt))}
               </Text>
             </View>
             {request.task && (
@@ -499,6 +514,7 @@ export default function ServiceRequestDetailScreen() {
                 <Text
                   style={TYPE.labelLg}
                   className="text-foreground flex-1 flex-shrink text-right"
+                  ellipsizeMode="tail"
                   numberOfLines={1}
                 >
                   {request.task.category.name} — {request.task.name}
@@ -732,7 +748,12 @@ export default function ServiceRequestDetailScreen() {
       />
 
       {/* Full-screen photo preview */}
-      <Modal visible={!!previewPhoto} transparent animationType="fade">
+      <Modal
+        visible={!!previewPhoto}
+        transparent
+        animationType="fade"
+        accessibilityViewIsModal={true}
+      >
         <Pressable
           className="flex-1 items-center justify-center bg-black/90"
           onPress={() => setPreviewPhoto(null)}
@@ -750,6 +771,6 @@ export default function ServiceRequestDetailScreen() {
           </Text>
         </Pressable>
       </Modal>
-    </View>
+    </KeyboardAvoidingView>
   );
 }

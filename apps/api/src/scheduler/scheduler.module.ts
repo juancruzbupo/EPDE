@@ -9,6 +9,7 @@ import { PropertiesModule } from '../properties/properties.module';
 import { ServiceRequestsModule } from '../service-requests/service-requests.module';
 import { TasksModule } from '../tasks/tasks.module';
 import { BudgetExpirationService } from './budget-expiration.service';
+import { DataCleanupService } from './data-cleanup.service';
 import { ISVSnapshotService } from './isv-snapshot.service';
 import { NotificationCleanupService } from './notification-cleanup.service';
 import { ServiceRequestAutoCloseService } from './service-request-auto-close.service';
@@ -48,6 +49,7 @@ import { TaskStatusService } from './task-status.service';
     ISVSnapshotService,
     NotificationCleanupService,
     SubscriptionReminderService,
+    DataCleanupService,
   ],
 })
 export class SchedulerModule {}

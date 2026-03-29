@@ -247,6 +247,7 @@ export function CreateServiceRequestModal({
       animationType="slide"
       presentationStyle="pageSheet"
       onRequestClose={handleClose}
+      accessibilityViewIsModal={true}
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -313,6 +314,7 @@ export function CreateServiceRequestModal({
                       ? 'text-primary-foreground'
                       : 'text-foreground'
                   }
+                  ellipsizeMode="tail"
                   numberOfLines={1}
                 >
                   {property.address}
@@ -387,6 +389,7 @@ export function CreateServiceRequestModal({
                       className={
                         selectedTaskId === task.id ? 'text-primary-foreground' : 'text-foreground'
                       }
+                      ellipsizeMode="tail"
                       numberOfLines={1}
                     >
                       {task.name}

@@ -124,6 +124,7 @@ export function CreateBudgetModal({
       animationType="slide"
       presentationStyle="pageSheet"
       onRequestClose={handleClose}
+      accessibilityViewIsModal={true}
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -185,6 +186,7 @@ export function CreateBudgetModal({
                       ? 'text-primary-foreground'
                       : 'text-foreground'
                   }
+                  ellipsizeMode="tail"
                   numberOfLines={1}
                 >
                   {property.address}

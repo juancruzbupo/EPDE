@@ -1,6 +1,7 @@
 'use client';
 
 import { type BudgetPipeline, formatARSCompact } from '@epde/shared';
+import { memo } from 'react';
 import {
   Bar,
   BarChart,
@@ -46,7 +47,7 @@ function BudgetPipelineTooltip({
   );
 }
 
-export function BudgetPipelineChart({ data }: BudgetPipelineChartProps) {
+function BudgetPipelineChartInner({ data }: BudgetPipelineChartProps) {
   const colors = useChartColors();
   const { shouldAnimate } = useMotionPreference();
 
@@ -86,3 +87,5 @@ export function BudgetPipelineChart({ data }: BudgetPipelineChartProps) {
     </ResponsiveContainer>
   );
 }
+
+export const BudgetPipelineChart = memo(BudgetPipelineChartInner);

@@ -27,7 +27,7 @@ export function useUnreadCount() {
       const res = await getUnreadCount(signal);
       return res.data.count;
     },
-    refetchInterval: 30_000,
+    refetchInterval: 60_000,
   });
 }
 

@@ -99,7 +99,12 @@ const CategoryRow = memo(function CategoryRow({
     <AnimatedListItem index={index}>
       <View className="border-border bg-card mb-2 rounded-xl border p-3">
         <View className="mb-2 flex-row items-center justify-between">
-          <Text style={TYPE.titleSm} className="text-foreground flex-1" numberOfLines={1}>
+          <Text
+            style={TYPE.titleSm}
+            className="text-foreground flex-1"
+            ellipsizeMode="tail"
+            numberOfLines={1}
+          >
             {item.categoryName}
           </Text>
           <ConditionDots avgCondition={item.avgCondition} />

@@ -2,6 +2,9 @@ import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/commo
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 
+/** Key prefix to avoid collisions in shared Redis instances. */
+const KEY_PREFIX = 'epde:';
+
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
   private readonly client: Redis;
@@ -70,24 +73,28 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     await this.client.quit();
   }
 
+  private prefixed(key: string): string {
+    return key.startsWith(KEY_PREFIX) ? key : `${KEY_PREFIX}${key}`;
+  }
+
   async get(key: string): Promise<string | null> {
-    return this.client.get(key);
+    return this.client.get(this.prefixed(key));
   }
 
   async set(key: string, value: string): Promise<void> {
-    await this.client.set(key, value);
+    await this.client.set(this.prefixed(key), value);
   }
 
   async setex(key: string, seconds: number, value: string): Promise<void> {
-    await this.client.setex(key, seconds, value);
+    await this.client.setex(this.prefixed(key), seconds, value);
   }
 
   async del(key: string): Promise<void> {
-    await this.client.del(key);
+    await this.client.del(this.prefixed(key));
   }
 
   async exists(key: string): Promise<boolean> {
-    const result = await this.client.exists(key);
+    const result = await this.client.exists(this.prefixed(key));
     return result === 1;
   }
 
@@ -97,7 +104,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
    */
   async safeExists(key: string): Promise<boolean | null> {
     try {
-      const result = await this.client.exists(key);
+      const result = await this.client.exists(this.prefixed(key));
       return result === 1;
     } catch {
       return null;
@@ -109,7 +116,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
    * Returns true if the key was set (lock acquired), false otherwise.
    */
   async setnx(key: string, value: string, ttlSeconds: number): Promise<boolean> {
-    const result = await this.client.set(key, value, 'EX', ttlSeconds, 'NX');
+    const result = await this.client.set(this.prefixed(key), value, 'EX', ttlSeconds, 'NX');
     return result === 'OK';
   }
 
@@ -130,7 +137,8 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
    */
   async eval(script: string, keys: string[], args: (string | number)[]): Promise<unknown> {
     try {
-      return await this.client.eval(script, keys.length, ...keys, ...args);
+      const prefixedKeys = keys.map((k) => this.prefixed(k));
+      return await this.client.eval(script, prefixedKeys.length, ...prefixedKeys, ...args);
     } catch (error) {
       this.logger.error(`Redis EVAL failed: ${(error as Error).message}`, {
         scriptLength: script.length,

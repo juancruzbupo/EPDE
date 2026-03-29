@@ -92,6 +92,7 @@ export default function ProfileScreen() {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
+      haptics.success();
       Alert.alert('Listo', 'Contraseña actualizada');
     } catch {
       Alert.alert('Error', 'No se pudo cambiar la contraseña. Verificá tu contraseña actual.');

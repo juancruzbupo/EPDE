@@ -222,6 +222,10 @@ export default function PropertyDetailScreen() {
         sections={sections}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ padding: 16, flexGrow: 1 }}
+        maxToRenderPerBatch={10}
+        windowSize={7}
+        initialNumToRender={15}
+        removeClippedSubviews
         refreshControl={
           <RefreshControl refreshing={propertyLoading || planLoading} onRefresh={onRefresh} />
         }
@@ -484,6 +488,7 @@ export default function PropertyDetailScreen() {
                         <Text
                           style={TYPE.titleSm}
                           className="text-foreground flex-1 flex-shrink"
+                          ellipsizeMode="tail"
                           numberOfLines={2}
                         >
                           {problem.taskName}
@@ -502,7 +507,12 @@ export default function PropertyDetailScreen() {
                           </Text>
                         </View>
                       </View>
-                      <Text style={TYPE.bodySm} className="text-muted-foreground" numberOfLines={2}>
+                      <Text
+                        style={TYPE.bodySm}
+                        className="text-muted-foreground"
+                        ellipsizeMode="tail"
+                        numberOfLines={2}
+                      >
                         {getMobileImpactMessage(problem.sector, problem.severity)}
                       </Text>
                       {problem.severity === 'high' && (
@@ -663,6 +673,7 @@ export default function PropertyDetailScreen() {
                         <Text
                           style={TYPE.labelSm}
                           className="text-center text-white"
+                          ellipsizeMode="tail"
                           numberOfLines={1}
                         >
                           {photo.source === 'task' ? 'Tarea' : 'Solicitud'}
@@ -741,6 +752,7 @@ export default function PropertyDetailScreen() {
                       className={
                         categoryFilter === c.key ? 'text-primary-foreground' : 'text-foreground'
                       }
+                      ellipsizeMode="tail"
                       numberOfLines={1}
                     >
                       {c.label}

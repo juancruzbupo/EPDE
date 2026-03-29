@@ -103,6 +103,7 @@ export default function SetPasswordScreen() {
                   placeholder="••••••••"
                   placeholderTextColor={COLORS.mutedForeground}
                   secureTextEntry={!showPassword}
+                  autoComplete="new-password"
                   onBlur={onBlur}
                   onChangeText={onChange}
                   value={value}
@@ -153,6 +154,7 @@ export default function SetPasswordScreen() {
                   placeholder="••••••••"
                   placeholderTextColor={COLORS.mutedForeground}
                   secureTextEntry={!showConfirmPassword}
+                  autoComplete="new-password"
                   onBlur={onBlur}
                   onChangeText={onChange}
                   value={value}

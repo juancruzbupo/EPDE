@@ -32,7 +32,12 @@ const PlanCard = memo(function PlanCard({ plan }: { plan: PlanListItem }) {
       onPress={() => router.push(`/property/${plan.property.id}` as never)}
     >
       <View className="mb-1 flex-row items-center justify-between">
-        <Text style={TYPE.titleSm} className="text-foreground flex-1" numberOfLines={1}>
+        <Text
+          style={TYPE.titleSm}
+          className="text-foreground flex-1"
+          ellipsizeMode="tail"
+          numberOfLines={1}
+        >
           {plan.name}
         </Text>
         <PlanStatusBadge status={plan.status} />

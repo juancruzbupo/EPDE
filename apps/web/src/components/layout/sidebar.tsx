@@ -59,7 +59,7 @@ export function Sidebar({ className }: { className?: string }) {
   return (
     <aside
       className={cn(
-        'bg-sidebar flex flex-col border-r transition-all duration-200',
+        'bg-sidebar flex flex-col border-r transition-all duration-200 motion-reduce:transition-none',
         collapsed ? 'w-16' : 'w-64',
         className,
       )}
@@ -91,7 +91,7 @@ export function Sidebar({ className }: { className?: string }) {
               aria-label={item.label}
               title={collapsed ? item.label : undefined}
               className={cn(
-                'relative flex items-center rounded-md text-sm font-medium transition-all duration-200',
+                'relative flex items-center rounded-md text-sm font-medium transition-all duration-200 motion-reduce:transition-none',
                 collapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2',
                 isActive
                   ? 'bg-sidebar-accent text-sidebar-accent-foreground'
@@ -99,7 +99,7 @@ export function Sidebar({ className }: { className?: string }) {
               )}
             >
               {isActive && (
-                <span className="bg-sidebar-primary absolute top-1/2 left-0 h-5 w-[3px] -translate-y-1/2 rounded-r-full transition-all duration-200" />
+                <span className="bg-sidebar-primary absolute top-1/2 left-0 h-5 w-[3px] -translate-y-1/2 rounded-r-full transition-all duration-200 motion-reduce:transition-none" />
               )}
               <item.icon className="h-4 w-4 shrink-0" />
               {!collapsed && <span>{item.label}</span>}

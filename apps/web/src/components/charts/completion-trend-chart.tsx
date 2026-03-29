@@ -1,6 +1,7 @@
 'use client';
 
 import type { TimeSeriesPoint } from '@epde/shared';
+import { memo } from 'react';
 import {
   Area,
   AreaChart,
@@ -21,7 +22,7 @@ interface CompletionTrendChartProps {
   data: TimeSeriesPoint[];
 }
 
-export function CompletionTrendChart({ data }: CompletionTrendChartProps) {
+function CompletionTrendChartInner({ data }: CompletionTrendChartProps) {
   const colors = useChartColors();
   const { shouldAnimate } = useMotionPreference();
 
@@ -54,3 +55,5 @@ export function CompletionTrendChart({ data }: CompletionTrendChartProps) {
     </ResponsiveContainer>
   );
 }
+
+export const CompletionTrendChart = memo(CompletionTrendChartInner);

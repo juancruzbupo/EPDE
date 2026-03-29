@@ -112,7 +112,7 @@ export function clientColumns({
             <Button
               variant="ghost"
               size="sm"
-              aria-label="Más opciones"
+              aria-label={`Acciones para ${row.original.name}`}
               onClick={(e) => e.stopPropagation()}
             >
               <MoreHorizontal className="h-4 w-4" />

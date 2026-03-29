@@ -10,6 +10,9 @@ export class MetricsService implements OnModuleInit {
   private httpRequestDuration!: Histogram;
   private tokenRotationTotal!: Counter;
   private cronExecutionDuration!: Histogram;
+  private dbQueryDuration!: Histogram;
+  private queueDepth!: Histogram;
+  private errorTotal!: Counter;
 
   onModuleInit() {
     const exporter = new PrometheusExporter({ port: 9464 });
@@ -35,6 +38,18 @@ export class MetricsService implements OnModuleInit {
     this.cronExecutionDuration = meter.createHistogram('cron_execution_duration_seconds', {
       description: 'Cron job execution duration in seconds',
     });
+
+    this.dbQueryDuration = meter.createHistogram('db_query_duration_seconds', {
+      description: 'Database query duration in seconds',
+    });
+
+    this.queueDepth = meter.createHistogram('queue_depth', {
+      description: 'Number of jobs waiting in queue',
+    });
+
+    this.errorTotal = meter.createCounter('error_total', {
+      description: 'Total application errors by type',
+    });
   }
 
   recordHttpRequest(method: string, route: string, statusCode: number, durationMs: number) {
@@ -48,5 +63,17 @@ export class MetricsService implements OnModuleInit {
 
   recordCronExecution(jobName: string, durationMs: number) {
     this.cronExecutionDuration.record(durationMs / 1000, { job: jobName });
+  }
+
+  recordDbQuery(operation: string, model: string, durationMs: number) {
+    this.dbQueryDuration.record(durationMs / 1000, { operation, model });
+  }
+
+  recordQueueDepth(queue: string, depth: number) {
+    this.queueDepth.record(depth, { queue });
+  }
+
+  recordError(type: string, route?: string) {
+    this.errorTotal.add(1, { type, ...(route && { route }) });
   }
 }

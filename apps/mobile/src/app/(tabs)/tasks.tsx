@@ -66,7 +66,12 @@ const TaskCard = memo(function TaskCard({ task }: { task: TaskListItem }) {
       onPress={() => router.push(`/task/${task.maintenancePlan.id}/${task.id}` as never)}
     >
       <View className="mb-1 flex-row items-start justify-between gap-2">
-        <Text style={TYPE.titleSm} className="text-foreground flex-1 flex-shrink" numberOfLines={2}>
+        <Text
+          style={TYPE.titleSm}
+          className="text-foreground flex-1 flex-shrink"
+          ellipsizeMode="tail"
+          numberOfLines={2}
+        >
           {task.name}
         </Text>
         <View className="flex-row gap-1.5">
@@ -74,11 +79,21 @@ const TaskCard = memo(function TaskCard({ task }: { task: TaskListItem }) {
           <TaskStatusBadge status={task.status} />
         </View>
       </View>
-      <Text style={TYPE.bodySm} className="text-muted-foreground mb-1" numberOfLines={1}>
+      <Text
+        style={TYPE.bodySm}
+        className="text-muted-foreground mb-1"
+        ellipsizeMode="tail"
+        numberOfLines={1}
+      >
         {task.category.name}
         {task.sector && ` · ${PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}`}
       </Text>
-      <Text style={TYPE.bodySm} className="text-muted-foreground" numberOfLines={1}>
+      <Text
+        style={TYPE.bodySm}
+        className="text-muted-foreground"
+        ellipsizeMode="tail"
+        numberOfLines={1}
+      >
         {task.maintenancePlan.property.address}, {task.maintenancePlan.property.city}
         {task.nextDueDate && (
           <Text>
@@ -218,7 +233,12 @@ export default function TasksScreen() {
                     <Text style={TYPE.titleMd} className={STAT_COLORS[status]}>
                       {statusCounts[status]}
                     </Text>
-                    <Text style={TYPE.bodySm} className="text-muted-foreground" numberOfLines={1}>
+                    <Text
+                      style={TYPE.bodySm}
+                      className="text-muted-foreground"
+                      ellipsizeMode="tail"
+                      numberOfLines={1}
+                    >
                       {TASK_STATUS_LABELS[status]}
                     </Text>
                   </Pressable>
@@ -327,6 +347,7 @@ export default function TasksScreen() {
                       className={
                         propertyFilter === p.key ? 'text-primary-foreground' : 'text-foreground'
                       }
+                      ellipsizeMode="tail"
                       numberOfLines={1}
                     >
                       {p.label}

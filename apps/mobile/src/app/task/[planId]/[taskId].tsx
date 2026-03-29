@@ -11,13 +11,13 @@ import {
   TASK_TYPE_LABELS,
   TaskStatus,
 } from '@epde/shared';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   RefreshControl,
   Text,
@@ -41,6 +41,7 @@ import {
 } from '@/hooks/use-task-operations';
 import { useSlideIn } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
+import { formatDateES } from '@/lib/date-format';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { defaultScreenOptions } from '@/lib/screen-options';
@@ -53,7 +54,7 @@ function LogItem({ log }: { log: TaskLogPublic }) {
           {log.user.name}
         </Text>
         <Text style={TYPE.bodySm} className="text-muted-foreground">
-          {format(new Date(log.completedAt), 'd MMM yyyy', { locale: es })}
+          {formatDateES(new Date(log.completedAt))}
         </Text>
       </View>
       {log.notes && (
@@ -146,7 +147,10 @@ export default function TaskDetailScreen() {
   const isOverdue = task.nextDueDate ? new Date(task.nextDueDate) < new Date() : false;
 
   return (
-    <View className="bg-background flex-1">
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      className="bg-background flex-1"
+    >
       <Stack.Screen
         options={{
           headerShown: true,
@@ -157,6 +161,7 @@ export default function TaskDetailScreen() {
       />
 
       <Animated.ScrollView
+        keyboardShouldPersistTaps="handled"
         style={contentStyle}
         contentContainerStyle={{ padding: 16 }}
         refreshControl={<RefreshControl refreshing={taskLoading} onRefresh={onRefresh} />}
@@ -181,7 +186,7 @@ export default function TaskDetailScreen() {
                 className={isOverdue ? 'text-destructive' : 'text-foreground'}
               >
                 {task.nextDueDate
-                  ? format(new Date(task.nextDueDate), 'd MMM yyyy', { locale: es })
+                  ? formatDateES(new Date(task.nextDueDate))
                   : RECURRENCE_TYPE_LABELS.ON_DETECTION}
               </Text>
             </View>
@@ -216,7 +221,7 @@ export default function TaskDetailScreen() {
               Última completación
             </Text>
             <Text style={TYPE.bodyMd} className="text-foreground">
-              {format(new Date(logs[0].completedAt), 'd MMM yyyy', { locale: es })}
+              {formatDateES(new Date(logs[0].completedAt))}
               {' · '}
               {CONDITION_FOUND_LABELS[logs[0].conditionFound]}
             </Text>
@@ -407,6 +412,6 @@ export default function TaskDetailScreen() {
         defaultTitle={`Solicitud: ${task.name}`}
         defaultDescription={`Tarea: ${task.name} — ${task.category?.name ?? ''}`}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 }

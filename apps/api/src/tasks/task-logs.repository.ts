@@ -15,6 +15,7 @@ export class TaskLogsRepository extends BaseRepository<TaskLog, 'taskLog'> {
       where: { taskId },
       include: { user: { select: { id: true, name: true } } },
       orderBy: { completedAt: 'desc' },
+      take: 50,
     });
   }
 }

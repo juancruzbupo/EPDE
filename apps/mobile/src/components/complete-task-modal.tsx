@@ -282,6 +282,7 @@ export function CompleteTaskModal({
       animationType="slide"
       presentationStyle="pageSheet"
       onRequestClose={handleClose}
+      accessibilityViewIsModal={true}
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}

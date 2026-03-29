@@ -143,10 +143,21 @@ export function CreateServiceDialog({
     };
   }, []);
 
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     const remaining = 5 - photos.length;
-    const newFiles = files.slice(0, remaining).map((file) => ({
+
+    const oversized = files.filter((f) => f.size > MAX_FILE_SIZE);
+    if (oversized.length > 0) {
+      toast.error(
+        `${oversized.length === 1 ? 'El archivo supera' : `${oversized.length} archivos superan`} el límite de 10 MB`,
+      );
+    }
+
+    const valid = files.filter((f) => f.size <= MAX_FILE_SIZE);
+    const newFiles = valid.slice(0, remaining).map((file) => ({
       file,
       preview: URL.createObjectURL(file),
     }));
@@ -363,10 +374,10 @@ export function CreateServiceDialog({
                     <button
                       type="button"
                       onClick={() => removePhoto(index)}
-                      className="bg-destructive focus-visible:ring-ring/50 absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full text-white focus-visible:ring-[3px] focus-visible:outline-none"
+                      className="bg-destructive focus-visible:ring-ring/50 absolute -top-2 -right-2 flex h-7 w-7 items-center justify-center rounded-full text-white focus-visible:ring-[3px] focus-visible:outline-none"
                       aria-label={`Eliminar foto ${index + 1}`}
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 ))}

@@ -27,12 +27,19 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   isLoading?: boolean;
+  isLoadingMore?: boolean;
   hasMore?: boolean;
   onLoadMore?: () => void;
   total?: number;
   emptyMessage?: string;
+  /** Message shown when filters are active but no results match. */
+  emptyFilterMessage?: string;
+  /** Whether filters are currently active (controls which empty message is shown). */
+  hasActiveFilters?: boolean;
   onRowClick?: (row: TData) => void;
   onRowHover?: (row: TData) => void;
+  /** Callback to generate an aria-label for each clickable row. */
+  rowLabel?: (row: TData) => string;
   caption?: string;
 }
 
@@ -40,12 +47,16 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   isLoading = false,
+  isLoadingMore = false,
   hasMore = false,
   onLoadMore,
   total,
   emptyMessage = 'Sin resultados',
+  emptyFilterMessage = 'No se encontraron resultados con los filtros aplicados',
+  hasActiveFilters = false,
   onRowClick,
   onRowHover,
+  rowLabel,
   caption,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -123,6 +134,7 @@ export function DataTable<TData, TValue>({
                     ? {
                         tabIndex: 0,
                         role: 'button' as const,
+                        'aria-label': rowLabel?.(row.original),
                         onKeyDown: (e: React.KeyboardEvent) => {
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
@@ -131,10 +143,10 @@ export function DataTable<TData, TValue>({
                         },
                       }
                     : {})}
-                  initial={shouldAnimate ? { opacity: 0, y: 4 } : false}
-                  animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+                  initial={shouldAnimate && index < 20 ? { opacity: 0, y: 4 } : false}
+                  animate={shouldAnimate && index < 20 ? { opacity: 1, y: 0 } : undefined}
                   transition={
-                    shouldAnimate
+                    shouldAnimate && index < 20
                       ? { duration: MOTION_DURATION.normal, delay: index * 0.03 }
                       : undefined
                   }
@@ -155,7 +167,7 @@ export function DataTable<TData, TValue>({
                     initial={shouldAnimate ? 'hidden' : false}
                     animate={shouldAnimate ? 'visible' : undefined}
                   >
-                    {emptyMessage}
+                    {hasActiveFilters ? emptyFilterMessage : emptyMessage}
                   </motion.span>
                 </TableCell>
               </TableRow>
@@ -175,9 +187,10 @@ export function DataTable<TData, TValue>({
             variant="outline"
             size="sm"
             onClick={onLoadMore}
+            disabled={isLoadingMore}
             aria-label="Cargar más resultados"
           >
-            Cargar más
+            {isLoadingMore ? 'Cargando...' : 'Cargar más'}
           </Button>
         )}
       </div>

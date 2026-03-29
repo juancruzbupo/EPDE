@@ -50,7 +50,12 @@ const PropertyCard = memo(function PropertyCard({ property }: { property: Proper
       onPress={() => router.push(`/property/${property.id}` as never)}
     >
       <View className="mb-1 flex-row items-center justify-between gap-2">
-        <Text style={TYPE.titleMd} className="text-foreground flex-1 flex-shrink" numberOfLines={1}>
+        <Text
+          style={TYPE.titleMd}
+          className="text-foreground flex-1 flex-shrink"
+          ellipsizeMode="tail"
+          numberOfLines={1}
+        >
           {property.address}
         </Text>
         <PropertyTypeBadge type={property.type} />

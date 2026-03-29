@@ -92,15 +92,19 @@ export class DashboardRepository {
   async getClientPropertyAndPlanIds(
     userId: string,
   ): Promise<{ propertyIds: string[]; planIds: string[] }> {
-    const properties = await this.prisma.softDelete.property.findMany({
-      where: { userId },
-      select: { id: true, maintenancePlan: { select: { id: true } } },
-    });
+    const [properties, plans] = await Promise.all([
+      this.prisma.softDelete.property.findMany({
+        where: { userId },
+        select: { id: true },
+      }),
+      this.prisma.maintenancePlan.findMany({
+        where: { property: { userId, deletedAt: null } },
+        select: { id: true },
+      }),
+    ]);
     return {
-      propertyIds: properties.map((p: { id: string }) => p.id),
-      planIds: properties
-        .filter((p: { maintenancePlan: { id: string } | null }) => p.maintenancePlan)
-        .map((p: { maintenancePlan: { id: string } | null }) => p.maintenancePlan!.id),
+      propertyIds: properties.map((p) => p.id),
+      planIds: plans.map((p) => p.id),
     };
   }
 
