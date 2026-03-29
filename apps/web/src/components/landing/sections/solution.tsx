@@ -53,7 +53,8 @@ export function SolutionSection({ motionProps }: SectionProps) {
           className="mx-auto mt-10 flex max-w-md flex-col items-center gap-1 text-center"
         >
           <p className="type-body-md text-foreground font-medium">
-            Un solo diagnóstico te da visibilidad completa sobre tu vivienda.
+            Un solo diagnóstico te da visibilidad completa sobre tu vivienda. No necesitás entender
+            de construcción — nosotros te explicamos todo.
           </p>
           <p className="type-body-sm text-muted-foreground">
             No es una reparación. Es prevenir problemas antes de que aparezcan. Trabajamos

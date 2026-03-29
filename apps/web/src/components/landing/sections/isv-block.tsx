@@ -96,11 +96,11 @@ export function IsvBlockSection({ motionProps }: SectionProps) {
               className="border-warning/30 bg-warning/5 mt-5 rounded-lg border p-4"
             >
               <p className="type-body-md text-foreground font-medium">
-                Ejemplo: ISV 54 — Estado Regular
+                Ejemplo: ISV 54 — Tu casa necesita atención
               </p>
               <p className="type-body-sm text-muted-foreground mt-1">
-                Esto significa que hay problemas que pueden empeorar si no se corrigen a tiempo.
-                EPDE te dice exactamente cuáles son y qué hacer primero.
+                No es una emergencia, pero ignorarlo sí podría serlo. EPDE te dice exactamente qué
+                problemas tiene tu casa y qué hacer primero.
               </p>
               <p className="type-body-sm text-warning mt-2 font-medium">
                 Este nivel puede derivar en reparaciones costosas si no se actúa. La mayoría de las

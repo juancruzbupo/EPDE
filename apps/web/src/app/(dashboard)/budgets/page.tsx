@@ -125,7 +125,7 @@ function BudgetsPageContent() {
         hasMore={hasNextPage}
         onLoadMore={() => fetchNextPage()}
         total={total}
-        emptyMessage="No se encontraron presupuestos"
+        emptyMessage="Todavía no tenés presupuestos. Se generan cuando solicitás un servicio profesional."
         onRowClick={(row: BudgetRequestPublic) => router.push(`/budgets/${row.id}`)}
       />
 

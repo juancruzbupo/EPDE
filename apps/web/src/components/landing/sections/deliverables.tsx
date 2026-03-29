@@ -44,6 +44,15 @@ export function DeliverablesSection({ motionProps }: SectionProps) {
           </div>
         </motion.div>
 
+        {/* Main deliverables callout */}
+        <motion.p
+          variants={FADE_IN}
+          className="type-body-md text-primary mt-6 text-center font-medium"
+        >
+          Los dos pilares del diagnóstico: tu ISV (un número claro) + tu plan de mantenimiento (qué
+          hacer y cuándo).
+        </motion.p>
+
         <motion.div
           variants={FADE_IN}
           className="border-primary/20 bg-primary/[0.03] mt-6 rounded-xl border p-6 sm:p-8"

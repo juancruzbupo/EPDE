@@ -19,14 +19,15 @@ export function FinalCtaSection({ motionProps }: SectionProps) {
           variants={FADE_IN_UP}
           className="font-heading text-background text-3xl sm:text-4xl"
         >
-          No esperes a que un problema te salga caro.
+          Dormí tranquilo. Tu casa está bajo control.
         </motion.h2>
         <motion.p
           variants={FADE_IN}
           className="type-body-lg text-background/70 mx-auto mt-6 max-w-lg"
         >
           Un diagnóstico EPDE te muestra el estado real de tu vivienda y organiza todo lo que
-          necesita. Por {LAUNCH_PRICE}, una sola vez.
+          necesita. Mientras vos seguís con tu vida, nosotros cuidamos tu casa. Por {LAUNCH_PRICE},
+          una sola vez.
         </motion.p>
         <motion.div variants={FADE_IN} className="mt-8">
           <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">

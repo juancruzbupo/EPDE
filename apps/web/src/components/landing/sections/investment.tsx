@@ -65,7 +65,7 @@ export function InvestmentSection({ motionProps }: SectionProps) {
 
           {/* Emotional close before CTA */}
           <p className="type-body-sm text-foreground/70 mx-auto mt-6 max-w-xs font-medium italic">
-            Es una decisión simple hoy para evitar un problema grande mañana.
+            Una inversión pequeña hoy para proteger tu patrimonio a largo plazo.
           </p>
 
           <div className="mt-6 space-y-3">
@@ -99,6 +99,12 @@ export function InvestmentSection({ motionProps }: SectionProps) {
           className="type-body-sm text-muted-foreground mx-auto mt-1 max-w-md text-center"
         >
           {SUBSCRIPTION_MICROCOPY}
+        </motion.p>
+        <motion.p
+          variants={FADE_IN}
+          className="type-body-sm text-muted-foreground mx-auto mt-1 max-w-md text-center"
+        >
+          ¿Tenés más de una propiedad? Consultanos por planes multi-vivienda.
         </motion.p>
 
         {/* Interventions note */}

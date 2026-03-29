@@ -22,6 +22,7 @@ import {
   Home,
   Mail,
   Phone,
+  Plus,
   Trash2,
   User as UserIcon,
   Wrench,
@@ -246,6 +247,12 @@ function ClientPropertiesSection({ clientId }: { clientId: string }) {
             </Badge>
           )}
         </CardTitle>
+        <Button variant="outline" size="sm" asChild>
+          <Link href={`/properties?newFor=${clientId}`}>
+            <Plus className="mr-2 h-4 w-4" />
+            Agregar propiedad
+          </Link>
+        </Button>
       </CardHeader>
       <CardContent>
         {displayProperties.length === 0 ? (

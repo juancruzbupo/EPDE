@@ -34,7 +34,7 @@ export function HeroSection({ motionProps }: SectionProps) {
           className="type-body-lg text-foreground/80 mx-auto mt-6 max-w-2xl font-medium"
         >
           Detectamos problemas antes de que se vuelvan costosos y organizamos todo el mantenimiento
-          de tu vivienda en un sistema inteligente.
+          de tu vivienda. Vos tomás las decisiones, nosotros hacemos el seguimiento.
         </motion.p>
 
         <motion.div

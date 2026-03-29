@@ -1,5 +1,6 @@
 import type {
   PlanStatus,
+  ProfessionalRequirement,
   PropertySector,
   RecurrenceType,
   TaskPriority,
@@ -40,6 +41,7 @@ export interface TaskListItem {
   name: string;
   status: TaskStatus;
   priority: TaskPriority;
+  professionalRequirement: ProfessionalRequirement;
   sector: PropertySector | null;
   nextDueDate: string | null;
   recurrenceType: RecurrenceType;

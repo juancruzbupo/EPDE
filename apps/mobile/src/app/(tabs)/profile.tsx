@@ -435,15 +435,15 @@ function MobileSubscriptionInfo({ expiresAt }: { expiresAt: string }) {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Contactar para renovar suscripción"
-          className="mt-3"
+          className="bg-primary mt-3 items-center rounded-xl py-2.5"
           onPress={() =>
             Linking.openURL(
               `https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=Hola, quiero renovar mi suscripción a EPDE`,
             )
           }
         >
-          <Text style={TYPE.labelMd} className="text-primary">
-            Contactar para renovar →
+          <Text style={TYPE.titleSm} className="text-primary-foreground">
+            Contactar para renovar
           </Text>
         </Pressable>
       )}

@@ -81,7 +81,8 @@ export function ConsequenceSection({ motionProps }: SectionProps) {
           variants={FADE_IN}
           className="type-body-lg text-foreground mx-auto mt-8 max-w-2xl text-center font-medium"
         >
-          EPDE existe para que estos números no te toquen a vos.
+          Por $35.000 de diagnóstico, podés evitar reparaciones de millones. EPDE existe para que
+          estos números no te toquen a vos.
         </motion.p>
 
         <motion.p

@@ -1,6 +1,7 @@
 import type { TaskPriority, TaskStatus } from '@epde/shared';
 import {
   formatRelativeDate,
+  ProfessionalRequirement,
   PROPERTY_SECTOR_LABELS,
   TASK_PRIORITY_LABELS,
   TASK_STATUS_LABELS,
@@ -88,6 +89,11 @@ const TaskCard = memo(function TaskCard({ task }: { task: TaskListItem }) {
         {task.category.name}
         {task.sector && ` · ${PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}`}
       </Text>
+      {task.professionalRequirement !== ProfessionalRequirement.OWNER_CAN_DO && (
+        <Text style={TYPE.labelSm} className="text-warning mt-0.5">
+          Requiere profesional
+        </Text>
+      )}
       <Text
         style={TYPE.bodySm}
         className="text-muted-foreground"
