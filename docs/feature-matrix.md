@@ -13,76 +13,81 @@ Actualizar cuando se agrega o modifica una feature en cualquier plataforma.
 
 ## Features por módulo
 
-| Feature                          | Web (Admin) | Web (Cliente) | Mobile (Cliente) |           Mobile (Admin)           | Notas                                       |
-| -------------------------------- | :---------: | :-----------: | :--------------: | :--------------------------------: | ------------------------------------------- |
-| **Auth**                         |             |               |                  |                                    |                                             |
-| Login                            |     ✅      |      ✅       |        ✅        |                 ✅                 |                                             |
-| Set Password (invitación)        |     ✅      |      ✅       |        ✅        |                 ✅                 |                                             |
-| Token refresh automático         |     ✅      |      ✅       |        ✅        |                 ✅                 | Web: cookie; Mobile: SecureStore            |
-| **Dashboard**                    |             |               |                  |                                    |                                             |
-| Stats generales (admin)          |     ✅      |      ❌       |        ❌        |                 ❌                 | Admin mobile redirige a web                 |
-| Stats personales (cliente)       |     ❌      |      ✅       |        ✅        |                 ❌                 | HealthCard + stat cards                     |
-| Analytics admin (charts)         |     ✅      |      ❌       |        ❌        |                 ❌                 | Recharts: trend, donut, bars, stacked area  |
-| Analytics cliente (charts)       |     ❌      |      ✅       |        ✅        |                 ❌                 | Web: Recharts; Mobile: SVG custom           |
-| Tareas próximas                  |     ❌      |      ✅       |        ✅        |                 ❌                 |                                             |
-| **Propiedades**                  |             |               |                  |                                    |                                             |
-| Listado                          |     ✅      |      ✅       |        ✅        |                 ✅                 |                                             |
-| Crear / Editar                   | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Solo admin crea desde web                   |
-| Ver detalle                      |     ✅      |      ✅       |        ✅        |                 ✅                 |                                             |
-| Activar / Archivar plan          | ✅ (admin)  |      ❌       |        ❌        |                 ✅                 | Mobile admin puede cambiar estado del plan  |
-| **Planes de Mantenimiento**      |             |               |                  |                                    |                                             |
-| Listado de planes                |     ✅      |      ✅       |        ✅        |                 ✅                 |                                             |
-| Ver detalle de plan              |     ✅      |      ✅       |  Vía propiedad   |           Vía propiedad            |                                             |
-| Crear / Editar plan              | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Auto-creado con propiedad                   |
-| **Tareas**                       |             |               |                  |                                    |                                             |
-| Listado global de tareas         |     ✅      |      ✅       |        ✅        |                 ✅                 | Tab "Tareas" en mobile                      |
-| Ver detalle de tarea             |     ✅      |      ✅       |        ✅        |                 ✅                 |                                             |
-| Crear / Editar tarea             | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 |                                             |
-| Completar tarea                  |     ✅      |      ✅       |        ✅        |                 ✅                 | Con foto, costo, nota                       |
-| Solicitar servicio desde tarea   |     ✅      |      ✅       |        ✅        |                 ✅                 | Pre-llena propertyId + taskId + título      |
-| Completar tarea desde PlanEditor | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Sin salir de la propiedad                   |
-| Bulk tasks desde template        | ✅ (admin)  |      ❌       |        ✅        |                 ❌                 | POST /tasks/bulk                            |
-| Reordenar tareas                 | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Drag & drop                                 |
-| Notas de tarea                   |     ✅      |      ✅       |        ✅        |                 ✅                 |                                             |
-| Historial de tarea (logs)        |     ✅      |      ✅       |        ✅        |                 ✅                 |                                             |
-| **Presupuestos**                 |             |               |                  |                                    |                                             |
-| Listado                          |     ✅      |      ✅       |        ✅        |                 ✅                 |                                             |
-| Crear solicitud                  | ✅ (admin)  |      ✅       |        ✅        |                 ❌                 |                                             |
-| Ver detalle                      |     ✅      |      ✅       |        ✅        |                 ✅                 |                                             |
-| Cotizar / Re-cotizar             | ✅ (admin)  |      ❌       |        ❌        |                 ✅                 | RespondBudgetModal con line items dinámicos |
-| Aprobar / Rechazar               |     ❌      |      ✅       |        ✅        |                 ❌                 | Solo cliente                                |
-| Iniciar Trabajo / Completar      | ✅ (admin)  |      ❌       |        ❌        |                 ✅                 |                                             |
-| Generar desde SR                 | ✅ (admin)  |      ❌       |        ❌        |                 ✅                 | Pre-llena con datos del SR                  |
-| **Solicitudes de Servicio**      |             |               |                  |                                    |                                             |
-| Listado                          |     ✅      |      ✅       |        ✅        |                 ✅                 |                                             |
-| Crear solicitud                  | ✅ (admin)  |      ✅       |        ✅        |                 ❌                 | Con fotos                                   |
-| Ver detalle + fotos              |     ✅      |      ✅       |        ✅        |                 ✅                 |                                             |
-| Transiciones de estado           | ✅ (admin)  |      ❌       |        ❌        |                 ✅                 | OPEN→IN_REVIEW→IN_PROGRESS→RESOLVED→CLOSED  |
-| Generar presupuesto desde SR     | ✅ (admin)  |      ❌       |        ❌        |                 ✅                 |                                             |
-| **Notificaciones**               |             |               |                  |                                    |                                             |
-| Centro de notificaciones         |     ✅      |      ✅       |        ✅        |                 ✅                 | Badge en tab Avisos                         |
-| Marcar como leída                |     ✅      |      ✅       |        ✅        |                 ✅                 | Swipe en mobile                             |
-| **Plantillas (Templates)**       |             |               |                  |                                    |                                             |
-| Gestionar CategoryTemplates      | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Solo panel admin web                        |
-| Gestionar TaskTemplates          | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Sub-recursos de CategoryTemplate            |
-| **Clientes**                     |             |               |                  |                                    |                                             |
-| Listar / Invitar clientes        | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 |                                             |
-| **Perfil**                       |             |               |                  |                                    |                                             |
-| Ver perfil                       |     ✅      |      ✅       |        ✅        |                 ✅                 |                                             |
-| Logout                           |     ✅      |      ✅       |        ✅        |                 ✅                 |                                             |
-| **ISV (Índice Salud Vivienda)**  |             |               |                  |                                    |                                             |
-| ISV score en tab Salud           |     ✅      |      ✅       |        ✅        |                 ✅                 | 5 dimensiones + sector scores               |
-| ISV historial (chart)            |     ✅      |      ✅       |        ✅        |                 ✅                 | Barras mensuales (últimos 12 meses)         |
-| ISV columna en tabla             |     ✅      |      ❌       |        ❌        |                 ❌                 | Badge color-coded en listado de propiedades |
-| ISV reporte imprimible           |     ✅      |      ✅       |        ❌        |                 ❌                 | window.print()                              |
-| Informe técnico completo         |     ✅      | ✅ (web link) |        ✅        |                 ✅                 | /properties/{id}/report                     |
+| Feature                          | Web (Admin) | Web (Cliente) | Mobile (Cliente) |           Mobile (Admin)           | Notas                                                  |
+| -------------------------------- | :---------: | :-----------: | :--------------: | :--------------------------------: | ------------------------------------------------------ |
+| **Auth**                         |             |               |                  |                                    |                                                        |
+| Login                            |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
+| Set Password (invitación)        |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
+| Token refresh automático         |     ✅      |      ✅       |        ✅        |                 ✅                 | Web: cookie; Mobile: SecureStore                       |
+| **Dashboard**                    |             |               |                  |                                    |                                                        |
+| Stats generales (admin)          |     ✅      |      ❌       |        ❌        |                 ❌                 | Admin mobile redirige a web                            |
+| Stats personales (cliente)       |     ❌      |      ✅       |        ✅        |                 ❌                 | HealthCard + stat cards                                |
+| Analytics admin (charts)         |     ✅      |      ❌       |        ❌        |                 ❌                 | Recharts: trend, donut, bars, stacked area             |
+| Analytics cliente (charts)       |     ❌      |      ✅       |        ✅        |                 ❌                 | Web: Recharts; Mobile: SVG custom                      |
+| Tareas próximas                  |     ❌      |      ✅       |        ✅        |                 ❌                 |                                                        |
+| **Propiedades**                  |             |               |                  |                                    |                                                        |
+| Listado                          |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
+| Crear / Editar                   | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Solo admin crea desde web                              |
+| Ver detalle                      |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
+| Activar / Archivar plan          | ✅ (admin)  |      ❌       |        ❌        |                 ✅                 | Mobile admin puede cambiar estado del plan             |
+| **Planes de Mantenimiento**      |             |               |                  |                                    |                                                        |
+| Listado de planes                |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
+| Ver detalle de plan              |     ✅      |      ✅       |  Vía propiedad   |           Vía propiedad            |                                                        |
+| Crear / Editar plan              | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Auto-creado con propiedad                              |
+| **Tareas**                       |             |               |                  |                                    |                                                        |
+| Listado global de tareas         |     ✅      |      ✅       |        ✅        |                 ✅                 | Tab "Tareas" en mobile                                 |
+| Ver detalle de tarea             |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
+| Crear / Editar tarea             | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 |                                                        |
+| Completar tarea                  |     ✅      |      ✅       |        ✅        |                 ✅                 | Con foto, costo, nota                                  |
+| Solicitar servicio desde tarea   |     ✅      |      ✅       |        ✅        |                 ✅                 | Pre-llena propertyId + taskId + título                 |
+| Completar tarea desde PlanEditor | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Sin salir de la propiedad                              |
+| Bulk tasks desde template        | ✅ (admin)  |      ❌       |        ✅        |                 ❌                 | POST /tasks/bulk                                       |
+| Reordenar tareas                 | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Drag & drop                                            |
+| Notas de tarea                   |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
+| Historial de tarea (logs)        |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
+| **Presupuestos**                 |             |               |                  |                                    |                                                        |
+| Listado                          |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
+| Crear solicitud                  | ✅ (admin)  |      ✅       |        ✅        |                 ❌                 |                                                        |
+| Ver detalle                      |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
+| Cotizar / Re-cotizar             | ✅ (admin)  |      ❌       |        ❌        |                 ✅                 | RespondBudgetModal con line items dinámicos            |
+| Aprobar / Rechazar               |     ❌      |      ✅       |        ✅        |                 ❌                 | Solo cliente                                           |
+| Iniciar Trabajo / Completar      | ✅ (admin)  |      ❌       |        ❌        |                 ✅                 |                                                        |
+| Generar desde SR                 | ✅ (admin)  |      ❌       |        ❌        |                 ✅                 | Pre-llena con datos del SR                             |
+| **Solicitudes de Servicio**      |             |               |                  |                                    |                                                        |
+| Listado                          |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
+| Crear solicitud                  | ✅ (admin)  |      ✅       |        ✅        |                 ❌                 | Con fotos                                              |
+| Ver detalle + fotos              |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
+| Transiciones de estado           | ✅ (admin)  |      ❌       |        ❌        |                 ✅                 | OPEN→IN_REVIEW→IN_PROGRESS→RESOLVED→CLOSED             |
+| Generar presupuesto desde SR     | ✅ (admin)  |      ❌       |        ❌        |                 ✅                 |                                                        |
+| **Notificaciones**               |             |               |                  |                                    |                                                        |
+| Centro de notificaciones         |     ✅      |      ✅       |        ✅        |                 ✅                 | Badge en tab Avisos                                    |
+| Marcar como leída                |     ✅      |      ✅       |        ✅        |                 ✅                 | Swipe en mobile                                        |
+| **Plantillas (Templates)**       |             |               |                  |                                    |                                                        |
+| Gestionar CategoryTemplates      | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Solo panel admin web                                   |
+| Gestionar TaskTemplates          | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Sub-recursos de CategoryTemplate                       |
+| **Clientes**                     |             |               |                  |                                    |                                                        |
+| Listar / Invitar clientes        | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 |                                                        |
+| **Perfil**                       |             |               |                  |                                    |                                                        |
+| Ver perfil                       |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
+| Logout                           |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
+| **ISV (Índice Salud Vivienda)**  |             |               |                  |                                    |                                                        |
+| ISV score en tab Salud           |     ✅      |      ✅       |        ✅        |                 ✅                 | 5 dimensiones + sector scores                          |
+| ISV historial (chart)            |     ✅      |      ✅       |        ✅        |                 ✅                 | Barras mensuales (últimos 12 meses)                    |
+| ISV columna en tabla             |     ✅      |      ❌       |        ❌        |                 ❌                 | Badge color-coded en listado de propiedades            |
+| ISV reporte imprimible           |     ✅      |      ✅       |        ❌        |                 ❌                 | window.print()                                         |
+| Informe técnico completo         |     ✅      | ✅ (web link) |        ✅        |                 ✅                 | /properties/{id}/report                                |
 | ISV alertas (caída >15 pts)      |     ✅      |      ✅       |        ✅        |     Notificación in-app + push     |
 | ISV snapshots mensuales          |   Backend   |    Backend    |     Backend      | Cron job 1ro de cada mes 02:00 UTC |
-| **Suscripción**                  |             |               |                  |                                    |                                             |
-| Estado de suscripción            |     ✅      |      ✅       |        ✅        |                 ✅                 | SubscriptionGuard verifica en cada request  |
-| Página suscripción expirada      |     ❌      |      ✅       |        ✅        |                 ❌                 | Redirect automático en 402                  |
-| Renovar suscripción (admin)      | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Admin extiende subscriptionExpiresAt        |
-| Recordatorios de vencimiento     |   Backend   |    Backend    |     Backend      |    Cron diario 7/3/1 días antes    | Notificación in-app + email                 |
+| **Suscripción**                  |             |               |                  |                                    |                                                        |
+| Estado de suscripción            |     ✅      |      ✅       |        ✅        |                 ✅                 | SubscriptionGuard verifica en cada request             |
+| Página suscripción expirada      |     ❌      |      ✅       |        ✅        |                 ❌                 | Redirect automático en 402                             |
+| Renovar suscripción (admin)      | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Admin extiende subscriptionExpiresAt                   |
+| Suspender + Quitar límite        | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Suspender=expiresAt now; Quitar límite=null            |
+| SubscriptionInfo en perfil       |     ❌      |      ✅       |        ✅        |                 ❌                 | Web: SubscriptionInfo; Mobile: MobileSubscriptionInfo  |
+| Warning banner ≤7 días           |     ❌      |      ✅       |        ✅        |                 ❌                 | Banner en dashboard si quedan ≤7 días                  |
+| "Próxima inspección" card        |     ❌      |      ✅       |        ✅        |                 ❌                 | Primera tarea UPCOMING no vencida (azul)               |
+| Notificaciones en sidebar        |     ❌      |      ❌       |        ❌        |                 ❌                 | Removida de sidebar; accesible via bell icon en header |
+| Recordatorios de vencimiento     |   Backend   |    Backend    |     Backend      |    Cron diario 7/3/1 días antes    | Notificación in-app + email                            |
 | **Categorías**                   |             |               |                  |                                    |
 | Gestionar categorías             | ✅ (admin)  |      ❌       |        ❌        |      Categorías operacionales      |
 

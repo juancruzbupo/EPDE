@@ -541,14 +541,14 @@ Derivado de TaskLog + ServiceRequest existentes. No requiere entidades adicional
 
 ### Dashboard
 
-| Metodo | Ruta                          | Auth | Rol    | Descripcion                 |
-| ------ | ----------------------------- | ---- | ------ | --------------------------- |
-| GET    | `/dashboard/stats`            | Si   | ADMIN  | Estadisticas admin          |
-| GET    | `/dashboard/activity`         | Si   | ADMIN  | Actividad reciente          |
-| GET    | `/dashboard/analytics`        | Si   | ADMIN  | Analytics admin (charts)    |
-| GET    | `/dashboard/client-stats`     | Si   | CLIENT | Estadisticas del cliente    |
-| GET    | `/dashboard/client-upcoming`  | Si   | CLIENT | Tareas proximas del cliente |
-| GET    | `/dashboard/client-analytics` | Si   | CLIENT | Analytics cliente (charts)  |
+| Metodo | Ruta                          | Auth | Rol    | Descripcion                                                                                                             |
+| ------ | ----------------------------- | ---- | ------ | ----------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/dashboard/stats`            | Si   | ADMIN  | Estadisticas admin                                                                                                      |
+| GET    | `/dashboard/activity`         | Si   | ADMIN  | Actividad reciente                                                                                                      |
+| GET    | `/dashboard/analytics`        | Si   | ADMIN  | Analytics admin (charts)                                                                                                |
+| GET    | `/dashboard/client-stats`     | Si   | CLIENT | Estadisticas del cliente                                                                                                |
+| GET    | `/dashboard/client-upcoming`  | Si   | CLIENT | Tareas proximas del cliente (take: 50, increased from 10 to ensure upcoming tasks are included when many overdue exist) |
+| GET    | `/dashboard/client-analytics` | Si   | CLIENT | Analytics cliente (charts)                                                                                              |
 
 **Respuesta stats (ADMIN):**
 

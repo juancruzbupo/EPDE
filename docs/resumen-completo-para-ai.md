@@ -304,3 +304,4 @@ Marketing page con 16 secciones optimizadas para conversión:
 - **Recordatorios:** Cron job `subscription-reminder` (10:30 UTC diario) envía notificación in-app + email a clientes con 7, 3 y 1 días restantes. Deduplicación por día
 - **Campos en User:** `activatedAt: DateTime?`, `subscriptionExpiresAt: DateTime?`
 - **Índice:** `@@index([status, subscriptionExpiresAt])` para queries eficientes del scheduler
+- **Validación dual:** El check de suscripción se ejecuta en dos puntos: (1) en AuthController.login() antes de emitir tokens (porque Passport swallows excepciones no-401 en strategy.validate()), y (2) en SubscriptionGuard para requests autenticados (lee subExp del JWT). AuthProvider.checkAuth() se saltea en páginas del grupo auth para evitar loops de redirect

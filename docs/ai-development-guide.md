@@ -158,6 +158,11 @@
 141. **SubscriptionGuard en cadena de guards** — 4to guard global (después de RolesGuard). Verifica `subscriptionExpiresAt > now()` para CLIENTs. Salta `@Public()`, auth endpoints y ADMIN. Retorna HTTP 402 (Payment Required) si expirada. Registrado via `APP_GUARD` en `app.module.ts`
 142. **Campos de suscripción en User** — `activatedAt: DateTime?` (set en set-password) y `subscriptionExpiresAt: DateTime?` (activatedAt + 6 meses). Índice compuesto `[status, subscriptionExpiresAt]` para el scheduler de recordatorios. Ambos campos nullable (null = nunca activado)
 143. **402 handling en api-client interceptors** — El interceptor de refresh (`attachRefreshInterceptor`) DEBE skipear 402 (no intentar refresh). El frontend intercepta 402 y redirige a página de suscripción expirada (`/subscription-expired` en web, pantalla modal en mobile). NUNCA tratar 402 como 401
+144. **Subscription check en login controller** — Passport swallows non-401 exceptions desde strategy.validate(), por lo que el check de expiración de suscripción vive en AuthController.login() (no en validateUser). El controller lanza HttpException(402) antes de emitir tokens. SubscriptionGuard se encarga de los requests posteriores
+145. **AuthProvider SKIP_AUTH_CHECK** — AuthProvider.checkAuth() se saltea en páginas del grupo auth (/login, /set-password, /forgot-password, /reset-password, /subscription-expired) para prevenir loops de redirect 402 en páginas sin sesión
+146. **Dashboard "Próxima inspección" card** — Primera tarea UPCOMING no vencida se muestra como card azul (color status-upcoming) con chevron → task detail. Sección de vencidas limitada a 5 items con link "Ver las N tareas vencidas →". Botón "Registrar" de vencidas usa variant=destructive
+147. **Client nav order** — Sidebar: cliente ve Dashboard → Tareas → Propiedades → Presupuestos → Servicios (5 items). Notificaciones removida del sidebar (accesible via bell icon en header). Nav de admin sin cambios
+148. **Admin subscription actions** — SubscriptionCard tiene 5 botones: +30d, +60d, +1y (extend), Suspender (expiresAt=now, bloquea inmediatamente), Quitar límite (expiresAt=null, acceso ilimitado). Suspender es variant=destructive, Quitar límite es variant=ghost
 
 ### NUNCA
 
