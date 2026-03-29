@@ -426,6 +426,54 @@ export class NotificationsHandlerService {
     }
   }
 
+  async handleSubscriptionChanged(payload: {
+    userId: string;
+    userName: string;
+    action: 'extended' | 'suspended' | 'unlimited';
+    newExpiresAt: Date | null;
+  }) {
+    try {
+      let title: string;
+      let message: string;
+
+      switch (payload.action) {
+        case 'extended': {
+          const dateStr = payload.newExpiresAt
+            ? payload.newExpiresAt.toLocaleDateString('es-AR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })
+            : '';
+          title = 'Tu suscripción fue extendida';
+          message = `${payload.userName}, tu acceso a EPDE fue extendido hasta el ${dateStr}.`;
+          break;
+        }
+        case 'suspended':
+          title = 'Tu suscripción fue suspendida';
+          message = `${payload.userName}, tu acceso a EPDE fue suspendido. Contactá al administrador para más información.`;
+          break;
+        case 'unlimited':
+          title = 'Tu suscripción fue actualizada';
+          message = `${payload.userName}, tu acceso a EPDE ahora es ilimitado.`;
+          break;
+      }
+
+      await this.notificationsService.createNotification({
+        userId: payload.userId,
+        type: 'SYSTEM',
+        title,
+        message,
+      });
+
+      this.sendPush([payload.userId], title, message);
+    } catch (error) {
+      this.logger.error(
+        `Error sending subscription change for ${payload.userId}: ${(error as Error).message}`,
+      );
+    }
+  }
+
   async handleSubscriptionReminder(payload: {
     userId: string;
     userName: string;

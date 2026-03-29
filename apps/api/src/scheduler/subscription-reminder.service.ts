@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
 import { MetricsService } from '../metrics/metrics.service';
+import { NotificationsRepository } from '../notifications/notifications.repository';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { DistributedLockService } from '../redis/distributed-lock.service';
@@ -23,6 +24,7 @@ export class SubscriptionReminderService {
     private readonly lockService: DistributedLockService,
     private readonly metricsService: MetricsService,
     private readonly notificationsHandler: NotificationsHandlerService,
+    private readonly notificationsRepository: NotificationsRepository,
   ) {}
 
   @Cron('0 9 * * *', { name: 'subscription-reminder' })
@@ -31,6 +33,11 @@ export class SubscriptionReminderService {
     await this.lockService.withLock('cron:subscription-reminder', 120, async (signal) => {
       const now = new Date();
       let totalReminders = 0;
+
+      // Deduplication: skip users who already received a subscription reminder today
+      // (prevents duplicates on redeploy/restart during the same day).
+      const alreadyRemindedUserIds =
+        await this.notificationsRepository.findTodaySubscriptionReminderUserIds();
 
       for (const daysLeft of SUBSCRIPTION_REMINDER_DAYS) {
         if (signal.lockLost) return;
@@ -53,12 +60,15 @@ export class SubscriptionReminderService {
         });
 
         for (const user of users) {
+          if (alreadyRemindedUserIds.has(user.id)) continue;
+
           void this.notificationsHandler.handleSubscriptionReminder({
             userId: user.id,
             userName: user.name,
             daysLeft,
             expiresAt: user.subscriptionExpiresAt!,
           });
+          alreadyRemindedUserIds.add(user.id);
           totalReminders++;
         }
       }

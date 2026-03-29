@@ -114,7 +114,26 @@ export class ClientsService {
       throw new NotFoundException('Cliente no encontrado');
     }
 
+    const oldExpiry = client.subscriptionExpiresAt;
     const updated = await this.clientsRepository.update(id, dto);
+
+    // Notify client when subscription changes
+    if (dto.subscriptionExpiresAt !== undefined && dto.subscriptionExpiresAt !== oldExpiry) {
+      const newExpiry = updated.subscriptionExpiresAt;
+      const action: 'extended' | 'suspended' | 'unlimited' = !newExpiry
+        ? 'unlimited'
+        : newExpiry <= new Date()
+          ? 'suspended'
+          : 'extended';
+
+      void this.notificationsHandler.handleSubscriptionChanged({
+        userId: id,
+        userName: updated.name,
+        action,
+        newExpiresAt: newExpiry,
+      });
+    }
+
     const { passwordHash: _passwordHash, ...clientWithoutPassword } = updated;
     return clientWithoutPassword;
   }

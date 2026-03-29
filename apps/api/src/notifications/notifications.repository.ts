@@ -97,6 +97,25 @@ export class NotificationsRepository extends BaseRepository<Notification, 'notif
     );
   }
 
+  /** Returns user IDs that already received a SYSTEM subscription reminder today. */
+  async findTodaySubscriptionReminderUserIds(): Promise<Set<string>> {
+    const AR_OFFSET_MS = 3 * 60 * 60 * 1000;
+    const nowAR = new Date(Date.now() - AR_OFFSET_MS);
+    nowAR.setUTCHours(0, 0, 0, 0);
+    const todayStart = new Date(nowAR.getTime() + AR_OFFSET_MS);
+
+    const existing = await this.model.findMany({
+      where: {
+        type: NotificationType.SYSTEM,
+        title: 'Tu suscripción está por vencer',
+        createdAt: { gte: todayStart },
+      },
+      select: { userId: true },
+    });
+
+    return new Set(existing.map((n: { userId: string }) => n.userId));
+  }
+
   /** Delete read notifications older than the given date. Returns count deleted. */
   async deleteOldRead(olderThan: Date): Promise<number> {
     const { count } = await this.prisma.notification.deleteMany({
