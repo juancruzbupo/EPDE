@@ -38,7 +38,7 @@ describe('HomeStatusCard', () => {
     expect(screen.getByText('Tu casa necesita atención urgente')).toBeTruthy();
   });
 
-  it('renders 4 mini-stats (Vencidas, Pendientes, Completadas, Presupuestos)', () => {
+  it('renders 4 mini-stats (Vencidas, Pendientes, Completadas este mes, Presup. pendientes)', () => {
     render(
       <HomeStatusCard
         {...defaultProps}
@@ -50,8 +50,8 @@ describe('HomeStatusCard', () => {
     );
     expect(screen.getByText('Vencidas')).toBeTruthy();
     expect(screen.getByText('Pendientes')).toBeTruthy();
-    expect(screen.getByText('Completadas')).toBeTruthy();
-    expect(screen.getByText('Presupuestos')).toBeTruthy();
+    expect(screen.getByText('Completadas este mes')).toBeTruthy();
+    expect(screen.getByText('Presup. pendientes')).toBeTruthy();
     expect(screen.getByText('2')).toBeTruthy();
     expect(screen.getByText('4')).toBeTruthy();
     expect(screen.getByText('7')).toBeTruthy();

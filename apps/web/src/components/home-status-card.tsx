@@ -109,13 +109,13 @@ export function HomeStatusCard({
       color: 'text-foreground',
     },
     {
-      label: 'Completadas',
+      label: 'Completadas este mes',
       hint: 'Tareas completadas en los últimos 30 días',
       value: completedThisMonth,
       color: 'text-success',
     },
     {
-      label: 'Presupuestos',
+      label: 'Presupuestos pendientes',
       hint: 'Presupuestos esperando tu decisión. Revisalos para avanzar.',
       value: pendingBudgets,
       color: 'text-foreground',

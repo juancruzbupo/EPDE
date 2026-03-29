@@ -162,13 +162,13 @@ export const HomeStatusCard = memo(function HomeStatusCard({
           accessibilityHint="Tareas programadas que aún no vencieron"
         />
         <MiniStat
-          label="Completadas"
+          label="Completadas este mes"
           value={completedThisMonth}
           color={completedThisMonth > 0 ? COLORS.success : undefined}
           accessibilityHint="Tareas completadas en los últimos 30 días"
         />
         <MiniStat
-          label="Presupuestos"
+          label="Presup. pendientes"
           value={pendingBudgets}
           accessibilityHint="Presupuestos pendientes de aprobación"
         />

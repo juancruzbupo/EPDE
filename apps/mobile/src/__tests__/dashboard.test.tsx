@@ -153,7 +153,7 @@ describe('DashboardScreen', () => {
     // HomeStatusCard mini-stats
     expect(getAllByText('Vencidas').length).toBeGreaterThanOrEqual(1);
     expect(getAllByText('Pendientes').length).toBeGreaterThanOrEqual(1);
-    expect(getAllByText('Completadas').length).toBeGreaterThanOrEqual(1);
+    expect(getAllByText('Completadas este mes').length).toBeGreaterThanOrEqual(1);
 
     // Task names from ActionList (may appear in NextInspectionCard + list)
     expect(getAllByText('Revisar caldera').length).toBeGreaterThanOrEqual(1);

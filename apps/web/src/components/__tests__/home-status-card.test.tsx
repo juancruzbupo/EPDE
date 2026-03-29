@@ -96,8 +96,8 @@ describe('HomeStatusCard', () => {
     );
     expect(screen.getByText('Vencidas')).toBeInTheDocument();
     expect(screen.getByText('Pendientes')).toBeInTheDocument();
-    expect(screen.getByText('Completadas')).toBeInTheDocument();
-    expect(screen.getByText('Presupuestos')).toBeInTheDocument();
+    expect(screen.getByText('Completadas este mes')).toBeInTheDocument();
+    expect(screen.getByText('Presupuestos pendientes')).toBeInTheDocument();
     expect(screen.getByText('2')).toBeInTheDocument();
     expect(screen.getByText('4')).toBeInTheDocument();
     expect(screen.getByText('7')).toBeInTheDocument();
