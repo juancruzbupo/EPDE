@@ -166,6 +166,8 @@
 149. **SIEMPRE #36 (formatDateES)**: En mobile, usar `formatDateES()` de `@/lib/date-format` para formateo de fechas con locale argentino. No importar `format` de `date-fns` directamente ni `es` locale en cada archivo
 150. **SIEMPRE #37 (Redis key prefix)**: Todas las keys Redis DEBEN pasar por `RedisService` que aplica prefix `epde:` automáticamente. NUNCA usar el cliente Redis directamente
 151. **SIEMPRE #38 (DataTable performance)**: Row animations solo aplican a los primeros 20 rows (`index < 20`). Chart components envueltos en `React.memo()`. AnimatedListItem en mobile skipea animación de entrada para `index >= 30`
+152. **SIEMPRE #39 (empty states descriptivos)**: Empty states DEBEN explicar qué hacer para que aparezcan datos. Ejemplo: "Se generan cuando solicitás un servicio profesional" en vez de solo "Sin resultados". Aplica a web y mobile
+153. **SIEMPRE #40 (FAQ section)**: Landing page tiene sección FAQ con accordion. Preguntas hardcodeadas en `sections/faq.tsx`. Para agregar preguntas, editar array FAQS en ese archivo. Copy centralizado en `landing-data.ts` (SIEMPRE #74)
 
 ### NUNCA
 

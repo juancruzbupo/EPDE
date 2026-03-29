@@ -225,7 +225,7 @@ Estructura en 3 niveles (conclusión primero, datos después):
 **Nivel 2 — Acciones concretas:**
 
 - `ActionList`: tareas vencidas (sección roja) + tareas de esta semana
-- Cada tarea: nombre, vencimiento, categoría, sector, badge "Requiere profesional"
+- Cada tarea: nombre, vencimiento, categoría, sector, badge "Requiere profesional" (cuando `professionalRequirement !== OWNER_CAN_DO`)
 - Press → navega al detalle de la tarea
 - Si no hay tareas: "Todo al día" mensaje positivo
 
@@ -237,6 +237,7 @@ Estructura en 3 niveles (conclusión primero, datos después):
 
 - Botón rápido a solicitudes de servicio
 - Pull-to-refresh (refresca stats + tasks + analytics)
+- Muestra timestamp "Actualizado hace X" via React Query `dataUpdatedAt`
 - Usa `ScrollView` (todo el contenido es estructurado)
 
 ### Propiedades
@@ -251,7 +252,7 @@ Estructura en 3 niveles (conclusión primero, datos después):
 - Info de la propiedad
 - Tareas agrupadas por categoria
 - Filtros: Todas, Proximas, Vencidas, Completadas
-- Cards de tarea con dot de estado, badge de prioridad, fecha
+- Cards de tarea con dot de estado, badge de prioridad, fecha, badge "Requiere profesional" (cuando `professionalRequirement !== OWNER_CAN_DO`)
 
 ### Detalle de Tarea
 
@@ -267,6 +268,7 @@ Estructura en 3 niveles (conclusión primero, datos después):
 
 - Lista con scroll infinito
 - Filtros por estado: Pendiente, Cotizado, Aprobado, Rechazado, En Progreso, Completado
+- Copy humanizado: "Esperando cotización" (en vez de "Sin cotizar") para presupuestos pendientes
 - Boton "Nuevo" → modal de creacion
 - Cards: titulo, estado, propiedad, monto, fecha
 
@@ -298,6 +300,7 @@ Estructura en 3 niveles (conclusión primero, datos después):
 
 - Avatar placeholder + info del usuario (nombre, email, telefono)
 - Info de la app (version, plataforma)
+- Botón de renovación de suscripción prominente (`bg-primary`, full-width) cuando la suscripción está próxima a expirar
 - Boton de logout con alerta de confirmacion
 
 ## Patrones Clave

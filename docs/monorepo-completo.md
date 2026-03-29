@@ -115,7 +115,7 @@ epde/
 │   │   │   │   ├── ui/               # 23 componentes shadcn/ui
 │   │   │   │   ├── data-table/       # DataTable wrapper (TanStack Table)
 │   │   │   │   ├── layout/           # Header, Sidebar
-│   │   │   │   ├── landing/          # landing-page.tsx (composicion) + sections/ (15 archivos) + landing-data.ts
+│   │   │   │   ├── landing/          # landing-page.tsx (composicion) + sections/ (18 archivos) + landing-data.ts
 │   │   │   │   ├── home-status-card.tsx   # Dashboard L1: score ISV + mensaje humano
 │   │   │   │   ├── action-list.tsx        # Dashboard L2: tareas vencidas + semana
 │   │   │   │   ├── analytics-tabs.tsx     # Dashboard L3: charts en tabs
@@ -754,7 +754,7 @@ Skeletons estructurados que reflejan el layout real: PageHeader (titulo + descri
 #### Not-Found / Empty States
 
 - **Not-found:** Icon `h-10 w-10 text-muted-foreground/50` + texto + `<Button variant="outline">Volver</Button>`
-- **Empty state:** Icon `h-8 w-8 text-muted-foreground/50` + texto descriptivo centrado (`py-8`)
+- **Empty state:** Icon `h-8 w-8 text-muted-foreground/50` + texto descriptivo centrado (`py-8`). Los empty states explican cómo generar datos: presupuestos dice "Se generan cuando solicitás un servicio profesional", solicitudes dice "Podés crear una desde el botón 'Nueva Solicitud' o desde el detalle de una tarea"
 
 #### DataTable Row Interaction
 
@@ -768,7 +768,7 @@ Skeletons estructurados que reflejan el layout real: PageHeader (titulo + descri
 
 **Admin (web):** Stat cards KPI (overdue styling: `border-destructive/30 bg-destructive/10`) -> `AttentionNeeded` (presupuestos pendientes, servicios abiertos) + activity list -> `AnalyticsTabs` (charts admin: trend, pipeline, SLA)
 
-**Cliente (mobile):** `HomeStatusCard` -> `ActionList` -> `AnalyticsSection` (colapsable, cerrado por defecto para priorizar contenido actionable)
+**Cliente (mobile):** `HomeStatusCard` -> `ActionList` -> `AnalyticsSection` (colapsable, cerrado por defecto para priorizar contenido actionable). Muestra timestamp "Actualizado hace X" via React Query `dataUpdatedAt`
 
 ### Style Maps (Variantes de Badge)
 
@@ -929,6 +929,7 @@ Snapshot mensual del Indice de Salud de la Vivienda (ISV). Generado por cron job
 - `Task.sector`: `PropertySector?` — sector de la vivienda donde se ubica la tarea
 - `ClientDashboardStats.upcomingThisWeek`: tareas proximas esta semana
 - `ClientDashboardStats.urgentTasks`: tareas urgentes
+- `TaskListItem.professionalRequirement`: nivel de profesional requerido (mostrado como badge "Requiere profesional" en TaskCard mobile)
 - `UpcomingTask.professionalRequirement`: nivel de profesional requerido
 - `UpcomingTask.sector`: sector de la vivienda (nullable)
 
