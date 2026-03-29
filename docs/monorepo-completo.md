@@ -410,8 +410,11 @@ Los servicios de dominio inyectan `NotificationsHandlerService` directamente. No
 | Presupuesto cotizado         | BudgetsService         | Notificacion in-app + email al cliente (queues)      |
 | Estado de presupuesto cambia | BudgetsService         | Notificacion in-app + email al cliente (queues)      |
 | Cliente invitado             | ClientsService         | Email de invitacion (queue)                          |
+| Suscripcion cambiada         | ClientsService         | Notificacion in-app + push al cliente (queue)        |
 
 **Pattern:** `void this.notificationsHandler.handleBudgetCreated({...})` — fire-and-forget tipado.
+
+**Subscription change:** `updateClient()` dispara `handleSubscriptionChanged()` cuando cambia `subscriptionExpiresAt`. 3 acciones: extended ("Tu suscripción fue extendida hasta el [fecha]"), suspended ("Tu suscripción fue suspendida"), unlimited ("Tu acceso ahora es ilimitado").
 
 **Queues:** `notification` (3 reintentos, backoff 3s) para in-app, `emails` (5 reintentos, backoff 5s, concurrency 15) para emails. `NotificationsHandlerService` envuelve cada llamada en `try-catch`. Errores de BullMQ se reintentan automaticamente.
 
@@ -465,16 +468,16 @@ Cliente → POST /upload (multipart/form-data) → { url }
 
 8 jobs programados, cada uno envuelto en `DistributedLockService.withLock()` (Redis SETNX, TTL 5min):
 
-| Job                        | Cron              | Descripcion                                                                           |
-| -------------------------- | ----------------- | ------------------------------------------------------------------------------------- |
-| task-status-recalculation  | 09:00 UTC diario  | PENDING -> UPCOMING (30 dias) -> OVERDUE                                              |
-| task-upcoming-reminders    | 09:05 UTC diario  | Notificaciones + email para tareas proximas/vencidas                                  |
-| task-safety-sweep          | 09:10 UTC diario  | Correccion de edge cases en tareas completadas                                        |
-| budget-expiration-check    | 09:30 UTC diario  | Expiracion de presupuestos con validUntil vencido                                     |
-| service-request-auto-close | 10:00 UTC diario  | Auto-cierre de solicitudes resueltas hace >7 dias                                     |
-| subscription-reminder      | 10:30 UTC diario  | Recordatorios de vencimiento de suscripcion (7, 3 y 1 dias restantes)                 |
-| isv-monthly-snapshot       | 02:00 UTC 1ro/mes | Snapshot mensual del ISV por propiedad                                                |
-| data-cleanup               | 03:00 UTC diario  | Hard-delete de registros soft-deleted > 90 dias + retencion de ISVSnapshot a 24 meses |
+| Job                        | Cron              | Descripcion                                                                                                                               |
+| -------------------------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| task-status-recalculation  | 09:00 UTC diario  | PENDING -> UPCOMING (30 dias) -> OVERDUE                                                                                                  |
+| task-upcoming-reminders    | 09:05 UTC diario  | Notificaciones + email para tareas proximas/vencidas                                                                                      |
+| task-safety-sweep          | 09:10 UTC diario  | Correccion de edge cases en tareas completadas                                                                                            |
+| budget-expiration-check    | 09:30 UTC diario  | Expiracion de presupuestos con validUntil vencido                                                                                         |
+| service-request-auto-close | 10:00 UTC diario  | Auto-cierre de solicitudes resueltas hace >7 dias                                                                                         |
+| subscription-reminder      | 10:30 UTC diario  | Recordatorios de vencimiento de suscripcion (7, 3 y 1 dias restantes). Deduplica notificaciones por día (previene duplicados en redeploy) |
+| isv-monthly-snapshot       | 02:00 UTC 1ro/mes | Snapshot mensual del ISV por propiedad                                                                                                    |
+| data-cleanup               | 03:00 UTC diario  | Hard-delete de registros soft-deleted > 90 dias + retencion de ISVSnapshot a 24 meses                                                     |
 
 Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en deployments multi-instancia. Incluye **watchdog** que extiende TTL automaticamente cada mitad del periodo. El callback recibe `signal: { lockLost: boolean }` — los jobs verifican el flag antes de operaciones costosas y abortan si el lock se perdio. **Batch processing**: tareas procesadas en lotes de `BATCH_SIZE=50` para evitar timeouts en datasets grandes.
 

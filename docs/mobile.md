@@ -295,6 +295,7 @@ Estructura en 3 niveles (conclusión primero, datos después):
 - Tap → marca como leida
 - Boton "Marcar todas como leidas" (haptics medium)
 - Auto-refresh del conteo cada 60 segundos
+- El cliente recibe notificación push + in-app cuando el admin cambia su suscripción (extensión, suspensión, o acceso ilimitado)
 
 ### Perfil
 
