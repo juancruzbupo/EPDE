@@ -163,6 +163,9 @@
 146. **Dashboard "Próxima inspección" card** — Primera tarea UPCOMING no vencida se muestra como card azul (color status-upcoming) con chevron → task detail. Sección de vencidas limitada a 5 items con link "Ver las N tareas vencidas →". Botón "Registrar" de vencidas usa variant=destructive
 147. **Client nav order** — Sidebar: cliente ve Dashboard → Tareas → Propiedades → Presupuestos → Servicios (5 items). Notificaciones removida del sidebar (accesible via bell icon en header). Nav de admin sin cambios
 148. **Admin subscription actions** — SubscriptionCard tiene 5 botones: +30d, +60d, +1y (extend), Suspender (expiresAt=now, bloquea inmediatamente), Quitar límite (expiresAt=null, acceso ilimitado). Suspender es variant=destructive, Quitar límite es variant=ghost
+149. **SIEMPRE #36 (formatDateES)**: En mobile, usar `formatDateES()` de `@/lib/date-format` para formateo de fechas con locale argentino. No importar `format` de `date-fns` directamente ni `es` locale en cada archivo
+150. **SIEMPRE #37 (Redis key prefix)**: Todas las keys Redis DEBEN pasar por `RedisService` que aplica prefix `epde:` automáticamente. NUNCA usar el cliente Redis directamente
+151. **SIEMPRE #38 (DataTable performance)**: Row animations solo aplican a los primeros 20 rows (`index < 20`). Chart components envueltos en `React.memo()`. AnimatedListItem en mobile skipea animación de entrada para `index >= 30`
 
 ### NUNCA
 
@@ -194,6 +197,7 @@
 26. **NUNCA usar string literals para enums en tests** — Usar `TaskPriority.MEDIUM`, `RecurrenceType.ANNUAL`, etc. Si un enum value cambia, TypeScript debe capturarlo en tests tambien
 27. **NUNCA definir `const QUERY_KEY` local en hooks** — Escribir `[QUERY_KEYS.xxx]` inline en cada `queryKey`/`invalidateQueries`. Una constante local esconde la key real y dificulta busquedas globales
 28. **NUNCA usar `jest.mock()` o `jest.fn()` en tests de `@epde/web`** — Usar `vi.mock()` y `vi.fn()` de Vitest. NUNCA usar `vi.mock()` o `vi.fn()` en tests de `@epde/api` o `@epde/mobile` — usar `jest.mock()` y `jest.fn()`
+29. **NUNCA #21 (Redis keys sin prefix)**: No usar el cliente Redis (`ioredis`) directamente. Siempre usar `RedisService` que aplica prefix `epde:` automáticamente
 
 ---
 
@@ -1372,7 +1376,7 @@ El QueryClient de mobile difiere de web para soportar uso offline durante inspec
 
 **Persister key:** `epde-query-cache-v{APP_VERSION}` — al actualizar la app, las keys viejas se limpian automaticamente via `AsyncStorage.getAllKeys()` + `multiRemove()`.
 
-**Archivos:** `apps/mobile/src/lib/query-client.ts` (QueryClient + NetInfo sync), `apps/mobile/src/lib/query-persister.ts` (AsyncStorage persister).
+**Archivos:** `apps/mobile/src/lib/query-client.ts` (QueryClient + NetInfo sync), `apps/mobile/src/lib/query-persister.ts` (AsyncStorage persister), `apps/mobile/src/lib/date-format.ts` (centraliza `format()` de date-fns con locale `es`), `apps/api/src/scheduler/data-cleanup.service.ts` (cleanup diario de soft-delete + retención ISV).
 
 ### 5.8 Test Runners por Workspace
 

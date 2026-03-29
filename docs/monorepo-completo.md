@@ -46,7 +46,7 @@ epde/
 │   │   │   ├── seed.ts               # Admin + 14 categorias default (upsert) + FK linkage
 │   │   │   └── migrations/
 │   │   ├── src/
-│   │   │   ├── main.ts               # Bootstrap (Helmet, CORS, Swagger, Cookies)
+│   │   │   ├── main.ts               # Bootstrap (Helmet, CORS, Swagger, Cookies, express.json({ limit: '1mb' }))
 │   │   │   ├── instrument.ts         # OpenTelemetry + Sentry instrumentation
 │   │   │   ├── app.module.ts         # Root module (imports CoreModule + 15 feature modules)
 │   │   │   ├── core/                # CoreModule (@Global) — agrupa infra: Sentry, Config, Throttler, Logger, BullMQ, Prisma, Redis, Health, Metrics
@@ -68,7 +68,7 @@ epde/
 │   │   │   ├── dashboard/            # Estadisticas agregadas (DashboardRepository standalone — queries multi-modelo)
 │   │   │   ├── email/                # Servicio de emails (Resend)
 │   │   │   ├── upload/               # Upload a Cloudflare R2
-│   │   │   ├── scheduler/            # Cron jobs (7 jobs: 6 diarios + 1 mensual, distributed lock)
+│   │   │   ├── scheduler/            # Cron jobs (8 jobs: 7 diarios + 1 mensual, distributed lock)
 │   │   │   ├── redis/                # RedisModule (global) + DistributedLockService
 │   │   │   ├── health/              # HealthModule (@nestjs/terminus, DB + Redis)
 │   │   │   ├── metrics/             # MetricsModule (OpenTelemetry, Prometheus :9464)
@@ -413,7 +413,7 @@ Los servicios de dominio inyectan `NotificationsHandlerService` directamente. No
 
 **Pattern:** `void this.notificationsHandler.handleBudgetCreated({...})` — fire-and-forget tipado.
 
-**Queues:** `notification` (3 reintentos, backoff 3s) para in-app, `emails` (5 reintentos, backoff 5s) para emails. `NotificationsHandlerService` envuelve cada llamada en `try-catch`. Errores de BullMQ se reintentan automaticamente.
+**Queues:** `notification` (3 reintentos, backoff 3s) para in-app, `emails` (5 reintentos, backoff 5s, concurrency 15) para emails. `NotificationsHandlerService` envuelve cada llamada en `try-catch`. Errores de BullMQ se reintentan automaticamente.
 
 ### P8: Error Handling Centralizado
 
@@ -440,7 +440,7 @@ Login → LocalStrategy (email+password) → JWT access + refresh (family + gene
 
 - **Token Rotation**: cada login crea una "family" UUID. Refresh tokens llevan `family` + `generation`
 - **Reuse Detection**: si generation no coincide al hacer refresh → revoca toda la family
-- Redis almacena `rt:{family}` con generation actual (TTL 7d) y `bl:{jti}` para blacklist. La rotacion usa Lua script atomico con try-catch (retorna `InternalServerErrorException` si Redis falla)
+- Redis almacena `epde:rt:{family}` con generation actual (TTL 7d) y `epde:bl:{jti}` para blacklist. Todos los keys Redis llevan prefix `epde:` para evitar colisiones en instancias compartidas. La rotacion usa Lua script atomico con try-catch (retorna `InternalServerErrorException` si Redis falla)
 - `JwtStrategy.validate()` verifica que `purpose` (si presente) sea `'access'` — previene uso de tokens de invitacion como access tokens
 - Cookies: `SameSite=strict`, `HttpOnly`, `Secure` (prod) — elimina necesidad de CSRF tokens
 - `AuthAuditService`: logging estructurado de eventos de auth (login, logout, failed, reuse attack)
@@ -463,17 +463,18 @@ Cliente → POST /upload (multipart/form-data) → { url }
 
 ### P11: Cron Jobs (Distributed Lock)
 
-7 jobs programados, cada uno envuelto en `DistributedLockService.withLock()` (Redis SETNX, TTL 5min):
+8 jobs programados, cada uno envuelto en `DistributedLockService.withLock()` (Redis SETNX, TTL 5min):
 
-| Job                        | Cron              | Descripcion                                                           |
-| -------------------------- | ----------------- | --------------------------------------------------------------------- |
-| task-status-recalculation  | 09:00 UTC diario  | PENDING -> UPCOMING (30 dias) -> OVERDUE                              |
-| task-upcoming-reminders    | 09:05 UTC diario  | Notificaciones + email para tareas proximas/vencidas                  |
-| task-safety-sweep          | 09:10 UTC diario  | Correccion de edge cases en tareas completadas                        |
-| budget-expiration-check    | 09:30 UTC diario  | Expiracion de presupuestos con validUntil vencido                     |
-| service-request-auto-close | 10:00 UTC diario  | Auto-cierre de solicitudes resueltas hace >7 dias                     |
-| subscription-reminder      | 10:30 UTC diario  | Recordatorios de vencimiento de suscripcion (7, 3 y 1 dias restantes) |
-| isv-monthly-snapshot       | 02:00 UTC 1ro/mes | Snapshot mensual del ISV por propiedad                                |
+| Job                        | Cron              | Descripcion                                                                           |
+| -------------------------- | ----------------- | ------------------------------------------------------------------------------------- |
+| task-status-recalculation  | 09:00 UTC diario  | PENDING -> UPCOMING (30 dias) -> OVERDUE                                              |
+| task-upcoming-reminders    | 09:05 UTC diario  | Notificaciones + email para tareas proximas/vencidas                                  |
+| task-safety-sweep          | 09:10 UTC diario  | Correccion de edge cases en tareas completadas                                        |
+| budget-expiration-check    | 09:30 UTC diario  | Expiracion de presupuestos con validUntil vencido                                     |
+| service-request-auto-close | 10:00 UTC diario  | Auto-cierre de solicitudes resueltas hace >7 dias                                     |
+| subscription-reminder      | 10:30 UTC diario  | Recordatorios de vencimiento de suscripcion (7, 3 y 1 dias restantes)                 |
+| isv-monthly-snapshot       | 02:00 UTC 1ro/mes | Snapshot mensual del ISV por propiedad                                                |
+| data-cleanup               | 03:00 UTC diario  | Hard-delete de registros soft-deleted > 90 dias + retencion de ISVSnapshot a 24 meses |
 
 Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en deployments multi-instancia. Incluye **watchdog** que extiende TTL automaticamente cada mitad del periodo. El callback recibe `signal: { lockLost: boolean }` — los jobs verifican el flag antes de operaciones costosas y abortan si el lock se perdio. **Batch processing**: tareas procesadas en lotes de `BATCH_SIZE=50` para evitar timeouts en datasets grandes.
 
@@ -683,23 +684,24 @@ NUNCA usar hex literals en estos archivos — importar siempre desde `DESIGN_TOK
 
 23 componentes instalados, estilo **new-york**:
 
-| Componente | Uso principal                                              |
-| ---------- | ---------------------------------------------------------- |
-| Alert      | Mensajes de error/info/warning                             |
-| Badge      | Estados, etiquetas, prioridades                            |
-| Button     | Acciones (default, secondary, outline, ghost, destructive) |
-| Card       | Contenedores de contenido                                  |
-| Command    | Combobox/typeahead (cmdk)                                  |
-| Dialog     | Modales                                                    |
-| Input      | Inputs de formulario                                       |
-| Label      | Labels de formulario                                       |
-| Popover    | Tooltips interactivos                                      |
-| Select     | Select mejorado                                            |
-| Separator  | Linea divisoria                                            |
-| Sheet      | Panel lateral (mobile sidebar)                             |
-| Skeleton   | Loading placeholders                                       |
-| Table      | Tablas estilizadas                                         |
-| Textarea   | Areas de texto                                             |
+| Componente    | Uso principal                                                |
+| ------------- | ------------------------------------------------------------ |
+| Alert         | Mensajes de error/info/warning                               |
+| Badge         | Estados, etiquetas, prioridades                              |
+| Button        | Acciones (default, secondary, outline, ghost, destructive)   |
+| Card          | Contenedores de contenido                                    |
+| Command       | Combobox/typeahead (cmdk)                                    |
+| Dialog        | Modales                                                      |
+| ConfirmDialog | Dialogo de confirmacion con `confirmLabel` prop customizable |
+| Input         | Inputs de formulario                                         |
+| Label         | Labels de formulario                                         |
+| Popover       | Tooltips interactivos                                        |
+| Select        | Select mejorado                                              |
+| Separator     | Linea divisoria                                              |
+| Sheet         | Panel lateral (mobile sidebar)                               |
+| Skeleton      | Loading placeholders                                         |
+| Table         | Tablas estilizadas                                           |
+| Textarea      | Areas de texto                                               |
 
 ### Componentes Dashboard (Web — custom)
 
@@ -833,10 +835,14 @@ Componente wrapper de TanStack Table:
   columns={columns} // ColumnDef[]
   data={data} // TData[]
   isLoading={isLoading} // Muestra skeletons
+  isLoadingMore={isLoadingMore} // Loading state para "Cargar mas"
   hasMore={hasMore} // Boton "Cargar mas"
   onLoadMore={loadMore}
   total={total} // "X de Y resultados"
   onRowClick={onClick} // Navegacion por fila
+  emptyFilterMessage={msg} // Mensaje cuando hay filtros activos sin resultados
+  hasActiveFilters={bool} // Indica si hay filtros aplicados
+  rowLabel={label} // Label accesible para cada fila (ej: "propiedad")
 />
 ```
 
@@ -915,6 +921,7 @@ Snapshot mensual del Indice de Salud de la Vivienda (ISV). Generado por cron job
 **Indices:** `propertyId`, `@@unique([propertyId, snapshotDate])`
 **Cascade:** onDelete de Property elimina sus ISVSnapshots
 **ISV Label:** score >=80 "Excelente", >=60 "Bueno", >=40 "Regular", >=20 "Necesita atención", <20 "Crítico"
+**Retencion:** 24 meses por propiedad (scheduler `data-cleanup` purga automaticamente)
 
 ### Campos adicionales relevantes
 
@@ -929,6 +936,8 @@ Snapshot mensual del Indice de Salud de la Vivienda (ISV). Generado por cron job
 
 Modelos con `deletedAt: DateTime?`: User, Property, Task, Category, BudgetRequest, ServiceRequest.
 La extension Prisma en `PrismaService` aplica `deletedAt: null` automaticamente via `hasDeletedAtKey()` (inspecciona nivel raiz + `AND/OR/NOT` recursivamente).
+
+**Indices compuestos:** `BudgetRequest` y `ServiceRequest` incluyen `@@index([status, deletedAt])` para optimizar queries filtradas por estado con soft-delete.
 
 **Scope de soft delete — por que los demas modelos NO lo tienen:**
 
@@ -986,18 +995,19 @@ Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `
 | Swagger    | `http://localhost:3001/api/docs`                                                |
 | Auth       | JWT cookies (web) / Bearer (mobile)                                             |
 | Rate limit | 5/s, 30/10s, 5/min (login, refresh), 3/s+20/min (upload), 3/hora (set-password) |
+| Body limit | `express.json({ limit: '1mb' })` — proteccion contra payloads JSON oversized    |
 
 ### Endpoints (18 grupos)
 
 1. **Health** — `GET /health` (DB + Redis via @nestjs/terminus)
-2. **Auth** — login, refresh, logout, me, set-password
+2. **Auth** — login, refresh, logout, me, set-password. AuthController usa rate limiting especifico: 5 req/min (mas restrictivo que el global)
 3. **Clients** — CRUD (ADMIN only) + bulk-reinvite + bulk-delete
 4. **Properties** — CRUD + filtro por rol + 4 sub-endpoints: `GET :id/health-index` (ISV en tiempo real), `GET :id/health-history` (historial ISV 12 meses), `GET :id/expenses`, `GET :id/photos`. `GET /properties` incluye `latestISV` (ultimo snapshot ISV) en cada propiedad
 5. **Categories** — CRUD
 6. **Maintenance Plans** — CRUD + tareas + complete + notes + reorder
 7. **Budgets** — CRUD + respond + status changes
 8. **Service Requests** — CRUD + status changes (linear state machine: OPEN → IN_REVIEW → IN_PROGRESS → RESOLVED → CLOSED, enforced via `InvalidServiceStatusTransitionError`)
-9. **Notifications** — list, unread-count, mark-read, mark-all-read + push-token register/unregister
+9. **Notifications** — list, unread-count, mark-read, mark-all-read + push-token register/unregister. Refetch interval: 60 segundos (web + mobile)
 10. **Upload** — multipart/form-data a R2
 11. **Dashboard** — stats, upcoming-tasks, recent-activity, analytics (incl. SLA metrics)
 12. **Quote Templates** — CRUD (ADMIN only) — plantillas de cotizacion reutilizables
@@ -1074,14 +1084,14 @@ Pipeline de deploy real — ambos pipelines reusan `ci-reusable.yml` como gate:
 
 ### Servicios Externos
 
-| Servicio      | Uso                                         |
-| ------------- | ------------------------------------------- |
-| Redis 7       | Token state, blacklist, distributed locking |
-| Cloudflare R2 | Almacenamiento de archivos                  |
-| Resend        | Emails transaccionales                      |
-| Sentry        | Monitoreo de errores (backend)              |
-| OpenTelemetry | Distributed tracing (OTLP HTTP, opcional)   |
-| Prometheus    | Metricas (via OpenTelemetry, puerto 9464)   |
+| Servicio      | Uso                                                                                                                   |
+| ------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Redis 7       | Token state, blacklist, distributed locking                                                                           |
+| Cloudflare R2 | Almacenamiento de archivos                                                                                            |
+| Resend        | Emails transaccionales                                                                                                |
+| Sentry        | Monitoreo de errores (backend). Trace sampling: 50% en produccion, 100% en desarrollo                                 |
+| OpenTelemetry | Distributed tracing (OTLP HTTP, opcional)                                                                             |
+| Prometheus    | Metricas (via OpenTelemetry, puerto 9464). Metricas custom: `db_query_duration_seconds`, `queue_depth`, `error_total` |
 
 ---
 

@@ -100,6 +100,7 @@ apps/mobile/
       haptics.ts                     # Wrapper de expo-haptics (light/medium/success/selection)
       animations.ts                  # Presets reanimated (TIMING, SPRING, useSlideIn, useFadeIn)
       colors.ts                      # Design tokens JS (para APIs no-NativeWind: navigation, etc.)
+      date-format.ts                 # formatDateES(date, pattern) — formateo de fechas con locale argentino
       chart-colors.ts                # Tokens de color para charts SVG (CHART_TOKENS_LIGHT)
       screen-options.ts              # defaultScreenOptions + defaultTabBarOptions compartidos
       api/
@@ -146,7 +147,7 @@ Wraps: `GestureHandlerRootView` → `ErrorBoundary` → `PersistQueryClientProvi
 | Avisos       | `/notifications`    | 📢    | Centro de notificaciones           |
 | Perfil       | `/profile`          | 👤    | Info de usuario + logout           |
 
-La tab de Avisos muestra un **badge con conteo de no leidas** (auto-refresh cada 30s).
+La tab de Avisos muestra un **badge con conteo de no leidas** (auto-refresh cada 60s).
 
 ### Rutas de Detalle
 
@@ -291,7 +292,7 @@ Estructura en 3 niveles (conclusión primero, datos después):
 - **Swipe derecha**: marcar como leida (SwipeableRow con icono ✓ verde)
 - Tap → marca como leida
 - Boton "Marcar todas como leidas" (haptics medium)
-- Auto-refresh del conteo cada 30 segundos
+- Auto-refresh del conteo cada 60 segundos
 
 ### Perfil
 
@@ -350,7 +351,7 @@ Implementado via NativeWind `vars()` (no className `.dark`):
 
 - Toda la UI en espanol (Argentina)
 - Labels de enums desde `@epde/shared` (BUDGET_STATUS_LABELS, etc.)
-- Fechas con `date-fns` locale `es`
+- Fechas con `date-fns` locale `es`. `date-format.ts` — `formatDateES(date, pattern)` centraliza formateo de fechas con locale argentino (date-fns + es locale). Reemplaza imports directos de `format`/`es` en cada archivo
 - Moneda: Peso Argentino (ARS) formateado con `$`
 
 ### Offline Cache (Query Persistence)
@@ -399,6 +400,8 @@ Presets centralizados en `lib/animations.ts`:
 - **SPRING**: `gentle` (damping 15, stiffness 100), `stiff` (damping 20, stiffness 200)
 - **Hooks**: `useSlideIn(direction)`, `useFadeIn()`, `useReducedMotion()`
 - Todos los componentes animados respetan `useReducedMotion()` — accesibilidad first
+- AnimatedListItem skipea animación de entrada para items con index >= 30 (performance en listas grandes). Stagger delay máximo: 300ms.
+- Todos los modales tienen `accessibilityViewIsModal={true}` para aislar contenido de screen readers.
 
 ### Gestos (react-native-gesture-handler)
 
