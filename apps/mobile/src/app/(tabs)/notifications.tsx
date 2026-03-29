@@ -132,7 +132,10 @@ export default function NotificationsScreen() {
       markAsRead.mutate(notification.id);
     }
     const route = getNotificationRoute(notification);
-    if (route) router.push(route as never);
+    if (route) {
+      router.push(route as never);
+    }
+    // If no route, notification was still marked as read (visual feedback via optimistic update)
   };
 
   const handleMarkAllAsRead = () => {

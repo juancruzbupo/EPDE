@@ -80,7 +80,7 @@ const BudgetCard = memo(function BudgetCard({ budget }: { budget: BudgetRequestP
           </Text>
         ) : (
           <Text style={TYPE.bodySm} className="text-muted-foreground">
-            Sin cotizar
+            Esperando cotización
           </Text>
         )}
         <Text

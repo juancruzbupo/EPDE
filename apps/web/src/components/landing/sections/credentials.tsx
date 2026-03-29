@@ -61,12 +61,8 @@ export function CredentialsSection({ motionProps }: SectionProps) {
               </div>
             </div>
             <p className="type-body-md text-muted-foreground">
-              Durante años vi cómo pequeños problemas se convertían en intervenciones mayores por
-              falta de planificación. EPDE nace para cambiar eso.
-            </p>
-            <p className="type-body-md text-muted-foreground">
-              Cada diagnóstico lo realizo personalmente. No uso checklists genéricos: evalúo con
-              criterio arquitectónico, adaptado a cada vivienda.
+              Cada diagnóstico lo realizo personalmente con criterio arquitectónico, adaptado a cada
+              vivienda. Sin checklists genéricos.
             </p>
 
             <p className="type-body-sm text-primary/70 font-medium">

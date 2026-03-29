@@ -1,4 +1,4 @@
-import { UserRole, WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
+import { formatRelativeDate, UserRole, WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { Linking, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
@@ -63,6 +63,7 @@ function ClientDashboard() {
     isLoading: statsLoading,
     error: statsError,
     refetch: refetchStats,
+    dataUpdatedAt,
   } = useClientDashboardStats();
 
   const {
@@ -129,9 +130,14 @@ function ClientDashboard() {
       <Text style={TYPE.displayLg} className="text-foreground">
         {userName ? `Hola, ${userName.split(' ')[0]}` : 'Mi Panel'}
       </Text>
-      <Text style={TYPE.bodySm} className="text-muted-foreground mb-4">
+      <Text style={TYPE.bodySm} className="text-muted-foreground mb-1">
         Resumen de tus propiedades y tareas
       </Text>
+      {dataUpdatedAt > 0 && (
+        <Text style={TYPE.bodySm} className="text-muted-foreground mb-4">
+          Actualizado {formatRelativeDate(new Date(dataUpdatedAt))}
+        </Text>
+      )}
 
       {/* Subscription warning */}
       {subscriptionDaysLeft !== null && subscriptionDaysLeft <= 7 && (

@@ -198,10 +198,10 @@ export const INVESTMENT_FEATURES = [
 ];
 
 export const TARGET_PROFILES = [
-  'Tienen vivienda propia y son responsables de su mantenimiento',
-  'Prefieren planificar antes que reaccionar',
-  'Buscan orden y previsión en el mantenimiento',
-  'Valoran criterio profesional sobre soluciones improvisadas',
+  'Propietarios que quieren cuidar su casa sin tener que entender de construcción',
+  'Familias que prefieren prevenir antes que reparar de urgencia',
+  'Inversores que necesitan proteger el valor de sus propiedades',
+  'Personas ocupadas que buscan delegar el seguimiento de su vivienda',
 ];
 
 export const CREDENTIALS: IconTextItem[] = [

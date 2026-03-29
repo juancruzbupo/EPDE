@@ -8,6 +8,7 @@ import { CredentialsSection } from './sections/credentials';
 import { DeliverablesSection } from './sections/deliverables';
 import { DifferentiationSection } from './sections/differentiation';
 import { DigitalSystemSection } from './sections/digital-system';
+import { FaqSection } from './sections/faq';
 import { FinalCtaSection } from './sections/final-cta';
 import { Footer } from './sections/footer';
 import { Header } from './sections/header';
@@ -62,6 +63,8 @@ export function LandingPage() {
       <CredentialsSection motionProps={motionProps} />
       {/* 11. Para quién */}
       <TargetAudienceSection motionProps={motionProps} />
+      {/* 11b. FAQ */}
+      <FaqSection motionProps={motionProps} />
       {/* 12. Pricing */}
       <InvestmentSection motionProps={motionProps} />
       {/* 13. Urgencia */}

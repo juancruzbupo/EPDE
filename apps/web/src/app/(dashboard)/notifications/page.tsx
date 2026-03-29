@@ -6,6 +6,7 @@ import { Bell, CheckCheck, ChevronRight, Clock, FileText, Wrench } from 'lucide-
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 
+import { Breadcrumbs } from '@/components/breadcrumbs';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { PageHeader } from '@/components/page-header';
@@ -55,6 +56,7 @@ export default function NotificationsPage() {
 
   return (
     <PageTransition>
+      <Breadcrumbs items={[{ label: 'Notificaciones' }]} />
       <PageHeader
         title="Notificaciones"
         description="Centro de notificaciones"

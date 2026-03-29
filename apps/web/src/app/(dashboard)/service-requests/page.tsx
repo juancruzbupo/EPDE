@@ -140,7 +140,7 @@ function ServiceRequestsPageContent() {
         hasMore={hasNextPage}
         onLoadMore={() => fetchNextPage()}
         total={total}
-        emptyMessage="No se encontraron solicitudes de servicio"
+        emptyMessage="Todavía no tenés solicitudes. Podés crear una desde el botón 'Nueva Solicitud' o desde el detalle de una tarea."
         onRowClick={(row) => router.push(`/service-requests/${row.id}`)}
       />
 

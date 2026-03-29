@@ -69,6 +69,7 @@ function StatCard({
   return (
     <button
       onClick={onClick}
+      title="Click para filtrar por este estado"
       className={cn(
         'bg-card flex flex-1 items-center gap-3 rounded-lg border p-3 text-left transition-all',
         active ? 'ring-primary ring-2' : 'hover:bg-muted/40',
