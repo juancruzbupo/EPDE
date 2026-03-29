@@ -80,6 +80,13 @@ function ClientDashboard() {
 
   const isLoading = statsLoading || tasksLoading;
 
+  const subscriptionDaysLeft = useMemo(() => {
+    if (!user?.subscriptionExpiresAt) return null;
+    return Math.ceil(
+      (new Date(user.subscriptionExpiresAt).getTime() - Date.now()) / (24 * 60 * 60_000),
+    );
+  }, [user?.subscriptionExpiresAt]);
+
   // First non-overdue task = "Próxima inspección"
   const nextUpcoming = useMemo(() => {
     if (!tasks) return null;
@@ -127,36 +134,33 @@ function ClientDashboard() {
       </Text>
 
       {/* Subscription warning */}
-      {user?.subscriptionExpiresAt &&
-        (() => {
-          const daysLeft = Math.ceil(
-            (new Date(user.subscriptionExpiresAt!).getTime() - Date.now()) / (24 * 60 * 60_000),
-          );
-          if (daysLeft > 7) return null;
-          return (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Tu suscripción está por vencer. Toca para renovar."
-              className="border-warning/30 bg-warning/5 mb-4 flex-row items-center gap-3 rounded-xl border p-3"
-              onPress={() =>
-                Linking.openURL(
-                  `https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=Hola, quiero renovar mi suscripción a EPDE`,
-                )
-              }
-            >
-              <Text style={{ fontSize: 20 }}>⚠️</Text>
-              <View className="flex-1">
-                <Text style={TYPE.bodySm} className="text-foreground font-medium">
-                  Tu suscripción vence{' '}
-                  {daysLeft <= 0 ? 'hoy' : daysLeft === 1 ? 'mañana' : `en ${daysLeft} días`}
-                </Text>
-                <Text style={TYPE.bodySm} className="text-primary">
-                  Contactar para renovar →
-                </Text>
-              </View>
-            </Pressable>
-          );
-        })()}
+      {subscriptionDaysLeft !== null && subscriptionDaysLeft <= 7 && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Tu suscripción está por vencer. Toca para renovar."
+          className="border-warning/30 bg-warning/5 mb-4 flex-row items-center gap-3 rounded-xl border p-3"
+          onPress={() =>
+            Linking.openURL(
+              `https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=Hola, quiero renovar mi suscripción a EPDE`,
+            )
+          }
+        >
+          <Text style={{ fontSize: 20 }}>⚠️</Text>
+          <View className="flex-1">
+            <Text style={TYPE.bodySm} className="text-foreground font-medium">
+              Tu suscripción vence{' '}
+              {subscriptionDaysLeft <= 0
+                ? 'hoy'
+                : subscriptionDaysLeft === 1
+                  ? 'mañana'
+                  : `en ${subscriptionDaysLeft} días`}
+            </Text>
+            <Text style={TYPE.bodySm} className="text-primary">
+              Contactar para renovar →
+            </Text>
+          </View>
+        </Pressable>
+      )}
 
       {/* Welcome Card — shown until client has tasks */}
       {showWelcome && (

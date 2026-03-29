@@ -15,6 +15,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import type { ClientPublic } from '@/lib/api/clients';
 
+function daysFromNow(dateStr: string): number {
+  return Math.ceil((new Date(dateStr).getTime() - Date.now()) / (24 * 60 * 60_000));
+}
+
 export function clientColumns({
   onDelete,
   onReinvite,
@@ -68,9 +72,7 @@ export function clientColumns({
       cell: ({ row }) => {
         const expiresAt = row.original.subscriptionExpiresAt;
         if (!expiresAt) return <span className="text-muted-foreground text-xs">—</span>;
-        const daysLeft = Math.ceil(
-          (new Date(expiresAt).getTime() - Date.now()) / (24 * 60 * 60_000),
-        );
+        const daysLeft = daysFromNow(expiresAt);
         if (daysLeft < 0) {
           return <Badge variant="destructive">Expirada</Badge>;
         }
@@ -89,9 +91,7 @@ export function clientColumns({
       cell: ({ row }) => {
         const lastLogin = row.original.lastLoginAt;
         if (!lastLogin) return <span className="text-muted-foreground text-xs">Nunca</span>;
-        const daysAgo = Math.floor(
-          (Date.now() - new Date(lastLogin).getTime()) / (1000 * 60 * 60 * 24),
-        );
+        const daysAgo = -daysFromNow(lastLogin);
         const color =
           daysAgo <= 7 ? 'text-success' : daysAgo <= 30 ? 'text-warning' : 'text-destructive';
         return (

@@ -1,6 +1,6 @@
 import { changePasswordSchema, WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
 import Constants from 'expo-constants';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -384,14 +384,21 @@ export default function ProfileScreen() {
 }
 
 function MobileSubscriptionInfo({ expiresAt }: { expiresAt: string }) {
-  const exp = new Date(expiresAt);
-  const daysLeft = Math.ceil((exp.getTime() - Date.now()) / (24 * 60 * 60_000));
-  const isExpired = daysLeft < 0;
-  const isNearExpiry = !isExpired && daysLeft <= 7;
-
-  const badgeColor = isExpired ? 'bg-destructive' : isNearExpiry ? 'bg-warning' : 'bg-success';
-  const badgeTextColor = isExpired || isNearExpiry ? 'text-white' : 'text-success-foreground';
-  const label = isExpired ? 'Expirada' : `${daysLeft} día${daysLeft === 1 ? '' : 's'} restantes`;
+  const { exp, isExpired, isNearExpiry, badgeColor, badgeTextColor, label } = useMemo(() => {
+    const d = new Date(expiresAt);
+    const days = Math.ceil((d.getTime() - Date.now()) / (24 * 60 * 60_000));
+    const expired = days < 0;
+    const near = !expired && days <= 7;
+    return {
+      exp: d,
+      daysLeft: days,
+      isExpired: expired,
+      isNearExpiry: near,
+      badgeColor: expired ? 'bg-destructive' : near ? 'bg-warning' : 'bg-success',
+      badgeTextColor: expired || near ? 'text-white' : 'text-success-foreground',
+      label: expired ? 'Expirada' : `${days} día${days === 1 ? '' : 's'} restantes`,
+    };
+  }, [expiresAt]);
 
   return (
     <View className="border-border bg-card mb-4 rounded-xl border p-4">

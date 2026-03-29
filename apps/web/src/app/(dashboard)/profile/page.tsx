@@ -9,7 +9,7 @@ import {
 } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Clock, Eye, EyeOff, Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -349,18 +349,24 @@ function ChangePasswordForm() {
 // ─── Subscription Info (Client only) ──────────────────────
 
 function SubscriptionInfo({ expiresAt }: { expiresAt: string }) {
-  const exp = new Date(expiresAt);
-  const daysLeft = Math.ceil((exp.getTime() - Date.now()) / (24 * 60 * 60_000));
-  const isExpired = daysLeft < 0;
-  const isNearExpiry = !isExpired && daysLeft <= 7;
-
-  const variant = isExpired
-    ? ('destructive' as const)
-    : isNearExpiry
-      ? ('warning' as const)
-      : ('success' as const);
-
-  const label = isExpired ? 'Expirada' : `${daysLeft} día${daysLeft === 1 ? '' : 's'} restantes`;
+  const { exp, isExpired, isNearExpiry, variant, label } = useMemo(() => {
+    const d = new Date(expiresAt);
+    const days = Math.ceil((d.getTime() - Date.now()) / (24 * 60 * 60_000));
+    const expired = days < 0;
+    const near = !expired && days <= 7;
+    return {
+      exp: d,
+      daysLeft: days,
+      isExpired: expired,
+      isNearExpiry: near,
+      variant: expired
+        ? ('destructive' as const)
+        : near
+          ? ('warning' as const)
+          : ('success' as const),
+      label: expired ? 'Expirada' : `${days} día${days === 1 ? '' : 's'} restantes`,
+    };
+  }, [expiresAt]);
 
   return (
     <Card className="mb-6">

@@ -408,6 +408,7 @@ function ClientServiceRequestsSection({
 function SubscriptionCard({ client, clientId }: { client: ClientPublic; clientId: string }) {
   const updateClient = useUpdateClient();
   const [extending, setExtending] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<'suspend' | 'removeLimit' | null>(null);
 
   const { expiresAt, statusLabel, statusVariant } = useMemo(() => {
     const exp = client.subscriptionExpiresAt ? new Date(client.subscriptionExpiresAt) : null;
@@ -526,19 +527,51 @@ function SubscriptionCard({ client, clientId }: { client: ClientPublic; clientId
           >
             +1 año
           </Button>
-          <Button size="sm" variant="destructive" onClick={handleSuspend} disabled={extending}>
+          <Button
+            size="sm"
+            variant="destructive"
+            onClick={() => setConfirmAction('suspend')}
+            disabled={extending}
+          >
             Suspender
           </Button>
           <Button
             size="sm"
             variant="ghost"
             className="text-muted-foreground hover:text-foreground"
-            onClick={handleRemoveLimit}
+            onClick={() => setConfirmAction('removeLimit')}
             disabled={extending}
           >
             Quitar límite
           </Button>
         </div>
+
+        <ConfirmDialog
+          open={confirmAction === 'suspend'}
+          onOpenChange={(open) => {
+            if (!open) setConfirmAction(null);
+          }}
+          title="Suspender suscripción"
+          description="El cliente perderá acceso inmediatamente y verá la pantalla de suscripción expirada. ¿Continuar?"
+          onConfirm={() => {
+            setConfirmAction(null);
+            handleSuspend();
+          }}
+          isLoading={extending}
+        />
+        <ConfirmDialog
+          open={confirmAction === 'removeLimit'}
+          onOpenChange={(open) => {
+            if (!open) setConfirmAction(null);
+          }}
+          title="Quitar límite de suscripción"
+          description="El cliente tendrá acceso ilimitado sin fecha de vencimiento. ¿Continuar?"
+          onConfirm={() => {
+            setConfirmAction(null);
+            handleRemoveLimit();
+          }}
+          isLoading={extending}
+        />
       </CardContent>
     </Card>
   );

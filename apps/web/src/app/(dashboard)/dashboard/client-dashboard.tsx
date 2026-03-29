@@ -33,7 +33,10 @@ function SubscriptionWarningBanner() {
   if (daysLeft > 7) return null;
 
   return (
-    <div className="border-warning/30 bg-warning/5 mb-4 flex items-center gap-3 rounded-lg border p-3">
+    <div
+      role="alert"
+      className="border-warning/30 bg-warning/5 mb-4 flex items-center gap-3 rounded-lg border p-3"
+    >
       <AlertTriangle className="text-warning h-5 w-5 shrink-0" aria-hidden="true" />
       <div className="flex-1">
         <p className="type-body-sm text-foreground font-medium">
