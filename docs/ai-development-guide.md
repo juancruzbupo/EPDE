@@ -167,11 +167,14 @@
 150. **SIEMPRE #37 (Redis key prefix)**: Todas las keys Redis DEBEN pasar por `RedisService` que aplica prefix `epde:` automáticamente. NUNCA usar el cliente Redis directamente
 151. **SIEMPRE #38 (DataTable performance)**: Row animations solo aplican a los primeros 20 rows (`index < 20`). Chart components envueltos en `React.memo()`. AnimatedListItem en mobile skipea animación de entrada para `index >= 30`
 152. **SIEMPRE #39 (empty states descriptivos)**: Empty states DEBEN explicar qué hacer para que aparezcan datos. Ejemplo: "Se generan cuando solicitás un servicio profesional" en vez de solo "Sin resultados". Aplica a web y mobile
-153. **SIEMPRE #40 (FAQ section)**: Landing page tiene sección FAQ con accordion. Preguntas hardcodeadas en `sections/faq.tsx`. Para agregar preguntas, editar array FAQS en ese archivo. Copy centralizado en `landing-data.ts` (SIEMPRE #74)
+153. **SIEMPRE #40 (FAQ section)**: Landing page tiene sección FAQ con accordion. Preguntas hardcodeadas en `sections/faq.tsx`. Para agregar preguntas, editar array FAQS en ese archivo. Copy centralizado en `landing-data.ts` (SIEMPRE #74). FAQ también es editable desde el admin panel (`/landing-settings`) — los valores del admin tienen prioridad sobre los hardcoded
 154. **SIEMPRE #41 (deduplicación en schedulers)**: Todo scheduler que envíe notificaciones DEBE verificar si ya se envió una notificación del mismo tipo hoy para ese usuario. Patrón: `findToday[Type]Ids()` en NotificationsRepository. Previene duplicados en redeploy/restart
 155. **SIEMPRE #42 (mobile screens max 400 LOC)**: Mobile screens DEBEN mantenerse por debajo de 400 LOC. Extraer sub-componentes presentacionales a una carpeta `components/` hermana del screen file. Los hooks y logica de negocio permanecen en el screen padre. Cada sub-componente usa `React.memo` con props minimas. Patron: `property/[id].tsx` (405 LOC) + `property/components/` (4 sub-componentes), `service-requests/[id].tsx` (272 LOC) + `service-requests/components/` (7 sub-componentes)
 156. **SIEMPRE #43 (web hook split queries/mutations)**: Web hooks que superen 150 LOC DEBEN dividirse en `-queries.ts` + `-mutations.ts` + barrel re-export. Los tests importan desde el barrel. Patron: `use-task-operations-queries.ts` + `use-task-operations-mutations.ts` + `use-task-operations.ts` (barrel). Aplica a `use-budgets`, `use-service-requests`, `use-task-operations`
 157. **SIEMPRE #44 (API service extraction over 300 LOC)**: API services que superen 300 LOC DEBEN extraer metodos de comentarios/adjuntos en services dedicados (ej: `BudgetCommentsService`, `BudgetAttachmentsService`). El service principal orquesta; los services extraidos se registran en el mismo modulo. Patron: `budgets.service.ts` (368 -> 302 LOC) + `budget-comments.service.ts` + `budget-attachments.service.ts`
+158. **SIEMPRE #45 (RequestCacheService)**: Usar `RequestCacheService` con `AsyncLocalStorage` para cachear queries dentro de una request. NUNCA usar `Scope.REQUEST` — propaga scope a dependencias transitivas y rompe singletons (ej: Passport strategies). El servicio es no-op fuera de contexto HTTP (schedulers)
+159. **SIEMPRE #46 (guards después de hooks)**: En páginas admin-only, el condicional `if (user?.role !== UserRole.ADMIN) return null` DEBE ir DESPUÉS de todos los hooks. NUNCA hacer early return antes de useState/useQuery/useMemo (viola rules-of-hooks y rompe el build de producción)
+160. **SIEMPRE #47 (migración Prisma inmediata)**: Al agregar un modelo en `schema.prisma`, ejecutar `prisma migrate dev --name <nombre>` inmediatamente y commitear la migración SQL. NUNCA deployar schema sin migración — `prisma migrate deploy` falla y la API no arranca
 
 ### NUNCA
 
@@ -204,6 +207,7 @@
 27. **NUNCA definir `const QUERY_KEY` local en hooks** — Escribir `[QUERY_KEYS.xxx]` inline en cada `queryKey`/`invalidateQueries`. Una constante local esconde la key real y dificulta busquedas globales
 28. **NUNCA usar `jest.mock()` o `jest.fn()` en tests de `@epde/web`** — Usar `vi.mock()` y `vi.fn()` de Vitest. NUNCA usar `vi.mock()` o `vi.fn()` en tests de `@epde/api` o `@epde/mobile` — usar `jest.mock()` y `jest.fn()`
 29. **NUNCA #21 (Redis keys sin prefix)**: No usar el cliente Redis (`ioredis`) directamente. Siempre usar `RedisService` que aplica prefix `epde:` automáticamente
+30. **NUNCA #22 (body-parser manual)**: No agregar `express.json()` ni `body-parser` manualmente en `main.ts`. NestJS maneja body parsing automáticamente (límite default 100kb, suficiente para APIs — uploads van por multipart). Agregar un segundo parser causa errores de doble-parsing
 
 ---
 

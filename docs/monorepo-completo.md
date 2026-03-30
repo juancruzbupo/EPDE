@@ -64,6 +64,7 @@ epde/
 │   │   │   ├── task-templates/        # Templates de tareas por categoria
 │   │   │   ├── quote-templates/      # Templates de cotizacion reutilizables (CRUD)
 │   │   │   ├── category-templates/   # Templates de categorias
+│   │   │   ├── landing-settings/    # Admin edita pricing, FAQ, consequences de la landing (GET público + PATCH admin-only)
 │   │   │   ├── notifications/        # Sistema de notificaciones (NotificationsHandlerService + BullMQ queues)
 │   │   │   ├── dashboard/            # Estadisticas agregadas (DashboardRepository standalone — queries multi-modelo)
 │   │   │   ├── email/                # Servicio de emails (Resend)
@@ -78,7 +79,8 @@ epde/
 │   │   │   │   ├── guards/           # JwtAuth, Roles, Throttler
 │   │   │   │   ├── pipes/            # ZodValidationPipe
 │   │   │   │   ├── filters/          # GlobalExceptionFilter
-│   │   │   │   └── repositories/     # BaseRepository<T>
+│   │   │   │   ├── repositories/     # BaseRepository<T>
+│   │   │   │   └── request-cache/    # Cache por request via AsyncLocalStorage (no Scope.REQUEST)
 │   │   │   └── config/               # Env validation (Zod)
 │   │   ├── test/                     # E2E tests (*.e2e-spec.ts)
 │   │   ├── nest-cli.json
@@ -110,12 +112,13 @@ epde/
 │   │   │   │       ├── service-requests/  # Solicitudes
 │   │   │   │       ├── notifications/     # Notificaciones
 │   │   │   │       ├── templates/    # Templates categorías + tareas (ADMIN)
+│   │   │   │       ├── landing-settings/ # Admin editor para contenido dinámico de landing (pricing, FAQ, consequences)
 │   │   │   │       └── profile/      # Perfil + cambio de contraseña
 │   │   │   ├── components/
 │   │   │   │   ├── ui/               # 23 componentes shadcn/ui
 │   │   │   │   ├── data-table/       # DataTable wrapper (TanStack Table)
-│   │   │   │   ├── layout/           # Header, Sidebar
-│   │   │   │   ├── landing/          # landing-page.tsx (composicion) + sections/ (18 archivos) + landing-data.ts
+│   │   │   │   ├── layout/           # Header, Sidebar (admin: incluye "Landing" item para /landing-settings)
+│   │   │   │   ├── landing/          # landing-page.tsx (composicion) + sections/ (18 archivos) + landing-data.ts. 3 secciones dinámicas (pricing, FAQ, consequences): editables desde admin panel (/landing-settings) con fallback a valores hardcoded
 │   │   │   │   ├── home-status-card.tsx   # Dashboard L1: score ISV + mensaje humano
 │   │   │   │   ├── action-list.tsx        # Dashboard L2: tareas vencidas + semana
 │   │   │   │   ├── analytics-tabs.tsx     # Dashboard L3: charts en tabs
