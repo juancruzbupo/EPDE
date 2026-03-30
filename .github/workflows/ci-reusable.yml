@@ -93,6 +93,9 @@ jobs:
           pnpm check:docs-drift &
           wait
 
+      - name: Check file size limits
+        run: node scripts/check-file-size.mjs
+
       - name: Lint and type check
         run: |
           pnpm lint &

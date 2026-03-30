@@ -175,6 +175,8 @@
 158. **SIEMPRE #45 (RequestCacheService)**: Usar `RequestCacheService` con `AsyncLocalStorage` para cachear queries dentro de una request. NUNCA usar `Scope.REQUEST` — propaga scope a dependencias transitivas y rompe singletons (ej: Passport strategies). El servicio es no-op fuera de contexto HTTP (schedulers)
 159. **SIEMPRE #46 (guards después de hooks)**: En páginas admin-only, el condicional `if (user?.role !== UserRole.ADMIN) return null` DEBE ir DESPUÉS de todos los hooks. NUNCA hacer early return antes de useState/useQuery/useMemo (viola rules-of-hooks y rompe el build de producción)
 160. **SIEMPRE #47 (migración Prisma inmediata)**: Al agregar un modelo en `schema.prisma`, ejecutar `prisma migrate dev --name <nombre>` inmediatamente y commitear la migración SQL. NUNCA deployar schema sin migración — `prisma migrate deploy` falla y la API no arranca
+161. **SIEMPRE #48 (soft-delete justification)**: NotificationsRepository usa `hasSoftDelete: false` porque las notificaciones son efímeras — se borran por limpieza periódica (deleteOldRead), no por acción del usuario. No necesitan recuperación. Documentar en JSDoc del repository si un nuevo modelo no usa soft-delete
+162. **SIEMPRE #49 (mobile API coverage)**: Mobile solo incluye API files para endpoints accesibles al rol CLIENT. Endpoints admin-only (categories, templates, clients, landing-settings, quote-templates) NO tienen API file en mobile por diseño — el admin usa la versión web
 
 ### NUNCA
 
@@ -208,6 +210,7 @@
 28. **NUNCA usar `jest.mock()` o `jest.fn()` en tests de `@epde/web`** — Usar `vi.mock()` y `vi.fn()` de Vitest. NUNCA usar `vi.mock()` o `vi.fn()` en tests de `@epde/api` o `@epde/mobile` — usar `jest.mock()` y `jest.fn()`
 29. **NUNCA #21 (Redis keys sin prefix)**: No usar el cliente Redis (`ioredis`) directamente. Siempre usar `RedisService` que aplica prefix `epde:` automáticamente
 30. **NUNCA #22 (body-parser manual)**: No agregar `express.json()` ni `body-parser` manualmente en `main.ts`. NestJS maneja body parsing automáticamente (límite default 100kb, suficiente para APIs — uploads van por multipart). Agregar un segundo parser causa errores de doble-parsing
+31. **NUNCA #23 (transaction timeout sin justificación)**: Todos los `$transaction()` usan timeout de 10 segundos. Este valor cubre operaciones bulk (hasta 500 records) con margen para DB latency. No cambiar sin medir: reducir causa timeouts en bulk operations, aumentar mantiene locks más tiempo
 
 ---
 
@@ -1400,6 +1403,8 @@ El QueryClient de mobile difiere de web para soportar uso offline durante inspec
 | `@epde/shared` | **Vitest**           | `vi.fn()`, `vi.mock()`     | `vitest.config.ts`       |
 
 > NUNCA usar `jest.mock()` o `jest.fn()` en tests de `@epde/web` — usar `vi.mock()` y `vi.fn()` de Vitest. NUNCA usar `vi.mock()` o `vi.fn()` en tests de `@epde/api` o `@epde/mobile` — usar `jest.mock()` y `jest.fn()`. Los test runners no son intercambiables.
+
+> **Sufijos de archivos de test:** API usa `.spec.ts` (Jest convention), web y mobile usan `.test.ts` (Vitest/Expo convention). Ambos son correctos para sus frameworks.
 
 **Coverage Thresholds por Workspace:**
 

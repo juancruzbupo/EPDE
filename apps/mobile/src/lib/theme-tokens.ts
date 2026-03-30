@@ -1,3 +1,9 @@
+import {
+  DESIGN_TOKENS_DARK,
+  DESIGN_TOKENS_LIGHT,
+  TASK_TYPE_TOKENS_DARK,
+  TASK_TYPE_TOKENS_LIGHT,
+} from '@epde/shared';
 import { vars } from 'nativewind';
 
 /**
@@ -6,81 +12,33 @@ import { vars } from 'nativewind';
  * Instead, we use `vars()` to inject CSS custom properties into the root
  * View's style, which NativeWind propagates to all children.
  *
- * Keep these values in sync with global.css `@theme inline` and `.dark`.
+ * Tokens are generated from `@epde/shared` DESIGN_TOKENS + TASK_TYPE_TOKENS,
+ * eliminating the possibility of color drift between platforms.
  */
 
+/**
+ * Converts a token object to NativeWind `vars()` input with `--color-*` keys.
+ * camelCase keys become kebab-case: `primaryForeground` → `--color-primary-foreground`
+ */
+function toVarsInput(
+  tokens: Record<string, string>,
+  prefix = '',
+): Record<`--color-${string}`, string> {
+  const result: Record<`--color-${string}`, string> = {};
+  for (const [key, value] of Object.entries(tokens)) {
+    const kebab = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+    const varName: `--color-${string}` = `--color-${prefix}${kebab}`;
+    result[varName] = value;
+  }
+  return result;
+}
+
 export const lightTheme = vars({
-  '--color-primary': '#a65636',
-  '--color-primary-foreground': '#ffffff',
-  '--color-secondary': '#e8ddd3',
-  '--color-secondary-foreground': '#2e2a27',
-  '--color-background': '#fafaf8',
-  '--color-foreground': '#2e2a27',
-  '--color-card': '#ffffff',
-  '--color-card-foreground': '#2e2a27',
-  '--color-muted': '#f5f0eb',
-  '--color-muted-foreground': '#3d3a37',
-  '--color-destructive': '#b04a3a',
-  '--color-destructive-foreground': '#ffffff',
-  '--color-accent': '#e8ddd3',
-  '--color-accent-foreground': '#2e2a27',
-  '--color-border': '#e8ddd3',
-  '--color-input': '#e8ddd3',
-  '--color-ring': '#a65636',
-  '--color-success': '#4d7d5c',
-  '--color-success-foreground': '#ffffff',
-  '--color-warning': '#7a6514',
-  '--color-warning-foreground': '#ffffff',
-  '--color-caution': '#965018',
-  '--color-caution-foreground': '#fafaf8',
-  '--color-status-pending': '#924408',
-  '--color-status-upcoming': '#2563eb',
-  '--color-status-completed': '#059669',
-  '--color-task-inspection': '#3b82f6',
-  '--color-task-cleaning': '#06b6d4',
-  '--color-task-test': '#6366f1',
-  '--color-task-treatment': '#a855f7',
-  '--color-task-sealing': '#f59e0b',
-  '--color-task-lubrication': '#84cc16',
-  '--color-task-adjustment': '#64748b',
-  '--color-task-measurement': '#14b8a6',
-  '--color-task-evaluation': '#8b5cf6',
+  ...toVarsInput(DESIGN_TOKENS_LIGHT),
+  ...toVarsInput(TASK_TYPE_TOKENS_LIGHT, 'task-'),
 });
 
 export const darkTheme = vars({
-  '--color-primary': '#d4956f',
-  '--color-primary-foreground': '#1a1715',
-  '--color-secondary': '#3d3835',
-  '--color-secondary-foreground': '#f5f0eb',
-  '--color-background': '#1a1715',
-  '--color-foreground': '#f5f0eb',
-  '--color-card': '#2e2a27',
-  '--color-card-foreground': '#f5f0eb',
-  '--color-muted': '#3d3835',
-  '--color-muted-foreground': '#c9b8aa',
-  '--color-accent': '#3d3835',
-  '--color-accent-foreground': '#f5f0eb',
-  '--color-destructive': '#e5736a',
-  '--color-destructive-foreground': '#1a1715',
-  '--color-border': 'rgba(255, 255, 255, 0.15)',
-  '--color-input': 'rgba(255, 255, 255, 0.2)',
-  '--color-ring': '#d4956f',
-  '--color-success': '#7ab588',
-  '--color-success-foreground': '#1a1715',
-  '--color-warning': '#d4b050',
-  '--color-warning-foreground': '#1a1715',
-  '--color-caution': '#d48050',
-  '--color-caution-foreground': '#1a1715',
-  '--color-status-pending': '#fbbf24',
-  '--color-status-upcoming': '#60a5fa',
-  '--color-status-completed': '#34d399',
-  '--color-task-inspection': '#60a5fa',
-  '--color-task-cleaning': '#22d3ee',
-  '--color-task-test': '#818cf8',
-  '--color-task-treatment': '#c084fc',
-  '--color-task-sealing': '#fbbf24',
-  '--color-task-lubrication': '#a3e635',
-  '--color-task-adjustment': '#94a3b8',
-  '--color-task-measurement': '#2dd4bf',
-  '--color-task-evaluation': '#a78bfa',
+  ...toVarsInput(DESIGN_TOKENS_DARK),
+  ...toVarsInput(TASK_TYPE_TOKENS_DARK, 'task-'),
 });

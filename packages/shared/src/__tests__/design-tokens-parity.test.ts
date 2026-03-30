@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-import { DESIGN_TOKENS_DARK, DESIGN_TOKENS_LIGHT } from '../constants/design-tokens';
+import { DESIGN_TOKENS_LIGHT } from '../constants/design-tokens';
 
 /**
  * Verifies that mobile theme-tokens.ts and web globals.css stay in sync
@@ -37,31 +37,21 @@ describe('Design token parity', () => {
     });
   });
 
-  describe('Mobile theme-tokens.ts matches DESIGN_TOKENS_LIGHT', () => {
-    const pairs: [string, string][] = [
-      ['primary', DESIGN_TOKENS_LIGHT.primary],
-      ['destructive', DESIGN_TOKENS_LIGHT.destructive],
-      ['success', DESIGN_TOKENS_LIGHT.success],
-      ['warning', DESIGN_TOKENS_LIGHT.warning],
-      ['background', DESIGN_TOKENS_LIGHT.background],
-      ['foreground', DESIGN_TOKENS_LIGHT.foreground],
-      ['muted-foreground', DESIGN_TOKENS_LIGHT.mutedForeground],
-    ];
-
-    it.each(pairs)('--color-%s matches %s', (token, expected) => {
-      expect(MOBILE_THEME).toContain(`'--color-${token}': '${expected}'`);
+  describe('Mobile theme-tokens.ts imports from shared (no drift possible)', () => {
+    it('imports DESIGN_TOKENS_LIGHT from @epde/shared', () => {
+      expect(MOBILE_THEME).toContain('DESIGN_TOKENS_LIGHT');
     });
-  });
 
-  describe('Mobile dark theme matches DESIGN_TOKENS_DARK', () => {
-    const pairs: [string, string][] = [
-      ['primary', DESIGN_TOKENS_DARK.primary],
-      ['destructive', DESIGN_TOKENS_DARK.destructive],
-      ['muted-foreground', DESIGN_TOKENS_DARK.mutedForeground],
-    ];
+    it('imports DESIGN_TOKENS_DARK from @epde/shared', () => {
+      expect(MOBILE_THEME).toContain('DESIGN_TOKENS_DARK');
+    });
 
-    it.each(pairs)('--color-%s matches %s', (token, expected) => {
-      expect(MOBILE_THEME).toContain(`'--color-${token}': '${expected}'`);
+    it('imports TASK_TYPE_TOKENS_LIGHT from @epde/shared', () => {
+      expect(MOBILE_THEME).toContain('TASK_TYPE_TOKENS_LIGHT');
+    });
+
+    it('imports TASK_TYPE_TOKENS_DARK from @epde/shared', () => {
+      expect(MOBILE_THEME).toContain('TASK_TYPE_TOKENS_DARK');
     });
   });
 });
