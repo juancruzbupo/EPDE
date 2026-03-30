@@ -10,24 +10,24 @@ import type { SectionProps } from '../landing-data';
 
 const FAQS = [
   {
-    q: '¿Cuánto dura el diagnóstico?',
-    a: 'El relevamiento presencial lleva entre 2 y 4 horas, dependiendo del tamaño de la vivienda. El informe completo se entrega en 48-72 horas.',
+    q: '¿Cuánto dura la visita?',
+    a: 'Entre 2 y 4 horas según la vivienda. El informe completo se entrega en 48-72 horas.',
   },
   {
-    q: '¿Necesito estar presente durante la inspección?',
-    a: 'Sí, es importante que estés durante el relevamiento para que podamos conversar sobre el historial de la vivienda y cualquier problema que hayas notado.',
+    q: '¿Tengo que estar presente?',
+    a: 'Sí, para poder comentar el estado de la vivienda y resolver dudas en el momento.',
   },
   {
-    q: '¿El diagnóstico incluye reparaciones?',
-    a: 'No. EPDE diagnostica y organiza. Si detectamos algo que requiere intervención, podés solicitar un presupuesto directamente desde la plataforma.',
+    q: '¿Incluye reparaciones?',
+    a: 'No. EPDE diagnostica y organiza. Las intervenciones se cotizan aparte desde la plataforma.',
   },
   {
-    q: '¿Qué pasa después de los 6 meses de acceso?',
-    a: 'Podés renovar la suscripción para seguir usando el sistema de seguimiento, recordatorios y actualización del ISV. El informe inicial es tuyo para siempre.',
+    q: '¿Qué pasa después de los 6 meses?',
+    a: 'Podés renovar la suscripción y seguir usando el sistema. El informe inicial es tuyo para siempre.',
   },
   {
-    q: '¿Sirve para departamentos o solo casas?',
-    a: 'Sirve para cualquier vivienda: casas, departamentos, dúplex y casas de campo. Adaptamos el diagnóstico a cada tipo de propiedad.',
+    q: '¿Sirve para departamentos?',
+    a: 'Sí. Casas, departamentos, dúplex y casas de campo. Adaptamos el diagnóstico a cada tipo.',
   },
 ];
 

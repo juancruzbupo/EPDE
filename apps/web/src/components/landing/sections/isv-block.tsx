@@ -6,7 +6,7 @@ import type { SectionProps } from '../landing-data';
 
 /** SVG gauge showing an ISV score — illustrative example with "Regular" state. */
 function IsvGauge() {
-  const score = 54;
+  const score = 72;
   const radius = 54;
   const circumference = Math.PI * radius; // semicircle
   const progress = (score / 100) * circumference;
@@ -31,7 +31,7 @@ function IsvGauge() {
           strokeWidth={8}
           strokeLinecap="round"
           strokeDasharray={`${progress} ${circumference}`}
-          className="text-warning"
+          className="text-success"
         />
         {/* Score */}
         <text
@@ -51,7 +51,7 @@ function IsvGauge() {
           de 100
         </text>
       </svg>
-      <p className="type-label-md text-warning mt-2 font-medium">Estado actual: Regular</p>
+      <p className="type-label-md text-success mt-2 font-medium">Estado actual: Bueno</p>
     </div>
   );
 }
@@ -93,18 +93,18 @@ export function IsvBlockSection({ motionProps }: SectionProps) {
             {/* Interpretation — emotional urgency */}
             <motion.div
               variants={FADE_IN}
-              className="border-warning/30 bg-warning/5 mt-5 rounded-lg border p-4"
+              className="border-success/30 bg-success/5 mt-5 rounded-lg border p-4"
             >
               <p className="type-body-md text-foreground font-medium">
-                Ejemplo: ISV 54 — Tu casa necesita atención
+                Ejemplo: ISV 72 — Tu casa está bien, pero puede mejorar
               </p>
               <p className="type-body-sm text-muted-foreground mt-1">
-                No es una emergencia, pero ignorarlo sí podría serlo. EPDE te dice exactamente qué
-                problemas tiene tu casa y qué hacer primero.
+                Un ISV de 72 indica que tu vivienda está en buen estado general. EPDE te muestra qué
+                pequeñas mejoras pueden prevenir problemas futuros y mantener el valor de tu
+                propiedad.
               </p>
-              <p className="type-body-sm text-warning mt-2 font-medium">
-                Este nivel puede derivar en reparaciones costosas si no se actúa. La mayoría de las
-                viviendas en este estado ya tiene problemas en desarrollo.
+              <p className="type-body-sm text-success mt-2 font-medium">
+                Mantener un ISV alto es más fácil y económico que recuperarlo una vez que baja.
               </p>
             </motion.div>
 

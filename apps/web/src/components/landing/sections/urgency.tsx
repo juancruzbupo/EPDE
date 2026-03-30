@@ -25,14 +25,14 @@ export function UrgencySection({ motionProps }: SectionProps) {
           variants={FADE_IN_UP}
           className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
         >
-          Estamos implementando EPDE en las primeras viviendas de Paraná.
+          Cupos limitados por semana.
         </motion.h2>
         <motion.p
           variants={FADE_IN}
           className="type-body-lg text-muted-foreground mx-auto mt-4 max-w-2xl"
         >
-          Trabajamos con un número limitado de propiedades para garantizar calidad. Cada diagnóstico
-          es realizado personalmente por la Arq. Noelia E. Yuskowich.
+          Cada diagnóstico es realizado personalmente por la Arq. Noelia E. Yuskowich. Trabajamos
+          con un número limitado de viviendas por semana para garantizar calidad.
         </motion.p>
 
         <motion.div variants={FADE_IN} className="mt-8">
