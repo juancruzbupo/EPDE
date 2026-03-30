@@ -371,4 +371,6 @@ export const QUERY_KEYS = {
   plansTasks: 'tasks',
   // Client sub-keys
   clientsSearch: 'search',
+  // Landing settings
+  landingSettings: 'landing-settings',
 } as const;

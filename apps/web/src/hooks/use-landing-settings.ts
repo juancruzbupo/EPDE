@@ -1,3 +1,4 @@
+import { QUERY_KEYS } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -5,7 +6,7 @@ import { getLandingSettings, updateLandingSetting } from '@/lib/api/landing-sett
 
 export function useLandingSettings() {
   return useQuery({
-    queryKey: ['landing-settings'],
+    queryKey: [QUERY_KEYS.landingSettings],
     queryFn: getLandingSettings,
   });
 }
@@ -17,7 +18,7 @@ export function useUpdateLandingSetting() {
       updateLandingSetting(key, value),
     onSuccess: () => {
       toast.success('Configuración de landing actualizada');
-      queryClient.invalidateQueries({ queryKey: ['landing-settings'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.landingSettings] });
     },
     onError: () => {
       toast.error('Error al actualizar la configuración');
