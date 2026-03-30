@@ -9,6 +9,7 @@ import Redis from 'ioredis';
 import { LoggerModule } from 'nestjs-pino';
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 
+import { RequestCacheModule } from '../common/request-cache/request-cache.module';
 import { ConfigModule } from '../config/config.module';
 import { HealthModule } from '../health/health.module';
 import { MetricsModule } from '../metrics/metrics.module';
@@ -81,6 +82,7 @@ import { RedisModule } from '../redis/redis.module';
     RedisModule,
     HealthModule,
     MetricsModule,
+    RequestCacheModule,
   ],
   // Only ConfigModule, PrismaModule, and RedisModule are exported here.
   // ThrottlerModule, BullModule, LoggerModule, SentryModule, HealthModule,

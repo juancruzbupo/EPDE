@@ -86,26 +86,28 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Schema drift check
-        run: pnpm check:schema-drift
+      - name: Drift checks (schema, entity, docs)
+        run: |
+          pnpm check:schema-drift &
+          node scripts/check-entity-drift.mjs &
+          pnpm check:docs-drift &
+          wait
 
-      - name: Entity drift check
-        run: node scripts/check-entity-drift.mjs
-
-      - name: Docs drift check
-        run: pnpm check:docs-drift
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Type check
-        run: pnpm typecheck
+      - name: Lint and type check
+        run: |
+          pnpm lint &
+          pnpm typecheck &
+          wait
 
       - name: Push schema to test database
         run: pnpm --filter @epde/api exec prisma db push --skip-generate
 
-      - name: Unit & integration tests
-        run: pnpm test
+      - name: Unit tests (parallel)
+        run: |
+          pnpm --filter @epde/api test &
+          pnpm --filter @epde/web test &
+          pnpm --filter @epde/mobile test &
+          wait
 
       - name: E2E tests
         run: pnpm --filter @epde/api test:e2e
@@ -121,17 +123,13 @@ jobs:
         if: inputs.run-web-e2e
         run: pnpm --filter @epde/web test:e2e
 
-      - name: Frontend coverage check
+      - name: Coverage checks (parallel)
         if: inputs.run-coverage
-        run: pnpm --filter @epde/web test -- --coverage
-
-      - name: Mobile coverage check
-        if: inputs.run-coverage
-        run: pnpm --filter @epde/mobile test -- --coverage
-
-      - name: API coverage check
-        if: inputs.run-coverage
-        run: pnpm --filter @epde/api test -- --coverage
+        run: |
+          pnpm --filter @epde/web test -- --coverage &
+          pnpm --filter @epde/mobile test -- --coverage &
+          pnpm --filter @epde/api test -- --coverage &
+          wait
 
       - name: Upload coverage reports
         if: inputs.run-coverage && !cancelled()

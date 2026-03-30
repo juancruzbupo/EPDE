@@ -10,6 +10,12 @@ import { PushService } from './push.service';
 /**
  * Centralized extension point for domain side-effects (notifications, emails, etc.).
  *
+ * This service acts as a **type-safe event bus**: domain services call handler methods
+ * instead of emitting string-keyed events, preserving compile-time safety and IDE
+ * traceability. See {@link docs/adr/006-notification-handler-vs-events.md} for the
+ * architectural decision record explaining why this pattern was chosen over
+ * `EventEmitter2` or a custom RxJS event bus.
+ *
  * ## Architecture rule
  * Domain services (BudgetsService, ServiceRequestsService, etc.) MUST inject THIS service
  * instead of NotificationQueueService or EmailQueueService directly.

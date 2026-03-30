@@ -1,7 +1,9 @@
 import { PAGINATION_DEFAULT_TAKE, PAGINATION_MAX_TAKE } from '@epde/shared';
+import { Inject, Optional } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 import { PrismaService, SoftDeletableModel } from '../../prisma/prisma.service';
+import { RequestCacheService } from '../request-cache/request-cache.service';
 
 /**
  * Union of valid Prisma model names (lowercase camelCase delegates).
@@ -49,6 +51,14 @@ export abstract class BaseRepository<
   TUpdateInput = unknown,
 > {
   /**
+   * Request-scoped cache injected via DI. Undefined in non-request contexts
+   * (e.g. scheduler cron jobs) because Scope.REQUEST services have no scope there.
+   */
+  @Optional()
+  @Inject(RequestCacheService)
+  protected readonly requestCache?: RequestCacheService;
+
+  /**
    * @param hasSoftDelete Must match SOFT_DELETABLE_MODELS in prisma.service.ts.
    *   When true, softDelete() is available and model/writeModel use the soft-delete extension.
    */
@@ -84,7 +94,19 @@ export abstract class BaseRepository<
    *   - Use findByIdSelect() for type-safe ownership field access
    */
   async findById(id: string, include?: Record<string, unknown>): Promise<T | null> {
-    return this.model.findUnique({ where: { id }, ...(include && { include }) });
+    // Only cache simple lookups (no include) to avoid stale partial data
+    if (!include && this.requestCache) {
+      const cached = this.requestCache.get<T>(this.modelName, id);
+      if (cached !== undefined) return cached;
+    }
+
+    const result = await this.model.findUnique({ where: { id }, ...(include && { include }) });
+
+    if (!include && this.requestCache && result) {
+      this.requestCache.set(this.modelName, id, result);
+    }
+
+    return result;
   }
 
   /**
@@ -148,6 +170,7 @@ export abstract class BaseRepository<
   }
 
   async update(id: string, data: TUpdateInput, include?: Record<string, unknown>): Promise<T> {
+    this.requestCache?.invalidate(this.modelName, id);
     return this.writeModel.update({ where: { id }, data, ...(include && { include }) });
   }
 
@@ -155,10 +178,12 @@ export abstract class BaseRepository<
     if (!this.hasSoftDelete) {
       throw new Error(`Model ${this.modelName} does not support soft delete`);
     }
+    this.requestCache?.invalidate(this.modelName, id);
     return this.prisma.softDeleteRecord(this.modelName as SoftDeletableModel, { id }) as Promise<T>;
   }
 
   async hardDelete(id: string): Promise<T> {
+    this.requestCache?.invalidate(this.modelName, id);
     return this.writeModel.delete({ where: { id } });
   }
 
