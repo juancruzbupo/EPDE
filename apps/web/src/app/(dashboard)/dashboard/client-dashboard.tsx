@@ -121,7 +121,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
       )}
 
       {/* Level 1: Home Status Card */}
-      <div className="mb-6">
+      <div className="mb-6" aria-live="polite">
         {statsLoading ? (
           <div role="status" aria-label="Cargando...">
             <Card>

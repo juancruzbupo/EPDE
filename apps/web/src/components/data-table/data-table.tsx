@@ -110,15 +110,15 @@ export function DataTable<TData, TValue>({
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i}>
-                  {columns.map((_, j) => (
-                    <TableCell key={j}>
-                      <SkeletonShimmer className="h-5 w-full" />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+              <TableRow role="status" aria-label="Cargando datos">
+                <TableCell colSpan={columns.length}>
+                  <div className="space-y-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <SkeletonShimmer key={i} className="h-5 w-full" />
+                    ))}
+                  </div>
+                </TableCell>
+              </TableRow>
             ) : table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row, index) => (
                 <motion.tr
@@ -163,6 +163,7 @@ export function DataTable<TData, TValue>({
                 <TableCell colSpan={columns.length} className="h-24 text-center">
                   <motion.span
                     role="status"
+                    aria-live="polite"
                     variants={FADE_IN_UP}
                     initial={shouldAnimate ? 'hidden' : false}
                     animate={shouldAnimate ? 'visible' : undefined}

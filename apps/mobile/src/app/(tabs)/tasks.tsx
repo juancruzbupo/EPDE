@@ -187,7 +187,11 @@ export default function TasksScreen() {
 
   if (isLoading && !tasks) {
     return (
-      <View className="bg-background flex-1 items-center justify-center">
+      <View
+        className="bg-background flex-1 items-center justify-center"
+        accessibilityLiveRegion="polite"
+        accessibilityLabel="Cargando tareas"
+      >
         <ActivityIndicator size="large" />
       </View>
     );
@@ -296,7 +300,8 @@ export default function TasksScreen() {
                     haptics.selection();
                     setPriorityFilter(f.key);
                   }}
-                  className={`rounded-full px-3 py-2.5 ${
+                  style={{ minHeight: 44 }}
+                  className={`items-center justify-center rounded-full px-3 py-2.5 ${
                     priorityFilter === f.key ? 'bg-primary' : 'bg-card border-border border'
                   }`}
                 >
@@ -328,7 +333,8 @@ export default function TasksScreen() {
                     haptics.selection();
                     setPropertyFilter(undefined);
                   }}
-                  className={`rounded-full px-3 py-2 ${!propertyFilter ? 'bg-primary' : 'bg-card border-border border'}`}
+                  style={{ minHeight: 44 }}
+                  className={`items-center justify-center rounded-full px-3 py-2 ${!propertyFilter ? 'bg-primary' : 'bg-card border-border border'}`}
                 >
                   <Text
                     style={TYPE.labelSm}
@@ -346,7 +352,8 @@ export default function TasksScreen() {
                       haptics.selection();
                       setPropertyFilter(p.key);
                     }}
-                    className={`rounded-full px-3 py-2 ${propertyFilter === p.key ? 'bg-primary' : 'bg-card border-border border'}`}
+                    style={{ minHeight: 44 }}
+                    className={`items-center justify-center rounded-full px-3 py-2 ${propertyFilter === p.key ? 'bg-primary' : 'bg-card border-border border'}`}
                   >
                     <Text
                       style={TYPE.labelSm}

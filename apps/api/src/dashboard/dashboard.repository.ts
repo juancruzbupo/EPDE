@@ -451,7 +451,8 @@ export class DashboardRepository {
         task: { select: { category: { select: { name: true } } } },
       },
       orderBy: { completedAt: 'desc' },
-      take: 5_000,
+      // 1000 logs covers ~3 years of bi-weekly inspections per property
+      take: 1_000,
     });
 
     const buckets = new Map<string, Map<string, number[]>>();
@@ -532,13 +533,15 @@ export class DashboardRepository {
     }));
   }
 
+  /** N+1 note: nested taskLogs { take: 1 } causes Prisma to execute one subquery per task.
+   *  Bounded to 200 tasks to limit impact. Consider batch fetching for >200 properties. */
   async getClientCategoryBreakdown(planIds: string[]) {
     if (planIds.length === 0) return [];
     const now = new Date();
 
     const tasks = await this.prisma.softDelete.task.findMany({
       where: { maintenancePlanId: { in: planIds } },
-      take: 500,
+      take: 200,
       select: {
         status: true,
         nextDueDate: true,

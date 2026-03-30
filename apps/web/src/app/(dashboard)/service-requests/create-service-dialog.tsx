@@ -368,7 +368,7 @@ export function CreateServiceDialog({
                     {/* User-uploaded blob URL — next/image doesn't support blob: protocol */}
                     <img
                       src={photo.preview}
-                      alt={`Foto ${index + 1}`}
+                      alt={`Foto adjunta ${index + 1} de ${photos.length}`}
                       className="h-16 w-16 rounded-md border object-cover"
                     />
                     <button

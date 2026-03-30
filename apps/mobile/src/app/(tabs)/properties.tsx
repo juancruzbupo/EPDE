@@ -124,7 +124,11 @@ export default function PropertiesScreen() {
 
   if (isLoading && !data) {
     return (
-      <View className="bg-background flex-1 items-center justify-center">
+      <View
+        className="bg-background flex-1 items-center justify-center"
+        accessibilityLiveRegion="polite"
+        accessibilityLabel="Cargando propiedades"
+      >
         <ActivityIndicator size="large" />
       </View>
     );

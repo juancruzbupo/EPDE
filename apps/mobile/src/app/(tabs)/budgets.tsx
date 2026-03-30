@@ -148,7 +148,11 @@ export default function BudgetsScreen() {
 
   if (isLoading && !data) {
     return (
-      <View className="bg-background flex-1 items-center justify-center">
+      <View
+        className="bg-background flex-1 items-center justify-center"
+        accessibilityLiveRegion="polite"
+        accessibilityLabel="Cargando presupuestos"
+      >
         <ActivityIndicator size="large" />
       </View>
     );

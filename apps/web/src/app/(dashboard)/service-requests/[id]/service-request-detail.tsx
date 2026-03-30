@@ -217,7 +217,7 @@ export function ServiceRequestDetail({
                     {/* User-uploaded photo — unknown dimensions */}
                     <img
                       src={photo.url}
-                      alt="Foto de solicitud"
+                      alt={`Foto adjunta ${request.photos.indexOf(photo) + 1} de ${request.photos.length}`}
                       className="aspect-square w-full object-cover transition-transform hover:scale-105"
                     />
                   </button>
@@ -277,7 +277,7 @@ export function ServiceRequestDetail({
           {previewPhoto && (
             <img
               src={previewPhoto}
-              alt="Vista previa de foto"
+              alt="Vista previa ampliada de foto adjunta"
               className="max-h-[85vh] w-full rounded-md object-contain"
             />
           )}
