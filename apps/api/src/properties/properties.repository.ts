@@ -180,6 +180,7 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
           budgetRequest: { select: { title: true } },
         },
         orderBy: { respondedAt: 'desc' },
+        take: 500,
       }),
     ]);
 

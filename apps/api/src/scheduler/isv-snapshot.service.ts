@@ -34,7 +34,7 @@ export class ISVSnapshotService {
 
       // Fetch properties with active plans (bounded for safety).
       // Configurable via ISV_MAX_PROPERTIES env var for larger deployments.
-      const maxProperties = parseInt(process.env.ISV_MAX_PROPERTIES ?? '1000', 10);
+      const maxProperties = parseInt(process.env.ISV_MAX_PROPERTIES ?? '10000', 10);
       const properties = await this.propertiesRepository.findWithActivePlans(maxProperties);
 
       if (signal.lockLost) return;

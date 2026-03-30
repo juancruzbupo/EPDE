@@ -38,6 +38,8 @@ export class ErrorBoundary extends React.Component<Props, State> {
           <TouchableOpacity
             style={styles.button}
             onPress={() => this.setState({ hasError: false })}
+            accessibilityRole="button"
+            accessibilityLabel="Reintentar"
           >
             <Text style={styles.buttonText}>Reintentar</Text>
           </TouchableOpacity>

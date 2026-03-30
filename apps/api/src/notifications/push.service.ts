@@ -54,8 +54,16 @@ export class PushService {
 
       // Expo Push API accepts batches of up to 100 messages
       const chunks = this.chunkArray(messages, 100);
-      for (const chunk of chunks) {
-        await this.sendChunk(chunk);
+
+      // Send chunks in parallel (max 5 concurrent to avoid overwhelming Expo API)
+      const CONCURRENT_BATCHES = 5;
+      for (let i = 0; i < chunks.length; i += CONCURRENT_BATCHES) {
+        const batch = chunks.slice(i, i + CONCURRENT_BATCHES);
+        const results = await Promise.allSettled(batch.map((chunk) => this.sendChunk(chunk)));
+        const failures = results.filter((r) => r.status === 'rejected');
+        if (failures.length > 0) {
+          this.logger.warn(`${failures.length}/${batch.length} push batches failed`);
+        }
       }
     } catch (error) {
       this.logger.error(`Failed to send push notifications: ${error}`);

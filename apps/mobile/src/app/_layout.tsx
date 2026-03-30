@@ -20,7 +20,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { registerForPushNotifications } from '@/lib/push-notifications';
 import { queryClient } from '@/lib/query-client';
-import { asyncStoragePersister } from '@/lib/query-persister';
+import { asyncStoragePersister, PERSISTER_MAX_AGE } from '@/lib/query-persister';
 import { darkTheme, lightTheme } from '@/lib/theme-tokens';
 import { useAuthStore } from '@/stores/auth-store';
 import { useThemeStore } from '@/stores/theme-store';
@@ -120,7 +120,7 @@ export default function RootLayout() {
         <ErrorBoundary>
           <PersistQueryClientProvider
             client={queryClient}
-            persistOptions={{ persister: asyncStoragePersister }}
+            persistOptions={{ persister: asyncStoragePersister, maxAge: PERSISTER_MAX_AGE }}
           >
             <AuthGate />
             <StatusBar style={effectiveTheme === 'dark' ? 'light' : 'dark'} />

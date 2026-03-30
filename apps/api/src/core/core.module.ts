@@ -25,8 +25,8 @@ import { RedisModule } from '../redis/redis.module';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         throttlers: [
-          { name: 'short', ttl: 1000, limit: 5 },
-          { name: 'medium', ttl: 10000, limit: 30 },
+          { name: 'short', ttl: 1000, limit: 10 },
+          { name: 'medium', ttl: 10000, limit: 60 },
         ],
         storage: new ThrottlerStorageRedisService(
           new Redis(config.get<string>('REDIS_URL', 'redis://localhost:6379'), {
