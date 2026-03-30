@@ -48,11 +48,7 @@ async function bootstrap() {
   );
   app.use(compression());
 
-  // Guard against oversized JSON payloads (DoS prevention)
-  app
-    .getHttpAdapter()
-    .getInstance()
-    .use((await import('express')).json({ limit: '1mb' }));
+  // JSON body limit: NestJS default is 100kb (sufficient — file uploads use multipart, not JSON).
 
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
