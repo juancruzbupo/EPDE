@@ -1,36 +1,24 @@
-import type { ConditionFound, DetectedProblem, TaskPublic } from '@epde/shared';
-import {
-  CONDITION_FOUND_LABELS,
-  PlanStatus,
-  PROPERTY_SECTOR_LABELS,
-  TASK_STATUS_LABELS,
-  TaskStatus,
-  UserRole,
-} from '@epde/shared';
-import { Image } from 'expo-image';
+import type { TaskPublic } from '@epde/shared';
+import { PlanStatus, PROPERTY_SECTOR_LABELS, TaskStatus, UserRole } from '@epde/shared';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Linking,
   Pressable,
   RefreshControl,
-  ScrollView,
   SectionList,
   Text,
   View,
 } from 'react-native';
-import Animated from 'react-native-reanimated';
 
 import { AnimatedListItem } from '@/components/animated-list-item';
-import { CollapsibleSection } from '@/components/collapsible-section';
 import { CompleteTaskModal } from '@/components/complete-task-modal';
 import { CreateServiceRequestModal } from '@/components/create-service-request-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { PropertyTaskCard } from '@/components/property-task-card';
-import { PlanStatusBadge, PropertyTypeBadge } from '@/components/status-badge';
+import { PlanStatusBadge } from '@/components/status-badge';
 import { SwipeableRow } from '@/components/swipeable-row';
 import { usePlan, useUpdatePlan } from '@/hooks/use-plans';
 import {
@@ -45,17 +33,21 @@ import { useAnimatedEntry } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
-import { getMobileImpactMessage } from '@/lib/impact-message';
 import { defaultScreenOptions } from '@/lib/screen-options';
 import { useAuthStore } from '@/stores/auth-store';
 
-type StatusFilter = 'ALL' | typeof TaskStatus.UPCOMING | typeof TaskStatus.OVERDUE;
-
-const FILTERS: { key: StatusFilter; label: string }[] = [
-  { key: 'ALL', label: 'Todas' },
-  { key: TaskStatus.UPCOMING, label: TASK_STATUS_LABELS.UPCOMING },
-  { key: TaskStatus.OVERDUE, label: TASK_STATUS_LABELS.OVERDUE },
-];
+import type { ExpenseAnalytics } from './components/property-expense-section';
+import {
+  PropertyExpenseSection,
+  PropertyPhotosSection,
+} from './components/property-expense-section';
+import {
+  PropertyHealthSection,
+  PropertyProblemsSection,
+} from './components/property-health-section';
+import { PropertyInfoCard } from './components/property-info-card';
+import type { StatusFilter } from './components/property-task-filters';
+import { CategoryFilter, StatusFilterPills } from './components/property-task-filters';
 
 export default function PropertyDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -82,15 +74,8 @@ export default function PropertyDetailScreen() {
   const { data: healthHistory } = usePropertyHealthHistory(id);
   const { data: problems } = usePropertyProblems(id);
 
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      maximumFractionDigits: 0,
-    }).format(amount);
-
   // Expenses analytics (parity with web)
-  const expenseAnalytics = useMemo(() => {
+  const expenseAnalytics = useMemo<ExpenseAnalytics | null>(() => {
     if (!expenses || expenses.items.length === 0) return null;
     const items = expenses.items;
     const dates = items.map((i) => new Date(i.date).getTime());
@@ -113,7 +98,6 @@ export default function PropertyDetailScreen() {
       .map(([name, data]) => ({ name, ...data }))
       .sort((a, b) => b.total - a.total);
 
-    // Sector grouping
     const bySector = new Map<string, { total: number; count: number }>();
     for (const item of items) {
       const sec = item.sector
@@ -174,6 +158,18 @@ export default function PropertyDetailScreen() {
     if (planId) refetchPlan();
   }, [refetchProperty, refetchPlan, planId]);
 
+  const handleRequestService = useCallback(() => {
+    setShowServiceModal(true);
+  }, []);
+
+  const handleStatusChange = useCallback((filter: StatusFilter) => {
+    setStatusFilter(filter);
+  }, []);
+
+  const handleCategoryChange = useCallback((category: string | undefined) => {
+    setCategoryFilter(category);
+  }, []);
+
   if (propertyLoading) {
     return (
       <View className="bg-background flex-1 items-center justify-center">
@@ -231,169 +227,21 @@ export default function PropertyDetailScreen() {
         }
         ListHeaderComponent={
           <View>
-            {/* Property info card */}
-            <Animated.View
-              style={infoCardStyle}
-              className="border-border bg-card mb-4 rounded-xl border p-3"
-            >
-              <View className="mb-1 flex-row items-center justify-between">
-                <Text style={TYPE.titleLg} className="text-foreground flex-1">
-                  {property.address}
-                </Text>
-                <PropertyTypeBadge type={property.type} />
-              </View>
-              <Text style={TYPE.bodySm} className="text-muted-foreground">
-                {[
-                  property.city,
-                  property.yearBuilt && `${property.yearBuilt}`,
-                  property.squareMeters && `${property.squareMeters} m²`,
-                ]
-                  .filter(Boolean)
-                  .join(' · ')}
-              </Text>
-            </Animated.View>
+            <PropertyInfoCard
+              address={property.address}
+              type={property.type}
+              city={property.city}
+              yearBuilt={property.yearBuilt}
+              squareMeters={property.squareMeters}
+              animatedStyle={infoCardStyle}
+            />
 
-            {/* Health / ISV section — first, most important */}
             {healthIndex && healthIndex.score > 0 && (
-              <CollapsibleSection title={`Salud (ISV: ${healthIndex.score}/100)`} defaultOpen>
-                <View className="gap-3">
-                  <View className="flex-row items-center justify-between">
-                    <Text
-                      style={TYPE.numberLg}
-                      className={
-                        healthIndex.score >= 80
-                          ? 'text-success'
-                          : healthIndex.score >= 60
-                            ? 'text-primary'
-                            : healthIndex.score >= 40
-                              ? 'text-warning'
-                              : healthIndex.score >= 20
-                                ? 'text-caution'
-                                : 'text-destructive'
-                      }
-                    >
-                      {healthIndex.score}
-                    </Text>
-                    <View className="items-end">
-                      <Text style={TYPE.titleSm} className="text-foreground">
-                        {healthIndex.label}
-                      </Text>
-                      <Text style={TYPE.bodySm} className="text-muted-foreground">
-                        {healthIndex.dimensions.trend > 55
-                          ? 'Mejorando'
-                          : healthIndex.dimensions.trend < 45
-                            ? 'Declinando'
-                            : 'Estable'}
-                      </Text>
-                    </View>
-                  </View>
-                  {(
-                    [
-                      { key: 'compliance' as const, name: 'Cumplimiento', hint: 'Tareas al día' },
-                      {
-                        key: 'condition' as const,
-                        name: 'Condición',
-                        hint: 'Estado en últimas inspecciones',
-                      },
-                      { key: 'coverage' as const, name: 'Cobertura', hint: 'Sectores revisados' },
-                      {
-                        key: 'investment' as const,
-                        name: 'Inversión',
-                        hint: 'Prevención vs reparaciones',
-                      },
-                      {
-                        key: 'trend' as const,
-                        name: 'Tendencia',
-                        hint: 'Comparación con trimestre anterior',
-                      },
-                    ] as const
-                  ).map(({ key, name, hint }) => {
-                    const value = healthIndex.dimensions[key];
-                    return (
-                      <View key={key}>
-                        <View className="flex-row items-center justify-between">
-                          <View>
-                            <Text style={TYPE.bodySm} className="text-foreground">
-                              {name}
-                            </Text>
-                            <Text style={TYPE.labelSm} className="text-muted-foreground">
-                              {hint}
-                            </Text>
-                          </View>
-                          <Text
-                            style={TYPE.bodySm}
-                            className={
-                              value >= 80
-                                ? 'text-success font-semibold'
-                                : value >= 60
-                                  ? 'text-primary font-semibold'
-                                  : value >= 40
-                                    ? 'text-warning font-semibold'
-                                    : value >= 20
-                                      ? 'text-caution font-semibold'
-                                      : 'text-destructive font-semibold'
-                            }
-                          >
-                            {value}
-                          </Text>
-                        </View>
-                        <View className="bg-muted mt-1 h-1.5 overflow-hidden rounded-full">
-                          <View
-                            className={`h-full rounded-full ${value >= 80 ? 'bg-success' : value >= 60 ? 'bg-primary' : value >= 40 ? 'bg-warning' : value >= 20 ? 'bg-caution' : 'bg-destructive'}`}
-                            style={{ width: `${value}%` }}
-                          />
-                        </View>
-                      </View>
-                    );
-                  })}
-                  {healthHistory && healthHistory.length > 1 && (
-                    <View className="border-border border-t pt-2">
-                      <Text style={TYPE.labelMd} className="text-muted-foreground mb-2">
-                        Evolución
-                      </Text>
-                      <View className="flex-row items-end gap-1" style={{ height: 60 }}>
-                        {healthHistory.map((s) => {
-                          const h = Math.max(4, (s.score / 100) * 52);
-                          return (
-                            <View key={s.month} className="flex-1 items-center">
-                              <View
-                                className={`w-full rounded-t ${s.score >= 80 ? 'bg-success' : s.score >= 60 ? 'bg-primary' : s.score >= 40 ? 'bg-warning' : s.score >= 20 ? 'bg-caution' : 'bg-destructive'}`}
-                                style={{ height: h }}
-                              />
-                              <Text style={TYPE.labelSm} className="text-muted-foreground mt-0.5">
-                                {s.month.slice(5)}
-                              </Text>
-                            </View>
-                          );
-                        })}
-                      </View>
-                    </View>
-                  )}
-                </View>
-                {/* Report link — opens web report for print/PDF */}
-                {/* ISV disclaimer */}
-                <Text style={TYPE.bodySm} className="text-muted-foreground/60 mb-3">
-                  El ISV es un indicador orientativo basado en inspecciones. No constituye una
-                  certificación técnica ni garantiza el estado estructural.
-                </Text>
-
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Ver informe técnico completo"
-                  onPress={() => {
-                    const baseUrl = process.env.EXPO_PUBLIC_WEB_URL ?? 'https://app.epde.com.ar';
-                    void Linking.openURL(`${baseUrl}/properties/${id}/report`);
-                  }}
-                  className="border-primary/30 bg-primary/5 items-center rounded-xl border p-3"
-                >
-                  <Text style={TYPE.labelMd} className="text-primary">
-                    Ver Informe Técnico Completo
-                  </Text>
-                  <Text style={TYPE.bodySm} className="text-muted-foreground mt-0.5">
-                    Se abre en el navegador para imprimir o descargar PDF
-                  </Text>
-                </Pressable>
-              </CollapsibleSection>
+              <PropertyHealthSection
+                healthIndex={healthIndex}
+                healthHistory={healthHistory}
+                propertyId={id}
+              />
             )}
 
             {/* Plan section title */}
@@ -413,13 +261,17 @@ export default function PropertyDetailScreen() {
                 accessibilityLabel="Activar plan"
                 onPress={() => {
                   haptics.medium();
-                  Alert.alert('Activar Plan', '¿Estás seguro de que querés activar este plan?', [
-                    { text: 'Cancelar', style: 'cancel' },
-                    {
-                      text: 'Activar',
-                      onPress: () => updatePlan.mutate({ id: planId, status: PlanStatus.ACTIVE }),
-                    },
-                  ]);
+                  Alert.alert(
+                    'Activar Plan',
+                    '\u00bfEst\u00e1s seguro de que quer\u00e9s activar este plan?',
+                    [
+                      { text: 'Cancelar', style: 'cancel' },
+                      {
+                        text: 'Activar',
+                        onPress: () => updatePlan.mutate({ id: planId, status: PlanStatus.ACTIVE }),
+                      },
+                    ],
+                  );
                 }}
                 disabled={updatePlan.isPending}
                 className="bg-primary mb-3 items-center rounded-xl py-3 active:opacity-80"
@@ -437,7 +289,7 @@ export default function PropertyDetailScreen() {
                   haptics.medium();
                   Alert.alert(
                     'Archivar Plan',
-                    '¿Estás seguro de que querés archivar este plan? Las tareas dejarán de generar vencimientos.',
+                    '\u00bfEst\u00e1s seguro de que quer\u00e9s archivar este plan? Las tareas dejar\u00e1n de generar vencimientos.',
                     [
                       { text: 'Cancelar', style: 'cancel' },
                       {
@@ -467,299 +319,36 @@ export default function PropertyDetailScreen() {
 
             {/* Detected problems */}
             {problems && problems.length > 0 && (
-              <CollapsibleSection title={`Puede generarte gastos (${problems.length})`} defaultOpen>
-                <Text style={TYPE.bodySm} className="text-muted-foreground mb-2">
-                  Detectamos problemas que pueden empeorar con el tiempo. Basado en observaciones
-                  visuales — se recomienda evaluación por un especialista en el área afectada.
-                </Text>
-                <View className="gap-2">
-                  {problems.slice(0, 5).map((problem: DetectedProblem) => (
-                    <Pressable
-                      key={problem.taskId}
-                      className="border-border bg-card rounded-lg border p-3"
-                      onPress={() => {
-                        haptics.light();
-                        setShowServiceModal(true);
-                      }}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Problema: ${problem.taskName}`}
-                    >
-                      <View className="mb-1 flex-row items-start justify-between gap-2">
-                        <Text
-                          style={TYPE.titleSm}
-                          className="text-foreground flex-1 flex-shrink"
-                          ellipsizeMode="tail"
-                          numberOfLines={2}
-                        >
-                          {problem.taskName}
-                        </Text>
-                        <View
-                          className={`rounded-full px-2 py-0.5 ${problem.severity === 'high' ? 'bg-destructive/15' : 'bg-warning/15'}`}
-                        >
-                          <Text
-                            style={TYPE.labelSm}
-                            className={
-                              problem.severity === 'high' ? 'text-destructive' : 'text-warning'
-                            }
-                          >
-                            {CONDITION_FOUND_LABELS[problem.conditionFound as ConditionFound] ??
-                              problem.conditionFound}
-                          </Text>
-                        </View>
-                      </View>
-                      <Text
-                        style={TYPE.bodySm}
-                        className="text-muted-foreground"
-                        ellipsizeMode="tail"
-                        numberOfLines={2}
-                      >
-                        {getMobileImpactMessage(problem.sector, problem.severity)}
-                      </Text>
-                      {problem.severity === 'high' && (
-                        <Text style={TYPE.labelSm} className="text-destructive mt-0.5">
-                          Recomendado resolver cuanto antes
-                        </Text>
-                      )}
-                      <Text style={TYPE.labelMd} className="text-primary mt-1.5">
-                        Solicitar servicio →
-                      </Text>
-                    </Pressable>
-                  ))}
-                </View>
-              </CollapsibleSection>
+              <PropertyProblemsSection
+                problems={problems}
+                onRequestService={handleRequestService}
+              />
             )}
 
-            {/* Expenses section — with analytics (parity with web) */}
+            {/* Expenses section */}
             {expenses && expenses.items.length > 0 && expenseAnalytics && (
-              <CollapsibleSection title={`Gastos (${formatCurrency(expenses.totalCost)})`}>
-                <View className="gap-3">
-                  {/* Preventive savings insight */}
-                  <View className="bg-success/5 border-success/20 rounded-lg border p-2.5">
-                    <Text style={TYPE.bodySm} className="text-success">
-                      El mantenimiento preventivo reduce hasta un 80% el costo de reparaciones
-                      mayores.
-                    </Text>
-                  </View>
-                  {/* Stat summary */}
-                  <View className="flex-row gap-2">
-                    <View className="bg-muted/40 flex-1 rounded-lg p-2.5">
-                      <Text style={TYPE.labelMd} className="text-muted-foreground">
-                        Mensual prom.
-                      </Text>
-                      <Text style={TYPE.titleSm} className="text-foreground">
-                        {formatCurrency(expenseAnalytics.monthlyAvg)}
-                      </Text>
-                    </View>
-                    <View className="bg-muted/40 flex-1 rounded-lg p-2.5">
-                      <Text style={TYPE.labelMd} className="text-muted-foreground">
-                        Período
-                      </Text>
-                      <Text style={TYPE.titleSm} className="text-foreground">
-                        {expenseAnalytics.months} mes{expenseAnalytics.months !== 1 ? 'es' : ''}
-                      </Text>
-                    </View>
-                  </View>
-
-                  {/* Category breakdown */}
-                  <View className="gap-2">
-                    {expenseAnalytics.categories.slice(0, 5).map((cat) => {
-                      const pct =
-                        expenseAnalytics.maxTotal > 0
-                          ? (cat.total / expenseAnalytics.maxTotal) * 100
-                          : 0;
-                      return (
-                        <View key={cat.name}>
-                          <View className="flex-row items-center justify-between">
-                            <Text style={TYPE.bodySm} className="text-foreground">
-                              {cat.name}
-                            </Text>
-                            <Text style={TYPE.bodySm} className="text-foreground">
-                              {formatCurrency(cat.total)}
-                            </Text>
-                          </View>
-                          <View className="bg-muted mt-1 h-1.5 overflow-hidden rounded-full">
-                            <View
-                              className="bg-primary h-full rounded-full"
-                              style={{ width: `${pct}%` }}
-                            />
-                          </View>
-                        </View>
-                      );
-                    })}
-                  </View>
-
-                  {/* Sector breakdown */}
-                  {expenseAnalytics.sectors.length > 0 && (
-                    <View className="gap-2">
-                      <Text style={TYPE.labelMd} className="text-muted-foreground">
-                        Por sector
-                      </Text>
-                      {expenseAnalytics.sectors.slice(0, 5).map((sec) => {
-                        const pct =
-                          expenseAnalytics.maxSectorTotal > 0
-                            ? (sec.total / expenseAnalytics.maxSectorTotal) * 100
-                            : 0;
-                        return (
-                          <View key={sec.name}>
-                            <View className="flex-row items-center justify-between">
-                              <Text style={TYPE.bodySm} className="text-foreground">
-                                {sec.name}
-                              </Text>
-                              <Text style={TYPE.bodySm} className="text-foreground">
-                                {formatCurrency(sec.total)}
-                              </Text>
-                            </View>
-                            <View className="bg-muted mt-1 h-1.5 overflow-hidden rounded-full">
-                              <View
-                                className="bg-primary h-full rounded-full"
-                                style={{ width: `${pct}%` }}
-                              />
-                            </View>
-                          </View>
-                        );
-                      })}
-                    </View>
-                  )}
-
-                  {/* Item list */}
-                  <View className="border-border border-t pt-2">
-                    <Text style={TYPE.labelMd} className="text-muted-foreground mb-2">
-                      Últimos movimientos
-                    </Text>
-                    {expenses.items.slice(0, 5).map((item) => (
-                      <View
-                        key={`${item.date}-${item.description}`}
-                        className="border-border flex-row items-center justify-between border-b py-1.5 last:border-0"
-                      >
-                        <View className="flex-1">
-                          <Text style={TYPE.bodySm} className="text-foreground">
-                            {item.description}
-                          </Text>
-                          <Text style={TYPE.labelMd} className="text-muted-foreground">
-                            {item.category ?? 'Presupuesto'} ·{' '}
-                            {new Date(item.date).toLocaleDateString('es-AR')}
-                          </Text>
-                        </View>
-                        <Text style={TYPE.titleSm} className="text-foreground">
-                          {formatCurrency(item.amount)}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-              </CollapsibleSection>
+              <PropertyExpenseSection
+                totalCost={expenses.totalCost}
+                items={expenses.items}
+                analytics={expenseAnalytics}
+              />
             )}
 
             {/* Photos section */}
-            {photos && photos.length > 0 && (
-              <CollapsibleSection title={`Fotos (${photos.length})`}>
-                <View className="flex-row flex-wrap gap-2">
-                  {photos.slice(0, 12).map((photo) => (
-                    <Pressable
-                      key={`${photo.url}-${photo.date}`}
-                      accessibilityRole="button"
-                      accessibilityLabel="Ver foto"
-                      onPress={() => Linking.openURL(photo.url)}
-                      className="overflow-hidden rounded-lg"
-                    >
-                      <Image
-                        source={photo.url}
-                        contentFit="cover"
-                        transition={200}
-                        className="h-24 w-24 rounded-lg"
-                        accessibilityLabel={photo.description || 'Foto de la propiedad'}
-                      />
-                      <View className="absolute inset-x-0 bottom-0 bg-black/50 px-1 py-0.5">
-                        <Text
-                          style={TYPE.labelSm}
-                          className="text-center text-white"
-                          ellipsizeMode="tail"
-                          numberOfLines={1}
-                        >
-                          {photo.source === 'task' ? 'Tarea' : 'Solicitud'}
-                        </Text>
-                      </View>
-                    </Pressable>
-                  ))}
-                </View>
-              </CollapsibleSection>
-            )}
+            {photos && photos.length > 0 && <PropertyPhotosSection photos={photos} />}
 
             {/* Status filter tabs */}
             {planId && (
-              <View className="mb-2 flex-row gap-2">
-                {FILTERS.map((f) => (
-                  <Pressable
-                    key={f.key}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Filtrar por ${f.label}`}
-                    onPress={() => setStatusFilter(f.key)}
-                    className={`rounded-full px-3 py-2.5 ${
-                      statusFilter === f.key ? 'bg-primary' : 'bg-muted'
-                    }`}
-                  >
-                    <Text
-                      style={TYPE.labelMd}
-                      className={
-                        statusFilter === f.key ? 'text-primary-foreground' : 'text-muted-foreground'
-                      }
-                    >
-                      {f.label}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
+              <StatusFilterPills statusFilter={statusFilter} onStatusChange={handleStatusChange} />
             )}
 
             {/* Category filter */}
             {planId && categoryOptions.length > 1 && (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 8, marginBottom: 16 }}
-                accessibilityRole="radiogroup"
-                accessibilityLabel="Filtrar por categoría"
-              >
-                <Pressable
-                  accessibilityRole="radio"
-                  accessibilityState={{ selected: !categoryFilter }}
-                  onPress={() => {
-                    haptics.selection();
-                    setCategoryFilter(undefined);
-                  }}
-                  className={`rounded-full px-3 py-2 ${!categoryFilter ? 'bg-primary' : 'bg-card border-border border'}`}
-                >
-                  <Text
-                    style={TYPE.labelSm}
-                    className={!categoryFilter ? 'text-primary-foreground' : 'text-foreground'}
-                  >
-                    Todas
-                  </Text>
-                </Pressable>
-                {categoryOptions.map((c) => (
-                  <Pressable
-                    key={c.key}
-                    accessibilityRole="radio"
-                    accessibilityState={{ selected: categoryFilter === c.key }}
-                    onPress={() => {
-                      haptics.selection();
-                      setCategoryFilter(c.key);
-                    }}
-                    className={`rounded-full px-3 py-2 ${categoryFilter === c.key ? 'bg-primary' : 'bg-card border-border border'}`}
-                  >
-                    <Text
-                      style={TYPE.labelSm}
-                      className={
-                        categoryFilter === c.key ? 'text-primary-foreground' : 'text-foreground'
-                      }
-                      ellipsizeMode="tail"
-                      numberOfLines={1}
-                    >
-                      {c.label}
-                    </Text>
-                  </Pressable>
-                ))}
-              </ScrollView>
+              <CategoryFilter
+                categoryOptions={categoryOptions}
+                categoryFilter={categoryFilter}
+                onCategoryChange={handleCategoryChange}
+              />
             )}
           </View>
         }
@@ -768,7 +357,13 @@ export default function PropertyDetailScreen() {
             <SwipeableRow
               rightActions={
                 item.status !== TaskStatus.COMPLETED
-                  ? [{ icon: '✓', color: COLORS.success, onPress: () => setCompleteTask(item) }]
+                  ? [
+                      {
+                        icon: '\u2713',
+                        color: COLORS.success,
+                        onPress: () => setCompleteTask(item),
+                      },
+                    ]
                   : []
               }
             >

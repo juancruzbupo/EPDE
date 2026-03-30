@@ -1,38 +1,14 @@
-import type {
-  BudgetAttachmentPublic,
-  BudgetAuditLogPublic,
-  BudgetCommentPublic,
-  BudgetLineItemPublic,
-} from '@epde/shared';
-import {
-  BUDGET_AUDIT_ACTION_LABELS,
-  BudgetStatus,
-  formatARS,
-  formatRelativeDate,
-  isBudgetTerminal,
-  UserRole,
-} from '@epde/shared';
+import { BudgetStatus, isBudgetTerminal, UserRole } from '@epde/shared';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Linking,
-  Pressable,
-  RefreshControl,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { useCallback, useState } from 'react';
+import { ActivityIndicator, Alert, RefreshControl, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { CollapsibleSection } from '@/components/collapsible-section';
 import { EditBudgetModal } from '@/components/edit-budget-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { RespondBudgetModal } from '@/components/respond-budget-modal';
-import { BudgetStatusBadge } from '@/components/status-badge';
 import {
   useAddBudgetAttachments,
   useAddBudgetComment,
@@ -45,89 +21,16 @@ import {
 import { useUploadFile } from '@/hooks/use-upload';
 import { useSlideIn } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
-import { formatDateES } from '@/lib/date-format';
-import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { defaultScreenOptions } from '@/lib/screen-options';
 import { useAuthStore } from '@/stores/auth-store';
 
-// ─── Sub-components ─────────────────────────────────────────
-
-function LineItem({ item }: { item: BudgetLineItemPublic }) {
-  return (
-    <View className="border-border border-b py-3">
-      <View className="flex-row items-center justify-between">
-        <Text
-          style={TYPE.labelLg}
-          className="text-foreground flex-1"
-          ellipsizeMode="tail"
-          numberOfLines={2}
-        >
-          {item.description}
-        </Text>
-        <Text style={TYPE.titleSm} className="text-foreground ml-2">
-          {formatARS(item.subtotal)}
-        </Text>
-      </View>
-      <Text style={TYPE.bodySm} className="text-muted-foreground mt-1">
-        {item.quantity} x {formatARS(item.unitPrice)}
-      </Text>
-    </View>
-  );
-}
-
-function AuditLogEntry({ entry }: { entry: BudgetAuditLogPublic }) {
-  const ACTION_LABELS = BUDGET_AUDIT_ACTION_LABELS;
-
-  return (
-    <View className="border-border border-b py-2">
-      <Text style={TYPE.labelMd} className="text-foreground">
-        {ACTION_LABELS[entry.action] ?? entry.action}
-      </Text>
-      <Text style={TYPE.bodySm} className="text-muted-foreground">
-        {entry.user.name} · {formatRelativeDate(new Date(entry.changedAt))}
-      </Text>
-    </View>
-  );
-}
-
-function CommentItem({ comment }: { comment: BudgetCommentPublic }) {
-  return (
-    <View className="border-border border-b py-2">
-      <View className="flex-row items-center justify-between">
-        <Text style={TYPE.labelMd} className="text-foreground">
-          {comment.user.name}
-        </Text>
-        <Text style={TYPE.bodySm} className="text-muted-foreground">
-          {formatRelativeDate(new Date(comment.createdAt))}
-        </Text>
-      </View>
-      <Text style={TYPE.bodyMd} className="text-foreground mt-1">
-        {comment.content}
-      </Text>
-    </View>
-  );
-}
-
-function AttachmentItem({ attachment }: { attachment: BudgetAttachmentPublic }) {
-  return (
-    <Pressable
-      accessibilityRole="link"
-      accessibilityLabel={attachment.fileName}
-      onPress={() => Linking.openURL(attachment.url)}
-      className="border-border border-b py-2"
-    >
-      <Text style={TYPE.labelMd} className="text-primary" ellipsizeMode="tail" numberOfLines={1}>
-        {attachment.fileName}
-      </Text>
-      <Text style={TYPE.bodySm} className="text-muted-foreground">
-        {formatRelativeDate(new Date(attachment.createdAt))}
-      </Text>
-    </Pressable>
-  );
-}
-
-// ─── Main Screen ────────────────────────────────────────────
+import { BudgetAttachments } from './components/budget-attachments';
+import { BudgetComments } from './components/budget-comments';
+import { BudgetInfoCard } from './components/budget-info-card';
+import { BudgetLineItems } from './components/budget-line-items';
+import { BudgetStatusActions } from './components/budget-status-actions';
+import { BudgetTimeline } from './components/budget-timeline';
 
 export default function BudgetDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -151,7 +54,7 @@ export default function BudgetDetailScreen() {
 
   const isTerminal = budget ? isBudgetTerminal(budget.status) : false;
 
-  const handleApprove = () => {
+  const handleApprove = useCallback(() => {
     haptics.medium();
     Alert.alert('Aprobar Presupuesto', '¿Estás seguro de que querés aprobar este presupuesto?', [
       { text: 'Cancelar', style: 'cancel' },
@@ -160,9 +63,9 @@ export default function BudgetDetailScreen() {
         onPress: () => updateStatus.mutate({ id, status: BudgetStatus.APPROVED }),
       },
     ]);
-  };
+  }, [id, updateStatus]);
 
-  const handleReject = () => {
+  const handleReject = useCallback(() => {
     haptics.medium();
     Alert.alert('Rechazar Presupuesto', '¿Estás seguro de que querés rechazar este presupuesto?', [
       { text: 'Cancelar', style: 'cancel' },
@@ -172,9 +75,9 @@ export default function BudgetDetailScreen() {
         onPress: () => updateStatus.mutate({ id, status: BudgetStatus.REJECTED }),
       },
     ]);
-  };
+  }, [id, updateStatus]);
 
-  const handleStartWork = () => {
+  const handleStartWork = useCallback(() => {
     haptics.medium();
     Alert.alert('Iniciar Trabajo', '¿Estás seguro de que querés iniciar el trabajo?', [
       { text: 'Cancelar', style: 'cancel' },
@@ -183,9 +86,9 @@ export default function BudgetDetailScreen() {
         onPress: () => updateStatus.mutate({ id, status: BudgetStatus.IN_PROGRESS }),
       },
     ]);
-  };
+  }, [id, updateStatus]);
 
-  const handleMarkCompleted = () => {
+  const handleMarkCompleted = useCallback(() => {
     haptics.medium();
     Alert.alert('Marcar Completado', '¿Estás seguro de que querés marcar como completado?', [
       { text: 'Cancelar', style: 'cancel' },
@@ -194,39 +97,42 @@ export default function BudgetDetailScreen() {
         onPress: () => updateStatus.mutate({ id, status: BudgetStatus.COMPLETED }),
       },
     ]);
-  };
+  }, [id, updateStatus]);
 
-  const handleEdit = () => {
+  const handleEdit = useCallback(() => {
     if (!budget) return;
     haptics.light();
     setEditTitleVisible(true);
-  };
+  }, [budget]);
 
-  const handleAddComment = () => {
+  const handleAddComment = useCallback(() => {
     const trimmed = commentText.trim();
     if (!trimmed) return;
     haptics.light();
     addComment.mutate({ budgetId: id, content: trimmed }, { onSuccess: () => setCommentText('') });
-  };
+  }, [commentText, id, addComment]);
 
-  const uploadAttachmentFromUri = async (uri: string) => {
-    const fileName = uri.split('/').pop() ?? 'adjunto.jpg';
-    setIsUploadingAttachment(true);
-    try {
-      const url = await uploadFile.mutateAsync({ uri, folder: 'budgets' });
-      await addAttachments.mutateAsync({
-        budgetId: id,
-        attachments: [{ url, fileName }],
-      });
-      haptics.success();
-    } catch {
-      Alert.alert('Error', 'No se pudo subir el archivo.');
-    } finally {
-      setIsUploadingAttachment(false);
-    }
-  };
+  const uploadAttachmentFromUri = useCallback(
+    async (uri: string) => {
+      const fileName = uri.split('/').pop() ?? 'adjunto.jpg';
+      setIsUploadingAttachment(true);
+      try {
+        const url = await uploadFile.mutateAsync({ uri, folder: 'budgets' });
+        await addAttachments.mutateAsync({
+          budgetId: id,
+          attachments: [{ url, fileName }],
+        });
+        haptics.success();
+      } catch {
+        Alert.alert('Error', 'No se pudo subir el archivo.');
+      } finally {
+        setIsUploadingAttachment(false);
+      }
+    },
+    [id, uploadFile, addAttachments],
+  );
 
-  const handleAddAttachment = () => {
+  const handleAddAttachment = useCallback(() => {
     Alert.alert('Adjuntar archivo', 'Elegir origen', [
       {
         text: 'Cámara',
@@ -258,7 +164,12 @@ export default function BudgetDetailScreen() {
       },
       { text: 'Cancelar', style: 'cancel' },
     ]);
-  };
+  }, [uploadAttachmentFromUri]);
+
+  const handleQuote = useCallback(() => {
+    haptics.light();
+    setRespondVisible(true);
+  }, []);
 
   if (isLoading) {
     return (
@@ -309,311 +220,56 @@ export default function BudgetDetailScreen() {
         contentContainerStyle={{ padding: 16 }}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => refetch()} />}
       >
-        {/* Budget info card */}
-        <View className="border-border bg-card mb-4 rounded-xl border p-4">
-          <View className="mb-2 flex-row items-start justify-between gap-2">
-            <Text
-              style={TYPE.titleLg}
-              className="text-foreground flex-1 flex-shrink"
-              ellipsizeMode="tail"
-              numberOfLines={2}
-            >
-              {budget.title}
-            </Text>
-            <BudgetStatusBadge status={budget.status} />
-          </View>
+        <BudgetInfoCard
+          title={budget.title}
+          description={budget.description}
+          status={budget.status}
+          propertyAddress={budget.property.address}
+          createdAt={budget.createdAt}
+          showEditButton={isClient && budget.status === BudgetStatus.PENDING}
+          editDisabled={editBudget.isPending}
+          onEdit={handleEdit}
+        />
 
-          {budget.description && (
-            <Text style={TYPE.bodyMd} className="text-muted-foreground mb-3">
-              {budget.description}
-            </Text>
-          )}
-
-          <View className="gap-2">
-            <View className="flex-row justify-between gap-2">
-              <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                Propiedad
-              </Text>
-              <Text
-                style={TYPE.labelLg}
-                className="text-foreground flex-1 flex-shrink text-right"
-                ellipsizeMode="tail"
-                numberOfLines={1}
-              >
-                {budget.property.address}
-              </Text>
-            </View>
-            <View className="flex-row justify-between gap-2">
-              <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                Fecha
-              </Text>
-              <Text style={TYPE.labelLg} className="text-foreground">
-                {formatDateES(new Date(budget.createdAt))}
-              </Text>
-            </View>
-          </View>
-
-          {/* Client: Edit button for PENDING status */}
-          {isClient && budget.status === BudgetStatus.PENDING && (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Editar presupuesto"
-              onPress={handleEdit}
-              disabled={editBudget.isPending}
-              className="bg-primary mt-3 items-center rounded-lg py-2"
-            >
-              <Text style={TYPE.labelLg} className="text-primary-foreground">
-                Editar
-              </Text>
-            </Pressable>
-          )}
-        </View>
-
-        {/* Client: Awaiting quote hint */}
-        {isClient && budget.status === BudgetStatus.PENDING && (
-          <View className="bg-muted/40 mb-4 rounded-xl p-3">
-            <Text style={TYPE.bodySm} className="text-muted-foreground">
-              Tu solicitud fue recibida. El equipo de EPDE preparará una cotización y te notificará
-              cuando esté lista.
-            </Text>
-          </View>
-        )}
-
-        {/* Quote response card */}
         {budget.response && (
-          <>
-            <Text style={TYPE.titleMd} className="text-foreground mb-2">
-              Cotización
-            </Text>
-            <View className="border-border bg-card mb-4 rounded-xl border px-4">
-              {budget.lineItems.map((item) => (
-                <LineItem key={item.id} item={item} />
-              ))}
-              <View className="py-3">
-                <View className="flex-row items-center justify-between">
-                  <Text style={TYPE.titleMd} className="text-foreground">
-                    Total
-                  </Text>
-                  <Text style={TYPE.titleMd} className="text-primary">
-                    {formatARS(budget.response.totalAmount)}
-                  </Text>
-                </View>
-              </View>
-            </View>
-
-            {/* Quote details */}
-            <View className="border-border bg-card mb-4 rounded-xl border p-4">
-              <View className="gap-2">
-                {budget.response.estimatedDays && (
-                  <View className="flex-row justify-between">
-                    <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                      Días estimados
-                    </Text>
-                    <Text style={TYPE.labelLg} className="text-foreground">
-                      {budget.response.estimatedDays} días
-                    </Text>
-                  </View>
-                )}
-                {budget.response.validUntil && (
-                  <View className="flex-row justify-between">
-                    <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                      Válido hasta
-                    </Text>
-                    <Text style={TYPE.labelLg} className="text-foreground">
-                      {formatDateES(new Date(budget.response.validUntil))}
-                    </Text>
-                  </View>
-                )}
-                {budget.response.notes && (
-                  <View className="mt-1">
-                    <Text style={TYPE.bodyMd} className="text-muted-foreground mb-1">
-                      Notas
-                    </Text>
-                    <Text style={TYPE.bodyMd} className="text-foreground">
-                      {budget.response.notes}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            </View>
-          </>
+          <BudgetLineItems
+            lineItems={budget.lineItems}
+            totalAmount={budget.response.totalAmount}
+            estimatedDays={budget.response.estimatedDays}
+            validUntil={budget.response.validUntil}
+            notes={budget.response.notes}
+          />
         )}
 
-        {/* Admin: Cotizar / Re-cotizar */}
-        {isAdmin && budget.status === BudgetStatus.PENDING && (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Cotizar presupuesto"
-            onPress={() => {
-              haptics.light();
-              setRespondVisible(true);
-            }}
-            className="bg-primary mb-4 items-center rounded-xl py-3 active:opacity-80"
-          >
-            <Text style={TYPE.titleMd} className="text-primary-foreground">
-              Cotizar
-            </Text>
-          </Pressable>
-        )}
-        {isAdmin && budget.status === BudgetStatus.QUOTED && (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Re-cotizar presupuesto"
-            onPress={() => {
-              haptics.light();
-              setRespondVisible(true);
-            }}
-            className="border-border mb-4 items-center rounded-xl border py-3"
-          >
-            <Text style={TYPE.titleMd} className="text-foreground">
-              Re-cotizar
-            </Text>
-          </Pressable>
-        )}
+        <BudgetStatusActions
+          status={budget.status}
+          isAdmin={isAdmin}
+          isClient={isClient}
+          isStatusPending={updateStatus.isPending}
+          onApprove={handleApprove}
+          onReject={handleReject}
+          onStartWork={handleStartWork}
+          onMarkCompleted={handleMarkCompleted}
+          onQuote={handleQuote}
+        />
 
-        {/* Client: Approve / Reject for QUOTED */}
-        {isClient && budget.status === BudgetStatus.QUOTED && (
-          <View className="mb-4 flex-row gap-3">
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Aprobar presupuesto"
-              onPress={handleApprove}
-              disabled={updateStatus.isPending}
-              className="bg-success flex-1 items-center rounded-xl py-3 active:opacity-80"
-            >
-              <Text style={TYPE.titleMd} className="text-white">
-                Aprobar
-              </Text>
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Rechazar presupuesto"
-              onPress={handleReject}
-              disabled={updateStatus.isPending}
-              className="bg-destructive flex-1 items-center rounded-xl py-3 active:opacity-80"
-            >
-              <Text style={TYPE.titleMd} className="text-destructive-foreground">
-                Rechazar
-              </Text>
-            </Pressable>
-          </View>
-        )}
+        <BudgetAttachments
+          attachments={budget.attachments}
+          isTerminal={isTerminal}
+          isUploading={isUploadingAttachment}
+          onAddAttachment={handleAddAttachment}
+        />
 
-        {/* Admin: Start Work / Mark Completed */}
-        {isAdmin && budget.status === BudgetStatus.APPROVED && (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Iniciar trabajo"
-            onPress={handleStartWork}
-            disabled={updateStatus.isPending}
-            className="bg-primary mb-4 items-center rounded-xl py-3 active:opacity-80"
-          >
-            <Text style={TYPE.titleMd} className="text-primary-foreground">
-              Iniciar Trabajo
-            </Text>
-          </Pressable>
-        )}
-        {isAdmin && budget.status === BudgetStatus.IN_PROGRESS && (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Marcar completado"
-            onPress={handleMarkCompleted}
-            disabled={updateStatus.isPending}
-            className="bg-primary mb-4 items-center rounded-xl py-3 active:opacity-80"
-          >
-            <Text style={TYPE.titleMd} className="text-primary-foreground">
-              Marcar Completado
-            </Text>
-          </Pressable>
-        )}
+        <BudgetComments
+          comments={comments}
+          isTerminal={isTerminal}
+          commentText={commentText}
+          onCommentTextChange={setCommentText}
+          onAddComment={handleAddComment}
+          isAddingComment={addComment.isPending}
+        />
 
-        {/* Attachments */}
-        <CollapsibleSection title="Adjuntos" count={budget.attachments?.length}>
-          <View className="border-border bg-card rounded-xl border px-3">
-            {budget.attachments && budget.attachments.length > 0 ? (
-              budget.attachments.map((att) => <AttachmentItem key={att.id} attachment={att} />)
-            ) : (
-              <Text style={TYPE.bodyMd} className="text-muted-foreground py-3">
-                Sin adjuntos
-              </Text>
-            )}
-          </View>
-
-          {!isTerminal && (
-            <>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Adjuntar archivo"
-                onPress={handleAddAttachment}
-                disabled={isUploadingAttachment}
-                className="bg-primary mt-2 items-center rounded-lg py-2"
-              >
-                {isUploadingAttachment ? (
-                  <ActivityIndicator size="small" color={COLORS.primaryForeground} />
-                ) : (
-                  <Text style={TYPE.labelMd} className="text-primary-foreground">
-                    Adjuntar archivo
-                  </Text>
-                )}
-              </Pressable>
-              <Text style={TYPE.bodySm} className="text-muted-foreground mt-1 text-center">
-                Máx. 10 MB por archivo
-              </Text>
-            </>
-          )}
-        </CollapsibleSection>
-
-        {/* Comments */}
-        <CollapsibleSection title="Comentarios" count={comments?.length}>
-          <View className="border-border bg-card rounded-xl border px-3">
-            {comments && comments.length > 0 ? (
-              comments.map((c) => <CommentItem key={c.id} comment={c} />)
-            ) : (
-              <Text style={TYPE.bodyMd} className="text-muted-foreground py-3">
-                Sin comentarios
-              </Text>
-            )}
-          </View>
-
-          {/* Add comment form */}
-          {!isTerminal && (
-            <View className="mt-2 flex-row items-end gap-2">
-              <TextInput
-                value={commentText}
-                onChangeText={setCommentText}
-                placeholder="Escribí un comentario..."
-                placeholderTextColor={COLORS.mutedForeground}
-                multiline
-                style={[TYPE.bodyMd, { maxHeight: 80, flex: 1 }]}
-                className="border-border bg-card text-foreground rounded-lg border px-3 py-2"
-              />
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Enviar comentario"
-                onPress={handleAddComment}
-                disabled={!commentText.trim() || addComment.isPending}
-                className="bg-primary rounded-lg px-4 py-2"
-              >
-                <Text style={TYPE.labelMd} className="text-primary-foreground">
-                  Enviar
-                </Text>
-              </Pressable>
-            </View>
-          )}
-        </CollapsibleSection>
-
-        {/* Audit log / timeline */}
-        <CollapsibleSection title="Historial" count={auditLog?.length} defaultOpen={false}>
-          <View className="border-border bg-card rounded-xl border px-3">
-            {auditLog && auditLog.length > 0 ? (
-              auditLog.map((entry) => <AuditLogEntry key={entry.id} entry={entry} />)
-            ) : (
-              <Text style={TYPE.bodyMd} className="text-muted-foreground py-3">
-                Sin historial
-              </Text>
-            )}
-          </View>
-        </CollapsibleSection>
+        <BudgetTimeline auditLog={auditLog} />
       </Animated.ScrollView>
 
       <EditBudgetModal

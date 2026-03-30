@@ -6,42 +6,22 @@ import type {
   TaskResult,
   TaskType,
 } from '@epde/shared';
-import {
-  ACTION_TAKEN_LABELS,
-  ACTION_TAKEN_VALUES,
-  CONDITION_FOUND_HINTS,
-  CONDITION_FOUND_LABELS,
-  CONDITION_FOUND_VALUES,
-  TASK_EXECUTOR_LABELS,
-  TASK_EXECUTOR_VALUES,
-  TASK_RESULT_LABELS,
-  TASK_RESULT_VALUES,
-  TASK_TYPE_TO_DEFAULT_ACTION,
-} from '@epde/shared';
+import { TASK_TYPE_TO_DEFAULT_ACTION } from '@epde/shared';
 import { parse } from 'date-fns';
-import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useCompleteTask } from '@/hooks/use-task-operations';
 import { useUploadFile } from '@/hooks/use-upload';
 import { useSlideIn } from '@/lib/animations';
-import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
+
+import { CompletionFindingsForm } from './task/completion-findings-form';
+import { CompletionPhotoSection } from './task/completion-photo-section';
 
 interface CompleteTaskModalProps {
   visible: boolean;
@@ -49,52 +29,6 @@ interface CompleteTaskModalProps {
   task: TaskPublic;
   planId: string;
   onProblemDetected?: () => void;
-}
-
-function SelectorGroup<T extends string>({
-  label,
-  options,
-  labels,
-  value,
-  onChange,
-}: {
-  label: string;
-  options: readonly T[];
-  labels: Record<T, string>;
-  value: T | null;
-  onChange: (v: T) => void;
-}) {
-  return (
-    <View className="mb-4" accessibilityRole="radiogroup" accessibilityLabel={label}>
-      <Text style={TYPE.labelLg} className="text-foreground mb-2">
-        {label}
-      </Text>
-      <View className="flex-row flex-wrap gap-2">
-        {options.map((opt) => {
-          const selected = value === opt;
-          return (
-            <Pressable
-              key={opt}
-              accessibilityRole="radio"
-              accessibilityState={{ selected }}
-              accessibilityLabel={labels[opt] ?? opt}
-              onPress={() => onChange(opt)}
-              className={`rounded-lg border px-4 py-2.5 ${
-                selected ? 'bg-primary border-primary' : 'border-border bg-card'
-              }`}
-            >
-              <Text
-                style={selected ? TYPE.titleSm : TYPE.bodyMd}
-                className={selected ? 'text-primary-foreground' : 'text-foreground'}
-              >
-                {labels[opt] ?? opt}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
-    </View>
-  );
 }
 
 export function CompleteTaskModal({
@@ -325,150 +259,32 @@ export function CompleteTaskModal({
             Registrá lo observado durante la inspección.
           </Text>
 
-          <SelectorGroup
-            label="Resultado *"
-            options={TASK_RESULT_VALUES}
-            labels={TASK_RESULT_LABELS}
-            value={result}
-            onChange={setResult}
+          <CompletionFindingsForm
+            result={result}
+            onResultChange={setResult}
+            conditionFound={conditionFound}
+            onConditionFoundChange={setConditionFound}
+            executor={executor}
+            onExecutorChange={setExecutor}
+            actionTaken={actionTaken}
+            onActionTakenChange={setActionTaken}
+            cost={cost}
+            onCostChange={setCost}
+            completedAtText={completedAtText}
+            onCompletedAtTextChange={setCompletedAtText}
+            note={note}
+            onNoteChange={setNote}
           />
 
-          <SelectorGroup
-            label="¿En qué estado está? *"
-            options={CONDITION_FOUND_VALUES}
-            labels={CONDITION_FOUND_LABELS}
-            value={conditionFound}
-            onChange={setConditionFound}
+          <CompletionPhotoSection
+            photoUri={photoUri}
+            uploadedUrl={uploadedUrl}
+            isUploading={isUploading}
+            uploadFailed={uploadFailed}
+            onPickImage={pickImage}
+            onRetryUpload={retryUpload}
+            onRemovePhoto={removePhoto}
           />
-          {conditionFound && (
-            <Text style={TYPE.bodySm} className="text-muted-foreground -mt-2 mb-4">
-              {CONDITION_FOUND_HINTS[conditionFound]}
-            </Text>
-          )}
-
-          <SelectorGroup
-            label="¿Quién lo hizo? *"
-            options={TASK_EXECUTOR_VALUES}
-            labels={TASK_EXECUTOR_LABELS}
-            value={executor}
-            onChange={setExecutor}
-          />
-
-          <SelectorGroup
-            label="Acción realizada *"
-            options={ACTION_TAKEN_VALUES}
-            labels={ACTION_TAKEN_LABELS}
-            value={actionTaken}
-            onChange={setActionTaken}
-          />
-
-          <Text style={TYPE.labelLg} className="text-foreground mb-2">
-            Costo (opcional)
-          </Text>
-          <View className="mb-4 flex-row items-center">
-            <Text style={TYPE.bodyMd} className="text-muted-foreground mr-2">
-              $
-            </Text>
-            <TextInput
-              value={cost}
-              onChangeText={setCost}
-              placeholder="0.00"
-              placeholderTextColor={COLORS.mutedForeground}
-              keyboardType="decimal-pad"
-              style={TYPE.bodyMd}
-              className="border-border bg-card text-foreground flex-1 rounded-xl border p-3"
-            />
-          </View>
-
-          <Text style={TYPE.labelLg} className="text-foreground mb-2">
-            Fecha de completación (opcional)
-          </Text>
-          <TextInput
-            value={completedAtText}
-            onChangeText={setCompletedAtText}
-            placeholder="DD/MM/AAAA (hoy por defecto)"
-            placeholderTextColor={COLORS.mutedForeground}
-            keyboardType="numeric"
-            style={TYPE.bodyMd}
-            className="border-border bg-card text-foreground mb-4 rounded-xl border p-3"
-          />
-
-          <Text style={TYPE.labelLg} className="text-foreground mb-2">
-            Notas (opcional)
-          </Text>
-          <TextInput
-            value={note}
-            onChangeText={setNote}
-            placeholder="Describir el trabajo realizado..."
-            placeholderTextColor={COLORS.mutedForeground}
-            multiline
-            maxLength={500}
-            style={[TYPE.bodyMd, { minHeight: 80, textAlignVertical: 'top' }]}
-            className="border-border bg-card text-foreground mb-4 rounded-xl border p-3"
-          />
-
-          <Text style={TYPE.labelLg} className="text-foreground mb-1">
-            Foto (opcional)
-          </Text>
-          <Text style={TYPE.bodySm} className="text-muted-foreground mb-2">
-            Foto del área inspeccionada para registro.
-          </Text>
-          {photoUri ? (
-            <View className="mb-4">
-              <View className="relative">
-                <Image
-                  source={photoUri}
-                  contentFit="cover"
-                  transition={200}
-                  className="h-40 w-40 rounded-xl"
-                />
-                {isUploading && (
-                  <View className="absolute inset-0 h-40 w-40 items-center justify-center rounded-xl bg-black/40">
-                    <ActivityIndicator color="white" />
-                  </View>
-                )}
-                {uploadFailed && !isUploading && (
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Reintentar subida de foto"
-                    onPress={retryUpload}
-                    className="absolute inset-0 h-40 w-40 items-center justify-center rounded-xl bg-black/50"
-                  >
-                    <Text style={TYPE.labelMd} className="text-white">
-                      Reintentar
-                    </Text>
-                  </Pressable>
-                )}
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Eliminar foto"
-                  onPress={removePhoto}
-                  className="bg-destructive absolute -top-2 -right-2 h-6 w-6 items-center justify-center rounded-full"
-                >
-                  <Text className="text-xs font-bold text-white">X</Text>
-                </Pressable>
-              </View>
-              {isUploading && (
-                <Text style={TYPE.bodySm} className="text-muted-foreground mt-1">
-                  Subiendo foto...
-                </Text>
-              )}
-            </View>
-          ) : (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Subir foto"
-              onPress={pickImage}
-              className="border-border flex-row items-center gap-2 rounded-xl border border-dashed px-4 py-3"
-            >
-              <Text style={TYPE.labelLg} className="text-muted-foreground">
-                Subir foto
-              </Text>
-            </Pressable>
-          )}
-          <Text style={TYPE.bodySm} className="text-muted-foreground mt-1 mb-4">
-            Máx. 10 MB por archivo
-          </Text>
         </Animated.ScrollView>
       </KeyboardAvoidingView>
     </Modal>

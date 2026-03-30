@@ -1,44 +1,21 @@
-import type {
-  ServiceRequestAttachmentPublic,
-  ServiceRequestAuditLogPublic,
-  ServiceRequestCommentPublic,
-} from '@epde/shared';
-import {
-  formatRelativeDate,
-  isServiceRequestTerminal,
-  SERVICE_AUDIT_ACTION_LABELS,
-  SERVICE_STATUS_LABELS,
-  SERVICE_URGENCY_LABELS,
-  ServiceStatus,
-  ServiceUrgency,
-  UserRole,
-} from '@epde/shared';
-import { Image } from 'expo-image';
+import { isServiceRequestTerminal, ServiceStatus, ServiceUrgency, UserRole } from '@epde/shared';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Dimensions,
   KeyboardAvoidingView,
-  Linking,
-  Modal,
   Platform,
-  Pressable,
   RefreshControl,
-  ScrollView,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { CollapsibleSection } from '@/components/collapsible-section';
 import { CreateBudgetModal } from '@/components/create-budget-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
-import { ServiceStatusBadge, UrgencyBadge } from '@/components/status-badge';
 import {
   useAddServiceRequestAttachments,
   useAddServiceRequestComment,
@@ -51,269 +28,21 @@ import {
 import { useUploadFile } from '@/hooks/use-upload';
 import { useSlideIn } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
-import { formatDateES } from '@/lib/date-format';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { defaultScreenOptions } from '@/lib/screen-options';
 import { useAuthStore } from '@/stores/auth-store';
 
-const STATUS_TRANSITIONS: Partial<Record<ServiceStatus, ServiceStatus>> = {
-  [ServiceStatus.OPEN]: ServiceStatus.IN_REVIEW,
-  [ServiceStatus.IN_REVIEW]: ServiceStatus.IN_PROGRESS,
-  [ServiceStatus.IN_PROGRESS]: ServiceStatus.RESOLVED,
-  [ServiceStatus.RESOLVED]: ServiceStatus.CLOSED,
-};
-
-const TRANSITION_LABELS: Partial<Record<ServiceStatus, string>> = {
-  [ServiceStatus.IN_REVIEW]: 'Pasar a En Revisión',
-  [ServiceStatus.IN_PROGRESS]: 'Pasar a En Progreso',
-  [ServiceStatus.RESOLVED]: 'Marcar como Resuelto',
-  [ServiceStatus.CLOSED]: 'Cerrar solicitud',
-};
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-
-// ─── Sub-components ─────────────────────────────────────────
-
-function AuditLogEntry({ entry }: { entry: ServiceRequestAuditLogPublic }) {
-  const ACTION_LABELS = SERVICE_AUDIT_ACTION_LABELS;
-
-  const note = (entry.after as Record<string, unknown>)?.note as string | undefined;
-
-  return (
-    <View className="border-border border-b py-2">
-      <Text style={TYPE.labelMd} className="text-foreground">
-        {ACTION_LABELS[entry.action] ?? entry.action}
-      </Text>
-      {note && (
-        <Text style={TYPE.bodySm} className="text-foreground mt-0.5 italic">
-          {note}
-        </Text>
-      )}
-      <Text style={TYPE.bodySm} className="text-muted-foreground">
-        {entry.user.name} · {formatRelativeDate(new Date(entry.changedAt))}
-      </Text>
-    </View>
-  );
-}
-
-function CommentItem({ comment }: { comment: ServiceRequestCommentPublic }) {
-  return (
-    <View className="border-border border-b py-2">
-      <View className="flex-row items-center justify-between">
-        <Text style={TYPE.labelMd} className="text-foreground">
-          {comment.user.name}
-        </Text>
-        <Text style={TYPE.bodySm} className="text-muted-foreground">
-          {formatRelativeDate(new Date(comment.createdAt))}
-        </Text>
-      </View>
-      <Text style={TYPE.bodyMd} className="text-foreground mt-1">
-        {comment.content}
-      </Text>
-    </View>
-  );
-}
-
-function AttachmentItem({ attachment }: { attachment: ServiceRequestAttachmentPublic }) {
-  return (
-    <Pressable
-      accessibilityRole="link"
-      accessibilityLabel={attachment.fileName}
-      onPress={() => Linking.openURL(attachment.url)}
-      className="border-border border-b py-2"
-    >
-      <Text style={TYPE.labelMd} className="text-primary" ellipsizeMode="tail" numberOfLines={1}>
-        {attachment.fileName}
-      </Text>
-      <Text style={TYPE.bodySm} className="text-muted-foreground">
-        {formatRelativeDate(new Date(attachment.createdAt))}
-      </Text>
-    </Pressable>
-  );
-}
-
-// ─── Edit Service Request Modal ─────────────────────────────
-
-const URGENCY_OPTIONS = [
-  ServiceUrgency.LOW,
-  ServiceUrgency.MEDIUM,
-  ServiceUrgency.HIGH,
-  ServiceUrgency.URGENT,
-] as const;
-
-const URGENCY_COLORS: Record<ServiceUrgency, string> = {
-  [ServiceUrgency.LOW]: COLORS.success,
-  [ServiceUrgency.MEDIUM]: COLORS.warning,
-  [ServiceUrgency.HIGH]: COLORS.caution,
-  [ServiceUrgency.URGENT]: COLORS.destructive,
-};
-
-interface EditServiceRequestModalProps {
-  visible: boolean;
-  defaultTitle: string;
-  defaultDescription: string;
-  defaultUrgency: ServiceUrgency;
-  onSubmit: (data: { title: string; description: string; urgency: ServiceUrgency }) => void;
-  onClose: () => void;
-}
-
-function EditServiceRequestModal({
-  visible,
-  defaultTitle,
-  defaultDescription,
-  defaultUrgency,
-  onSubmit,
-  onClose,
-}: EditServiceRequestModalProps) {
-  const [title, setTitle] = useState(defaultTitle);
-  const [description, setDescription] = useState(defaultDescription);
-  const [urgency, setUrgency] = useState<ServiceUrgency>(defaultUrgency);
-
-  useEffect(() => {
-    if (visible) {
-      setTitle(defaultTitle);
-      setDescription(defaultDescription);
-      setUrgency(defaultUrgency);
-    }
-  }, [visible, defaultTitle, defaultDescription, defaultUrgency]);
-
-  const handleSubmit = () => {
-    const trimmedTitle = title.trim();
-    if (!trimmedTitle) return;
-    onSubmit({
-      title: trimmedTitle,
-      description: description.trim(),
-      urgency,
-    });
-    onClose();
-  };
-
-  return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-      accessibilityViewIsModal={true}
-    >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-      >
-        <Pressable
-          onPress={onClose}
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: 'rgba(0,0,0,0.5)',
-          }}
-        >
-          <Pressable onPress={(e) => e.stopPropagation()}>
-            <ScrollView
-              keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
-              style={{ maxHeight: '80%' }}
-            >
-              <View className="bg-card mx-8 w-full max-w-sm rounded-2xl p-6">
-                <Text style={TYPE.titleMd} className="text-foreground mb-4">
-                  Editar Solicitud
-                </Text>
-
-                <Text style={TYPE.labelMd} className="text-foreground mb-1">
-                  Título
-                </Text>
-                <TextInput
-                  style={TYPE.bodyMd}
-                  className="border-border text-foreground mb-3 rounded-lg border px-3 py-2.5"
-                  placeholder="Título de la solicitud"
-                  placeholderTextColor={COLORS.mutedForeground}
-                  value={title}
-                  onChangeText={setTitle}
-                  autoFocus
-                  returnKeyType="next"
-                />
-
-                <Text style={TYPE.labelMd} className="text-foreground mb-1">
-                  Descripción
-                </Text>
-                <TextInput
-                  style={[TYPE.bodyMd, { minHeight: 80, textAlignVertical: 'top' }]}
-                  className="border-border text-foreground mb-3 rounded-lg border px-3 py-2.5"
-                  placeholder="Descripción de la solicitud"
-                  placeholderTextColor={COLORS.mutedForeground}
-                  value={description}
-                  onChangeText={setDescription}
-                  multiline
-                />
-
-                <Text style={TYPE.labelMd} className="text-foreground mb-2">
-                  Urgencia
-                </Text>
-                <View
-                  className="mb-4 flex-row gap-2"
-                  accessibilityRole="radiogroup"
-                  accessibilityLabel="Urgencia"
-                >
-                  {URGENCY_OPTIONS.map((opt) => {
-                    const isSelected = urgency === opt;
-                    return (
-                      <Pressable
-                        key={opt}
-                        accessibilityRole="radio"
-                        accessibilityState={{ selected: isSelected }}
-                        accessibilityLabel={SERVICE_URGENCY_LABELS[opt]}
-                        onPress={() => setUrgency(opt)}
-                        className="flex-1 items-center rounded-lg border py-2"
-                        style={{
-                          borderColor: isSelected ? URGENCY_COLORS[opt] : COLORS.border,
-                          backgroundColor: isSelected ? URGENCY_COLORS[opt] + '18' : 'transparent',
-                        }}
-                      >
-                        <Text
-                          style={[
-                            TYPE.labelSm,
-                            { color: isSelected ? URGENCY_COLORS[opt] : COLORS.mutedForeground },
-                          ]}
-                        >
-                          {SERVICE_URGENCY_LABELS[opt]}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-
-                <View className="flex-row justify-end gap-3">
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Cancelar"
-                    onPress={onClose}
-                  >
-                    <Text style={TYPE.labelLg} className="text-muted-foreground px-3 py-2">
-                      Cancelar
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Guardar"
-                    onPress={handleSubmit}
-                    className="bg-primary rounded-lg px-4 py-2"
-                    disabled={!title.trim()}
-                  >
-                    <Text style={TYPE.labelLg} className="text-primary-foreground">
-                      Guardar
-                    </Text>
-                  </Pressable>
-                </View>
-              </View>
-            </ScrollView>
-          </Pressable>
-        </Pressable>
-      </KeyboardAvoidingView>
-    </Modal>
-  );
-}
+import { EditServiceRequestModal } from './components/edit-service-request-modal';
+import { ServiceRequestAttachments } from './components/service-request-attachments';
+import { ServiceRequestComments } from './components/service-request-comments';
+import { ServiceRequestInfoCard } from './components/service-request-info-card';
+import { ServiceRequestPhotos } from './components/service-request-photos';
+import {
+  ServiceRequestStatusActions,
+  STATUS_TRANSITIONS,
+} from './components/service-request-status-actions';
+import { ServiceRequestTimeline } from './components/service-request-timeline';
 
 // ─── Main Screen ────────────────────────────────────────────
 
@@ -462,82 +191,12 @@ export default function ServiceRequestDetailScreen() {
         contentContainerStyle={{ padding: 16 }}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => refetch()} />}
       >
-        {/* Request info card */}
-        <View className="border-border bg-card mb-4 rounded-xl border p-4">
-          <View className="mb-2 flex-row items-center justify-between">
-            <Text
-              style={TYPE.titleLg}
-              className="text-foreground flex-1"
-              ellipsizeMode="tail"
-              numberOfLines={2}
-            >
-              {request.title}
-            </Text>
-          </View>
-
-          <View className="mb-3 flex-row flex-wrap items-center gap-2">
-            <ServiceStatusBadge status={request.status} />
-            <UrgencyBadge urgency={request.urgency} />
-          </View>
-
-          <Text style={TYPE.bodyMd} className="text-foreground mb-3">
-            {request.description}
-          </Text>
-
-          <View className="gap-2">
-            <View className="flex-row justify-between gap-2">
-              <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                Propiedad
-              </Text>
-              <Text
-                style={TYPE.labelLg}
-                className="text-foreground flex-1 flex-shrink text-right"
-                ellipsizeMode="tail"
-                numberOfLines={1}
-              >
-                {request.property.address}
-              </Text>
-            </View>
-            <View className="flex-row justify-between">
-              <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                Fecha
-              </Text>
-              <Text style={TYPE.labelLg} className="text-foreground">
-                {formatDateES(new Date(request.createdAt))}
-              </Text>
-            </View>
-            {request.task && (
-              <View className="flex-row justify-between gap-2">
-                <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                  Tarea
-                </Text>
-                <Text
-                  style={TYPE.labelLg}
-                  className="text-foreground flex-1 flex-shrink text-right"
-                  ellipsizeMode="tail"
-                  numberOfLines={1}
-                >
-                  {request.task.category.name} — {request.task.name}
-                </Text>
-              </View>
-            )}
-          </View>
-
-          {/* Client: Edit button for OPEN status */}
-          {isClient && request.status === ServiceStatus.OPEN && (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Editar solicitud"
-              onPress={handleEdit}
-              disabled={editRequest.isPending}
-              className="bg-primary mt-3 items-center rounded-lg py-2"
-            >
-              <Text style={TYPE.labelLg} className="text-primary-foreground">
-                Editar
-              </Text>
-            </Pressable>
-          )}
-        </View>
+        <ServiceRequestInfoCard
+          request={request}
+          isClient={isClient}
+          isEditPending={editRequest.isPending}
+          onEdit={handleEdit}
+        />
 
         {/* Client: Awaiting review hint */}
         {isClient && request.status === ServiceStatus.OPEN && (
@@ -551,180 +210,42 @@ export default function ServiceRequestDetailScreen() {
 
         {/* Admin: Status transition + Generate budget */}
         {isAdmin && nextStatus && (
-          <View className="border-border bg-card mb-4 rounded-xl border p-4">
-            <TextInput
-              value={statusNote}
-              onChangeText={setStatusNote}
-              placeholder="Nota opcional para el cambio de estado..."
-              placeholderTextColor={COLORS.mutedForeground}
-              multiline
-              style={[TYPE.bodyMd, { maxHeight: 80 }]}
-              className="border-border text-foreground mb-3 rounded-lg border px-3 py-2"
-            />
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={TRANSITION_LABELS[nextStatus]}
-              onPress={() => {
-                haptics.medium();
-                Alert.alert(
-                  'Cambiar estado',
-                  `¿Estás seguro de que querés cambiar el estado a "${SERVICE_STATUS_LABELS[nextStatus]}"?`,
-                  [
-                    { text: 'Cancelar', style: 'cancel' },
-                    {
-                      text: 'Confirmar',
-                      onPress: () => {
-                        updateStatus.mutate(
-                          { id, status: nextStatus, note: statusNote.trim() || undefined },
-                          { onSuccess: () => setStatusNote('') },
-                        );
-                      },
-                    },
-                  ],
-                );
-              }}
-              disabled={updateStatus.isPending}
-              className="bg-primary items-center rounded-xl py-3 active:opacity-80"
-            >
-              <Text style={TYPE.titleMd} className="text-primary-foreground">
-                {TRANSITION_LABELS[nextStatus]}
-              </Text>
-            </Pressable>
-          </View>
-        )}
-
-        {/* Admin: Generate budget from SR */}
-        {isAdmin && !isTerminal && (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Generar presupuesto para este servicio"
-            onPress={() => {
-              haptics.light();
-              setCreateBudgetVisible(true);
+          <ServiceRequestStatusActions
+            nextStatus={nextStatus}
+            statusNote={statusNote}
+            onStatusNoteChange={setStatusNote}
+            isUpdatePending={updateStatus.isPending}
+            isTerminal={isTerminal}
+            onUpdateStatus={(status, note) => {
+              updateStatus.mutate({ id, status, note }, { onSuccess: () => setStatusNote('') });
             }}
-            className="border-border mb-4 items-center rounded-xl border py-3"
-          >
-            <Text style={TYPE.labelLg} className="text-primary">
-              Generar presupuesto para este servicio
-            </Text>
-          </Pressable>
+            onCreateBudget={() => setCreateBudgetVisible(true)}
+          />
         )}
 
-        {/* Photos */}
-        {request.photos && request.photos.length > 0 && (
-          <CollapsibleSection title="Fotos" count={request.photos.length}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ gap: 8 }}
-            >
-              {request.photos.map((photo) => (
-                <Pressable
-                  key={photo.id}
-                  accessibilityRole="button"
-                  accessibilityLabel="Ver foto"
-                  onPress={() => setPreviewPhoto(photo.url)}
-                >
-                  <Image
-                    source={photo.url}
-                    contentFit="cover"
-                    transition={200}
-                    className="h-32 w-32 rounded-xl"
-                    accessibilityLabel="Foto de solicitud de servicio"
-                  />
-                </Pressable>
-              ))}
-            </ScrollView>
-          </CollapsibleSection>
-        )}
+        <ServiceRequestPhotos
+          photos={request.photos}
+          previewPhoto={previewPhoto}
+          onPreview={setPreviewPhoto}
+        />
 
-        {/* Attachments */}
-        <CollapsibleSection title="Adjuntos" count={request.attachments?.length}>
-          <View className="border-border bg-card rounded-xl border px-3">
-            {request.attachments && request.attachments.length > 0 ? (
-              request.attachments.map((att) => <AttachmentItem key={att.id} attachment={att} />)
-            ) : (
-              <Text style={TYPE.bodyMd} className="text-muted-foreground py-3">
-                Sin adjuntos
-              </Text>
-            )}
-          </View>
+        <ServiceRequestAttachments
+          attachments={request.attachments}
+          isTerminal={isTerminal}
+          isUploading={isUploadingAttachment}
+          onAddAttachment={handleAddAttachment}
+        />
 
-          {!isTerminal && (
-            <>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Adjuntar archivo"
-                onPress={handleAddAttachment}
-                disabled={isUploadingAttachment}
-                className="bg-primary mt-2 items-center rounded-lg py-2"
-              >
-                {isUploadingAttachment ? (
-                  <ActivityIndicator size="small" color={COLORS.primaryForeground} />
-                ) : (
-                  <Text style={TYPE.labelMd} className="text-primary-foreground">
-                    Adjuntar archivo
-                  </Text>
-                )}
-              </Pressable>
-              <Text style={TYPE.bodySm} className="text-muted-foreground mt-1 text-center">
-                Máx. 10 MB por archivo
-              </Text>
-            </>
-          )}
-        </CollapsibleSection>
+        <ServiceRequestComments
+          comments={comments}
+          commentText={commentText}
+          onCommentTextChange={setCommentText}
+          onAddComment={handleAddComment}
+          isAddPending={addComment.isPending}
+          isTerminal={isTerminal}
+        />
 
-        {/* Comments */}
-        <CollapsibleSection title="Comentarios" count={comments?.length}>
-          <View className="border-border bg-card rounded-xl border px-3">
-            {comments && comments.length > 0 ? (
-              comments.map((c) => <CommentItem key={c.id} comment={c} />)
-            ) : (
-              <Text style={TYPE.bodyMd} className="text-muted-foreground py-3">
-                Sin comentarios
-              </Text>
-            )}
-          </View>
-
-          {/* Add comment form */}
-          {!isTerminal && (
-            <View className="mt-2 flex-row items-end gap-2">
-              <TextInput
-                value={commentText}
-                onChangeText={setCommentText}
-                placeholder="Escribí un comentario..."
-                placeholderTextColor={COLORS.mutedForeground}
-                multiline
-                style={[TYPE.bodyMd, { maxHeight: 80, flex: 1 }]}
-                className="border-border bg-card text-foreground rounded-lg border px-3 py-2"
-              />
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Enviar comentario"
-                onPress={handleAddComment}
-                disabled={!commentText.trim() || addComment.isPending}
-                className="bg-primary rounded-lg px-4 py-2"
-              >
-                <Text style={TYPE.labelMd} className="text-primary-foreground">
-                  Enviar
-                </Text>
-              </Pressable>
-            </View>
-          )}
-        </CollapsibleSection>
-
-        {/* Audit log / timeline */}
-        <CollapsibleSection title="Historial" count={auditLog?.length} defaultOpen={false}>
-          <View className="border-border bg-card rounded-xl border px-3">
-            {auditLog && auditLog.length > 0 ? (
-              auditLog.map((entry) => <AuditLogEntry key={entry.id} entry={entry} />)
-            ) : (
-              <Text style={TYPE.bodyMd} className="text-muted-foreground py-3">
-                Sin historial
-              </Text>
-            )}
-          </View>
-        </CollapsibleSection>
+        <ServiceRequestTimeline auditLog={auditLog} />
       </Animated.ScrollView>
 
       <EditServiceRequestModal
@@ -738,7 +259,6 @@ export default function ServiceRequestDetailScreen() {
         onClose={() => setEditTitleVisible(false)}
       />
 
-      {/* Create budget from SR */}
       <CreateBudgetModal
         visible={createBudgetVisible}
         onClose={() => setCreateBudgetVisible(false)}
@@ -746,31 +266,6 @@ export default function ServiceRequestDetailScreen() {
         defaultTitle={`Presupuesto: ${request.title}`}
         defaultDescription={request.description}
       />
-
-      {/* Full-screen photo preview */}
-      <Modal
-        visible={!!previewPhoto}
-        transparent
-        animationType="fade"
-        accessibilityViewIsModal={true}
-      >
-        <Pressable
-          className="flex-1 items-center justify-center bg-black/90"
-          onPress={() => setPreviewPhoto(null)}
-        >
-          {previewPhoto && (
-            <Image
-              source={previewPhoto}
-              contentFit="contain"
-              transition={200}
-              style={{ width: screenWidth * 0.9, height: screenHeight * 0.7 }}
-            />
-          )}
-          <Text style={TYPE.labelLg} className="mt-4 text-white">
-            Toca para cerrar
-          </Text>
-        </Pressable>
-      </Modal>
     </KeyboardAvoidingView>
   );
 }

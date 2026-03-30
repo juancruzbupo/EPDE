@@ -1,19 +1,12 @@
 import { changePasswordSchema, WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
 import Constants from 'expo-constants';
-import { useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Linking,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { Alert, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 
+import { AppearanceSelector } from '@/components/profile/appearance-selector';
+import { PasswordChangeForm } from '@/components/profile/password-change-form';
+import { UserInfoCard } from '@/components/profile/user-info-card';
 import * as authApi from '@/lib/auth';
-import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { useAuthStore } from '@/stores/auth-store';
@@ -34,7 +27,7 @@ export default function ProfileScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     Alert.alert('Cerrar Sesión', '¿Estás seguro de que querés cerrar sesión?', [
       { text: 'Cancelar', style: 'cancel' },
       {
@@ -43,19 +36,22 @@ export default function ProfileScreen() {
         onPress: () => logout(),
       },
     ]);
-  };
+  }, [logout]);
 
-  const startEdit = (field: 'name' | 'phone') => {
-    setEditingField(field);
-    setEditValue(field === 'name' ? (user?.name ?? '') : (user?.phone ?? ''));
-  };
+  const startEdit = useCallback(
+    (field: 'name' | 'phone') => {
+      setEditingField(field);
+      setEditValue(field === 'name' ? (user?.name ?? '') : (user?.phone ?? ''));
+    },
+    [user?.name, user?.phone],
+  );
 
-  const cancelEdit = () => {
+  const cancelEdit = useCallback(() => {
     setEditingField(null);
     setEditValue('');
-  };
+  }, []);
 
-  const saveEdit = async () => {
+  const saveEdit = useCallback(async () => {
     if (!editingField) return;
     setIsSaving(true);
     try {
@@ -70,9 +66,9 @@ export default function ProfileScreen() {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [editingField, editValue]);
 
-  const handleChangePassword = async () => {
+  const handleChangePassword = useCallback(async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
       Alert.alert('Error', 'Completá todos los campos');
       return;
@@ -99,7 +95,7 @@ export default function ProfileScreen() {
     } finally {
       setIsChangingPassword(false);
     }
-  };
+  }, [currentPassword, newPassword, confirmPassword]);
 
   return (
     <ScrollView className="bg-background flex-1" contentContainerStyle={{ padding: 16 }}>
@@ -107,242 +103,36 @@ export default function ProfileScreen() {
         Mi Perfil
       </Text>
 
-      {/* User info card */}
-      <View className="border-border bg-card mb-4 rounded-xl border p-4">
-        <View className="mb-4 items-center">
-          <View className="bg-primary/10 mb-3 h-20 w-20 items-center justify-center rounded-full">
-            <Text style={{ fontSize: 32 }}>{'\u{1F464}'}</Text>
-          </View>
-          <Text style={TYPE.titleLg} className="text-foreground">
-            {user?.name ?? 'Usuario'}
-          </Text>
-          <Text style={TYPE.bodyMd} className="text-muted-foreground">
-            {user?.email ?? ''}
-          </Text>
-        </View>
-
-        <View className="border-border gap-3 border-t pt-3">
-          {/* Name field */}
-          <View className="flex-row items-center justify-between">
-            <Text style={TYPE.bodyMd} className="text-muted-foreground">
-              Nombre
-            </Text>
-            {editingField === 'name' ? (
-              <View className="ml-4 flex-1 flex-row items-center gap-2">
-                <TextInput
-                  value={editValue}
-                  onChangeText={setEditValue}
-                  className="border-border bg-background text-foreground flex-1 rounded-lg border px-3 py-1.5"
-                  style={TYPE.bodyMd}
-                  autoFocus
-                />
-                <Pressable
-                  onPress={saveEdit}
-                  disabled={isSaving}
-                  accessibilityLabel="Guardar"
-                  accessibilityRole="button"
-                >
-                  <Text style={TYPE.labelMd} className="text-primary">
-                    {isSaving ? '...' : 'OK'}
-                  </Text>
-                </Pressable>
-                <Pressable
-                  onPress={cancelEdit}
-                  accessibilityLabel="Cancelar"
-                  accessibilityRole="button"
-                >
-                  <Text style={TYPE.labelMd} className="text-muted-foreground">
-                    X
-                  </Text>
-                </Pressable>
-              </View>
-            ) : (
-              <Pressable
-                onPress={() => startEdit('name')}
-                className="flex-row items-center gap-2"
-                accessibilityLabel="Editar nombre"
-                accessibilityRole="button"
-              >
-                <Text style={TYPE.labelLg} className="text-foreground">
-                  {user?.name ?? '-'}
-                </Text>
-                <Text style={TYPE.labelMd} className="text-primary">
-                  Editar
-                </Text>
-              </Pressable>
-            )}
-          </View>
-
-          {/* Email field (read-only) */}
-          <View className="flex-row justify-between">
-            <Text style={TYPE.bodyMd} className="text-muted-foreground">
-              Email
-            </Text>
-            <Text style={TYPE.labelLg} className="text-foreground">
-              {user?.email ?? '-'}
-            </Text>
-          </View>
-
-          {/* Phone field */}
-          <View className="flex-row items-center justify-between">
-            <Text style={TYPE.bodyMd} className="text-muted-foreground">
-              Teléfono
-            </Text>
-            {editingField === 'phone' ? (
-              <View className="ml-4 flex-1 flex-row items-center gap-2">
-                <TextInput
-                  value={editValue}
-                  onChangeText={setEditValue}
-                  className="border-border bg-background text-foreground flex-1 rounded-lg border px-3 py-1.5"
-                  style={TYPE.bodyMd}
-                  keyboardType="phone-pad"
-                  autoFocus
-                />
-                <Pressable
-                  onPress={saveEdit}
-                  disabled={isSaving}
-                  accessibilityLabel="Guardar"
-                  accessibilityRole="button"
-                >
-                  <Text style={TYPE.labelMd} className="text-primary">
-                    {isSaving ? '...' : 'OK'}
-                  </Text>
-                </Pressable>
-                <Pressable
-                  onPress={cancelEdit}
-                  accessibilityLabel="Cancelar"
-                  accessibilityRole="button"
-                >
-                  <Text style={TYPE.labelMd} className="text-muted-foreground">
-                    X
-                  </Text>
-                </Pressable>
-              </View>
-            ) : (
-              <Pressable
-                onPress={() => startEdit('phone')}
-                className="flex-row items-center gap-2"
-                accessibilityLabel="Editar teléfono"
-                accessibilityRole="button"
-              >
-                <Text style={TYPE.labelLg} className="text-foreground">
-                  {user?.phone ?? 'No registrado'}
-                </Text>
-                <Text style={TYPE.labelMd} className="text-primary">
-                  Editar
-                </Text>
-              </Pressable>
-            )}
-          </View>
-        </View>
-      </View>
+      <UserInfoCard
+        name={user?.name}
+        email={user?.email}
+        phone={user?.phone ?? undefined}
+        editingField={editingField}
+        editValue={editValue}
+        isSaving={isSaving}
+        onEditValueChange={setEditValue}
+        onStartEdit={startEdit}
+        onSaveEdit={saveEdit}
+        onCancelEdit={cancelEdit}
+      />
 
       {/* Subscription info — clients only */}
       {user?.role === 'CLIENT' && user.subscriptionExpiresAt && (
         <MobileSubscriptionInfo expiresAt={user.subscriptionExpiresAt} />
       )}
 
-      {/* Change password card */}
-      <View className="border-border bg-card mb-4 rounded-xl border p-4">
-        <Text style={TYPE.titleSm} className="text-foreground mb-3">
-          Cambiar Contraseña
-        </Text>
-        <View className="gap-3">
-          <View>
-            <Text style={TYPE.labelMd} className="text-foreground mb-1">
-              Contraseña actual *
-            </Text>
-            <TextInput
-              value={currentPassword}
-              onChangeText={setCurrentPassword}
-              placeholder="Contraseña actual"
-              secureTextEntry
-              className="border-border bg-background text-foreground rounded-lg border px-3 py-2.5"
-              style={TYPE.bodyMd}
-              placeholderTextColor={COLORS.mutedForeground}
-              returnKeyType="next"
-            />
-          </View>
-          <View>
-            <Text style={TYPE.labelMd} className="text-foreground mb-1">
-              Nueva contraseña *
-            </Text>
-            <TextInput
-              value={newPassword}
-              onChangeText={setNewPassword}
-              placeholder="Mín. 8, mayúscula, minúscula, número"
-              secureTextEntry
-              className="border-border bg-background text-foreground rounded-lg border px-3 py-2.5"
-              style={TYPE.bodyMd}
-              placeholderTextColor={COLORS.mutedForeground}
-              returnKeyType="next"
-            />
-          </View>
-          <View>
-            <Text style={TYPE.labelMd} className="text-foreground mb-1">
-              Confirmar contraseña *
-            </Text>
-            <TextInput
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              placeholder="Repetir nueva contraseña"
-              secureTextEntry
-              className="border-border bg-background text-foreground rounded-lg border px-3 py-2.5"
-              style={TYPE.bodyMd}
-              placeholderTextColor={COLORS.mutedForeground}
-              returnKeyType="done"
-            />
-          </View>
-          <Pressable
-            onPress={handleChangePassword}
-            disabled={isChangingPassword}
-            className="bg-primary items-center rounded-lg py-2.5"
-            accessibilityLabel="Cambiar contraseña"
-            accessibilityRole="button"
-          >
-            {isChangingPassword ? (
-              <ActivityIndicator color={COLORS.primaryForeground} size="small" />
-            ) : (
-              <Text style={TYPE.labelLg} className="text-primary-foreground">
-                Cambiar Contraseña
-              </Text>
-            )}
-          </Pressable>
-        </View>
-      </View>
+      <PasswordChangeForm
+        currentPassword={currentPassword}
+        newPassword={newPassword}
+        confirmPassword={confirmPassword}
+        isChangingPassword={isChangingPassword}
+        onCurrentPasswordChange={setCurrentPassword}
+        onNewPasswordChange={setNewPassword}
+        onConfirmPasswordChange={setConfirmPassword}
+        onSubmit={handleChangePassword}
+      />
 
-      {/* Apariencia */}
-      <View className="border-border bg-card mb-4 rounded-xl border p-4">
-        <Text style={TYPE.titleSm} className="text-foreground mb-3">
-          Apariencia
-        </Text>
-        <View className="gap-2">
-          {(['auto', 'light', 'dark'] as const).map((option) => (
-            <Pressable
-              key={option}
-              accessibilityRole="radio"
-              accessibilityLabel={
-                option === 'auto' ? 'Automático (sistema)' : option === 'light' ? 'Claro' : 'Oscuro'
-              }
-              accessibilityState={{ selected: mode === option }}
-              onPress={() => {
-                setMode(option);
-                haptics.selection();
-              }}
-              className={`flex-row items-center justify-between rounded-lg p-3 ${mode === option ? 'bg-primary/10' : 'bg-muted/50'}`}
-            >
-              <Text style={TYPE.bodyMd} className="text-foreground">
-                {option === 'auto'
-                  ? 'Automático (sistema)'
-                  : option === 'light'
-                    ? 'Claro'
-                    : 'Oscuro'}
-              </Text>
-              {mode === option && <View className="bg-primary h-3 w-3 rounded-full" />}
-            </Pressable>
-          ))}
-        </View>
-      </View>
+      <AppearanceSelector mode={mode} onModeChange={setMode} />
 
       {/* App info */}
       <View className="border-border bg-card mb-6 rounded-xl border p-4">

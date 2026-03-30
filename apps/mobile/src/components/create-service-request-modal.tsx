@@ -1,18 +1,15 @@
-import type { CreateServiceRequestInput, PropertyPublic, TaskListItem } from '@epde/shared';
+import type { CreateServiceRequestInput } from '@epde/shared';
 import { createServiceRequestSchema, SERVICE_URGENCY_LABELS, ServiceUrgency } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
-  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
-  ScrollView,
   Text,
   TextInput,
   View,
@@ -29,6 +26,9 @@ import { useSlideIn } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
+
+import { PhotoPickerSection } from './service-request/photo-picker-section';
+import { PropertyTaskSelector } from './service-request/property-task-selector';
 
 const URGENCY_OPTIONS = [
   { key: ServiceUrgency.LOW, label: SERVICE_URGENCY_LABELS.LOW },
@@ -241,6 +241,18 @@ export function CreateServiceRequestModal({
     onClose();
   };
 
+  const handleSelectProperty = (id: string) => {
+    setValue('propertyId', id, { shouldValidate: true });
+  };
+
+  const handleSelectTask = (id: string | undefined) => {
+    if (id) {
+      setValue('taskId', id, { shouldValidate: true });
+    } else {
+      setValue('taskId', undefined);
+    }
+  };
+
   return (
     <Modal
       visible={visible}
@@ -285,130 +297,15 @@ export function CreateServiceRequestModal({
             Describí el problema. El equipo de EPDE evaluará tu solicitud.
           </Text>
 
-          {/* Property selector */}
-          <Text style={TYPE.labelLg} className="text-foreground mb-2">
-            Propiedad
-          </Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 8, marginBottom: 4 }}
-          >
-            {properties.map((property: PropertyPublic) => (
-              <Pressable
-                key={property.id}
-                accessibilityRole="radio"
-                accessibilityState={{ selected: selectedPropertyId === property.id }}
-                accessibilityLabel={`${property.address}, ${property.city}`}
-                onPress={() => setValue('propertyId', property.id, { shouldValidate: true })}
-                className={`rounded-xl border px-4 py-3 ${
-                  selectedPropertyId === property.id
-                    ? 'bg-primary border-primary'
-                    : 'border-border bg-card'
-                }`}
-              >
-                <Text
-                  style={TYPE.labelLg}
-                  className={
-                    selectedPropertyId === property.id
-                      ? 'text-primary-foreground'
-                      : 'text-foreground'
-                  }
-                  ellipsizeMode="tail"
-                  numberOfLines={1}
-                >
-                  {property.address}
-                </Text>
-                <Text
-                  style={TYPE.bodySm}
-                  className={
-                    selectedPropertyId === property.id
-                      ? 'text-primary-foreground/70'
-                      : 'text-muted-foreground'
-                  }
-                >
-                  {property.city}
-                </Text>
-              </Pressable>
-            ))}
-            {properties.length === 0 && (
-              <View className="py-2">
-                <ActivityIndicator size="small" color={COLORS.primary} />
-              </View>
-            )}
-          </ScrollView>
-          {errors.propertyId && (
-            <Text style={TYPE.bodySm} className="text-destructive mb-2">
-              {errors.propertyId.message}
-            </Text>
-          )}
-          {!errors.propertyId && <View className="mb-4" />}
-
-          {/* Task selector — shown when property has tasks */}
-          {selectedPropertyId && tasks.length > 0 && (
-            <>
-              <Text style={TYPE.labelLg} className="text-foreground mb-2">
-                Tarea relacionada (opcional)
-              </Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 8, marginBottom: 16 }}
-              >
-                <Pressable
-                  accessibilityRole="radio"
-                  accessibilityState={{ selected: !selectedTaskId }}
-                  accessibilityLabel="Ninguna tarea"
-                  onPress={() => setValue('taskId', undefined)}
-                  className={`rounded-xl border px-4 py-2 ${
-                    !selectedTaskId ? 'bg-primary border-primary' : 'border-border bg-card'
-                  }`}
-                >
-                  <Text
-                    style={TYPE.labelMd}
-                    className={!selectedTaskId ? 'text-primary-foreground' : 'text-foreground'}
-                  >
-                    Ninguna
-                  </Text>
-                </Pressable>
-                {tasks.map((task: TaskListItem) => (
-                  <Pressable
-                    key={task.id}
-                    accessibilityRole="radio"
-                    accessibilityState={{ selected: selectedTaskId === task.id }}
-                    accessibilityLabel={task.name}
-                    onPress={() => setValue('taskId', task.id, { shouldValidate: true })}
-                    className={`rounded-xl border px-4 py-2 ${
-                      selectedTaskId === task.id
-                        ? 'bg-primary border-primary'
-                        : 'border-border bg-card'
-                    }`}
-                  >
-                    <Text
-                      style={TYPE.labelMd}
-                      className={
-                        selectedTaskId === task.id ? 'text-primary-foreground' : 'text-foreground'
-                      }
-                      ellipsizeMode="tail"
-                      numberOfLines={1}
-                    >
-                      {task.name}
-                    </Text>
-                    <Text
-                      style={TYPE.bodySm}
-                      className={
-                        selectedTaskId === task.id
-                          ? 'text-primary-foreground/70'
-                          : 'text-muted-foreground'
-                      }
-                    >
-                      {task.category.name}
-                    </Text>
-                  </Pressable>
-                ))}
-              </ScrollView>
-            </>
-          )}
+          <PropertyTaskSelector
+            properties={properties}
+            selectedPropertyId={selectedPropertyId}
+            onSelectProperty={handleSelectProperty}
+            propertyError={errors.propertyId?.message}
+            tasks={tasks}
+            selectedTaskId={selectedTaskId}
+            onSelectTask={handleSelectTask}
+          />
 
           {/* Title */}
           <Text style={TYPE.labelLg} className="text-foreground mb-2">
@@ -495,57 +392,12 @@ export function CreateServiceRequestModal({
             ))}
           </View>
 
-          {/* Photos */}
-          <Text style={TYPE.labelLg} className="text-foreground mb-2">
-            Fotos (opcional, max 5)
-          </Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 8, marginBottom: 16 }}
-          >
-            {photos.map((photo, index) => (
-              <View key={photo.uri} className="relative">
-                <Image
-                  source={photo.uri}
-                  contentFit="cover"
-                  transition={200}
-                  className="h-24 w-24 rounded-xl"
-                />
-                {!photo.uploadedUrl && (
-                  <View className="absolute inset-0 h-24 w-24 items-center justify-center rounded-xl bg-black/40">
-                    <ActivityIndicator color="white" />
-                  </View>
-                )}
-                <Pressable
-                  onPress={() => removePhoto(index)}
-                  accessibilityRole="button"
-                  accessibilityLabel="Eliminar foto"
-                  className="bg-destructive absolute -top-2 -right-2 h-6 w-6 items-center justify-center rounded-full"
-                >
-                  <Text className="text-xs font-bold text-white">X</Text>
-                </Pressable>
-              </View>
-            ))}
-            {photos.length < 5 && (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Agregar foto"
-                onPress={pickImage}
-                className="border-border h-24 w-24 items-center justify-center rounded-xl border border-dashed"
-              >
-                <Text style={TYPE.displayLg} className="text-muted-foreground">
-                  +
-                </Text>
-                <Text style={TYPE.bodySm} className="text-muted-foreground">
-                  Foto
-                </Text>
-              </Pressable>
-            )}
-          </ScrollView>
-          <Text style={TYPE.bodySm} className="text-muted-foreground mb-4">
-            Máx. 10 MB por archivo
-          </Text>
+          <PhotoPickerSection
+            photos={photos}
+            maxPhotos={5}
+            onPickImage={pickImage}
+            onRemovePhoto={removePhoto}
+          />
         </Animated.ScrollView>
       </KeyboardAvoidingView>
     </Modal>

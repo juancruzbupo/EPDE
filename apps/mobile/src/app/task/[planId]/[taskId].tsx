@@ -1,16 +1,8 @@
 // TODO [ROADMAP]: Offline conflict resolution — requires offline mutation
 // queue, server-side version/timestamp comparison, and conflict resolution UI.
 
-import type { TaskLogPublic, TaskNotePublic } from '@epde/shared';
-import {
-  CONDITION_FOUND_LABELS,
-  formatRelativeDate,
-  ProfessionalRequirement,
-  PROPERTY_SECTOR_LABELS,
-  RECURRENCE_TYPE_LABELS,
-  TASK_TYPE_LABELS,
-  TaskStatus,
-} from '@epde/shared';
+import type { PropertySector, RecurrenceType, TaskType } from '@epde/shared';
+import { CONDITION_FOUND_LABELS, ProfessionalRequirement, TaskStatus } from '@epde/shared';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -21,17 +13,14 @@ import {
   Pressable,
   RefreshControl,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { CollapsibleSection } from '@/components/collapsible-section';
 import { CompleteTaskModal } from '@/components/complete-task-modal';
 import { CreateServiceRequestModal } from '@/components/create-service-request-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
-import { PriorityBadge, TaskStatusBadge } from '@/components/status-badge';
 import { usePlan } from '@/hooks/use-plans';
 import {
   useAddTaskNote,
@@ -46,43 +35,10 @@ import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { defaultScreenOptions } from '@/lib/screen-options';
 
-function LogItem({ log }: { log: TaskLogPublic }) {
-  return (
-    <View className="border-border border-b py-3">
-      <View className="flex-row items-center justify-between">
-        <Text style={TYPE.labelLg} className="text-foreground">
-          {log.user.name}
-        </Text>
-        <Text style={TYPE.bodySm} className="text-muted-foreground">
-          {formatDateES(new Date(log.completedAt))}
-        </Text>
-      </View>
-      {log.notes && (
-        <Text style={TYPE.bodyMd} className="text-muted-foreground mt-1">
-          {log.notes}
-        </Text>
-      )}
-    </View>
-  );
-}
-
-function NoteItem({ note }: { note: TaskNotePublic }) {
-  return (
-    <View className="border-border border-b py-3">
-      <View className="flex-row items-center justify-between">
-        <Text style={TYPE.labelLg} className="text-foreground">
-          {note.author.name}
-        </Text>
-        <Text style={TYPE.bodySm} className="text-muted-foreground">
-          {formatRelativeDate(new Date(note.createdAt))}
-        </Text>
-      </View>
-      <Text style={TYPE.bodyMd} className="text-foreground mt-1">
-        {note.content}
-      </Text>
-    </View>
-  );
-}
+import { TaskDetailSections } from '../components/task-detail-sections';
+import { TaskInfoCard } from '../components/task-info-card';
+import { TaskLogsSection } from '../components/task-logs-section';
+import { TaskNotesSection } from '../components/task-notes-section';
 
 export default function TaskDetailScreen() {
   const { planId, taskId } = useLocalSearchParams<{ planId: string; taskId: string }>();
@@ -166,53 +122,15 @@ export default function TaskDetailScreen() {
         contentContainerStyle={{ padding: 16 }}
         refreshControl={<RefreshControl refreshing={taskLoading} onRefresh={onRefresh} />}
       >
-        {/* Key info: name + date + professional requirement */}
-        <View className="border-border bg-card mb-4 rounded-xl border p-4">
-          <Text style={TYPE.titleLg} className="text-foreground mb-2">
-            {task.name}
-          </Text>
-          <View className="mb-3 flex-row items-center gap-2">
-            <TaskStatusBadge status={task.status} />
-            <PriorityBadge priority={task.priority} />
-          </View>
-
-          <View className="gap-2">
-            <View className="flex-row justify-between">
-              <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                Próxima fecha
-              </Text>
-              <Text
-                style={TYPE.labelLg}
-                className={isOverdue ? 'text-destructive' : 'text-foreground'}
-              >
-                {task.nextDueDate
-                  ? formatDateES(new Date(task.nextDueDate))
-                  : RECURRENCE_TYPE_LABELS.ON_DETECTION}
-              </Text>
-            </View>
-            <View className="flex-row justify-between">
-              <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                ¿Puedo hacerlo yo?
-              </Text>
-              <Text style={TYPE.labelLg} className="text-foreground">
-                {/* Intentional: mobile uses conversational labels (vs shared's formal
-                    PROFESSIONAL_REQUIREMENT_LABELS) for better homeowner UX. */}
-                {task.professionalRequirement === ProfessionalRequirement.OWNER_CAN_DO
-                  ? 'Sí, podés hacerla vos'
-                  : task.professionalRequirement ===
-                      ProfessionalRequirement.PROFESSIONAL_RECOMMENDED
-                    ? 'Mejor con profesional'
-                    : 'Requiere profesional'}
-              </Text>
-            </View>
-          </View>
-
-          {task.description && (
-            <Text style={TYPE.bodyMd} className="text-muted-foreground mt-3">
-              {task.description}
-            </Text>
-          )}
-        </View>
+        <TaskInfoCard
+          name={task.name}
+          status={task.status}
+          priority={task.priority}
+          nextDueDate={task.nextDueDate}
+          isOverdue={isOverdue}
+          professionalRequirement={task.professionalRequirement}
+          description={task.description}
+        />
 
         {/* Last completion */}
         {logs && logs.length > 0 && (
@@ -228,123 +146,24 @@ export default function TaskDetailScreen() {
           </View>
         )}
 
-        {/* More details — collapsed */}
-        <CollapsibleSection title="Más detalles">
-          <View className="border-border bg-card gap-2 rounded-xl border p-4">
-            <View className="flex-row justify-between">
-              <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                Recurrencia
-              </Text>
-              <Text style={TYPE.labelLg} className="text-foreground">
-                {RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}
-              </Text>
-            </View>
-            <View className="flex-row justify-between">
-              <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                Tipo
-              </Text>
-              <Text style={TYPE.labelLg} className="text-foreground">
-                {TASK_TYPE_LABELS[task.taskType]}
-              </Text>
-            </View>
-            <View className="flex-row justify-between">
-              <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                Categoría
-              </Text>
-              <Text style={TYPE.labelLg} className="text-foreground">
-                {task.category.name}
-              </Text>
-            </View>
-            {task.sector && (
-              <View className="flex-row justify-between">
-                <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                  Sector
-                </Text>
-                <Text style={TYPE.labelLg} className="text-foreground">
-                  {PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}
-                </Text>
-              </View>
-            )}
-            {task.estimatedDurationMinutes != null && (
-              <View className="flex-row justify-between">
-                <Text style={TYPE.bodyMd} className="text-muted-foreground">
-                  Duración
-                </Text>
-                <Text style={TYPE.labelLg} className="text-foreground">
-                  {task.estimatedDurationMinutes} min
-                </Text>
-              </View>
-            )}
-            {task.technicalDescription && (
-              <View className="border-border mt-1 border-t pt-2">
-                <Text style={TYPE.bodySm} className="text-muted-foreground mb-1">
-                  Descripción técnica
-                </Text>
-                <Text style={TYPE.bodyMd} className="text-foreground">
-                  {task.technicalDescription}
-                </Text>
-              </View>
-            )}
-          </View>
-        </CollapsibleSection>
+        <TaskDetailSections
+          recurrenceType={task.recurrenceType as RecurrenceType}
+          taskType={task.taskType as TaskType}
+          categoryName={task.category.name}
+          sector={(task.sector as PropertySector) ?? null}
+          estimatedDurationMinutes={task.estimatedDurationMinutes ?? null}
+          technicalDescription={task.technicalDescription ?? null}
+        />
 
-        {/* Task Logs */}
-        <CollapsibleSection title="Historial" count={logs?.length ?? 0}>
-          <View className="border-border bg-card rounded-xl border px-4">
-            {logs && logs.length > 0 ? (
-              logs.map((log) => <LogItem key={log.id} log={log} />)
-            ) : (
-              <View className="py-4">
-                <Text style={TYPE.bodyMd} className="text-muted-foreground text-center">
-                  Sin registros de completado
-                </Text>
-              </View>
-            )}
-          </View>
-        </CollapsibleSection>
+        <TaskLogsSection logs={logs} />
 
-        {/* Task Notes */}
-        <CollapsibleSection title="Notas" count={notes?.length ?? 0}>
-          {/* Add note form */}
-          <View className="mb-3 flex-row items-end gap-2">
-            <TextInput
-              value={noteContent}
-              onChangeText={setNoteContent}
-              placeholder="Agregar una nota..."
-              placeholderTextColor={COLORS.mutedForeground}
-              multiline
-              maxLength={2000}
-              style={[TYPE.bodyMd, { minHeight: 40, textAlignVertical: 'top' }]}
-              className="border-border bg-card text-foreground flex-1 rounded-xl border px-3 py-2"
-            />
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Enviar nota"
-              onPress={handleAddNote}
-              disabled={!noteContent.trim() || addNote.isPending}
-              className={`rounded-xl px-4 py-2.5 ${noteContent.trim() ? 'bg-primary' : 'bg-muted'}`}
-            >
-              <Text
-                style={TYPE.titleSm}
-                className={noteContent.trim() ? 'text-primary-foreground' : 'text-muted-foreground'}
-              >
-                Enviar
-              </Text>
-            </Pressable>
-          </View>
-
-          <View className="border-border bg-card rounded-xl border px-4">
-            {notes && notes.length > 0 ? (
-              notes.map((note) => <NoteItem key={note.id} note={note} />)
-            ) : (
-              <View className="py-4">
-                <Text style={TYPE.bodyMd} className="text-muted-foreground text-center">
-                  Sin notas
-                </Text>
-              </View>
-            )}
-          </View>
-        </CollapsibleSection>
+        <TaskNotesSection
+          notes={notes}
+          noteContent={noteContent}
+          onNoteContentChange={setNoteContent}
+          onAddNote={handleAddNote}
+          isAddingNote={addNote.isPending}
+        />
       </Animated.ScrollView>
 
       {/* Sticky CTA footer */}
