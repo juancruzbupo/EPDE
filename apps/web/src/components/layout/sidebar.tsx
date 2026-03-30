@@ -5,6 +5,7 @@ import {
   CheckSquare,
   ChevronsLeft,
   ChevronsRight,
+  FileEdit,
   FileText,
   Home,
   LayoutDashboard,
@@ -29,6 +30,7 @@ const adminNavItems = [
   { label: 'Servicios', href: '/service-requests', icon: Wrench },
   { label: 'Categorías', href: '/categories', icon: Tags },
   { label: 'Plantillas', href: '/templates', icon: LayoutTemplate },
+  { label: 'Landing', href: '/landing-settings', icon: FileEdit },
 ];
 
 /** Client order: Tareas promoted to #2 (most used action).

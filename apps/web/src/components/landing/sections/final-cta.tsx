@@ -7,7 +7,11 @@ import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER } from '@/lib/motion';
 import type { SectionProps } from '../landing-data';
 import { LAUNCH_PRICE, PRIMARY_CTA_LABEL, WHATSAPP_URL } from '../landing-data';
 
-export function FinalCtaSection({ motionProps }: SectionProps) {
+interface FinalCtaSectionProps extends SectionProps {
+  price?: string;
+}
+
+export function FinalCtaSection({ motionProps, price }: FinalCtaSectionProps) {
   return (
     <section className="bg-foreground py-20 md:py-28">
       <motion.div
@@ -26,8 +30,8 @@ export function FinalCtaSection({ motionProps }: SectionProps) {
           className="type-body-lg text-background/70 mx-auto mt-6 max-w-lg"
         >
           Un diagnóstico EPDE te muestra el estado real de tu vivienda y organiza todo lo que
-          necesita. Mientras vos seguís con tu vida, nosotros cuidamos tu casa. Por {LAUNCH_PRICE},
-          una sola vez.
+          necesita. Mientras vos seguís con tu vida, nosotros cuidamos tu casa. Por{' '}
+          {price ?? LAUNCH_PRICE}, una sola vez.
         </motion.p>
         <motion.div variants={FADE_IN} className="mt-8">
           <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">

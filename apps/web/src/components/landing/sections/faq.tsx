@@ -1,5 +1,6 @@
 'use client';
 
+import type { LandingFaqItem } from '@epde/shared';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
@@ -30,8 +31,14 @@ const FAQS = [
   },
 ];
 
-export function FaqSection({ motionProps }: SectionProps) {
+interface FaqSectionProps extends SectionProps {
+  faq?: LandingFaqItem[];
+}
+
+export function FaqSection({ motionProps, faq }: FaqSectionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const items = faq ? faq.map((item) => ({ q: item.question, a: item.answer })) : FAQS;
 
   return (
     <section className="py-20 md:py-28">
@@ -50,14 +57,14 @@ export function FaqSection({ motionProps }: SectionProps) {
         </motion.h2>
 
         <div className="mt-10 space-y-3">
-          {FAQS.map((faq, i) => (
+          {items.map((faqItem, i) => (
             <motion.div key={i} variants={STAGGER_ITEM} className="border-border rounded-xl border">
               <button
                 onClick={() => setOpenIndex(openIndex === i ? null : i)}
                 className="flex w-full items-center justify-between p-4 text-left"
                 aria-expanded={openIndex === i}
               >
-                <span className="type-body-lg text-foreground pr-4 font-medium">{faq.q}</span>
+                <span className="type-body-lg text-foreground pr-4 font-medium">{faqItem.q}</span>
                 <span
                   className="text-muted-foreground shrink-0 text-xl transition-transform"
                   style={{ transform: openIndex === i ? 'rotate(45deg)' : 'none' }}
@@ -68,7 +75,7 @@ export function FaqSection({ motionProps }: SectionProps) {
               </button>
               {openIndex === i && (
                 <div className="border-border border-t px-4 pt-3 pb-4">
-                  <p className="type-body-md text-muted-foreground">{faq.a}</p>
+                  <p className="type-body-md text-muted-foreground">{faqItem.a}</p>
                 </div>
               )}
             </motion.div>

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import { LandingPage } from '@/components/landing/landing-page';
+import { fetchLandingSettings } from '@/lib/api/landing-settings-public';
 
 export const metadata: Metadata = {
   title: 'EPDE — Diagnóstico Profesional de Viviendas | Mantenimiento Preventivo',
@@ -24,6 +25,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
-  return <LandingPage />;
+export default async function Home() {
+  const settings = await fetchLandingSettings();
+  return <LandingPage settings={settings} />;
 }

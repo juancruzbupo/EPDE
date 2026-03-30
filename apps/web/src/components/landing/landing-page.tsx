@@ -1,5 +1,7 @@
 'use client';
 
+import type { LandingConsequenceExample, LandingFaqItem, LandingPricing } from '@epde/shared';
+
 import { useMotionPreference } from '@/lib/motion';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -22,7 +24,15 @@ import { TargetAudienceSection } from './sections/target-audience';
 import { UrgencySection } from './sections/urgency';
 import { WhatsAppFloat } from './sections/whatsapp-float';
 
-export function LandingPage() {
+interface LandingPageProps {
+  settings?: {
+    pricing?: LandingPricing;
+    faq?: LandingFaqItem[];
+    consequences?: LandingConsequenceExample[];
+  } | null;
+}
+
+export function LandingPage({ settings }: LandingPageProps) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isLoading = useAuthStore((s) => s.isLoading);
   const { shouldAnimate } = useMotionPreference();
@@ -46,7 +56,11 @@ export function LandingPage() {
       {/* 2. Problema — deterioro invisible */}
       <ProblemsSection motionProps={motionProps} />
       {/* 3. Consecuencia — cuánto sale no prevenir */}
-      <ConsequenceSection motionProps={motionProps} />
+      <ConsequenceSection
+        motionProps={motionProps}
+        consequences={settings?.consequences}
+        costDisclaimer={settings?.pricing?.costDisclaimer}
+      />
       {/* 4. Solución — qué es EPDE */}
       <SolutionSection motionProps={motionProps} />
       {/* 5. ISV — el indicador con interpretación */}
@@ -64,13 +78,13 @@ export function LandingPage() {
       {/* 11. Para quién */}
       <TargetAudienceSection motionProps={motionProps} />
       {/* 11b. FAQ */}
-      <FaqSection motionProps={motionProps} />
+      <FaqSection motionProps={motionProps} faq={settings?.faq} />
       {/* 12. Pricing */}
-      <InvestmentSection motionProps={motionProps} />
+      <InvestmentSection motionProps={motionProps} pricing={settings?.pricing} />
       {/* 13. Urgencia */}
       <UrgencySection motionProps={motionProps} />
       {/* 14. CTA final */}
-      <FinalCtaSection motionProps={motionProps} />
+      <FinalCtaSection motionProps={motionProps} price={settings?.pricing?.price} />
       <Footer />
       {/* Floating WhatsApp */}
       <WhatsAppFloat />

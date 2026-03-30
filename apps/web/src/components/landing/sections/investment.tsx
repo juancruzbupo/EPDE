@@ -1,3 +1,4 @@
+import type { LandingPricing } from '@epde/shared';
 import { motion } from 'framer-motion';
 import { ArrowRight, MessageCircle } from 'lucide-react';
 
@@ -15,7 +16,14 @@ import {
   WHATSAPP_URL,
 } from '../landing-data';
 
-export function InvestmentSection({ motionProps }: SectionProps) {
+interface InvestmentSectionProps extends SectionProps {
+  pricing?: LandingPricing;
+}
+
+export function InvestmentSection({ motionProps, pricing }: InvestmentSectionProps) {
+  const price = pricing?.price ?? LAUNCH_PRICE;
+  const priceNote = pricing?.priceNote ?? PRICE_NOTE;
+  const subscriptionMicrocopy = pricing?.subscriptionMicrocopy ?? SUBSCRIPTION_MICROCOPY;
   return (
     <section id="inversion" className="bg-muted/30 py-20 md:py-28">
       <motion.div variants={STAGGER_CONTAINER} {...motionProps} className="mx-auto max-w-3xl px-4">
@@ -49,7 +57,7 @@ export function InvestmentSection({ motionProps }: SectionProps) {
         >
           <p className="type-label-md text-primary tracking-widest uppercase">Pago único</p>
           <p className="font-heading text-foreground mt-4 text-5xl tracking-tight sm:text-6xl">
-            {LAUNCH_PRICE}
+            {price}
           </p>
 
           <div className="mt-8 space-y-3 text-left">
@@ -98,7 +106,7 @@ export function InvestmentSection({ motionProps }: SectionProps) {
           variants={FADE_IN}
           className="type-body-sm text-muted-foreground mx-auto mt-1 max-w-md text-center"
         >
-          {SUBSCRIPTION_MICROCOPY}
+          {subscriptionMicrocopy}
         </motion.p>
         <motion.p
           variants={FADE_IN}
@@ -120,7 +128,7 @@ export function InvestmentSection({ motionProps }: SectionProps) {
           variants={FADE_IN}
           className="type-body-sm text-muted-foreground/70 mx-auto mt-4 max-w-md text-center"
         >
-          {PRICE_NOTE}
+          {priceNote}
         </motion.p>
       </motion.div>
     </section>

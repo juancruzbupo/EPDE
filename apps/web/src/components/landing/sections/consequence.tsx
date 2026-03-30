@@ -1,3 +1,4 @@
+import type { LandingConsequenceExample } from '@epde/shared';
 import { motion } from 'framer-motion';
 
 import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/motion';
@@ -5,7 +6,18 @@ import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/moti
 import type { SectionProps } from '../landing-data';
 import { CONSEQUENCE_EXAMPLES, COST_DISCLAIMER } from '../landing-data';
 
-export function ConsequenceSection({ motionProps }: SectionProps) {
+interface ConsequenceSectionProps extends SectionProps {
+  consequences?: LandingConsequenceExample[];
+  costDisclaimer?: string;
+}
+
+export function ConsequenceSection({
+  motionProps,
+  consequences,
+  costDisclaimer,
+}: ConsequenceSectionProps) {
+  const examples = consequences ?? CONSEQUENCE_EXAMPLES;
+  const disclaimer = costDisclaimer ?? COST_DISCLAIMER;
   return (
     <section className="py-20 md:py-28">
       <motion.div variants={STAGGER_CONTAINER} {...motionProps} className="mx-auto max-w-4xl px-4">
@@ -32,7 +44,7 @@ export function ConsequenceSection({ motionProps }: SectionProps) {
         </div>
 
         <div className="mt-10 space-y-4">
-          {CONSEQUENCE_EXAMPLES.map((example) => (
+          {examples.map((example) => (
             <motion.div
               key={example.problem}
               variants={STAGGER_ITEM}
@@ -89,7 +101,7 @@ export function ConsequenceSection({ motionProps }: SectionProps) {
           variants={FADE_IN}
           className="type-body-sm text-muted-foreground/70 mx-auto mt-4 max-w-3xl text-center"
         >
-          {COST_DISCLAIMER}
+          {disclaimer}
         </motion.p>
       </motion.div>
     </section>
