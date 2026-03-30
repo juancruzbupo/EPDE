@@ -201,7 +201,8 @@ export default function PropertiesScreen() {
                   haptics.selection();
                   setTypeFilter(f.key);
                 }}
-                className={`rounded-full px-3 py-2.5 ${
+                style={{ minHeight: 44 }}
+                className={`items-center justify-center rounded-full px-3 py-2.5 ${
                   typeFilter === f.key ? 'bg-primary' : 'bg-card border-border border'
                 }`}
               >
@@ -233,7 +234,8 @@ export default function PropertiesScreen() {
                   haptics.selection();
                   setPlanStatusFilter(f.key);
                 }}
-                className={`rounded-full px-3 py-2 ${
+                style={{ minHeight: 44 }}
+                className={`items-center justify-center rounded-full px-3 py-2 ${
                   planStatusFilter === f.key ? 'bg-primary' : 'bg-card border-border border'
                 }`}
               >

@@ -31,7 +31,8 @@ export const StatusFilterPills = React.memo(function StatusFilterPills({
           accessibilityRole="button"
           accessibilityLabel={`Filtrar por ${f.label}`}
           onPress={() => onStatusChange(f.key)}
-          className={`rounded-full px-3 py-2.5 ${
+          style={{ minHeight: 44 }}
+          className={`items-center justify-center rounded-full px-3 py-2.5 ${
             statusFilter === f.key ? 'bg-primary' : 'bg-muted'
           }`}
         >
@@ -79,7 +80,8 @@ export const CategoryFilter = React.memo(function CategoryFilter({
           haptics.selection();
           onCategoryChange(undefined);
         }}
-        className={`rounded-full px-3 py-2 ${!categoryFilter ? 'bg-primary' : 'bg-card border-border border'}`}
+        style={{ minHeight: 44 }}
+        className={`items-center justify-center rounded-full px-3 py-2 ${!categoryFilter ? 'bg-primary' : 'bg-card border-border border'}`}
       >
         <Text
           style={TYPE.labelSm}
@@ -97,7 +99,8 @@ export const CategoryFilter = React.memo(function CategoryFilter({
             haptics.selection();
             onCategoryChange(c.key);
           }}
-          className={`rounded-full px-3 py-2 ${categoryFilter === c.key ? 'bg-primary' : 'bg-card border-border border'}`}
+          style={{ minHeight: 44 }}
+          className={`items-center justify-center rounded-full px-3 py-2 ${categoryFilter === c.key ? 'bg-primary' : 'bg-card border-border border'}`}
         >
           <Text
             style={TYPE.labelSm}

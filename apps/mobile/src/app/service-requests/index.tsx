@@ -244,7 +244,8 @@ export default function ServiceRequestsScreen() {
                     haptics.selection();
                     setStatusFilter(f.key);
                   }}
-                  className={`rounded-full px-3 py-2.5 ${statusFilter === f.key ? 'bg-primary' : 'bg-card border-border border'}`}
+                  style={{ minHeight: 44 }}
+                  className={`items-center justify-center rounded-full px-3 py-2.5 ${statusFilter === f.key ? 'bg-primary' : 'bg-card border-border border'}`}
                 >
                   <Text
                     style={TYPE.labelMd}
@@ -274,7 +275,8 @@ export default function ServiceRequestsScreen() {
                     haptics.selection();
                     setPropertyFilter(undefined);
                   }}
-                  className={`rounded-full px-3 py-2 ${!propertyFilter ? 'bg-primary' : 'bg-card border-border border'}`}
+                  style={{ minHeight: 44 }}
+                  className={`items-center justify-center rounded-full px-3 py-2 ${!propertyFilter ? 'bg-primary' : 'bg-card border-border border'}`}
                 >
                   <Text
                     style={TYPE.labelSm}
@@ -292,7 +294,8 @@ export default function ServiceRequestsScreen() {
                       haptics.selection();
                       setPropertyFilter(p.key);
                     }}
-                    className={`rounded-full px-3 py-2 ${propertyFilter === p.key ? 'bg-primary' : 'bg-card border-border border'}`}
+                    style={{ minHeight: 44 }}
+                    className={`items-center justify-center rounded-full px-3 py-2 ${propertyFilter === p.key ? 'bg-primary' : 'bg-card border-border border'}`}
                   >
                     <Text
                       style={TYPE.labelSm}
@@ -330,7 +333,8 @@ export default function ServiceRequestsScreen() {
                     haptics.selection();
                     setUrgencyFilter(f.key);
                   }}
-                  className={`rounded-full px-3 py-2.5 ${urgencyFilter === f.key ? 'bg-primary' : 'bg-card border-border border'}`}
+                  style={{ minHeight: 44 }}
+                  className={`items-center justify-center rounded-full px-3 py-2.5 ${urgencyFilter === f.key ? 'bg-primary' : 'bg-card border-border border'}`}
                 >
                   <Text
                     style={TYPE.labelMd}
