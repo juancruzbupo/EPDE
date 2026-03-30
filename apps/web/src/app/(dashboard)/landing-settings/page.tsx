@@ -1,6 +1,7 @@
 'use client';
 
 import type { LandingConsequenceExample, LandingFaqItem, LandingPricing } from '@epde/shared';
+import { UserRole } from '@epde/shared';
 import { Pencil, Plus, Save, Trash2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -14,6 +15,7 @@ import { PageTransition } from '@/components/ui/page-transition';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { Textarea } from '@/components/ui/textarea';
 import { useLandingSettings, useUpdateLandingSetting } from '@/hooks/use-landing-settings';
+import { useAuthStore } from '@/stores/auth-store';
 
 const DEFAULT_PRICING: LandingPricing = {
   price: '$35.000',
@@ -87,12 +89,17 @@ function PricingCard({
 
   useEffect(() => setForm(data), [data]);
 
+  const startEditing = () => {
+    setForm(data);
+    setEditing(true);
+  };
+
   if (!editing) {
     return (
       <Card>
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>Precio</CardTitle>
-          <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
+          <Button variant="outline" size="sm" onClick={startEditing}>
             <Pencil className="mr-2 h-4 w-4" />
             Editar
           </Button>
@@ -181,6 +188,10 @@ function FaqCard({
 
   useEffect(() => setItems(data), [data]);
 
+  const startEditing = () => {
+    setItems(data);
+    setEditing(true);
+  };
   const addItem = () => setItems([...items, { question: '', answer: '' }]);
   const removeItem = (i: number) => setItems(items.filter((_, idx) => idx !== i));
   const updateItem = (i: number, field: 'question' | 'answer', value: string) => {
@@ -192,7 +203,7 @@ function FaqCard({
       <Card>
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>Preguntas Frecuentes ({data.length})</CardTitle>
-          <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
+          <Button variant="outline" size="sm" onClick={startEditing}>
             <Pencil className="mr-2 h-4 w-4" />
             Editar
           </Button>
@@ -282,6 +293,10 @@ function ConsequencesCard({
 
   useEffect(() => setItems(data), [data]);
 
+  const startEditing = () => {
+    setItems(data);
+    setEditing(true);
+  };
   const addItem = () => setItems([...items, { problem: '', preventive: '', emergency: '' }]);
   const removeItem = (i: number) => setItems(items.filter((_, idx) => idx !== i));
   const updateItem = (i: number, field: keyof LandingConsequenceExample, value: string) => {
@@ -293,7 +308,7 @@ function ConsequencesCard({
       <Card>
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>Costos de Consecuencias ({data.length})</CardTitle>
-          <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
+          <Button variant="outline" size="sm" onClick={startEditing}>
             <Pencil className="mr-2 h-4 w-4" />
             Editar
           </Button>
@@ -389,8 +404,15 @@ export default function LandingSettingsPage() {
     document.title = 'Landing | EPDE';
   }, []);
 
+  const user = useAuthStore((s) => s.user);
   const { data: settings, isLoading, isError, refetch } = useLandingSettings();
   const updateSetting = useUpdateLandingSetting();
+
+  if (user?.role !== UserRole.ADMIN) {
+    return (
+      <ErrorState message="Acceso denegado" onRetry={() => (window.location.href = '/dashboard')} />
+    );
+  }
 
   const pricing: LandingPricing = (settings?.data?.pricing as LandingPricing) ?? DEFAULT_PRICING;
   const faq: LandingFaqItem[] = (settings?.data?.faq as LandingFaqItem[]) ?? DEFAULT_FAQ;

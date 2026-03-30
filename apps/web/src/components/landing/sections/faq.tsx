@@ -38,7 +38,9 @@ interface FaqSectionProps extends SectionProps {
 export function FaqSection({ motionProps, faq }: FaqSectionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  const items = faq ? faq.map((item) => ({ q: item.question, a: item.answer })) : FAQS;
+  const items = Array.isArray(faq)
+    ? faq.map((item) => ({ q: item.question, a: item.answer }))
+    : FAQS;
 
   return (
     <section className="py-20 md:py-28">

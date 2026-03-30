@@ -1,5 +1,6 @@
 'use client';
 
+import { UserRole } from '@epde/shared';
 import type { LucideIcon } from 'lucide-react';
 import {
   Bug,
@@ -65,6 +66,7 @@ import { useCategories, useDeleteCategory } from '@/hooks/use-categories';
 import { useCategoryTemplates } from '@/hooks/use-category-templates';
 import { useDebounce } from '@/hooks/use-debounce';
 import type { CategoryPublic } from '@/lib/api/categories';
+import { useAuthStore } from '@/stores/auth-store';
 
 import { CategoryDialog } from './category-dialog';
 
@@ -73,7 +75,12 @@ export default function CategoriesPage() {
     document.title = 'Categorías | EPDE';
   }, []);
 
+  const user = useAuthStore((s) => s.user);
   const { data: categories, isLoading, isError, refetch } = useCategories();
+
+  if (user?.role !== UserRole.ADMIN) {
+    return null;
+  }
   const { data: categoryTemplates } = useCategoryTemplates();
   const deleteCategory = useDeleteCategory();
 

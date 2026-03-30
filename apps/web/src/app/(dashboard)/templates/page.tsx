@@ -1,6 +1,7 @@
 'use client';
 
 import type { CategoryTemplate, TaskTemplate } from '@epde/shared';
+import { UserRole } from '@epde/shared';
 import { ChevronDown, ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -17,6 +18,7 @@ import {
   useDeleteCategoryTemplate,
   useDeleteTaskTemplate,
 } from '@/hooks/use-category-templates';
+import { useAuthStore } from '@/stores/auth-store';
 
 import { CategoryTemplateDialog } from './category-template-dialog';
 import { TaskTemplateDialog } from './task-template-dialog';
@@ -27,7 +29,12 @@ export default function TemplatesPage() {
     document.title = 'Plantillas | EPDE';
   }, []);
 
+  const user = useAuthStore((s) => s.user);
   const { data: categories, isLoading, isError, refetch } = useCategoryTemplates();
+
+  if (user?.role !== UserRole.ADMIN) {
+    return null;
+  }
   const deleteCategory = useDeleteCategoryTemplate();
   const deleteTask = useDeleteTaskTemplate();
 
