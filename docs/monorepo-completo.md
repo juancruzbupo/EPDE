@@ -59,8 +59,8 @@ epde/
 │   │   │   ├── properties/           # CRUD propiedades
 │   │   │   ├── maintenance-plans/    # Planes + tareas + logs + notas
 │   │   │   ├── categories/           # Categorias de mantenimiento
-│   │   │   ├── budgets/              # Presupuestos (ciclo completo)
-│   │   │   ├── service-requests/     # Solicitudes + fotos
+│   │   │   ├── budgets/              # Presupuestos (BudgetsService + BudgetCommentsService + BudgetAttachmentsService)
+│   │   │   ├── service-requests/     # Solicitudes (ServiceRequestsService + ServiceRequestCommentsService + ServiceRequestAttachmentsService)
 │   │   │   ├── task-templates/        # Templates de tareas por categoria
 │   │   │   ├── quote-templates/      # Templates de cotizacion reutilizables (CRUD)
 │   │   │   ├── category-templates/   # Templates de categorias
@@ -144,14 +144,25 @@ epde/
 │       │   │   ├── index.tsx         # Redirect segun auth state
 │       │   │   ├── (auth)/           # Login, set-password, forgot-password, reset-password
 │       │   │   ├── (tabs)/           # 5 visible tabs (dashboard, properties, tasks, notifications, profile); service-requests + budgets via dashboard cards
-│       │   │   ├── property/[id].tsx # Detalle propiedad + tareas
-│       │   │   ├── budget/[id].tsx   # Detalle presupuesto + items
-│       │   │   ├── service-requests/ # Lista y detalle
-│       │   │   └── task/[planId]/[taskId].tsx  # Tarea + logs + notas
-│       │   ├── components/           # StatusBadge, EmptyState, StatCard, ErrorBoundary
+│       │   │   ├── property/
+│       │   │   │   ├── [id].tsx              # Detalle propiedad (405 LOC) + components/ (4 sub-components)
+│       │   │   │   └── components/           # PropertyHeader, PropertyInfo, TaskFilters, TaskCard
+│       │   │   ├── budget/
+│       │   │   │   ├── [id].tsx              # Detalle presupuesto (299 LOC) + components/ (6 sub-components)
+│       │   │   │   └── components/           # BudgetHeader, BudgetInfo, ItemsTable, etc.
+│       │   │   ├── service-requests/         # Lista y detalle
+│       │   │   │   ├── [id].tsx              # Detalle solicitud (272 LOC) + components/ (7 sub-components)
+│       │   │   │   └── components/           # SRHeader, SRInfo, SRPhotos, etc.
+│       │   │   └── task/[planId]/
+│       │   │       ├── [taskId].tsx           # Tarea + logs + notas (230 LOC) + components/ (4 sub-components)
+│       │   │       └── components/            # TaskHeader, TaskInfo, TaskLogs, TaskNotes
+│       │   ├── components/           # StatusBadge, EmptyState, StatCard, ErrorBoundary + sub-component folders
 │       │   │   ├── home-status-card.tsx   # Dashboard L1: score ISV + mensaje humano + mini-stats
 │       │   │   ├── action-list.tsx        # Dashboard L2: tareas vencidas + semana
-│       │   │   └── analytics-section.tsx  # Dashboard L3: charts colapsable
+│       │   │   ├── analytics-section.tsx  # Dashboard L3: charts colapsable
+│       │   │   ├── profile/              # 3 sub-components extracted from profile.tsx
+│       │   │   ├── service-request/      # 2 sub-components extracted from create-service-request-modal
+│       │   │   └── task/                 # 2 sub-components extracted from complete-task-modal
 │       │   ├── hooks/                # React Query hooks (infinite scroll)
 │       │   ├── lib/
 │       │   │   ├── api-client.ts     # Axios + token refresh + auto-detect URL
@@ -208,7 +219,7 @@ epde/
 │
 ├── docs/                             # Documentacion del proyecto
 ├── docker-compose.yml                # PostgreSQL 16 + Redis 7 + pgAdmin
-├── turbo.json                        # Pipeline de tareas Turborepo
+├── turbo.json                        # Pipeline de tareas Turborepo (concurrency: 10)
 ├── package.json                      # Root: scripts, devDeps, pnpm config
 ├── pnpm-workspace.yaml               # apps/*, packages/*
 ├── pnpm-lock.yaml
@@ -368,7 +379,7 @@ feature/
 | ----------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `users`     | Sin controller                                                                 | CRUD de usuarios expuesto via `clients/` — no tiene endpoints directos                                                                                       |
 | `upload`    | Sin repository                                                                 | Solo interactua con Cloudflare R2, no persiste en DB                                                                                                         |
-| `scheduler` | Sin controller ni repository                                                   | Solo cron jobs — sin endpoints REST ni acceso a datos propios                                                                                                |
+| `scheduler` | Sin controller. Usa `DataCleanupRepository` + repositories de otros modulos    | Cron jobs — sin endpoints REST. DataCleanupRepository encapsula queries de limpieza; subscription-reminder usa `UsersRepository.findExpiringSubscriptions()` |
 | `email`     | Sin controller ni repository                                                   | Servicio auxiliar de envio — invocado por `notifications/`                                                                                                   |
 | `dashboard` | Repository standalone (no extiende BaseRepository) + ISVSnapshotRepository     | Queries de agregacion multi-modelo (JOINs entre User, Task, Budget, ServiceRequest). ISVSnapshotRepository maneja snapshots mensuales de ISV                 |
 | `tasks`     | Modulo separado importa `PlanDataModule` (provee `MaintenancePlansRepository`) | Extraccion de `TaskLifecycleService` + `TaskNotesService` del modulo `maintenance-plans/`. `PlanDataModule` rompe la dependencia circular sin `forwardRef()` |
@@ -479,7 +490,7 @@ Cliente → POST /upload (multipart/form-data) → { url }
 | isv-monthly-snapshot       | 02:00 UTC 1ro/mes | Snapshot mensual del ISV por propiedad                                                                                                    |
 | data-cleanup               | 03:00 UTC diario  | Hard-delete de registros soft-deleted > 90 dias + retencion de ISVSnapshot a 24 meses                                                     |
 
-Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en deployments multi-instancia. Incluye **watchdog** que extiende TTL automaticamente cada mitad del periodo. El callback recibe `signal: { lockLost: boolean }` — los jobs verifican el flag antes de operaciones costosas y abortan si el lock se perdio. **Batch processing**: tareas procesadas en lotes de `BATCH_SIZE=50` para evitar timeouts en datasets grandes.
+Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en deployments multi-instancia. Incluye **watchdog** que extiende TTL automaticamente cada mitad del periodo. El callback recibe `signal: { lockLost: boolean }` — los jobs verifican el flag antes de operaciones costosas y abortan si el lock se perdio. **Batch processing**: tareas procesadas en lotes de `BATCH_SIZE=50` para evitar timeouts en datasets grandes. ISV snapshot batch sizes son configurables via env vars `ISV_BATCH_SIZE` (default 50) e `ISV_MAX_PROPERTIES` (default ilimitado). `data-cleanup` usa queries secuenciales (sin `$transaction`) para evitar long-running transactions.
 
 ### Dashboard Inverted Pyramid
 
@@ -507,6 +518,7 @@ El dashboard sigue un patron de **piramide invertida** — la informacion mas im
 
 - Hooks por entidad: `use-properties`, `use-budgets`, `use-notifications`, etc.
 - Hooks grandes (10+ exports) se dividen por dominio: `use-plans.ts` (queries) + `use-task-operations.ts` (mutations). Los importers usan los archivos split directamente
+- Web hooks over 150 LOC se dividen en `-queries.ts` + `-mutations.ts` + barrel re-export (ej: `use-task-operations`, `use-budgets`, `use-service-requests`). Tests importan desde el barrel
 - `useQuery` para lectura, `useMutation` para escritura
 - Query keys centralizados: `QUERY_KEYS` importados desde `@epde/shared`. Ej: `[QUERY_KEYS.budgets, filters]`
 - Invalidacion automatica en `onSuccess`

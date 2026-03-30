@@ -50,15 +50,19 @@ apps/mobile/
         notifications.tsx             # Centro de notificaciones
         profile.tsx                   # Perfil de usuario
       property/
-        [id].tsx                      # Detalle de propiedad + tareas
+        [id].tsx                      # Detalle de propiedad (405 LOC)
+        components/                   # 4 sub-components (PropertyHeader, PropertyInfo, TaskFilters, TaskCard)
       budget/
-        [id].tsx                      # Detalle de presupuesto + items
+        [id].tsx                      # Detalle de presupuesto (299 LOC)
+        components/                   # 6 sub-components (BudgetHeader, BudgetInfo, ItemsTable, etc.)
       service-requests/
         index.tsx                     # Lista de solicitudes
-        [id].tsx                      # Detalle de solicitud
+        [id].tsx                      # Detalle de solicitud (272 LOC)
+        components/                   # 7 sub-components (SRHeader, SRInfo, SRPhotos, etc.)
       task/
         [planId]/
-          [taskId].tsx                # Detalle de tarea + logs + notas
+          [taskId].tsx                # Detalle de tarea (230 LOC)
+          components/                 # 4 sub-components (TaskHeader, TaskInfo, TaskLogs, TaskNotes)
     components/
       status-badge.tsx                # Badge con variantes por entidad
       empty-state.tsx                 # Placeholder para listas vacias
@@ -70,9 +74,12 @@ apps/mobile/
       collapsible-section.tsx         # Seccion expandible con chevron animado
       swipeable-row.tsx               # Fila deslizable con acciones (gestos)
       create-budget-modal.tsx         # Modal crear presupuesto
-      create-service-request-modal.tsx # Modal crear solicitud (con fotos)
-      complete-task-modal.tsx         # Modal completar tarea (con foto)
+      create-service-request-modal.tsx # Modal crear solicitud (310 LOC) + service-request/ (2 sub-components)
+      complete-task-modal.tsx         # Modal completar tarea (240 LOC) + task/ (2 sub-components)
       error-boundary.tsx             # Error boundary (class component)
+      profile/                       # 3 sub-components extracted from profile.tsx (243 LOC)
+      service-request/               # 2 sub-components extracted from create-service-request-modal
+      task/                          # 2 sub-components extracted from complete-task-modal
       home-status-card.tsx           # Nivel 1: score ISV + mensaje humano + mini-stats
       action-list.tsx                # Nivel 2: tareas vencidas + semana
       analytics-section.tsx          # Nivel 3: charts colapsable
@@ -293,7 +300,8 @@ Estructura en 3 niveles (conclusión primero, datos después):
 - Iconos por tipo: Tarea 🕐, Presupuesto 📋, Servicio 🔧, Sistema 🔔
 - **Swipe derecha**: marcar como leida (SwipeableRow con icono ✓ verde)
 - Tap → marca como leida
-- Boton "Marcar todas como leidas" (haptics medium)
+- Boton "Marcar todas como leidas" (haptics medium) — `useCallback` en `handleMarkAllAsRead`
+- `handleNotificationPress` wrapeado en `useCallback`; `notifications` array estabilizado con `useMemo`
 - Auto-refresh del conteo cada 60 segundos
 - El cliente recibe notificación push + in-app cuando el admin cambia su suscripción (extensión, suspensión, o acceso ilimitado)
 
@@ -303,6 +311,29 @@ Estructura en 3 niveles (conclusión primero, datos después):
 - Info de la app (version, plataforma)
 - Botón de renovación de suscripción prominente (`bg-primary`, full-width) cuando la suscripción está próxima a expirar
 - Boton de logout con alerta de confirmacion
+
+## Sub-Component Pattern (28 sub-components)
+
+Los screens de detalle y modales complejos se dividen en sub-componentes presentacionales para mantener cada archivo por debajo de 400 LOC. Los hooks y logica de negocio permanecen en el screen padre; los sub-componentes reciben props minimas y usan `React.memo`.
+
+### Screens divididos
+
+| Screen original                    | LOC antes | LOC despues | Sub-componentes | Carpeta                        |
+| ---------------------------------- | --------- | ----------- | --------------- | ------------------------------ |
+| `property/[id].tsx`                | 811       | 405         | 4               | `property/components/`         |
+| `service-requests/[id].tsx`        | 776       | 272         | 7               | `service-requests/components/` |
+| `budget/[id].tsx`                  | 642       | 299         | 6               | `budget/components/`           |
+| `profile.tsx`                      | 452       | 243         | 3               | `components/profile/`          |
+| `create-service-request-modal.tsx` | 553       | 310         | 2               | `components/service-request/`  |
+| `complete-task-modal.tsx`          | 476       | 240         | 2               | `components/task/`             |
+| `task/[planId]/[taskId].tsx`       | 417       | 230         | 4               | `task/components/`             |
+
+### Patron
+
+- Cada detail screen tiene una carpeta `components/` hermana con sub-componentes presentacionales
+- Los sub-componentes usan `React.memo` con props minimas (solo los datos que necesitan)
+- Los hooks (`useQuery`, `useMutation`, etc.) viven en el screen padre, no en los sub-componentes
+- Los modales complejos siguen el mismo patron (sub-componentes en carpeta del dominio bajo `components/`)
 
 ## Patrones Clave
 
