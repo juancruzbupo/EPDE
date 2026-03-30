@@ -1511,3 +1511,15 @@ pnpm test       # Todos los tests pasan
 | `Object.values(TaskType) as [string, ...string[]]` local en schema   | `TASK_TYPE_VALUES` de `@epde/shared` (SSoT en `enums.ts`)                           |
 | Funciones API standalone con `apiClient.get()` por entidad           | `createXxxQueries(apiClient)` factory de `@epde/shared`                             |
 | `DESIGN_TOKENS_LIGHT.success` en inline style (sin dark mode)        | CSS `var(--success)` (resuelve por tema automáticamente)                            |
+
+---
+
+## 9. Backlog Arquitectónico (cuándo ejecutar)
+
+Estos items están documentados pero NO deben ejecutarse hasta que se cumplan sus triggers:
+
+| Item                      | Trigger                                      | Esfuerzo | Qué hacer                                                                                                             |
+| ------------------------- | -------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| **Hooks a shared**        | 3+ devs trabajando en la base                | 6-8h     | Mover queryKey + queryFn factories a `@epde/shared/api/`. Hooks platform-specific (toast vs Alert) quedan en cada app |
+| **Redis cache dashboard** | 50+ clientes concurrentes O endpoints >200ms | 3-4h     | Cache Redis con 5min TTL para dashboard stats. Pattern: check → return if hit → query → cache                         |
+| **Dynamic imports extra** | Bundle >2MB O landing load >3s en 3G         | 1h       | Ya implementado para Recharts (via `next/dynamic`). Extender si se agregan más libs pesadas                           |
