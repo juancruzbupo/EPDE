@@ -31,10 +31,6 @@ export default function TemplatesPage() {
 
   const user = useAuthStore((s) => s.user);
   const { data: categories, isLoading, isError, refetch } = useCategoryTemplates();
-
-  if (user?.role !== UserRole.ADMIN) {
-    return null;
-  }
   const deleteCategory = useDeleteCategoryTemplate();
   const deleteTask = useDeleteTaskTemplate();
 
@@ -48,6 +44,10 @@ export default function TemplatesPage() {
   const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
 
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+
+  if (user?.role !== UserRole.ADMIN) {
+    return null;
+  }
 
   const toggleExpanded = (id: string) => {
     setExpandedCategories((prev) => {

@@ -77,10 +77,6 @@ export default function CategoriesPage() {
 
   const user = useAuthStore((s) => s.user);
   const { data: categories, isLoading, isError, refetch } = useCategories();
-
-  if (user?.role !== UserRole.ADMIN) {
-    return null;
-  }
   const { data: categoryTemplates } = useCategoryTemplates();
   const deleteCategory = useDeleteCategory();
 
@@ -90,12 +86,17 @@ export default function CategoriesPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const debouncedSearch = useDebounce(search);
+
   const filtered = useMemo(() => {
     if (!categories) return [];
     if (!debouncedSearch) return categories;
     const q = debouncedSearch.toLowerCase();
     return categories.filter((c) => c.name.toLowerCase().includes(q));
   }, [categories, debouncedSearch]);
+
+  if (user?.role !== UserRole.ADMIN) {
+    return null;
+  }
 
   return (
     <PageTransition>
