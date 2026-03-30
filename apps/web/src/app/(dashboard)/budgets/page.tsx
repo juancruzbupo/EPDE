@@ -126,6 +126,7 @@ function BudgetsPageContent() {
         onLoadMore={() => fetchNextPage()}
         total={total}
         emptyMessage="Todavía no tenés presupuestos. Se generan cuando solicitás un servicio profesional."
+        hasActiveFilters={debouncedSearch !== '' || status !== 'all' || propertyFilter !== 'all'}
         onRowClick={(row: BudgetRequestPublic) => router.push(`/budgets/${row.id}`)}
       />
 

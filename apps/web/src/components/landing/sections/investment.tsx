@@ -56,7 +56,10 @@ export function InvestmentSection({ motionProps, pricing }: InvestmentSectionPro
           className="border-primary/20 bg-primary/[0.03] mx-auto mt-10 max-w-md rounded-2xl border-2 p-8 text-center sm:p-12"
         >
           <p className="type-label-md text-primary tracking-widest uppercase">Pago único</p>
-          <p className="type-body-md text-muted-foreground mt-4 line-through">$120.000</p>
+          <p className="type-body-md text-muted-foreground mt-4">
+            <span className="line-through">$120.000</span>{' '}
+            <span className="type-body-sm">(valor de mercado)</span>
+          </p>
           <p className="font-heading text-foreground mt-1 text-5xl tracking-tight sm:text-6xl">
             {price}
           </p>

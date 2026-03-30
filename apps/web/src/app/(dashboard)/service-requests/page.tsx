@@ -141,6 +141,12 @@ function ServiceRequestsPageContent() {
         onLoadMore={() => fetchNextPage()}
         total={total}
         emptyMessage="Todavía no tenés solicitudes. Podés crear una desde el botón 'Nueva Solicitud' o desde el detalle de una tarea."
+        hasActiveFilters={
+          debouncedSearch !== '' ||
+          status !== 'all' ||
+          urgency !== 'all' ||
+          propertyFilter !== 'all'
+        }
         onRowClick={(row) => router.push(`/service-requests/${row.id}`)}
       />
 

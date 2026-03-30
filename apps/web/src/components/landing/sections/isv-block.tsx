@@ -96,12 +96,11 @@ export function IsvBlockSection({ motionProps }: SectionProps) {
               className="border-success/30 bg-success/5 mt-5 rounded-lg border p-4"
             >
               <p className="type-body-md text-foreground font-medium">
-                Ejemplo: ISV 72 — Tu casa está bien, pero puede mejorar
+                Ejemplo: ISV 72 — Tu casa está en buen estado
               </p>
               <p className="type-body-sm text-muted-foreground mt-1">
-                Un ISV de 72 indica que tu vivienda está en buen estado general. EPDE te muestra qué
-                pequeñas mejoras pueden prevenir problemas futuros y mantener el valor de tu
-                propiedad.
+                Con un ISV de 72, tu vivienda está bien cuidada. EPDE te muestra cómo mantenerlo así
+                y qué pequeñas acciones previenen que el score baje.
               </p>
               <p className="type-body-sm text-success mt-2 font-medium">
                 Mantener un ISV alto es más fácil y económico que recuperarlo una vez que baja.

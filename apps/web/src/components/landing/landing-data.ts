@@ -140,7 +140,7 @@ export const CONSEQUENCE_EXAMPLES: ConsequenceExample[] = [
 export const SOLUTION_POINTS: IconTextItem[] = [
   { icon: Search, text: 'Diagnostica el estado real de tu vivienda' },
   { icon: ClipboardList, text: 'Organiza todo el mantenimiento que necesita' },
-  { icon: Shield, text: 'Previene problemas antes de que aparezcan' },
+  { icon: Shield, text: 'Te ayuda a prevenir problemas antes de que aparezcan' },
   { icon: BarChart3, text: 'Te guía con datos para tomar mejores decisiones' },
 ];
 
