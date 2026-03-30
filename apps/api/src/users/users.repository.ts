@@ -13,4 +13,22 @@ export class UsersRepository extends BaseRepository<User, 'user'> {
   async findByEmail(email: string): Promise<User | null> {
     return this.model.findFirst({ where: { email } });
   }
+
+  /** Find active clients whose subscription expires within the given time window. */
+  async findExpiringSubscriptions(
+    windowStart: Date,
+    windowEnd: Date,
+    take = 500,
+  ): Promise<Pick<User, 'id' | 'name' | 'email' | 'subscriptionExpiresAt'>[]> {
+    return this.model.findMany({
+      where: {
+        role: 'CLIENT',
+        status: 'ACTIVE',
+        subscriptionExpiresAt: { gte: windowStart, lte: windowEnd },
+        deletedAt: null,
+      },
+      select: { id: true, name: true, email: true, subscriptionExpiresAt: true },
+      take,
+    });
+  }
 }

@@ -25,13 +25,19 @@ import { Throttle } from '@nestjs/throttler';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { BudgetAttachmentsService } from './budget-attachments.service';
+import { BudgetCommentsService } from './budget-comments.service';
 import { BudgetsService } from './budgets.service';
 
 @ApiTags('Presupuestos')
 @ApiBearerAuth()
 @Controller('budgets')
 export class BudgetsController {
-  constructor(private readonly budgetsService: BudgetsService) {}
+  constructor(
+    private readonly budgetsService: BudgetsService,
+    private readonly budgetCommentsService: BudgetCommentsService,
+    private readonly budgetAttachmentsService: BudgetAttachmentsService,
+  ) {}
 
   @Get()
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
@@ -65,7 +71,7 @@ export class BudgetsController {
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const data = await this.budgetsService.getComments(id, user);
+    const data = await this.budgetCommentsService.getComments(id, user);
     return { data };
   }
 
@@ -100,7 +106,7 @@ export class BudgetsController {
     @Body(new ZodValidationPipe(createBudgetCommentSchema)) dto: CreateBudgetCommentInput,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const data = await this.budgetsService.addComment(id, dto, user);
+    const data = await this.budgetCommentsService.addComment(id, dto, user);
     return { data, message: 'Comentario agregado' };
   }
 
@@ -112,7 +118,7 @@ export class BudgetsController {
     @Body(new ZodValidationPipe(addBudgetAttachmentsSchema)) dto: AddBudgetAttachmentsInput,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const data = await this.budgetsService.addAttachments(id, dto, user);
+    const data = await this.budgetAttachmentsService.addAttachments(id, dto, user);
     return { data, message: 'Adjuntos agregados' };
   }
 

@@ -5,8 +5,8 @@ import { Cron } from '@nestjs/schedule';
 import { MetricsService } from '../metrics/metrics.service';
 import { NotificationsRepository } from '../notifications/notifications.repository';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
-import { PrismaService } from '../prisma/prisma.service';
 import { DistributedLockService } from '../redis/distributed-lock.service';
+import { UsersRepository } from '../users/users.repository';
 
 /**
  * Sends reminder notifications to clients whose subscription is about
@@ -20,7 +20,7 @@ export class SubscriptionReminderService {
   private readonly logger = new Logger(SubscriptionReminderService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly usersRepository: UsersRepository,
     private readonly lockService: DistributedLockService,
     private readonly metricsService: MetricsService,
     private readonly notificationsHandler: NotificationsHandlerService,
@@ -48,16 +48,11 @@ export class SubscriptionReminderService {
         const windowStart = new Date(targetDate.getTime() - 12 * 60 * 60_000);
         const windowEnd = new Date(targetDate.getTime() + 12 * 60 * 60_000);
 
-        const users = await this.prisma.user.findMany({
-          where: {
-            role: 'CLIENT',
-            status: 'ACTIVE',
-            subscriptionExpiresAt: { gte: windowStart, lte: windowEnd },
-            deletedAt: null,
-          },
-          select: { id: true, name: true, email: true, subscriptionExpiresAt: true },
-          take: 500,
-        });
+        const users = await this.usersRepository.findExpiringSubscriptions(
+          windowStart,
+          windowEnd,
+          500,
+        );
 
         for (const user of users) {
           if (alreadyRemindedUserIds.has(user.id)) continue;

@@ -23,13 +23,19 @@ import { Throttle } from '@nestjs/throttler';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { ServiceRequestAttachmentsService } from './service-request-attachments.service';
+import { ServiceRequestCommentsService } from './service-request-comments.service';
 import { ServiceRequestsService } from './service-requests.service';
 
 @ApiTags('Solicitudes de Servicio')
 @ApiBearerAuth()
 @Controller('service-requests')
 export class ServiceRequestsController {
-  constructor(private readonly serviceRequestsService: ServiceRequestsService) {}
+  constructor(
+    private readonly serviceRequestsService: ServiceRequestsService,
+    private readonly serviceRequestCommentsService: ServiceRequestCommentsService,
+    private readonly serviceRequestAttachmentsService: ServiceRequestAttachmentsService,
+  ) {}
 
   @Get()
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
@@ -66,7 +72,7 @@ export class ServiceRequestsController {
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const data = await this.serviceRequestsService.getComments(id, user);
+    const data = await this.serviceRequestCommentsService.getComments(id, user);
     return { data };
   }
 
@@ -90,7 +96,7 @@ export class ServiceRequestsController {
     dto: CreateServiceRequestCommentInput,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const data = await this.serviceRequestsService.addComment(id, dto, user);
+    const data = await this.serviceRequestCommentsService.addComment(id, dto, user);
     return { data, message: 'Comentario agregado' };
   }
 
@@ -103,7 +109,7 @@ export class ServiceRequestsController {
     dto: AddServiceRequestAttachmentsInput,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const data = await this.serviceRequestsService.addAttachments(id, dto, user);
+    const data = await this.serviceRequestAttachmentsService.addAttachments(id, dto, user);
     return { data, message: 'Adjuntos agregados' };
   }
 

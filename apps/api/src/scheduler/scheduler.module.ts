@@ -8,7 +8,9 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { PropertiesModule } from '../properties/properties.module';
 import { ServiceRequestsModule } from '../service-requests/service-requests.module';
 import { TasksModule } from '../tasks/tasks.module';
+import { UsersModule } from '../users/users.module';
 import { BudgetExpirationService } from './budget-expiration.service';
+import { DataCleanupRepository } from './data-cleanup.repository';
 import { DataCleanupService } from './data-cleanup.service';
 import { ISVSnapshotService } from './isv-snapshot.service';
 import { NotificationCleanupService } from './notification-cleanup.service';
@@ -39,6 +41,7 @@ import { TaskStatusService } from './task-status.service';
     ServiceRequestsModule,
     DashboardModule,
     PropertiesModule,
+    UsersModule,
   ],
   providers: [
     TaskStatusService,
@@ -50,6 +53,7 @@ import { TaskStatusService } from './task-status.service';
     NotificationCleanupService,
     SubscriptionReminderService,
     DataCleanupService,
+    DataCleanupRepository,
   ],
 })
 export class SchedulerModule {}

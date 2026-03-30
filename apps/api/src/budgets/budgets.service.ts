@@ -1,14 +1,12 @@
 import type {
-  AddBudgetAttachmentsInput,
   BudgetFiltersInput,
-  CreateBudgetCommentInput,
   CreateBudgetRequestInput,
   EditBudgetRequestInput,
   RespondBudgetInput,
   ServiceUser,
   UpdateBudgetStatusInput,
 } from '@epde/shared';
-import { BUDGET_TERMINAL_STATUSES, BudgetStatus, UserRole } from '@epde/shared';
+import { BudgetStatus, UserRole } from '@epde/shared';
 import {
   BadRequestException,
   ConflictException,
@@ -27,9 +25,7 @@ import {
 } from '../common/exceptions/domain.exceptions';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { PropertiesRepository } from '../properties/properties.repository';
-import { BudgetAttachmentsRepository } from './budget-attachments.repository';
 import { BudgetAuditLogRepository } from './budget-audit-log.repository';
-import { BudgetCommentsRepository } from './budget-comments.repository';
 import { BudgetsRepository } from './budgets.repository';
 
 @Injectable()
@@ -39,8 +35,6 @@ export class BudgetsService {
     private readonly propertiesRepository: PropertiesRepository,
     private readonly notificationsHandler: NotificationsHandlerService,
     private readonly auditLogRepository: BudgetAuditLogRepository,
-    private readonly commentsRepository: BudgetCommentsRepository,
-    private readonly attachmentsRepository: BudgetAttachmentsRepository,
   ) {}
 
   async listBudgets(filters: BudgetFiltersInput, currentUser: ServiceUser) {
@@ -257,66 +251,6 @@ export class BudgetsService {
     });
 
     return updated;
-  }
-
-  // ─── Comments ────────────────────────────────────────────
-
-  async getComments(budgetId: string, currentUser: ServiceUser) {
-    await this.getBudget(budgetId, currentUser);
-    return this.commentsRepository.findByBudgetId(budgetId);
-  }
-
-  async addComment(budgetId: string, dto: CreateBudgetCommentInput, currentUser: ServiceUser) {
-    const budget = await this.getBudget(budgetId, currentUser);
-
-    if (BUDGET_TERMINAL_STATUSES.includes(budget.status as BudgetStatus)) {
-      throw new BadRequestException('No se pueden agregar comentarios a un presupuesto finalizado');
-    }
-
-    const comment = await this.commentsRepository.createComment(
-      budgetId,
-      currentUser.id,
-      dto.content,
-    );
-
-    void this.notificationsHandler.handleBudgetCommentAdded({
-      budgetId,
-      title: budget.title,
-      commentAuthorId: currentUser.id,
-      requesterId: budget.requestedBy,
-    });
-
-    void this.auditLogRepository.createAuditLog(
-      budgetId,
-      currentUser.id,
-      'comment_added',
-      {},
-      { commentId: comment.id },
-    );
-
-    return comment;
-  }
-
-  // ─── Attachments ─────────────────────────────────────────
-
-  async addAttachments(budgetId: string, dto: AddBudgetAttachmentsInput, currentUser: ServiceUser) {
-    const budget = await this.getBudget(budgetId, currentUser);
-
-    if (BUDGET_TERMINAL_STATUSES.includes(budget.status as BudgetStatus)) {
-      throw new BadRequestException('No se pueden agregar adjuntos a un presupuesto finalizado');
-    }
-
-    const attachments = await this.attachmentsRepository.addAttachments(budgetId, dto.attachments);
-
-    void this.auditLogRepository.createAuditLog(
-      budgetId,
-      currentUser.id,
-      'attachments_added',
-      {},
-      { count: dto.attachments.length },
-    );
-
-    return attachments;
   }
 
   // ─── Audit Log ───────────────────────────────────────────

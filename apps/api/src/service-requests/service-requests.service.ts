@@ -1,13 +1,11 @@
 import type {
-  AddServiceRequestAttachmentsInput,
-  CreateServiceRequestCommentInput,
   CreateServiceRequestInput,
   EditServiceRequestInput,
   ServiceRequestFiltersInput,
   ServiceUser,
   UpdateServiceStatusInput,
 } from '@epde/shared';
-import { isServiceRequestTerminal, ServiceStatus, ServiceUrgency, UserRole } from '@epde/shared';
+import { ServiceStatus, ServiceUrgency, UserRole } from '@epde/shared';
 import {
   BadRequestException,
   ForbiddenException,
@@ -18,14 +16,11 @@ import {
 import {
   InvalidServiceStatusTransitionError,
   ServiceRequestNotEditableError,
-  ServiceRequestTerminalError,
   TaskPropertyMismatchError,
 } from '../common/exceptions/domain.exceptions';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { PropertiesRepository } from '../properties/properties.repository';
-import { ServiceRequestAttachmentsRepository } from './service-request-attachments.repository';
 import { ServiceRequestAuditLogRepository } from './service-request-audit-log.repository';
-import { ServiceRequestCommentsRepository } from './service-request-comments.repository';
 import {
   ServiceRequestsRepository,
   type ServiceRequestWithDetails,
@@ -46,8 +41,6 @@ export class ServiceRequestsService {
     private readonly propertiesRepository: PropertiesRepository,
     private readonly notificationsHandler: NotificationsHandlerService,
     private readonly auditLogRepository: ServiceRequestAuditLogRepository,
-    private readonly commentsRepository: ServiceRequestCommentsRepository,
-    private readonly attachmentsRepository: ServiceRequestAttachmentsRepository,
   ) {}
 
   async listRequests(filters: ServiceRequestFiltersInput, currentUser: ServiceUser) {
@@ -259,60 +252,6 @@ export class ServiceRequestsService {
     }
     this.assertAccess(request, currentUser);
     return this.auditLogRepository.findByServiceRequestId(id);
-  }
-
-  // ─── Comments ───────────────────────────────────────────
-
-  async getComments(id: string, currentUser: ServiceUser) {
-    const request = await this.serviceRequestsRepository.findByIdWithDetails(id);
-    if (!request) {
-      throw new NotFoundException('Solicitud de servicio no encontrada');
-    }
-    this.assertAccess(request, currentUser);
-    return this.commentsRepository.findByServiceRequestId(id);
-  }
-
-  async addComment(id: string, dto: CreateServiceRequestCommentInput, currentUser: ServiceUser) {
-    const request = await this.serviceRequestsRepository.findByIdWithDetails(id);
-    if (!request) {
-      throw new NotFoundException('Solicitud de servicio no encontrada');
-    }
-    this.assertAccess(request, currentUser);
-
-    if (isServiceRequestTerminal(request.status)) {
-      throw new BadRequestException(new ServiceRequestTerminalError('comentar').message);
-    }
-
-    const comment = await this.commentsRepository.createComment(id, currentUser.id, dto.content);
-
-    void this.notificationsHandler.handleServiceCommentAdded({
-      serviceRequestId: id,
-      title: request.title,
-      commentAuthorId: currentUser.id,
-      requesterId: request.requestedBy,
-    });
-
-    return comment;
-  }
-
-  // ─── Attachments ────────────────────────────────────────
-
-  async addAttachments(
-    id: string,
-    dto: AddServiceRequestAttachmentsInput,
-    currentUser: ServiceUser,
-  ) {
-    const request = await this.serviceRequestsRepository.findByIdWithDetails(id);
-    if (!request) {
-      throw new NotFoundException('Solicitud de servicio no encontrada');
-    }
-    this.assertAccess(request, currentUser);
-
-    if (isServiceRequestTerminal(request.status)) {
-      throw new BadRequestException(new ServiceRequestTerminalError('agregar adjuntos').message);
-    }
-
-    return this.attachmentsRepository.addAttachments(id, dto.attachments);
   }
 
   /** Validate that the given task belongs to the property (via its maintenance plan). */
