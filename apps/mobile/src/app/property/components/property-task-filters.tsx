@@ -24,11 +24,16 @@ export const StatusFilterPills = React.memo(function StatusFilterPills({
   onStatusChange,
 }: StatusFilterPillsProps) {
   return (
-    <View className="mb-2 flex-row gap-2">
+    <View
+      className="mb-2 flex-row gap-2"
+      accessibilityRole="radiogroup"
+      accessibilityLabel="Filtrar por estado"
+    >
       {FILTERS.map((f) => (
         <Pressable
           key={f.key}
-          accessibilityRole="button"
+          accessibilityRole="radio"
+          accessibilityState={{ selected: statusFilter === f.key }}
           accessibilityLabel={`Filtrar por ${f.label}`}
           onPress={() => onStatusChange(f.key)}
           style={{ minHeight: 44 }}
