@@ -26,47 +26,49 @@ export class DataCleanupService {
 
       if (signal.lockLost) return;
 
-      // Hard-delete soft-deleted records older than 90 days (order: dependents first)
-      const deleted = await this.prisma.$transaction(async (tx) => {
-        const taskLogs = await tx.taskLog.deleteMany({
-          where: { task: { deletedAt: { not: null, lt: cutoff } } },
-        });
-        const taskNotes = await tx.taskNote.deleteMany({
-          where: { task: { deletedAt: { not: null, lt: cutoff } } },
-        });
-        const taskAuditLogs = await tx.taskAuditLog.deleteMany({
-          where: { task: { deletedAt: { not: null, lt: cutoff } } },
-        });
-        const tasks = await tx.task.deleteMany({
-          where: { deletedAt: { not: null, lt: cutoff } },
-        });
-        const budgets = await tx.budgetRequest.deleteMany({
-          where: { deletedAt: { not: null, lt: cutoff } },
-        });
-        const serviceRequests = await tx.serviceRequest.deleteMany({
-          where: { deletedAt: { not: null, lt: cutoff } },
-        });
-        const categories = await tx.category.deleteMany({
-          where: { deletedAt: { not: null, lt: cutoff } },
-        });
-        const properties = await tx.property.deleteMany({
-          where: { deletedAt: { not: null, lt: cutoff } },
-        });
-        const users = await tx.user.deleteMany({
-          where: { deletedAt: { not: null, lt: cutoff } },
-        });
-        return {
-          taskLogs: taskLogs.count,
-          taskNotes: taskNotes.count,
-          taskAuditLogs: taskAuditLogs.count,
-          tasks: tasks.count,
-          budgets: budgets.count,
-          serviceRequests: serviceRequests.count,
-          categories: categories.count,
-          properties: properties.count,
-          users: users.count,
-        };
+      // Hard-delete soft-deleted records older than 90 days.
+      // Sequential (no $transaction) to avoid timeout on large datasets.
+      // Order: dependents first to respect FK constraints.
+      const taskLogs = await this.prisma.taskLog.deleteMany({
+        where: { task: { deletedAt: { not: null, lt: cutoff } } },
       });
+      const taskNotes = await this.prisma.taskNote.deleteMany({
+        where: { task: { deletedAt: { not: null, lt: cutoff } } },
+      });
+      const taskAuditLogs = await this.prisma.taskAuditLog.deleteMany({
+        where: { task: { deletedAt: { not: null, lt: cutoff } } },
+      });
+      if (signal.lockLost) return;
+      const tasks = await this.prisma.task.deleteMany({
+        where: { deletedAt: { not: null, lt: cutoff } },
+      });
+      const budgets = await this.prisma.budgetRequest.deleteMany({
+        where: { deletedAt: { not: null, lt: cutoff } },
+      });
+      const serviceRequests = await this.prisma.serviceRequest.deleteMany({
+        where: { deletedAt: { not: null, lt: cutoff } },
+      });
+      const categories = await this.prisma.category.deleteMany({
+        where: { deletedAt: { not: null, lt: cutoff } },
+      });
+      if (signal.lockLost) return;
+      const properties = await this.prisma.property.deleteMany({
+        where: { deletedAt: { not: null, lt: cutoff } },
+      });
+      const users = await this.prisma.user.deleteMany({
+        where: { deletedAt: { not: null, lt: cutoff } },
+      });
+      const deleted = {
+        taskLogs: taskLogs.count,
+        taskNotes: taskNotes.count,
+        taskAuditLogs: taskAuditLogs.count,
+        tasks: tasks.count,
+        budgets: budgets.count,
+        serviceRequests: serviceRequests.count,
+        categories: categories.count,
+        properties: properties.count,
+        users: users.count,
+      };
 
       this.logger.log(`Soft-delete cleanup: ${JSON.stringify(deleted)}`);
 

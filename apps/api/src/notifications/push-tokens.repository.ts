@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class PushTokensRepository {
+  private readonly logger = new Logger(PushTokensRepository.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async upsert(userId: string, token: string, platform: string) {
@@ -15,7 +17,10 @@ export class PushTokensRepository {
   }
 
   async remove(token: string) {
-    return this.prisma.pushToken.delete({ where: { token } }).catch(() => null);
+    return this.prisma.pushToken.delete({ where: { token } }).catch((err) => {
+      this.logger.warn(`Failed to remove push token: ${err}`);
+      return null;
+    });
   }
 
   async removeAllForUser(userId: string) {

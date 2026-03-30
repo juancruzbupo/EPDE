@@ -1,7 +1,7 @@
 import type { NotificationPublic, NotificationType } from '@epde/shared';
 import { formatRelativeDate, NOTIFICATION_TYPE_LABELS } from '@epde/shared';
 import { useRouter } from 'expo-router';
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { ActivityIndicator, FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
 
 import { AnimatedListItem } from '@/components/animated-list-item';
@@ -102,7 +102,7 @@ export default function NotificationsScreen() {
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
 
-  const notifications = data?.pages.flatMap((page) => page.data) ?? [];
+  const notifications = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
 
   const onRefresh = useCallback(() => {
     refetch();
@@ -113,6 +113,26 @@ export default function NotificationsScreen() {
       fetchNextPage();
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const handleNotificationPress = useCallback(
+    (notification: NotificationPublic) => {
+      if (!notification.read) {
+        haptics.light();
+        markAsRead.mutate(notification.id);
+      }
+      const route = getNotificationRoute(notification);
+      if (route) {
+        router.push(route as never);
+      }
+      // If no route, notification was still marked as read (visual feedback via optimistic update)
+    },
+    [markAsRead, router],
+  );
+
+  const handleMarkAllAsRead = useCallback(() => {
+    haptics.medium();
+    markAllAsRead.mutate();
+  }, [markAllAsRead]);
 
   if (error && !data) {
     return <ErrorState onRetry={refetch} />;
@@ -125,23 +145,6 @@ export default function NotificationsScreen() {
       </View>
     );
   }
-
-  const handleNotificationPress = (notification: NotificationPublic) => {
-    if (!notification.read) {
-      haptics.light();
-      markAsRead.mutate(notification.id);
-    }
-    const route = getNotificationRoute(notification);
-    if (route) {
-      router.push(route as never);
-    }
-    // If no route, notification was still marked as read (visual feedback via optimistic update)
-  };
-
-  const handleMarkAllAsRead = () => {
-    haptics.medium();
-    markAllAsRead.mutate();
-  };
 
   return (
     <FlatList

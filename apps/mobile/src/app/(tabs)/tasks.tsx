@@ -160,7 +160,7 @@ export default function TasksScreen() {
     }
 
     return result;
-  }, [tasks, statusFilter, priorityFilter, propertyFilter, debouncedSearch]);
+  }, [tasks, priorityFilter, propertyFilter, debouncedSearch]);
 
   /** Counts per status (from full dataset, independent of active status filter). */
   const statusCounts = useMemo(() => {

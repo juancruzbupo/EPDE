@@ -38,5 +38,10 @@ yarn-error.log*
 # Expo
 .expo
 
+# Build caches
+*.tsbuildinfo
+.swc
+.nest
+
 # Testing
 coverage

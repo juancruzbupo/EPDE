@@ -52,7 +52,9 @@ export class AuthService {
     });
 
     // Track last login timestamp (fire-and-forget — don't block login on failure)
-    void this.usersService.update(user.id, { lastLoginAt: new Date() }).catch(() => {});
+    void this.usersService
+      .update(user.id, { lastLoginAt: new Date() })
+      .catch((err) => this.logger.warn(`Failed to update lastLoginAt for ${user.id}: ${err}`));
 
     const fullUser = await this.usersService.findById(user.id);
     const { passwordHash: _passwordHash, ...userWithoutPassword } = fullUser;
