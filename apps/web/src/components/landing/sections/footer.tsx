@@ -28,6 +28,9 @@ export function Footer() {
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <div>
               <span className="font-heading text-primary text-lg">EPDE</span>
+              <p className="type-body-sm text-foreground/70 mt-0.5 font-medium">
+                Tu casa, bajo control.
+              </p>
               <p className="type-body-sm text-muted-foreground mt-0.5">
                 por Arq. Noelia E. Yuskowich
               </p>
