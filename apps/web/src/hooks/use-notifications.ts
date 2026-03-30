@@ -26,6 +26,7 @@ export function useUnreadCount() {
       const res = await getUnreadCount(signal);
       return res.data.count;
     },
+    // Mobile uses 60_000 (battery savings). Web can poll more aggressively.
     refetchInterval: 30_000,
   });
 }

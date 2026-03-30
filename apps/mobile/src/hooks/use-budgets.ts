@@ -104,10 +104,9 @@ export function useUpdateBudgetStatus() {
         QUERY_KEYS.budgets,
         variables.id,
       ]);
-      queryClient.setQueryData<BudgetRequestPublic>([QUERY_KEYS.budgets, variables.id], (old) => {
-        if (!old) return old;
-        return { ...old, status: variables.status };
-      });
+      queryClient.setQueryData<BudgetRequestPublic>([QUERY_KEYS.budgets, variables.id], (old) =>
+        old ? { ...old, status: variables.status } : old,
+      );
       return { previous };
     },
 

@@ -64,7 +64,7 @@ export function useCompleteTask(options?: {
           month: 'long',
           year: 'numeric',
         });
-        Alert.alert('Tarea completada', `Reprogramada para el ${formatted}`);
+        Alert.alert('Tarea completada', `Próxima: ${formatted}`);
       } else {
         Alert.alert('Éxito', 'Tarea completada');
       }

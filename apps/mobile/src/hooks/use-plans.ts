@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
 
 import { getAllTasks, getPlan, getPlans, updatePlan } from '@/lib/api/maintenance-plans';
+import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
 
 export function usePlans() {
   return useQuery({
@@ -39,6 +40,7 @@ export function useUpdatePlan() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
+      invalidateClientDashboard(queryClient);
       Alert.alert('Éxito', 'Plan actualizado');
     },
     onError: (err) => {

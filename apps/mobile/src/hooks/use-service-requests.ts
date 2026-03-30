@@ -96,10 +96,7 @@ export function useUpdateServiceStatus() {
       ]);
       queryClient.setQueryData<ServiceRequestPublic>(
         [QUERY_KEYS.serviceRequests, variables.id],
-        (old) => {
-          if (!old) return old;
-          return { ...old, status: variables.status };
-        },
+        (old) => (old ? { ...old, status: variables.status } : old),
       );
       return { previous };
     },
