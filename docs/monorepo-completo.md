@@ -391,7 +391,7 @@ feature/
 
 Cuatro guards globales en orden via `APP_GUARD`:
 
-1. **ThrottlerGuard** — Rate limiting (5/s corto, 30/10s medio, 5/min login/refresh, 3/s + 20/min upload, 3/hora + 1/5s burst set-password)
+1. **ThrottlerGuard** — Rate limiting (10/s corto, 60/10s medio, 5/min login/refresh, 3/s + 20/min upload, 3/hora + 1/5s burst set-password)
 2. **JwtAuthGuard** — Valida JWT. Salta `@Public()` endpoints
 3. **RolesGuard** — Primero verifica `@Public()` (permite sin auth). Luego verifica `user.role` contra `@Roles()`. **Sin `@Roles()` ni `@Public()` = deniega (403)** — deny-by-default para prevenir escalation of privilege. Todo endpoint autenticado requiere `@Roles()` explicito
 4. **SubscriptionGuard** — Verifica suscripcion activa (`subscriptionExpiresAt > now`). Salta `@Public()`, auth endpoints y ADMIN. Retorna HTTP 402 si expirada
@@ -430,7 +430,7 @@ Los servicios de dominio inyectan `NotificationsHandlerService` directamente. No
 
 **Subscription change:** `updateClient()` dispara `handleSubscriptionChanged()` cuando cambia `subscriptionExpiresAt`. 3 acciones: extended ("Tu suscripción fue extendida hasta el [fecha]"), suspended ("Tu suscripción fue suspendida"), unlimited ("Tu acceso ahora es ilimitado").
 
-**Queues:** `notification` (3 reintentos, backoff 3s) para in-app, `emails` (5 reintentos, backoff 5s, concurrency 15) para emails. `NotificationsHandlerService` envuelve cada llamada en `try-catch`. Errores de BullMQ se reintentan automaticamente.
+**Queues:** `notification` (3 reintentos, backoff 3s, concurrency 20) para in-app, `emails` (5 reintentos, backoff 5s, concurrency 15) para emails. Push notifications se envían en batches paralelos (5 concurrentes) con `Promise.allSettled()`. `NotificationsHandlerService` envuelve cada llamada en `try-catch`. Errores de BullMQ se reintentan automaticamente.
 
 ### P8: Error Handling Centralizado
 
@@ -1008,13 +1008,13 @@ Campos monetarios usan `Decimal` (no Float): `BudgetLineItem.quantity` (12,4), `
 
 ### Configuracion
 
-| Atributo   | Valor                                                                           |
-| ---------- | ------------------------------------------------------------------------------- |
-| Base URL   | `http://localhost:3001/api/v1`                                                  |
-| Swagger    | `http://localhost:3001/api/docs`                                                |
-| Auth       | JWT cookies (web) / Bearer (mobile)                                             |
-| Rate limit | 5/s, 30/10s, 5/min (login, refresh), 3/s+20/min (upload), 3/hora (set-password) |
-| Body limit | `express.json({ limit: '1mb' })` — proteccion contra payloads JSON oversized    |
+| Atributo   | Valor                                                                            |
+| ---------- | -------------------------------------------------------------------------------- |
+| Base URL   | `http://localhost:3001/api/v1`                                                   |
+| Swagger    | `http://localhost:3001/api/docs`                                                 |
+| Auth       | JWT cookies (web) / Bearer (mobile)                                              |
+| Rate limit | 10/s, 60/10s, 5/min (login, refresh), 3/s+20/min (upload), 3/hora (set-password) |
+| Body limit | `express.json({ limit: '1mb' })` — proteccion contra payloads JSON oversized     |
 
 ### Endpoints (18 grupos)
 

@@ -140,7 +140,7 @@ Componente `AuthGate` que decide la ruta segun el estado de autenticacion:
 - No autenticado → `/(auth)/login`
 - Autenticado → `/(tabs)`
 
-Wraps: `GestureHandlerRootView` → `ErrorBoundary` → `PersistQueryClientProvider` (offline cache, gcTime 24h) → `AuthGate` → rutas
+Wraps: `GestureHandlerRootView` → `ErrorBoundary` (con `accessibilityRole` + `accessibilityLabel`) → `PersistQueryClientProvider` (offline cache, gcTime 24h, maxAge 24h, throttle 2s) → `AuthGate` → rutas. Filter pills con `minHeight: 44` para cumplir WCAG 2.5.5 touch target.
 
 ### Tabs (7 pantallas)
 
