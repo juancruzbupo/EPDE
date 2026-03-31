@@ -150,7 +150,11 @@ describe('BudgetsPage', () => {
     } as unknown as ReturnType<typeof useBudgets>);
 
     render(<BudgetsPage />);
-    expect(screen.getByText('No se encontraron presupuestos')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Todavía no tenés presupuestos. Se generan cuando solicitás un servicio profesional.',
+      ),
+    ).toBeInTheDocument();
   });
 
   it('renders page title and budget data', () => {

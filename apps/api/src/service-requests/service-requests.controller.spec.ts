@@ -1,6 +1,9 @@
-import { type CurrentUser as CurrentUserPayload, UserRole } from '@epde/shared';
+import type { CurrentUser as CurrentUserPayload } from '@epde/shared';
+import { UserRole } from '@epde/shared';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { ServiceRequestAttachmentsService } from './service-request-attachments.service';
+import { ServiceRequestCommentsService } from './service-request-comments.service';
 import { ServiceRequestsController } from './service-requests.controller';
 import { ServiceRequestsService } from './service-requests.service';
 
@@ -8,12 +11,18 @@ const mockServiceRequestsService = {
   listRequests: jest.fn(),
   getRequest: jest.fn(),
   getAuditLog: jest.fn(),
-  getComments: jest.fn(),
   createRequest: jest.fn(),
-  addComment: jest.fn(),
-  addAttachments: jest.fn(),
   editServiceRequest: jest.fn(),
   updateStatus: jest.fn(),
+};
+
+const mockCommentsService = {
+  getComments: jest.fn(),
+  addComment: jest.fn(),
+};
+
+const mockAttachmentsService = {
+  addAttachments: jest.fn(),
 };
 
 const adminUser: CurrentUserPayload = {
@@ -40,7 +49,11 @@ describe('ServiceRequestsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ServiceRequestsController],
-      providers: [{ provide: ServiceRequestsService, useValue: mockServiceRequestsService }],
+      providers: [
+        { provide: ServiceRequestsService, useValue: mockServiceRequestsService },
+        { provide: ServiceRequestCommentsService, useValue: mockCommentsService },
+        { provide: ServiceRequestAttachmentsService, useValue: mockAttachmentsService },
+      ],
     }).compile();
 
     controller = module.get<ServiceRequestsController>(ServiceRequestsController);
@@ -106,11 +119,11 @@ describe('ServiceRequestsController', () => {
   describe('getComments', () => {
     it('should call service.getComments and return wrapped data', async () => {
       const comments = [{ id: 'c-1', body: 'Revisado' }];
-      mockServiceRequestsService.getComments.mockResolvedValue(comments);
+      mockCommentsService.getComments.mockResolvedValue(comments);
 
       const result = await controller.getComments(requestId, clientUser);
 
-      expect(mockServiceRequestsService.getComments).toHaveBeenCalledWith(requestId, clientUser);
+      expect(mockCommentsService.getComments).toHaveBeenCalledWith(requestId, clientUser);
       expect(result).toEqual({ data: comments });
     });
   });
@@ -146,25 +159,21 @@ describe('ServiceRequestsController', () => {
     it('should call service.addComment with id, dto and full user and return wrapped data with message', async () => {
       const dto = { body: 'Se necesita visita tecnica' };
       const comment = { id: 'comment-1', body: dto.body };
-      mockServiceRequestsService.addComment.mockResolvedValue(comment);
+      mockCommentsService.addComment.mockResolvedValue(comment);
 
       const result = await controller.addComment(requestId, dto as any, clientUser);
 
-      expect(mockServiceRequestsService.addComment).toHaveBeenCalledWith(
-        requestId,
-        dto,
-        clientUser,
-      );
+      expect(mockCommentsService.addComment).toHaveBeenCalledWith(requestId, dto, clientUser);
       expect(result).toEqual({ data: comment, message: 'Comentario agregado' });
     });
 
     it('should pass the full user object so service can record authorship', async () => {
       const dto = { body: 'Presupuesto adjunto' };
-      mockServiceRequestsService.addComment.mockResolvedValue({ id: 'comment-2' });
+      mockCommentsService.addComment.mockResolvedValue({ id: 'comment-2' });
 
       await controller.addComment(requestId, dto as any, adminUser);
 
-      const [, , passedUser] = mockServiceRequestsService.addComment.mock.calls[0];
+      const [, , passedUser] = mockCommentsService.addComment.mock.calls[0];
       expect(passedUser).toEqual(adminUser);
     });
   });
@@ -173,11 +182,11 @@ describe('ServiceRequestsController', () => {
     it('should call service.addAttachments with id, dto and full user and return wrapped data with message', async () => {
       const dto = { attachments: [{ url: 'https://r2.example.com/photo.jpg', name: 'photo.jpg' }] };
       const attachments = [{ id: 'att-1', url: 'https://r2.example.com/photo.jpg' }];
-      mockServiceRequestsService.addAttachments.mockResolvedValue(attachments);
+      mockAttachmentsService.addAttachments.mockResolvedValue(attachments);
 
       const result = await controller.addAttachments(requestId, dto as any, clientUser);
 
-      expect(mockServiceRequestsService.addAttachments).toHaveBeenCalledWith(
+      expect(mockAttachmentsService.addAttachments).toHaveBeenCalledWith(
         requestId,
         dto,
         clientUser,

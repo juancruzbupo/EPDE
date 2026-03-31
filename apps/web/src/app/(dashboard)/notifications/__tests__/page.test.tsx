@@ -30,6 +30,19 @@ vi.mock('@/components/page-header', () => ({
   PageHeader: ({ title }: { title: string }) => <h1>{title}</h1>,
 }));
 
+vi.mock('@/components/breadcrumbs', () => ({
+  Breadcrumbs: () => <nav data-testid="breadcrumbs" />,
+}));
+
+vi.mock('@/components/empty-state', () => ({
+  EmptyState: ({ title, message }: { title: string; message: string }) => (
+    <div>
+      <h2>{title}</h2>
+      <p>{message}</p>
+    </div>
+  ),
+}));
+
 vi.mock('@/components/error-state', () => ({
   ErrorState: ({ message, onRetry }: { message: string; onRetry: () => void }) => (
     <div>

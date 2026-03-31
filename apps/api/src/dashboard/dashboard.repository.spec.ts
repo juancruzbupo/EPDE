@@ -17,6 +17,7 @@ describe('DashboardRepository', () => {
     groupBy: jest.fn(),
     aggregate: jest.fn(),
   };
+  const mockMaintenancePlanModel = { findMany: jest.fn() };
 
   beforeEach(() => {
     const prisma = {
@@ -28,6 +29,7 @@ describe('DashboardRepository', () => {
         serviceRequest: mockServiceModel,
       },
       taskLog: mockTaskLogModel,
+      maintenancePlan: mockMaintenancePlanModel,
     } as unknown as PrismaService;
 
     repository = new DashboardRepository(prisma);
@@ -122,21 +124,23 @@ describe('DashboardRepository', () => {
   describe('getClientPropertyAndPlanIds', () => {
     it('should filter properties by userId', async () => {
       mockPropertyModel.findMany.mockResolvedValue([]);
+      mockMaintenancePlanModel.findMany.mockResolvedValue([]);
 
       await repository.getClientPropertyAndPlanIds('user-1');
 
       expect(mockPropertyModel.findMany).toHaveBeenCalledWith({
         where: { userId: 'user-1' },
-        select: { id: true, maintenancePlan: { select: { id: true } } },
+        select: { id: true },
+      });
+      expect(mockMaintenancePlanModel.findMany).toHaveBeenCalledWith({
+        where: { property: { userId: 'user-1', deletedAt: null } },
+        select: { id: true },
       });
     });
 
-    it('should extract planIds and handle null maintenancePlan', async () => {
-      mockPropertyModel.findMany.mockResolvedValue([
-        { id: 'p1', maintenancePlan: { id: 'plan-1' } },
-        { id: 'p2', maintenancePlan: null },
-        { id: 'p3', maintenancePlan: { id: 'plan-3' } },
-      ]);
+    it('should extract planIds from separate queries', async () => {
+      mockPropertyModel.findMany.mockResolvedValue([{ id: 'p1' }, { id: 'p2' }, { id: 'p3' }]);
+      mockMaintenancePlanModel.findMany.mockResolvedValue([{ id: 'plan-1' }, { id: 'plan-3' }]);
 
       const result = await repository.getClientPropertyAndPlanIds('user-1');
 

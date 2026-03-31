@@ -2,6 +2,8 @@ import type { CurrentUser as CurrentUserPayload } from '@epde/shared';
 import { BudgetStatus, UserRole } from '@epde/shared';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { BudgetAttachmentsService } from './budget-attachments.service';
+import { BudgetCommentsService } from './budget-comments.service';
 import { BudgetsController } from './budgets.controller';
 import { BudgetsService } from './budgets.service';
 
@@ -37,7 +39,14 @@ describe('BudgetsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BudgetsController],
-      providers: [{ provide: BudgetsService, useValue: mockBudgetsService }],
+      providers: [
+        { provide: BudgetsService, useValue: mockBudgetsService },
+        {
+          provide: BudgetCommentsService,
+          useValue: { getComments: jest.fn(), addComment: jest.fn() },
+        },
+        { provide: BudgetAttachmentsService, useValue: { addAttachments: jest.fn() } },
+      ],
     }).compile();
 
     controller = module.get<BudgetsController>(BudgetsController);

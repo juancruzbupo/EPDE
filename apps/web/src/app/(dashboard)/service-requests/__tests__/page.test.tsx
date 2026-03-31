@@ -151,7 +151,11 @@ describe('ServiceRequestsPage', () => {
     } as unknown as ReturnType<typeof useServiceRequests>);
 
     render(<ServiceRequestsPage />);
-    expect(screen.getByText('No se encontraron solicitudes de servicio')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Todavía no tenés solicitudes. Podés crear una desde el botón 'Nueva Solicitud' o desde el detalle de una tarea.",
+      ),
+    ).toBeInTheDocument();
   });
 
   it('renders page title and service request data', () => {

@@ -35,6 +35,7 @@ describe('TaskNotesRepository', () => {
         where: { taskId: 'clx1tsk00000001' },
         include: { author: { select: { id: true, name: true } } },
         orderBy: { createdAt: 'desc' },
+        take: 50,
       });
     });
 

@@ -54,7 +54,7 @@ describe('LandingPage smoke test', () => {
 
   it('renders hero subtitle', () => {
     expect(
-      screen.getByText(/Detectamos problemas antes de que se vuelvan costosos/i),
+      screen.getByText(/Te ayudamos a identificar problemas antes de que se vuelvan costosos/i),
     ).toBeInTheDocument();
   });
 
@@ -91,9 +91,9 @@ describe('LandingPage smoke test', () => {
   });
 
   it('renders ISV block with urgency line', () => {
-    expect(screen.getByText(/Estado actual: Regular/i)).toBeInTheDocument();
-    expect(screen.getByText(/puede derivar en reparaciones costosas/i)).toBeInTheDocument();
-    expect(screen.getByText(/ya tiene problemas en desarrollo/i)).toBeInTheDocument();
+    expect(screen.getByText(/Estado actual: Bueno/i)).toBeInTheDocument();
+    expect(screen.getByText(/Mantener un ISV alto es más fácil y económico/i)).toBeInTheDocument();
+    expect(screen.getByText(/Tu casa está en buen estado/i)).toBeInTheDocument();
   });
 
   it('renders how it works with 3 steps', () => {
@@ -105,7 +105,7 @@ describe('LandingPage smoke test', () => {
 
   it('renders pricing with emotional close', () => {
     expect(screen.getByText('$35.000')).toBeInTheDocument();
-    expect(screen.getByText(/decisión simple hoy/i)).toBeInTheDocument();
+    expect(screen.getByText(/inversión pequeña hoy/i)).toBeInTheDocument();
   });
 
   it('renders 6-month access', () => {
@@ -123,7 +123,7 @@ describe('LandingPage smoke test', () => {
   });
 
   it('renders urgency with limited capacity', () => {
-    expect(screen.getByText(/número limitado de propiedades/i)).toBeInTheDocument();
+    expect(screen.getByText(/número limitado de viviendas/i)).toBeInTheDocument();
   });
 
   it('renders credentials section', () => {
@@ -131,7 +131,7 @@ describe('LandingPage smoke test', () => {
   });
 
   it('renders final CTA with loss-aversion', () => {
-    expect(screen.getByText(/No esperes a que un problema te salga caro/i)).toBeInTheDocument();
+    expect(screen.getByText(/Dormí tranquilo/i)).toBeInTheDocument();
   });
 
   it('renders WhatsApp floating button', () => {

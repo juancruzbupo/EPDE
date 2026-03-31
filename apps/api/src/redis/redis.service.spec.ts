@@ -54,7 +54,7 @@ describe('RedisService', () => {
       mockRedisInstance.get.mockResolvedValue('value-1');
 
       expect(await service.get('my-key')).toBe('value-1');
-      expect(mockRedisInstance.get).toHaveBeenCalledWith('my-key');
+      expect(mockRedisInstance.get).toHaveBeenCalledWith('epde:my-key');
     });
 
     it('should return null when key does not exist', async () => {
@@ -70,7 +70,7 @@ describe('RedisService', () => {
 
       await service.set('my-key', 'my-value');
 
-      expect(mockRedisInstance.set).toHaveBeenCalledWith('my-key', 'my-value');
+      expect(mockRedisInstance.set).toHaveBeenCalledWith('epde:my-key', 'my-value');
     });
   });
 
@@ -80,7 +80,7 @@ describe('RedisService', () => {
 
       await service.setex('my-key', 300, 'my-value');
 
-      expect(mockRedisInstance.setex).toHaveBeenCalledWith('my-key', 300, 'my-value');
+      expect(mockRedisInstance.setex).toHaveBeenCalledWith('epde:my-key', 300, 'my-value');
     });
   });
 
@@ -90,7 +90,7 @@ describe('RedisService', () => {
 
       await service.del('my-key');
 
-      expect(mockRedisInstance.del).toHaveBeenCalledWith('my-key');
+      expect(mockRedisInstance.del).toHaveBeenCalledWith('epde:my-key');
     });
   });
 
@@ -127,7 +127,7 @@ describe('RedisService', () => {
       mockRedisInstance.set.mockResolvedValue('OK');
 
       expect(await service.setnx('lock-key', 'owner', 30)).toBe(true);
-      expect(mockRedisInstance.set).toHaveBeenCalledWith('lock-key', 'owner', 'EX', 30, 'NX');
+      expect(mockRedisInstance.set).toHaveBeenCalledWith('epde:lock-key', 'owner', 'EX', 30, 'NX');
     });
 
     it('should return false when key already exists (Redis returns null)', async () => {
@@ -158,7 +158,7 @@ describe('RedisService', () => {
       const result = await service.eval('return 1', ['key1'], ['arg1', 42]);
 
       // ioredis eval signature: eval(script, numkeys, ...keys, ...args)
-      expect(mockRedisInstance.eval).toHaveBeenCalledWith('return 1', 1, 'key1', 'arg1', 42);
+      expect(mockRedisInstance.eval).toHaveBeenCalledWith('return 1', 1, 'epde:key1', 'arg1', 42);
       expect(result).toBe(1);
     });
   });

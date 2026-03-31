@@ -79,7 +79,7 @@ describe('useUnreadCount', () => {
     expect(useQuery).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
-        refetchInterval: 30_000,
+        refetchInterval: 60_000,
       }),
     );
   });
