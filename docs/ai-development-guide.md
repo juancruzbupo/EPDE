@@ -177,6 +177,8 @@
 160. **SIEMPRE #47 (migración Prisma inmediata)**: Al agregar un modelo en `schema.prisma`, ejecutar `prisma migrate dev --name <nombre>` inmediatamente y commitear la migración SQL. NUNCA deployar schema sin migración — `prisma migrate deploy` falla y la API no arranca
 161. **SIEMPRE #48 (soft-delete justification)**: NotificationsRepository usa `hasSoftDelete: false` porque las notificaciones son efímeras — se borran por limpieza periódica (deleteOldRead), no por acción del usuario. No necesitan recuperación. Documentar en JSDoc del repository si un nuevo modelo no usa soft-delete
 162. **SIEMPRE #49 (mobile API coverage)**: Mobile solo incluye API files para endpoints accesibles al rol CLIENT. Endpoints admin-only (categories, templates, clients, landing-settings, quote-templates) NO tienen API file en mobile por diseño — el admin usa la versión web
+163. **SIEMPRE #50 (landing force-dynamic)**: Landing page (`app/page.tsx`) usa `export const dynamic = 'force-dynamic'` porque fetchea settings de la API que no está disponible en build time. NUNCA usar static/ISR para la landing — causa timeout de 60s × 3 reintentos = build failure en Vercel.
+164. **SIEMPRE #51 (landing hero CTA mobile)**: El botón primario WhatsApp del hero se oculta en mobile (`hidden sm:block`) porque el sticky footer ya provee el mismo CTA. Evita duplicación visual. Desktop muestra ambos (hero + WhatsApp float). El WhatsApp float usa `hidden md:flex`.
 
 ### NUNCA
 

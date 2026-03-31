@@ -95,7 +95,7 @@ epde/
 │   │   │   ├── app/
 │   │   │   │   ├── globals.css       # Design tokens (Tailwind v4 + CSS vars)
 │   │   │   │   ├── layout.tsx        # Root layout (fonts, providers)
-│   │   │   │   ├── page.tsx          # Landing page publica
+│   │   │   │   ├── page.tsx          # Landing page publica (force-dynamic — fetches settings de la API en cada request, no pre-renderiza en build porque la API no está disponible)
 │   │   │   │   ├── error.tsx        # Root error boundary
 │   │   │   │   ├── not-found.tsx     # 404 branded page
 │   │   │   │   ├── (auth)/           # Login, set-password, forgot-password, reset-password
@@ -1088,6 +1088,14 @@ Pipeline de deploy real — ambos pipelines reusan `ci-reusable.yml` como gate:
   - `verify-deploy`: Mismo patron de health check que produccion
 - Usa `environment: production/staging` con secrets dedicados por environment
 - Archivos de deploy: `apps/api/Dockerfile` (multi-stage), `render.yaml` (staging config), `.dockerignore`
+
+**Branch strategy:**
+
+- `develop` — branch de trabajo diario. CI corre tests automáticamente.
+- `main` — producción. Solo se mergea desde develop.
+- CI (`ci.yml`) corre en ambos branches (push + PR).
+- CD producción (`cd.yml`) deploya solo desde `main`.
+- CD staging (`cd-staging.yml`) deploya solo desde `develop`.
 
 ### Turborepo Pipeline
 
