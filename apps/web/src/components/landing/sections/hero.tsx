@@ -41,7 +41,13 @@ export function HeroSection({ motionProps }: SectionProps) {
           variants={FADE_IN}
           className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
         >
-          <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+          {/* Primary CTA hidden on mobile — sticky footer handles it */}
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:block"
+          >
             <Button size="lg" className="gap-2">
               {PRIMARY_CTA_LABEL}
               <ArrowRight className="h-4 w-4" />
