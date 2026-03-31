@@ -64,7 +64,7 @@ epde/
 │   │   │   ├── task-templates/        # Templates de tareas por categoria
 │   │   │   ├── quote-templates/      # Templates de cotizacion reutilizables (CRUD)
 │   │   │   ├── category-templates/   # Templates de categorias
-│   │   │   ├── landing-settings/    # Admin edita pricing, FAQ, consequences de la landing (GET público + PATCH admin-only)
+│   │   │   ├── landing-settings/    # Admin edita general (teléfono, social proof), pricing, FAQ, consequences de la landing (GET público + PATCH admin-only)
 │   │   │   ├── notifications/        # Sistema de notificaciones (NotificationsHandlerService + BullMQ queues)
 │   │   │   ├── dashboard/            # Estadisticas agregadas (DashboardRepository standalone — queries multi-modelo)
 │   │   │   ├── email/                # Servicio de emails (Resend)
@@ -118,7 +118,7 @@ epde/
 │   │   │   │   ├── ui/               # 23 componentes shadcn/ui
 │   │   │   │   ├── data-table/       # DataTable wrapper (TanStack Table)
 │   │   │   │   ├── layout/           # Header, Sidebar (admin: incluye "Landing" item para /landing-settings)
-│   │   │   │   ├── landing/          # landing-page.tsx (composicion) + sections/ (18 archivos) + landing-data.ts. 3 secciones dinámicas (pricing, FAQ, consequences): editables desde admin panel (/landing-settings) con fallback a valores hardcoded
+│   │   │   │   ├── landing/          # landing-page.tsx (composicion) + sections/ (19 archivos) + landing-data.ts. 4 secciones dinámicas (general, pricing, FAQ, consequences): editables desde admin panel (/landing-settings) con fallback a valores hardcoded
 │   │   │   │   ├── home-status-card.tsx   # Dashboard L1: score ISV + mensaje humano
 │   │   │   │   ├── action-list.tsx        # Dashboard L2: tareas vencidas + semana
 │   │   │   │   ├── analytics-tabs.tsx     # Dashboard L3: charts en tabs

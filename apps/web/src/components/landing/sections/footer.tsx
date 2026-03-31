@@ -1,10 +1,21 @@
-import { ArrowRight } from 'lucide-react';
+import type { LandingGeneral } from '@epde/shared';
+import { Phone } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
+import { PHONE_DISPLAY, PHONE_NUMBER } from '../landing-data';
 
-import { PRIMARY_CTA_LABEL, WHATSAPP_URL } from '../landing-data';
+function formatPhoneDisplay(p: string): string {
+  const local = p.replace(/^549/, '');
+  if (local.length === 10) return `${local.slice(0, 3)} ${local.slice(3, 6)}-${local.slice(6)}`;
+  return p;
+}
 
-export function Footer() {
+interface FooterProps {
+  general?: LandingGeneral;
+}
+
+export function Footer({ general }: FooterProps) {
+  const phone = general?.phone || PHONE_NUMBER;
+  const phoneDisplay = general?.phone ? formatPhoneDisplay(general.phone) : PHONE_DISPLAY;
   return (
     <>
       <footer className="border-border border-t py-10">
@@ -34,11 +45,24 @@ export function Footer() {
               <p className="type-body-sm text-muted-foreground mt-0.5">
                 por Arq. Noelia E. Yuskowich
               </p>
+              <a
+                href={`tel:+${phone}`}
+                className="text-muted-foreground hover:text-foreground mt-2 inline-flex items-center gap-1.5 text-sm transition-colors"
+              >
+                <Phone className="h-3.5 w-3.5" />
+                {phoneDisplay}
+              </a>
             </div>
             <div className="text-center sm:text-right">
               <p className="type-body-sm text-muted-foreground">
                 Diagnóstico profesional y mantenimiento preventivo de viviendas.
               </p>
+              <a
+                href="/login"
+                className="text-muted-foreground hover:text-foreground mt-1 inline-block text-sm underline underline-offset-2 transition-colors"
+              >
+                Ya soy cliente
+              </a>
               <p className="type-body-sm text-muted-foreground/60 mt-1">
                 &copy; {new Date().getFullYear()} EPDE. Todos los derechos reservados.
               </p>
@@ -46,16 +70,6 @@ export function Footer() {
           </div>
         </div>
       </footer>
-
-      {/* Mobile Sticky CTA */}
-      <div className="border-border bg-background/95 fixed right-0 bottom-0 left-0 z-40 border-t p-3 backdrop-blur-sm md:hidden">
-        <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="block">
-          <Button size="lg" className="w-full gap-2">
-            {PRIMARY_CTA_LABEL}
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-        </a>
-      </div>
     </>
   );
 }

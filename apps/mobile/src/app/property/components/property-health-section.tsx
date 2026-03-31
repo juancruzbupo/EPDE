@@ -32,15 +32,31 @@ function scoreBgClass(value: number): string {
 
 /* ── Dimensions config ── */
 const DIMENSIONS = [
-  { key: 'compliance' as const, name: 'Cumplimiento', hint: 'Tareas al d\u00eda' },
+  {
+    key: 'compliance' as const,
+    name: '\u00bfEst\u00e1s al d\u00eda?',
+    hint: 'Tareas completadas a tiempo',
+  },
   {
     key: 'condition' as const,
-    name: 'Condici\u00f3n',
-    hint: 'Estado en \u00faltimas inspecciones',
+    name: '\u00bfEn qu\u00e9 estado est\u00e1?',
+    hint: 'Condici\u00f3n en \u00faltimas inspecciones',
   },
-  { key: 'coverage' as const, name: 'Cobertura', hint: 'Sectores revisados' },
-  { key: 'investment' as const, name: 'Inversi\u00f3n', hint: 'Prevenci\u00f3n vs reparaciones' },
-  { key: 'trend' as const, name: 'Tendencia', hint: 'Comparaci\u00f3n con trimestre anterior' },
+  {
+    key: 'coverage' as const,
+    name: '\u00bfCu\u00e1nto revisamos?',
+    hint: 'Sectores inspeccionados',
+  },
+  {
+    key: 'investment' as const,
+    name: '\u00bfPreven\u00eds o repar\u00e1s?',
+    hint: 'Prevenci\u00f3n vs reparaciones',
+  },
+  {
+    key: 'trend' as const,
+    name: '\u00bfMejora o empeora?',
+    hint: 'Comparaci\u00f3n con trimestre anterior',
+  },
 ] as const;
 
 /* ── Health Section ── */

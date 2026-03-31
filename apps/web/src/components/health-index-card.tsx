@@ -9,14 +9,23 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const DIMENSION_LABELS = {
-  compliance: { name: 'Cumplimiento', hint: 'Tareas al día (ponderado por prioridad)' },
-  condition: { name: 'Condición', hint: 'Estado encontrado en últimas inspecciones' },
-  coverage: { name: 'Cobertura', hint: 'Sectores inspeccionados en últimos 12 meses' },
+  compliance: {
+    name: '¿Estás al día?',
+    hint: 'Tareas completadas a tiempo, ponderadas por prioridad',
+  },
+  condition: {
+    name: '¿En qué estado está?',
+    hint: 'Condición encontrada en las últimas inspecciones',
+  },
+  coverage: {
+    name: '¿Cuánto revisamos?',
+    hint: 'Sectores de tu casa inspeccionados en los últimos 12 meses',
+  },
   investment: {
-    name: 'Inversión',
+    name: '¿Prevenís o reparás?',
     hint: '¿Gastás más en prevención (inspecciones) o en reparaciones? Ideal: más prevención',
   },
-  trend: { name: 'Tendencia', hint: 'Comparación con trimestre anterior' },
+  trend: { name: '¿Mejora o empeora?', hint: 'Comparación con el trimestre anterior' },
 } as const;
 
 function scoreColor(score: number): string {

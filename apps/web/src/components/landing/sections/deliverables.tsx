@@ -9,7 +9,7 @@ import { DIAGNOSIS_INCLUDES, WHATSAPP_URL } from '../landing-data';
 
 export function DeliverablesSection({ motionProps }: SectionProps) {
   return (
-    <section className="bg-muted/30 py-20 md:py-28">
+    <section id="que-incluye" className="bg-muted/30 py-20 md:py-28">
       <motion.div variants={STAGGER_CONTAINER} {...motionProps} className="mx-auto max-w-3xl px-4">
         <motion.p
           variants={FADE_IN}

@@ -63,7 +63,7 @@ El menú lateral del admin tiene **9 módulos**:
 | **Servicios**    | `/service-requests` | Solicitudes de servicio de los clientes                                        |
 | **Categorías**   | `/categories`       | Administrar las 14 categorías de mantenimiento                                 |
 | **Plantillas**   | `/templates`        | Administrar las plantillas de tareas predefinidas                              |
-| **Landing**      | `/landing-settings` | Modificar precios, FAQ y ejemplos de la página de venta                        |
+| **Landing**      | `/landing-settings` | Modificar teléfono, prueba social, precios, FAQ y costos de la página de venta |
 
 ---
 
@@ -486,13 +486,19 @@ ABIERTA (cliente reporta problema)
 
 ## 11. Configuración de la landing page
 
-Desde **Landing** en el menú lateral, se pueden editar tres secciones:
+Desde **Landing** en el menú lateral, se pueden editar cuatro secciones:
+
+### General
+
+- **Teléfono** — número completo con código de país (ej: `5493435043696`). Se muestra formateado en el header y footer de la landing (ej: "343 504-3696")
+- **Prueba social** — texto que aparece en el hero de la landing (ej: "Ya estamos trabajando con las primeras viviendas en Paraná"). Actualizar a medida que crece el negocio: "3 viviendas diagnosticadas en Paraná", "10 familias confían en EPDE", etc.
 
 ### Precios
 
 - **Precio de lanzamiento** — el precio que se muestra en la sección de inversión (ej: "$35.000")
-- **Nota de precio** — texto aclaratorio debajo del precio (ej: "Para viviendas de hasta 150m²")
+- **Nota de precio** — texto aclaratorio debajo del precio (ej: "Válido para viviendas de tamaño estándar...")
 - **Texto de suscripción** — microcopy sobre la suscripción incluida
+- **Disclaimer de costos** — texto legal sobre los costos estimados
 
 ### Preguntas frecuentes
 
@@ -503,8 +509,8 @@ Desde **Landing** en el menú lateral, se pueden editar tres secciones:
 ### Ejemplos de consecuencias
 
 - Agregar/editar/eliminar ejemplos de problemas detectados
-- Cada ejemplo tiene: título, descripción, consecuencia si no se atiende
-- Se muestran en la sección "Problemas detectados" de la landing
+- Cada ejemplo tiene: problema, costo preventivo, costo de emergencia
+- Se muestran en la sección de consecuencias de la landing
 
 > Los cambios se reflejan automáticamente en la landing page sin necesidad de deploy.
 
@@ -779,13 +785,13 @@ Colapsada por defecto con botón "Ver estadísticas detalladas". Al expandir:
 
 **5 dimensiones** (cada una 0-100 con barra visual):
 
-| Dimensión    | Tooltip explicativo                                                  |
-| ------------ | -------------------------------------------------------------------- |
-| Cumplimiento | "Tareas al día (ponderado por prioridad)"                            |
-| Condición    | "Estado encontrado en últimas inspecciones"                          |
-| Cobertura    | "Sectores inspeccionados en últimos 12 meses"                        |
-| Inversión    | "¿Gastás más en prevención o en reparaciones? Ideal: más prevención" |
-| Tendencia    | Flecha arriba/abajo/derecha + "Mejorando" / "Declinando" / "Estable" |
+| Dimensión            | Tooltip explicativo                                                  |
+| -------------------- | -------------------------------------------------------------------- |
+| ¿Estás al día?       | "Tareas completadas a tiempo, ponderadas por prioridad"              |
+| ¿En qué estado está? | "Condición encontrada en las últimas inspecciones"                   |
+| ¿Cuánto revisamos?   | "Sectores de tu casa inspeccionados en los últimos 12 meses"         |
+| ¿Prevenís o reparás? | "¿Gastás más en prevención o en reparaciones? Ideal: más prevención" |
+| ¿Mejora o empeora?   | Flecha arriba/abajo/derecha + "Mejorando" / "Declinando" / "Estable" |
 
 **Puntaje por sector:**
 
@@ -1158,13 +1164,13 @@ Todas las listas cargan más elementos automáticamente al llegar al final (sin 
 
 El ISV es un puntaje de **0 a 100** que mide la salud general de la vivienda. Se compone de 4 dimensiones ponderadas + 1 de tendencia:
 
-| Dimensión        | Peso        | Qué mide                                                            |
-| ---------------- | ----------- | ------------------------------------------------------------------- |
-| **Cumplimiento** | 35%         | % de tareas prioritarias al día                                     |
-| **Condición**    | 30%         | Promedio de condición encontrada en inspecciones (últimos 12 meses) |
-| **Cobertura**    | 20%         | % de sectores inspeccionados en los últimos 12 meses                |
-| **Inversión**    | 15%         | % de acciones preventivas vs correctivas                            |
-| **Tendencia**    | (indicador) | Comparación de condición últimos 3 meses vs 3 meses anteriores      |
+| Dimensión (label en la app) | Peso        | Qué mide                                                            |
+| --------------------------- | ----------- | ------------------------------------------------------------------- |
+| **¿Estás al día?**          | 35%         | % de tareas prioritarias al día                                     |
+| **¿En qué estado está?**    | 30%         | Promedio de condición encontrada en inspecciones (últimos 12 meses) |
+| **¿Cuánto revisamos?**      | 20%         | % de sectores inspeccionados en los últimos 12 meses                |
+| **¿Prevenís o reparás?**    | 15%         | % de acciones preventivas vs correctivas                            |
+| **¿Mejora o empeora?**      | (indicador) | Comparación de condición últimos 3 meses vs 3 meses anteriores      |
 
 ### Escala de puntaje
 
@@ -1184,10 +1190,10 @@ El ISV es un puntaje de **0 a 100** que mide la salud general de la vivienda. Se
 
 ### Cómo mejorar el ISV de un cliente
 
-1. **Cumplimiento (35%):** Asegurar que las tareas de alta prioridad se completen a tiempo
-2. **Condición (30%):** Registrar condiciones "Bueno" o "Excelente" en las inspecciones
-3. **Cobertura (20%):** Inspeccionar todos los sectores de la propiedad al menos 1 vez al año
-4. **Inversión (15%):** Realizar más acciones preventivas (inspección, limpieza, ajuste) que correctivas
+1. **¿Estás al día? (35%):** Asegurar que las tareas de alta prioridad se completen a tiempo
+2. **¿En qué estado está? (30%):** Registrar condiciones "Bueno" o "Excelente" en las inspecciones
+3. **¿Cuánto revisamos? (20%):** Inspeccionar todos los sectores de la propiedad al menos 1 vez al año
+4. **¿Prevenís o reparás? (15%):** Realizar más acciones preventivas (inspección, limpieza, ajuste) que correctivas
 
 ---
 

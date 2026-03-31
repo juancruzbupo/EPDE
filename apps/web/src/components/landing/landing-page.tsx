@@ -1,9 +1,13 @@
 'use client';
 
-import type { LandingConsequenceExample, LandingFaqItem, LandingPricing } from '@epde/shared';
+import type {
+  LandingConsequenceExample,
+  LandingFaqItem,
+  LandingGeneral,
+  LandingPricing,
+} from '@epde/shared';
 
 import { useMotionPreference } from '@/lib/motion';
-import { useAuthStore } from '@/stores/auth-store';
 
 import { ConsequenceSection } from './sections/consequence';
 import { CredentialsSection } from './sections/credentials';
@@ -19,6 +23,7 @@ import { HowItWorksSection } from './sections/how-it-works';
 import { InvestmentSection } from './sections/investment';
 import { IsvBlockSection } from './sections/isv-block';
 import { ProblemsSection } from './sections/problems';
+import { ScrollToTop } from './sections/scroll-to-top';
 import { SolutionSection } from './sections/solution';
 import { TargetAudienceSection } from './sections/target-audience';
 import { UrgencySection } from './sections/urgency';
@@ -29,16 +34,12 @@ interface LandingPageProps {
     pricing?: LandingPricing;
     faq?: LandingFaqItem[];
     consequences?: LandingConsequenceExample[];
+    general?: LandingGeneral;
   } | null;
 }
 
 export function LandingPage({ settings }: LandingPageProps) {
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isLoading = useAuthStore((s) => s.isLoading);
   const { shouldAnimate } = useMotionPreference();
-
-  const ctaHref = isLoading ? '/login' : isAuthenticated ? '/dashboard' : '/login';
-  const ctaLabel = isAuthenticated ? 'Ir al Dashboard' : 'Iniciar Sesión';
 
   const motionProps = shouldAnimate
     ? {
@@ -49,10 +50,10 @@ export function LandingPage({ settings }: LandingPageProps) {
     : {};
 
   return (
-    <div className="landing flex min-h-screen flex-col pb-16 md:pb-0">
-      <Header ctaHref={ctaHref} ctaLabel={ctaLabel} />
+    <div className="landing flex min-h-screen flex-col">
+      <Header general={settings?.general} />
       {/* 1. Hook — por qué importa */}
-      <HeroSection motionProps={motionProps} />
+      <HeroSection motionProps={motionProps} socialProof={settings?.general?.socialProof} />
       {/* 2. Problema — deterioro invisible */}
       <ProblemsSection motionProps={motionProps} />
       {/* 3. Consecuencia — cuánto sale no prevenir */}
@@ -85,8 +86,9 @@ export function LandingPage({ settings }: LandingPageProps) {
       <UrgencySection motionProps={motionProps} />
       {/* 14. CTA final */}
       <FinalCtaSection motionProps={motionProps} price={settings?.pricing?.price} />
-      <Footer />
-      {/* Floating WhatsApp */}
+      <Footer general={settings?.general} />
+      {/* Floating buttons */}
+      <ScrollToTop />
       <WhatsAppFloat />
     </div>
   );

@@ -259,3 +259,6 @@ export const COST_DISCLAIMER =
 // ---------------------------------------------------------------------------
 
 export const PRIMARY_CTA_LABEL = 'Quiero saber cómo está mi casa';
+
+export const PHONE_NUMBER = '5493435043696';
+export const PHONE_DISPLAY = '343 504-3696';

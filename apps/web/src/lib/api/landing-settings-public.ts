@@ -1,4 +1,9 @@
-import type { LandingConsequenceExample, LandingFaqItem, LandingPricing } from '@epde/shared';
+import type {
+  LandingConsequenceExample,
+  LandingFaqItem,
+  LandingGeneral,
+  LandingPricing,
+} from '@epde/shared';
 
 /**
  * Fetches landing settings from the API (public endpoint, no auth needed).
@@ -9,6 +14,7 @@ export async function fetchLandingSettings(): Promise<{
   pricing?: LandingPricing;
   faq?: LandingFaqItem[];
   consequences?: LandingConsequenceExample[];
+  general?: LandingGeneral;
 } | null> {
   try {
     const apiUrl = process.env.API_PROXY_TARGET || 'http://localhost:3001';

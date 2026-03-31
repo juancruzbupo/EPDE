@@ -1,6 +1,11 @@
 'use client';
 
-import type { LandingConsequenceExample, LandingFaqItem, LandingPricing } from '@epde/shared';
+import type {
+  LandingConsequenceExample,
+  LandingFaqItem,
+  LandingGeneral,
+  LandingPricing,
+} from '@epde/shared';
 import { UserRole } from '@epde/shared';
 import { Pencil, Plus, Save, Trash2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -72,6 +77,107 @@ const DEFAULT_CONSEQUENCES: LandingConsequenceExample[] = [
     emergency: '$1.200.000 – $3.500.000',
   },
 ];
+
+const DEFAULT_GENERAL: LandingGeneral = {
+  phone: '5493435043696',
+  socialProof: 'Ya estamos trabajando con las primeras viviendas en Paraná',
+};
+
+// ─── General Card ──────────────────────────────────────────
+
+function GeneralCard({
+  data,
+  onSave,
+  isPending,
+}: {
+  data: LandingGeneral;
+  onSave: (value: LandingGeneral) => void;
+  isPending: boolean;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState(data);
+
+  useEffect(() => setForm(data), [data]);
+
+  const startEditing = () => {
+    setForm(data);
+    setEditing(true);
+  };
+
+  if (!editing) {
+    return (
+      <Card>
+        <CardHeader className="flex-row items-center justify-between">
+          <CardTitle>General</CardTitle>
+          <Button variant="outline" size="sm" onClick={startEditing}>
+            <Pencil className="mr-2 h-4 w-4" />
+            Editar
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <div>
+            <p className="type-label-md text-muted-foreground">Teléfono</p>
+            <p className="font-medium">{data.phone}</p>
+          </div>
+          <div>
+            <p className="type-label-md text-muted-foreground">Prueba social (hero)</p>
+            <p className="font-medium">{data.socialProof}</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Editar General</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label>Teléfono (formato: 5493435043696)</Label>
+          <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+          <p className="type-body-sm text-muted-foreground">
+            Número completo con código de país (54) y código de área. Se muestra en header y footer.
+          </p>
+        </div>
+        <div className="space-y-2">
+          <Label>Texto de prueba social</Label>
+          <Input
+            value={form.socialProof}
+            onChange={(e) => setForm({ ...form, socialProof: e.target.value })}
+          />
+          <p className="type-body-sm text-muted-foreground">
+            Se muestra en el hero de la landing. Ej: &quot;3 viviendas diagnosticadas en
+            Paraná&quot;, &quot;10 familias confían en EPDE&quot;
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => {
+              onSave(form);
+              setEditing(false);
+            }}
+            disabled={isPending}
+          >
+            <Save className="mr-2 h-4 w-4" />
+            Guardar
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setForm(data);
+              setEditing(false);
+            }}
+          >
+            <X className="mr-2 h-4 w-4" />
+            Cancelar
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 // ─── Pricing Card ──────────────────────────────────────────
 
@@ -414,6 +520,7 @@ export default function LandingSettingsPage() {
     );
   }
 
+  const general: LandingGeneral = (settings?.data?.general as LandingGeneral) ?? DEFAULT_GENERAL;
   const pricing: LandingPricing = (settings?.data?.pricing as LandingPricing) ?? DEFAULT_PRICING;
   const faq: LandingFaqItem[] = (settings?.data?.faq as LandingFaqItem[]) ?? DEFAULT_FAQ;
   const consequences: LandingConsequenceExample[] =
@@ -436,6 +543,11 @@ export default function LandingSettingsPage() {
         <ErrorState message="No se pudo cargar la configuración" onRetry={refetch} />
       ) : (
         <div className="space-y-6">
+          <GeneralCard
+            data={general}
+            onSave={(value) => updateSetting.mutate({ key: 'general', value })}
+            isPending={updateSetting.isPending}
+          />
           <PricingCard
             data={pricing}
             onSave={(value) => updateSetting.mutate({ key: 'pricing', value })}

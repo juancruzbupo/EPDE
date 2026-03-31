@@ -4,9 +4,9 @@ import { Prisma } from '@prisma/client';
 
 import { LandingSettingsRepository } from './landing-settings.repository';
 
-export type LandingSettingsKey = 'pricing' | 'faq' | 'consequences';
+export type LandingSettingsKey = 'pricing' | 'faq' | 'consequences' | 'general';
 
-const VALID_KEYS: LandingSettingsKey[] = ['pricing', 'faq', 'consequences'];
+const VALID_KEYS: LandingSettingsKey[] = ['pricing', 'faq', 'consequences', 'general'];
 
 @Injectable()
 export class LandingSettingsService {

@@ -15,3 +15,8 @@ export interface LandingConsequenceExample {
   preventive: string;
   emergency: string;
 }
+
+export interface LandingGeneral {
+  phone: string;
+  socialProof: string;
+}

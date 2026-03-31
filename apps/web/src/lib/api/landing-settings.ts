@@ -1,4 +1,9 @@
-import type { LandingConsequenceExample, LandingFaqItem, LandingPricing } from '@epde/shared';
+import type {
+  LandingConsequenceExample,
+  LandingFaqItem,
+  LandingGeneral,
+  LandingPricing,
+} from '@epde/shared';
 
 import { apiClient } from '../api-client';
 
@@ -7,6 +12,7 @@ export async function getLandingSettings(): Promise<{
     pricing?: LandingPricing;
     faq?: LandingFaqItem[];
     consequences?: LandingConsequenceExample[];
+    general?: LandingGeneral;
   };
 }> {
   const { data } = await apiClient.get('/landing-settings');

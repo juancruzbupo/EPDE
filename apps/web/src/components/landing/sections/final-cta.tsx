@@ -13,7 +13,7 @@ interface FinalCtaSectionProps extends SectionProps {
 
 export function FinalCtaSection({ motionProps, price }: FinalCtaSectionProps) {
   return (
-    <section className="bg-foreground py-20 md:py-28">
+    <section id="contacto" className="bg-foreground py-20 md:py-28">
       <motion.div
         variants={STAGGER_CONTAINER}
         {...motionProps}

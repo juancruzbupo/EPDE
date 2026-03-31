@@ -24,7 +24,7 @@ export class LandingSettingsController {
   @Roles(UserRole.ADMIN)
   @Patch(':key')
   async update(
-    @Param('key') key: 'pricing' | 'faq' | 'consequences',
+    @Param('key') key: 'pricing' | 'faq' | 'consequences' | 'general',
     @Body() body: { value: unknown },
     @CurrentUser() user: CurrentUserType,
   ) {

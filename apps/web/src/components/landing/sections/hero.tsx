@@ -7,7 +7,13 @@ import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER } from '@/lib/motion';
 import type { SectionProps } from '../landing-data';
 import { PRIMARY_CTA_LABEL, WHATSAPP_URL } from '../landing-data';
 
-export function HeroSection({ motionProps }: SectionProps) {
+const DEFAULT_SOCIAL_PROOF = 'Ya estamos trabajando con las primeras viviendas en Paraná';
+
+interface HeroSectionProps extends SectionProps {
+  socialProof?: string;
+}
+
+export function HeroSection({ motionProps, socialProof }: HeroSectionProps) {
   return (
     <section className="pt-28 pb-20 md:pt-44 md:pb-28">
       <motion.div
@@ -41,13 +47,7 @@ export function HeroSection({ motionProps }: SectionProps) {
           variants={FADE_IN}
           className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
         >
-          {/* Primary CTA hidden on mobile — sticky footer handles it */}
-          <a
-            href={WHATSAPP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:block"
-          >
+          <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
             <Button size="lg" className="gap-2">
               {PRIMARY_CTA_LABEL}
               <ArrowRight className="h-4 w-4" />
@@ -79,7 +79,7 @@ export function HeroSection({ motionProps }: SectionProps) {
           variants={FADE_IN}
           className="type-body-sm text-primary mx-auto mt-6 max-w-md rounded-full border border-current/20 bg-current/5 px-4 py-1.5 font-medium"
         >
-          Ya estamos trabajando con las primeras viviendas en Paraná
+          {socialProof || DEFAULT_SOCIAL_PROOF}
         </motion.p>
       </motion.div>
     </section>
