@@ -46,7 +46,7 @@ function IsvGauge() {
           x="60"
           y="67"
           textAnchor="middle"
-          className="fill-muted-foreground text-[8px] tracking-widest uppercase"
+          className="fill-muted-foreground text-[11px] tracking-widest uppercase"
         >
           de 100
         </text>

@@ -16,7 +16,7 @@ export function HeroSection({ motionProps }: SectionProps) {
         className="mx-auto max-w-5xl px-4 text-center"
       >
         {/* Micro-hook */}
-        <motion.p variants={FADE_IN} className="type-body-md text-foreground/70 mb-4 font-medium">
+        <motion.p variants={FADE_IN} className="type-body-md text-foreground/90 mb-4 font-medium">
           La mayoría de las casas tiene problemas que no se ven.
         </motion.p>
 

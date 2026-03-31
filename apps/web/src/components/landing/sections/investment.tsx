@@ -77,7 +77,7 @@ export function InvestmentSection({ motionProps, pricing }: InvestmentSectionPro
           </div>
 
           {/* Emotional close before CTA */}
-          <p className="type-body-sm text-foreground/70 mx-auto mt-6 max-w-xs font-medium italic">
+          <p className="type-body-sm text-foreground/90 mx-auto mt-6 max-w-xs font-medium">
             Una inversión pequeña hoy para proteger tu patrimonio a largo plazo.
           </p>
 
