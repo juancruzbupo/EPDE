@@ -20,6 +20,17 @@ export default [
     },
   },
   {
+    // User-uploaded photos use <img> because next/image doesn't support blob: URLs
+    // or arbitrary R2/S3 domains without explicit whitelisting in next.config.ts.
+    files: [
+      'src/app/(dashboard)/service-requests/**/*.tsx',
+      'src/app/(dashboard)/properties/**/*.tsx',
+    ],
+    rules: {
+      '@next/next/no-img-element': 'off',
+    },
+  },
+  {
     ignores: ['node_modules/', '.next/', 'dist/'],
   },
 ];

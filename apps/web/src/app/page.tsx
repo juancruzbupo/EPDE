@@ -3,6 +3,9 @@ import type { Metadata } from 'next';
 import { LandingPage } from '@/components/landing/landing-page';
 import { fetchLandingSettings } from '@/lib/api/landing-settings-public';
 
+/** Force dynamic rendering — landing fetches settings from API which is not available at build time. */
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'EPDE — Diagnóstico Profesional de Viviendas | Mantenimiento Preventivo',
   description:

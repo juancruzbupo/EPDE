@@ -31,7 +31,9 @@ vi.mock('@/stores/auth-store', () => ({
 }));
 
 vi.mock('next/image', () => ({
-  default: (props: Record<string, unknown>) => <img {...props} />,
+  default: ({ src, alt, ...props }: Record<string, unknown>) => (
+    <img src={src as string} alt={(alt as string) ?? ''} {...props} />
+  ),
 }));
 
 import { LandingPage } from '../landing-page';
