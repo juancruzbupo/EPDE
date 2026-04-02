@@ -21,26 +21,26 @@ export function HeroSection({ motionProps, socialProof }: HeroSectionProps) {
         {...motionProps}
         className="mx-auto max-w-5xl px-4 text-center"
       >
-        {/* Micro-hook */}
-        <motion.p variants={FADE_IN} className="type-body-md text-foreground/90 mb-4 font-medium">
-          La mayoría de las casas tiene problemas que no se ven.
+        {/* What is EPDE — immediate clarity */}
+        <motion.p variants={FADE_IN} className="type-body-md text-primary mb-4 font-medium">
+          Diagnóstico profesional + plan de mantenimiento para tu vivienda
         </motion.p>
 
         <motion.h1
           variants={FADE_IN_UP}
           className="font-heading text-foreground text-4xl leading-[1.1] tracking-tight sm:text-5xl sm:leading-[1.15] md:text-6xl lg:text-7xl lg:leading-[1.12]"
         >
-          Podés estar perdiendo plata
+          Sabé en qué estado está tu casa
           <br />
-          <span className="text-primary">en tu casa sin darte cuenta.</span>
+          <span className="text-primary">antes de que sea tarde.</span>
         </motion.h1>
 
         <motion.p
           variants={FADE_IN}
           className="type-body-lg text-foreground/80 mx-auto mt-6 max-w-2xl font-medium"
         >
-          Te ayudamos a identificar problemas antes de que se vuelvan costosos y organizamos todo el
-          mantenimiento de tu vivienda. Vos tomás las decisiones, nosotros hacemos el seguimiento.
+          Una arquitecta inspecciona tu vivienda, detecta problemas ocultos y te arma un plan claro
+          de mantenimiento. Vos decidís, nosotros hacemos el seguimiento.
         </motion.p>
 
         <motion.div

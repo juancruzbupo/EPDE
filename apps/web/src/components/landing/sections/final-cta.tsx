@@ -23,15 +23,14 @@ export function FinalCtaSection({ motionProps, price }: FinalCtaSectionProps) {
           variants={FADE_IN_UP}
           className="font-heading text-background text-3xl sm:text-4xl"
         >
-          Dormí tranquilo. Tu casa está bajo control.
+          Tu casa necesita atención profesional.
         </motion.h2>
         <motion.p
           variants={FADE_IN}
           className="type-body-lg text-background/70 mx-auto mt-6 max-w-lg"
         >
-          Un diagnóstico EPDE te muestra el estado real de tu vivienda y organiza todo lo que
-          necesita. Mientras vos seguís con tu vida, nosotros cuidamos tu casa. Por{' '}
-          {price ?? LAUNCH_PRICE}, una sola vez.
+          Por {price ?? LAUNCH_PRICE}, una arquitecta inspecciona tu vivienda y te arma un plan
+          completo de mantenimiento.
         </motion.p>
         <motion.div variants={FADE_IN} className="mt-8">
           <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
@@ -41,7 +40,7 @@ export function FinalCtaSection({ motionProps, price }: FinalCtaSectionProps) {
             </Button>
           </a>
           <p className="type-body-sm text-background/40 mt-3">
-            Sin compromiso. Respondemos en menos de 24 horas.
+            Cupos limitados por semana. Respondemos en menos de 24 horas.
           </p>
         </motion.div>
       </motion.div>

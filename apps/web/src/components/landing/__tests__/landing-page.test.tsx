@@ -26,10 +26,6 @@ vi.mock('@/lib/motion', async (importOriginal) => {
   };
 });
 
-vi.mock('@/stores/auth-store', () => ({
-  useAuthStore: () => ({ isAuthenticated: false, isLoading: false }),
-}));
-
 vi.mock('next/image', () => ({
   default: ({ src, alt, ...props }: Record<string, unknown>) => (
     <img src={src as string} alt={(alt as string) ?? ''} {...props} />
@@ -43,19 +39,20 @@ describe('LandingPage smoke test', () => {
     render(<LandingPage />);
   });
 
-  it('renders hero micro-hook', () => {
-    expect(screen.getByText(/casas tiene problemas que no se ven/i)).toBeInTheDocument();
+  it('renders hero with EPDE explanation', () => {
+    expect(
+      screen.getByText(/Diagnóstico profesional \+ plan de mantenimiento/i),
+    ).toBeInTheDocument();
   });
 
   it('renders hero headline', () => {
-    expect(screen.getByText(/perdiendo plata/i)).toBeInTheDocument();
-    expect(screen.getByText(/en tu casa sin darte cuenta/i)).toBeInTheDocument();
+    expect(screen.getByText(/Sabé en qué estado está tu casa/i)).toBeInTheDocument();
+    expect(screen.getByText(/antes de que sea tarde/i)).toBeInTheDocument();
   });
 
   it('renders hero subtitle', () => {
-    expect(
-      screen.getByText(/Te ayudamos a identificar problemas antes de que se vuelvan costosos/i),
-    ).toBeInTheDocument();
+    const matches = screen.getAllByText(/arquitecta inspecciona tu vivienda/i);
+    expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders social proof badge', () => {
@@ -63,37 +60,17 @@ describe('LandingPage smoke test', () => {
   });
 
   it('renders unified CTA label', () => {
-    const ctas = screen.getAllByText(/Quiero saber cómo está mi casa/i);
+    const ctas = screen.getAllByText(/Pedir diagnóstico/i);
     expect(ctas.length).toBeGreaterThanOrEqual(3);
   });
 
-  it('renders WhatsApp links in hero and pricing', () => {
+  it('renders WhatsApp links', () => {
     const waLinks = screen.getAllByText(/Hablar por WhatsApp/i);
     expect(waLinks.length).toBeGreaterThanOrEqual(2);
   });
 
   it('renders secondary CTA', () => {
     expect(screen.getByText(/Ver cómo funciona/i)).toBeInTheDocument();
-  });
-
-  it('renders problem section', () => {
-    expect(screen.getByText(/Tu casa se deteriora sin que lo notes/i)).toBeInTheDocument();
-  });
-
-  it('renders consequence section with inaction block', () => {
-    expect(screen.getByText(/filtración no detectada/i)).toBeInTheDocument();
-    expect(screen.getByText(/Si no hacés mantenimiento preventivo/i)).toBeInTheDocument();
-  });
-
-  it('renders solution section with psychological reinforcement', () => {
-    expect(screen.getByText(/diagnóstico \+ sistema \+ prevención/i)).toBeInTheDocument();
-    expect(screen.getByText(/No es una reparación/i)).toBeInTheDocument();
-  });
-
-  it('renders ISV block with urgency line', () => {
-    expect(screen.getByText(/Estado actual: Bueno/i)).toBeInTheDocument();
-    expect(screen.getByText(/Mantener un ISV alto es más fácil y económico/i)).toBeInTheDocument();
-    expect(screen.getByText(/Tu casa está en buen estado/i)).toBeInTheDocument();
   });
 
   it('renders how it works with 3 steps', () => {
@@ -103,35 +80,25 @@ describe('LandingPage smoke test', () => {
     expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('renders pricing with emotional close', () => {
+  it('renders pricing with benefits', () => {
     expect(screen.getByText('$35.000')).toBeInTheDocument();
-    expect(screen.getByText(/inversión pequeña hoy/i)).toBeInTheDocument();
+    expect(screen.getByText(/Tu diagnóstico incluye/i)).toBeInTheDocument();
   });
 
-  it('renders 6-month access', () => {
-    const matches = screen.getAllByText(/acceso al sistema EPDE por 6 meses/i);
-    expect(matches.length).toBeGreaterThanOrEqual(1);
-  });
-
-  it('renders subscription microcopy', () => {
-    expect(screen.getByText(/continuar con el monitoreo mensual/i)).toBeInTheDocument();
-  });
-
-  it('renders interventions note', () => {
-    const matches = screen.getAllByText(/intervenciones específicas se cotizan aparte/i);
-    expect(matches.length).toBeGreaterThanOrEqual(1);
-  });
-
-  it('renders urgency with limited capacity', () => {
-    expect(screen.getByText(/número limitado de viviendas/i)).toBeInTheDocument();
+  it('renders consequence section', () => {
+    expect(screen.getByText(/Detectar tarde siempre sale más caro/i)).toBeInTheDocument();
   });
 
   it('renders credentials section', () => {
     expect(screen.getByText(/Arquitecta matriculada/i)).toBeInTheDocument();
   });
 
-  it('renders final CTA with loss-aversion', () => {
-    expect(screen.getByText(/Dormí tranquilo/i)).toBeInTheDocument();
+  it('renders differentiation section', () => {
+    expect(screen.getByText(/Forma tradicional vs\. EPDE/i)).toBeInTheDocument();
+  });
+
+  it('renders final CTA', () => {
+    expect(screen.getByText(/Tu casa necesita atención profesional/i)).toBeInTheDocument();
   });
 
   it('renders WhatsApp floating button', () => {

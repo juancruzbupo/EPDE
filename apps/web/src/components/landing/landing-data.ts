@@ -258,7 +258,7 @@ export const COST_DISCLAIMER =
 // CTA labels (unified across sections)
 // ---------------------------------------------------------------------------
 
-export const PRIMARY_CTA_LABEL = 'Quiero saber cómo está mi casa';
+export const PRIMARY_CTA_LABEL = 'Pedir diagnóstico';
 
 export const PHONE_NUMBER = '5493435043696';
 export const PHONE_DISPLAY = '343 504-3696';

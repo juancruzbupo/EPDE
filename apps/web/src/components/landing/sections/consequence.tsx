@@ -26,7 +26,7 @@ export function ConsequenceSection({
             variants={FADE_IN}
             className="type-label-md text-destructive tracking-widest uppercase"
           >
-            La consecuencia
+            Por qué prevenir
           </motion.p>
           <motion.h2
             variants={FADE_IN_UP}
@@ -34,13 +34,6 @@ export function ConsequenceSection({
           >
             Detectar tarde siempre sale más caro.
           </motion.h2>
-          <motion.p
-            variants={FADE_IN}
-            className="type-body-lg text-muted-foreground mx-auto mt-4 max-w-2xl"
-          >
-            Una filtración no detectada puede convertirse en un problema mucho más caro. Estos son
-            ejemplos reales de la diferencia entre actuar a tiempo y no hacerlo.
-          </motion.p>
         </div>
 
         <div className="mt-10 space-y-4">
@@ -65,41 +58,9 @@ export function ConsequenceSection({
           ))}
         </div>
 
-        {/* Inaction consequences */}
-        <motion.div
-          variants={FADE_IN}
-          className="border-destructive/20 bg-destructive/[0.03] mx-auto mt-10 max-w-lg rounded-xl border p-6"
-        >
-          <p className="type-body-md text-foreground font-medium">
-            Si no hacés mantenimiento preventivo:
-          </p>
-          <ul className="type-body-sm text-muted-foreground mt-3 space-y-2">
-            <li className="flex items-start gap-2">
-              <span className="text-destructive mt-1.5 block h-1.5 w-1.5 shrink-0 rounded-full bg-current" />
-              Los problemas aparecen tarde, cuando ya son caros
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-destructive mt-1.5 block h-1.5 w-1.5 shrink-0 rounded-full bg-current" />
-              Los costos aumentan con cada mes sin revisión
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-destructive mt-1.5 block h-1.5 w-1.5 shrink-0 rounded-full bg-current" />
-              Terminás reaccionando en lugar de prevenir
-            </li>
-          </ul>
-        </motion.div>
-
         <motion.p
           variants={FADE_IN}
-          className="type-body-lg text-foreground mx-auto mt-8 max-w-2xl text-center font-medium"
-        >
-          Por $35.000 de diagnóstico, podés evitar reparaciones de millones. EPDE existe para que
-          estos números no te toquen a vos.
-        </motion.p>
-
-        <motion.p
-          variants={FADE_IN}
-          className="type-body-sm text-muted-foreground/70 mx-auto mt-4 max-w-3xl text-center"
+          className="type-body-sm text-muted-foreground/70 mx-auto mt-6 max-w-3xl text-center"
         >
           {disclaimer}
         </motion.p>
