@@ -84,10 +84,11 @@ import { RedisModule } from '../redis/redis.module';
     MetricsModule,
     RequestCacheModule,
   ],
-  // Only ConfigModule, PrismaModule, and RedisModule are exported here.
-  // ThrottlerModule, BullModule, LoggerModule, SentryModule, HealthModule,
-  // and MetricsModule are available globally via their own @Global() decorators
-  // or internal NestJS module registration.
+  // @Global() on this module makes ONLY the exports below available to all modules.
+  // The other imported modules work as follows:
+  // - SentryModule, ThrottlerModule, LoggerModule, BullModule → self-registered as global
+  // - HealthModule, MetricsModule, RequestCacheModule → only used within CoreModule scope
+  // Do NOT add feature modules here — use AppModule.imports for those.
   exports: [ConfigModule, PrismaModule, RedisModule],
 })
 export class CoreModule {}

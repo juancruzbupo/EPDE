@@ -2,6 +2,7 @@ import type { CurrentUser as CurrentUserType } from '@epde/shared';
 import { UserRole } from '@epde/shared';
 import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import type { Prisma } from '@prisma/client';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
@@ -28,7 +29,7 @@ export class LandingSettingsController {
     @Body() body: { value: unknown },
     @CurrentUser() user: CurrentUserType,
   ) {
-    const data = await this.service.update(key, body.value as any, user);
+    const data = await this.service.update(key, body.value as Prisma.InputJsonValue, user);
     return { data, message: 'Configuración actualizada' };
   }
 }

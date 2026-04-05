@@ -183,8 +183,7 @@ describe('useCompleteTask', () => {
     const mockResponse = {
       data: { task: { nextDueDate: '2026-06-01T00:00:00.000Z' }, log: {} },
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (config.onSuccess as (r: any) => void)(mockResponse);
+    (config.onSuccess as (r: unknown) => void)(mockResponse);
 
     expect(toast.success).toHaveBeenCalledWith(expect.stringContaining('Tarea completada'));
   });

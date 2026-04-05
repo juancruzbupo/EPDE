@@ -46,6 +46,11 @@ import { UsersModule } from './users/users.module';
   ],
   controllers: [],
   providers: [
+    // Guard execution order (critical — order matters for security):
+    // 1. ThrottlerGuard — rate-limits before any auth work (blocks bots/brute-force)
+    // 2. JwtAuthGuard  — validates JWT, populates req.user (@Public skips)
+    // 3. RolesGuard    — checks @Roles() decorator, default-deny if missing
+    // 4. SubscriptionGuard — checks subscriptionExpiresAt for CLIENTs (402 if expired)
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },

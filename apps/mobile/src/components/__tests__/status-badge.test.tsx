@@ -1,3 +1,4 @@
+import type { TaskStatus } from '@epde/shared';
 import { render, screen } from '@testing-library/react-native';
 import React from 'react';
 
@@ -39,8 +40,7 @@ describe('TaskStatusBadge', () => {
   });
 
   it('falls back to raw status for unknown values', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    render(<TaskStatusBadge status={'UNKNOWN' as any} />);
+    render(<TaskStatusBadge status={'UNKNOWN' as unknown as TaskStatus} />);
     expect(screen.getByText('UNKNOWN')).toBeTruthy();
   });
 });
