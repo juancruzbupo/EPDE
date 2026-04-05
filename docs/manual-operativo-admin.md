@@ -61,7 +61,7 @@ El menú lateral del admin tiene **9 módulos**:
 | **Tareas**       | `/tasks`            | Vista global de tareas de todos los planes, filtrar por estado                 |
 | **Presupuestos** | `/budgets`          | Gestionar solicitudes de presupuesto y su ciclo de vida                        |
 | **Servicios**    | `/service-requests` | Solicitudes de servicio de los clientes                                        |
-| **Categorías**   | `/categories`       | Administrar las 14 categorías de mantenimiento                                 |
+| **Categorías**   | `/categories`       | Administrar las 22 categorías de mantenimiento                                 |
 | **Plantillas**   | `/templates`        | Administrar las plantillas de tareas predefinidas                              |
 | **Landing**      | `/landing-settings` | Modificar teléfono, prueba social, precios, FAQ y costos de la página de venta |
 
@@ -1391,7 +1391,22 @@ El ISV es un puntaje de **0 a 100** que mide la salud general de la vivienda. Se
 | **Cada 10 años**    | 1 tarea   | Reemplazo de membrana asfáltica                         |
 | **Según detección** | 4 tareas  | Reparación de fisuras, filtraciones, humedad, plagas    |
 
-**Total: 81 tareas predefinidas en 14 categorías**
+**Total: 152 tareas predefinidas en 22 categorías**
+
+### Categorías nuevas (8)
+
+| #   | Categoría                   | Icono | Tareas | Para qué viviendas                        |
+| --- | --------------------------- | ----- | :----: | ----------------------------------------- |
+| 15  | Gas Envasado (GLP)          | 🔶    |   4    | Sin red de gas natural (garrafa o granel) |
+| 16  | Agua de Pozo                | 🚰    |   4    | Sin agua de red (rural/periurbano)        |
+| 17  | Energía Solar y Sustentable | ☀️    |   5    | Con paneles solares o termotanque solar   |
+| 18  | Domótica y Electrónica      | 📡    |   4    | Con alarma, cámaras, automatización       |
+| 19  | Cielorraso y Entrepisos     | 🏛    |   4    | Todas (durlock, machimbre, entretecho)    |
+| 20  | Protección contra Rayos     | 🌩    |   3    | Con pararrayos (zona de tormentas)        |
+| 21  | Escaleras y Barandas        | 🪜    |   3    | Con escaleras (2 plantas, terraza)        |
+| 22  | Documentación y Normativa   | 📋    |   5    | Todas (oblea gas, seguro, planos)         |
+
+> Las categorías nuevas son condicionales — se agregan al plan solo si la vivienda tiene el equipamiento correspondiente.
 
 ---
 
