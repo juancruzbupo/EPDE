@@ -142,6 +142,8 @@ export function ClientDashboard({ userName }: { userName: string }) {
             pendingTasks={stats.pendingTasks}
             completedThisMonth={stats.completedThisMonth}
             pendingBudgets={stats.pendingBudgets}
+            isvDelta={stats.isvDelta}
+            streak={stats.streak}
             onViewActions={() => scrollTo(actionsRef)}
             onViewAnalytics={() => scrollTo(analyticsRef)}
           />

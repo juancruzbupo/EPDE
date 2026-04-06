@@ -42,6 +42,35 @@ export const SUBSCRIPTION_REMINDER_DAYS = [7, 3, 1] as const;
 /** WhatsApp contact number for subscription renewal and support. */
 export const WHATSAPP_CONTACT_NUMBER = '5493435043696';
 
+// ─── Dopamine / Engagement ──────────────────────────────
+
+/** Motivational messages shown after completing a task (rotated randomly). */
+export const COMPLETION_MESSAGES = [
+  'Tu casa está un poco más segura.',
+  'Bien hecho. Seguí cuidando tu hogar.',
+  'Tarea al día. Tu ISV te lo agradece.',
+  'Un paso más para mantener tu casa en forma.',
+  'Prevención hecha. Tu patrimonio te lo agradece.',
+] as const;
+
+/** Estimated savings by category when a problem is detected early.
+ * Used for "Evitaste un problema" dopamine feedback. */
+export const PREVENTION_SAVINGS: Record<string, string> = {
+  Estructura: '$500.000 – $3.000.000',
+  'Techos y Cubiertas': '$150.000 – $400.000',
+  'Instalación Eléctrica': '$80.000 – $180.000',
+  'Instalación Sanitaria': '$100.000 – $300.000',
+  'Gas y Calefacción': '$200.000 – $500.000',
+  Aberturas: '$50.000 – $150.000',
+  'Pintura y Revestimientos': '$80.000 – $250.000',
+  'Jardín y Exteriores': '$100.000 – $300.000',
+  Climatización: '$60.000 – $200.000',
+  'Humedad e Impermeabilización': '$300.000 – $800.000',
+  'Seguridad contra Incendio': '$100.000 – $500.000',
+  'Control de Plagas': '$80.000 – $200.000',
+  'Pisos y Contrapisos': '$100.000 – $400.000',
+};
+
 // ─── Enum Labels (Spanish) ──────────────────────────────
 
 export const TASK_STATUS_LABELS = {

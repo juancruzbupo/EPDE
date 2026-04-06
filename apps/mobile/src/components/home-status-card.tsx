@@ -22,6 +22,8 @@ interface MobileHomeStatusCardProps {
   pendingTasks: number;
   completedThisMonth: number;
   pendingBudgets: number;
+  isvDelta?: number | null;
+  streak?: number;
 }
 
 function getStatusTitle(score: number): string {
@@ -103,6 +105,8 @@ export const HomeStatusCard = memo(function HomeStatusCard({
   pendingTasks,
   completedThisMonth,
   pendingBudgets,
+  isvDelta,
+  streak,
 }: MobileHomeStatusCardProps) {
   const reduced = useReducedMotion();
   const barWidth = useSharedValue(reduced ? 1 : 0);
@@ -142,6 +146,32 @@ export const HomeStatusCard = memo(function HomeStatusCard({
       <View className="bg-muted mb-3 h-2 overflow-hidden rounded-full">
         <Animated.View style={[barStyle, { height: '100%', borderRadius: 9999 }]} />
       </View>
+
+      {/* ISV delta + streak badges */}
+      {(isvDelta !== null && isvDelta !== undefined && isvDelta !== 0) ||
+      (streak !== undefined && streak > 0) ? (
+        <View className="mb-3 flex-row flex-wrap gap-2">
+          {isvDelta !== null && isvDelta !== undefined && isvDelta !== 0 && (
+            <View
+              className={`flex-row items-center rounded-full px-2.5 py-1 ${isvDelta > 0 ? 'bg-success/10' : 'bg-destructive/10'}`}
+            >
+              <Text
+                style={TYPE.labelSm}
+                className={isvDelta > 0 ? 'text-success' : 'text-destructive'}
+              >
+                {isvDelta > 0 ? '↑' : '↓'} {Math.abs(isvDelta)} puntos este mes
+              </Text>
+            </View>
+          )}
+          {streak !== undefined && streak > 0 && (
+            <View className="bg-primary/10 flex-row items-center rounded-full px-2.5 py-1">
+              <Text style={TYPE.labelSm} className="text-primary">
+                🔥 {streak} {streak === 1 ? 'mes' : 'meses'} al día
+              </Text>
+            </View>
+          )}
+        </View>
+      ) : null}
 
       {/* Human message */}
       <Text style={TYPE.bodySm} className="text-muted-foreground mb-1">

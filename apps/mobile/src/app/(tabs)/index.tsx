@@ -197,6 +197,8 @@ function ClientDashboard() {
           pendingTasks={stats.pendingTasks}
           completedThisMonth={stats.completedThisMonth}
           pendingBudgets={stats.pendingBudgets}
+          isvDelta={stats.isvDelta}
+          streak={stats.streak}
         />
       ) : null}
 

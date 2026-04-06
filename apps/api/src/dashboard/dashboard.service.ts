@@ -101,10 +101,12 @@ export class DashboardService {
     const { propertyIds, planIds } =
       await this.dashboardRepository.getClientPropertyAndPlanIds(userId);
 
-    const [taskStats, budgetServiceStats, healthIndex] = await Promise.all([
+    const [taskStats, budgetServiceStats, healthIndex, isvDelta, streak] = await Promise.all([
       this.dashboardRepository.getClientTaskStats(planIds, userId),
       this.dashboardRepository.getClientBudgetAndServiceCounts(propertyIds),
       this.dashboardRepository.getPropertyHealthIndex(planIds),
+      this.dashboardRepository.getIsvDelta(propertyIds),
+      this.dashboardRepository.getMaintenanceStreak(planIds),
     ]);
 
     const result = {
@@ -113,6 +115,8 @@ export class DashboardService {
       ...budgetServiceStats,
       healthScore: healthIndex.score,
       healthLabel: healthIndex.label,
+      isvDelta,
+      streak,
     };
 
     try {

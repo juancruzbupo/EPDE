@@ -32,6 +32,10 @@ export interface ClientDashboardStats {
   openServices: number;
   healthScore: number;
   healthLabel: string;
+  /** ISV score change vs previous month (null if <2 snapshots). */
+  isvDelta: number | null;
+  /** Consecutive months without overdue OWNER_CAN_DO tasks. */
+  streak: number;
 }
 
 export interface UpcomingTask {

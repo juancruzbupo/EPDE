@@ -18,6 +18,8 @@ interface HomeStatusCardProps {
   pendingTasks: number;
   completedThisMonth: number;
   pendingBudgets: number;
+  isvDelta?: number | null;
+  streak?: number;
   onViewActions: () => void;
   onViewAnalytics: () => void;
 }
@@ -86,6 +88,8 @@ export function HomeStatusCard({
   pendingTasks,
   completedThisMonth,
   pendingBudgets,
+  isvDelta,
+  streak,
   onViewActions,
   onViewAnalytics,
 }: HomeStatusCardProps) {
@@ -171,6 +175,28 @@ export function HomeStatusCard({
             </div>
             <span className="type-body-sm text-muted-foreground">/ 100</span>
           </div>
+
+          {/* ISV delta + streak badges */}
+          {((isvDelta !== null && isvDelta !== undefined) || (streak && streak > 0)) && (
+            <div className="mb-4 flex flex-wrap gap-2">
+              {isvDelta !== null && isvDelta !== undefined && isvDelta !== 0 && (
+                <span
+                  className={`type-label-sm inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium ${
+                    isvDelta > 0
+                      ? 'bg-success/10 text-success'
+                      : 'bg-destructive/10 text-destructive'
+                  }`}
+                >
+                  {isvDelta > 0 ? '↑' : '↓'} {Math.abs(isvDelta)} puntos este mes
+                </span>
+              )}
+              {streak !== undefined && streak > 0 && (
+                <span className="bg-primary/10 text-primary type-label-sm inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium">
+                  🔥 {streak} {streak === 1 ? 'mes' : 'meses'} al día
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Action buttons */}
           <div className="mb-5 flex gap-3">

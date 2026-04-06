@@ -1024,4 +1024,71 @@ export class DashboardRepository {
       .map(([sector, data]) => ({ sector, ...data }))
       .sort((a, b) => b.total - a.total);
   }
+
+  // ─── Dopamine features ──────────────────────────────────
+
+  /** Get ISV score delta between current and previous monthly snapshot.
+   * Returns null if fewer than 2 snapshots exist. */
+  async getIsvDelta(propertyIds: string[]): Promise<number | null> {
+    if (propertyIds.length === 0) return null;
+
+    // Get the 2 most recent snapshots across all user properties
+    const snapshots = await this.prisma.iSVSnapshot.findMany({
+      where: { propertyId: { in: propertyIds } },
+      orderBy: { snapshotDate: 'desc' },
+      take: 2,
+      select: { score: true },
+    });
+
+    if (snapshots.length < 2 || !snapshots[0] || !snapshots[1]) return null;
+    return snapshots[0].score - snapshots[1].score;
+  }
+
+  /** Count consecutive months (from now backwards) where the user had
+   * zero OVERDUE tasks that the owner can do (OWNER_CAN_DO).
+   * Professional-only tasks are excluded — the owner can't control those. */
+  async getMaintenanceStreak(planIds: string[]): Promise<number> {
+    if (planIds.length === 0) return 0;
+
+    const now = new Date();
+    let streak = 0;
+
+    // Check up to 24 months back
+    for (let i = 0; i < 24; i++) {
+      const monthStart = startOfMonth(subMonths(now, i));
+      const monthEnd = startOfMonth(subMonths(now, i - 1));
+
+      // Count tasks that were overdue during this month AND are OWNER_CAN_DO
+      const overdueCount = await this.prisma.softDelete.task.count({
+        where: {
+          maintenancePlanId: { in: planIds },
+          professionalRequirement: 'OWNER_CAN_DO',
+          status: TaskStatus.OVERDUE,
+          nextDueDate: { gte: monthStart, lt: monthEnd },
+        },
+      });
+
+      // Also check if any OWNER_CAN_DO tasks had a log entry this month (completed late = still counts)
+      const completedLateCount =
+        i === 0
+          ? 0
+          : await this.prisma.taskLog.count({
+              where: {
+                task: {
+                  maintenancePlanId: { in: planIds },
+                  professionalRequirement: 'OWNER_CAN_DO',
+                },
+                completedAt: { gte: monthStart, lt: monthEnd },
+              },
+            });
+
+      // Net overdue = overdue that month minus those completed late
+      const netOverdue = Math.max(0, overdueCount - completedLateCount);
+
+      if (netOverdue > 0) break;
+      streak++;
+    }
+
+    return streak;
+  }
 }

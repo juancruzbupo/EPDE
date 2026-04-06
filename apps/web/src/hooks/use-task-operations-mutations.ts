@@ -5,7 +5,13 @@ import type {
   TaskPriority,
   TaskType,
 } from '@epde/shared';
-import { getErrorMessage, QUERY_KEYS, TaskStatus } from '@epde/shared';
+import {
+  COMPLETION_MESSAGES,
+  getErrorMessage,
+  PREVENTION_SAVINGS,
+  QUERY_KEYS,
+  TaskStatus,
+} from '@epde/shared';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -100,6 +106,8 @@ export function useCompleteTask(options?: {
     } & CompleteTaskInput) => completeTask(planId, taskId, dto),
 
     onSuccess: (response, variables) => {
+      // F1: Motivational toast with rotating messages
+      const msg = COMPLETION_MESSAGES[Math.floor(Math.random() * COMPLETION_MESSAGES.length)];
       const nextDueDate = response.data?.task?.nextDueDate;
       if (nextDueDate) {
         const formatted = new Date(nextDueDate).toLocaleDateString('es-AR', {
@@ -107,12 +115,24 @@ export function useCompleteTask(options?: {
           month: 'long',
           year: 'numeric',
         });
-        toast.success(`Tarea completada. Próxima: ${formatted}`);
+        toast.success(`${msg} Próxima: ${formatted}`);
       } else {
-        toast.success('Tarea completada');
+        toast.success(msg);
       }
 
+      // F6: "Evitaste un problema" — show savings when problem detected early
       if (response.data?.problemDetected) {
+        const categoryName = response.data.task?.category?.name;
+        const savings = categoryName ? PREVENTION_SAVINGS[categoryName] : undefined;
+        if (savings) {
+          setTimeout(() => {
+            toast.info(
+              `Detectaste un problema a tiempo. Sin prevención, podría costarte ${savings}.`,
+              { duration: 6000 },
+            );
+          }, 1500);
+        }
+
         options?.onProblemDetected?.({
           taskId: variables.taskId,
           taskName: variables.taskName ?? response.data.task?.name ?? 'Tarea',

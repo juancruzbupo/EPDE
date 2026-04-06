@@ -1,5 +1,5 @@
 import type { CompleteTaskInput, TaskNotePublic } from '@epde/shared';
-import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import { COMPLETION_MESSAGES, getErrorMessage, PREVENTION_SAVINGS, QUERY_KEYS } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
 
@@ -10,6 +10,7 @@ import {
   getTaskLogs,
   getTaskNotes,
 } from '@/lib/api/maintenance-plans';
+import { haptics } from '@/lib/haptics';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -57,6 +58,9 @@ export function useCompleteTask(options?: {
     } & CompleteTaskInput) => completeTask(planId, taskId, dto),
 
     onSuccess: (response, variables) => {
+      // F1: Haptic success + motivational message
+      haptics.success();
+      const msg = COMPLETION_MESSAGES[Math.floor(Math.random() * COMPLETION_MESSAGES.length)];
       const nextDueDate = response.data?.task?.nextDueDate;
       if (nextDueDate) {
         const formatted = new Date(nextDueDate).toLocaleDateString('es-AR', {
@@ -64,12 +68,24 @@ export function useCompleteTask(options?: {
           month: 'long',
           year: 'numeric',
         });
-        Alert.alert('Tarea completada', `Próxima: ${formatted}`);
+        Alert.alert(msg, `Próxima: ${formatted}`);
       } else {
-        Alert.alert('Éxito', 'Tarea completada');
+        Alert.alert('Tarea completada', msg);
       }
 
+      // F6: "Evitaste un problema" — show savings
       if (response.data?.problemDetected) {
+        const categoryName = response.data.task?.category?.name;
+        const savings = categoryName ? PREVENTION_SAVINGS[categoryName] : undefined;
+        if (savings) {
+          setTimeout(() => {
+            Alert.alert(
+              'Detectaste un problema a tiempo',
+              `Sin prevención, esto podría costarte ${savings}.`,
+            );
+          }, 2000);
+        }
+
         options?.onProblemDetected?.({
           taskId: variables.taskId,
           taskName: variables.taskName ?? response.data.task?.name ?? 'Tarea',
