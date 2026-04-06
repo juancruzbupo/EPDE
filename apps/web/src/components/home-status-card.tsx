@@ -156,7 +156,14 @@ export function HomeStatusCard({
             >
               <AnimatedNumber value={score} />
             </span>
-            <div className="bg-muted h-3 flex-1 overflow-hidden rounded-full">
+            <div
+              role="progressbar"
+              aria-valuenow={score}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Índice de Salud de la Vivienda"
+              className="bg-muted h-3 flex-1 overflow-hidden rounded-full"
+            >
               {shouldAnimate ? (
                 <motion.div
                   className="h-full rounded-full"

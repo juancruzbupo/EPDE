@@ -61,6 +61,7 @@ export const CompletionPhotoSection = React.memo(function CompletionPhotoSection
               accessibilityRole="button"
               accessibilityLabel="Eliminar foto"
               onPress={onRemovePhoto}
+              style={{ minWidth: 44, minHeight: 44 }}
               className="bg-destructive absolute -top-2 -right-2 h-6 w-6 items-center justify-center rounded-full"
             >
               <Text className="text-xs font-bold text-white">X</Text>

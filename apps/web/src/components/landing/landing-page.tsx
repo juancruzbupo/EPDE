@@ -46,31 +46,39 @@ export function LandingPage({ settings }: LandingPageProps) {
 
   return (
     <div className="landing flex min-h-screen flex-col">
+      <a
+        href="#main-content"
+        className="focus:bg-primary focus:text-primary-foreground sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded focus:px-4 focus:py-2"
+      >
+        Ir al contenido
+      </a>
       <Header general={settings?.general} />
-      {/* 1. Hero — qué es EPDE + CTA */}
-      <HeroSection motionProps={motionProps} socialProof={settings?.general?.socialProof} />
-      {/* 2. Cómo funciona — 3 pasos claros */}
-      <HowItWorksSection motionProps={motionProps} />
-      {/* 3. Demo — así se ve la herramienta */}
-      <DemoSection motionProps={motionProps} />
-      {/* 4. Inversión — beneficios + precio lado a lado */}
-      <InvestmentSection motionProps={motionProps} pricing={settings?.pricing} />
-      {/* 5. Consecuencias — por qué prevenir */}
-      <ConsequenceSection
-        motionProps={motionProps}
-        consequences={settings?.consequences}
-        costDisclaimer={settings?.pricing?.costDisclaimer}
-      />
-      {/* 6. Testimonios — prueba social real */}
-      <TestimonialsSection motionProps={motionProps} />
-      {/* 7. Credenciales — quién está detrás */}
-      <CredentialsSection motionProps={motionProps} />
-      {/* 6. Comparación — tradicional vs EPDE */}
-      <DifferentiationSection motionProps={motionProps} />
-      {/* 7. FAQ */}
-      <FaqSection motionProps={motionProps} faq={settings?.faq} />
-      {/* 8. CTA final */}
-      <FinalCtaSection motionProps={motionProps} price={settings?.pricing?.price} />
+      <main id="main-content">
+        {/* 1. Hero — qué es EPDE + CTA */}
+        <HeroSection motionProps={motionProps} socialProof={settings?.general?.socialProof} />
+        {/* 2. Cómo funciona — 3 pasos claros */}
+        <HowItWorksSection motionProps={motionProps} />
+        {/* 3. Demo — así se ve la herramienta */}
+        <DemoSection motionProps={motionProps} />
+        {/* 4. Inversión — beneficios + precio lado a lado */}
+        <InvestmentSection motionProps={motionProps} pricing={settings?.pricing} />
+        {/* 5. Consecuencias — por qué prevenir */}
+        <ConsequenceSection
+          motionProps={motionProps}
+          consequences={settings?.consequences}
+          costDisclaimer={settings?.pricing?.costDisclaimer}
+        />
+        {/* 6. Testimonios — prueba social real */}
+        <TestimonialsSection motionProps={motionProps} />
+        {/* 7. Credenciales — quién está detrás */}
+        <CredentialsSection motionProps={motionProps} />
+        {/* 6. Comparación — tradicional vs EPDE */}
+        <DifferentiationSection motionProps={motionProps} />
+        {/* 7. FAQ */}
+        <FaqSection motionProps={motionProps} faq={settings?.faq} />
+        {/* 8. CTA final */}
+        <FinalCtaSection motionProps={motionProps} price={settings?.pricing?.price} />
+      </main>
       <Footer general={settings?.general} />
       {/* Floating buttons */}
       <ScrollToTop />

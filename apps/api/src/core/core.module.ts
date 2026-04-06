@@ -27,6 +27,7 @@ import { RedisModule } from '../redis/redis.module';
         throttlers: [
           { name: 'short', ttl: 1000, limit: 10 },
           { name: 'medium', ttl: 10000, limit: 60 },
+          { name: 'long', ttl: 60000, limit: 300 },
         ],
         storage: new ThrottlerStorageRedisService(
           new Redis(config.get<string>('REDIS_URL', 'redis://localhost:6379'), {

@@ -100,9 +100,9 @@ body {
   --chart-4: #d4a843;
   --chart-5: #d4956f;
   /* Priority severity tokens */
-  --success: #4d7d5c;
+  --success: #3d6a4c;
   --success-foreground: #ffffff;
-  --warning: #7a6514;
+  --warning: #6a5811;
   --warning-foreground: #ffffff;
   --caution: #965018;
   --caution-foreground: #fafaf8;
@@ -454,6 +454,10 @@ body {
 
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   .skeleton-shimmer::after {
     animation: none;
   }

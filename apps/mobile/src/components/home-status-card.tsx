@@ -145,7 +145,12 @@ export const HomeStatusCard = memo(function HomeStatusCard({
       </View>
 
       {/* Progress bar */}
-      <View className="bg-muted mb-3 h-2 overflow-hidden rounded-full">
+      <View
+        accessibilityRole="progressbar"
+        accessibilityValue={{ min: 0, max: 100, now: score }}
+        accessibilityLabel="Índice de Salud de la Vivienda"
+        className="bg-muted mb-3 h-2 overflow-hidden rounded-full"
+      >
         <Animated.View style={[barStyle, { height: '100%', borderRadius: 9999 }]} />
       </View>
 

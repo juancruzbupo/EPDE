@@ -33,6 +33,16 @@ export function Header({ general }: HeaderProps) {
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
+  // Close on Escape key
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
+
   useEffect(() => {
     if (!menuOpen) return;
     const onHash = () => setMenuOpen(false);
@@ -49,7 +59,7 @@ export function Header({ general }: HeaderProps) {
         </a>
 
         {/* Desktop nav — centered */}
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav aria-label="Navegación principal" className="hidden items-center gap-8 md:flex">
           {NAV_LINKS.map((link) => (
             <a
               key={link.href}
@@ -89,6 +99,8 @@ export function Header({ general }: HeaderProps) {
             onClick={() => setMenuOpen(!menuOpen)}
             className="text-foreground flex h-9 w-9 items-center justify-center rounded-full"
             aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
           >
             {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -97,8 +109,11 @@ export function Header({ general }: HeaderProps) {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="bg-background/95 animate-in fade-in slide-in-from-top-2 border-border/50 border-t backdrop-blur-md duration-200 md:hidden">
-          <nav className="mx-auto flex max-w-6xl flex-col px-4 py-2">
+        <div
+          id="mobile-menu"
+          className="bg-background/95 animate-in fade-in slide-in-from-top-2 border-border/50 border-t backdrop-blur-md duration-200 md:hidden"
+        >
+          <nav aria-label="Menú móvil" className="mx-auto flex max-w-6xl flex-col px-4 py-2">
             {NAV_LINKS.map((link) => (
               <a
                 key={link.href}

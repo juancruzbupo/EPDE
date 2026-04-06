@@ -33,8 +33,10 @@ function AnimatedTabIcon({
   }));
 
   return (
-    <Animated.View style={animatedStyle}>
-      <Text style={{ color, fontSize: 20 }}>{emoji}</Text>
+    <Animated.View style={animatedStyle} importantForAccessibility="no-hide-descendants">
+      <Text style={{ color, fontSize: 20 }} accessibilityElementsHidden>
+        {emoji}
+      </Text>
     </Animated.View>
   );
 }

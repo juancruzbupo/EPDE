@@ -49,6 +49,7 @@ export const PhotoPickerSection = React.memo(function PhotoPickerSection({
               onPress={() => onRemovePhoto(index)}
               accessibilityRole="button"
               accessibilityLabel="Eliminar foto"
+              style={{ minWidth: 44, minHeight: 44 }}
               className="bg-destructive absolute -top-2 -right-2 h-6 w-6 items-center justify-center rounded-full"
             >
               <Text className="text-xs font-bold text-white">X</Text>

@@ -99,7 +99,19 @@ export function SwipeableRow({
   }
 
   return (
-    <View style={styles.container}>
+    <View
+      style={styles.container}
+      accessibilityActions={rightActions.map((a) => ({
+        name: a.label ?? a.icon,
+        label: a.label ?? a.icon,
+      }))}
+      onAccessibilityAction={(event) => {
+        const action = rightActions.find(
+          (a) => (a.label ?? a.icon) === event.nativeEvent.actionName,
+        );
+        action?.onPress();
+      }}
+    >
       {/* Action buttons behind content */}
       <Animated.View style={[styles.actionsContainer, actionsStyle]}>
         {rightActions.map((action, index) => (
