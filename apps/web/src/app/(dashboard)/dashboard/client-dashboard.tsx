@@ -1,6 +1,6 @@
 'use client';
 
-import { QUERY_KEYS, WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
+import { DAILY_TIPS, QUERY_KEYS, WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -144,10 +144,19 @@ export function ClientDashboard({ userName }: { userName: string }) {
             pendingBudgets={stats.pendingBudgets}
             isvDelta={stats.isvDelta}
             streak={stats.streak}
+            perfectWeek={stats.perfectWeek}
             onViewActions={() => scrollTo(actionsRef)}
             onViewAnalytics={() => scrollTo(analyticsRef)}
           />
         ) : null}
+      </div>
+
+      {/* Tip of the day */}
+      <div className="border-primary/10 bg-primary/[0.03] mb-6 rounded-xl border p-4">
+        <p className="type-label-sm text-primary mb-1 font-medium">Tip del día</p>
+        <p className="type-body-sm text-foreground/80">
+          {DAILY_TIPS[Math.floor(Date.now() / 86_400_000) % DAILY_TIPS.length]}
+        </p>
       </div>
 
       {/* Level 2: Action List */}

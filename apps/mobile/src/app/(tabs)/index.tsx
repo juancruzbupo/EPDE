@@ -1,4 +1,4 @@
-import { formatRelativeDate, UserRole, WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
+import { DAILY_TIPS, formatRelativeDate, UserRole, WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { Linking, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
@@ -199,6 +199,7 @@ function ClientDashboard() {
           pendingBudgets={stats.pendingBudgets}
           isvDelta={stats.isvDelta}
           streak={stats.streak}
+          perfectWeek={stats.perfectWeek}
         />
       ) : null}
 
@@ -213,6 +214,16 @@ function ClientDashboard() {
       ) : tasks && !showWelcome ? (
         <ActionList tasks={tasks} nextUpcoming={nextUpcoming} />
       ) : null}
+
+      {/* Tip of the day */}
+      <View className="border-primary/10 bg-primary/[0.03] mb-4 rounded-xl border p-3">
+        <Text style={TYPE.labelSm} className="text-primary mb-1 font-medium">
+          Tip del día
+        </Text>
+        <Text style={TYPE.bodySm} className="text-foreground/80">
+          {DAILY_TIPS[Math.floor(Date.now() / 86_400_000) % DAILY_TIPS.length]}
+        </Text>
+      </View>
 
       {/* Quick access cards */}
       <View className="mb-4 gap-2">

@@ -19,6 +19,7 @@ import { SubscriptionReminderService } from './subscription-reminder.service';
 import { TaskReminderService } from './task-reminder.service';
 import { TaskSafetyService } from './task-safety.service';
 import { TaskStatusService } from './task-status.service';
+import { WeeklySummaryService } from './weekly-summary.service';
 
 /**
  * SchedulerModule — HOT ZONE for PRs.
@@ -54,6 +55,7 @@ import { TaskStatusService } from './task-status.service';
     SubscriptionReminderService,
     DataCleanupService,
     DataCleanupRepository,
+    WeeklySummaryService,
   ],
 })
 export class SchedulerModule {}

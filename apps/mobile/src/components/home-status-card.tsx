@@ -24,6 +24,7 @@ interface MobileHomeStatusCardProps {
   pendingBudgets: number;
   isvDelta?: number | null;
   streak?: number;
+  perfectWeek?: boolean;
 }
 
 function getStatusTitle(score: number): string {
@@ -107,6 +108,7 @@ export const HomeStatusCard = memo(function HomeStatusCard({
   pendingBudgets,
   isvDelta,
   streak,
+  perfectWeek,
 }: MobileHomeStatusCardProps) {
   const reduced = useReducedMotion();
   const barWidth = useSharedValue(reduced ? 1 : 0);
@@ -167,6 +169,13 @@ export const HomeStatusCard = memo(function HomeStatusCard({
             <View className="bg-primary/10 flex-row items-center rounded-full px-2.5 py-1">
               <Text style={TYPE.labelSm} className="text-primary">
                 🔥 {streak} {streak === 1 ? 'mes' : 'meses'} al día
+              </Text>
+            </View>
+          )}
+          {perfectWeek && (
+            <View className="bg-success/10 flex-row items-center rounded-full px-2.5 py-1">
+              <Text style={TYPE.labelSm} className="text-success">
+                ✓ Semana perfecta
               </Text>
             </View>
           )}

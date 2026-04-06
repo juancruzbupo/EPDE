@@ -101,13 +101,15 @@ export class DashboardService {
     const { propertyIds, planIds } =
       await this.dashboardRepository.getClientPropertyAndPlanIds(userId);
 
-    const [taskStats, budgetServiceStats, healthIndex, isvDelta, streak] = await Promise.all([
-      this.dashboardRepository.getClientTaskStats(planIds, userId),
-      this.dashboardRepository.getClientBudgetAndServiceCounts(propertyIds),
-      this.dashboardRepository.getPropertyHealthIndex(planIds),
-      this.dashboardRepository.getIsvDelta(propertyIds),
-      this.dashboardRepository.getMaintenanceStreak(planIds),
-    ]);
+    const [taskStats, budgetServiceStats, healthIndex, isvDelta, streak, perfectWeek] =
+      await Promise.all([
+        this.dashboardRepository.getClientTaskStats(planIds, userId),
+        this.dashboardRepository.getClientBudgetAndServiceCounts(propertyIds),
+        this.dashboardRepository.getPropertyHealthIndex(planIds),
+        this.dashboardRepository.getIsvDelta(propertyIds),
+        this.dashboardRepository.getMaintenanceStreak(planIds),
+        this.dashboardRepository.getPerfectWeek(planIds),
+      ]);
 
     const result = {
       totalProperties: propertyIds.length,
@@ -117,6 +119,7 @@ export class DashboardService {
       healthLabel: healthIndex.label,
       isvDelta,
       streak,
+      perfectWeek,
     };
 
     try {
@@ -285,6 +288,7 @@ export class DashboardService {
       categoryBreakdown,
       sectorBreakdown,
       healthIndex,
+      annualSummary,
     ] = await Promise.all([
       this.dashboardRepository.getClientConditionTrend(planIds, months),
       this.dashboardRepository.getClientCostHistory(planIds, months),
@@ -292,6 +296,7 @@ export class DashboardService {
       this.dashboardRepository.getClientCategoryBreakdown(planIds),
       this.dashboardRepository.getClientSectorBreakdown(planIds),
       this.dashboardRepository.getPropertyHealthIndex(planIds),
+      this.dashboardRepository.getAnnualSummary(planIds),
     ]);
 
     const result = {
@@ -303,6 +308,7 @@ export class DashboardService {
       categoryBreakdown,
       sectorBreakdown,
       healthIndex,
+      annualSummary,
     } satisfies ClientAnalytics;
 
     try {

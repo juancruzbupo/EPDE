@@ -36,6 +36,8 @@ export interface ClientDashboardStats {
   isvDelta: number | null;
   /** Consecutive months without overdue OWNER_CAN_DO tasks. */
   streak: number;
+  /** Whether all tasks due this week have been completed. */
+  perfectWeek: boolean;
 }
 
 export interface UpcomingTask {
@@ -239,6 +241,15 @@ export interface PropertyReportData {
   };
 }
 
+/** Annual progress summary. */
+export interface AnnualSummary {
+  tasksCompleted: number;
+  problemsDetected: number;
+  estimatedSavings: number;
+  isvStart: number | null;
+  isvEnd: number | null;
+}
+
 /** Client analytics response */
 export interface ClientAnalytics {
   conditionTrend: Array<{
@@ -253,4 +264,5 @@ export interface ClientAnalytics {
   categoryBreakdown: CategoryBreakdownItem[];
   sectorBreakdown: SectorBreakdownItem[];
   healthIndex: PropertyHealthIndex;
+  annualSummary: AnnualSummary;
 }

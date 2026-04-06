@@ -20,6 +20,7 @@ interface HomeStatusCardProps {
   pendingBudgets: number;
   isvDelta?: number | null;
   streak?: number;
+  perfectWeek?: boolean;
   onViewActions: () => void;
   onViewAnalytics: () => void;
 }
@@ -90,6 +91,7 @@ export function HomeStatusCard({
   pendingBudgets,
   isvDelta,
   streak,
+  perfectWeek,
   onViewActions,
   onViewAnalytics,
 }: HomeStatusCardProps) {
@@ -193,6 +195,11 @@ export function HomeStatusCard({
               {streak !== undefined && streak > 0 && (
                 <span className="bg-primary/10 text-primary type-label-sm inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium">
                   🔥 {streak} {streak === 1 ? 'mes' : 'meses'} al día
+                </span>
+              )}
+              {perfectWeek && (
+                <span className="bg-success/10 text-success type-label-sm inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium">
+                  ✓ Semana perfecta
                 </span>
               )}
             </div>

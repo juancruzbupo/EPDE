@@ -1091,4 +1091,84 @@ export class DashboardRepository {
 
     return streak;
   }
+
+  /** Annual progress summary for a client's properties. */
+  async getAnnualSummary(planIds: string[]) {
+    if (planIds.length === 0)
+      return {
+        tasksCompleted: 0,
+        problemsDetected: 0,
+        estimatedSavings: 0,
+        isvStart: null,
+        isvEnd: null,
+      };
+
+    const yearAgo = subMonths(new Date(), 12);
+
+    const [tasksCompleted, problemsDetected, snapshots] = await Promise.all([
+      this.prisma.taskLog.count({
+        where: {
+          task: { maintenancePlanId: { in: planIds } },
+          completedAt: { gte: yearAgo },
+        },
+      }),
+      this.prisma.taskLog.count({
+        where: {
+          task: { maintenancePlanId: { in: planIds } },
+          completedAt: { gte: yearAgo },
+          conditionFound: { in: ['POOR', 'CRITICAL'] },
+        },
+      }),
+      this.prisma.iSVSnapshot.findMany({
+        where: {
+          property: { maintenancePlan: { id: { in: planIds } } },
+          snapshotDate: { gte: yearAgo },
+        },
+        orderBy: { snapshotDate: 'asc' },
+        select: { score: true },
+      }),
+    ]);
+
+    const isvStart = snapshots.length > 0 ? snapshots[0]!.score : null;
+    const isvEnd = snapshots.length > 1 ? snapshots[snapshots.length - 1]!.score : null;
+
+    return {
+      tasksCompleted,
+      problemsDetected,
+      estimatedSavings: problemsDetected * 250_000, // avg $250K saved per early detection
+      isvStart,
+      isvEnd,
+    };
+  }
+
+  /** Check if all tasks due this week have been completed (perfect week). */
+  async getPerfectWeek(planIds: string[]): Promise<boolean> {
+    if (planIds.length === 0) return false;
+
+    const now = new Date();
+    const weekEnd = addDays(now, 7);
+
+    // Count tasks due this week that are NOT completed
+    const pendingThisWeek = await this.prisma.softDelete.task.count({
+      where: {
+        maintenancePlanId: { in: planIds },
+        nextDueDate: { gte: now, lt: weekEnd },
+        status: { in: [TaskStatus.PENDING, TaskStatus.UPCOMING, TaskStatus.OVERDUE] },
+      },
+    });
+
+    // A perfect week means zero pending/overdue tasks due this week
+    // AND at least one task was completed this week
+    if (pendingThisWeek > 0) return false;
+
+    const startOfWeek = addDays(now, -now.getDay());
+    const completedThisWeek = await this.prisma.taskLog.count({
+      where: {
+        task: { maintenancePlanId: { in: planIds } },
+        completedAt: { gte: startOfWeek },
+      },
+    });
+
+    return completedThisWeek > 0;
+  }
 }
