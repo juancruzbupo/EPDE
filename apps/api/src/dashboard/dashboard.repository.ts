@@ -535,24 +535,51 @@ export class DashboardRepository {
 
   /** N+1 note: nested taskLogs { take: 1 } causes Prisma to execute one subquery per task.
    *  Bounded to 200 tasks to limit impact. Consider batch fetching for >200 properties. */
+  /**
+   * Category breakdown for client dashboard.
+   *
+   * **Performance note (P2 fix):** Previously used nested `taskLogs: { take: 1 }`
+   * which caused Prisma to execute 1 subquery per task (N+1). Now uses 2 flat
+   * queries: (1) tasks with categories, (2) latest log per task via $queryRaw
+   * with ROW_NUMBER() window function. Reduces 201 queries → 2 queries.
+   */
   async getClientCategoryBreakdown(planIds: string[]) {
     if (planIds.length === 0) return [];
     const now = new Date();
 
+    // Query 1: All tasks with their category (1 query, no nested subqueries)
     const tasks = await this.prisma.softDelete.task.findMany({
       where: { maintenancePlanId: { in: planIds } },
       take: 200,
       select: {
+        id: true,
         status: true,
         nextDueDate: true,
         category: { select: { name: true } },
-        taskLogs: {
-          select: { conditionFound: true },
-          orderBy: { completedAt: 'desc' },
-          take: 1,
-        },
       },
     });
+
+    if (tasks.length === 0) return [];
+
+    // Query 2: Latest log per task using window function (1 query for ALL tasks)
+    const taskIds = tasks.map((t) => t.id);
+    const latestLogs: Array<{ taskId: string; conditionFound: string }> = await this.prisma
+      .$queryRaw`
+      SELECT "taskId", "conditionFound"
+      FROM (
+        SELECT "taskId", "conditionFound",
+               ROW_NUMBER() OVER (PARTITION BY "taskId" ORDER BY "completedAt" DESC) AS rn
+        FROM "TaskLog"
+        WHERE "taskId" = ANY(${taskIds})
+      ) sub
+      WHERE rn = 1
+    `;
+
+    // Build a map taskId → conditionFound for fast lookup
+    const logMap = new Map<string, string>();
+    for (const log of latestLogs) {
+      logMap.set(log.taskId, log.conditionFound);
+    }
 
     const catMap = new Map<
       string,
@@ -576,16 +603,16 @@ export class DashboardRepository {
       }
       const entry = catMap.get(name)!;
       entry.totalTasks++;
-      // Tasks are cyclic — COMPLETED is transient (resets to PENDING with new nextDueDate).
-      // Count by TaskLog presence: a task with logs has been completed at least once.
-      if (task.taskLogs.length > 0) entry.completedTasks++;
+
+      const hasLog = logMap.has(task.id);
+      if (hasLog) entry.completedTasks++;
       if (task.nextDueDate && task.nextDueDate < now && task.status !== TaskStatus.COMPLETED) {
         entry.overdueTasks++;
       }
-      if (task.taskLogs[0]) {
+      const condition = logMap.get(task.id);
+      if (condition) {
         entry.conditionScores.push(
-          DashboardRepository.CONDITION_SCORES[task.taskLogs[0].conditionFound as ConditionFound] ??
-            3,
+          DashboardRepository.CONDITION_SCORES[condition as ConditionFound] ?? 3,
         );
       }
     }
