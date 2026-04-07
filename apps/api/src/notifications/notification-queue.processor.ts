@@ -9,7 +9,11 @@ import {
 } from './notification-queue.types';
 import { NotificationsService } from './notifications.service';
 
-@Processor(NOTIFICATION_QUEUE, { concurrency: 20 })
+@Processor(NOTIFICATION_QUEUE, {
+  concurrency: 5,
+  drainDelay: 30,
+  stalledInterval: 5 * 60_000,
+})
 export class NotificationQueueProcessor extends WorkerHost {
   private readonly logger = new Logger(NotificationQueueProcessor.name);
 
