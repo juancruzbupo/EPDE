@@ -2,6 +2,7 @@ import type {
   ApiResponse,
   PropertyPublic,
   PropertyReportData,
+  PropertySector,
   PropertyType,
   UpdatePropertyInput,
 } from '@epde/shared';
@@ -39,6 +40,7 @@ export async function createProperty(dto: {
   address: string;
   city: string;
   type?: PropertyType;
+  activeSectors?: PropertySector[];
   yearBuilt?: number;
   squareMeters?: number;
 }): Promise<ApiResponse<PropertyPublic>> {

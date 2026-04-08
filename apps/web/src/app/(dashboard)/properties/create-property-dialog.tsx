@@ -1,6 +1,7 @@
 'use client';
 
-import { createPropertySchema, PROPERTY_TYPE_LABELS } from '@epde/shared';
+import type { PropertySector } from '@epde/shared';
+import { createPropertySchema, PROPERTY_SECTOR_LABELS, PROPERTY_TYPE_LABELS } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -53,6 +54,13 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
   const [clientPopoverOpen, setClientPopoverOpen] = useState(false);
   const [selectedClientLabel, setSelectedClientLabel] = useState('');
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [sectors, setSectors] = useState<PropertySector[]>([]);
+
+  const toggleSector = (sector: PropertySector) => {
+    setSectors((prev) =>
+      prev.includes(sector) ? prev.filter((s) => s !== sector) : [...prev, sector],
+    );
+  };
   const { data: clients = [], isLoading: isLoadingClients } = useClientSearch(clientSearch);
 
   const {
@@ -70,18 +78,22 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
   const selectedUserId = watch('userId');
 
   const onSubmit = (data: PropertyFormValues) => {
-    createProperty.mutate(data, {
-      onSuccess: (response) => {
-        reset();
-        setSelectedClientLabel('');
-        setClientSearch('');
-        onOpenChange(false);
-        const propertyId = response.data?.id;
-        if (propertyId) {
-          router.push(`/properties/${propertyId}`);
-        }
+    createProperty.mutate(
+      { ...data, activeSectors: sectors.length > 0 ? sectors : undefined },
+      {
+        onSuccess: (response) => {
+          reset();
+          setSelectedClientLabel('');
+          setClientSearch('');
+          setSectors([]);
+          onOpenChange(false);
+          const propertyId = response.data?.id;
+          if (propertyId) {
+            router.push(`/properties/${propertyId}`);
+          }
+        },
       },
-    });
+    );
   };
 
   return (
@@ -246,6 +258,25 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
                     {errors.squareMeters.message}
                   </p>
                 )}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Sectores de la vivienda</Label>
+              <p className="text-muted-foreground text-xs">
+                Seleccioná los sectores que tiene esta propiedad. Podés modificarlos después.
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                {Object.entries(PROPERTY_SECTOR_LABELS).map(([value, label]) => (
+                  <label key={value} className="flex cursor-pointer items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={sectors.includes(value as PropertySector)}
+                      onChange={() => toggleSector(value as PropertySector)}
+                      className="accent-primary h-4 w-4 rounded"
+                    />
+                    {label}
+                  </label>
+                ))}
               </div>
             </div>
             <div className="flex justify-end gap-2">
