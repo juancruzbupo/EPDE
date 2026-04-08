@@ -4,6 +4,7 @@ import type { TaskTemplate } from '@epde/shared';
 import { type CreateTaskTemplateInput, createTaskTemplateSchema } from '@epde/shared';
 import {
   PROFESSIONAL_REQUIREMENT_LABELS,
+  PROPERTY_SECTOR_LABELS,
   RECURRENCE_TYPE_LABELS,
   TASK_PRIORITY_LABELS,
   TASK_TYPE_LABELS,
@@ -79,6 +80,7 @@ export function TaskTemplateDialog({
         recurrenceType: task.recurrenceType,
         recurrenceMonths: task.recurrenceMonths,
         estimatedDurationMinutes: task.estimatedDurationMinutes ?? undefined,
+        defaultSector: task.defaultSector ?? undefined,
         displayOrder: task.displayOrder,
       });
     } else {
@@ -245,6 +247,35 @@ export function TaskTemplateDialog({
                 placeholder="Opcional"
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Sector por defecto</Label>
+            <Controller
+              name="defaultSector"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value ?? '_none'}
+                  onValueChange={(v) => field.onChange(v === '_none' ? undefined : v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sin sector" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="_none">Sin sector</SelectItem>
+                    {Object.entries(PROPERTY_SECTOR_LABELS).map(([val, label]) => (
+                      <SelectItem key={val} value={val}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            <p className="text-muted-foreground text-xs">
+              Las tareas creadas desde este template se asignan automáticamente a este sector.
+            </p>
           </div>
 
           <div className="space-y-2">

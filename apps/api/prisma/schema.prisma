@@ -583,6 +583,7 @@ model TaskTemplate {
   recurrenceType           RecurrenceType
   recurrenceMonths         Int                     @default(12)
   estimatedDurationMinutes Int?
+  defaultSector            PropertySector?
   displayOrder             Int                     @default(0)
   categoryId               String
   category                 CategoryTemplate        @relation(fields: [categoryId], references: [id], onDelete: Cascade)

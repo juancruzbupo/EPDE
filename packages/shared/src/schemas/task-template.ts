@@ -4,6 +4,7 @@ import { PAGINATION_DEFAULT_TAKE, PAGINATION_MAX_TAKE } from '../constants';
 import {
   PROFESSIONAL_REQUIREMENT_VALUES,
   ProfessionalRequirement,
+  PROPERTY_SECTOR_VALUES,
   RECURRENCE_TYPE_VALUES,
   TASK_PRIORITY_VALUES,
   TASK_TYPE_VALUES,
@@ -32,6 +33,7 @@ export const createTaskTemplateSchema = z.object({
   recurrenceType: z.enum(RECURRENCE_TYPE_VALUES),
   recurrenceMonths: z.coerce.number().int().min(1).max(120).default(12),
   estimatedDurationMinutes: z.coerce.number().int().min(1).optional(),
+  defaultSector: z.enum(PROPERTY_SECTOR_VALUES).optional(),
   displayOrder: z.coerce.number().int().min(0).default(0),
 });
 export type CreateTaskTemplateInput = z.infer<typeof createTaskTemplateSchema>;

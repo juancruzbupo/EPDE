@@ -292,6 +292,7 @@ export class TaskLifecycleService {
           recurrenceType: tpl.recurrenceType,
           recurrenceMonths: tpl.recurrenceMonths,
           estimatedDurationMinutes: tpl.estimatedDurationMinutes,
+          sector: tpl.defaultSector ?? undefined,
           order: maxOrder + 1 + index,
           status: TaskStatus.PENDING,
           createdBy,

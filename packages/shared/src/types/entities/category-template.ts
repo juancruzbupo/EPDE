@@ -1,4 +1,10 @@
-import type { ProfessionalRequirement, RecurrenceType, TaskPriority, TaskType } from '../enums';
+import type {
+  ProfessionalRequirement,
+  PropertySector,
+  RecurrenceType,
+  TaskPriority,
+  TaskType,
+} from '../enums';
 
 export interface CategoryTemplate {
   id: string;
@@ -21,6 +27,7 @@ export interface TaskTemplate {
   recurrenceType: RecurrenceType;
   recurrenceMonths: number;
   estimatedDurationMinutes: number | null;
+  defaultSector: PropertySector | null;
   displayOrder: number;
   categoryId: string;
   createdAt: string;
