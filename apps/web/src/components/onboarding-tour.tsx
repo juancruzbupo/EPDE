@@ -1,7 +1,10 @@
 'use client';
 
+import { UserRole } from '@epde/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { EventData, Props, Step } from 'react-joyride';
+
+import { useAuthStore } from '@/stores/auth-store';
 
 // ─── Shared config ──────────────────────────────────────
 
@@ -42,11 +45,13 @@ const STYLES: Props['styles'] = {
 // ─── Reusable Tour component ────────────────────────────
 
 function Tour({ storageKey, steps }: { storageKey: string; steps: Step[] }) {
+  const role = useAuthStore((s) => s.user?.role);
   const [run, setRun] = useState(false);
   const [JoyrideComponent, setJoyrideComponent] = useState<React.ComponentType<Props> | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
+    if (role !== UserRole.CLIENT) return;
     if (localStorage.getItem(storageKey)) return;
 
     import('react-joyride').then((mod) => {
