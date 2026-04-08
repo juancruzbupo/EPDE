@@ -26,3 +26,30 @@
 - Incluir 1 re-inspección anual en el plan base (retención)
 - Re-inspecciones adicionales como servicio pago
 - O paquete premium con re-inspecciones trimestrales
+
+## Composite Risk Score (priorización avanzada)
+
+**Qué es:** Score compuesto por tarea: `urgency × impact × cost_if_delayed`. Permite al cliente ver qué arreglar primero con un ranking claro, no solo "urgente" vs "no urgente".
+
+**Por qué no ahora:** Requiere datos de costos reales por tipo de reparación que aún no existen en el sistema. Primero necesitamos acumular datos de presupuestos aprobados para calibrar el modelo.
+
+**Cómo se implementaría:**
+
+- Nuevo campo `riskScore` en Task (calculado)
+- Fórmula: `priority_weight × condition_severity × estimated_repair_cost`
+- UI: ordenar tareas por riskScore en el plan viewer del cliente
+- Dashboard: visualización de distribución de riesgo por sector
+
+## Server-side PDF generation
+
+**Qué es:** Generar PDFs del informe técnico (inspección, plan, ISV) desde el servidor para envío automático por email.
+
+**Estado actual:** Existe `/properties/[id]/report/` con 12 componentes que renderizan el informe en HTML. El usuario puede imprimir a PDF con `window.print()`.
+
+**Por qué no ahora:** `window.print()` es suficiente para MVP. Server-side se necesita cuando queramos enviar informes por email automáticamente (ej: después de completar inspección).
+
+**Cómo se implementaría:**
+
+- Puppeteer o Playwright en el backend para renderizar la página de reporte
+- Endpoint `GET /reports/:propertyId/pdf` que genera y retorna el PDF
+- Integración con EmailQueueService para envío automático

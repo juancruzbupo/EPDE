@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { HealthCheck, HealthCheckService, PrismaHealthIndicator } from '@nestjs/terminus';
+import { SkipThrottle } from '@nestjs/throttler';
 
 import { Public } from '../common/decorators/public.decorator';
 import { PrismaService } from '../prisma/prisma.service';
@@ -13,6 +14,7 @@ import { RedisHealthIndicator } from './redis.health';
  * violation of the "only repositories inject PrismaService" rule — health checks are
  * infrastructure-layer concerns, not data access.
  */
+@SkipThrottle()
 @Controller('health')
 export class HealthController {
   constructor(

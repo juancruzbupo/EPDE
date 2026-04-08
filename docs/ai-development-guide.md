@@ -183,6 +183,7 @@
 166. **SIEMPRE #53 (CoreModule scope)**: CoreModule exports ONLY ConfigModule, PrismaModule, RedisModule. Other imported modules (Sentry, Throttler, Logger, BullMQ) are self-registered as global. Do NOT add feature modules to CoreModule.
 167. **SIEMPRE #54 (test framework per app)**: API uses Jest (`*.spec.ts`), Web uses Vitest (`*.test.ts`), Mobile uses Jest (`*.test.ts`). Do NOT mix frameworks within an app. Mock syntax: `jest.fn()` in API/Mobile, `vi.fn()` in Web. Both use `@testing-library` for component testing.
 168. **SIEMPRE #55 (no any in tests)**: Use `unknown` instead of `any` for type assertions in tests. Use `as unknown as TargetType` for intentional invalid-value tests (e.g., testing fallback for unknown enum values).
+169. **SIEMPRE #56 (ownership verification in services)**: Verificar ownership en el service, no en el controller. Patrón: query entity → check userId → throw ForbiddenException. Cada servicio implementa su propia verificación porque las relaciones varían (property ownership, budget via property, checklist via property). No crear un OwnershipService genérico — la especificidad es intencional.
 
 ### NUNCA
 

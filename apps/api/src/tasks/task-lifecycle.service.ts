@@ -211,6 +211,18 @@ export class TaskLifecycleService {
         newDueDate,
       );
 
+      void this.auditLogRepository.createAuditLog(
+        taskId,
+        userId,
+        'COMPLETED',
+        { status: task.status },
+        {
+          conditionFound: dto.conditionFound,
+          result: dto.result,
+          nextDueDate: newDueDate?.toISOString() ?? null,
+        },
+      );
+
       const problemDetected =
         dto.conditionFound === ConditionFound.POOR ||
         dto.conditionFound === ConditionFound.CRITICAL;

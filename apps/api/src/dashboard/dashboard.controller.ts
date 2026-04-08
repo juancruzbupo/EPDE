@@ -2,6 +2,7 @@ import type { CurrentUser as CurrentUserPayload } from '@epde/shared';
 import { UserRole } from '@epde/shared';
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { z } from 'zod';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -15,6 +16,7 @@ const analyticsQuerySchema = z.object({
 
 @ApiTags('Panel')
 @ApiBearerAuth()
+@Throttle({ medium: { limit: 30, ttl: 60_000 } })
 @Controller('dashboard')
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}

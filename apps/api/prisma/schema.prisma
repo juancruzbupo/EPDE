@@ -220,6 +220,8 @@ model Property {
   @@index([userId, deletedAt])
 }
 
+/// No soft-delete: plans are archived (ACTIVE→ARCHIVED), never deleted.
+/// Property soft-delete does not cascade to plan — plan persists for audit trail.
 model MaintenancePlan {
   id         String     @id @default(uuid())
   propertyId String     @unique

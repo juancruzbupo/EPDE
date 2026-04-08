@@ -16,6 +16,7 @@ import {
 } from '@epde/shared';
 import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -110,6 +111,7 @@ export class InspectionsController {
   }
 
   @Post(':checklistId/generate-plan')
+  @Throttle({ medium: { limit: 3, ttl: 60_000 } })
   @Roles(UserRole.ADMIN)
   async generatePlan(
     @Param('checklistId', ParseUUIDPipe) checklistId: string,
