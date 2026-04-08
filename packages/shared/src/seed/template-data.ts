@@ -1,5 +1,6 @@
 import type {
   ProfessionalRequirement,
+  PropertySector,
   RecurrenceType,
   TaskPriority,
   TaskType,
@@ -14,6 +15,7 @@ export interface TaskTemplateSeed {
   recurrenceType: RecurrenceType;
   recurrenceMonths: number;
   estimatedDurationMinutes?: number;
+  defaultSector: PropertySector;
 }
 
 export interface CategoryTemplateSeed {
@@ -41,6 +43,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'EXTERIOR',
       },
       {
         name: 'Control de fisuras en muros',
@@ -52,6 +55,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 45,
+        defaultSector: 'EXTERIOR',
       },
       {
         name: 'Evaluación profesional de fundaciones',
@@ -63,6 +67,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 24,
         estimatedDurationMinutes: 120,
+        defaultSector: 'BASEMENT',
       },
       {
         name: 'Verificación de juntas de dilatación',
@@ -74,6 +79,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'EXTERIOR',
       },
       {
         name: 'Reparación de fisuras detectadas',
@@ -85,6 +91,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ON_DETECTION',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 60,
+        defaultSector: 'EXTERIOR',
       },
       {
         name: 'Control de humedad ascendente en cimientos',
@@ -96,6 +103,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 45,
+        defaultSector: 'BASEMENT',
       },
       {
         name: 'Evaluación estructural integral quinquenal',
@@ -107,6 +115,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'CUSTOM',
         recurrenceMonths: 60,
         estimatedDurationMinutes: 240,
+        defaultSector: 'EXTERIOR',
       },
       {
         name: 'Inspección de losa de hormigón armado',
@@ -118,6 +127,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 45,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Control de revoques exteriores',
@@ -129,6 +139,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'EXTERIOR',
       },
       {
         name: 'Inspección de muros portantes de mampostería',
@@ -140,6 +151,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 24,
         estimatedDurationMinutes: 60,
+        defaultSector: 'INTERIOR',
       },
     ],
   },
@@ -159,6 +171,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 40,
+        defaultSector: 'ROOF',
       },
       {
         name: 'Limpieza de canaletas y bajadas pluviales',
@@ -170,6 +183,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'QUARTERLY',
         recurrenceMonths: 3,
         estimatedDurationMinutes: 45,
+        defaultSector: 'ROOF',
       },
       {
         name: 'Control de tejas o chapa',
@@ -181,6 +195,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'ROOF',
       },
       {
         name: 'Tratamiento impermeabilizante',
@@ -192,6 +207,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 24,
         estimatedDurationMinutes: 180,
+        defaultSector: 'ROOF',
       },
       {
         name: 'Reparación de filtraciones',
@@ -203,6 +219,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ON_DETECTION',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 120,
+        defaultSector: 'ROOF',
       },
       {
         name: 'Reemplazo integral de membrana asfáltica',
@@ -214,6 +231,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'CUSTOM',
         recurrenceMonths: 120,
         estimatedDurationMinutes: 480,
+        defaultSector: 'ROOF',
       },
       {
         name: 'Inspección post-granizo',
@@ -225,6 +243,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ON_DETECTION',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 40,
+        defaultSector: 'ROOF',
       },
       {
         name: 'Control de claraboyas y lucernarios',
@@ -236,6 +255,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 20,
+        defaultSector: 'ROOF',
       },
       {
         name: 'Limpieza de techos y terrazas',
@@ -247,6 +267,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 45,
+        defaultSector: 'ROOF',
       },
       {
         name: 'Revisión de babetas y encuentros',
@@ -258,6 +279,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'ROOF',
       },
     ],
   },
@@ -277,6 +299,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'MONTHLY',
         recurrenceMonths: 1,
         estimatedDurationMinutes: 5,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Inspección de tablero eléctrico',
@@ -288,6 +311,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Medición de puesta a tierra',
@@ -299,6 +323,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 45,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Control de tomacorrientes y llaves',
@@ -310,6 +335,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Revisión de instalación eléctrica completa',
@@ -321,6 +347,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 36,
         estimatedDurationMinutes: 240,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Medición de aislación de conductores (megado)',
@@ -332,6 +359,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'CUSTOM',
         recurrenceMonths: 36,
         estimatedDurationMinutes: 60,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Verificación de protecciones térmicas por circuito',
@@ -343,6 +371,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'CUSTOM',
         recurrenceMonths: 36,
         estimatedDurationMinutes: 45,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Control de medidor eléctrico y acometida',
@@ -354,6 +383,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 15,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Verificación de protección contra sobretensiones (DPS)',
@@ -365,6 +395,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 20,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Inspección de instalación eléctrica enterrada',
@@ -376,6 +407,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 24,
         estimatedDurationMinutes: 45,
+        defaultSector: 'INSTALLATIONS',
       },
     ],
   },
@@ -395,6 +427,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 20,
+        defaultSector: 'BATHROOM',
       },
       {
         name: 'Limpieza de sifones y rejillas',
@@ -406,6 +439,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'QUARTERLY',
         recurrenceMonths: 3,
         estimatedDurationMinutes: 30,
+        defaultSector: 'BATHROOM',
       },
       {
         name: 'Control de tanque de agua',
@@ -417,6 +451,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 30,
+        defaultSector: 'TERRACE',
       },
       {
         name: 'Limpieza y desinfección de tanque',
@@ -428,6 +463,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 120,
+        defaultSector: 'TERRACE',
       },
       {
         name: 'Detección de pérdidas ocultas',
@@ -439,6 +475,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'QUARTERLY',
         recurrenceMonths: 3,
         estimatedDurationMinutes: 10,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Verificación de termotanque y ánodo de sacrificio',
@@ -450,6 +487,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 45,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Mantenimiento de cámara séptica',
@@ -461,6 +499,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 24,
         estimatedDurationMinutes: 120,
+        defaultSector: 'GARDEN',
       },
       {
         name: 'Inspección de llave de paso general de agua',
@@ -472,6 +511,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 10,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Control de bomba presurizadora',
@@ -483,6 +523,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 30,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Inspección de cañerías visibles',
@@ -494,6 +535,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 20,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Limpieza de pozo de bombeo',
@@ -505,6 +547,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 120,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Verificación de válvula de retención',
@@ -516,6 +559,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 15,
+        defaultSector: 'INSTALLATIONS',
       },
     ],
   },
@@ -535,6 +579,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 60,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Control de llama piloto y quemadores',
@@ -546,6 +591,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'QUARTERLY',
         recurrenceMonths: 3,
         estimatedDurationMinutes: 10,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Prueba de monóxido de carbono',
@@ -557,6 +603,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 45,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Limpieza de conductos de ventilación',
@@ -568,6 +615,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 45,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Service de caldera/calefón',
@@ -579,6 +627,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 90,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Revisión periódica obligatoria NAG-226',
@@ -590,6 +639,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 24,
         estimatedDurationMinutes: 90,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Verificación de llave de paso general de gas',
@@ -601,6 +651,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 5,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Control del medidor de gas',
@@ -612,6 +663,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 10,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Inspección de chimenea y conducto de humos',
@@ -623,6 +675,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'INSTALLATIONS',
       },
     ],
   },
@@ -642,6 +695,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 30,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Ajuste de burletes y sellados',
@@ -653,6 +707,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 60,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Inspección de marcos y premarcos',
@@ -664,6 +719,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Control de vidrios y masillas',
@@ -675,6 +731,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 20,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Tratamiento de marcos de madera',
@@ -686,6 +743,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 24,
         estimatedDurationMinutes: 120,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Mantenimiento de persianas de enrollar',
@@ -697,6 +755,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Control de mosquiteros',
@@ -708,6 +767,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 20,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Inspección de rejas y protecciones metálicas',
@@ -719,6 +779,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 25,
+        defaultSector: 'INTERIOR',
       },
     ],
   },
@@ -738,6 +799,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'EXTERIOR',
       },
       {
         name: 'Control de humedad en muros interiores',
@@ -749,6 +811,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 20,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Tratamiento anti-humedad',
@@ -760,6 +823,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ON_DETECTION',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 120,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Inspección de revestimientos cerámicos',
@@ -771,6 +835,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 20,
+        defaultSector: 'BATHROOM',
       },
       {
         name: 'Sellado de juntas en áreas húmedas',
@@ -782,6 +847,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 45,
+        defaultSector: 'BATHROOM',
       },
       {
         name: 'Repintado de fachada exterior',
@@ -793,6 +859,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'CUSTOM',
         recurrenceMonths: 48,
         estimatedDurationMinutes: 480,
+        defaultSector: 'EXTERIOR',
       },
       {
         name: 'Tratamiento de capa aisladora horizontal',
@@ -804,6 +871,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ON_DETECTION',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 240,
+        defaultSector: 'BASEMENT',
       },
       {
         name: 'Inspección de revoques interiores',
@@ -815,6 +883,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 25,
+        defaultSector: 'INTERIOR',
       },
     ],
   },
@@ -834,6 +903,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 20,
+        defaultSector: 'GARDEN',
       },
       {
         name: 'Control de medianeras y cercos',
@@ -845,6 +915,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'GARDEN',
       },
       {
         name: 'Limpieza de desagües exteriores',
@@ -856,6 +927,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'QUARTERLY',
         recurrenceMonths: 3,
         estimatedDurationMinutes: 30,
+        defaultSector: 'GARDEN',
       },
       {
         name: 'Control de pileta de natación',
@@ -867,6 +939,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'MONTHLY',
         recurrenceMonths: 1,
         estimatedDurationMinutes: 30,
+        defaultSector: 'GARDEN',
       },
       {
         name: 'Poda de árboles cercanos a la estructura',
@@ -878,6 +951,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 120,
+        defaultSector: 'GARDEN',
       },
       {
         name: 'Mantenimiento de parrilla y quincho',
@@ -889,6 +963,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 30,
+        defaultSector: 'GARDEN',
       },
       {
         name: 'Control de cochera y garaje',
@@ -900,6 +975,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'GARDEN',
       },
       {
         name: 'Inspección de pérgola, semi-cubierta o deck',
@@ -911,6 +987,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'GARDEN',
       },
       {
         name: 'Mantenimiento de sistema de riego',
@@ -922,6 +999,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 30,
+        defaultSector: 'GARDEN',
       },
       {
         name: 'Inspección de cerco perimetral y portones',
@@ -933,6 +1011,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 25,
+        defaultSector: 'GARDEN',
       },
       {
         name: 'Control de tanque cisterna enterrado',
@@ -944,6 +1023,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 45,
+        defaultSector: 'GARDEN',
       },
       {
         name: 'Inspección de muro de contención',
@@ -955,6 +1035,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'GARDEN',
       },
       {
         name: 'Puesta en marcha y cierre estacional de pileta',
@@ -966,6 +1047,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 60,
+        defaultSector: 'GARDEN',
       },
     ],
   },
@@ -985,6 +1067,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'QUARTERLY',
         recurrenceMonths: 3,
         estimatedDurationMinutes: 20,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Service de aire acondicionado',
@@ -996,6 +1079,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 90,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Inspección de unidad exterior',
@@ -1007,6 +1091,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 15,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Control de ventilación natural',
@@ -1018,6 +1103,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 10,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Evaluación de aislación térmica',
@@ -1029,6 +1115,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 36,
         estimatedDurationMinutes: 120,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Inspección de calefacción por losa radiante',
@@ -1040,6 +1127,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 45,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Control de ventiladores de techo',
@@ -1051,6 +1139,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 15,
+        defaultSector: 'INTERIOR',
       },
     ],
   },
@@ -1070,6 +1159,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 30,
+        defaultSector: 'BASEMENT',
       },
       {
         name: 'Control de muros enterrados y subsuelos',
@@ -1081,6 +1171,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 60,
+        defaultSector: 'BASEMENT',
       },
       {
         name: 'Verificación de impermeabilización en baños y cocina',
@@ -1092,6 +1183,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'BATHROOM',
       },
       {
         name: 'Control de ventilación para prevención de condensación',
@@ -1103,6 +1195,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 20,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Inspección post-lluvia intensa',
@@ -1114,6 +1207,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ON_DETECTION',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'EXTERIOR',
       },
       {
         name: 'Control de drenaje perimetral',
@@ -1125,6 +1219,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'GARDEN',
       },
     ],
   },
@@ -1144,6 +1239,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'MONTHLY',
         recurrenceMonths: 1,
         estimatedDurationMinutes: 10,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Control y recarga de matafuegos',
@@ -1155,6 +1251,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Revisión de instalación eléctrica como fuente de ignición',
@@ -1166,6 +1263,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 45,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Verificación de vías de evacuación',
@@ -1177,6 +1275,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 15,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Control de detector de monóxido de carbono',
@@ -1188,6 +1287,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'MONTHLY',
         recurrenceMonths: 1,
         estimatedDurationMinutes: 5,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Revisión de instalación de gas como fuente de ignición',
@@ -1199,6 +1299,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'INSTALLATIONS',
       },
     ],
   },
@@ -1218,6 +1319,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'QUARTERLY',
         recurrenceMonths: 3,
         estimatedDurationMinutes: 30,
+        defaultSector: 'EXTERIOR',
       },
       {
         name: 'Control preventivo de termitas',
@@ -1229,6 +1331,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 60,
+        defaultSector: 'EXTERIOR',
       },
       {
         name: 'Desinsectación preventiva',
@@ -1240,6 +1343,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 90,
+        defaultSector: 'EXTERIOR',
       },
       {
         name: 'Desratización preventiva',
@@ -1251,6 +1355,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 60,
+        defaultSector: 'EXTERIOR',
       },
       {
         name: 'Eliminación de criaderos de mosquitos',
@@ -1262,6 +1367,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'MONTHLY',
         recurrenceMonths: 1,
         estimatedDurationMinutes: 20,
+        defaultSector: 'EXTERIOR',
       },
       {
         name: 'Control de murciélagos',
@@ -1273,6 +1379,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'EXTERIOR',
       },
     ],
   },
@@ -1292,6 +1399,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Verificación de contrapiso y nivelación',
@@ -1303,6 +1411,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 24,
         estimatedDurationMinutes: 45,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Sellado de juntas de dilatación en pisos',
@@ -1314,6 +1423,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 24,
         estimatedDurationMinutes: 45,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Tratamiento de pisos de madera o parquet',
@@ -1325,6 +1435,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'CUSTOM',
         recurrenceMonths: 48,
         estimatedDurationMinutes: 480,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Limpieza y sellado de pisos de piedra natural',
@@ -1336,6 +1447,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 60,
+        defaultSector: 'INTERIOR',
       },
     ],
   },
@@ -1356,6 +1468,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 20,
+        defaultSector: 'KITCHEN',
       },
       {
         name: 'Inspección de mesada y bacha',
@@ -1367,6 +1480,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 15,
+        defaultSector: 'KITCHEN',
       },
       {
         name: 'Limpieza de filtros de extractor de cocina',
@@ -1378,6 +1492,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'QUARTERLY',
         recurrenceMonths: 3,
         estimatedDurationMinutes: 20,
+        defaultSector: 'KITCHEN',
       },
       {
         name: 'Inspección de campana extractora',
@@ -1389,6 +1504,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 15,
+        defaultSector: 'KITCHEN',
       },
       {
         name: 'Inspección de mueble de baño/vanitory',
@@ -1400,6 +1516,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 15,
+        defaultSector: 'BATHROOM',
       },
       {
         name: 'Control de mecanismo de descarga de inodoro',
@@ -1411,6 +1528,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 10,
+        defaultSector: 'BATHROOM',
       },
       {
         name: 'Verificación de fijación de sanitarios',
@@ -1422,6 +1540,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 10,
+        defaultSector: 'BATHROOM',
       },
       {
         name: 'Control de conexiones de lavarropas',
@@ -1433,6 +1552,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 10,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Control de termotanque eléctrico',
@@ -1444,6 +1564,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Inspección de lavavajillas',
@@ -1455,6 +1576,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 15,
+        defaultSector: 'KITCHEN',
       },
     ],
   },
@@ -1474,6 +1596,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 20,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Control de válvulas y conexiones flexibles GLP',
@@ -1485,6 +1608,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 15,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Verificación de ubicación y ventilación del tanque GLP',
@@ -1496,6 +1620,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 10,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Prueba de hermeticidad de instalación GLP',
@@ -1507,6 +1632,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'INSTALLATIONS',
       },
     ],
   },
@@ -1526,6 +1652,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Service de bomba sumergible',
@@ -1537,6 +1664,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 60,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Control de brocal y sellado de perforación',
@@ -1548,6 +1676,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 20,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Mantenimiento de equipo de tratamiento de agua',
@@ -1559,6 +1688,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'QUARTERLY',
         recurrenceMonths: 3,
         estimatedDurationMinutes: 20,
+        defaultSector: 'INSTALLATIONS',
       },
     ],
   },
@@ -1578,6 +1708,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'QUARTERLY',
         recurrenceMonths: 3,
         estimatedDurationMinutes: 30,
+        defaultSector: 'ROOF',
       },
       {
         name: 'Inspección de sistema fotovoltaico completo',
@@ -1589,6 +1720,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 60,
+        defaultSector: 'ROOF',
       },
       {
         name: 'Control de termotanque solar',
@@ -1600,6 +1732,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 30,
+        defaultSector: 'ROOF',
       },
       {
         name: 'Verificación de sistema de recolección de agua de lluvia',
@@ -1611,6 +1744,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'QUARTERLY',
         recurrenceMonths: 3,
         estimatedDurationMinutes: 20,
+        defaultSector: 'GARDEN',
       },
       {
         name: 'Inspección de sistema de reciclado de aguas grises',
@@ -1622,6 +1756,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 30,
+        defaultSector: 'INSTALLATIONS',
       },
     ],
   },
@@ -1641,6 +1776,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'MONTHLY',
         recurrenceMonths: 1,
         estimatedDurationMinutes: 15,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Inspección de cámaras de seguridad',
@@ -1652,6 +1788,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'QUARTERLY',
         recurrenceMonths: 3,
         estimatedDurationMinutes: 20,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Mantenimiento de portero eléctrico o videoportero',
@@ -1663,6 +1800,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 15,
+        defaultSector: 'INSTALLATIONS',
       },
       {
         name: 'Control de automatización del hogar',
@@ -1674,6 +1812,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
         estimatedDurationMinutes: 30,
+        defaultSector: 'INSTALLATIONS',
       },
     ],
   },
@@ -1693,6 +1832,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 20,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Control de cielorraso de machimbre',
@@ -1704,6 +1844,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 20,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Inspección de entretecho',
@@ -1715,6 +1856,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'ROOF',
       },
       {
         name: 'Control de entrepiso de madera',
@@ -1726,6 +1868,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'INTERIOR',
       },
     ],
   },
@@ -1745,6 +1888,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 45,
+        defaultSector: 'ROOF',
       },
       {
         name: 'Control post-tormenta eléctrica',
@@ -1756,6 +1900,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ON_DETECTION',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 20,
+        defaultSector: 'ROOF',
       },
       {
         name: 'Verificación de equipotencialización',
@@ -1767,6 +1912,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'CUSTOM',
         recurrenceMonths: 36,
         estimatedDurationMinutes: 45,
+        defaultSector: 'ROOF',
       },
     ],
   },
@@ -1786,6 +1932,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 20,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Control de barandas y pasamanos',
@@ -1797,6 +1944,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 15,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Mantenimiento de escalera de acceso a terraza',
@@ -1808,6 +1956,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 15,
+        defaultSector: 'TERRACE',
       },
     ],
   },
@@ -1827,6 +1976,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 24,
         estimatedDurationMinutes: 90,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Actualización de planos de instalaciones',
@@ -1838,6 +1988,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ON_DETECTION',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 120,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Revisión de póliza de seguro del hogar',
@@ -1849,6 +2000,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Verificación de habilitación municipal',
@@ -1860,6 +2012,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ON_DETECTION',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 60,
+        defaultSector: 'INTERIOR',
       },
       {
         name: 'Archivo de comprobantes de mantenimiento',
@@ -1871,6 +2024,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
+        defaultSector: 'INTERIOR',
       },
     ],
   },

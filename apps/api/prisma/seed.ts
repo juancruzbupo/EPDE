@@ -140,6 +140,7 @@ async function main() {
               recurrenceType: task.recurrenceType as 'ANNUAL',
               recurrenceMonths: task.recurrenceMonths,
               estimatedDurationMinutes: task.estimatedDurationMinutes,
+              defaultSector: task.defaultSector as 'EXTERIOR',
               displayOrder: index,
             })),
           },
@@ -151,6 +152,16 @@ async function main() {
     console.log(`${missingCategories.length} new category templates created`);
   } else {
     console.log(`All ${existingTemplates} category templates up to date`);
+  }
+
+  // Sync defaultSector on existing task templates (idempotent)
+  for (const category of TEMPLATE_SEED_DATA) {
+    for (const task of category.tasks) {
+      await prisma.taskTemplate.updateMany({
+        where: { name: task.name, defaultSector: null },
+        data: { defaultSector: task.defaultSector as 'EXTERIOR' },
+      });
+    }
   }
 
   // Link categories to their matching templates via FK
