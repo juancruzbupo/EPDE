@@ -199,17 +199,10 @@ export function PropertyTour() {
 const BUDGET_STEPS: Step[] = [
   {
     target: '[data-tour="budget-status"]',
-    title: 'Ciclo del presupuesto',
+    title: 'Tu presupuesto',
     content:
-      'Primero lo solicitás, EPDE lo cotiza con detalle de costos, y vos decidís si aprobarlo o rechazarlo.',
+      'El badge de arriba muestra en qué etapa está: Pendiente = esperando cotización. Cotizado = EPDE te envió el detalle, revisalo y decidí si aprobarlo. Aprobado = el trabajo ya está en marcha.',
     skipBeacon: true,
-    ...SHARED_STEP_DEFAULTS,
-  },
-  {
-    target: '[data-tour="budget-actions"]',
-    title: 'Aprobar o rechazar',
-    content:
-      'Cuando la cotización esté lista, aparecen los botones para aprobar o rechazar. Si tenés dudas, podés dejar un comentario antes de decidir.',
     ...SHARED_STEP_DEFAULTS,
   },
 ];
@@ -337,6 +330,30 @@ export function ServicesListTour() {
   return <Tour storageKey="epde-tour-services-list" steps={SERVICES_LIST_STEPS} />;
 }
 
+// ─── Service request detail tour ────────────────────────
+
+const SERVICE_DETAIL_STEPS: Step[] = [
+  {
+    target: '[data-tour="service-info"]',
+    title: 'Tu solicitud de servicio',
+    content:
+      'Acá ves el estado actual, la urgencia y los datos de tu solicitud. EPDE la revisa, y te avisa por email y notificación cuando avance.',
+    skipBeacon: true,
+    ...SHARED_STEP_DEFAULTS,
+  },
+  {
+    target: '[data-tour="service-comments"]',
+    title: 'Comentarios',
+    content:
+      'Podés dejar mensajes para el equipo de EPDE. Si tenés dudas o querés agregar información, escribí acá.',
+    ...SHARED_STEP_DEFAULTS,
+  },
+];
+
+export function ServiceDetailTour() {
+  return <Tour storageKey="epde-tour-service-detail" steps={SERVICE_DETAIL_STEPS} />;
+}
+
 // ─── Maintenance plans list tour ────────────────────────
 
 const PLANS_LIST_STEPS: Step[] = [
@@ -367,6 +384,7 @@ const TOUR_KEYS = [
   'epde-tour-plans-list',
   'epde-tour-plan-viewer',
   'epde-tour-expenses',
+  'epde-tour-service-detail',
 ];
 
 export function resetOnboardingTour() {

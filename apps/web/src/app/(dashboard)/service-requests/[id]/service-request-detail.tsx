@@ -28,6 +28,7 @@ import { useState } from 'react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ErrorState } from '@/components/error-state';
+import { ServiceDetailTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -125,8 +126,9 @@ export function ServiceRequestDetail({
         }
       />
 
+      <ServiceDetailTour />
       <div className="space-y-6">
-        <Card>
+        <Card data-tour="service-info">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Información de la solicitud</CardTitle>
             <Badge variant={SERVICE_STATUS_VARIANT[request.status] ?? 'secondary'}>
@@ -264,7 +266,9 @@ export function ServiceRequestDetail({
           serviceRequestStatus={request.status}
         />
 
-        <ServiceRequestComments serviceRequestId={id} serviceRequestStatus={request.status} />
+        <div data-tour="service-comments">
+          <ServiceRequestComments serviceRequestId={id} serviceRequestStatus={request.status} />
+        </div>
 
         <ServiceRequestTimeline serviceRequestId={id} />
       </div>
