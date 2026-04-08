@@ -99,7 +99,7 @@ const DASHBOARD_STEPS: Step[] = [
     target: '[data-tour="health-score"]',
     title: 'ISV: el estado de tu casa',
     content:
-      'Va de 0 a 100. Sube cuando completás tareas a tiempo, baja cuando se vencen. Un ISV bajo significa que los problemas se acumulan y las reparaciones salen más caras.',
+      'Va de 0 a 100. Sube cuando completás tareas a tiempo, baja cuando se vencen. Si ves un fuego 🔥 es tu racha de meses al día. Un ISV bajo = reparaciones más caras.',
     skipBeacon: true,
     ...SHARED_STEP_DEFAULTS,
   },
@@ -108,13 +108,6 @@ const DASHBOARD_STEPS: Step[] = [
     title: 'Tus tareas de un vistazo',
     content:
       'Vencidas: pasaron la fecha, atendelas primero. Pendientes: programadas a más de 30 días. Completadas: lo que hiciste este mes. Presupuestos: cotizaciones esperando tu decisión.',
-    ...SHARED_STEP_DEFAULTS,
-  },
-  {
-    target: '[data-tour="streak-badges"]',
-    title: 'Tu racha y progreso',
-    content:
-      'El fuego muestra cuántos meses seguidos completaste todo a tiempo. "Semana perfecta" aparece cuando no dejás nada pendiente. Mantené la racha para mejorar tu ISV.',
     ...SHARED_STEP_DEFAULTS,
   },
   {

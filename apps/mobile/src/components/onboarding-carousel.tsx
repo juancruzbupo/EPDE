@@ -144,7 +144,10 @@ export const OnboardingCarousel = memo(function OnboardingCarousel({
       {/* Dots + button */}
       <View className="items-center gap-6 px-6">
         {/* Dots */}
-        <View className="flex-row gap-2">
+        <View
+          className="flex-row gap-2"
+          accessibilityLabel={`Paso ${activeIndex + 1} de ${SLIDES.length}`}
+        >
           {SLIDES.map((_, i) => (
             <View
               key={i}

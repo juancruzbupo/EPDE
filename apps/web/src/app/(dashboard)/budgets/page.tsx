@@ -80,7 +80,7 @@ function BudgetsPageContent() {
 
   return (
     <PageTransition>
-      <BudgetsListTour />
+      {user?.role === UserRole.CLIENT && <BudgetsListTour />}
       <PageHeader
         title="Presupuestos"
         description="Gestión de presupuestos"

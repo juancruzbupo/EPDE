@@ -111,7 +111,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
 
   return (
     <div>
-      {!showWelcome && <DashboardTour />}
+      {!showWelcome && stats && <DashboardTour />}
       <PageHeader
         title={`Bienvenido, ${userName}`}
         description="Resumen de tus propiedades y tareas"
