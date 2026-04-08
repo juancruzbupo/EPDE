@@ -1,11 +1,13 @@
 'use client';
 
+import type { TaskPriority as TaskPriorityType } from '@epde/shared';
 import {
   createTaskSchema,
   PROFESSIONAL_REQUIREMENT_LABELS,
   PROPERTY_SECTOR_LABELS,
   RECURRENCE_TYPE_LABELS,
   RecurrenceType,
+  suggestDueDate,
   TASK_PRIORITY_LABELS,
   TASK_TYPE_LABELS,
 } from '@epde/shared';
@@ -74,7 +76,20 @@ export function TaskDialog({ open, onOpenChange, planId, task, activeSectors }: 
   });
 
   const recurrenceType = watch('recurrenceType');
+  const watchedPriority = watch('priority');
+  const watchedRecurrenceMonths = watch('recurrenceMonths');
   const watchedCategoryId = watch('categoryId');
+
+  // Auto-suggest due date when priority changes (only for new tasks without a date)
+  useEffect(() => {
+    if (isEdit) return;
+    const suggested = suggestDueDate(
+      watchedPriority as TaskPriorityType,
+      recurrenceType as RecurrenceType,
+      watchedRecurrenceMonths,
+    );
+    if (suggested) setValue('nextDueDate', suggested);
+  }, [watchedPriority, recurrenceType, watchedRecurrenceMonths, isEdit, setValue]);
 
   const { categories, categoriesLoading, taskTemplates, applyTemplate } = useTaskTemplates(
     watchedCategoryId,
