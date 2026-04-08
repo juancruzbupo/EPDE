@@ -122,19 +122,17 @@ export const CompletionFindingsForm = React.memo(function CompletionFindingsForm
         onChange={onExecutorChange}
       />
 
-      {/* Expandable details */}
-      {!showDetails && (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Mostrar más opciones"
-          onPress={() => setShowDetails(true)}
-          className="mb-4"
-        >
-          <Text style={TYPE.labelLg} className="text-primary">
-            ▾ Agregar más detalles
-          </Text>
-        </Pressable>
-      )}
+      {/* Toggle details */}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={showDetails ? 'Mostrar menos opciones' : 'Mostrar más opciones'}
+        onPress={() => setShowDetails(!showDetails)}
+        className="mb-4"
+      >
+        <Text style={TYPE.labelLg} className="text-primary">
+          {showDetails ? '▴ Menos detalles' : '▾ Agregar más detalles'}
+        </Text>
+      </Pressable>
 
       {showDetails && (
         <>

@@ -51,6 +51,7 @@ export function CompleteTaskModal({
   const [completedAtText, setCompletedAtText] = useState('');
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+  const [formKey, setFormKey] = useState(0);
 
   const completeTask = useCompleteTask({
     onProblemDetected: onProblemDetected ? () => onProblemDetected() : undefined,
@@ -84,6 +85,7 @@ export function CompleteTaskModal({
     setCompletedAtText('');
     setPhotoUri(null);
     setUploadedUrl(null);
+    setFormKey((k) => k + 1);
   };
 
   const pickImage = () => {
@@ -272,6 +274,7 @@ export function CompleteTaskModal({
           </Text>
 
           <CompletionFindingsForm
+            key={formKey}
             result={result}
             onResultChange={setResult}
             conditionFound={conditionFound}

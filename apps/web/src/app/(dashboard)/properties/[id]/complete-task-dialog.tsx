@@ -186,6 +186,7 @@ export function CompleteTaskDialog({
           if (currentObjectUrl.current) URL.revokeObjectURL(currentObjectUrl.current);
           currentObjectUrl.current = null;
           setPreview(null);
+          setShowDetails(false);
           onOpenChange(false);
         },
       },
@@ -194,8 +195,13 @@ export function CompleteTaskDialog({
 
   if (!task) return null;
 
+  const handleOpenChange = (value: boolean) => {
+    if (!value) setShowDetails(false);
+    onOpenChange(value);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Registrar: {task.name}</DialogTitle>
@@ -264,17 +270,17 @@ export function CompleteTaskDialog({
             )}
           </div>
 
-          {/* Expandable details */}
-          {!showDetails && (
-            <button
-              type="button"
-              onClick={() => setShowDetails(true)}
-              className="text-primary hover:text-primary/80 flex items-center gap-1 text-sm font-medium transition-colors"
-            >
-              <ChevronDown className="h-4 w-4" />
-              Agregar más detalles
-            </button>
-          )}
+          {/* Toggle details */}
+          <button
+            type="button"
+            onClick={() => setShowDetails(!showDetails)}
+            className="text-primary hover:text-primary/80 flex items-center gap-1 text-sm font-medium transition-colors"
+          >
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${showDetails ? 'rotate-180' : ''}`}
+            />
+            {showDetails ? 'Menos detalles' : 'Agregar más detalles'}
+          </button>
 
           {showDetails && (
             <>
@@ -390,7 +396,7 @@ export function CompleteTaskDialog({
           )}
 
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
               Cancelar
             </Button>
             <Button type="submit" disabled={completeTask.isPending || uploadFile.isPending}>
