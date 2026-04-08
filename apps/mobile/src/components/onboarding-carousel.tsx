@@ -20,12 +20,17 @@ const SLIDES: Slide[] = [
   {
     emoji: '🏠',
     title: 'Tu casa tiene un puntaje',
-    body: 'El ISV mide el estado de tu vivienda de 0 a 100. Sube cuando completás tareas a tiempo y baja cuando se vencen.',
+    body: 'El ISV mide el estado de tu vivienda de 0 a 100. Sube cuando completás tareas a tiempo. Un puntaje bajo significa reparaciones más caras a futuro.',
   },
   {
     emoji: '✅',
     title: 'Tareas organizadas',
-    body: 'Tenés un plan de mantenimiento con todo lo que tu casa necesita. Te avisamos cuando algo está por vencer.',
+    body: 'Tenés un plan de mantenimiento con todo lo que tu casa necesita. Cada tarea tiene prioridad y fecha: Alta = urgente, Media = regular, Baja = cuando puedas.',
+  },
+  {
+    emoji: '👆',
+    title: 'Completar es fácil',
+    body: 'Para completar una tarea solo indicás en qué estado encontraste todo y quién lo hizo. Tarda menos de 1 minuto.',
   },
   {
     emoji: '🔔',
@@ -35,7 +40,7 @@ const SLIDES: Slide[] = [
   {
     emoji: '📋',
     title: 'Servicios y presupuestos',
-    body: 'Si algo necesita intervención profesional, pedilo desde la app. EPDE cotiza y coordina todo.',
+    body: '¿Algo necesita un profesional? Pedí un servicio o presupuesto desde la app. EPDE cotiza, coordina y te avisa.',
   },
 ];
 

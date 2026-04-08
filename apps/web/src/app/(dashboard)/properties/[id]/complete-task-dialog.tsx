@@ -206,8 +206,8 @@ export function CompleteTaskDialog({
         <DialogHeader>
           <DialogTitle>Registrar: {task.name}</DialogTitle>
           <DialogDescription>
-            Registrá el resultado basado en lo observado durante la inspección. Los campos marcados
-            con <span className="text-destructive">*</span> son obligatorios.
+            Solo necesitás completar 2 campos. Si querés agregar costo, notas o fotos, expandí
+            &quot;Más detalles&quot;.
           </DialogDescription>
         </DialogHeader>
         <form

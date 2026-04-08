@@ -99,7 +99,7 @@ const DASHBOARD_STEPS: Step[] = [
     target: '[data-tour="health-score"]',
     title: 'ISV: el estado de tu casa',
     content:
-      'Este número va de 0 a 100. Sube cuando completás tareas a tiempo y baja cuando se vencen. Cuanto más alto, mejor está tu vivienda.',
+      'Va de 0 a 100. Sube cuando completás tareas a tiempo, baja cuando se vencen. Un ISV bajo significa que los problemas se acumulan y las reparaciones salen más caras.',
     skipBeacon: true,
     ...SHARED_STEP_DEFAULTS,
   },
@@ -107,21 +107,21 @@ const DASHBOARD_STEPS: Step[] = [
     target: '[data-tour="mini-stats"]',
     title: 'Tus tareas de un vistazo',
     content:
-      'Vencidas: pasaron la fecha. Pendientes: tienen fecha pero falta más de 30 días. Completadas: lo que hiciste este mes.',
+      'Vencidas: pasaron la fecha, atendelas primero. Pendientes: programadas a más de 30 días. Completadas: lo que hiciste este mes. Presupuestos: cotizaciones esperando tu decisión.',
     ...SHARED_STEP_DEFAULTS,
   },
   {
     target: '[data-tour="action-buttons"]',
     title: '¿Qué hago primero?',
     content:
-      '"Ver qué hacer" te muestra las tareas más urgentes. "Ver análisis completo" te muestra cómo viene tu vivienda en el tiempo.',
+      '"Ver qué hacer" te muestra las tareas más urgentes. "Ver análisis completo" te muestra cómo evoluciona tu vivienda en el tiempo.',
     ...SHARED_STEP_DEFAULTS,
   },
   {
     target: '[data-tour="sidebar-nav"]',
     title: 'Menú principal',
     content:
-      'Desde acá accedés a todo: tareas, propiedades, presupuestos y servicios. También te llegan avisos por email cuando haya algo pendiente.',
+      'Desde acá accedés a todo: tareas, propiedades, presupuestos y servicios. También te llegan avisos por email y notificaciones en el celular.',
     placement: 'right',
     ...SHARED_STEP_DEFAULTS,
   },
@@ -138,21 +138,22 @@ const TASKS_STEPS: Step[] = [
     target: '[data-tour="task-stats"]',
     title: 'Filtrá por estado',
     content:
-      'Hacé click en una tarjeta para ver solo las tareas de ese estado. Vencidas = pasaron la fecha. Próximas = vencen en menos de 30 días.',
+      'Hacé click en una tarjeta para ver solo las tareas de ese estado. Vencidas = pasaron la fecha, son las más urgentes. Próximas = vencen en los próximos 30 días.',
     skipBeacon: true,
     ...SHARED_STEP_DEFAULTS,
   },
   {
     target: '[data-tour="task-filters"]',
-    title: 'Buscá tareas',
-    content: 'Buscá por nombre o filtrá por prioridad y propiedad.',
+    title: 'Buscá y filtrá',
+    content:
+      'Buscá por nombre o filtrá por prioridad: Alta = requiere atención pronto, Media = mantenimiento regular, Baja = mejoras opcionales.',
     ...SHARED_STEP_DEFAULTS,
   },
   {
     target: '[data-tour="task-list"]',
     title: 'Completar una tarea',
     content:
-      'Hacé click en cualquier tarea para ver el detalle. Para completarla solo tenés que indicar en qué estado la encontraste y quién la hizo.',
+      'Hacé click en una tarea para ver el detalle. Para completarla solo indicás el estado en que encontraste todo y quién lo hizo. Tarda menos de 1 minuto.',
     ...SHARED_STEP_DEFAULTS,
   },
 ];
@@ -241,7 +242,7 @@ const EXPENSES_STEPS: Step[] = [
     target: '[data-tour="expenses-stats"]',
     title: 'Lo que llevas invertido',
     content:
-      'Total acumulado en mantenimiento, cuánto gastás por mes en promedio, y en qué categoría se concentra la inversión.',
+      'Total acumulado en mantenimiento, promedio mensual basado en tu historial, y la categoría donde más invertiste.',
     skipBeacon: true,
     ...SHARED_STEP_DEFAULTS,
   },
@@ -249,7 +250,7 @@ const EXPENSES_STEPS: Step[] = [
     target: '[data-tour="expenses-breakdown"]',
     title: 'Dónde se va la plata',
     content:
-      'Ves cuánto se gasta en cada sector de tu casa. Podés alternar entre vista por sector y por categoría.',
+      'Por sector = dónde en tu casa (techo, baño, exterior). Por categoría = qué tipo de trabajo (plomería, electricidad, pintura). Podés alternar con los botones.',
     ...SHARED_STEP_DEFAULTS,
   },
 ];
@@ -312,7 +313,7 @@ const SERVICES_LIST_STEPS: Step[] = [
     target: '[data-tour="services-action"]',
     title: '¿Detectaste un problema?',
     content:
-      'Creá una solicitud de servicio y EPDE coordina la intervención profesional. También podés crearla desde una tarea.',
+      'Creá una solicitud y EPDE coordina todo: la revisamos, la cotizamos si hace falta, y te avisamos cuando esté resuelta.',
     skipBeacon: true,
     ...SHARED_STEP_DEFAULTS,
   },
@@ -320,7 +321,7 @@ const SERVICES_LIST_STEPS: Step[] = [
     target: '[data-tour="services-filters"]',
     title: 'Seguí tus solicitudes',
     content:
-      'Filtrá por estado (abierta, en revisión, resuelta) o por urgencia para encontrar una solicitud rápido.',
+      'Cada solicitud pasa por etapas: Abierta → En revisión → En progreso → Resuelta. Filtrá por estado o urgencia.',
     ...SHARED_STEP_DEFAULTS,
   },
 ];
@@ -336,7 +337,7 @@ const PLANS_LIST_STEPS: Step[] = [
     target: '[data-tour="plans-list"]',
     title: 'Planes de mantenimiento',
     content:
-      'Cada propiedad tiene un plan con sus tareas programadas. Los activos generan recordatorios automáticos. Hacé click en uno para ver las tareas.',
+      'Cada propiedad tiene un plan con sus tareas. Activo = en uso, genera recordatorios. Borrador = en preparación. Archivado = ya no se usa. Hacé click en uno para ver las tareas.',
     skipBeacon: true,
     ...SHARED_STEP_DEFAULTS,
   },
