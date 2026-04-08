@@ -3,9 +3,7 @@ import {
   BudgetStatus,
   CONDITION_FOUND_LABELS,
   CONDITION_SCORE,
-  CONDITION_SCORE_PERCENT,
   type ConditionFound,
-  PREVENTIVE_ACTIONS,
   type PropertySector,
   ServiceStatus,
   TaskPriority,
@@ -17,6 +15,7 @@ import { Prisma } from '@prisma/client';
 import { addDays, format, startOfMonth, subMonths } from 'date-fns';
 
 import { PrismaService } from '../prisma/prisma.service';
+import { computeHealthIndex } from './health-index.calculator';
 
 /**
  * Standalone repository — does not extend BaseRepository because dashboard
@@ -703,106 +702,20 @@ export class DashboardRepository {
       }),
     ]);
 
-    if (tasks.length === 0) {
-      return {
-        score: 0,
-        label: 'Sin datos',
-        dimensions: { compliance: 0, condition: 0, coverage: 0, investment: 0, trend: 0 },
-        sectorScores: [],
-      };
-    }
-
-    // ─── 1. COMPLIANCE (35%) — weighted by priority ───
-    const priorityWeight = { HIGH: 3, URGENT: 4, MEDIUM: 2, LOW: 1 } as Record<string, number>;
-    let totalWeight = 0;
-    let onTimeWeight = 0;
-    for (const t of tasks) {
-      const w = priorityWeight[t.priority] ?? 2;
-      totalWeight += w;
-      if (t.status !== TaskStatus.OVERDUE) onTimeWeight += w;
-    }
-    const compliance = totalWeight > 0 ? Math.round((onTimeWeight / totalWeight) * 100) : 100;
-
-    // ─── 2. CONDITION (30%) — avg conditionFound of recent inspections ───
-    const conditionScores = recentLogs
-      .map((l) => CONDITION_SCORE_PERCENT[l.conditionFound as ConditionFound] ?? 60)
-      .filter((v) => v != null);
-    const condition =
-      conditionScores.length > 0
-        ? Math.round(conditionScores.reduce((a, b) => a + b, 0) / conditionScores.length)
-        : 50; // default if no inspections
-
-    // ─── 3. COVERAGE (20%) — % sectors with inspection in last 12 months ───
-    const allSectors = new Set(tasks.map((t) => t.sector).filter(Boolean));
-    const inspectedSectors = new Set(recentLogs.map((l) => l.task.sector).filter(Boolean));
-    const coverage =
-      allSectors.size > 0 ? Math.round((inspectedSectors.size / allSectors.size) * 100) : 0;
-
-    // ─── 4. INVESTMENT (15%) — preventive vs corrective ratio ───
-    const preventiveCount = recentLogs.filter((l) =>
-      (PREVENTIVE_ACTIONS as readonly string[]).includes(l.actionTaken),
-    ).length;
-    const _correctiveCount = recentLogs.length - preventiveCount;
-    const investment =
-      recentLogs.length > 0 ? Math.round((preventiveCount / recentLogs.length) * 100) : 50;
-
-    // ─── 5. TREND — compare current quarter condition vs previous ───
-    const recentConditionAvg = recentLogs
-      .filter((l) => l.completedAt >= threeMonthsAgo)
-      .map((l) => CONDITION_SCORE_PERCENT[l.conditionFound as ConditionFound] ?? 60);
-    const olderConditionAvg = olderLogs.map(
-      (l) => CONDITION_SCORE_PERCENT[l.conditionFound as ConditionFound] ?? 60,
+    return computeHealthIndex(
+      tasks,
+      recentLogs.map((l) => ({
+        conditionFound: l.conditionFound,
+        actionTaken: l.actionTaken,
+        completedAt: l.completedAt,
+        taskSector: l.task.sector,
+      })),
+      olderLogs.map((l) => ({
+        conditionFound: l.conditionFound,
+        actionTaken: l.actionTaken,
+      })),
+      threeMonthsAgo,
     );
-
-    const avgRecent =
-      recentConditionAvg.length > 0
-        ? recentConditionAvg.reduce((a, b) => a + b, 0) / recentConditionAvg.length
-        : 50;
-    const avgOlder =
-      olderConditionAvg.length > 0
-        ? olderConditionAvg.reduce((a, b) => a + b, 0) / olderConditionAvg.length
-        : 50;
-    // Trend: 50 = stable, >50 = improving, <50 = declining
-    const trend = Math.max(0, Math.min(100, Math.round(50 + (avgRecent - avgOlder))));
-
-    // ─── GLOBAL SCORE ───
-    const globalScore = Math.round(
-      compliance * 0.35 + condition * 0.3 + coverage * 0.2 + investment * 0.15,
-    );
-
-    const labels: [number, string][] = [
-      [80, 'Excelente'],
-      [60, 'Bueno'],
-      [40, 'Regular'],
-      [20, 'Necesita atención'],
-      [0, 'Crítico'],
-    ];
-    const label = labels.find(([threshold]) => globalScore >= threshold)?.[1] ?? 'Crítico';
-
-    // ─── SECTOR SCORES ───
-    const sectorMap = new Map<string, { total: number; overdue: number }>();
-    for (const t of tasks) {
-      if (!t.sector) continue;
-      const entry = sectorMap.get(t.sector) ?? { total: 0, overdue: 0 };
-      entry.total += 1;
-      if (t.status === TaskStatus.OVERDUE) entry.overdue += 1;
-      sectorMap.set(t.sector, entry);
-    }
-    const sectorScores = [...sectorMap.entries()]
-      .map(([sector, data]) => ({
-        sector,
-        score: data.total > 0 ? Math.round(((data.total - data.overdue) / data.total) * 100) : 100,
-        overdue: data.overdue,
-        total: data.total,
-      }))
-      .sort((a, b) => a.score - b.score);
-
-    return {
-      score: globalScore,
-      label,
-      dimensions: { compliance, condition, coverage, investment, trend },
-      sectorScores,
-    };
   }
 
   /**
@@ -883,97 +796,20 @@ export class DashboardRepository {
       logsByPlan.set(pid, arr);
     }
 
-    const priorityWeight = { HIGH: 3, URGENT: 4, MEDIUM: 2, LOW: 1 } as Record<string, number>;
-    const labels: [number, string][] = [
-      [80, 'Excelente'],
-      [60, 'Bueno'],
-      [40, 'Regular'],
-      [20, 'Necesita atención'],
-      [0, 'Crítico'],
-    ];
-
     for (const planId of planIds) {
       const tasks = tasksByPlan.get(planId) ?? [];
       const logs = logsByPlan.get(planId) ?? [];
 
-      if (tasks.length === 0) {
-        result.set(planId, {
-          score: 0,
-          label: 'Sin datos',
-          dimensions: { compliance: 0, condition: 0, coverage: 0, investment: 0, trend: 50 },
-          sectorScores: [],
-        });
-        continue;
-      }
-
-      // Compliance
-      let totalW = 0;
-      let onTimeW = 0;
-      for (const t of tasks) {
-        const w = priorityWeight[t.priority] ?? 2;
-        totalW += w;
-        if (t.status !== TaskStatus.OVERDUE) onTimeW += w;
-      }
-      const compliance = totalW > 0 ? Math.round((onTimeW / totalW) * 100) : 100;
-
-      // Condition
-      const condScores = logs
-        .map((l) => CONDITION_SCORE_PERCENT[l.conditionFound as ConditionFound] ?? 60)
-        .filter((v) => v != null);
-      const condition =
-        condScores.length > 0
-          ? Math.round(condScores.reduce((a, b) => a + b, 0) / condScores.length)
-          : 50;
-
-      // Coverage
-      const allSectors = new Set(tasks.map((t) => t.sector).filter(Boolean));
-      const inspected = new Set(logs.map((l) => l.task.sector).filter(Boolean));
-      const coverage =
-        allSectors.size > 0 ? Math.round((inspected.size / allSectors.size) * 100) : 0;
-
-      // Investment
-      const prevCount = logs.filter((l) =>
-        (PREVENTIVE_ACTIONS as readonly string[]).includes(l.actionTaken),
-      ).length;
-      const investment = logs.length > 0 ? Math.round((prevCount / logs.length) * 100) : 50;
-
-      const score = Math.round(
-        compliance * 0.35 + condition * 0.3 + coverage * 0.2 + investment * 0.15,
+      const healthIndex = computeHealthIndex(
+        tasks,
+        logs.map((l) => ({
+          conditionFound: l.conditionFound,
+          actionTaken: l.actionTaken,
+          taskSector: l.task.sector,
+        })),
       );
-      const label = labels.find(([threshold]) => score >= threshold)?.[1] ?? 'Crítico';
 
-      // Sector scores
-      const sectorMap = new Map<
-        string,
-        { total: number; overdue: number; condSum: number; condCount: number }
-      >();
-      for (const t of tasks) {
-        if (!t.sector) continue;
-        const s = sectorMap.get(t.sector) ?? { total: 0, overdue: 0, condSum: 0, condCount: 0 };
-        s.total++;
-        if (t.status === TaskStatus.OVERDUE) s.overdue++;
-        sectorMap.set(t.sector, s);
-      }
-      for (const l of logs) {
-        if (!l.task.sector) continue;
-        const s = sectorMap.get(l.task.sector);
-        if (s) {
-          s.condSum += CONDITION_SCORE_PERCENT[l.conditionFound as ConditionFound] ?? 60;
-          s.condCount++;
-        }
-      }
-      const sectorScores = [...sectorMap.entries()].map(([sector, s]) => ({
-        sector,
-        score: s.condCount > 0 ? Math.round(s.condSum / s.condCount) : 50,
-        overdue: s.overdue,
-      }));
-
-      result.set(planId, {
-        score,
-        label,
-        dimensions: { compliance, condition, coverage, investment, trend: 50 },
-        sectorScores,
-      });
+      result.set(planId, healthIndex);
     }
 
     return result;
