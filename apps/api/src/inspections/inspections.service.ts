@@ -272,6 +272,32 @@ export class InspectionsService {
             where: { id: item.id },
             data: { taskId: task.id },
           });
+
+          // Create baseline TaskLog from inspection — feeds ISV from day 1
+          const conditionMap = {
+            OK: 'GOOD',
+            NEEDS_ATTENTION: 'FAIR',
+            NEEDS_PROFESSIONAL: 'POOR',
+          } as const;
+          const resultMap = {
+            OK: 'OK',
+            NEEDS_ATTENTION: 'OK_WITH_OBSERVATIONS',
+            NEEDS_PROFESSIONAL: 'NEEDS_REPAIR',
+          } as const;
+
+          await tx.taskLog.create({
+            data: {
+              taskId: task.id,
+              completedAt: checklist.inspectedAt,
+              completedBy: createdBy,
+              conditionFound: conditionMap[item.status as keyof typeof conditionMap] ?? 'GOOD',
+              result: resultMap[item.status as keyof typeof resultMap] ?? 'OK',
+              executor: 'EPDE_PROFESSIONAL',
+              actionTaken: 'INSPECTION_ONLY',
+              notes: item.finding,
+              photoUrl: item.photoUrl,
+            },
+          });
         }
 
         return tx.maintenancePlan.findUnique({
