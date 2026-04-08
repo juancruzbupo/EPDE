@@ -7,6 +7,7 @@ import {
   ChevronsRight,
   FileEdit,
   FileText,
+  HelpCircle,
   Home,
   LayoutDashboard,
   LayoutTemplate,
@@ -41,6 +42,7 @@ const clientNavItems = [
   { label: 'Propiedades', href: '/properties', icon: Home },
   { label: 'Presupuestos', href: '/budgets', icon: FileText },
   { label: 'Servicios', href: '/service-requests', icon: Wrench },
+  { label: 'Guía de uso', href: '/guia', icon: HelpCircle },
 ];
 
 export function Sidebar({ className }: { className?: string }) {
