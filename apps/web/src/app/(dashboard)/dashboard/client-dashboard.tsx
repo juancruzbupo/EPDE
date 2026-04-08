@@ -15,7 +15,7 @@ const AnalyticsTabs = dynamic(
 );
 import { ErrorState } from '@/components/error-state';
 import { HomeStatusCard } from '@/components/home-status-card';
-import { OnboardingTour } from '@/components/onboarding-tour';
+import { DashboardTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -104,7 +104,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
 
   return (
     <div>
-      {!showWelcome && <OnboardingTour />}
+      {!showWelcome && <DashboardTour />}
       <PageHeader
         title={`Bienvenido, ${userName}`}
         description="Resumen de tus propiedades y tareas"

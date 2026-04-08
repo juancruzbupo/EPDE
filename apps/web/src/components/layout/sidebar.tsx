@@ -82,7 +82,11 @@ export function Sidebar({ className }: { className?: string }) {
       </div>
 
       {/* Navigation */}
-      <nav aria-label="Navegación principal" className="flex-1 space-y-1 overflow-y-auto px-2">
+      <nav
+        data-tour="sidebar-nav"
+        aria-label="Navegación principal"
+        className="flex-1 space-y-1 overflow-y-auto px-2"
+      >
         {filteredItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (

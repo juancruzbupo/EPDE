@@ -9,6 +9,7 @@ import { useState } from 'react';
 
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { ErrorState } from '@/components/error-state';
+import { PropertyTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -102,8 +103,9 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
         />
       </div>
 
+      <PropertyTour />
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
+        <TabsList data-tour="property-tabs">
           <TabsTrigger value="health">
             Salud{problemsCount && problemsCount.length > 0 ? ` (${problemsCount.length})` : ''}
           </TabsTrigger>
@@ -147,7 +149,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
           {activeTab === 'photos' && <PropertyPhotosTab propertyId={property.id} />}
         </TabsContent>
 
-        <TabsContent value="health" className="mt-4">
+        <TabsContent data-tour="property-health" value="health" className="mt-4">
           {activeTab === 'health' && (
             <PropertyHealthTab
               propertyId={property.id}

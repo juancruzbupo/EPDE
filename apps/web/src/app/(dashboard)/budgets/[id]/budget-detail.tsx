@@ -25,6 +25,7 @@ import { useState } from 'react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ErrorState } from '@/components/error-state';
+import { BudgetTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -121,7 +122,8 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
         }
       />
 
-      <Card>
+      <BudgetTour />
+      <Card data-tour="budget-status">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg">Información del presupuesto</CardTitle>
           <Badge variant={BUDGET_STATUS_VARIANT[budget.status] ?? 'secondary'}>
@@ -264,7 +266,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
           budget.status === BudgetStatus.IN_PROGRESS)) ||
       (isClient &&
         (budget.status === BudgetStatus.PENDING || budget.status === BudgetStatus.QUOTED)) ? (
-        <Card>
+        <Card data-tour="budget-actions">
           <CardContent className="flex gap-2 p-4">
             {isClient && budget.status === BudgetStatus.PENDING && (
               <Button variant="outline" onClick={() => setEditOpen(true)}>

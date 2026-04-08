@@ -6,6 +6,7 @@ import { TaskPriority, TaskStatus } from '@epde/shared';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { TasksTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
 import { PageTransition } from '@/components/ui/page-transition';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -151,40 +152,47 @@ export default function TasksPage() {
 
   return (
     <PageTransition>
+      <TasksTour />
       <PageHeader
         title="Tareas"
         description="Seguimiento de todas las tareas de mantenimiento de tus propiedades."
       />
 
-      <TaskStatCards
-        isLoading={isLoading || !tasks}
-        statusCounts={statusCounts}
-        activeStatus={activeStatus}
-        onToggleStatus={toggleStatus}
-      />
+      <div data-tour="task-stats">
+        <TaskStatCards
+          isLoading={isLoading || !tasks}
+          statusCounts={statusCounts}
+          activeStatus={activeStatus}
+          onToggleStatus={toggleStatus}
+        />
+      </div>
 
-      <TaskFilters
-        search={search}
-        onSearchChange={setSearch}
-        priority={priority}
-        onPriorityChange={setPriority}
-        sectorFilter={sectorFilter}
-        onSectorChange={setSectorFilter}
-        propertyFilter={propertyFilter}
-        onPropertyChange={setPropertyFilter}
-        propertyOptions={propertyOptions}
-      />
+      <div data-tour="task-filters">
+        <TaskFilters
+          search={search}
+          onSearchChange={setSearch}
+          priority={priority}
+          onPriorityChange={setPriority}
+          sectorFilter={sectorFilter}
+          onSectorChange={setSectorFilter}
+          propertyFilter={propertyFilter}
+          onPropertyChange={setPropertyFilter}
+          propertyOptions={propertyOptions}
+        />
+      </div>
 
-      <TaskGroupedList
-        isLoading={isLoading}
-        isError={isError}
-        onRetry={refetch}
-        filtered={filtered}
-        grouped={grouped}
-        displayStatuses={displayStatuses}
-        hasActiveFilters={hasActiveFilters}
-        onTaskClick={handleTaskClick}
-      />
+      <div data-tour="task-list">
+        <TaskGroupedList
+          isLoading={isLoading}
+          isError={isError}
+          onRetry={refetch}
+          filtered={filtered}
+          grouped={grouped}
+          displayStatuses={displayStatuses}
+          hasActiveFilters={hasActiveFilters}
+          onTaskClick={handleTaskClick}
+        />
+      </div>
 
       {/* Task detail sheet — loads full task detail on demand */}
       <TaskDetailSheet

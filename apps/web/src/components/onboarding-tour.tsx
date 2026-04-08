@@ -2,9 +2,70 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
-const TOUR_STORAGE_KEY = 'epde-tour-completed';
+// ─── Shared styles & locale ─────────────────────────────
 
-const STEPS = [
+const LOCALE = {
+  back: 'Anterior',
+  close: 'Cerrar',
+  last: 'Entendido',
+  next: 'Siguiente',
+  skip: 'Saltar tour',
+};
+
+const JOYRIDE_STYLES = {
+  options: { primaryColor: '#a65636', zIndex: 10000 },
+  tooltip: { borderRadius: 12, fontSize: 14, padding: 20, maxWidth: 360 },
+  tooltipTitle: { fontSize: 16, fontWeight: 700 as const },
+  buttonNext: { borderRadius: 8, fontSize: 14, padding: '8px 16px' },
+  buttonBack: { color: '#666', fontSize: 14 },
+  buttonSkip: { color: '#999', fontSize: 13 },
+};
+
+// ─── Generic tour hook ──────────────────────────────────
+
+function useTour(storageKey: string, steps: Record<string, unknown>[]) {
+  const [run, setRun] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [Joyride, setJoyride] = useState<React.ComponentType<any> | null>(null);
+
+  useEffect(() => {
+    if (localStorage.getItem(storageKey)) return;
+    import('react-joyride').then((mod) => {
+      setJoyride(() => mod.Joyride);
+      setTimeout(() => setRun(true), 800);
+    });
+  }, [storageKey]);
+
+  const handleCallback = useCallback(
+    (data: { status: string }) => {
+      if (data.status === 'finished' || data.status === 'skipped') {
+        localStorage.setItem(storageKey, 'true');
+        setRun(false);
+      }
+    },
+    [storageKey],
+  );
+
+  const element =
+    Joyride && run ? (
+      <Joyride
+        steps={steps}
+        run={run}
+        continuous
+        showSkipButton
+        showProgress
+        callback={handleCallback}
+        locale={LOCALE}
+        styles={JOYRIDE_STYLES}
+      />
+    ) : null;
+
+  return element;
+}
+
+// ─── Dashboard tour ─────────────────────────────────────
+
+const DASHBOARD_STEPS = [
   {
     target: '[data-tour="health-score"]',
     title: 'Puntaje de salud',
@@ -25,68 +86,99 @@ const STEPS = [
       '"Ver qué hacer" te lleva a las tareas pendientes. "Ver análisis completo" te muestra la evolución de tu vivienda en el tiempo.',
   },
   {
-    target: 'nav[aria-label="Navegación principal"]',
+    target: '[data-tour="sidebar-nav"]',
     title: 'Navegación',
     content:
-      'Desde el menú accedés a tus tareas, propiedades, presupuestos y solicitudes de servicio. Te avisamos por email y notificaciones cuando haya algo pendiente.',
+      'Desde acá accedés a tus tareas, propiedades, presupuestos y servicios. Te avisamos por email y notificaciones cuando haya algo pendiente.',
+    placement: 'right' as const,
   },
 ];
 
-const LOCALE = {
-  back: 'Anterior',
-  close: 'Cerrar',
-  last: 'Entendido',
-  next: 'Siguiente',
-  skip: 'Saltar tour',
-};
-
-const JOYRIDE_STYLES = {
-  options: { primaryColor: '#a65636', zIndex: 10000 },
-  tooltip: { borderRadius: 12, fontSize: 14, padding: 20 },
-  tooltipTitle: { fontSize: 16, fontWeight: 700 as const },
-  buttonNext: { borderRadius: 8, fontSize: 14, padding: '8px 16px' },
-  buttonBack: { color: '#666', fontSize: 14 },
-  buttonSkip: { color: '#999', fontSize: 13 },
-};
-
-export function OnboardingTour() {
-  const [run, setRun] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [JoyrideComponent, setJoyrideComponent] = useState<React.ComponentType<any> | null>(null);
-
-  useEffect(() => {
-    const completed = localStorage.getItem(TOUR_STORAGE_KEY);
-    if (completed) return;
-
-    import('react-joyride').then((mod) => {
-      setJoyrideComponent(() => mod.Joyride);
-      setTimeout(() => setRun(true), 1000);
-    });
-  }, []);
-
-  const handleCallback = useCallback((data: { status: string }) => {
-    if (data.status === 'finished' || data.status === 'skipped') {
-      localStorage.setItem(TOUR_STORAGE_KEY, 'true');
-      setRun(false);
-    }
-  }, []);
-
-  if (!JoyrideComponent || !run) return null;
-
-  return (
-    <JoyrideComponent
-      steps={STEPS}
-      run={run}
-      continuous
-      showSkipButton
-      showProgress
-      callback={handleCallback}
-      locale={LOCALE}
-      styles={JOYRIDE_STYLES}
-    />
-  );
+export function DashboardTour() {
+  return useTour('epde-tour-dashboard', DASHBOARD_STEPS);
 }
 
+// ─── Tasks page tour ────────────────────────────────────
+
+const TASKS_STEPS = [
+  {
+    target: '[data-tour="task-stats"]',
+    title: 'Filtros por estado',
+    content:
+      'Tocá cualquier tarjeta para filtrar las tareas por estado. "Vencidas" son las que pasaron su fecha. "Próximas" son las que vencen en los próximos 30 días.',
+    disableBeacon: true,
+  },
+  {
+    target: '[data-tour="task-filters"]',
+    title: 'Búsqueda y filtros',
+    content:
+      'Podés buscar por nombre, filtrar por prioridad o por propiedad para encontrar tareas específicas.',
+  },
+  {
+    target: '[data-tour="task-list"]',
+    title: 'Lista de tareas',
+    content:
+      'Hacé click en una tarea para ver el detalle y completarla. Solo necesitás indicar el estado en que encontraste todo y quién lo hizo.',
+  },
+];
+
+export function TasksTour() {
+  return useTour('epde-tour-tasks', TASKS_STEPS);
+}
+
+// ─── Property detail tour ───────────────────────────────
+
+const PROPERTY_STEPS = [
+  {
+    target: '[data-tour="property-tabs"]',
+    title: 'Secciones de tu propiedad',
+    content:
+      'Tu propiedad tiene varias secciones: salud general, plan de mantenimiento, gastos y fotos. Explorá cada una para tener el panorama completo.',
+    disableBeacon: true,
+  },
+  {
+    target: '[data-tour="property-health"]',
+    title: 'Salud de la vivienda',
+    content:
+      'Acá ves el puntaje ISV desglosado por dimensión: cumplimiento, estado, cobertura e inversión. Te muestra qué sectores necesitan más atención.',
+  },
+];
+
+export function PropertyTour() {
+  return useTour('epde-tour-property', PROPERTY_STEPS);
+}
+
+// ─── Budget detail tour ─────────────────────────────────
+
+const BUDGET_STEPS = [
+  {
+    target: '[data-tour="budget-status"]',
+    title: 'Estado del presupuesto',
+    content:
+      'Acá ves en qué etapa está tu presupuesto. Cuando EPDE te manda la cotización, podés aprobarla o rechazarla desde acá.',
+    disableBeacon: true,
+  },
+  {
+    target: '[data-tour="budget-actions"]',
+    title: 'Tus acciones',
+    content:
+      'Si el presupuesto fue cotizado, podés aprobarlo para que avancemos con el trabajo o rechazarlo. También podés dejar comentarios si tenés dudas.',
+  },
+];
+
+export function BudgetTour() {
+  return useTour('epde-tour-budget', BUDGET_STEPS);
+}
+
+// ─── Reset all tours ────────────────────────────────────
+
+const TOUR_KEYS = [
+  'epde-tour-dashboard',
+  'epde-tour-tasks',
+  'epde-tour-property',
+  'epde-tour-budget',
+];
+
 export function resetOnboardingTour() {
-  localStorage.removeItem(TOUR_STORAGE_KEY);
+  TOUR_KEYS.forEach((key) => localStorage.removeItem(key));
 }
