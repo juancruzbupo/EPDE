@@ -27,18 +27,17 @@
 - Re-inspecciones adicionales como servicio pago
 - O paquete premium con re-inspecciones trimestrales
 
-## Composite Risk Score (priorización avanzada)
+## Composite Risk Score v2 (con costos reales)
 
-**Qué es:** Score compuesto por tarea: `urgency × impact × cost_if_delayed`. Permite al cliente ver qué arreglar primero con un ranking claro, no solo "urgente" vs "no urgente".
+> **v1 IMPLEMENTADA** (2026-04-08) — `computeRiskScore()` en `@epde/shared`, campo `riskScore` en Task, plan viewer ordena por score, badge visual en tareas.
 
-**Por qué no ahora:** Requiere datos de costos reales por tipo de reparación que aún no existen en el sistema. Primero necesitamos acumular datos de presupuestos aprobados para calibrar el modelo.
+**Fórmula actual (v1):** `priority_weight × severity_weight × sector_weight`
 
-**Cómo se implementaría:**
+- Priority: URGENT=4, HIGH=3, MEDIUM=2, LOW=1
+- Severity: NEEDS_PROFESSIONAL=3, NEEDS_ATTENTION=2, OK=1
+- Sector: estructurales (ROOF, EXTERIOR, BASEMENT, INSTALLATIONS) = 1.5x, resto = 1.0x
 
-- Nuevo campo `riskScore` en Task (calculado)
-- Fórmula: `priority_weight × condition_severity × estimated_repair_cost`
-- UI: ordenar tareas por riskScore en el plan viewer del cliente
-- Dashboard: visualización de distribución de riesgo por sector
+**v2 futura:** Reemplazar `sector_weight` por costos reales de reparación (promedio de presupuestos aprobados por tipo). Requiere acumular datos de BudgetResponse.totalAmount agrupados por categoría.
 
 ## Server-side PDF generation
 

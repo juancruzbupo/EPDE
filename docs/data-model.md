@@ -310,6 +310,7 @@ CategoryTemplate ─1:N─ TaskTemplate
 | estimatedDurationMinutes | Int?                    | Duracion estimada en minutos     |
 | inspectionFinding        | String?                 | Hallazgo de la inspección origen |
 | inspectionPhotoUrl       | String?                 | Foto del hallazgo                |
+| riskScore                | Int                     | Score compuesto de riesgo (0-18) |
 | sector                   | PropertySector?         | Sector de la vivienda            |
 | createdAt                | DateTime                |                                  |
 | updatedAt                | DateTime                |                                  |

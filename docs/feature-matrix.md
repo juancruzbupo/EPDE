@@ -78,6 +78,10 @@ Actualizar cuando se agrega o modifica una feature en cualquier plataforma.
 | **Perfil**                       |             |               |                  |                                    |                                                        |
 | Ver perfil                       |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
 | Logout                           |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
+| **Risk Score (Priorización)**    |             |               |                  |                                    |                                                        |
+| Cálculo de riskScore por tarea   |     ✅      |      ✅       |        ❌        |                 ❌                 | priority × severity × sector_weight (0-18)             |
+| Ordenamiento por riesgo          |     ✅      |      ✅       |        ❌        |                 ❌                 | Plan viewer ordena por riskScore DESC                  |
+| Badge de riesgo en tareas        |     ✅      |      ✅       |        ❌        |                 ❌                 | Rojo ≥12, amarillo ≥6                                  |
 | **ISV (Índice Salud Vivienda)**  |             |               |                  |                                    |                                                        |
 | ISV score en tab Salud           |     ✅      |      ✅       |        ✅        |                 ✅                 | 5 dimensiones + sector scores                          |
 | ISV historial (chart)            |     ✅      |      ✅       |        ✅        |                 ✅                 | Barras mensuales (últimos 12 meses)                    |

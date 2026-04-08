@@ -523,9 +523,11 @@ Flujo principal: Inspección visual → Generación de plan de mantenimiento.
 2. `POST /inspections` — crea el checklist con los items (cada uno con `taskTemplateId`)
 3. Admin evalúa cada item (OK / NEEDS_ATTENTION / NEEDS_PROFESSIONAL)
 4. `POST /inspections/:id/generate-plan` — genera MaintenancePlan + Tasks con prioridades ajustadas:
-   - OK → prioridad del template
-   - NEEDS_ATTENTION → HIGH
-   - NEEDS_PROFESSIONAL → URGENT + professionalRequirement: PROFESSIONAL_REQUIRED
+   - OK → prioridad del template, riskScore bajo
+   - NEEDS_ATTENTION → HIGH, riskScore medio
+   - NEEDS_PROFESSIONAL → URGENT + professionalRequirement: PROFESSIONAL_REQUIRED, riskScore alto
+   - Cada task incluye `riskScore` (0-18) calculado como `priority × severity × sector_weight`
+   - Se crea un TaskLog baseline por cada tarea para alimentar el ISV desde día 1
 
 ---
 

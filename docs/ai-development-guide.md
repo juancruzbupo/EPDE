@@ -184,6 +184,7 @@
 167. **SIEMPRE #54 (test framework per app)**: API uses Jest (`*.spec.ts`), Web uses Vitest (`*.test.ts`), Mobile uses Jest (`*.test.ts`). Do NOT mix frameworks within an app. Mock syntax: `jest.fn()` in API/Mobile, `vi.fn()` in Web. Both use `@testing-library` for component testing.
 168. **SIEMPRE #55 (no any in tests)**: Use `unknown` instead of `any` for type assertions in tests. Use `as unknown as TargetType` for intentional invalid-value tests (e.g., testing fallback for unknown enum values).
 169. **SIEMPRE #56 (ownership verification in services)**: Verificar ownership en el service, no en el controller. Patrón: query entity → check userId → throw ForbiddenException. Cada servicio implementa su propia verificación porque las relaciones varían (property ownership, budget via property, checklist via property). No crear un OwnershipService genérico — la especificidad es intencional.
+170. **SIEMPRE #57 (riskScore computation)**: Task.riskScore se calcula via `computeRiskScore()` de `@epde/shared` al generar plan desde inspección. Fórmula: `priority × severity × sector_weight`. El frontend ordena tareas por riskScore DESC en plan viewer. Category-section muestra badge color-coded (rojo ≥12, amarillo ≥6). No recalcular manualmente — usar siempre la función pura compartida.
 
 ### NUNCA
 
