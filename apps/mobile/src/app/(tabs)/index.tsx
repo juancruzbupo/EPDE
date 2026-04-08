@@ -234,7 +234,7 @@ function ClientDashboard() {
           Tip del día
         </Text>
         <Text style={TYPE.bodySm} className="text-foreground/80">
-          {DAILY_TIPS[Math.floor(Date.now() / 86_400_000) % DAILY_TIPS.length]}
+          {DAILY_TIPS[Math.floor(Date.now() / 86_400_000) % DAILY_TIPS.length] ?? DAILY_TIPS[0]}
         </Text>
       </View>
 
