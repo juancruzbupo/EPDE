@@ -216,7 +216,7 @@ const PLAN_VIEWER_STEPS: Step[] = [
     target: '[data-tour="plan-title"]',
     title: 'Tu plan de mantenimiento',
     content:
-      'La arquitecta armó este plan después de inspeccionar tu vivienda. Tiene todas las tareas que tu casa necesita, organizadas por categoría.',
+      'Este plan se generó a partir de la inspección visual de tu vivienda. Las tareas y prioridades se asignaron según lo que la arquitecta encontró en cada sector.',
     skipBeacon: true,
     ...SHARED_STEP_DEFAULTS,
   },

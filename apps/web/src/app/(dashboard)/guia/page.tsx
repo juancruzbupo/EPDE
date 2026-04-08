@@ -109,8 +109,9 @@ export default function GuiaPage() {
         {/* Tareas */}
         <Section icon={ListChecks} title="Tareas de mantenimiento">
           <p>
-            Después del diagnóstico, la arquitecta carga un plan con todas las tareas que tu casa
-            necesita. Cada tarea tiene:
+            Después de la inspección visual, se genera automáticamente un plan con todas las tareas
+            que tu casa necesita, con prioridades basadas en lo que la arquitecta encontró. Cada
+            tarea tiene:
           </p>
           <ul className="list-inside list-disc space-y-1 pl-1">
             <li>
