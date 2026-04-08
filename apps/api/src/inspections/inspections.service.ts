@@ -1,4 +1,4 @@
-import { recurrenceTypeToMonths, TaskPriority, TaskStatus } from '@epde/shared';
+import { computeRiskScore, recurrenceTypeToMonths, TaskPriority, TaskStatus } from '@epde/shared';
 import {
   BadRequestException,
   ConflictException,
@@ -246,6 +246,8 @@ export class InspectionsService {
           const recurrenceMonths =
             tpl?.recurrenceMonths ?? recurrenceTypeToMonths(recurrenceType) ?? 12;
 
+          const riskScore = computeRiskScore(priority, item.status, item.sector);
+
           const task = await tx.task.create({
             data: {
               maintenancePlanId: plan.id,
@@ -261,6 +263,7 @@ export class InspectionsService {
               estimatedDurationMinutes: tpl?.estimatedDurationMinutes,
               inspectionFinding: item.finding,
               inspectionPhotoUrl: item.photoUrl,
+              riskScore,
               order: i,
               status: TaskStatus.PENDING,
               createdBy,

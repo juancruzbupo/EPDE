@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Task" ADD COLUMN     "riskScore" INTEGER NOT NULL DEFAULT 0;

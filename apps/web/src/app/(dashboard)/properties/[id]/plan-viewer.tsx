@@ -241,6 +241,10 @@ export function PlanViewer({ planId, propertyId, highlightTaskId }: PlanViewerPr
         map.set(task.category.id, { name: task.category.name, tasks: [task] });
       }
     }
+    // Sort tasks within each category by riskScore (highest first)
+    for (const group of map.values()) {
+      group.tasks.sort((a, b) => (b.riskScore ?? 0) - (a.riskScore ?? 0));
+    }
     return Array.from(map.values());
   }, [filtered]);
 

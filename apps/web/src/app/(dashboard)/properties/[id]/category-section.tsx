@@ -107,6 +107,17 @@ export const CategorySection = memo(function CategorySection({
                   >
                     {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
                   </Badge>
+                  {task.riskScore > 0 && (
+                    <>
+                      <span className="text-muted-foreground/40">·</span>
+                      <span
+                        className={`text-xs font-medium ${task.riskScore >= 12 ? 'text-destructive' : task.riskScore >= 6 ? 'text-warning' : 'text-muted-foreground'}`}
+                        title="Índice de riesgo"
+                      >
+                        Riesgo: {task.riskScore}
+                      </span>
+                    </>
+                  )}
                   <span className="text-muted-foreground/40">·</span>
                   <span>{RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}</span>
                   <span className="text-muted-foreground/40">·</span>
