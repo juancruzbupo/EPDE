@@ -1,5 +1,6 @@
 import type {
   AddInspectionItemInput,
+  CreateInspectionInput,
   CurrentUser as CurrentUserPayload,
   UpdateInspectionItemInput,
 } from '@epde/shared';
@@ -28,13 +29,12 @@ export class InspectionsController {
   @Roles(UserRole.ADMIN)
   async create(
     @Body(new ZodValidationPipe(createInspectionSchema))
-    body: { propertyId: string; notes?: string; items: unknown[] },
+    body: CreateInspectionInput,
     @CurrentUser() user: CurrentUserPayload,
   ) {
     const data = await this.service.create({
       ...body,
       inspectedBy: user.id,
-      items: body.items as never,
     });
     return { data };
   }
