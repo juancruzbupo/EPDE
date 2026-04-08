@@ -1,6 +1,6 @@
 'use client';
 
-import { LogOut, Menu, User } from 'lucide-react';
+import { HelpCircle, LogOut, Menu, User } from 'lucide-react';
 import Link from 'next/link';
 import { VisuallyHidden } from 'radix-ui';
 
@@ -71,6 +71,12 @@ export function Header() {
               <Link href="/profile" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 Mi perfil
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/guia" className="flex items-center gap-2">
+                <HelpCircle className="h-4 w-4" />
+                Guía de uso
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
