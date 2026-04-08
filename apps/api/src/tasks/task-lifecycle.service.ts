@@ -281,7 +281,22 @@ export class TaskLifecycleService {
 
         const maxOrder = await this.tasksRepository.getMaxOrder(planId);
 
-        const taskData = categoryTemplate.tasks.map((tpl, index) => ({
+        // Skip tasks with names that already exist in the plan (duplicate detection)
+        const existingTasks = await tx.task.findMany({
+          where: { maintenancePlanId: planId, deletedAt: null },
+          select: { name: true },
+        });
+        const existingNames = new Set(existingTasks.map((t) => t.name.toLowerCase()));
+
+        const newTemplates = categoryTemplate.tasks.filter(
+          (tpl) => !existingNames.has(tpl.name.toLowerCase()),
+        );
+
+        if (newTemplates.length === 0) {
+          return 0;
+        }
+
+        const taskData = newTemplates.map((tpl, index) => ({
           maintenancePlanId: planId,
           categoryId: category.id,
           name: tpl.name,

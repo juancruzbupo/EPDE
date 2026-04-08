@@ -165,7 +165,11 @@ export function useBulkAddTasks() {
       bulkAddTasksFromTemplate(planId, categoryTemplateId),
     onSuccess: (response) => {
       const count = response.data?.count ?? 0;
-      toast.success(`${count} tarea${count !== 1 ? 's' : ''} agregada${count !== 1 ? 's' : ''}`);
+      if (count === 0) {
+        toast.info('No se agregaron tareas — ya existían en el plan.');
+      } else {
+        toast.success(`${count} tarea${count !== 1 ? 's' : ''} agregada${count !== 1 ? 's' : ''}`);
+      }
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] });
       invalidateDashboard(queryClient);
     },
