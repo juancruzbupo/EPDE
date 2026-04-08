@@ -86,12 +86,10 @@ function BudgetsPageContent() {
         description="Gestión de presupuestos"
         action={
           user?.role === UserRole.CLIENT ? (
-            <div data-tour="budgets-action">
-              <Button onClick={() => setCreateOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Solicitar Presupuesto
-              </Button>
-            </div>
+            <Button data-tour="budgets-action" onClick={() => setCreateOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Solicitar Presupuesto
+            </Button>
           ) : undefined
         }
       />

@@ -95,12 +95,10 @@ function ServiceRequestsPageContent() {
         description="Gestión de solicitudes de servicio"
         action={
           user?.role === UserRole.CLIENT ? (
-            <div data-tour="services-action">
-              <Button onClick={() => setCreateOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Nueva Solicitud
-              </Button>
-            </div>
+            <Button data-tour="services-action" onClick={() => setCreateOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Nueva Solicitud
+            </Button>
           ) : undefined
         }
       />
