@@ -1,6 +1,6 @@
 'use client';
 
-import type { PropertyPublic } from '@epde/shared';
+import type { PropertyPublic, PropertySector } from '@epde/shared';
 import { PROPERTY_TYPE_LABELS } from '@epde/shared';
 import { ArrowLeft, ClipboardList, Pencil } from 'lucide-react';
 import Link from 'next/link';
@@ -18,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProperty, usePropertyProblems } from '@/hooks/use-properties';
 
 import { EditPropertyDialog } from './edit-property-dialog';
+import { InspectionTab } from './inspection-tab';
 import { PlanEditor } from './plan-editor';
 import { PlanViewer } from './plan-viewer';
 import { PropertyExpensesTab } from './property-expenses-tab';
@@ -112,6 +113,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
           <TabsTrigger value="plan">Plan</TabsTrigger>
           <TabsTrigger value="expenses">Gastos</TabsTrigger>
           <TabsTrigger value="photos">Fotos</TabsTrigger>
+          {isAdmin && <TabsTrigger value="inspection">Inspección</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="plan" className="mt-4">
@@ -148,6 +150,17 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
         <TabsContent value="photos" className="mt-4">
           {activeTab === 'photos' && <PropertyPhotosTab propertyId={property.id} />}
         </TabsContent>
+
+        {isAdmin && (
+          <TabsContent value="inspection" className="mt-4">
+            {activeTab === 'inspection' && (
+              <InspectionTab
+                propertyId={property.id}
+                activeSectors={(property.activeSectors ?? []) as PropertySector[]}
+              />
+            )}
+          </TabsContent>
+        )}
 
         <TabsContent value="health" className="mt-4">
           {activeTab === 'health' && (
