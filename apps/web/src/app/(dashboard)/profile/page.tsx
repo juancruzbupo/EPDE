@@ -8,12 +8,13 @@ import {
   WHATSAPP_CONTACT_NUMBER,
 } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Clock, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Clock, Eye, EyeOff, HelpCircle, Loader2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
+import { resetOnboardingTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -104,6 +105,33 @@ export default function ProfilePage() {
       {/* Subscription card — clients only */}
       {user.role === UserRole.CLIENT && user.subscriptionExpiresAt && (
         <SubscriptionInfo expiresAt={user.subscriptionExpiresAt} />
+      )}
+
+      {/* Replay tour */}
+      {user.role === UserRole.CLIENT && (
+        <Card className="mb-6">
+          <CardContent className="flex items-center justify-between p-4">
+            <div className="flex items-center gap-3">
+              <HelpCircle className="text-muted-foreground h-5 w-5" />
+              <div>
+                <p className="type-body-sm font-medium">Tour de la plataforma</p>
+                <p className="type-body-sm text-muted-foreground">
+                  Volvé a ver la guía paso a paso del sistema
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                resetOnboardingTour();
+                toast.success('El tour se mostrará cuando vuelvas al dashboard');
+              }}
+            >
+              Ver tour de nuevo
+            </Button>
+          </CardContent>
+        </Card>
       )}
 
       {/* Edit profile */}

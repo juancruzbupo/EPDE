@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle, Circle, Home, ListChecks } from 'lucide-react';
+import { CheckCircle, Circle, Download, Home, ListChecks } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
@@ -57,7 +57,7 @@ export function WelcomeCard({
           {completedSteps} de {steps.length} completados
         </p>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {hasProperties ? (
             <Button asChild size="sm">
               <Link href="/properties">
@@ -81,6 +81,12 @@ export function WelcomeCard({
               </Link>
             </Button>
           )}
+          <Button asChild size="sm" variant="outline">
+            <a href="/guia-primer-uso.pdf" target="_blank" rel="noopener noreferrer">
+              <Download className="mr-2 h-4 w-4" />
+              Guía de uso
+            </a>
+          </Button>
         </div>
       </CardContent>
     </Card>

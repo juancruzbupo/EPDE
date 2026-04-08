@@ -153,7 +153,7 @@ export function HomeStatusCard({
             {!consequence && <div className="mb-4" />}
 
             {/* Score + progress bar */}
-            <div className="mb-4 flex items-center gap-4">
+            <div data-tour="health-score" className="mb-4 flex items-center gap-4">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span className={`type-number-lg ${theme.textColor} cursor-default`}>
@@ -236,7 +236,7 @@ export function HomeStatusCard({
             )}
 
             {/* Action buttons */}
-            <div className="mb-5 flex gap-3">
+            <div data-tour="action-buttons" className="mb-5 flex gap-3">
               <Button
                 size="sm"
                 aria-label="Ver tareas pendientes y acciones recomendadas"
@@ -256,7 +256,10 @@ export function HomeStatusCard({
             </div>
 
             {/* Mini stats grid */}
-            <div className="border-border grid grid-cols-4 gap-3 border-t pt-4">
+            <div
+              data-tour="mini-stats"
+              className="border-border grid grid-cols-4 gap-3 border-t pt-4"
+            >
               {miniStats.map((stat, i) => {
                 const Icon = miniIcons[i]!;
                 const content = (
