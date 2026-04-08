@@ -8,6 +8,7 @@ import { haptics } from '@/lib/haptics';
 
 const STORAGE_KEY = 'epde-mobile-onboarding-done';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const VIEWABILITY_CONFIG = { itemVisiblePercentThreshold: 50 };
 
 interface Slide {
   emoji: string;
@@ -127,7 +128,7 @@ export const OnboardingCarousel = memo(function OnboardingCarousel({
         keyExtractor={(_, i) => String(i)}
         renderItem={({ item }) => <SlideItem item={item} />}
         onViewableItemsChanged={handleViewableChanged}
-        viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
+        viewabilityConfig={VIEWABILITY_CONFIG}
         getItemLayout={(_, index) => ({
           length: SCREEN_WIDTH,
           offset: SCREEN_WIDTH * index,
