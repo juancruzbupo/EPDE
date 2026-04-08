@@ -7,6 +7,7 @@ import { ActionList } from '@/components/action-list';
 import { AnalyticsSection } from '@/components/analytics-section';
 import { ErrorState } from '@/components/error-state';
 import { HomeStatusCard } from '@/components/home-status-card';
+import { OnboardingCarousel } from '@/components/onboarding-carousel';
 import { StatCardSkeleton } from '@/components/skeleton-placeholder';
 import { StreakCard } from '@/components/streak-card';
 import { WelcomeCard } from '@/components/welcome-card';
@@ -122,164 +123,167 @@ function ClientDashboard() {
   }
 
   return (
-    <ScrollView
-      className="bg-background flex-1"
-      contentContainerStyle={{ padding: 16 }}
-      refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
-    >
-      {/* Title */}
-      <Text style={TYPE.displayLg} className="text-foreground">
-        {userName ? `Hola, ${userName.split(' ')[0]}` : 'Mi Panel'}
-      </Text>
-      <Text style={TYPE.bodySm} className="text-muted-foreground mb-1">
-        Resumen de tus propiedades y tareas
-      </Text>
-      {dataUpdatedAt > 0 && (
-        <Text style={TYPE.bodySm} className="text-muted-foreground mb-4">
-          Actualizado {formatRelativeDate(new Date(dataUpdatedAt))}
+    <View className="bg-background flex-1">
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ padding: 16 }}
+        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
+      >
+        {/* Title */}
+        <Text style={TYPE.displayLg} className="text-foreground">
+          {userName ? `Hola, ${userName.split(' ')[0]}` : 'Mi Panel'}
         </Text>
-      )}
-
-      {/* Subscription warning */}
-      {subscriptionDaysLeft !== null && subscriptionDaysLeft <= 7 && (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Tu suscripción está por vencer. Toca para renovar."
-          className="border-warning/30 bg-warning/5 mb-4 flex-row items-center gap-3 rounded-xl border p-3"
-          onPress={() =>
-            Linking.openURL(
-              `https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=Hola, quiero renovar mi suscripción a EPDE`,
-            )
-          }
-        >
-          <Text style={{ fontSize: 20 }}>⚠️</Text>
-          <View className="flex-1">
-            <Text style={TYPE.bodySm} className="text-foreground font-medium">
-              Tu suscripción vence{' '}
-              {subscriptionDaysLeft <= 0
-                ? 'hoy'
-                : subscriptionDaysLeft === 1
-                  ? 'mañana'
-                  : `en ${subscriptionDaysLeft} días`}
-            </Text>
-            <Text style={TYPE.bodySm} className="text-primary">
-              Contactar para renovar →
-            </Text>
-          </View>
-        </Pressable>
-      )}
-
-      {/* Welcome Card — shown until client has tasks */}
-      {showWelcome && (
-        <WelcomeCard
-          userName={userName}
-          hasProperties={(stats?.totalProperties ?? 0) > 0}
-          hasActivePlan={hasTasks}
-          hasCompletedTasks={(stats?.completedThisMonth ?? 0) > 0}
-        />
-      )}
-
-      {/* Level 1: Home Status — conclusion first */}
-      {statsLoading && !stats ? (
-        <View className="mb-4">
-          <StatCardSkeleton />
-          <View className="mt-3 flex-row gap-3">
-            <StatCardSkeleton />
-            <StatCardSkeleton />
-          </View>
-        </View>
-      ) : stats && !showWelcome ? (
-        <HomeStatusCard
-          score={stats.healthScore ?? 0}
-          label={stats.healthLabel ?? ''}
-          overdueTasks={stats.overdueTasks}
-          upcomingThisWeek={stats.upcomingThisWeek}
-          urgentTasks={stats.urgentTasks}
-          pendingTasks={stats.pendingTasks}
-          completedThisMonth={stats.completedThisMonth}
-          pendingBudgets={stats.pendingBudgets}
-          isvDelta={stats.isvDelta}
-          streak={stats.streak}
-          perfectWeek={stats.perfectWeek}
-        />
-      ) : null}
-
-      {/* Streak & perfect week — prominent section */}
-      {stats && !showWelcome && (
-        <StreakCard streak={stats.streak ?? 0} perfectWeek={stats.perfectWeek ?? false} />
-      )}
-
-      {/* Level 2: Actions — what to do next */}
-      {tasksLoading && !tasks ? (
-        <View className="mb-4">
-          <StatCardSkeleton />
-          <View className="mt-3">
-            <StatCardSkeleton />
-          </View>
-        </View>
-      ) : tasks && !showWelcome ? (
-        <ActionList tasks={tasks} nextUpcoming={nextUpcoming} />
-      ) : null}
-
-      {/* Tip of the day */}
-      <View className="border-primary/10 bg-primary/[0.03] mb-4 rounded-xl border p-3">
-        <Text style={TYPE.labelSm} className="text-primary mb-1 font-medium">
-          Tip del día
+        <Text style={TYPE.bodySm} className="text-muted-foreground mb-1">
+          Resumen de tus propiedades y tareas
         </Text>
-        <Text style={TYPE.bodySm} className="text-foreground/80">
-          {DAILY_TIPS[Math.floor(Date.now() / 86_400_000) % DAILY_TIPS.length]}
-        </Text>
-      </View>
-
-      {/* Quick access cards */}
-      <View className="mb-4 gap-2">
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Solicitudes de Servicio"
-          onPress={handleServiceRequests}
-          className="border-border bg-card flex-row items-center justify-between rounded-xl border p-3"
-        >
-          <View>
-            <Text style={TYPE.titleSm} className="text-foreground">
-              Solicitudes de Servicio
-            </Text>
-            <Text style={TYPE.bodySm} className="text-muted-foreground">
-              Reportar problemas o pedir asistencia
-            </Text>
-          </View>
-          <Text className="text-muted-foreground" style={TYPE.titleSm}>
-            &gt;
+        {dataUpdatedAt > 0 && (
+          <Text style={TYPE.bodySm} className="text-muted-foreground mb-4">
+            Actualizado {formatRelativeDate(new Date(dataUpdatedAt))}
           </Text>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Presupuestos"
-          onPress={handleBudgets}
-          className="border-border bg-card flex-row items-center justify-between rounded-xl border p-3"
-        >
-          <View>
-            <Text style={TYPE.titleSm} className="text-foreground">
-              Presupuestos
-            </Text>
-            <Text style={TYPE.bodySm} className="text-muted-foreground">
-              Solicitar cotizaciones para reparaciones
-            </Text>
-          </View>
-          <Text className="text-muted-foreground" style={TYPE.titleSm}>
-            &gt;
-          </Text>
-        </Pressable>
-      </View>
+        )}
 
-      {/* Level 3: Analytics — collapsed by default */}
-      {!showWelcome && (
-        <AnalyticsSection
-          analytics={analytics}
-          isLoading={analyticsLoading}
-          chartMonths={chartMonths}
-          onMonthsChange={setChartMonths}
-        />
-      )}
-    </ScrollView>
+        {/* Subscription warning */}
+        {subscriptionDaysLeft !== null && subscriptionDaysLeft <= 7 && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Tu suscripción está por vencer. Toca para renovar."
+            className="border-warning/30 bg-warning/5 mb-4 flex-row items-center gap-3 rounded-xl border p-3"
+            onPress={() =>
+              Linking.openURL(
+                `https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=Hola, quiero renovar mi suscripción a EPDE`,
+              )
+            }
+          >
+            <Text style={{ fontSize: 20 }}>⚠️</Text>
+            <View className="flex-1">
+              <Text style={TYPE.bodySm} className="text-foreground font-medium">
+                Tu suscripción vence{' '}
+                {subscriptionDaysLeft <= 0
+                  ? 'hoy'
+                  : subscriptionDaysLeft === 1
+                    ? 'mañana'
+                    : `en ${subscriptionDaysLeft} días`}
+              </Text>
+              <Text style={TYPE.bodySm} className="text-primary">
+                Contactar para renovar →
+              </Text>
+            </View>
+          </Pressable>
+        )}
+
+        {/* Welcome Card — shown until client has tasks */}
+        {showWelcome && (
+          <WelcomeCard
+            userName={userName}
+            hasProperties={(stats?.totalProperties ?? 0) > 0}
+            hasActivePlan={hasTasks}
+            hasCompletedTasks={(stats?.completedThisMonth ?? 0) > 0}
+          />
+        )}
+
+        {/* Level 1: Home Status — conclusion first */}
+        {statsLoading && !stats ? (
+          <View className="mb-4">
+            <StatCardSkeleton />
+            <View className="mt-3 flex-row gap-3">
+              <StatCardSkeleton />
+              <StatCardSkeleton />
+            </View>
+          </View>
+        ) : stats && !showWelcome ? (
+          <HomeStatusCard
+            score={stats.healthScore ?? 0}
+            label={stats.healthLabel ?? ''}
+            overdueTasks={stats.overdueTasks}
+            upcomingThisWeek={stats.upcomingThisWeek}
+            urgentTasks={stats.urgentTasks}
+            pendingTasks={stats.pendingTasks}
+            completedThisMonth={stats.completedThisMonth}
+            pendingBudgets={stats.pendingBudgets}
+            isvDelta={stats.isvDelta}
+            streak={stats.streak}
+            perfectWeek={stats.perfectWeek}
+          />
+        ) : null}
+
+        {/* Streak & perfect week — prominent section */}
+        {stats && !showWelcome && (
+          <StreakCard streak={stats.streak ?? 0} perfectWeek={stats.perfectWeek ?? false} />
+        )}
+
+        {/* Level 2: Actions — what to do next */}
+        {tasksLoading && !tasks ? (
+          <View className="mb-4">
+            <StatCardSkeleton />
+            <View className="mt-3">
+              <StatCardSkeleton />
+            </View>
+          </View>
+        ) : tasks && !showWelcome ? (
+          <ActionList tasks={tasks} nextUpcoming={nextUpcoming} />
+        ) : null}
+
+        {/* Tip of the day */}
+        <View className="border-primary/10 bg-primary/[0.03] mb-4 rounded-xl border p-3">
+          <Text style={TYPE.labelSm} className="text-primary mb-1 font-medium">
+            Tip del día
+          </Text>
+          <Text style={TYPE.bodySm} className="text-foreground/80">
+            {DAILY_TIPS[Math.floor(Date.now() / 86_400_000) % DAILY_TIPS.length]}
+          </Text>
+        </View>
+
+        {/* Quick access cards */}
+        <View className="mb-4 gap-2">
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Solicitudes de Servicio"
+            onPress={handleServiceRequests}
+            className="border-border bg-card flex-row items-center justify-between rounded-xl border p-3"
+          >
+            <View>
+              <Text style={TYPE.titleSm} className="text-foreground">
+                Solicitudes de Servicio
+              </Text>
+              <Text style={TYPE.bodySm} className="text-muted-foreground">
+                Reportar problemas o pedir asistencia
+              </Text>
+            </View>
+            <Text className="text-muted-foreground" style={TYPE.titleSm}>
+              &gt;
+            </Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Presupuestos"
+            onPress={handleBudgets}
+            className="border-border bg-card flex-row items-center justify-between rounded-xl border p-3"
+          >
+            <View>
+              <Text style={TYPE.titleSm} className="text-foreground">
+                Presupuestos
+              </Text>
+              <Text style={TYPE.bodySm} className="text-muted-foreground">
+                Solicitar cotizaciones para reparaciones
+              </Text>
+            </View>
+            <Text className="text-muted-foreground" style={TYPE.titleSm}>
+              &gt;
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* Level 3: Analytics — collapsed by default */}
+        {!showWelcome && (
+          <AnalyticsSection
+            analytics={analytics}
+            isLoading={analyticsLoading}
+            chartMonths={chartMonths}
+            onMonthsChange={setChartMonths}
+          />
+        )}
+      </ScrollView>
+      <OnboardingCarousel />
+    </View>
   );
 }
