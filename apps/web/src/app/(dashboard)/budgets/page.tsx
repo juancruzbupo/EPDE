@@ -9,6 +9,7 @@ import { Suspense, useEffect, useMemo, useState } from 'react';
 import { DataTable } from '@/components/data-table/data-table';
 import { ErrorState } from '@/components/error-state';
 import { FilterSelect } from '@/components/filter-select';
+import { BudgetsListTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
 import { SearchInput } from '@/components/search-input';
 import { SearchableFilterSelect } from '@/components/searchable-filter-select';
@@ -79,15 +80,18 @@ function BudgetsPageContent() {
 
   return (
     <PageTransition>
+      <BudgetsListTour />
       <PageHeader
         title="Presupuestos"
         description="Gestión de presupuestos"
         action={
           user?.role === UserRole.CLIENT ? (
-            <Button onClick={() => setCreateOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Solicitar Presupuesto
-            </Button>
+            <div data-tour="budgets-action">
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Solicitar Presupuesto
+              </Button>
+            </div>
           ) : undefined
         }
       />
@@ -118,17 +122,19 @@ function BudgetsPageContent() {
         />
       )}
 
-      <DataTable
-        columns={budgetColumns}
-        data={allBudgets}
-        isLoading={isLoading}
-        hasMore={hasNextPage}
-        onLoadMore={() => fetchNextPage()}
-        total={total}
-        emptyMessage="Todavía no tenés presupuestos. Se generan cuando solicitás un servicio profesional."
-        hasActiveFilters={debouncedSearch !== '' || status !== 'all' || propertyFilter !== 'all'}
-        onRowClick={(row: BudgetRequestPublic) => router.push(`/budgets/${row.id}`)}
-      />
+      <div data-tour="budgets-table">
+        <DataTable
+          columns={budgetColumns}
+          data={allBudgets}
+          isLoading={isLoading}
+          hasMore={hasNextPage}
+          onLoadMore={() => fetchNextPage()}
+          total={total}
+          emptyMessage="Todavía no tenés presupuestos. Se generan cuando solicitás un servicio profesional."
+          hasActiveFilters={debouncedSearch !== '' || status !== 'all' || propertyFilter !== 'all'}
+          onRowClick={(row: BudgetRequestPublic) => router.push(`/budgets/${row.id}`)}
+        />
+      </div>
 
       <CreateBudgetDialog open={createOpen} onOpenChange={setCreateOpen} />
     </PageTransition>

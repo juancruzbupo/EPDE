@@ -8,6 +8,7 @@ import { Suspense, useEffect, useMemo, useState } from 'react';
 
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
+import { PlansListTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
 import { SearchInput } from '@/components/search-input';
 import { Badge } from '@/components/ui/badge';
@@ -140,6 +141,7 @@ function MaintenancePlansPageContent() {
 
   return (
     <PageTransition>
+      <PlansListTour />
       <PageHeader
         title="Planes de Mantenimiento"
         description="Todos los planes de mantenimiento de tus propiedades."
@@ -172,7 +174,7 @@ function MaintenancePlansPageContent() {
           message="No hay planes de mantenimiento registrados todavía."
         />
       ) : (
-        <div className="space-y-4">
+        <div data-tour="plans-list" className="space-y-4">
           <p className="text-muted-foreground text-sm">
             {filtered.length} plan{filtered.length !== 1 ? 'es' : ''}
           </p>

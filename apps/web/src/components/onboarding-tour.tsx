@@ -182,6 +182,88 @@ export function BudgetTour() {
   return useTour('epde-tour-budget', BUDGET_STEPS);
 }
 
+// ─── Properties list tour ───────────────────────────────
+
+const PROPERTIES_LIST_STEPS = [
+  {
+    target: '[data-tour="properties-filters"]',
+    title: 'Buscá y filtrá',
+    content:
+      'Buscá por dirección o ciudad. Filtrá por tipo de vivienda o por el estado del plan de mantenimiento.',
+    disableBeacon: true,
+  },
+  {
+    target: '[data-tour="properties-table"]',
+    title: 'Tus propiedades',
+    content:
+      'Cada fila es una propiedad con su plan de mantenimiento. Hacé click en una para ver el detalle completo: salud, tareas, gastos y fotos.',
+  },
+];
+
+export function PropertiesListTour() {
+  return useTour('epde-tour-properties', PROPERTIES_LIST_STEPS);
+}
+
+// ─── Budgets list tour ──────────────────────────────────
+
+const BUDGETS_LIST_STEPS = [
+  {
+    target: '[data-tour="budgets-action"]',
+    title: 'Solicitar presupuesto',
+    content:
+      'Si necesitás reparar o mejorar algo en tu vivienda, pedí un presupuesto desde acá. EPDE te prepara una cotización con el detalle de costos.',
+    disableBeacon: true,
+  },
+  {
+    target: '[data-tour="budgets-table"]',
+    title: 'Tus presupuestos',
+    content:
+      'Acá ves todos tus presupuestos: pendientes de cotización, cotizados esperando tu aprobación, aprobados y completados.',
+  },
+];
+
+export function BudgetsListTour() {
+  return useTour('epde-tour-budgets-list', BUDGETS_LIST_STEPS);
+}
+
+// ─── Service requests list tour ─────────────────────────
+
+const SERVICES_LIST_STEPS = [
+  {
+    target: '[data-tour="services-action"]',
+    title: 'Nueva solicitud',
+    content:
+      'Si detectás un problema o necesitás asistencia profesional, creá una solicitud de servicio. EPDE la revisa y coordina la intervención.',
+    disableBeacon: true,
+  },
+  {
+    target: '[data-tour="services-filters"]',
+    title: 'Filtrá por estado o urgencia',
+    content:
+      'Podés filtrar por estado (abierta, en revisión, en progreso, resuelta) y por nivel de urgencia para encontrar solicitudes específicas.',
+  },
+];
+
+export function ServicesListTour() {
+  return useTour('epde-tour-services-list', SERVICES_LIST_STEPS);
+}
+
+// ─── Maintenance plans list tour ────────────────────────
+
+const PLANS_LIST_STEPS = [
+  {
+    target: '[data-tour="plans-list"]',
+    title: 'Tus planes de mantenimiento',
+    content:
+      'Cada propiedad tiene un plan con todas las tareas programadas. Los planes activos generan recordatorios y afectan tu puntaje ISV. Hacé click en uno para ver el detalle.',
+    disableBeacon: true,
+  },
+];
+
+export function PlansListTour() {
+  return useTour('epde-tour-plans-list', PLANS_LIST_STEPS);
+}
+
 // ─── Reset all tours ────────────────────────────────────
 
 const TOUR_KEYS = [
@@ -189,6 +271,10 @@ const TOUR_KEYS = [
   'epde-tour-tasks',
   'epde-tour-property',
   'epde-tour-budget',
+  'epde-tour-properties',
+  'epde-tour-budgets-list',
+  'epde-tour-services-list',
+  'epde-tour-plans-list',
 ];
 
 export function resetOnboardingTour() {

@@ -9,6 +9,7 @@ import { Suspense, useEffect, useMemo, useState } from 'react';
 import { DataTable } from '@/components/data-table/data-table';
 import { ErrorState } from '@/components/error-state';
 import { FilterSelect } from '@/components/filter-select';
+import { ServicesListTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
 import { SearchInput } from '@/components/search-input';
 import { SearchableFilterSelect } from '@/components/searchable-filter-select';
@@ -88,20 +89,23 @@ function ServiceRequestsPageContent() {
 
   return (
     <PageTransition>
+      <ServicesListTour />
       <PageHeader
         title="Solicitudes de Servicio"
         description="Gestión de solicitudes de servicio"
         action={
           user?.role === UserRole.CLIENT ? (
-            <Button onClick={() => setCreateOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Nueva Solicitud
-            </Button>
+            <div data-tour="services-action">
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Nueva Solicitud
+              </Button>
+            </div>
           ) : undefined
         }
       />
 
-      <div className="mb-4 flex flex-wrap gap-3">
+      <div data-tour="services-filters" className="mb-4 flex flex-wrap gap-3">
         {propertyOptions.length > 1 && (
           <SearchableFilterSelect
             value={propertyFilter}

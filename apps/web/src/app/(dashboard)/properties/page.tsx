@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DataTable } from '@/components/data-table/data-table';
 import { ErrorState } from '@/components/error-state';
 import { FilterSelect } from '@/components/filter-select';
+import { PropertiesListTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
 import { SearchInput } from '@/components/search-input';
 import { SearchableFilterSelect } from '@/components/searchable-filter-select';
@@ -107,6 +108,7 @@ export default function PropertiesPage() {
 
   return (
     <PageTransition>
+      <PropertiesListTour />
       <PageHeader
         title="Propiedades"
         description="Gestión de propiedades"
@@ -120,7 +122,7 @@ export default function PropertiesPage() {
         }
       />
 
-      <div className="mb-4 flex flex-wrap gap-3">
+      <div data-tour="properties-filters" className="mb-4 flex flex-wrap gap-3">
         <SearchInput
           value={search}
           onChange={setSearch}
@@ -151,17 +153,19 @@ export default function PropertiesPage() {
         />
       )}
 
-      <DataTable
-        columns={columns}
-        data={allProperties}
-        isLoading={isLoading}
-        hasMore={hasNextPage}
-        onLoadMore={() => fetchNextPage()}
-        total={total}
-        emptyMessage="No se encontraron propiedades"
-        onRowClick={(row) => router.push(`/properties/${row.id}`)}
-        onRowHover={handleRowHover}
-      />
+      <div data-tour="properties-table">
+        <DataTable
+          columns={columns}
+          data={allProperties}
+          isLoading={isLoading}
+          hasMore={hasNextPage}
+          onLoadMore={() => fetchNextPage()}
+          total={total}
+          emptyMessage="No se encontraron propiedades"
+          onRowClick={(row) => router.push(`/properties/${row.id}`)}
+          onRowHover={handleRowHover}
+        />
+      </div>
 
       {isAdmin && <CreatePropertyDialog open={createOpen} onOpenChange={setCreateOpen} />}
     </PageTransition>
