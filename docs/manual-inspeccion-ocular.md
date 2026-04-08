@@ -8,9 +8,12 @@ Guía operativa para la arquitecta. Cubre desde que llegás a la vivienda hasta 
 
 1. Preparación antes de ir
 2. Recorrido por la vivienda (inspección visual)
-3. Carga de datos en el sistema
-4. Armado del plan de mantenimiento
-5. Activación y entrega al cliente
+3. Carga de datos en el sistema (tab Inspección → Iniciar inspección)
+4. Evaluación de cada item (OK / Necesita atención / Requiere profesional)
+5. Generación del plan desde la inspección (botón "Generar Plan")
+6. Activación y entrega al cliente
+
+> **Nota:** Los items de inspección se generan automáticamente desde los TaskTemplates del sistema, filtrados por los sectores activos de la propiedad. Al completar la inspección, el sistema genera el plan de mantenimiento con prioridades ajustadas según los hallazgos.
 
 ---
 

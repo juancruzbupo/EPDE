@@ -501,6 +501,34 @@ Derivado de TaskLog + ServiceRequest existentes. No requiere entidades adicional
 
 ---
 
+### Inspecciones
+
+Flujo principal: Inspección visual → Generación de plan de mantenimiento.
+
+| Metodo | Ruta                                      | Auth | Rol   | Descripcion                                    |
+| ------ | ----------------------------------------- | ---- | ----- | ---------------------------------------------- |
+| POST   | `/inspections`                            | Si   | Admin | Crear checklist de inspección                  |
+| GET    | `/inspections/templates/:propertyId`      | Si   | Admin | Items de inspección desde TaskTemplates        |
+| GET    | `/inspections/property/:propertyId`       | Si   | Ambos | Listar inspecciones de una propiedad           |
+| GET    | `/inspections/:id`                        | Si   | Ambos | Detalle de inspección                          |
+| PATCH  | `/inspections/items/:itemId`              | Si   | Admin | Actualizar estado/hallazgo de un item          |
+| POST   | `/inspections/:checklistId/items`         | Si   | Admin | Agregar item custom a inspección               |
+| PATCH  | `/inspections/:checklistId/notes`         | Si   | Admin | Actualizar notas de inspección                 |
+| POST   | `/inspections/:checklistId/generate-plan` | Si   | Admin | Generar plan de mantenimiento desde inspección |
+| DELETE | `/inspections/:id`                        | Si   | Admin | Eliminar inspección (soft-delete)              |
+
+**Flujo de generación de plan:**
+
+1. `GET /inspections/templates/:propertyId` — obtiene items agrupados por sector desde TaskTemplates
+2. `POST /inspections` — crea el checklist con los items (cada uno con `taskTemplateId`)
+3. Admin evalúa cada item (OK / NEEDS_ATTENTION / NEEDS_PROFESSIONAL)
+4. `POST /inspections/:id/generate-plan` — genera MaintenancePlan + Tasks con prioridades ajustadas:
+   - OK → prioridad del template
+   - NEEDS_ATTENTION → HIGH
+   - NEEDS_PROFESSIONAL → URGENT + professionalRequirement: PROFESSIONAL_REQUIRED
+
+---
+
 ### Notificaciones
 
 | Metodo | Ruta                          | Auth | Rol   | Descripcion                       |

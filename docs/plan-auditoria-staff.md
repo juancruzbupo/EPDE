@@ -1,6 +1,9 @@
 # Plan de remediación — Auditoría Staff Engineer
 
-14 issues. Todos se implementan, ninguno queda para después.
+> **COMPLETADO** — 14/14 items implementados (2026-04-08).
+> Nota: M6 (DEFAULT_INSPECTION_ITEMS) fue reemplazado por el flujo de inspección basada en TaskTemplates (ver commit `52389e0`).
+
+14 issues. Todos implementados.
 
 ---
 

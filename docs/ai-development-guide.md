@@ -14,7 +14,7 @@
 2. **Validar con Zod** — Backend usa `ZodValidationPipe`, frontend usa `zodResolver`. No usar class-validator
 3. **Usar enums del shared** — `UserRole.ADMIN` en vez de `'ADMIN'`, `BudgetStatus.PENDING` en vez de `'PENDING'`
 4. **Repository pattern** — Solo los repositorios inyectan `PrismaService`. Los services inyectan repositorios
-5. **Soft-delete** — Los modelos User, Property, Task, Category, BudgetRequest y ServiceRequest usan soft-delete via Prisma extension. Verificar el flag `softDeletable` en el constructor del repo. `this.model` filtra `deletedAt: null` automáticamente (usar para reads); `this.writeModel` accede sin filtro (usar para writes y edge cases)
+5. **Soft-delete** — Los modelos User, Property, Task, Category, BudgetRequest, ServiceRequest, InspectionChecklist e InspectionItem usan soft-delete via Prisma extension. Verificar el flag `softDeletable` en el constructor del repo. `this.model` filtra `deletedAt: null` automáticamente (usar para reads); `this.writeModel` accede sin filtro (usar para writes y edge cases)
 6. **Error handling con try-catch** — Event handlers, cron jobs, y operaciones Redis SIEMPRE envueltos en try-catch
 7. **Toast en mutations** — Toda `useMutation` en web DEBE tener `onError` con `toast.error()` usando `getErrorMessage()`
 8. **Cursor-based pagination** — Todas las listas usan `{ data, nextCursor, hasMore, total }`. NUNCA offset-based

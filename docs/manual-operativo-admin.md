@@ -112,12 +112,18 @@ El menú lateral del admin tiene **9 módulos**:
 4. Una vez completo, cambiar estado a **ACTIVO (ACTIVE)**
 5. El sistema comienza a generar tareas periódicas automáticamente
 
-### Paso 5: Realizar la inspección visual inicial
+### Paso 5: Inspección visual y generación del plan
 
 1. Visitar la propiedad físicamente
-2. Seguir el **checklist de inspección** (sección 6) recorriendo los 9 sectores
-3. Documentar hallazgos con fotos y notas en cada tarea
-4. Determinar qué tareas adicionales agregar al plan según los hallazgos (sección 8)
+2. En la app: Propiedad → tab **Inspección** → **Iniciar inspección**
+3. El sistema genera automáticamente los items de inspección desde los TaskTemplates, filtrados por los sectores activos de la propiedad
+4. Recorrer los 9 sectores evaluando cada item:
+   - **OK** — el punto está en buen estado
+   - **Necesita atención** — requiere mantenimiento prioritario (sube prioridad a HIGH)
+   - **Requiere profesional** — necesita un profesional (prioridad URGENT + PROFESSIONAL_REQUIRED)
+5. Para items con hallazgos: agregar descripción y foto
+6. Cuando todos los items están evaluados → click en **"Generar Plan"**
+7. El sistema crea el plan de mantenimiento con tareas y prioridades ajustadas según la inspección
 
 ### Paso 6: Activar el plan
 
@@ -212,6 +218,8 @@ BORRADOR (DRAFT) → ACTIVO (ACTIVE) → ARCHIVADO (ARCHIVED)
 ---
 
 ## 6. Checklist de inspección visual
+
+> **Nota:** Los items de inspección ahora se generan automáticamente desde los TaskTemplates del sistema. La lista de abajo es una referencia orientativa — la app muestra los items reales filtrados por los sectores activos de cada propiedad.
 
 Guía para la inspección visual inicial de la vivienda, organizada por los **9 sectores** del inmueble.
 

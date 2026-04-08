@@ -62,6 +62,14 @@ Actualizar cuando se agrega o modifica una feature en cualquier plataforma.
 | **Notificaciones**               |             |               |                  |                                    |                                                        |
 | Centro de notificaciones         |     ✅      |      ✅       |        ✅        |                 ✅                 | Badge en tab Avisos                                    |
 | Marcar como leída                |     ✅      |      ✅       |        ✅        |                 ✅                 | Swipe en mobile                                        |
+| **Inspección Visual**            |             |               |                  |                                    |                                                        |
+| Crear checklist de inspección    | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Items generados desde TaskTemplates                    |
+| Evaluar items (OK/Atención/Prof) | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Con hallazgo + foto                                    |
+| Agregar item custom              | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 |                                                        |
+| Generar plan desde inspección    | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Ajusta prioridades según hallazgos                     |
+| Ver inspecciones de propiedad    |     ✅      |      ❌       |        ❌        |                 ❌                 | Tab Inspección en detalle propiedad                    |
+| **Onboarding Tours**             |             |               |                  |                                    |                                                        |
+| Tours guiados (react-joyride)    |     ❌      |      ✅       |        ❌        |                 ❌                 | Solo rol CLIENT, se muestran una vez                   |
 | **Plantillas (Templates)**       |             |               |                  |                                    |                                                        |
 | Gestionar CategoryTemplates      | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Solo panel admin web                                   |
 | Gestionar TaskTemplates          | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Sub-recursos de CategoryTemplate                       |

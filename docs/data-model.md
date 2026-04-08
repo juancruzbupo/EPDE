@@ -14,19 +14,27 @@ User ─1:N─ Property ─1:1─ MaintenancePlan ─1:N─ Task
   │                │                │
   │                │                └─N:1─ Task (FK: taskId, nullable, onDelete: SetNull)
   │                │
+  │                ├─1:N─ InspectionChecklist ─1:N─ InspectionItem
+  │                │         │                        └─N:1─ Task (FK: taskId, nullable)
+  │                │         └─ sourceInspectionId → MaintenancePlan (opcional)
+  │                │
   │                └─1:N─ ISVSnapshot (monthly health index snapshots)
   │
   ├─1:N─ TaskLog
   ├─1:N─ TaskNote
   ├─1:N─ BudgetRequest (requester)
   ├─1:N─ ServiceRequest (requester)
+  ├─1:N─ InspectionChecklist (inspector)
   └─1:N─ Notification
 
 Category ─1:N─ Task
     └─N:1─ CategoryTemplate (FK: categoryTemplateId, nullable, onDelete: SetNull)
 
 CategoryTemplate ─1:N─ TaskTemplate
+                         └─ referenced by InspectionItem.taskTemplateId
 ```
+
+**Flujo principal:** Inspección → Plan. La arquitecta inspecciona la propiedad usando items generados desde TaskTemplates. Al completar la inspección, genera el plan de mantenimiento con prioridades ajustadas según hallazgos.
 
 ## Enums
 
@@ -250,18 +258,20 @@ CategoryTemplate ─1:N─ TaskTemplate
 
 ### MaintenancePlan
 
-| Campo      | Tipo       | Notas                       |
-| ---------- | ---------- | --------------------------- |
-| id         | UUID       | PK                          |
-| propertyId | String     | FK → Property, Unique (1:1) |
-| name       | String     |                             |
-| status     | PlanStatus | Default: DRAFT              |
-| createdBy  | String?    | Auditoria                   |
-| updatedBy  | String?    | Auditoria                   |
-| createdAt  | DateTime   |                             |
-| updatedAt  | DateTime   |                             |
+| Campo              | Tipo       | Notas                             |
+| ------------------ | ---------- | --------------------------------- |
+| id                 | UUID       | PK                                |
+| propertyId         | String     | FK → Property, Unique (1:1)       |
+| name               | String     |                                   |
+| status             | PlanStatus | Default: DRAFT                    |
+| sourceInspectionId | String?    | FK → InspectionChecklist (origen) |
+| createdBy          | String?    | Auditoria                         |
+| updatedBy          | String?    | Auditoria                         |
+| createdAt          | DateTime   |                                   |
+| updatedAt          | DateTime   |                                   |
 
 **Relaciones:** `property`, `tasks`
+**Flujo:** El plan se genera desde una inspección completada via `POST /inspections/:id/generate-plan`.
 
 ### Category
 
@@ -298,6 +308,8 @@ CategoryTemplate ─1:N─ TaskTemplate
 | professionalRequirement  | ProfessionalRequirement | Default: OWNER_CAN_DO            |
 | technicalDescription     | String?                 | Descripcion tecnica del template |
 | estimatedDurationMinutes | Int?                    | Duracion estimada en minutos     |
+| inspectionFinding        | String?                 | Hallazgo de la inspección origen |
+| inspectionPhotoUrl       | String?                 | Foto del hallazgo                |
 | sector                   | PropertySector?         | Sector de la vivienda            |
 | createdAt                | DateTime                |                                  |
 | updatedAt                | DateTime                |                                  |
@@ -452,6 +464,47 @@ Snapshot mensual del Índice de Salud de la Vivienda (ISV). Generado por cron jo
 **Indices:** `propertyId`, `@@unique([propertyId, snapshotDate])`
 **Cascade:** onDelete de Property elimina sus ISVSnapshots
 **ISV Label:** score ≥80 "Excelente", ≥60 "Bueno", ≥40 "Regular", ≥20 "Necesita atención", <20 "Crítico"
+
+### InspectionChecklist
+
+Checklist de inspección visual de una propiedad. Genera los items desde TaskTemplates filtrados por los sectores activos de la propiedad.
+
+| Campo       | Tipo         | Notas                                 |
+| ----------- | ------------ | ------------------------------------- |
+| id          | UUID         | PK                                    |
+| propertyId  | String       | FK → Property                         |
+| inspectedBy | String       | FK → User (inspector/arquitecta)      |
+| inspectedAt | DateTime     | Fecha de la inspección (default: now) |
+| notes       | String(2000) | Notas generales                       |
+| deletedAt   | DateTime?    | Soft delete                           |
+
+**Indices:** `[propertyId, inspectedAt DESC]`
+**Soft delete:** Si — via Prisma extension
+**Relaciones:** `property`, `inspector`, `items[]`
+
+### InspectionItem
+
+Item individual de una inspección. Cada item corresponde a un TaskTemplate y se evalúa como OK, Necesita atención, o Requiere profesional.
+
+| Campo          | Tipo                 | Notas                                   |
+| -------------- | -------------------- | --------------------------------------- |
+| id             | UUID                 | PK                                      |
+| checklistId    | String               | FK → InspectionChecklist (cascade)      |
+| sector         | PropertySector       | Sector de la vivienda                   |
+| name           | String(200)          | Nombre del punto de inspección          |
+| description    | String(2000)?        | Descripción del template                |
+| status         | InspectionItemStatus | Default: PENDING                        |
+| finding        | String(2000)?        | Hallazgo encontrado                     |
+| photoUrl       | String?              | Foto del hallazgo                       |
+| taskId         | String?              | FK → Task (se vincula al generar plan)  |
+| taskTemplateId | String?              | ID del TaskTemplate origen              |
+| isCustom       | Boolean              | Default: false (true = agregado manual) |
+| order          | Int                  | Orden dentro del checklist              |
+| deletedAt      | DateTime?            | Soft delete                             |
+
+**Indices:** `[checklistId, sector]`, `[checklistId, order]`, `[taskTemplateId]`
+**Soft delete:** Si — via Prisma extension
+**InspectionItemStatus:** `PENDING` | `OK` | `NEEDS_ATTENTION` | `NEEDS_PROFESSIONAL`
 
 ### CategoryTemplate
 
