@@ -62,7 +62,7 @@ function useTour(storageKey: string, steps: Record<string, unknown>[]) {
         continuous
         showSkipButton
         showProgress
-        disableScrolling
+        scrollOffset={100}
         spotlightPadding={8}
         callback={handleCallback}
         locale={LOCALE}
