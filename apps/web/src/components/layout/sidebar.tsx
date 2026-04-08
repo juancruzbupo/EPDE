@@ -7,6 +7,7 @@ import {
   ChevronsRight,
   FileEdit,
   FileText,
+  HelpCircle,
   Home,
   LayoutDashboard,
   LayoutTemplate,
@@ -115,6 +116,23 @@ export function Sidebar({ className }: { className?: string }) {
           );
         })}
       </nav>
+
+      {/* Help link — pinned to bottom */}
+      <div className="border-border border-t px-2 py-2">
+        <Link
+          href="/guia"
+          aria-label="Guía de uso"
+          title={collapsed ? 'Guía de uso' : undefined}
+          className={cn(
+            'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground flex items-center rounded-md text-sm font-medium transition-all duration-200 motion-reduce:transition-none',
+            collapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2',
+            pathname === '/guia' && 'bg-sidebar-accent text-sidebar-accent-foreground',
+          )}
+        >
+          <HelpCircle className="h-4 w-4 shrink-0" />
+          {!collapsed && <span>Guía de uso</span>}
+        </Link>
+      </div>
     </aside>
   );
 }
