@@ -52,10 +52,25 @@ export async function deleteInspection(id: string): Promise<ApiResponse<null>> {
   return data;
 }
 
-export async function linkInspectionTask(
-  itemId: string,
-  taskId: string,
+export async function getInspectionTemplates(
+  propertyId: string,
+  signal?: AbortSignal,
+): Promise<
+  ApiResponse<
+    {
+      sector: string;
+      items: { taskTemplateId: string; name: string; description: string | null }[];
+    }[]
+  >
+> {
+  const { data } = await apiClient.get(`/inspections/templates/${propertyId}`, { signal });
+  return data;
+}
+
+export async function generatePlanFromInspection(
+  checklistId: string,
+  planName: string,
 ): Promise<ApiResponse<unknown>> {
-  const { data } = await apiClient.patch(`/inspections/items/${itemId}/link-task`, { taskId });
+  const { data } = await apiClient.post(`/inspections/${checklistId}/generate-plan`, { planName });
   return data;
 }

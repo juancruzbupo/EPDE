@@ -1,8 +1,16 @@
 'use client';
 
 import type { InspectionChecklist, InspectionItemStatus, PropertySector } from '@epde/shared';
-import { DEFAULT_INSPECTION_ITEMS, PROPERTY_SECTOR_LABELS } from '@epde/shared';
-import { AlertTriangle, CheckCircle, Circle, ClipboardList, Plus, Wrench } from 'lucide-react';
+import { PROPERTY_SECTOR_LABELS } from '@epde/shared';
+import {
+  AlertTriangle,
+  CheckCircle,
+  Circle,
+  ClipboardList,
+  FileText,
+  Plus,
+  Wrench,
+} from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { ErrorState } from '@/components/error-state';
@@ -22,7 +30,9 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   useAddInspectionItem,
   useCreateInspection,
+  useGeneratePlan,
   useInspections,
+  useInspectionTemplates,
   useUpdateInspectionItem,
 } from '@/hooks/use-inspections';
 
@@ -59,13 +69,16 @@ const STATUS_CONFIG: Record<
 interface InspectionTabProps {
   propertyId: string;
   activeSectors: PropertySector[];
+  hasPlan?: boolean;
 }
 
-export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps) {
+export function InspectionTab({ propertyId, activeSectors, hasPlan }: InspectionTabProps) {
   const { data: inspections, isLoading, error, refetch } = useInspections(propertyId);
+  const { data: templates } = useInspectionTemplates(propertyId);
   const createInspection = useCreateInspection(propertyId);
   const updateItem = useUpdateInspectionItem(propertyId);
   const addItem = useAddInspectionItem(propertyId);
+  const generatePlan = useGeneratePlan(propertyId);
 
   const [addingSector, setAddingSector] = useState<PropertySector | null>(null);
   const [customItemName, setCustomItemName] = useState('');
@@ -74,22 +87,33 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
     status: InspectionItemStatus;
   } | null>(null);
   const [findingText, setFindingText] = useState('');
+  const [planNameDialog, setPlanNameDialog] = useState(false);
+  const [planName, setPlanName] = useState('');
 
   const activeChecklist = inspections?.[0] ?? null;
 
+  const allEvaluated = activeChecklist
+    ? activeChecklist.items.length > 0 && activeChecklist.items.every((i) => i.status !== 'PENDING')
+    : false;
+
+  const canGeneratePlan = allEvaluated && !hasPlan;
+
   const handleNewInspection = () => {
-    const defaultItems = activeSectors.flatMap((sector, sectorIdx) =>
-      (DEFAULT_INSPECTION_ITEMS[sector] ?? []).map((item, itemIdx) => ({
-        sector,
+    if (!templates || templates.length === 0) return;
+
+    const items = templates.flatMap((group, sectorIdx) =>
+      group.items.map((item, itemIdx) => ({
+        sector: group.sector as PropertySector,
         name: item.name,
-        description: item.description,
+        description: item.description ?? undefined,
+        taskTemplateId: item.taskTemplateId,
         status: 'PENDING' as const,
         isCustom: false,
         order: sectorIdx * 100 + itemIdx,
       })),
     );
 
-    createInspection.mutate({ propertyId, items: defaultItems });
+    createInspection.mutate({ propertyId, items });
   };
 
   const handleUpdateItem = (itemId: string, status: InspectionItemStatus, finding?: string) => {
@@ -109,6 +133,14 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
     );
   };
 
+  const handleGeneratePlan = () => {
+    if (!activeChecklist || !planName.trim()) return;
+    generatePlan.mutate(
+      { checklistId: activeChecklist.id, planName: planName.trim() },
+      { onSuccess: () => setPlanNameDialog(false) },
+    );
+  };
+
   const itemsBySector = useMemo(() => {
     if (!activeChecklist) return new Map<PropertySector, InspectionChecklist['items']>();
     const map = new Map<PropertySector, InspectionChecklist['items']>();
@@ -120,6 +152,11 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
     }
     return map;
   }, [activeChecklist]);
+
+  const sectorOrder = useMemo(() => {
+    if (!activeChecklist) return activeSectors;
+    return [...itemsBySector.keys()];
+  }, [activeChecklist, activeSectors, itemsBySector]);
 
   if (isLoading) {
     return (
@@ -136,6 +173,8 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
   }
 
   if (!activeChecklist) {
+    const templateCount = templates?.reduce((acc, g) => acc + g.items.length, 0) ?? 0;
+
     return (
       <Card>
         <CardContent className="flex flex-col items-center gap-4 py-12">
@@ -143,7 +182,15 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
           <p className="text-muted-foreground text-sm">
             No hay inspecciones registradas para esta propiedad.
           </p>
-          <Button onClick={handleNewInspection} disabled={createInspection.isPending}>
+          {templateCount > 0 && (
+            <p className="text-muted-foreground text-xs">
+              Se generarán {templateCount} puntos de inspección desde los templates de tareas.
+            </p>
+          )}
+          <Button
+            onClick={handleNewInspection}
+            disabled={createInspection.isPending || templateCount === 0}
+          >
             <Plus className="mr-2 h-4 w-4" />
             Iniciar inspección
           </Button>
@@ -151,6 +198,8 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
       </Card>
     );
   }
+
+  const evaluatedCount = activeChecklist.items.filter((i) => i.status !== 'PENDING').length;
 
   return (
     <div className="space-y-4">
@@ -165,22 +214,36 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
             })}
           </p>
           <p className="type-body-sm text-muted-foreground">
-            {activeChecklist.items.filter((i) => i.status !== 'PENDING').length} de{' '}
-            {activeChecklist.items.length} revisados
+            {evaluatedCount} de {activeChecklist.items.length} revisados
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleNewInspection}
-          disabled={createInspection.isPending}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Nueva inspección
-        </Button>
+        <div className="flex gap-2">
+          {canGeneratePlan && (
+            <Button
+              size="sm"
+              onClick={() => {
+                setPlanName('');
+                setPlanNameDialog(true);
+              }}
+              disabled={generatePlan.isPending}
+            >
+              <FileText className="mr-2 h-4 w-4" />
+              Generar Plan
+            </Button>
+          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleNewInspection}
+            disabled={createInspection.isPending}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Nueva inspección
+          </Button>
+        </div>
       </div>
 
-      {activeSectors.map((sector) => {
+      {sectorOrder.map((sector) => {
         const items = itemsBySector.get(sector) ?? [];
         const completed = items.filter((i) => i.status !== 'PENDING').length;
 
@@ -188,7 +251,9 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
           <Card key={sector}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="type-title-sm">{PROPERTY_SECTOR_LABELS[sector]}</CardTitle>
+                <CardTitle className="type-title-sm">
+                  {PROPERTY_SECTOR_LABELS[sector] ?? sector}
+                </CardTitle>
                 <Badge variant="outline">
                   {completed}/{items.length}
                 </Badge>
@@ -289,7 +354,7 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
         );
       })}
 
-      {/* Finding dialog — replaces window.prompt() */}
+      {/* Finding dialog */}
       <Dialog
         open={!!findingDialog}
         onOpenChange={(open) => {
@@ -322,6 +387,39 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
               }}
             >
               Guardar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Generate plan dialog */}
+      <Dialog open={planNameDialog} onOpenChange={setPlanNameDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Generar plan de mantenimiento</DialogTitle>
+          </DialogHeader>
+          <p className="text-muted-foreground text-sm">
+            Se crearán {activeChecklist.items.length} tareas basadas en la inspección. Las
+            prioridades se ajustarán según los hallazgos.
+          </p>
+          <Input
+            value={planName}
+            onChange={(e) => setPlanName(e.target.value)}
+            placeholder="Nombre del plan..."
+            autoFocus
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && planName.trim()) handleGeneratePlan();
+            }}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPlanNameDialog(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleGeneratePlan}
+              disabled={!planName.trim() || generatePlan.isPending}
+            >
+              Generar plan
             </Button>
           </DialogFooter>
         </DialogContent>

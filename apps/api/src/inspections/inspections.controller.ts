@@ -2,11 +2,13 @@ import type {
   AddInspectionItemInput,
   CreateInspectionInput,
   CurrentUser as CurrentUserPayload,
+  GeneratePlanFromInspectionInput,
   UpdateInspectionItemInput,
 } from '@epde/shared';
 import {
   addInspectionItemSchema,
   createInspectionSchema,
+  generatePlanFromInspectionSchema,
   linkTaskSchema,
   updateInspectionItemSchema,
   updateNotesSchema,
@@ -47,6 +49,13 @@ export class InspectionsController {
   ) {
     const userId = user.role === UserRole.CLIENT ? user.id : undefined;
     const data = await this.service.findByProperty(propertyId, userId);
+    return { data };
+  }
+
+  @Get('templates/:propertyId')
+  @Roles(UserRole.ADMIN)
+  async getTemplateItems(@Param('propertyId', ParseUUIDPipe) propertyId: string) {
+    const data = await this.service.generateItemsFromTemplates(propertyId);
     return { data };
   }
 
@@ -98,6 +107,18 @@ export class InspectionsController {
   ) {
     const data = await this.service.updateNotes(checklistId, body.notes);
     return { data };
+  }
+
+  @Post(':checklistId/generate-plan')
+  @Roles(UserRole.ADMIN)
+  async generatePlan(
+    @Param('checklistId', ParseUUIDPipe) checklistId: string,
+    @Body(new ZodValidationPipe(generatePlanFromInspectionSchema))
+    body: GeneratePlanFromInspectionInput,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    const data = await this.service.generatePlanFromInspection(checklistId, body.planName, user.id);
+    return { data, message: 'Plan de mantenimiento generado desde inspección' };
   }
 
   @Delete(':id')

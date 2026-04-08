@@ -11,7 +11,9 @@ import {
   addInspectionItem,
   createInspection,
   deleteInspection,
+  generatePlanFromInspection,
   getInspections,
+  getInspectionTemplates,
   updateInspectionItem,
 } from '@/lib/api/inspections';
 
@@ -62,6 +64,31 @@ export function useAddInspectionItem(propertyId: string) {
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al agregar item'));
+    },
+  });
+}
+
+export function useInspectionTemplates(propertyId: string) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.inspections, 'templates', propertyId],
+    queryFn: ({ signal }) => getInspectionTemplates(propertyId, signal).then((r) => r.data),
+    enabled: !!propertyId,
+  });
+}
+
+export function useGeneratePlan(propertyId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ checklistId, planName }: { checklistId: string; planName: string }) =>
+      generatePlanFromInspection(checklistId, planName),
+    onSuccess: () => {
+      toast.success('Plan de mantenimiento generado');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.inspections, propertyId] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Error al generar plan'));
     },
   });
 }

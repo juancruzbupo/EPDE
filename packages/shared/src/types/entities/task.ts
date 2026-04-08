@@ -31,6 +31,8 @@ export interface Task extends BaseEntity, SoftDeletable {
   professionalRequirement: ProfessionalRequirement;
   technicalDescription: string | null;
   estimatedDurationMinutes: number | null;
+  inspectionFinding: string | null;
+  inspectionPhotoUrl: string | null;
 }
 
 export interface TaskLog {

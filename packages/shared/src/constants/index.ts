@@ -1,6 +1,5 @@
 export * from './badge-variants';
 export * from './design-tokens';
-export * from './inspection-items';
 
 import type {
   ActionTaken,

@@ -12,6 +12,7 @@ export interface InspectionItem {
   finding: string | null;
   photoUrl: string | null;
   taskId: string | null;
+  taskTemplateId: string | null;
   isCustom: boolean;
   order: number;
   createdAt: string;

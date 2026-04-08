@@ -157,6 +157,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
               <InspectionTab
                 propertyId={property.id}
                 activeSectors={(property.activeSectors ?? []) as PropertySector[]}
+                hasPlan={!!property.maintenancePlan}
               />
             )}
           </TabsContent>

@@ -230,6 +230,8 @@ model MaintenancePlan {
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
 
+  sourceInspectionId String?
+
   // Restrict: Properties use soft-delete, never hard-deleted. Restrict prevents accidental cascade.
   property Property @relation(fields: [propertyId], references: [id], onDelete: Restrict)
   tasks    Task[]
@@ -279,6 +281,8 @@ model Task {
   assignedToName           String?                 @db.VarChar(200)
   technicalDescription     String?                 @db.VarChar(1000)
   estimatedDurationMinutes Int?
+  inspectionFinding        String?                 @db.VarChar(2000)
+  inspectionPhotoUrl       String?
   createdAt                DateTime                @default(now())
   updatedAt                DateTime                @updatedAt
   deletedAt                DateTime?
@@ -707,16 +711,18 @@ model InspectionItem {
   status      InspectionItemStatus  @default(PENDING)
   finding     String?               @db.VarChar(2000)
   photoUrl    String?
-  taskId      String?
-  task        Task?                 @relation(fields: [taskId], references: [id], onDelete: SetNull)
-  isCustom    Boolean               @default(false)
-  order       Int                   @default(0)
-  createdAt   DateTime              @default(now())
-  updatedAt   DateTime              @updatedAt
-  deletedAt   DateTime?
+  taskId         String?
+  task           Task?                 @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  taskTemplateId String?
+  isCustom       Boolean               @default(false)
+  order          Int                   @default(0)
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  deletedAt      DateTime?
 
   @@index([checklistId, sector])
   @@index([checklistId, order])
+  @@index([taskTemplateId])
 }
 
 // ─── Landing Settings ─────────────────────────────────────

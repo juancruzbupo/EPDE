@@ -20,6 +20,7 @@ export const createInspectionSchema = z.object({
       status: z.enum(INSPECTION_ITEM_STATUS_VALUES).default('PENDING'),
       finding: z.string().max(2000).optional(),
       photoUrl: z.string().url().optional(),
+      taskTemplateId: z.string().uuid().optional(),
       isCustom: z.boolean().default(false),
       order: z.number().int().min(0).default(0),
     }),
@@ -51,3 +52,8 @@ export const updateNotesSchema = z.object({
   notes: z.string().max(2000, 'Máximo 2000 caracteres'),
 });
 export type UpdateNotesInput = z.infer<typeof updateNotesSchema>;
+
+export const generatePlanFromInspectionSchema = z.object({
+  planName: z.string().min(2).max(200),
+});
+export type GeneratePlanFromInspectionInput = z.infer<typeof generatePlanFromInspectionSchema>;

@@ -14,6 +14,7 @@ interface CreateInspectionData {
     status?: InspectionItemStatus;
     finding?: string;
     photoUrl?: string;
+    taskTemplateId?: string;
     isCustom?: boolean;
     order?: number;
   }[];
@@ -37,6 +38,7 @@ export class InspectionsRepository {
             status: item.status ?? 'PENDING',
             finding: item.finding,
             photoUrl: item.photoUrl,
+            taskTemplateId: item.taskTemplateId,
             isCustom: item.isCustom ?? false,
             order: item.order ?? index,
           })),
