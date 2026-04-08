@@ -8,6 +8,7 @@ import {
   PREVENTIVE_ACTIONS,
   type PropertySector,
   ServiceStatus,
+  TaskPriority,
   TaskStatus,
   UserRole,
 } from '@epde/shared';
@@ -154,7 +155,7 @@ export class DashboardRepository {
       this.prisma.softDelete.task.count({
         where: {
           ...taskWhere,
-          priority: 'URGENT',
+          priority: TaskPriority.URGENT,
           status: { not: TaskStatus.COMPLETED },
         },
       }),

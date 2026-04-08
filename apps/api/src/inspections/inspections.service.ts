@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { type InspectionItemStatus, type PropertySector } from '@prisma/client';
 
 import { InspectionsRepository } from './inspections.repository';
 
@@ -11,10 +12,10 @@ export class InspectionsService {
     inspectedBy: string;
     notes?: string;
     items: {
-      sector: string;
+      sector: PropertySector;
       name: string;
       description?: string;
-      status?: string;
+      status?: InspectionItemStatus;
       finding?: string;
       photoUrl?: string;
       isCustom?: boolean;
@@ -34,13 +35,16 @@ export class InspectionsService {
     return checklist;
   }
 
-  async updateItem(itemId: string, data: { status?: string; finding?: string; photoUrl?: string }) {
+  async updateItem(
+    itemId: string,
+    data: { status?: InspectionItemStatus; finding?: string; photoUrl?: string },
+  ) {
     return this.repository.updateItem(itemId, data);
   }
 
   async addItem(
     checklistId: string,
-    data: { sector: string; name: string; description?: string; isCustom?: boolean },
+    data: { sector: PropertySector; name: string; description?: string; isCustom?: boolean },
   ) {
     return this.repository.addItem(checklistId, data);
   }

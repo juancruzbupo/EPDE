@@ -1,26 +1,29 @@
 import { Injectable } from '@nestjs/common';
+import { type InspectionItemStatus, type PropertySector } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
+
+interface CreateInspectionData {
+  propertyId: string;
+  inspectedBy: string;
+  notes?: string;
+  items: {
+    sector: PropertySector;
+    name: string;
+    description?: string;
+    status?: InspectionItemStatus;
+    finding?: string;
+    photoUrl?: string;
+    isCustom?: boolean;
+    order?: number;
+  }[];
+}
 
 @Injectable()
 export class InspectionsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: {
-    propertyId: string;
-    inspectedBy: string;
-    notes?: string;
-    items: {
-      sector: string;
-      name: string;
-      description?: string;
-      status?: string;
-      finding?: string;
-      photoUrl?: string;
-      isCustom?: boolean;
-      order?: number;
-    }[];
-  }) {
+  async create(data: CreateInspectionData) {
     return this.prisma.inspectionChecklist.create({
       data: {
         propertyId: data.propertyId,
@@ -28,10 +31,10 @@ export class InspectionsRepository {
         notes: data.notes,
         items: {
           create: data.items.map((item, index) => ({
-            sector: item.sector as never,
+            sector: item.sector,
             name: item.name,
             description: item.description,
-            status: (item.status as never) ?? 'PENDING',
+            status: item.status ?? 'PENDING',
             finding: item.finding,
             photoUrl: item.photoUrl,
             isCustom: item.isCustom ?? false,
@@ -64,11 +67,14 @@ export class InspectionsRepository {
     });
   }
 
-  async updateItem(itemId: string, data: { status?: string; finding?: string; photoUrl?: string }) {
+  async updateItem(
+    itemId: string,
+    data: { status?: InspectionItemStatus; finding?: string; photoUrl?: string },
+  ) {
     return this.prisma.inspectionItem.update({
       where: { id: itemId },
       data: {
-        ...(data.status && { status: data.status as never }),
+        ...(data.status && { status: data.status }),
         ...(data.finding !== undefined && { finding: data.finding }),
         ...(data.photoUrl !== undefined && { photoUrl: data.photoUrl }),
       },
@@ -77,7 +83,7 @@ export class InspectionsRepository {
 
   async addItem(
     checklistId: string,
-    data: { sector: string; name: string; description?: string; isCustom?: boolean },
+    data: { sector: PropertySector; name: string; description?: string; isCustom?: boolean },
   ) {
     const maxOrder = await this.prisma.inspectionItem.aggregate({
       where: { checklistId },
@@ -87,7 +93,7 @@ export class InspectionsRepository {
     return this.prisma.inspectionItem.create({
       data: {
         checklistId,
-        sector: data.sector as never,
+        sector: data.sector,
         name: data.name,
         description: data.description,
         isCustom: data.isCustom ?? true,

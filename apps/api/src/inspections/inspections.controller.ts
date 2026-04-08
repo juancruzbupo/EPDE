@@ -1,8 +1,14 @@
-import type { CurrentUser as CurrentUserPayload } from '@epde/shared';
+import type {
+  AddInspectionItemInput,
+  CurrentUser as CurrentUserPayload,
+  UpdateInspectionItemInput,
+} from '@epde/shared';
 import {
   addInspectionItemSchema,
   createInspectionSchema,
+  linkTaskSchema,
   updateInspectionItemSchema,
+  updateNotesSchema,
   UserRole,
 } from '@epde/shared';
 import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
@@ -52,7 +58,7 @@ export class InspectionsController {
   async updateItem(
     @Param('itemId', ParseUUIDPipe) itemId: string,
     @Body(new ZodValidationPipe(updateInspectionItemSchema))
-    body: { status?: string; finding?: string; photoUrl?: string },
+    body: UpdateInspectionItemInput,
   ) {
     const data = await this.service.updateItem(itemId, body);
     return { data };
@@ -63,7 +69,7 @@ export class InspectionsController {
   async addItem(
     @Param('checklistId', ParseUUIDPipe) checklistId: string,
     @Body(new ZodValidationPipe(addInspectionItemSchema))
-    body: { sector: string; name: string; description?: string; isCustom?: boolean },
+    body: AddInspectionItemInput,
   ) {
     const data = await this.service.addItem(checklistId, body);
     return { data };
@@ -71,7 +77,10 @@ export class InspectionsController {
 
   @Patch('items/:itemId/link-task')
   @Roles(UserRole.ADMIN)
-  async linkTask(@Param('itemId', ParseUUIDPipe) itemId: string, @Body() body: { taskId: string }) {
+  async linkTask(
+    @Param('itemId', ParseUUIDPipe) itemId: string,
+    @Body(new ZodValidationPipe(linkTaskSchema)) body: { taskId: string },
+  ) {
     const data = await this.service.linkTask(itemId, body.taskId);
     return { data };
   }
@@ -80,7 +89,7 @@ export class InspectionsController {
   @Roles(UserRole.ADMIN)
   async updateNotes(
     @Param('checklistId', ParseUUIDPipe) checklistId: string,
-    @Body() body: { notes: string },
+    @Body(new ZodValidationPipe(updateNotesSchema)) body: { notes: string },
   ) {
     const data = await this.service.updateNotes(checklistId, body.notes);
     return { data };

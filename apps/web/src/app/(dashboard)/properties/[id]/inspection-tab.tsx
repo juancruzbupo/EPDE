@@ -9,8 +9,16 @@ import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
 import {
   addInspectionItem,
   createInspection,
@@ -60,6 +68,11 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
   const [addingSector, setAddingSector] = useState<PropertySector | null>(null);
   const [customItemName, setCustomItemName] = useState('');
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
+  const [findingDialog, setFindingDialog] = useState<{
+    itemId: string;
+    status: InspectionItemStatus;
+  } | null>(null);
+  const [findingText, setFindingText] = useState('');
 
   const loadInspections = useCallback(async () => {
     setLoading(true);
@@ -264,8 +277,8 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
                             disabled={isUpdating}
                             onClick={() => {
                               if (status === 'NEEDS_ATTENTION' || status === 'NEEDS_PROFESSIONAL') {
-                                const finding = prompt('¿Qué encontraste?');
-                                if (finding !== null) handleUpdateItem(item.id, status, finding);
+                                setFindingDialog({ itemId: item.id, status });
+                                setFindingText('');
                               } else {
                                 handleUpdateItem(item.id, status);
                               }
@@ -311,6 +324,43 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
           </Card>
         );
       })}
+
+      {/* Finding dialog — replaces window.prompt() */}
+      <Dialog
+        open={!!findingDialog}
+        onOpenChange={(open) => {
+          if (!open) setFindingDialog(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>¿Qué encontraste?</DialogTitle>
+          </DialogHeader>
+          <Textarea
+            value={findingText}
+            onChange={(e) => setFindingText(e.target.value)}
+            placeholder="Describí el hallazgo..."
+            rows={3}
+            className="resize-none"
+            autoFocus
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setFindingDialog(null)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => {
+                if (findingDialog) {
+                  handleUpdateItem(findingDialog.itemId, findingDialog.status, findingText);
+                  setFindingDialog(null);
+                }
+              }}
+            >
+              Guardar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
