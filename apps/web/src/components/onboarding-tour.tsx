@@ -13,10 +13,19 @@ const LOCALE = {
 };
 
 const JOYRIDE_STYLES = {
-  options: { primaryColor: '#a65636', zIndex: 10000 },
-  tooltip: { borderRadius: 12, fontSize: 14, padding: 20, maxWidth: 360 },
-  tooltipTitle: { fontSize: 16, fontWeight: 700 as const },
-  buttonNext: { borderRadius: 8, fontSize: 14, padding: '8px 16px' },
+  options: { primaryColor: '#a65636', zIndex: 10000, overlayColor: 'rgba(0, 0, 0, 0.6)' },
+  overlay: { mixBlendMode: 'normal' as const },
+  spotlight: { borderRadius: 8 },
+  tooltip: {
+    borderRadius: 16,
+    fontSize: 15,
+    padding: 24,
+    maxWidth: 400,
+    boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+  },
+  tooltipTitle: { fontSize: 18, fontWeight: 700 as const, marginBottom: 8 },
+  tooltipContent: { fontSize: 15, lineHeight: 1.6, color: '#444' },
+  buttonNext: { borderRadius: 8, fontSize: 14, padding: '10px 20px', fontWeight: 600 as const },
   buttonBack: { color: '#666', fontSize: 14 },
   buttonSkip: { color: '#999', fontSize: 13 },
 };
@@ -54,9 +63,12 @@ function useTour(storageKey: string, steps: Record<string, unknown>[]) {
         continuous
         showSkipButton
         showProgress
+        disableScrolling
+        spotlightPadding={8}
         callback={handleCallback}
         locale={LOCALE}
         styles={JOYRIDE_STYLES}
+        floaterProps={{ hideArrow: false }}
       />
     ) : null;
 
