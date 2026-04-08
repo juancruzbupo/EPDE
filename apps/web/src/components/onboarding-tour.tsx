@@ -40,13 +40,22 @@ function useTour(storageKey: string, steps: Record<string, unknown>[]) {
     if (localStorage.getItem(storageKey)) return;
     import('react-joyride').then((mod) => {
       setJoyride(() => mod.Joyride);
-      setTimeout(() => setRun(true), 800);
+      // Don't start tour if a dialog/sheet is open
+      setTimeout(() => {
+        const hasOpenDialog = document.querySelector('[role="dialog"]');
+        if (!hasOpenDialog) setRun(true);
+      }, 800);
     });
   }, [storageKey]);
 
   const handleCallback = useCallback(
-    (data: { status: string }) => {
+    (data: { status: string; action: string }) => {
       if (data.status === 'finished' || data.status === 'skipped') {
+        localStorage.setItem(storageKey, 'true');
+        setRun(false);
+      }
+      // Pause if a dialog opened mid-tour
+      if (data.action === 'update' && document.querySelector('[role="dialog"]')) {
         localStorage.setItem(storageKey, 'true');
         setRun(false);
       }

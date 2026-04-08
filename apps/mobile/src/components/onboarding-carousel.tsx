@@ -54,16 +54,35 @@ function SlideItem({ item }: { item: Slide }) {
   );
 }
 
-export const OnboardingCarousel = memo(function OnboardingCarousel() {
-  const [visible, setVisible] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const flatListRef = useRef<FlatList>(null);
+/**
+ * Hook that checks if onboarding should be shown.
+ * Returns [shouldShow, dismiss] — use to conditionally render the carousel
+ * instead of the main content to avoid gesture conflicts.
+ */
+export function useOnboardingState() {
+  const [show, setShow] = useState<boolean | null>(null); // null = loading
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then((val) => {
-      if (!val) setVisible(true);
-    });
+    AsyncStorage.getItem(STORAGE_KEY).then((val) => setShow(!val));
   }, []);
+
+  const dismiss = useCallback(() => {
+    AsyncStorage.setItem(STORAGE_KEY, 'true');
+    setShow(false);
+  }, []);
+
+  return [show, dismiss] as const;
+}
+
+interface OnboardingCarouselProps {
+  onDone: () => void;
+}
+
+export const OnboardingCarousel = memo(function OnboardingCarousel({
+  onDone,
+}: OnboardingCarouselProps) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const flatListRef = useRef<FlatList>(null);
 
   const handleViewableChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
     if (viewableItems[0]?.index != null) {
@@ -76,23 +95,19 @@ export const OnboardingCarousel = memo(function OnboardingCarousel() {
     if (activeIndex < SLIDES.length - 1) {
       flatListRef.current?.scrollToIndex({ index: activeIndex + 1, animated: true });
     } else {
-      AsyncStorage.setItem(STORAGE_KEY, 'true');
-      setVisible(false);
+      onDone();
     }
-  }, [activeIndex]);
+  }, [activeIndex, onDone]);
 
   const handleSkip = useCallback(() => {
     haptics.light();
-    AsyncStorage.setItem(STORAGE_KEY, 'true');
-    setVisible(false);
-  }, []);
-
-  if (!visible) return null;
+    onDone();
+  }, [onDone]);
 
   const isLast = activeIndex === SLIDES.length - 1;
 
   return (
-    <View className="bg-background absolute inset-0 z-50 justify-between pt-20 pb-12">
+    <View className="bg-background flex-1 justify-between pt-20 pb-12">
       {/* Skip */}
       <View className="items-end px-6">
         <Pressable accessibilityRole="button" accessibilityLabel="Saltar tour" onPress={handleSkip}>

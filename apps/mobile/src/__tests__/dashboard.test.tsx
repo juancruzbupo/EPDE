@@ -49,6 +49,12 @@ jest.mock('@/components/charts/category-breakdown-list', () => ({
   CategoryBreakdownList: () => null,
 }));
 
+jest.mock('@/components/onboarding-carousel', () => ({
+  OnboardingCarousel: () => null,
+  useOnboardingState: () => [false, jest.fn()],
+  resetMobileOnboarding: jest.fn(),
+}));
+
 // ---------------------------------------------------------------------------
 // Import the component under test *after* mocks are set up
 // ---------------------------------------------------------------------------
