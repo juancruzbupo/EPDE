@@ -79,28 +79,28 @@ function useTour(storageKey: string, steps: Record<string, unknown>[]) {
 const DASHBOARD_STEPS = [
   {
     target: '[data-tour="health-score"]',
-    title: 'Puntaje de salud',
+    title: 'ISV: el estado de tu casa',
     content:
-      'Este número mide el estado general de tu vivienda de 0 a 100. Sube cuando completás tareas a tiempo y baja cuando se vencen. Las tareas urgentes pesan más.',
+      'Este número va de 0 a 100. Sube cuando completás tareas a tiempo y baja cuando se vencen. Cuanto más alto, mejor está tu vivienda.',
     disableBeacon: true,
   },
   {
     target: '[data-tour="mini-stats"]',
-    title: 'Estado de tus tareas',
+    title: 'Tus tareas de un vistazo',
     content:
-      'Acá ves cuántas tareas tenés vencidas, pendientes y completadas este mes. "Pendientes" son las que todavía no vencen. "Próximas" aparecen cuando faltan menos de 30 días.',
+      'Vencidas: pasaron la fecha. Pendientes: tienen fecha pero falta más de 30 días. Completadas: lo que hiciste este mes.',
   },
   {
     target: '[data-tour="action-buttons"]',
-    title: 'Acciones rápidas',
+    title: '¿Qué hago primero?',
     content:
-      '"Ver qué hacer" te lleva a las tareas pendientes. "Ver análisis completo" te muestra la evolución de tu vivienda en el tiempo.',
+      '"Ver qué hacer" te muestra las tareas más urgentes. "Ver análisis completo" te muestra cómo viene tu vivienda en el tiempo.',
   },
   {
     target: '[data-tour="sidebar-nav"]',
-    title: 'Navegación',
+    title: 'Menú principal',
     content:
-      'Desde acá accedés a tus tareas, propiedades, presupuestos y servicios. Te avisamos por email y notificaciones cuando haya algo pendiente.',
+      'Desde acá accedés a todo: tareas, propiedades, presupuestos y servicios. También te llegan avisos por email cuando haya algo pendiente.',
     placement: 'right' as const,
   },
 ];
@@ -114,22 +114,21 @@ export function DashboardTour() {
 const TASKS_STEPS = [
   {
     target: '[data-tour="task-stats"]',
-    title: 'Filtros por estado',
+    title: 'Filtrá por estado',
     content:
-      'Tocá cualquier tarjeta para filtrar las tareas por estado. "Vencidas" son las que pasaron su fecha. "Próximas" son las que vencen en los próximos 30 días.',
+      'Hacé click en una tarjeta para ver solo las tareas de ese estado. Vencidas = pasaron la fecha. Próximas = vencen en menos de 30 días.',
     disableBeacon: true,
   },
   {
     target: '[data-tour="task-filters"]',
-    title: 'Búsqueda y filtros',
-    content:
-      'Podés buscar por nombre, filtrar por prioridad o por propiedad para encontrar tareas específicas.',
+    title: 'Buscá tareas',
+    content: 'Buscá por nombre o filtrá por prioridad y propiedad.',
   },
   {
     target: '[data-tour="task-list"]',
-    title: 'Lista de tareas',
+    title: 'Completar una tarea',
     content:
-      'Hacé click en una tarea para ver el detalle y completarla. Solo necesitás indicar el estado en que encontraste todo y quién lo hizo.',
+      'Hacé click en cualquier tarea para ver el detalle. Para completarla solo tenés que indicar en qué estado la encontraste y quién la hizo.',
   },
 ];
 
@@ -142,16 +141,16 @@ export function TasksTour() {
 const PROPERTY_STEPS = [
   {
     target: '[data-tour="property-tabs"]',
-    title: 'Secciones de tu propiedad',
+    title: 'Todo sobre tu vivienda',
     content:
-      'Tu propiedad tiene varias secciones: salud general, plan de mantenimiento, gastos y fotos. Explorá cada una para tener el panorama completo.',
+      'Salud te muestra el puntaje ISV. Plan tiene las tareas programadas. Gastos muestra cuánto llevas invertido. Fotos guarda el registro visual.',
     disableBeacon: true,
   },
   {
     target: '[data-tour="property-health"]',
-    title: 'Salud de la vivienda',
+    title: 'Índice de Salud (ISV)',
     content:
-      'Acá ves el puntaje ISV desglosado por dimensión: cumplimiento, estado, cobertura e inversión. Te muestra qué sectores necesitan más atención.',
+      'El ISV responde 5 preguntas: ¿estás al día con las tareas? ¿en qué estado está todo? ¿se revisaron todos los sectores? ¿prevenís o reparás? ¿mejora o empeora?',
     placement: 'bottom' as const,
   },
 ];
@@ -165,16 +164,16 @@ export function PropertyTour() {
 const BUDGET_STEPS = [
   {
     target: '[data-tour="budget-status"]',
-    title: 'Estado del presupuesto',
+    title: 'Ciclo del presupuesto',
     content:
-      'Acá ves en qué etapa está tu presupuesto. Cuando EPDE te manda la cotización, podés aprobarla o rechazarla desde acá.',
+      'Primero lo solicitás, EPDE lo cotiza con detalle de costos, y vos decidís si aprobarlo o rechazarlo.',
     disableBeacon: true,
   },
   {
     target: '[data-tour="budget-actions"]',
-    title: 'Tus acciones',
+    title: 'Aprobar o rechazar',
     content:
-      'Si el presupuesto fue cotizado, podés aprobarlo para que avancemos con el trabajo o rechazarlo. También podés dejar comentarios si tenés dudas.',
+      'Cuando la cotización esté lista, aparecen los botones para aprobar o rechazar. Si tenés dudas, podés dejar un comentario antes de decidir.',
   },
 ];
 
@@ -189,14 +188,14 @@ const PLAN_VIEWER_STEPS = [
     target: '[data-tour="plan-title"]',
     title: 'Tu plan de mantenimiento',
     content:
-      'Este es el plan que armó la arquitecta después de inspeccionar tu vivienda. Tiene todas las tareas programadas organizadas por categoría.',
+      'La arquitecta armó este plan después de inspeccionar tu vivienda. Tiene todas las tareas que tu casa necesita, organizadas por categoría.',
     disableBeacon: true,
   },
   {
     target: '[data-tour="plan-status-summary"]',
-    title: 'Estado de las tareas',
+    title: 'Resumen del plan',
     content:
-      'Acá ves cuántas tareas están vencidas, pendientes o próximas. Hacé click en una tarea para ver el detalle y completarla.',
+      'De un vistazo ves cuántas tareas están vencidas, pendientes o próximas. Hacé click en cualquiera para ver el detalle.',
   },
 ];
 
@@ -209,16 +208,16 @@ export function PlanViewerTour() {
 const EXPENSES_STEPS = [
   {
     target: '[data-tour="expenses-stats"]',
-    title: 'Resumen de gastos',
+    title: 'Lo que llevas invertido',
     content:
-      'Acá ves cuánto llevas gastado en mantenimiento: el total acumulado, el promedio mensual y la categoría donde más invertiste.',
+      'Total acumulado en mantenimiento, cuánto gastás por mes en promedio, y en qué categoría se concentra la inversión.',
     disableBeacon: true,
   },
   {
     target: '[data-tour="expenses-breakdown"]',
-    title: 'Desglose por sector',
+    title: 'Dónde se va la plata',
     content:
-      'Podés ver cómo se distribuyen los gastos por sector de la vivienda o por categoría. Los costos de tareas y presupuestos se separan para que veas cuánto va a prevención vs. reparación.',
+      'Ves cuánto se gasta en cada sector de tu casa. Podés alternar entre vista por sector y por categoría.',
   },
 ];
 
@@ -231,16 +230,15 @@ export function ExpensesTour() {
 const PROPERTIES_LIST_STEPS = [
   {
     target: '[data-tour="properties-filters"]',
-    title: 'Buscá y filtrá',
-    content:
-      'Buscá por dirección o ciudad. Filtrá por tipo de vivienda o por el estado del plan de mantenimiento.',
+    title: 'Buscá tu propiedad',
+    content: 'Buscá por dirección o ciudad. Filtrá por tipo de vivienda o por estado del plan.',
     disableBeacon: true,
   },
   {
     target: '[data-tour="properties-table"]',
     title: 'Tus propiedades',
     content:
-      'Cada fila es una propiedad con su plan de mantenimiento. Hacé click en una para ver el detalle completo: salud, tareas, gastos y fotos.',
+      'Hacé click en una propiedad para ver su salud, plan de mantenimiento, gastos y fotos.',
   },
 ];
 
@@ -253,16 +251,16 @@ export function PropertiesListTour() {
 const BUDGETS_LIST_STEPS = [
   {
     target: '[data-tour="budgets-action"]',
-    title: 'Solicitar presupuesto',
+    title: 'Pedí un presupuesto',
     content:
-      'Si necesitás reparar o mejorar algo en tu vivienda, pedí un presupuesto desde acá. EPDE te prepara una cotización con el detalle de costos.',
+      '¿Necesitás reparar o mejorar algo? Pedilo desde acá. EPDE te prepara una cotización con el detalle.',
     disableBeacon: true,
   },
   {
     target: '[data-tour="budgets-table"]',
     title: 'Tus presupuestos',
     content:
-      'Acá ves todos tus presupuestos: pendientes de cotización, cotizados esperando tu aprobación, aprobados y completados.',
+      'Acá ves todos: los que esperan cotización, los cotizados que necesitan tu aprobación, y los ya completados.',
   },
 ];
 
@@ -275,16 +273,16 @@ export function BudgetsListTour() {
 const SERVICES_LIST_STEPS = [
   {
     target: '[data-tour="services-action"]',
-    title: 'Nueva solicitud',
+    title: '¿Detectaste un problema?',
     content:
-      'Si detectás un problema o necesitás asistencia profesional, creá una solicitud de servicio. EPDE la revisa y coordina la intervención.',
+      'Creá una solicitud de servicio y EPDE coordina la intervención profesional. También podés crearla desde una tarea.',
     disableBeacon: true,
   },
   {
     target: '[data-tour="services-filters"]',
-    title: 'Filtrá por estado o urgencia',
+    title: 'Seguí tus solicitudes',
     content:
-      'Podés filtrar por estado (abierta, en revisión, en progreso, resuelta) y por nivel de urgencia para encontrar solicitudes específicas.',
+      'Filtrá por estado (abierta, en revisión, resuelta) o por urgencia para encontrar una solicitud rápido.',
   },
 ];
 
@@ -297,9 +295,9 @@ export function ServicesListTour() {
 const PLANS_LIST_STEPS = [
   {
     target: '[data-tour="plans-list"]',
-    title: 'Tus planes de mantenimiento',
+    title: 'Planes de mantenimiento',
     content:
-      'Cada propiedad tiene un plan con todas las tareas programadas. Los planes activos generan recordatorios y afectan tu puntaje ISV. Hacé click en uno para ver el detalle.',
+      'Cada propiedad tiene un plan con sus tareas programadas. Los activos generan recordatorios automáticos. Hacé click en uno para ver las tareas.',
     disableBeacon: true,
   },
 ];
