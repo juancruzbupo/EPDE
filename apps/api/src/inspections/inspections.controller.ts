@@ -40,16 +40,21 @@ export class InspectionsController {
   }
 
   @Get('property/:propertyId')
-  @Roles(UserRole.ADMIN)
-  async findByProperty(@Param('propertyId', ParseUUIDPipe) propertyId: string) {
-    const data = await this.service.findByProperty(propertyId);
+  @Roles(UserRole.ADMIN, UserRole.CLIENT)
+  async findByProperty(
+    @Param('propertyId', ParseUUIDPipe) propertyId: string,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    const userId = user.role === UserRole.CLIENT ? user.id : undefined;
+    const data = await this.service.findByProperty(propertyId, userId);
     return { data };
   }
 
   @Get(':id')
-  @Roles(UserRole.ADMIN)
-  async findById(@Param('id', ParseUUIDPipe) id: string) {
-    const data = await this.service.findById(id);
+  @Roles(UserRole.ADMIN, UserRole.CLIENT)
+  async findById(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: CurrentUserPayload) {
+    const userId = user.role === UserRole.CLIENT ? user.id : undefined;
+    const data = await this.service.findById(id, userId);
     return { data };
   }
 
