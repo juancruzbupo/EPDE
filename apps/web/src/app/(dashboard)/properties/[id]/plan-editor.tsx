@@ -18,6 +18,7 @@ import { PlanDialogs } from './plan-components/plan-dialogs';
 import { PlanFilters } from './plan-components/plan-filters';
 import { PlanStatusBar } from './plan-components/plan-status-bar';
 import { PlanTaskList } from './plan-components/plan-task-list';
+import { PlanValidationDialog } from './plan-components/plan-validation-dialog';
 import { StatusSummary } from './plan-components/status-summary';
 
 const ACTIONABLE_STATUSES: TaskStatus[] = [
@@ -45,6 +46,7 @@ export function PlanEditor({ propertyId, planId, activeSectors }: PlanEditorProp
   const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
   const [completingTask, setCompletingTask] = useState<TaskPublic | null>(null);
   const [statusTransition, setStatusTransition] = useState<PlanStatus | null>(null);
+  const [validationOpen, setValidationOpen] = useState(false);
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
@@ -210,7 +212,7 @@ export function PlanEditor({ propertyId, planId, activeSectors }: PlanEditorProp
       <PlanStatusBar
         planName={plan.name}
         planStatus={plan.status}
-        onActivate={() => setStatusTransition(PlanStatus.ACTIVE)}
+        onActivate={() => setValidationOpen(true)}
         onArchive={() => setStatusTransition(PlanStatus.ARCHIVED)}
         onApplyTemplate={() => setTemplateDialogOpen(true)}
         onAddTask={() => {
@@ -296,6 +298,17 @@ export function PlanEditor({ propertyId, planId, activeSectors }: PlanEditorProp
         categoryTemplates={categoryTemplates}
         onApplyTemplates={handleApplyTemplates}
         isApplyingTemplate={isApplyingTemplates}
+      />
+      <PlanValidationDialog
+        open={validationOpen}
+        onOpenChange={setValidationOpen}
+        tasks={tasks}
+        activeSectors={activeSectors}
+        onConfirm={() => {
+          setValidationOpen(false);
+          setStatusTransition(PlanStatus.ACTIVE);
+        }}
+        isLoading={updatePlan.isPending}
       />
     </Card>
   );
