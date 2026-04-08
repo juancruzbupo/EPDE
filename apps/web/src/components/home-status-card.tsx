@@ -195,7 +195,7 @@ export function HomeStatusCard({
 
             {/* ISV delta + streak badges */}
             {((isvDelta !== null && isvDelta !== undefined) || (streak && streak > 0)) && (
-              <div className="mb-4 flex flex-wrap gap-2">
+              <div data-tour="streak-badges" className="mb-4 flex flex-wrap gap-2">
                 {isvDelta !== null && isvDelta !== undefined && isvDelta !== 0 && (
                   <Tooltip>
                     <TooltipTrigger asChild>

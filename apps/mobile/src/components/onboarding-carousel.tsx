@@ -116,9 +116,9 @@ export const OnboardingCarousel = memo(function OnboardingCarousel({
     <View className="bg-background flex-1 justify-between pt-20 pb-12">
       {/* Skip */}
       <View className="items-end px-6">
-        <Pressable accessibilityRole="button" accessibilityLabel="Saltar tour" onPress={handleSkip}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Cerrar guía" onPress={handleSkip}>
           <Text style={TYPE.labelLg} className="text-muted-foreground">
-            Saltar
+            Cerrar
           </Text>
         </Pressable>
       </View>

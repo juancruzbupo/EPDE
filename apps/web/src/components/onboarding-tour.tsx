@@ -8,9 +8,9 @@ import type { EventData, Props, Step } from 'react-joyride';
 const LOCALE = {
   back: 'Anterior',
   close: 'Cerrar',
-  last: 'Entendido',
+  last: 'Listo',
   next: 'Siguiente',
-  skip: 'Saltar tour',
+  skip: 'Cerrar',
   open: 'Abrir guía',
 };
 
@@ -108,6 +108,13 @@ const DASHBOARD_STEPS: Step[] = [
     title: 'Tus tareas de un vistazo',
     content:
       'Vencidas: pasaron la fecha, atendelas primero. Pendientes: programadas a más de 30 días. Completadas: lo que hiciste este mes. Presupuestos: cotizaciones esperando tu decisión.',
+    ...SHARED_STEP_DEFAULTS,
+  },
+  {
+    target: '[data-tour="streak-badges"]',
+    title: 'Tu racha y progreso',
+    content:
+      'El fuego muestra cuántos meses seguidos completaste todo a tiempo. "Semana perfecta" aparece cuando no dejás nada pendiente. Mantené la racha para mejorar tu ISV.',
     ...SHARED_STEP_DEFAULTS,
   },
   {
