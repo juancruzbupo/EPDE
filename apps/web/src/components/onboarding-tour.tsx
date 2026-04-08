@@ -15,7 +15,6 @@ const LOCALE = {
 const JOYRIDE_STYLES = {
   options: { primaryColor: '#a65636', zIndex: 10000, overlayColor: 'rgba(0, 0, 0, 0.6)' },
   overlay: { mixBlendMode: 'normal' as const },
-  spotlight: { borderRadius: 8 },
   tooltip: {
     borderRadius: 16,
     fontSize: 15,
