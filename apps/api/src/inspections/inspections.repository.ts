@@ -115,4 +115,18 @@ export class InspectionsRepository {
       data: { notes },
     });
   }
+
+  async softDelete(id: string) {
+    const now = new Date();
+    return this.prisma.$transaction([
+      this.prisma.inspectionItem.updateMany({
+        where: { checklistId: id, deletedAt: null },
+        data: { deletedAt: now },
+      }),
+      this.prisma.inspectionChecklist.update({
+        where: { id },
+        data: { deletedAt: now },
+      }),
+    ]);
+  }
 }

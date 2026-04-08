@@ -3,9 +3,9 @@
 import type { InspectionChecklist, InspectionItemStatus, PropertySector } from '@epde/shared';
 import { DEFAULT_INSPECTION_ITEMS, PROPERTY_SECTOR_LABELS } from '@epde/shared';
 import { AlertTriangle, CheckCircle, Circle, ClipboardList, Plus, Wrench } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { toast } from 'sonner';
+import { useMemo, useState } from 'react';
 
+import { ErrorState } from '@/components/error-state';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,11 +20,11 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  addInspectionItem,
-  createInspection,
-  getInspections,
-  updateInspectionItem,
-} from '@/lib/api/inspections';
+  useAddInspectionItem,
+  useCreateInspection,
+  useInspections,
+  useUpdateInspectionItem,
+} from '@/hooks/use-inspections';
 
 const STATUS_CONFIG: Record<
   InspectionItemStatus,
@@ -62,34 +62,22 @@ interface InspectionTabProps {
 }
 
 export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps) {
-  const [_inspections, setInspections] = useState<InspectionChecklist[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeChecklist, setActiveChecklist] = useState<InspectionChecklist | null>(null);
+  const { data: inspections, isLoading, error, refetch } = useInspections(propertyId);
+  const createInspection = useCreateInspection(propertyId);
+  const updateItem = useUpdateInspectionItem(propertyId);
+  const addItem = useAddInspectionItem(propertyId);
+
   const [addingSector, setAddingSector] = useState<PropertySector | null>(null);
   const [customItemName, setCustomItemName] = useState('');
-  const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
   const [findingDialog, setFindingDialog] = useState<{
     itemId: string;
     status: InspectionItemStatus;
   } | null>(null);
   const [findingText, setFindingText] = useState('');
 
-  const loadInspections = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await getInspections(propertyId);
-      setInspections(res.data);
-      if (res.data.length > 0) setActiveChecklist(res.data[0] ?? null);
-    } finally {
-      setLoading(false);
-    }
-  }, [propertyId]);
+  const activeChecklist = inspections?.[0] ?? null;
 
-  useEffect(() => {
-    loadInspections();
-  }, [loadInspections]);
-
-  const handleNewInspection = async () => {
+  const handleNewInspection = () => {
     const defaultItems = activeSectors.flatMap((sector, sectorIdx) =>
       (DEFAULT_INSPECTION_ITEMS[sector] ?? []).map((item, itemIdx) => ({
         sector,
@@ -101,61 +89,24 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
       })),
     );
 
-    try {
-      const res = await createInspection({ propertyId, items: defaultItems });
-      toast.success('Nueva inspección creada');
-      setInspections((prev) => [res.data, ...prev]);
-      setActiveChecklist(res.data);
-    } catch {
-      toast.error('Error al crear inspección');
-    }
+    createInspection.mutate({ propertyId, items: defaultItems });
   };
 
-  const handleUpdateItem = async (
-    itemId: string,
-    status: InspectionItemStatus,
-    finding?: string,
-  ) => {
-    setUpdatingItems((prev) => new Set(prev).add(itemId));
-    try {
-      await updateInspectionItem(itemId, { status, finding });
-      setActiveChecklist((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          items: prev.items.map((item) =>
-            item.id === itemId
-              ? { ...item, status, ...(finding !== undefined && { finding }) }
-              : item,
-          ),
-        };
-      });
-    } catch {
-      toast.error('Error al actualizar');
-    } finally {
-      setUpdatingItems((prev) => {
-        const next = new Set(prev);
-        next.delete(itemId);
-        return next;
-      });
-    }
+  const handleUpdateItem = (itemId: string, status: InspectionItemStatus, finding?: string) => {
+    updateItem.mutate({ itemId, status, finding });
   };
 
-  const handleAddCustomItem = async (sector: PropertySector) => {
+  const handleAddCustomItem = (sector: PropertySector) => {
     if (!activeChecklist || !customItemName.trim()) return;
-    try {
-      await addInspectionItem(activeChecklist.id, {
-        sector,
-        name: customItemName.trim(),
-        isCustom: true,
-      });
-      setCustomItemName('');
-      setAddingSector(null);
-      toast.success('Item agregado');
-      await loadInspections();
-    } catch {
-      toast.error('Error al agregar item');
-    }
+    addItem.mutate(
+      { checklistId: activeChecklist.id, sector, name: customItemName.trim(), isCustom: true },
+      {
+        onSuccess: () => {
+          setCustomItemName('');
+          setAddingSector(null);
+        },
+      },
+    );
   };
 
   const itemsBySector = useMemo(() => {
@@ -170,7 +121,7 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
     return map;
   }, [activeChecklist]);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="space-y-4">
         {Array.from({ length: 3 }).map((_, i) => (
@@ -178,6 +129,10 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
         ))}
       </div>
     );
+  }
+
+  if (error) {
+    return <ErrorState message="Error al cargar inspecciones" onRetry={() => refetch()} />;
   }
 
   if (!activeChecklist) {
@@ -188,7 +143,7 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
           <p className="text-muted-foreground text-sm">
             No hay inspecciones registradas para esta propiedad.
           </p>
-          <Button onClick={handleNewInspection}>
+          <Button onClick={handleNewInspection} disabled={createInspection.isPending}>
             <Plus className="mr-2 h-4 w-4" />
             Iniciar inspección
           </Button>
@@ -214,7 +169,12 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
             {activeChecklist.items.length} revisados
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={handleNewInspection}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleNewInspection}
+          disabled={createInspection.isPending}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Nueva inspección
         </Button>
@@ -238,7 +198,7 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
               {items.map((item) => {
                 const config = STATUS_CONFIG[item.status as InspectionItemStatus];
                 const Icon = config.icon;
-                const isUpdating = updatingItems.has(item.id);
+                const isUpdating = updateItem.isPending && updateItem.variables?.itemId === item.id;
 
                 return (
                   <div key={item.id} className="flex items-start gap-3 rounded-lg border p-3">
@@ -304,7 +264,11 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
                       if (e.key === 'Enter') handleAddCustomItem(sector);
                     }}
                   />
-                  <Button size="sm" onClick={() => handleAddCustomItem(sector)}>
+                  <Button
+                    size="sm"
+                    onClick={() => handleAddCustomItem(sector)}
+                    disabled={addItem.isPending}
+                  >
                     Agregar
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => setAddingSector(null)}>
@@ -349,6 +313,7 @@ export function InspectionTab({ propertyId, activeSectors }: InspectionTabProps)
               Cancelar
             </Button>
             <Button
+              disabled={updateItem.isPending}
               onClick={() => {
                 if (findingDialog) {
                   handleUpdateItem(findingDialog.itemId, findingDialog.status, findingText);

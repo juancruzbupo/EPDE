@@ -50,6 +50,8 @@ export async function createTestApp(): Promise<INestApplication> {
 export async function cleanDatabase(prisma: PrismaService): Promise<void> {
   const tableNames = [
     'Notification',
+    'InspectionItem',
+    'InspectionChecklist',
     'TaskNote',
     'TaskAuditLog',
     'TaskLog',

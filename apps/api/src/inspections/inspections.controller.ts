@@ -11,7 +11,7 @@ import {
   updateNotesSchema,
   UserRole,
 } from '@epde/shared';
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -98,5 +98,12 @@ export class InspectionsController {
   ) {
     const data = await this.service.updateNotes(checklistId, body.notes);
     return { data };
+  }
+
+  @Delete(':id')
+  @Roles(UserRole.ADMIN)
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    await this.service.remove(id);
+    return { data: null, message: 'Inspección eliminada' };
   }
 }

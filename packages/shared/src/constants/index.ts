@@ -444,6 +444,8 @@ export const QUERY_KEYS = {
   plansTasks: 'tasks',
   // Client sub-keys
   clientsSearch: 'search',
+  // Inspection sub-keys
+  inspections: 'inspections',
   // Landing settings
   landingSettings: 'landing-settings',
 } as const;

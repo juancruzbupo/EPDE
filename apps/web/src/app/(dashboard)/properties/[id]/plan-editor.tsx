@@ -1,7 +1,7 @@
 'use client';
 
 import { PlanStatus, TaskPriority, TaskStatus } from '@epde/shared';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useReducer, useState } from 'react';
 
 import { ErrorState } from '@/components/error-state';
 import { Card, CardContent } from '@/components/ui/card';
@@ -27,6 +27,100 @@ const ACTIONABLE_STATUSES: TaskStatus[] = [
   TaskStatus.UPCOMING,
 ];
 
+// ─── Dialog state reducer ────────────────────────────────
+
+interface ServiceDialogInfo {
+  propertyId: string;
+  taskId: string;
+  title: string;
+  description: string;
+}
+
+interface DialogState {
+  task: { open: boolean; editing: TaskPublic | null };
+  delete: { taskId: string | null };
+  complete: { task: TaskPublic | null };
+  status: { transition: PlanStatus | null };
+  validation: { open: boolean };
+  template: { open: boolean; applying: boolean };
+  bulkComplete: { open: boolean };
+  service: { info: ServiceDialogInfo | null };
+}
+
+const initialDialogState: DialogState = {
+  task: { open: false, editing: null },
+  delete: { taskId: null },
+  complete: { task: null },
+  status: { transition: null },
+  validation: { open: false },
+  template: { open: false, applying: false },
+  bulkComplete: { open: false },
+  service: { info: null },
+};
+
+type DialogAction =
+  | { type: 'OPEN_NEW_TASK' }
+  | { type: 'OPEN_EDIT_TASK'; task: TaskPublic }
+  | { type: 'CLOSE_TASK' }
+  | { type: 'OPEN_DELETE'; taskId: string }
+  | { type: 'CLOSE_DELETE' }
+  | { type: 'OPEN_COMPLETE'; task: TaskPublic }
+  | { type: 'CLOSE_COMPLETE' }
+  | { type: 'OPEN_STATUS'; transition: PlanStatus }
+  | { type: 'CLOSE_STATUS' }
+  | { type: 'OPEN_VALIDATION' }
+  | { type: 'CLOSE_VALIDATION' }
+  | { type: 'OPEN_TEMPLATE' }
+  | { type: 'CLOSE_TEMPLATE' }
+  | { type: 'SET_TEMPLATE_APPLYING'; applying: boolean }
+  | { type: 'OPEN_BULK_COMPLETE' }
+  | { type: 'CLOSE_BULK_COMPLETE' }
+  | { type: 'OPEN_SERVICE'; info: ServiceDialogInfo }
+  | { type: 'CLOSE_SERVICE' };
+
+function dialogReducer(state: DialogState, action: DialogAction): DialogState {
+  switch (action.type) {
+    case 'OPEN_NEW_TASK':
+      return { ...state, task: { open: true, editing: null } };
+    case 'OPEN_EDIT_TASK':
+      return { ...state, task: { open: true, editing: action.task } };
+    case 'CLOSE_TASK':
+      return { ...state, task: { open: false, editing: null } };
+    case 'OPEN_DELETE':
+      return { ...state, delete: { taskId: action.taskId } };
+    case 'CLOSE_DELETE':
+      return { ...state, delete: { taskId: null } };
+    case 'OPEN_COMPLETE':
+      return { ...state, complete: { task: action.task } };
+    case 'CLOSE_COMPLETE':
+      return { ...state, complete: { task: null } };
+    case 'OPEN_STATUS':
+      return { ...state, status: { transition: action.transition } };
+    case 'CLOSE_STATUS':
+      return { ...state, status: { transition: null } };
+    case 'OPEN_VALIDATION':
+      return { ...state, validation: { open: true } };
+    case 'CLOSE_VALIDATION':
+      return { ...state, validation: { open: false } };
+    case 'OPEN_TEMPLATE':
+      return { ...state, template: { open: true, applying: false } };
+    case 'CLOSE_TEMPLATE':
+      return { ...state, template: { open: false, applying: false } };
+    case 'SET_TEMPLATE_APPLYING':
+      return { ...state, template: { ...state.template, applying: action.applying } };
+    case 'OPEN_BULK_COMPLETE':
+      return { ...state, bulkComplete: { open: true } };
+    case 'CLOSE_BULK_COMPLETE':
+      return { ...state, bulkComplete: { open: false } };
+    case 'OPEN_SERVICE':
+      return { ...state, service: { info: action.info } };
+    case 'CLOSE_SERVICE':
+      return { ...state, service: { info: null } };
+  }
+}
+
+// ─── Component ───────────────────────────────────────────
+
 interface PlanEditorProps {
   propertyId: string;
   planId: string;
@@ -41,26 +135,15 @@ export function PlanEditor({ propertyId, planId, activeSectors }: PlanEditorProp
   const bulkAdd = useBulkAddTasks();
   const { data: categoryTemplates } = useCategoryTemplates();
 
-  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState<TaskPublic | null>(null);
-  const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
-  const [completingTask, setCompletingTask] = useState<TaskPublic | null>(null);
-  const [statusTransition, setStatusTransition] = useState<PlanStatus | null>(null);
-  const [validationOpen, setValidationOpen] = useState(false);
-  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
+  const [dialogs, dispatch] = useReducer(dialogReducer, initialDialogState);
+
+  // Filter & selection state (kept as useState — simple primitives)
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
-  const [bulkCompleteOpen, setBulkCompleteOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [priority, setPriority] = useState<TaskPriority | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<TaskStatus | 'all' | 'actionable'>('actionable');
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const [serviceDialogTask, setServiceDialogTask] = useState<{
-    propertyId: string;
-    taskId: string;
-    title: string;
-    description: string;
-  } | null>(null);
   const debouncedSearch = useDebounce(search);
 
   const tasks = plan?.tasks ?? [];
@@ -92,10 +175,10 @@ export function PlanEditor({ propertyId, planId, activeSectors }: PlanEditorProp
     });
   }, []);
 
-  const handleEdit = useCallback((task: TaskPublic) => {
-    setEditingTask(task);
-    setTaskDialogOpen(true);
-  }, []);
+  const handleEdit = useCallback(
+    (task: TaskPublic) => dispatch({ type: 'OPEN_EDIT_TASK', task }),
+    [],
+  );
 
   const exitSelectionMode = useCallback(() => {
     setSelectionMode(false);
@@ -141,11 +224,9 @@ export function PlanEditor({ propertyId, planId, activeSectors }: PlanEditorProp
     setSelectedTaskIds((prev) => (prev.size === ids.length ? new Set() : new Set(ids)));
   }, [completableTasks]);
 
-  const [isApplyingTemplates, setIsApplyingTemplates] = useState(false);
-
   const handleApplyTemplates = useCallback(
     async (templateIds: string[]) => {
-      setIsApplyingTemplates(true);
+      dispatch({ type: 'SET_TEMPLATE_APPLYING', applying: true });
       for (const id of templateIds) {
         await new Promise<void>((resolve, reject) => {
           bulkAdd.mutate(
@@ -154,32 +235,37 @@ export function PlanEditor({ propertyId, planId, activeSectors }: PlanEditorProp
           );
         });
       }
-      setIsApplyingTemplates(false);
-      setTemplateDialogOpen(false);
+      dispatch({ type: 'CLOSE_TEMPLATE' });
     },
     [bulkAdd, planId],
   );
 
   const handleDeleteConfirm = useCallback(() => {
-    if (!deleteTaskId) return;
-    removeTask.mutate({ planId, taskId: deleteTaskId }, { onSuccess: () => setDeleteTaskId(null) });
-  }, [deleteTaskId, removeTask, planId]);
+    if (!dialogs.delete.taskId) return;
+    removeTask.mutate(
+      { planId, taskId: dialogs.delete.taskId },
+      { onSuccess: () => dispatch({ type: 'CLOSE_DELETE' }) },
+    );
+  }, [dialogs.delete.taskId, removeTask, planId]);
 
   const handleStatusConfirm = useCallback(() => {
-    if (!statusTransition) return;
+    if (!dialogs.status.transition) return;
     updatePlan.mutate(
-      { id: planId, status: statusTransition },
-      { onSuccess: () => setStatusTransition(null) },
+      { id: planId, status: dialogs.status.transition },
+      { onSuccess: () => dispatch({ type: 'CLOSE_STATUS' }) },
     );
-  }, [statusTransition, updatePlan, planId]);
+  }, [dialogs.status.transition, updatePlan, planId]);
 
   const handleProblemDetected = useCallback(
     (info: { taskId: string; taskName: string }) => {
-      setServiceDialogTask({
-        propertyId,
-        taskId: info.taskId,
-        title: `Solicitud: ${info.taskName}`,
-        description: `Problema detectado en: ${info.taskName}`,
+      dispatch({
+        type: 'OPEN_SERVICE',
+        info: {
+          propertyId,
+          taskId: info.taskId,
+          title: `Solicitud: ${info.taskName}`,
+          description: `Problema detectado en: ${info.taskName}`,
+        },
       });
     },
     [propertyId],
@@ -212,13 +298,10 @@ export function PlanEditor({ propertyId, planId, activeSectors }: PlanEditorProp
       <PlanStatusBar
         planName={plan.name}
         planStatus={plan.status}
-        onActivate={() => setValidationOpen(true)}
-        onArchive={() => setStatusTransition(PlanStatus.ARCHIVED)}
-        onApplyTemplate={() => setTemplateDialogOpen(true)}
-        onAddTask={() => {
-          setEditingTask(null);
-          setTaskDialogOpen(true);
-        }}
+        onActivate={() => dispatch({ type: 'OPEN_VALIDATION' })}
+        onArchive={() => dispatch({ type: 'OPEN_STATUS', transition: PlanStatus.ARCHIVED })}
+        onApplyTemplate={() => dispatch({ type: 'OPEN_TEMPLATE' })}
+        onAddTask={() => dispatch({ type: 'OPEN_NEW_TASK' })}
       />
       <CardContent>
         {tasks.length === 0 ? (
@@ -249,15 +332,15 @@ export function PlanEditor({ propertyId, planId, activeSectors }: PlanEditorProp
                 completableCount={completableTasks.length}
                 onToggleSelectAll={handleToggleSelectAll}
                 onCancel={exitSelectionMode}
-                onBulkComplete={() => setBulkCompleteOpen(true)}
+                onBulkComplete={() => dispatch({ type: 'OPEN_BULK_COMPLETE' })}
               />
             )}
             <PlanTaskList
               filteredCount={filtered.length}
               grouped={grouped}
               onEdit={handleEdit}
-              onComplete={setCompletingTask}
-              onDelete={setDeleteTaskId}
+              onComplete={(task) => dispatch({ type: 'OPEN_COMPLETE', task })}
+              onDelete={(taskId) => dispatch({ type: 'OPEN_DELETE', taskId })}
               onMove={handleMoveTask}
               selectionMode={selectionMode}
               selectedIds={selectedTaskIds}
@@ -271,42 +354,50 @@ export function PlanEditor({ propertyId, planId, activeSectors }: PlanEditorProp
         planId={planId}
         propertyId={propertyId}
         activeSectors={activeSectors}
-        taskDialogOpen={taskDialogOpen}
-        onTaskDialogChange={setTaskDialogOpen}
-        editingTask={editingTask}
-        deleteTaskId={deleteTaskId}
-        onDeleteTaskChange={() => setDeleteTaskId(null)}
+        taskDialogOpen={dialogs.task.open}
+        onTaskDialogChange={(open) => {
+          if (!open) dispatch({ type: 'CLOSE_TASK' });
+        }}
+        editingTask={dialogs.task.editing}
+        deleteTaskId={dialogs.delete.taskId}
+        onDeleteTaskChange={() => dispatch({ type: 'CLOSE_DELETE' })}
         onDeleteConfirm={handleDeleteConfirm}
         isDeleting={removeTask.isPending}
-        statusTransition={statusTransition}
-        onStatusTransitionChange={() => setStatusTransition(null)}
+        statusTransition={dialogs.status.transition}
+        onStatusTransitionChange={() => dispatch({ type: 'CLOSE_STATUS' })}
         onStatusConfirm={handleStatusConfirm}
         isUpdatingPlan={updatePlan.isPending}
-        completingTask={completingTask}
-        onCompletingTaskChange={() => setCompletingTask(null)}
+        completingTask={dialogs.complete.task}
+        onCompletingTaskChange={() => dispatch({ type: 'CLOSE_COMPLETE' })}
         onProblemDetected={handleProblemDetected}
-        serviceDialogTask={serviceDialogTask}
+        serviceDialogTask={dialogs.service.info}
         onServiceDialogChange={(open) => {
-          if (!open) setServiceDialogTask(null);
+          if (!open) dispatch({ type: 'CLOSE_SERVICE' });
         }}
-        bulkCompleteOpen={bulkCompleteOpen}
-        onBulkCompleteChange={setBulkCompleteOpen}
+        bulkCompleteOpen={dialogs.bulkComplete.open}
+        onBulkCompleteChange={(open) => {
+          if (!open) dispatch({ type: 'CLOSE_BULK_COMPLETE' });
+        }}
         selectedTasks={tasks.filter((t) => selectedTaskIds.has(t.id))}
         onBulkCompleteDone={exitSelectionMode}
-        templateDialogOpen={templateDialogOpen}
-        onTemplateDialogChange={setTemplateDialogOpen}
+        templateDialogOpen={dialogs.template.open}
+        onTemplateDialogChange={(open) => {
+          if (!open) dispatch({ type: 'CLOSE_TEMPLATE' });
+        }}
         categoryTemplates={categoryTemplates}
         onApplyTemplates={handleApplyTemplates}
-        isApplyingTemplate={isApplyingTemplates}
+        isApplyingTemplate={dialogs.template.applying}
       />
       <PlanValidationDialog
-        open={validationOpen}
-        onOpenChange={setValidationOpen}
+        open={dialogs.validation.open}
+        onOpenChange={(open) => {
+          if (!open) dispatch({ type: 'CLOSE_VALIDATION' });
+        }}
         tasks={tasks}
         activeSectors={activeSectors}
         onConfirm={() => {
-          setValidationOpen(false);
-          setStatusTransition(PlanStatus.ACTIVE);
+          dispatch({ type: 'CLOSE_VALIDATION' });
+          dispatch({ type: 'OPEN_STATUS', transition: PlanStatus.ACTIVE });
         }}
         isLoading={updatePlan.isPending}
       />

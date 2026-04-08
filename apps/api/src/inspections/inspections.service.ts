@@ -67,6 +67,11 @@ export class InspectionsService {
     return this.repository.updateNotes(checklistId, notes);
   }
 
+  async remove(id: string) {
+    await this.verifyChecklistAccess(id);
+    return this.repository.softDelete(id);
+  }
+
   // ─── Ownership validation ─────────────────────────────
 
   private async verifyPropertyOwnership(propertyId: string, userId: string) {

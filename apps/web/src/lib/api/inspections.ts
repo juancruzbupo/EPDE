@@ -1,5 +1,6 @@
 import type {
   AddInspectionItemInput,
+  ApiResponse,
   CreateInspectionInput,
   InspectionChecklist,
   UpdateInspectionItemInput,
@@ -7,19 +8,19 @@ import type {
 
 import { apiClient } from '../api-client';
 
-interface ApiResponse<T> {
-  data: T;
-}
-
 export async function getInspections(
   propertyId: string,
+  signal?: AbortSignal,
 ): Promise<ApiResponse<InspectionChecklist[]>> {
-  const { data } = await apiClient.get(`/inspections/property/${propertyId}`);
+  const { data } = await apiClient.get(`/inspections/property/${propertyId}`, { signal });
   return data;
 }
 
-export async function getInspection(id: string): Promise<ApiResponse<InspectionChecklist>> {
-  const { data } = await apiClient.get(`/inspections/${id}`);
+export async function getInspection(
+  id: string,
+  signal?: AbortSignal,
+): Promise<ApiResponse<InspectionChecklist>> {
+  const { data } = await apiClient.get(`/inspections/${id}`, { signal });
   return data;
 }
 
@@ -43,6 +44,11 @@ export async function addInspectionItem(
   dto: AddInspectionItemInput,
 ): Promise<ApiResponse<unknown>> {
   const { data } = await apiClient.post(`/inspections/${checklistId}/items`, dto);
+  return data;
+}
+
+export async function deleteInspection(id: string): Promise<ApiResponse<null>> {
+  const { data } = await apiClient.delete(`/inspections/${id}`);
   return data;
 }
 

@@ -692,6 +692,7 @@ model InspectionChecklist {
   items       InspectionItem[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
+  deletedAt   DateTime?
 
   @@index([propertyId, inspectedAt(sort: Desc)])
 }
@@ -712,6 +713,7 @@ model InspectionItem {
   order       Int                   @default(0)
   createdAt   DateTime              @default(now())
   updatedAt   DateTime              @updatedAt
+  deletedAt   DateTime?
 
   @@index([checklistId, sector])
   @@index([checklistId, order])
