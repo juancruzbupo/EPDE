@@ -186,6 +186,7 @@ model User {
   authAuditLogs           AuthAuditLog[]
   quoteTemplates          QuoteTemplate[]          @relation("QuoteTemplateCreator")
   pushTokens              PushToken[]
+  inspections             InspectionChecklist[]
 
   @@index([email])
   @@index([role, deletedAt])
@@ -213,6 +214,7 @@ model Property {
   budgetRequests  BudgetRequest[]
   serviceRequests ServiceRequest[]
   isvSnapshots    ISVSnapshot[]
+  inspections     InspectionChecklist[]
 
   @@index([userId])
   @@index([userId, deletedAt])
@@ -287,7 +289,8 @@ model Task {
   taskLogs        TaskLog[]
   taskNotes       TaskNote[]
   auditLogs       TaskAuditLog[]
-  serviceRequests ServiceRequest[]
+  serviceRequests  ServiceRequest[]
+  inspectionItems  InspectionItem[]
 
   @@index([maintenancePlanId])
   @@index([maintenancePlanId, status])
@@ -667,6 +670,51 @@ model ISVSnapshot {
 
   @@unique([propertyId, snapshotDate])
   @@index([propertyId])
+}
+
+// ─── Inspection Checklists ────────────────────────────────
+
+enum InspectionItemStatus {
+  PENDING
+  OK
+  NEEDS_ATTENTION
+  NEEDS_PROFESSIONAL
+}
+
+model InspectionChecklist {
+  id          String           @id @default(uuid())
+  propertyId  String
+  property    Property         @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  inspectedBy String
+  inspector   User             @relation(fields: [inspectedBy], references: [id])
+  inspectedAt DateTime         @default(now())
+  notes       String?          @db.VarChar(2000)
+  items       InspectionItem[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([propertyId, inspectedAt(sort: Desc)])
+}
+
+model InspectionItem {
+  id          String                @id @default(uuid())
+  checklistId String
+  checklist   InspectionChecklist   @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+  sector      PropertySector
+  name        String                @db.VarChar(200)
+  description String?               @db.VarChar(2000)
+  status      InspectionItemStatus  @default(PENDING)
+  finding     String?               @db.VarChar(2000)
+  photoUrl    String?
+  taskId      String?
+  task        Task?                 @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  isCustom    Boolean               @default(false)
+  order       Int                   @default(0)
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  @@index([checklistId, sector])
+  @@index([checklistId, order])
 }
 
 // ─── Landing Settings ─────────────────────────────────────

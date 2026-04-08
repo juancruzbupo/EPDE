@@ -5,6 +5,7 @@ export const idSchema: z.ZodString = z.string().uuid();
 export * from './auth';
 export * from './budget';
 export * from './category';
+export * from './inspection';
 export * from './maintenance-plan';
 export * from './notification';
 export * from './pagination';

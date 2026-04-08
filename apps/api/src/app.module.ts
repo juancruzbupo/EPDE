@@ -12,6 +12,7 @@ import { RolesGuard } from './common/guards/roles.guard';
 import { SubscriptionGuard } from './common/guards/subscription.guard';
 import { CoreModule } from './core/core.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { InspectionsModule } from './inspections/inspections.module';
 import { LandingSettingsModule } from './landing-settings/landing-settings.module';
 import { MaintenancePlansModule } from './maintenance-plans/maintenance-plans.module';
 import { MetricsInterceptor } from './metrics/metrics.interceptor';
@@ -43,6 +44,7 @@ import { UsersModule } from './users/users.module';
     CategoryTemplatesModule,
     TaskTemplatesModule,
     QuoteTemplatesModule,
+    InspectionsModule,
   ],
   controllers: [],
   providers: [

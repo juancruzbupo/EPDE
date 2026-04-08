@@ -1,0 +1,88 @@
+import type { CurrentUser as CurrentUserPayload } from '@epde/shared';
+import {
+  addInspectionItemSchema,
+  createInspectionSchema,
+  updateInspectionItemSchema,
+  UserRole,
+} from '@epde/shared';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { InspectionsService } from './inspections.service';
+
+@ApiTags('Inspecciones')
+@Controller('inspections')
+export class InspectionsController {
+  constructor(private readonly service: InspectionsService) {}
+
+  @Post()
+  @Roles(UserRole.ADMIN)
+  async create(
+    @Body(new ZodValidationPipe(createInspectionSchema))
+    body: { propertyId: string; notes?: string; items: unknown[] },
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    const data = await this.service.create({
+      ...body,
+      inspectedBy: user.id,
+      items: body.items as never,
+    });
+    return { data };
+  }
+
+  @Get('property/:propertyId')
+  @Roles(UserRole.ADMIN)
+  async findByProperty(@Param('propertyId', ParseUUIDPipe) propertyId: string) {
+    const data = await this.service.findByProperty(propertyId);
+    return { data };
+  }
+
+  @Get(':id')
+  @Roles(UserRole.ADMIN)
+  async findById(@Param('id', ParseUUIDPipe) id: string) {
+    const data = await this.service.findById(id);
+    return { data };
+  }
+
+  @Patch('items/:itemId')
+  @Roles(UserRole.ADMIN)
+  async updateItem(
+    @Param('itemId', ParseUUIDPipe) itemId: string,
+    @Body(new ZodValidationPipe(updateInspectionItemSchema))
+    body: { status?: string; finding?: string; photoUrl?: string },
+  ) {
+    const data = await this.service.updateItem(itemId, body);
+    return { data };
+  }
+
+  @Post(':checklistId/items')
+  @Roles(UserRole.ADMIN)
+  async addItem(
+    @Param('checklistId', ParseUUIDPipe) checklistId: string,
+    @Body(new ZodValidationPipe(addInspectionItemSchema))
+    body: { sector: string; name: string; description?: string; isCustom?: boolean },
+  ) {
+    const data = await this.service.addItem(checklistId, body);
+    return { data };
+  }
+
+  @Patch('items/:itemId/link-task')
+  @Roles(UserRole.ADMIN)
+  async linkTask(@Param('itemId', ParseUUIDPipe) itemId: string, @Body() body: { taskId: string }) {
+    const data = await this.service.linkTask(itemId, body.taskId);
+    return { data };
+  }
+
+  @Patch(':checklistId/notes')
+  @Roles(UserRole.ADMIN)
+  async updateNotes(
+    @Param('checklistId', ParseUUIDPipe) checklistId: string,
+    @Body() body: { notes: string },
+  ) {
+    const data = await this.service.updateNotes(checklistId, body.notes);
+    return { data };
+  }
+}
