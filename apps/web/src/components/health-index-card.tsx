@@ -68,7 +68,9 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
 
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="type-title-md">Índice de Salud de la Vivienda</CardTitle>
+          <CardTitle data-tour="property-health" className="type-title-md">
+            Índice de Salud de la Vivienda
+          </CardTitle>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" className="no-print" onClick={() => window.print()}>
               <Printer className="mr-1.5 h-4 w-4" />
