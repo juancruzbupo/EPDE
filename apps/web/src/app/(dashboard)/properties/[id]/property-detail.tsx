@@ -149,7 +149,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
           {activeTab === 'photos' && <PropertyPhotosTab propertyId={property.id} />}
         </TabsContent>
 
-        <TabsContent data-tour="property-health" value="health" className="mt-4">
+        <TabsContent value="health" className="mt-4">
           {activeTab === 'health' && (
             <PropertyHealthTab
               propertyId={property.id}

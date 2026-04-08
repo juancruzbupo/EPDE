@@ -152,6 +152,7 @@ const PROPERTY_STEPS = [
     title: 'Salud de la vivienda',
     content:
       'Acá ves el puntaje ISV desglosado por dimensión: cumplimiento, estado, cobertura e inversión. Te muestra qué sectores necesitan más atención.',
+    placement: 'bottom' as const,
   },
 ];
 

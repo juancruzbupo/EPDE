@@ -97,7 +97,9 @@ export function PropertyHealthTab({
 
   return (
     <div className="space-y-6">
-      <HealthIndexCard index={healthIndex} history={history} address={address} />
+      <div data-tour="property-health">
+        <HealthIndexCard index={healthIndex} history={history} address={address} />
+      </div>
 
       {/* Detected problems */}
       {problems && problems.length > 0 && (
