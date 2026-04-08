@@ -89,7 +89,7 @@ function ServiceRequestsPageContent() {
 
   return (
     <PageTransition>
-      {user?.role === UserRole.CLIENT && <ServicesListTour />}
+      <ServicesListTour />
       <PageHeader
         title="Solicitudes de Servicio"
         description="Gestión de solicitudes de servicio"
