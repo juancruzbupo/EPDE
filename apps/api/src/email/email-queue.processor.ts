@@ -34,6 +34,18 @@ export type EmailJobData =
       budgetTitle: string;
       newStatus: string;
       budgetId: string;
+    }
+  | {
+      type: 'weeklySummary';
+      to: string;
+      name: string;
+      score: number;
+      pendingTasks: number;
+      overdueTasks: number;
+      upcomingThisWeek: number;
+      streak: number;
+      nextTaskName: string | null;
+      nextTaskDate: string | null;
     };
 
 @Processor(EMAIL_QUEUE, {
@@ -91,6 +103,9 @@ export class EmailQueueProcessor extends WorkerHost {
             job.data.newStatus,
             job.data.budgetId,
           );
+          break;
+        case 'weeklySummary':
+          await this.emailService.sendWeeklySummaryEmail(job.data);
           break;
       }
     } catch (error) {

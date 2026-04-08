@@ -106,4 +106,23 @@ export class EmailQueueService {
     );
     this.logger.log(`Enqueued budget status email for ${maskEmail(to)}`);
   }
+
+  async enqueueWeeklySummary(opts: {
+    to: string;
+    name: string;
+    score: number;
+    pendingTasks: number;
+    overdueTasks: number;
+    upcomingThisWeek: number;
+    streak: number;
+    nextTaskName: string | null;
+    nextTaskDate: string | null;
+  }): Promise<void> {
+    await this.emailQueue.add(
+      'weeklySummary',
+      { type: 'weeklySummary' as const, ...opts },
+      { jobId: `weeklySummary:${opts.to}:${new Date().toISOString().slice(0, 10)}` },
+    );
+    this.logger.log(`Enqueued weekly summary email for ${maskEmail(opts.to)}`);
+  }
 }

@@ -8,6 +8,7 @@ import { AnalyticsSection } from '@/components/analytics-section';
 import { ErrorState } from '@/components/error-state';
 import { HomeStatusCard } from '@/components/home-status-card';
 import { StatCardSkeleton } from '@/components/skeleton-placeholder';
+import { StreakCard } from '@/components/streak-card';
 import { WelcomeCard } from '@/components/welcome-card';
 import {
   useClientAnalytics,
@@ -202,6 +203,11 @@ function ClientDashboard() {
           perfectWeek={stats.perfectWeek}
         />
       ) : null}
+
+      {/* Streak & perfect week — prominent section */}
+      {stats && !showWelcome && (
+        <StreakCard streak={stats.streak ?? 0} perfectWeek={stats.perfectWeek ?? false} />
+      )}
 
       {/* Level 2: Actions — what to do next */}
       {tasksLoading && !tasks ? (

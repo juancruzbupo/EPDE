@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
 import { DashboardRepository } from '../dashboard/dashboard.repository';
+import { EmailQueueService } from '../email/email-queue.service';
 import { MetricsService } from '../metrics/metrics.service';
 import { PushService } from '../notifications/push.service';
 import { DistributedLockService } from '../redis/distributed-lock.service';
@@ -24,6 +25,7 @@ export class WeeklySummaryService {
     private readonly dashboardRepository: DashboardRepository,
     private readonly usersRepository: UsersRepository,
     private readonly pushService: PushService,
+    private readonly emailQueueService: EmailQueueService,
     private readonly lockService: DistributedLockService,
     private readonly metricsService: MetricsService,
   ) {}
@@ -56,24 +58,46 @@ export class WeeklySummaryService {
 
             const upcomingThisWeek = taskStats.upcomingThisWeek ?? 0;
             const overdue = taskStats.overdueTasks ?? 0;
+            const pending = taskStats.pendingTasks ?? 0;
             const total = upcomingThisWeek + overdue;
+            const score = healthIndex.score;
 
             let body: string;
             if (total === 0) {
-              body = `Tu casa está al día. ISV: ${healthIndex.score}/100.`;
+              body = `Tu casa está al día. ISV: ${score}/100.`;
             } else if (overdue > 0) {
-              body = `Tenés ${overdue} tarea${overdue > 1 ? 's' : ''} vencida${overdue > 1 ? 's' : ''} y ${upcomingThisWeek} esta semana. ISV: ${healthIndex.score}/100.`;
+              body = `Tenés ${overdue} tarea${overdue > 1 ? 's' : ''} vencida${overdue > 1 ? 's' : ''} y ${upcomingThisWeek} esta semana. ISV: ${score}/100.`;
             } else {
-              body = `${upcomingThisWeek} tarea${upcomingThisWeek > 1 ? 's' : ''} programada${upcomingThisWeek > 1 ? 's' : ''} esta semana. ISV: ${healthIndex.score}/100.`;
+              body = `${upcomingThisWeek} tarea${upcomingThisWeek > 1 ? 's' : ''} programada${upcomingThisWeek > 1 ? 's' : ''} esta semana. ISV: ${score}/100.`;
             }
 
             if (streak > 0) {
               body += ` 🔥 ${streak} ${streak === 1 ? 'mes' : 'meses'} al día.`;
             }
 
+            // Upcoming tasks for email — find next non-overdue task
+            const upcomingTasks = await this.dashboardRepository.getClientUpcomingTasks(client.id);
+            const now = Date.now();
+            const nextTask =
+              upcomingTasks.find((t) => t.nextDueDate && t.nextDueDate.getTime() >= now) ?? null;
+
             void this.pushService
               .sendToUsers([client.id], { title: 'Tu casa esta semana', body })
               .catch((err) => this.logger.error(`Weekly push failed for ${client.id}: ${err}`));
+
+            void this.emailQueueService
+              .enqueueWeeklySummary({
+                to: client.email,
+                name: client.name,
+                score,
+                pendingTasks: pending,
+                overdueTasks: overdue,
+                upcomingThisWeek,
+                streak,
+                nextTaskName: nextTask?.name ?? null,
+                nextTaskDate: nextTask?.nextDueDate?.toISOString() ?? null,
+              })
+              .catch((err) => this.logger.error(`Weekly email failed for ${client.id}: ${err}`));
 
             sent++;
           }),

@@ -247,4 +247,66 @@ export class EmailService {
 
     this.logger.log(`Email de estado de presupuesto enviado a ${maskEmail(to)}`);
   }
+
+  async sendWeeklySummaryEmail(data: {
+    to: string;
+    name: string;
+    score: number;
+    pendingTasks: number;
+    overdueTasks: number;
+    upcomingThisWeek: number;
+    streak: number;
+    nextTaskName: string | null;
+    nextTaskDate: string | null;
+  }): Promise<void> {
+    if (!this.resend) {
+      this.logger.warn(`Email semanal no enviado (RESEND_API_KEY no configurada)`);
+      return;
+    }
+
+    const safeName = escapeHtml(data.name);
+    const totalPending = data.pendingTasks + data.overdueTasks;
+
+    let statusLine: string;
+    if (totalPending === 0) {
+      statusLine = `<p style="color: ${DESIGN_TOKENS_LIGHT.success}; font-weight: bold;">Tu casa está al día. No tenés tareas pendientes.</p>`;
+    } else if (data.overdueTasks > 0) {
+      statusLine = `<p style="color: ${DESIGN_TOKENS_LIGHT.destructive}; font-weight: bold;">Tenés ${data.overdueTasks} tarea${data.overdueTasks > 1 ? 's' : ''} vencida${data.overdueTasks > 1 ? 's' : ''} que necesitan atención.</p>`;
+    } else {
+      statusLine = `<p>Tenés ${data.upcomingThisWeek} tarea${data.upcomingThisWeek > 1 ? 's' : ''} programada${data.upcomingThisWeek > 1 ? 's' : ''} esta semana.</p>`;
+    }
+
+    const streakLine =
+      data.streak > 0
+        ? `<p>🔥 Racha: <strong>${data.streak} ${data.streak === 1 ? 'mes' : 'meses'}</strong> sin tareas vencidas.</p>`
+        : '';
+
+    const nextTaskLine =
+      data.nextTaskName && data.nextTaskDate
+        ? `<p>Próxima tarea: <strong>${escapeHtml(data.nextTaskName)}</strong> — ${new Date(data.nextTaskDate).toLocaleDateString('es-AR', { day: '2-digit', month: 'long' })}</p>`
+        : '';
+
+    await this.resend.emails.send({
+      from: this.emailFrom,
+      to: data.to,
+      subject: `Tu casa esta semana — ISV ${data.score}/100`,
+      html: this.wrapEmailHtml(`
+        <p>Hola ${safeName},</p>
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+          <tr>
+            <td style="padding: 16px; text-align: center; background-color: ${DESIGN_TOKENS_LIGHT.secondary}; border-radius: 8px;">
+              <p style="margin: 0; font-size: 14px; color: #666;">Índice de Salud de la Vivienda</p>
+              <p style="margin: 8px 0 0; font-size: 36px; font-weight: bold; color: ${DESIGN_TOKENS_LIGHT.primary};">${data.score}<span style="font-size: 16px; color: #999;">/100</span></p>
+            </td>
+          </tr>
+        </table>
+        ${statusLine}
+        ${nextTaskLine}
+        ${streakLine}
+        ${this.ctaButton(`${this.frontendUrl}/dashboard`, 'Ver mi dashboard')}
+      `),
+    });
+
+    this.logger.log(`Email semanal enviado a ${maskEmail(data.to)}`);
+  }
 }

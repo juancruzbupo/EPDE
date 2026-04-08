@@ -10,7 +10,7 @@ import {
   TASK_RESULT_LABELS,
   TASK_RESULT_VALUES,
 } from '@epde/shared';
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 
 import { COLORS } from '@/lib/colors';
@@ -95,16 +95,11 @@ export const CompletionFindingsForm = React.memo(function CompletionFindingsForm
   note,
   onNoteChange,
 }: CompletionFindingsFormProps) {
+  const [showDetails, setShowDetails] = useState(false);
+
   return (
     <>
-      <SelectorGroup
-        label="Resultado *"
-        options={TASK_RESULT_VALUES}
-        labels={TASK_RESULT_LABELS}
-        value={result}
-        onChange={onResultChange}
-      />
-
+      {/* Essential field 1: Condition */}
       <SelectorGroup
         label="¿En qué estado está? *"
         options={CONDITION_FOUND_VALUES}
@@ -118,6 +113,7 @@ export const CompletionFindingsForm = React.memo(function CompletionFindingsForm
         </Text>
       )}
 
+      {/* Essential field 2: Executor */}
       <SelectorGroup
         label="¿Quién lo hizo? *"
         options={TASK_EXECUTOR_VALUES}
@@ -126,58 +122,84 @@ export const CompletionFindingsForm = React.memo(function CompletionFindingsForm
         onChange={onExecutorChange}
       />
 
-      <SelectorGroup
-        label="Acción realizada *"
-        options={ACTION_TAKEN_VALUES}
-        labels={ACTION_TAKEN_LABELS}
-        value={actionTaken}
-        onChange={onActionTakenChange}
-      />
+      {/* Expandable details */}
+      {!showDetails && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Mostrar más opciones"
+          onPress={() => setShowDetails(true)}
+          className="mb-4"
+        >
+          <Text style={TYPE.labelLg} className="text-primary">
+            ▾ Agregar más detalles
+          </Text>
+        </Pressable>
+      )}
 
-      <Text style={TYPE.labelLg} className="text-foreground mb-2">
-        Costo (opcional)
-      </Text>
-      <View className="mb-4 flex-row items-center">
-        <Text style={TYPE.bodyMd} className="text-muted-foreground mr-2">
-          $
-        </Text>
-        <TextInput
-          value={cost}
-          onChangeText={onCostChange}
-          placeholder="0.00"
-          placeholderTextColor={COLORS.mutedForeground}
-          keyboardType="decimal-pad"
-          style={TYPE.bodyMd}
-          className="border-border bg-card text-foreground flex-1 rounded-xl border p-3"
-        />
-      </View>
+      {showDetails && (
+        <>
+          <SelectorGroup
+            label="Resultado *"
+            options={TASK_RESULT_VALUES}
+            labels={TASK_RESULT_LABELS}
+            value={result}
+            onChange={onResultChange}
+          />
 
-      <Text style={TYPE.labelLg} className="text-foreground mb-2">
-        Fecha de completación (opcional)
-      </Text>
-      <TextInput
-        value={completedAtText}
-        onChangeText={onCompletedAtTextChange}
-        placeholder="DD/MM/AAAA (hoy por defecto)"
-        placeholderTextColor={COLORS.mutedForeground}
-        keyboardType="numeric"
-        style={TYPE.bodyMd}
-        className="border-border bg-card text-foreground mb-4 rounded-xl border p-3"
-      />
+          <SelectorGroup
+            label="Acción realizada *"
+            options={ACTION_TAKEN_VALUES}
+            labels={ACTION_TAKEN_LABELS}
+            value={actionTaken}
+            onChange={onActionTakenChange}
+          />
 
-      <Text style={TYPE.labelLg} className="text-foreground mb-2">
-        Notas (opcional)
-      </Text>
-      <TextInput
-        value={note}
-        onChangeText={onNoteChange}
-        placeholder="Describir el trabajo realizado..."
-        placeholderTextColor={COLORS.mutedForeground}
-        multiline
-        maxLength={500}
-        style={[TYPE.bodyMd, { minHeight: 80, textAlignVertical: 'top' }]}
-        className="border-border bg-card text-foreground mb-4 rounded-xl border p-3"
-      />
+          <Text style={TYPE.labelLg} className="text-foreground mb-2">
+            Costo (opcional)
+          </Text>
+          <View className="mb-4 flex-row items-center">
+            <Text style={TYPE.bodyMd} className="text-muted-foreground mr-2">
+              $
+            </Text>
+            <TextInput
+              value={cost}
+              onChangeText={onCostChange}
+              placeholder="0.00"
+              placeholderTextColor={COLORS.mutedForeground}
+              keyboardType="decimal-pad"
+              style={TYPE.bodyMd}
+              className="border-border bg-card text-foreground flex-1 rounded-xl border p-3"
+            />
+          </View>
+
+          <Text style={TYPE.labelLg} className="text-foreground mb-2">
+            Fecha de completación (opcional)
+          </Text>
+          <TextInput
+            value={completedAtText}
+            onChangeText={onCompletedAtTextChange}
+            placeholder="DD/MM/AAAA (hoy por defecto)"
+            placeholderTextColor={COLORS.mutedForeground}
+            keyboardType="numeric"
+            style={TYPE.bodyMd}
+            className="border-border bg-card text-foreground mb-4 rounded-xl border p-3"
+          />
+
+          <Text style={TYPE.labelLg} className="text-foreground mb-2">
+            Notas (opcional)
+          </Text>
+          <TextInput
+            value={note}
+            onChangeText={onNoteChange}
+            placeholder="Describir el trabajo realizado..."
+            placeholderTextColor={COLORS.mutedForeground}
+            multiline
+            maxLength={500}
+            style={[TYPE.bodyMd, { minHeight: 80, textAlignVertical: 'top' }]}
+            className="border-border bg-card text-foreground mb-4 rounded-xl border p-3"
+          />
+        </>
+      )}
     </>
   );
 });

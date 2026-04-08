@@ -293,6 +293,15 @@ export const TASK_TYPE_TO_DEFAULT_ACTION: Record<TaskType, ActionTaken> = {
   EVALUATION: 'INSPECTION_ONLY',
 };
 
+/** Default TaskResult based on ConditionFound — reduces form friction in quick-complete mode. */
+export const CONDITION_TO_DEFAULT_RESULT: Record<ConditionFound, TaskResult> = {
+  EXCELLENT: 'OK',
+  GOOD: 'OK',
+  FAIR: 'OK_WITH_OBSERVATIONS',
+  POOR: 'NEEDS_ATTENTION',
+  CRITICAL: 'NEEDS_URGENT_REPAIR',
+};
+
 // ─── Condition Score Scales ──────────────────────────────
 
 /** ConditionFound → 1-5 scale for chart averaging (trend, category breakdown). */

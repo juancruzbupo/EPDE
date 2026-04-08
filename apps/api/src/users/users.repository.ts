@@ -40,7 +40,7 @@ export class UsersRepository extends BaseRepository<User, 'user'> {
         status: 'ACTIVE',
         OR: [{ subscriptionExpiresAt: { gte: new Date() } }, { subscriptionExpiresAt: null }],
       },
-      select: { id: true, name: true },
+      select: { id: true, name: true, email: true },
     });
   }
 }

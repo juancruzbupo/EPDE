@@ -57,16 +57,19 @@ describe('CompleteTaskModal', () => {
     expect(screen.getByText('Registrar Inspección')).toBeTruthy();
   });
 
-  it('renders all selector groups', () => {
+  it('renders essential fields and expand button in quick mode', () => {
     render(<CompleteTaskModal {...defaultProps} />);
-    expect(screen.getByText('Resultado *')).toBeTruthy();
     expect(screen.getByText('¿En qué estado está? *')).toBeTruthy();
     expect(screen.getByText('¿Quién lo hizo? *')).toBeTruthy();
-    expect(screen.getByText('Acción realizada *')).toBeTruthy();
+    expect(screen.getByText('▾ Agregar más detalles')).toBeTruthy();
+    expect(screen.queryByText('Resultado *')).toBeNull();
   });
 
-  it('renders optional fields', () => {
+  it('renders all fields after expanding details', () => {
     render(<CompleteTaskModal {...defaultProps} />);
+    fireEvent.press(screen.getByText('▾ Agregar más detalles'));
+    expect(screen.getByText('Resultado *')).toBeTruthy();
+    expect(screen.getByText('Acción realizada *')).toBeTruthy();
     expect(screen.getByText('Costo (opcional)')).toBeTruthy();
     expect(screen.getByText('Notas (opcional)')).toBeTruthy();
     expect(screen.getByText('Foto (opcional)')).toBeTruthy();

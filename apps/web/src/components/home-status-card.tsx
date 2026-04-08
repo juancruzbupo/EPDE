@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { AnimatedNumber } from '@/components/ui/animated-number';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { FADE_IN_UP, MOTION_DURATION, useMotionPreference } from '@/lib/motion';
 
 interface HomeStatusCardProps {
@@ -132,138 +133,164 @@ export function HomeStatusCard({
   const miniIcons = [AlertTriangle, Clock, CheckCircle, FileText];
 
   return (
-    <Wrapper
-      {...(shouldAnimate ? { variants: FADE_IN_UP, initial: 'hidden', animate: 'visible' } : {})}
-    >
-      <Card className={`${theme.bg} ${theme.border}`}>
-        <CardContent className="p-6">
-          {/* Title + label */}
-          <div className="mb-1 flex items-center justify-between">
-            <h2 className="type-title-lg text-foreground">{theme.title}</h2>
-            <span className={`type-label-md ${theme.textColor}`}>{label}</span>
-          </div>
-
-          {/* Human message */}
-          <p className="type-body-md text-muted-foreground mb-1">{message}</p>
-          {consequence && <p className="type-body-sm text-muted-foreground mb-4">{consequence}</p>}
-          {!consequence && <div className="mb-4" />}
-
-          {/* Score + progress bar */}
-          <div className="mb-4 flex items-center gap-4">
-            <span
-              className={`type-number-lg ${theme.textColor}`}
-              title="Índice de Salud de la Vivienda — 100 es excelente, 0 es crítico"
-            >
-              <AnimatedNumber value={score} />
-            </span>
-            <div
-              role="progressbar"
-              aria-valuenow={score}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label="Índice de Salud de la Vivienda"
-              className="bg-muted h-3 flex-1 overflow-hidden rounded-full"
-            >
-              {shouldAnimate ? (
-                <motion.div
-                  className="h-full rounded-full"
-                  style={{ backgroundColor: theme.barColor }}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${score}%` }}
-                  transition={{
-                    duration: MOTION_DURATION.slow * 2,
-                    ease: [0.33, 1, 0.68, 1],
-                  }}
-                />
-              ) : (
-                <div
-                  className="h-full rounded-full"
-                  style={{ backgroundColor: theme.barColor, width: `${score}%` }}
-                />
-              )}
+    <TooltipProvider>
+      <Wrapper
+        {...(shouldAnimate ? { variants: FADE_IN_UP, initial: 'hidden', animate: 'visible' } : {})}
+      >
+        <Card className={`${theme.bg} ${theme.border}`}>
+          <CardContent className="p-6">
+            {/* Title + label */}
+            <div className="mb-1 flex items-center justify-between">
+              <h2 className="type-title-lg text-foreground">{theme.title}</h2>
+              <span className={`type-label-md ${theme.textColor}`}>{label}</span>
             </div>
-            <span className="type-body-sm text-muted-foreground">/ 100</span>
-          </div>
 
-          {/* ISV delta + streak badges */}
-          {((isvDelta !== null && isvDelta !== undefined) || (streak && streak > 0)) && (
-            <div className="mb-4 flex flex-wrap gap-2">
-              {isvDelta !== null && isvDelta !== undefined && isvDelta !== 0 && (
-                <span
-                  className={`type-label-sm inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium ${
-                    isvDelta > 0
-                      ? 'bg-success/10 text-success'
-                      : 'bg-destructive/10 text-destructive'
-                  }`}
-                >
-                  {isvDelta > 0 ? '↑' : '↓'} {Math.abs(isvDelta)} puntos este mes
-                </span>
-              )}
-              {streak !== undefined && streak > 0 && (
-                <span className="bg-primary/10 text-primary type-label-sm inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium">
-                  🔥 {streak} {streak === 1 ? 'mes' : 'meses'} al día
-                </span>
-              )}
-              {perfectWeek && (
-                <span className="bg-success/10 text-success type-label-sm inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium">
-                  ✓ Semana perfecta
-                </span>
-              )}
+            {/* Human message */}
+            <p className="type-body-md text-muted-foreground mb-1">{message}</p>
+            {consequence && (
+              <p className="type-body-sm text-muted-foreground mb-4">{consequence}</p>
+            )}
+            {!consequence && <div className="mb-4" />}
+
+            {/* Score + progress bar */}
+            <div className="mb-4 flex items-center gap-4">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className={`type-number-lg ${theme.textColor} cursor-default`}>
+                    <AnimatedNumber value={score} />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Índice de Salud de la Vivienda — 100 es excelente, 0 es crítico
+                </TooltipContent>
+              </Tooltip>
+              <div
+                role="progressbar"
+                aria-valuenow={score}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label="Índice de Salud de la Vivienda"
+                className="bg-muted h-3 flex-1 overflow-hidden rounded-full"
+              >
+                {shouldAnimate ? (
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ backgroundColor: theme.barColor }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${score}%` }}
+                    transition={{
+                      duration: MOTION_DURATION.slow * 2,
+                      ease: [0.33, 1, 0.68, 1],
+                    }}
+                  />
+                ) : (
+                  <div
+                    className="h-full rounded-full"
+                    style={{ backgroundColor: theme.barColor, width: `${score}%` }}
+                  />
+                )}
+              </div>
+              <span className="type-body-sm text-muted-foreground">/ 100</span>
             </div>
-          )}
 
-          {/* Action buttons */}
-          <div className="mb-5 flex gap-3">
-            <Button
-              size="sm"
-              aria-label="Ver tareas pendientes y acciones recomendadas"
-              onClick={onViewActions}
-            >
-              Ver qué hacer
-              <ArrowRight className="ml-1.5 h-4 w-4" />
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              aria-label="Ver análisis completo de salud de tu vivienda"
-              onClick={onViewAnalytics}
-            >
-              Ver análisis completo
-            </Button>
-          </div>
+            {/* ISV delta + streak badges */}
+            {((isvDelta !== null && isvDelta !== undefined) || (streak && streak > 0)) && (
+              <div className="mb-4 flex flex-wrap gap-2">
+                {isvDelta !== null && isvDelta !== undefined && isvDelta !== 0 && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span
+                        className={`type-label-sm inline-flex cursor-default items-center gap-1 rounded-full px-2.5 py-1 font-medium ${
+                          isvDelta > 0
+                            ? 'bg-success/10 text-success'
+                            : 'bg-destructive/10 text-destructive'
+                        }`}
+                      >
+                        {isvDelta > 0 ? '↑' : '↓'} {Math.abs(isvDelta)} puntos este mes
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>Cambio en el puntaje respecto al mes anterior</TooltipContent>
+                  </Tooltip>
+                )}
+                {streak !== undefined && streak > 0 && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="bg-primary/10 text-primary type-label-sm inline-flex cursor-default items-center gap-1 rounded-full px-2.5 py-1 font-medium">
+                        🔥 {streak} {streak === 1 ? 'mes' : 'meses'} al día
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>Meses consecutivos sin tareas vencidas</TooltipContent>
+                  </Tooltip>
+                )}
+                {perfectWeek && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="bg-success/10 text-success type-label-sm inline-flex cursor-default items-center gap-1 rounded-full px-2.5 py-1 font-medium">
+                        ✓ Semana perfecta
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>Completaste todas las tareas de esta semana</TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
+            )}
 
-          {/* Mini stats grid */}
-          <div className="border-border grid grid-cols-4 gap-3 border-t pt-4">
-            {miniStats.map((stat, i) => {
-              const Icon = miniIcons[i]!;
-              const content = (
-                <div className="text-center">
-                  <div className="mb-1 flex justify-center">
-                    <Icon className={`h-4 w-4 ${stat.color}`} />
-                  </div>
-                  <p className={`type-number-md ${stat.color}`}>
-                    <AnimatedNumber value={stat.value} />
-                  </p>
-                  <p className="type-label-sm text-muted-foreground" title={stat.hint}>
-                    {stat.label}
-                  </p>
-                </div>
-              );
-              return stat.href ? (
-                <Link
-                  key={stat.label}
-                  href={stat.href}
-                  className="transition-opacity hover:opacity-80"
-                >
-                  {content}
-                </Link>
-              ) : (
-                <div key={stat.label}>{content}</div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-    </Wrapper>
+            {/* Action buttons */}
+            <div className="mb-5 flex gap-3">
+              <Button
+                size="sm"
+                aria-label="Ver tareas pendientes y acciones recomendadas"
+                onClick={onViewActions}
+              >
+                Ver qué hacer
+                <ArrowRight className="ml-1.5 h-4 w-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                aria-label="Ver análisis completo de salud de tu vivienda"
+                onClick={onViewAnalytics}
+              >
+                Ver análisis completo
+              </Button>
+            </div>
+
+            {/* Mini stats grid */}
+            <div className="border-border grid grid-cols-4 gap-3 border-t pt-4">
+              {miniStats.map((stat, i) => {
+                const Icon = miniIcons[i]!;
+                const content = (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="cursor-default text-center">
+                        <div className="mb-1 flex justify-center">
+                          <Icon className={`h-4 w-4 ${stat.color}`} />
+                        </div>
+                        <p className={`type-number-md ${stat.color}`}>
+                          <AnimatedNumber value={stat.value} />
+                        </p>
+                        <p className="type-label-sm text-muted-foreground">{stat.label}</p>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>{stat.hint}</TooltipContent>
+                  </Tooltip>
+                );
+                return stat.href ? (
+                  <Link
+                    key={stat.label}
+                    href={stat.href}
+                    className="transition-opacity hover:opacity-80"
+                  >
+                    {content}
+                  </Link>
+                ) : (
+                  <div key={stat.label}>{content}</div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      </Wrapper>
+    </TooltipProvider>
   );
 }

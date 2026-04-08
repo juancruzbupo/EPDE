@@ -6,10 +6,10 @@ import type {
   TaskResult,
   TaskType,
 } from '@epde/shared';
-import { TASK_TYPE_TO_DEFAULT_ACTION } from '@epde/shared';
+import { CONDITION_TO_DEFAULT_RESULT, TASK_TYPE_TO_DEFAULT_ACTION } from '@epde/shared';
 import { parse } from 'date-fns';
 import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -61,6 +61,18 @@ export function CompleteTaskModal({
   const uploadFailed = uploadFile.isError;
   const isSubmitting = completeTask.isPending;
   const canSubmit = !!result && !!conditionFound && !!executor && !!actionTaken;
+
+  /** Auto-infer result from conditionFound in quick mode. */
+  const handleConditionChange = useCallback(
+    (condition: ConditionFound) => {
+      setConditionFound(condition);
+      // Only auto-set if user hasn't manually picked a result
+      if (!result) {
+        setResult(CONDITION_TO_DEFAULT_RESULT[condition]);
+      }
+    },
+    [result],
+  );
 
   const resetForm = () => {
     setResult(null);
@@ -263,7 +275,7 @@ export function CompleteTaskModal({
             result={result}
             onResultChange={setResult}
             conditionFound={conditionFound}
-            onConditionFoundChange={setConditionFound}
+            onConditionFoundChange={handleConditionChange}
             executor={executor}
             onExecutorChange={setExecutor}
             actionTaken={actionTaken}
