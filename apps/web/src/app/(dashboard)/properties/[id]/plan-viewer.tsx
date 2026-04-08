@@ -332,7 +332,7 @@ export function PlanViewer({ planId, propertyId, highlightTaskId }: PlanViewerPr
                   No se encontraron tareas con esa búsqueda.
                 </p>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-4" data-tour="plan-tasks">
                   <p className="text-muted-foreground text-sm">
                     {filtered.length} tarea{filtered.length !== 1 ? 's' : ''}
                     {grouped.length > 1 && ` en ${grouped.length} categorías`}

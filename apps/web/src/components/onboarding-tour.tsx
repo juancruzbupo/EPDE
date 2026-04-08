@@ -227,6 +227,13 @@ const PLAN_VIEWER_STEPS: Step[] = [
       'De un vistazo ves cuántas tareas están vencidas, pendientes o próximas. Hacé click en cualquiera para ver el detalle.',
     ...SHARED_STEP_DEFAULTS,
   },
+  {
+    target: '[data-tour="plan-tasks"]',
+    title: 'Índice de riesgo',
+    content:
+      'Cada tarea tiene un número de riesgo. Cuanto más alto, más urgente es resolverla. Las tareas se ordenan automáticamente para que veas primero las más importantes. Los problemas estructurales (techo, exterior, cimientos) puntúan más alto porque si no se atienden, escalan rápido.',
+    ...SHARED_STEP_DEFAULTS,
+  },
 ];
 
 export function PlanViewerTour() {

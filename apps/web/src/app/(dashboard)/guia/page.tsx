@@ -129,6 +129,12 @@ export default function GuiaPage() {
             <li>
               <strong>Profesional:</strong> Si necesitás contratar a alguien o la podés hacer vos.
             </li>
+            <li>
+              <strong>Índice de riesgo:</strong> Número que indica qué tan urgente es resolver cada
+              tarea. Cuanto más alto, más importante atenderla primero. Se calcula según la
+              prioridad, la severidad del hallazgo y el sector de la vivienda (problemas
+              estructurales puntúan más alto porque escalan rápido si no se atienden).
+            </li>
           </ul>
           <p>
             <QuickLink href="/tasks" label="Ir a Tareas" />
