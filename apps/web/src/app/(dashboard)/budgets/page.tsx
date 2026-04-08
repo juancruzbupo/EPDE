@@ -122,19 +122,20 @@ function BudgetsPageContent() {
         />
       )}
 
-      <div data-tour="budgets-table">
-        <DataTable
-          columns={budgetColumns}
-          data={allBudgets}
-          isLoading={isLoading}
-          hasMore={hasNextPage}
-          onLoadMore={() => fetchNextPage()}
-          total={total}
-          emptyMessage="Todavía no tenés presupuestos. Se generan cuando solicitás un servicio profesional."
-          hasActiveFilters={debouncedSearch !== '' || status !== 'all' || propertyFilter !== 'all'}
-          onRowClick={(row: BudgetRequestPublic) => router.push(`/budgets/${row.id}`)}
-        />
-      </div>
+      <p data-tour="budgets-table" className="text-muted-foreground mb-2 text-sm">
+        {total !== undefined ? `${total} presupuesto${total !== 1 ? 's' : ''}` : '\u00A0'}
+      </p>
+      <DataTable
+        columns={budgetColumns}
+        data={allBudgets}
+        isLoading={isLoading}
+        hasMore={hasNextPage}
+        onLoadMore={() => fetchNextPage()}
+        total={total}
+        emptyMessage="Todavía no tenés presupuestos. Se generan cuando solicitás un servicio profesional."
+        hasActiveFilters={debouncedSearch !== '' || status !== 'all' || propertyFilter !== 'all'}
+        onRowClick={(row: BudgetRequestPublic) => router.push(`/budgets/${row.id}`)}
+      />
 
       <CreateBudgetDialog open={createOpen} onOpenChange={setCreateOpen} />
     </PageTransition>

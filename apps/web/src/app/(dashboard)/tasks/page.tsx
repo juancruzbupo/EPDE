@@ -181,18 +181,16 @@ export default function TasksPage() {
         />
       </div>
 
-      <div data-tour="task-list">
-        <TaskGroupedList
-          isLoading={isLoading}
-          isError={isError}
-          onRetry={refetch}
-          filtered={filtered}
-          grouped={grouped}
-          displayStatuses={displayStatuses}
-          hasActiveFilters={hasActiveFilters}
-          onTaskClick={handleTaskClick}
-        />
-      </div>
+      <TaskGroupedList
+        isLoading={isLoading}
+        isError={isError}
+        onRetry={refetch}
+        filtered={filtered}
+        grouped={grouped}
+        displayStatuses={displayStatuses}
+        hasActiveFilters={hasActiveFilters}
+        onTaskClick={handleTaskClick}
+      />
 
       {/* Task detail sheet — loads full task detail on demand */}
       <TaskDetailSheet

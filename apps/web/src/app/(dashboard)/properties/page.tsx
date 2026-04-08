@@ -153,19 +153,20 @@ export default function PropertiesPage() {
         />
       )}
 
-      <div data-tour="properties-table">
-        <DataTable
-          columns={columns}
-          data={allProperties}
-          isLoading={isLoading}
-          hasMore={hasNextPage}
-          onLoadMore={() => fetchNextPage()}
-          total={total}
-          emptyMessage="No se encontraron propiedades"
-          onRowClick={(row) => router.push(`/properties/${row.id}`)}
-          onRowHover={handleRowHover}
-        />
-      </div>
+      <p data-tour="properties-table" className="text-muted-foreground mb-2 text-sm">
+        {total !== undefined ? `${total} propiedad${total !== 1 ? 'es' : ''}` : '\u00A0'}
+      </p>
+      <DataTable
+        columns={columns}
+        data={allProperties}
+        isLoading={isLoading}
+        hasMore={hasNextPage}
+        onLoadMore={() => fetchNextPage()}
+        total={total}
+        emptyMessage="No se encontraron propiedades"
+        onRowClick={(row) => router.push(`/properties/${row.id}`)}
+        onRowHover={handleRowHover}
+      />
 
       {isAdmin && <CreatePropertyDialog open={createOpen} onOpenChange={setCreateOpen} />}
     </PageTransition>
