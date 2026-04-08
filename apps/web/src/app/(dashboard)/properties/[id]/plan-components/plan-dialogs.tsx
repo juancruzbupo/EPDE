@@ -65,9 +65,7 @@ interface PlanDialogsProps {
   templateDialogOpen: boolean;
   onTemplateDialogChange: (open: boolean) => void;
   categoryTemplates: CategoryTemplate[] | undefined;
-  selectedTemplateId: string | null;
-  onSelectTemplate: (id: string) => void;
-  onApplyTemplate: () => void;
+  onApplyTemplates: (templateIds: string[]) => void;
   isApplyingTemplate: boolean;
 }
 
@@ -97,9 +95,7 @@ export const PlanDialogs = React.memo(function PlanDialogs({
   templateDialogOpen,
   onTemplateDialogChange,
   categoryTemplates,
-  selectedTemplateId,
-  onSelectTemplate,
-  onApplyTemplate,
+  onApplyTemplates,
   isApplyingTemplate,
 }: PlanDialogsProps) {
   return (
@@ -163,9 +159,7 @@ export const PlanDialogs = React.memo(function PlanDialogs({
         open={templateDialogOpen}
         onOpenChange={onTemplateDialogChange}
         categoryTemplates={categoryTemplates}
-        selectedTemplateId={selectedTemplateId}
-        onSelectTemplate={onSelectTemplate}
-        onApply={onApplyTemplate}
+        onApply={onApplyTemplates}
         isApplying={isApplyingTemplate}
       />
     </>

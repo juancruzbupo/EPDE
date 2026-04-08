@@ -46,7 +46,6 @@ export function PlanEditor({ propertyId, planId, activeSectors }: PlanEditorProp
   const [completingTask, setCompletingTask] = useState<TaskPublic | null>(null);
   const [statusTransition, setStatusTransition] = useState<PlanStatus | null>(null);
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
   const [bulkCompleteOpen, setBulkCompleteOpen] = useState(false);
@@ -140,18 +139,24 @@ export function PlanEditor({ propertyId, planId, activeSectors }: PlanEditorProp
     setSelectedTaskIds((prev) => (prev.size === ids.length ? new Set() : new Set(ids)));
   }, [completableTasks]);
 
-  const handleApplyTemplate = useCallback(() => {
-    if (!selectedTemplateId) return;
-    bulkAdd.mutate(
-      { planId, categoryTemplateId: selectedTemplateId },
-      {
-        onSuccess: () => {
-          setTemplateDialogOpen(false);
-          setSelectedTemplateId(null);
-        },
-      },
-    );
-  }, [selectedTemplateId, bulkAdd, planId]);
+  const [isApplyingTemplates, setIsApplyingTemplates] = useState(false);
+
+  const handleApplyTemplates = useCallback(
+    async (templateIds: string[]) => {
+      setIsApplyingTemplates(true);
+      for (const id of templateIds) {
+        await new Promise<void>((resolve, reject) => {
+          bulkAdd.mutate(
+            { planId, categoryTemplateId: id },
+            { onSuccess: () => resolve(), onError: () => reject() },
+          );
+        });
+      }
+      setIsApplyingTemplates(false);
+      setTemplateDialogOpen(false);
+    },
+    [bulkAdd, planId],
+  );
 
   const handleDeleteConfirm = useCallback(() => {
     if (!deleteTaskId) return;
@@ -287,15 +292,10 @@ export function PlanEditor({ propertyId, planId, activeSectors }: PlanEditorProp
         selectedTasks={tasks.filter((t) => selectedTaskIds.has(t.id))}
         onBulkCompleteDone={exitSelectionMode}
         templateDialogOpen={templateDialogOpen}
-        onTemplateDialogChange={(open) => {
-          setTemplateDialogOpen(open);
-          if (!open) setSelectedTemplateId(null);
-        }}
+        onTemplateDialogChange={setTemplateDialogOpen}
         categoryTemplates={categoryTemplates}
-        selectedTemplateId={selectedTemplateId}
-        onSelectTemplate={setSelectedTemplateId}
-        onApplyTemplate={handleApplyTemplate}
-        isApplyingTemplate={bulkAdd.isPending}
+        onApplyTemplates={handleApplyTemplates}
+        isApplyingTemplate={isApplyingTemplates}
       />
     </Card>
   );
