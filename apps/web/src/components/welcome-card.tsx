@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle, Circle, Download, Home, ListChecks } from 'lucide-react';
+import { CheckCircle, Circle, HelpCircle, Home, ListChecks } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
@@ -82,10 +82,10 @@ export function WelcomeCard({
             </Button>
           )}
           <Button asChild size="sm" variant="outline">
-            <a href="/guia-primer-uso.pdf" target="_blank" rel="noopener noreferrer">
-              <Download className="mr-2 h-4 w-4" />
+            <Link href="/guia">
+              <HelpCircle className="mr-2 h-4 w-4" />
               Guía de uso
-            </a>
+            </Link>
           </Button>
         </div>
       </CardContent>

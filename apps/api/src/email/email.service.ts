@@ -86,7 +86,7 @@ export class EmailService {
         <p>Para comenzar, configurá tu contraseña haciendo clic en el siguiente enlace:</p>
         ${this.ctaButton(link, 'Configurar contraseña')}
         <p style="color: #666; font-size: 14px;">Este enlace expira en 24 horas.</p>
-        <p style="color: #666; font-size: 14px;">Podés descargar la <a href="${this.frontendUrl}/guia-primer-uso.pdf" style="color: ${DESIGN_TOKENS_LIGHT.primary};">guía de primer uso</a> para conocer cómo funciona el sistema.</p>
+        <p style="color: #666; font-size: 14px;">Podés ver la <a href="${this.frontendUrl}/guia" style="color: ${DESIGN_TOKENS_LIGHT.primary};">guía de uso</a> para conocer cómo funciona el sistema.</p>
       `),
     });
 
