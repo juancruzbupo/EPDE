@@ -182,6 +182,50 @@ export function BudgetTour() {
   return useTour('epde-tour-budget', BUDGET_STEPS);
 }
 
+// ─── Plan viewer tour ───────────────────────────────────
+
+const PLAN_VIEWER_STEPS = [
+  {
+    target: '[data-tour="plan-title"]',
+    title: 'Tu plan de mantenimiento',
+    content:
+      'Este es el plan que armó la arquitecta después de inspeccionar tu vivienda. Tiene todas las tareas programadas organizadas por categoría.',
+    disableBeacon: true,
+  },
+  {
+    target: '[data-tour="plan-status-summary"]',
+    title: 'Estado de las tareas',
+    content:
+      'Acá ves cuántas tareas están vencidas, pendientes o próximas. Hacé click en una tarea para ver el detalle y completarla.',
+  },
+];
+
+export function PlanViewerTour() {
+  return useTour('epde-tour-plan-viewer', PLAN_VIEWER_STEPS);
+}
+
+// ─── Expenses tab tour ──────────────────────────────────
+
+const EXPENSES_STEPS = [
+  {
+    target: '[data-tour="expenses-stats"]',
+    title: 'Resumen de gastos',
+    content:
+      'Acá ves cuánto llevas gastado en mantenimiento: el total acumulado, el promedio mensual y la categoría donde más invertiste.',
+    disableBeacon: true,
+  },
+  {
+    target: '[data-tour="expenses-breakdown"]',
+    title: 'Desglose por sector',
+    content:
+      'Podés ver cómo se distribuyen los gastos por sector de la vivienda o por categoría. Los costos de tareas y presupuestos se separan para que veas cuánto va a prevención vs. reparación.',
+  },
+];
+
+export function ExpensesTour() {
+  return useTour('epde-tour-expenses', EXPENSES_STEPS);
+}
+
 // ─── Properties list tour ───────────────────────────────
 
 const PROPERTIES_LIST_STEPS = [
@@ -275,6 +319,8 @@ const TOUR_KEYS = [
   'epde-tour-budgets-list',
   'epde-tour-services-list',
   'epde-tour-plans-list',
+  'epde-tour-plan-viewer',
+  'epde-tour-expenses',
 ];
 
 export function resetOnboardingTour() {

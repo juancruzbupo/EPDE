@@ -16,6 +16,7 @@ import { CheckCircle, ChevronDown, ChevronRight, ClipboardList } from 'lucide-re
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { ErrorState } from '@/components/error-state';
+import { PlanViewerTour } from '@/components/onboarding-tour';
 import { SearchInput } from '@/components/search-input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -272,10 +273,13 @@ export function PlanViewer({ planId, propertyId, highlightTaskId }: PlanViewerPr
 
   return (
     <>
+      <PlanViewerTour />
       <Card>
         <CardHeader>
           <div>
-            <CardTitle className="text-lg">{plan.name}</CardTitle>
+            <CardTitle data-tour="plan-title" className="text-lg">
+              {plan.name}
+            </CardTitle>
             <Badge variant="outline" className="mt-1">
               {PLAN_STATUS_LABELS[plan.status] ?? plan.status}
             </Badge>
@@ -289,7 +293,9 @@ export function PlanViewer({ planId, propertyId, highlightTaskId }: PlanViewerPr
             </div>
           ) : (
             <div className="space-y-4">
-              <StatusSummary tasks={tasks} />
+              <div data-tour="plan-status-summary">
+                <StatusSummary tasks={tasks} />
+              </div>
 
               <div className="flex flex-wrap items-center gap-3">
                 {tasks.length >= SHOW_SEARCH_THRESHOLD && (

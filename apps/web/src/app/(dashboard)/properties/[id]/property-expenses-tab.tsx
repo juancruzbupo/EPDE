@@ -5,6 +5,7 @@ import { ChevronDown, ChevronRight, ClipboardList, DollarSign, TrendingUp } from
 import { useMemo, useState } from 'react';
 
 import { ErrorState } from '@/components/error-state';
+import { ExpensesTour } from '@/components/onboarding-tour';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { usePropertyExpenses } from '@/hooks/use-properties';
@@ -126,8 +127,9 @@ export function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
 
   return (
     <div className="space-y-4">
+      <ExpensesTour />
       {/* Row 1 — Stat Cards */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div data-tour="expenses-stats" className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -197,7 +199,7 @@ export function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
       )}
 
       {/* Row 2 — Breakdown with toggle */}
-      <Card>
+      <Card data-tour="expenses-breakdown">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="type-title-md">
