@@ -2,8 +2,16 @@ import { TASK_STATUS_LABELS, TaskStatus } from '@epde/shared';
 import React from 'react';
 
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { TASK_STATUS_COLORS, TASK_STATUS_ICONS, TASK_STATUS_ORDER } from '@/lib/style-maps';
 import { cn } from '@/lib/utils';
+
+const TASK_STATUS_HINTS: Record<TaskStatus, string> = {
+  [TaskStatus.OVERDUE]: 'Tareas que pasaron su fecha de vencimiento sin completarse',
+  [TaskStatus.PENDING]: 'Tareas programadas con fecha a más de 30 días',
+  [TaskStatus.UPCOMING]: 'Tareas que vencen dentro de los próximos 30 días',
+  [TaskStatus.COMPLETED]: 'Tareas completadas',
+};
 
 function StatCard({
   status,
@@ -20,20 +28,26 @@ function StatCard({
   const color = TASK_STATUS_COLORS[status];
 
   return (
-    <button
-      onClick={onClick}
-      title="Click para filtrar por este estado"
-      className={cn(
-        'bg-card flex flex-1 items-center gap-3 rounded-lg border p-3 text-left transition-all',
-        active ? 'ring-primary ring-2' : 'hover:bg-muted/40',
-      )}
-    >
-      <Icon className={cn('h-5 w-5 shrink-0', color)} aria-hidden="true" />
-      <div className="min-w-0">
-        <p className={cn('type-number-md leading-none', color)}>{count}</p>
-        <p className="type-body-sm text-muted-foreground mt-0.5">{TASK_STATUS_LABELS[status]}</p>
-      </div>
-    </button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          onClick={onClick}
+          className={cn(
+            'bg-card flex flex-1 items-center gap-3 rounded-lg border p-3 text-left transition-all',
+            active ? 'ring-primary ring-2' : 'hover:bg-muted/40',
+          )}
+        >
+          <Icon className={cn('h-5 w-5 shrink-0', color)} aria-hidden="true" />
+          <div className="min-w-0">
+            <p className={cn('type-number-md leading-none', color)}>{count}</p>
+            <p className="type-body-sm text-muted-foreground mt-0.5">
+              {TASK_STATUS_LABELS[status]}
+            </p>
+          </div>
+        </button>
+      </TooltipTrigger>
+      <TooltipContent>{TASK_STATUS_HINTS[status]}</TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -68,20 +82,22 @@ export const TaskStatCards = React.memo(function TaskStatCards({
   onToggleStatus,
 }: TaskStatCardsProps) {
   return (
-    <div className="mb-4 grid grid-cols-3 gap-2">
-      {TASK_STATUS_ORDER.map((status) =>
-        isLoading ? (
-          <StatCardSkeleton key={status} status={status} />
-        ) : (
-          <StatCard
-            key={status}
-            status={status}
-            count={statusCounts[status] ?? 0}
-            active={activeStatus === status}
-            onClick={() => onToggleStatus(status)}
-          />
-        ),
-      )}
-    </div>
+    <TooltipProvider>
+      <div className="mb-4 grid grid-cols-3 gap-2">
+        {TASK_STATUS_ORDER.map((status) =>
+          isLoading ? (
+            <StatCardSkeleton key={status} status={status} />
+          ) : (
+            <StatCard
+              key={status}
+              status={status}
+              count={statusCounts[status] ?? 0}
+              active={activeStatus === status}
+              onClick={() => onToggleStatus(status)}
+            />
+          ),
+        )}
+      </div>
+    </TooltipProvider>
   );
 });
