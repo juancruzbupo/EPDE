@@ -108,7 +108,7 @@ export default function ProfilePage() {
       )}
 
       {/* Replay tour */}
-      {user.role === UserRole.CLIENT && (
+      {
         <Card className="mb-6">
           <CardContent className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
@@ -132,7 +132,7 @@ export default function ProfilePage() {
             </Button>
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* Edit profile */}
       <ProfileForm user={user} onSuccess={checkAuth} />
