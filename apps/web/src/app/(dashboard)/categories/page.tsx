@@ -3,21 +3,30 @@
 import { UserRole } from '@epde/shared';
 import type { LucideIcon } from 'lucide-react';
 import {
+  Armchair,
   Bug,
   Building,
+  CloudLightning,
+  Cylinder,
   DoorOpen,
   Droplet,
   Droplets,
+  FileText,
   FireExtinguisher,
   Flame,
+  Footprints,
   Home,
   Layers,
   Paintbrush,
   Pencil,
   Plus,
+  SquareStack,
+  Sun,
   Thermometer,
   Trash2,
   Trees,
+  Waves,
+  Wifi,
   Zap,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -37,6 +46,15 @@ const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
   'fire-extinguisher': FireExtinguisher,
   bug: Bug,
   layers: Layers,
+  armchair: Armchair,
+  cylinder: Cylinder,
+  waves: Waves,
+  sun: Sun,
+  wifi: Wifi,
+  'square-stack': SquareStack,
+  'cloud-lightning': CloudLightning,
+  stairs: Footprints,
+  'file-text': FileText,
 };
 
 function renderCategoryIcon(iconName: string | null): React.ReactNode {
