@@ -38,7 +38,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         taskType: 'INSPECTION',
         professionalRequirement: 'OWNER_CAN_DO',
         technicalDescription:
-          'Revisar visualmente vigas y columnas en busca de fisuras, deformaciones o manchas de humedad. Verificar que no haya desprendimientos de material.',
+          'Revisar visualmente vigas y columnas en busca de fisuras, deformaciones o manchas de humedad. Verificar que no haya desprendimientos de material. Buscar: fisuras diagonales (indican asentamiento), fisuras horizontales (empuje lateral), manchas blancas (eflorescencias por humedad), óxido en armaduras expuestas. ATENCIÓN si: fisura >2mm o crece entre visitas. PROFESIONAL si: fisura activa con desplazamiento, armadura expuesta u oxidada, deformación visible de elementos.',
         priority: 'HIGH',
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
@@ -50,7 +50,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         taskType: 'INSPECTION',
         professionalRequirement: 'OWNER_CAN_DO',
         technicalDescription:
-          'Examinar muros interiores y exteriores buscando fisuras nuevas o crecimiento de existentes. Marcar con cinta y fotografiar para seguimiento.',
+          'Examinar muros interiores y exteriores buscando fisuras nuevas o crecimiento de existentes. Marcar con cinta y fotografiar para seguimiento. Clasificar: fisuras capilares (<0.5mm, estéticas), fisuras medias (0.5-2mm, monitorear), fisuras graves (>2mm, estructural). Buscar patrón: en diagonal = asentamiento, horizontal = empuje, en escalera = cedimiento de fundación. ATENCIÓN si: fisura nueva o que creció desde última visita. PROFESIONAL si: fisura >2mm, patrón en escalera, o acompañada de desnivel en pisos.',
         priority: 'MEDIUM',
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
@@ -62,7 +62,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         taskType: 'EVALUATION',
         professionalRequirement: 'PROFESSIONAL_REQUIRED',
         technicalDescription:
-          'Evaluación técnica de cimientos y fundaciones por profesional matriculado. Incluye nivel de asentamientos y estado general.',
+          'Inspección especializada de fundaciones y cimientos. Buscar en subsuelo: manchas de humedad ascendente en base de muros (línea horizontal a 30-50cm del suelo), eflorescencias blancas (sales por capilaridad), desprendimiento de revoque en zona baja, olor a humedad. En pisos: verificar nivelación con nivel de burbuja — desniveles >5mm en 2m indican movimiento. En muros: fisuras en escalera cerca de esquinas = asentamiento diferencial. SIEMPRE requiere profesional matriculado.',
         priority: 'HIGH',
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 24,
@@ -98,7 +98,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         taskType: 'INSPECTION',
         professionalRequirement: 'PROFESSIONAL_RECOMMENDED',
         technicalDescription:
-          'Inspeccionar base de muros y zócalos buscando manchas de humedad ascendente por capilaridad. Verificar estado de capa aisladora.',
+          'Buscar manchas de humedad en la base de muros interiores y exteriores hasta ~1m de altura. Signos: pintura ampollada, revoque que se desprende, eflorescencias blancas (sales), olor a humedad, moho. Medir con hidrómetro de contacto si disponible. Verificar: si hay capa aisladora horizontal (barrera contra humedad ascendente por capilaridad), si los zócalos están dañados, si el terreno exterior tiene pendiente hacia la casa (debe ser al revés). ATENCIÓN si: manchas nuevas o en expansión. PROFESIONAL si: humedad en más de 2 muros, daño estructural en revoque, o sospecha de capa aisladora ausente/dañada.',
         priority: 'HIGH',
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
@@ -166,7 +166,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         taskType: 'INSPECTION',
         professionalRequirement: 'OWNER_CAN_DO',
         technicalDescription:
-          'Revisar estado de la membrana asfáltica o hidrófuga en techos planos. Buscar burbujas, grietas o despegues en uniones.',
+          'Subir al techo y revisar la membrana asfáltica o hidrófuga. Buscar: burbujas (delaminación), fisuras en la superficie, bordes despegados, zonas donde se acumula agua (falta de pendiente), vegetación creciendo sobre la membrana (raíces perforando). Verificar solapes entre paños (mínimo 10cm). En membrana asfáltica: tocar y verificar si está reseca y quebradiza (fin de vida útil ~10 años). ATENCIÓN si: burbujas o fisuras superficiales. PROFESIONAL si: zona con agua estancada, membrana quebradiza, o filtración activa visible desde adentro.',
         priority: 'HIGH',
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
@@ -178,7 +178,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         taskType: 'CLEANING',
         professionalRequirement: 'OWNER_CAN_DO',
         technicalDescription:
-          'Limpiar hojas, tierra y sedimentos de canaletas y verificar libre circulación de bajadas pluviales. Probar con agua.',
+          'Limpiar hojas, tierra y sedimentos de canaletas y verificar libre circulación de bajadas pluviales. Probar vertiendo agua con balde. Verificar: pendiente correcta (el agua debe escurrir sin estancarse), uniones selladas (buscar goteos debajo), soportes firmes (la canaleta no debe pandearse), rejillas de protección contra hojas. En bajadas: verificar que no estén obstruidas pasando agua y escuchando el flujo. ATENCIÓN si: pendiente invertida o goteo en uniones. PROFESIONAL si: canaleta con deformación o soportes cedidos.',
         priority: 'HIGH',
         recurrenceType: 'QUARTERLY',
         recurrenceMonths: 3,
@@ -294,7 +294,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         taskType: 'TEST',
         professionalRequirement: 'OWNER_CAN_DO',
         technicalDescription:
-          'Presionar botón de test del interruptor diferencial. Debe cortar el suministro inmediatamente. Si no corta, llamar a electricista.',
+          'Presionar el botón de TEST (marcado con T) en el interruptor diferencial del tablero. El diferencial debe cortar instantáneamente. Si no corta: la protección no funciona y hay riesgo de electrocución. Verificar: que haya al menos 1 diferencial de 30mA (obligatorio según AEA), que proteja todos los circuitos, que la palanca vuelva a posición ON fácilmente después del test. Repetir con cada diferencial si hay más de uno. ATENCIÓN si: demora en cortar (>0.3s). PROFESIONAL URGENTE si: no corta o no tiene diferencial instalado.',
         priority: 'URGENT',
         recurrenceType: 'MONTHLY',
         recurrenceMonths: 1,
@@ -306,7 +306,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         taskType: 'INSPECTION',
         professionalRequirement: 'PROFESSIONAL_RECOMMENDED',
         technicalDescription:
-          'Revisar estado del tablero: térmicas, conexiones, cables sueltos, signos de recalentamiento. Verificar identificación de circuitos.',
+          'Abrir la tapa del tablero principal y verificar: que las térmicas correspondan a los circuitos protegidos, que no haya cables sueltos o mal ajustados, que no haya signos de calentamiento (cables oscurecidos, plástico deformado, olor a quemado). Verificar: etiquetado de circuitos, que los bornes estén ajustados (no girar), que el gabinete esté limpio y seco. Buscar: signos de arco eléctrico (marcas negras), cables con aislación deteriorada, empalmes fuera de borneras. ATENCIÓN si: etiquetado faltante o cables flojos. PROFESIONAL si: signos de calentamiento, cables sin aislación, o tablero subdimensionado.',
         priority: 'HIGH',
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
@@ -318,7 +318,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         taskType: 'MEASUREMENT',
         professionalRequirement: 'PROFESSIONAL_REQUIRED',
         technicalDescription:
-          'Medir resistencia de puesta a tierra con telurímetro. Valor debe ser menor a 10 ohms según reglamentación AEA. Se realiza junto con la revisión eléctrica completa cada 5 años.',
+          'Medir resistencia de puesta a tierra con telurímetro. Valor debe ser menor a 10 ohms según reglamentación AEA (máximo 40 ohms para diferencial de 30mA). Verificar: que exista jabalina de PAT visible y accesible, que el conductor de protección (cable verde-amarillo) llegue al tablero, que todas las masas metálicas estén conectadas (canillas, marcos metálicos, artefactos). ATENCIÓN si: valor entre 10-40 ohms. PROFESIONAL si: valor >40 ohms, jabalina ausente, o conductor cortado.',
         priority: 'HIGH',
         recurrenceType: 'CUSTOM',
         recurrenceMonths: 60,
@@ -422,7 +422,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         taskType: 'INSPECTION',
         professionalRequirement: 'OWNER_CAN_DO',
         technicalDescription:
-          'Verificar que no haya goteos en canillas de cocina, baños y lavadero. Revisar estado de las juntas y aireadores.',
+          'Verificar que no haya goteos en canillas de cocina, baños y lavadero. Revisar estado de cuerpos cerámicos, flexibles de conexión y llaves de paso. Abrir y cerrar cada canilla completamente: debe cortar el flujo sin goteo residual. Verificar debajo de mesadas y vanitorys: buscar manchas de humedad, goteo activo en flexibles, corrosión verde en conexiones de bronce. En monocomandos: verificar que la temperatura mezcle correctamente. ATENCIÓN si: goteo persistente o flexible con corrosión. PROFESIONAL si: pérdida en caño empotrado o llave de paso que no corta.',
         priority: 'MEDIUM',
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
@@ -446,7 +446,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         taskType: 'INSPECTION',
         professionalRequirement: 'OWNER_CAN_DO',
         technicalDescription:
-          'Inspeccionar tanque de reserva: nivel de agua, estado de flotante, tapa bien colocada, limpieza interna si corresponde.',
+          'Verificar estado del tanque de reserva: tapa cerrada (previene contaminación), flotante funcionando (el tanque debe llenar y cortar), sin pérdidas visibles en uniones. Revisar soportes o base (corrosión en tanques metálicos). Verificar: nivel de agua correcto, ausencia de sedimentos u olor en el agua, estado de la boya y válvula. En tanques de fibrocemento antiguos: verificar fisuras (si contienen amianto, NO tocar — requiere profesional especializado). ATENCIÓN si: tapa rota o ausente, flotante no corta. PROFESIONAL si: tanque de fibrocemento con fisuras, o pérdida en base del tanque.',
         priority: 'HIGH',
         recurrenceType: 'BIANNUAL',
         recurrenceMonths: 6,
@@ -574,7 +574,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         taskType: 'INSPECTION',
         professionalRequirement: 'PROFESSIONAL_REQUIRED',
         technicalDescription:
-          'Verificación de funcionamiento seguro de calefones, estufas, hornos y calefactores. Control de combustión y ventilación.',
+          'Verificar estado de cada artefacto de gas: cocina, horno, calefón, estufa, caldera. Buscar: olor a gas (fugas), llama amarilla o anaranjada (mala combustión), hollín alrededor de quemadores, manchas negras en paredes/techos cerca de artefactos (monóxido). Verificar: flexibles (fecha de vencimiento estampada, máximo 2 años), llaves de paso individuales por artefacto, ventilaciones reglamentarias (rejilla baja de entrada de aire + rejilla alta de salida). ATENCIÓN si: llama amarilla o flexible próximo a vencer. PROFESIONAL URGENTE si: olor a gas, hollín, o ventilación obstruida.',
         priority: 'URGENT',
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,
@@ -634,7 +634,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         taskType: 'EVALUATION',
         professionalRequirement: 'PROFESSIONAL_REQUIRED',
         technicalDescription:
-          'Inspección obligatoria de toda la instalación de gas según norma NAG-226. Incluye prueba de hermeticidad de cañerías, verificación de llaves, reguladores y conexiones. Debe ser realizada por gasista matriculado. Frecuencia: cada 3 años para vivienda unifamiliar.',
+          'Inspección obligatoria de toda la instalación de gas según norma NAG-226. Incluye prueba de hermeticidad de cañerías, verificación de llaves, reguladores y conexiones. Debe ser realizada por gasista matriculado con matrícula habilitada por ENARGAS. Frecuencia: cada 3 años para vivienda unifamiliar. La oblea amarilla debe estar vigente y visible. Verificar: prueba de hermeticidad con manómetro (no con jabón), estado de regulador de presión, ventilaciones en todos los ambientes con artefactos. SIEMPRE requiere profesional matriculado — no intentar verificar hermeticidad sin instrumental.',
         priority: 'URGENT',
         recurrenceType: 'CUSTOM',
         recurrenceMonths: 36,
@@ -1234,7 +1234,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         taskType: 'TEST',
         professionalRequirement: 'OWNER_CAN_DO',
         technicalDescription:
-          'Presionar botón de test de cada detector de humo. Verificar que suene la alarma. Reemplazar baterías si no funciona. IRAM 3517 recomienda uno por nivel mínimo.',
+          'Presionar el botón de TEST de cada detector de humo. Debe sonar la alarma. Verificar: que haya al menos 1 detector por planta/nivel, que estén en el techo o a máximo 30cm del techo, que no estén obstruidos por muebles, que las baterías no estén vencidas (la mayoría dura 1 año, los de litio 10 años). Limpiar polvo acumulado con paño seco. ATENCIÓN si: batería baja (emite pitido intermitente). PROFESIONAL no requerido — el propietario puede reemplazar baterías y detectores.',
         priority: 'HIGH',
         recurrenceType: 'MONTHLY',
         recurrenceMonths: 1,
@@ -1394,7 +1394,7 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         taskType: 'INSPECTION',
         professionalRequirement: 'OWNER_CAN_DO',
         technicalDescription:
-          'Recorrer todos los ambientes verificando baldosas flojas (golpear suavemente), desniveles, fisuras en pisos de cemento y desgaste excesivo.',
+          'Recorrer todos los ambientes verificando pisos: nivelación (usar nivel de burbuja o bolita), baldosas flojas (golpear suavemente y escuchar sonido hueco = despegada), juntas deterioradas, fisuras en contrapiso. En pisos de madera: buscar tablas que crujan, signos de humedad (decoloración, hinchazón), presencia de polvo fino (termitas). En baños y cocina: verificar sellado con silicona en perímetro. ATENCIÓN si: baldosas flojas o juntas faltantes. PROFESIONAL si: desnivel progresivo (puede indicar asentamiento) o signos de termitas.',
         priority: 'MEDIUM',
         recurrenceType: 'ANNUAL',
         recurrenceMonths: 12,

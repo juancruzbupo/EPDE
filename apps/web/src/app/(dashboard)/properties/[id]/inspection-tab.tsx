@@ -5,6 +5,8 @@ import { PROPERTY_SECTOR_LABELS } from '@epde/shared';
 import {
   AlertTriangle,
   CheckCircle,
+  ChevronDown,
+  ChevronRight,
   Circle,
   ClipboardList,
   FileText,
@@ -89,6 +91,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
   const [findingText, setFindingText] = useState('');
   const [planNameDialog, setPlanNameDialog] = useState(false);
   const [planName, setPlanName] = useState('');
+  const [collapsedSectors, setCollapsedSectors] = useState<Set<string>>(new Set());
 
   const activeChecklist = inspections?.[0] ?? null;
 
@@ -246,110 +249,136 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
       {sectorOrder.map((sector) => {
         const items = itemsBySector.get(sector) ?? [];
         const completed = items.filter((i) => i.status !== 'PENDING').length;
+        const isCollapsed = collapsedSectors.has(sector);
+        const allDone = completed === items.length && items.length > 0;
 
         return (
           <Card key={sector}>
-            <CardHeader className="pb-3">
+            <CardHeader
+              className="cursor-pointer pb-3 select-none"
+              onClick={() => {
+                setCollapsedSectors((prev) => {
+                  const next = new Set(prev);
+                  if (next.has(sector)) next.delete(sector);
+                  else next.add(sector);
+                  return next;
+                });
+              }}
+            >
               <div className="flex items-center justify-between">
-                <CardTitle className="type-title-sm">
-                  {PROPERTY_SECTOR_LABELS[sector] ?? sector}
-                </CardTitle>
-                <Badge variant="outline">
+                <div className="flex items-center gap-2">
+                  {isCollapsed ? (
+                    <ChevronRight className="text-muted-foreground h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="text-muted-foreground h-4 w-4" />
+                  )}
+                  <CardTitle className="type-title-sm">
+                    {PROPERTY_SECTOR_LABELS[sector] ?? sector}
+                  </CardTitle>
+                  {allDone && <CheckCircle className="text-success h-4 w-4" />}
+                </div>
+                <Badge variant={allDone ? 'success' : 'outline'}>
                   {completed}/{items.length}
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent className="space-y-2">
-              {items.map((item) => {
-                const config = STATUS_CONFIG[item.status as InspectionItemStatus];
-                const Icon = config.icon;
-                const isUpdating = updateItem.isPending && updateItem.variables?.itemId === item.id;
+            {!isCollapsed && (
+              <CardContent className="space-y-2">
+                {items.map((item) => {
+                  const config = STATUS_CONFIG[item.status as InspectionItemStatus];
+                  const Icon = config.icon;
+                  const isUpdating =
+                    updateItem.isPending && updateItem.variables?.itemId === item.id;
 
-                return (
-                  <div key={item.id} className="flex items-start gap-3 rounded-lg border p-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <Icon className={`h-4 w-4 shrink-0 ${config.color}`} />
-                        <p className="text-sm font-medium">{item.name}</p>
-                        {item.isCustom && (
-                          <Badge variant="outline" className="text-xs">
-                            Custom
-                          </Badge>
+                  return (
+                    <div key={item.id} className="flex items-start gap-3 rounded-lg border p-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <Icon className={`h-4 w-4 shrink-0 ${config.color}`} />
+                          <p className="text-sm font-medium">{item.name}</p>
+                          {item.isCustom && (
+                            <Badge variant="outline" className="text-xs">
+                              Custom
+                            </Badge>
+                          )}
+                        </div>
+                        {item.description && (
+                          <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
+                            {item.description}
+                          </p>
+                        )}
+                        {item.finding && (
+                          <p className="mt-1 text-xs font-medium text-amber-700">
+                            Hallazgo: {item.finding}
+                          </p>
                         )}
                       </div>
-                      {item.description && (
-                        <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
-                          {item.description}
-                        </p>
-                      )}
-                      {item.finding && (
-                        <p className="mt-1 text-xs font-medium text-amber-700">
-                          Hallazgo: {item.finding}
-                        </p>
-                      )}
+                      <div className="flex shrink-0 gap-1">
+                        {(
+                          ['OK', 'NEEDS_ATTENTION', 'NEEDS_PROFESSIONAL'] as InspectionItemStatus[]
+                        ).map((status) => {
+                          const s = STATUS_CONFIG[status];
+                          return (
+                            <Button
+                              key={status}
+                              size="sm"
+                              variant={item.status === status ? 'default' : 'outline'}
+                              className="h-7 px-2 text-xs"
+                              disabled={isUpdating}
+                              onClick={() => {
+                                if (
+                                  status === 'NEEDS_ATTENTION' ||
+                                  status === 'NEEDS_PROFESSIONAL'
+                                ) {
+                                  setFindingDialog({ itemId: item.id, status });
+                                  setFindingText('');
+                                } else {
+                                  handleUpdateItem(item.id, status);
+                                }
+                              }}
+                            >
+                              {s.label}
+                            </Button>
+                          );
+                        })}
+                      </div>
                     </div>
-                    <div className="flex shrink-0 gap-1">
-                      {(
-                        ['OK', 'NEEDS_ATTENTION', 'NEEDS_PROFESSIONAL'] as InspectionItemStatus[]
-                      ).map((status) => {
-                        const s = STATUS_CONFIG[status];
-                        return (
-                          <Button
-                            key={status}
-                            size="sm"
-                            variant={item.status === status ? 'default' : 'outline'}
-                            className="h-7 px-2 text-xs"
-                            disabled={isUpdating}
-                            onClick={() => {
-                              if (status === 'NEEDS_ATTENTION' || status === 'NEEDS_PROFESSIONAL') {
-                                setFindingDialog({ itemId: item.id, status });
-                                setFindingText('');
-                              } else {
-                                handleUpdateItem(item.id, status);
-                              }
-                            }}
-                          >
-                            {s.label}
-                          </Button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
 
-              {addingSector === sector ? (
-                <div className="flex gap-2">
-                  <Input
-                    value={customItemName}
-                    onChange={(e) => setCustomItemName(e.target.value)}
-                    placeholder="Nombre del item..."
-                    className="text-sm"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleAddCustomItem(sector);
-                    }}
-                  />
-                  <Button
-                    size="sm"
-                    onClick={() => handleAddCustomItem(sector)}
-                    disabled={addItem.isPending}
+                {addingSector === sector ? (
+                  <div className="flex gap-2">
+                    <Input
+                      value={customItemName}
+                      onChange={(e) => setCustomItemName(e.target.value)}
+                      placeholder="Nombre del item..."
+                      className="text-sm"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleAddCustomItem(sector);
+                      }}
+                    />
+                    <Button
+                      size="sm"
+                      onClick={() => handleAddCustomItem(sector)}
+                      disabled={addItem.isPending}
+                    >
+                      Agregar
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => setAddingSector(null)}>
+                      Cancelar
+                    </Button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setAddingSector(sector)}
+                    className="text-primary flex items-center gap-1 text-xs font-medium hover:underline"
                   >
-                    Agregar
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => setAddingSector(null)}>
-                    Cancelar
-                  </Button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setAddingSector(sector)}
-                  className="text-primary flex items-center gap-1 text-xs font-medium hover:underline"
-                >
-                  <Plus className="h-3 w-3" />
-                  Agregar observación
-                </button>
-              )}
-            </CardContent>
+                    <Plus className="h-3 w-3" />
+                    Agregar observación
+                  </button>
+                )}
+              </CardContent>
+            )}
           </Card>
         );
       })}
