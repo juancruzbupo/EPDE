@@ -141,6 +141,7 @@ async function main() {
               recurrenceMonths: task.recurrenceMonths,
               estimatedDurationMinutes: task.estimatedDurationMinutes,
               defaultSector: task.defaultSector as 'EXTERIOR',
+              inspectionGuide: task.inspectionGuide,
               displayOrder: index,
             })),
           },
@@ -154,13 +155,19 @@ async function main() {
     console.log(`All ${existingTemplates} category templates up to date`);
   }
 
-  // Sync defaultSector on existing task templates (idempotent)
+  // Sync defaultSector + inspectionGuide on existing task templates (idempotent)
   for (const category of TEMPLATE_SEED_DATA) {
     for (const task of category.tasks) {
       await prisma.taskTemplate.updateMany({
         where: { name: task.name, defaultSector: null },
         data: { defaultSector: task.defaultSector as 'EXTERIOR' },
       });
+      if (task.inspectionGuide) {
+        await prisma.taskTemplate.updateMany({
+          where: { name: task.name, inspectionGuide: null },
+          data: { inspectionGuide: task.inspectionGuide },
+        });
+      }
     }
   }
 

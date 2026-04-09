@@ -93,7 +93,13 @@ export class InspectionsService {
     const sectors = new Set(property.activeSectors);
     const grouped = new Map<
       PropertySector,
-      { taskTemplateId: string; name: string; description: string | null }[]
+      {
+        taskTemplateId: string;
+        name: string;
+        description: string | null;
+        inspectionGuide: string | null;
+        guideImageUrls: string[];
+      }[]
     >();
 
     for (const cat of templates) {
@@ -105,6 +111,8 @@ export class InspectionsService {
           taskTemplateId: tpl.id,
           name: tpl.name,
           description: tpl.technicalDescription,
+          inspectionGuide: tpl.inspectionGuide,
+          guideImageUrls: tpl.guideImageUrls,
         });
         grouped.set(sector, list);
       }

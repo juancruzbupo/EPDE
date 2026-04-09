@@ -15,6 +15,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import Markdown from 'react-markdown';
 
 import { ErrorState } from '@/components/error-state';
 import { Badge } from '@/components/ui/badge';
@@ -113,6 +114,8 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
         name: item.name,
         description: item.description ?? undefined,
         taskTemplateId: item.taskTemplateId,
+        inspectionGuide: item.inspectionGuide ?? undefined,
+        guideImageUrls: item.guideImageUrls.length > 0 ? item.guideImageUrls : undefined,
         status: 'PENDING' as const,
         isCustom: false,
         order: sectorIdx * 100 + itemIdx,
@@ -504,10 +507,37 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
             </div>
           </DialogHeader>
 
-          {guideItem?.description && (
+          {/* Markdown guide (priority) or fallback to description */}
+          {guideItem?.inspectionGuide ? (
+            <div className="prose prose-sm dark:prose-invert max-w-none">
+              <Markdown>{guideItem.inspectionGuide}</Markdown>
+            </div>
+          ) : guideItem?.description ? (
             <div className="space-y-3">
               <InspectionGuideContent description={guideItem.description} />
             </div>
+          ) : null}
+
+          {/* Guide images gallery */}
+          {guideItem?.guideImageUrls && guideItem.guideImageUrls.length > 0 && (
+            <>
+              <Separator />
+              <div>
+                <p className="text-muted-foreground mb-2 text-xs font-semibold">
+                  Imágenes de referencia
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {guideItem.guideImageUrls.map((url, i) => (
+                    <img
+                      key={i}
+                      src={url}
+                      alt={`Referencia ${i + 1} para ${guideItem.name}`}
+                      className="rounded-lg border object-cover"
+                    />
+                  ))}
+                </div>
+              </div>
+            </>
           )}
 
           {guideItem?.finding && (

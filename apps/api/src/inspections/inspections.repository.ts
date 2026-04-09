@@ -15,6 +15,8 @@ interface CreateInspectionData {
     finding?: string;
     photoUrl?: string;
     taskTemplateId?: string;
+    inspectionGuide?: string;
+    guideImageUrls?: string[];
     isCustom?: boolean;
     order?: number;
   }[];
@@ -39,6 +41,8 @@ export class InspectionsRepository {
             finding: item.finding,
             photoUrl: item.photoUrl,
             taskTemplateId: item.taskTemplateId,
+            inspectionGuide: item.inspectionGuide,
+            guideImageUrls: item.guideImageUrls ?? [],
             isCustom: item.isCustom ?? false,
             order: item.order ?? index,
           })),

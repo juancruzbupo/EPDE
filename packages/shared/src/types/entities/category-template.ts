@@ -28,6 +28,8 @@ export interface TaskTemplate {
   recurrenceMonths: number;
   estimatedDurationMinutes: number | null;
   defaultSector: PropertySector | null;
+  inspectionGuide: string | null;
+  guideImageUrls: string[];
   displayOrder: number;
   categoryId: string;
   createdAt: string;

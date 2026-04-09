@@ -21,6 +21,8 @@ export const createInspectionSchema = z.object({
       finding: z.string().max(2000).optional(),
       photoUrl: z.string().url().optional(),
       taskTemplateId: z.string().uuid().optional(),
+      inspectionGuide: z.string().max(10_000).optional(),
+      guideImageUrls: z.array(z.string().url()).max(10).optional(),
       isCustom: z.boolean().default(false),
       order: z.number().int().min(0).default(0),
     }),

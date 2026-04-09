@@ -59,7 +59,13 @@ export async function getInspectionTemplates(
   ApiResponse<
     {
       sector: string;
-      items: { taskTemplateId: string; name: string; description: string | null }[];
+      items: {
+        taskTemplateId: string;
+        name: string;
+        description: string | null;
+        inspectionGuide: string | null;
+        guideImageUrls: string[];
+      }[];
     }[]
   >
 > {

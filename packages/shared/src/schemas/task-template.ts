@@ -34,6 +34,8 @@ export const createTaskTemplateSchema = z.object({
   recurrenceMonths: z.coerce.number().int().min(1).max(120).default(12),
   estimatedDurationMinutes: z.coerce.number().int().min(1).optional(),
   defaultSector: z.enum(PROPERTY_SECTOR_VALUES).optional(),
+  inspectionGuide: z.string().max(10_000).optional(),
+  guideImageUrls: z.array(z.string().url()).max(10).optional(),
   displayOrder: z.coerce.number().int().min(0).default(0),
 });
 export type CreateTaskTemplateInput = z.infer<typeof createTaskTemplateSchema>;

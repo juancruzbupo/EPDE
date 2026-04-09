@@ -596,6 +596,8 @@ model TaskTemplate {
   recurrenceMonths         Int                     @default(12)
   estimatedDurationMinutes Int?
   defaultSector            PropertySector?
+  inspectionGuide          String?                 @db.Text
+  guideImageUrls           String[]                @default([])
   displayOrder             Int                     @default(0)
   categoryId               String
   category                 CategoryTemplate        @relation(fields: [categoryId], references: [id], onDelete: Cascade)
@@ -718,8 +720,10 @@ model InspectionItem {
   photoUrl    String?
   taskId         String?
   task           Task?                 @relation(fields: [taskId], references: [id], onDelete: SetNull)
-  taskTemplateId String?
-  isCustom       Boolean               @default(false)
+  taskTemplateId   String?
+  inspectionGuide  String?               @db.Text
+  guideImageUrls   String[]              @default([])
+  isCustom         Boolean               @default(false)
   order          Int                   @default(0)
   createdAt      DateTime              @default(now())
   updatedAt      DateTime              @updatedAt

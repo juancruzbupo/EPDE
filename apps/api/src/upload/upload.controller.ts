@@ -26,7 +26,14 @@ const ALLOWED_MIME_TYPES = new Set([
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
-const ALLOWED_FOLDERS = ['uploads', 'properties', 'tasks', 'service-requests', 'budgets'] as const;
+const ALLOWED_FOLDERS = [
+  'uploads',
+  'properties',
+  'tasks',
+  'service-requests',
+  'budgets',
+  'guides',
+] as const;
 
 const uploadBodySchema = z.object({
   folder: z.enum(ALLOWED_FOLDERS, {

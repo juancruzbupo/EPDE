@@ -10,8 +10,10 @@ import {
   TASK_TYPE_LABELS,
 } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import Markdown from 'react-markdown';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -30,7 +32,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { useCreateTaskTemplate, useUpdateTaskTemplate } from '@/hooks/use-category-templates';
+import { useUploadFile } from '@/hooks/use-upload';
 
 interface TaskTemplateDialogProps {
   open: boolean;
@@ -54,6 +58,8 @@ export function TaskTemplateDialog({
     handleSubmit,
     reset,
     control,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<CreateTaskTemplateInput>({
     // zodResolver + z.default() causes input/output type mismatch — safe to cast
@@ -81,6 +87,8 @@ export function TaskTemplateDialog({
         recurrenceMonths: task.recurrenceMonths,
         estimatedDurationMinutes: task.estimatedDurationMinutes ?? undefined,
         defaultSector: task.defaultSector ?? undefined,
+        inspectionGuide: task.inspectionGuide ?? undefined,
+        guideImageUrls: task.guideImageUrls ?? [],
         displayOrder: task.displayOrder,
       });
     } else {
@@ -116,7 +124,7 @@ export function TaskTemplateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Editar Tarea Template' : 'Nueva Tarea Template'}</DialogTitle>
           <DialogDescription>Configurá los datos de la plantilla de tarea.</DialogDescription>
@@ -283,6 +291,14 @@ export function TaskTemplateDialog({
             <Input id="tpl-task-tech-desc" {...register('technicalDescription')} />
           </div>
 
+          <GuideEditorSection control={control} register={register} />
+          <GuideImageSection
+            task={task}
+            categoryId={categoryId}
+            setValue={setValue}
+            watch={watch}
+          />
+
           <div className="space-y-2">
             <Label htmlFor="tpl-task-order">Orden</Label>
             <Input
@@ -305,5 +321,144 @@ export function TaskTemplateDialog({
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// ─── Guide Editor (Markdown) ──────────────────────────
+
+function GuideEditorSection({
+  control,
+  register,
+}: {
+  control: ReturnType<typeof useForm<CreateTaskTemplateInput>>['control'];
+  register: ReturnType<typeof useForm<CreateTaskTemplateInput>>['register'];
+}) {
+  const [previewMode, setPreviewMode] = useState(false);
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <Label>Guía de inspección (markdown)</Label>
+        <Controller
+          name="inspectionGuide"
+          control={control}
+          render={({ field }) =>
+            field.value ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="text-xs"
+                onClick={() => setPreviewMode(!previewMode)}
+              >
+                {previewMode ? 'Editar' : 'Vista previa'}
+              </Button>
+            ) : (
+              <span />
+            )
+          }
+        />
+      </div>
+      <Controller
+        name="inspectionGuide"
+        control={control}
+        render={({ field }) =>
+          previewMode && field.value ? (
+            <div className="prose prose-sm dark:prose-invert border-border max-h-60 max-w-none overflow-y-auto rounded-md border p-3">
+              <Markdown>{field.value}</Markdown>
+            </div>
+          ) : (
+            <Textarea
+              {...register('inspectionGuide')}
+              rows={6}
+              placeholder="## Qué buscar&#10;- Fisuras diagonales&#10;- Manchas de humedad&#10;&#10;## Criterios&#10;| Estado | Condición |&#10;|--------|-----------|&#10;| OK | Sin hallazgos |"
+              className="font-mono text-xs"
+            />
+          )
+        }
+      />
+      <p className="text-muted-foreground text-xs">
+        Instrucciones detalladas para la arquitecta. Soporta markdown (títulos, listas, tablas).
+      </p>
+    </div>
+  );
+}
+
+// ─── Guide Images ─────────────────────────────────────
+
+function GuideImageSection({
+  task,
+  categoryId: _categoryId,
+  setValue,
+  watch,
+}: {
+  task: TaskTemplate | null;
+  categoryId: string;
+  setValue: ReturnType<typeof useForm<CreateTaskTemplateInput>>['setValue'];
+  watch: ReturnType<typeof useForm<CreateTaskTemplateInput>>['watch'];
+}) {
+  const uploadFile = useUploadFile();
+  const urls = watch('guideImageUrls') ?? [];
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const result = await uploadFile.mutateAsync({ file, folder: 'guides' });
+    setValue('guideImageUrls', [...urls, result]);
+  };
+
+  const removeImage = (index: number) => {
+    setValue(
+      'guideImageUrls',
+      urls.filter((_, i) => i !== index),
+    );
+  };
+
+  return (
+    <div className="space-y-2">
+      <Label>Imágenes de referencia ({urls.length}/10)</Label>
+      {urls.length > 0 && (
+        <div className="grid grid-cols-3 gap-2">
+          {urls.map((url, i) => (
+            <div key={i} className="group relative">
+              <img
+                src={url}
+                alt={`Referencia ${i + 1} para ${task?.name ?? 'tarea'}`}
+                className="border-border h-24 w-full rounded-md border object-cover"
+              />
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
+                onClick={() => removeImage(i)}
+                aria-label="Eliminar imagen"
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+      {urls.length < 10 && (
+        <label className="border-border text-muted-foreground hover:border-primary hover:text-primary flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed p-3 text-xs transition-colors">
+          {uploadFile.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <>
+              <Plus className="h-4 w-4" />
+              Agregar imagen
+            </>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleUpload}
+            disabled={uploadFile.isPending}
+          />
+        </label>
+      )}
+    </div>
   );
 }

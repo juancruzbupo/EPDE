@@ -16,6 +16,7 @@ export interface TaskTemplateSeed {
   recurrenceMonths: number;
   estimatedDurationMinutes?: number;
   defaultSector: PropertySector;
+  inspectionGuide?: string;
 }
 
 export interface CategoryTemplateSeed {
@@ -44,6 +45,25 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
         defaultSector: 'EXTERIOR',
+        inspectionGuide: `## Qué buscar
+- Fisuras diagonales en uniones viga-columna (indican asentamiento diferencial)
+- Fisuras horizontales en columnas (empuje lateral o sobrecarga)
+- Manchas blancas (eflorescencias = sales por humedad)
+- Armadura expuesta u oxidada (corrosión del acero)
+- Deformaciones visibles (pandeo, desplome)
+
+## Cómo evaluar
+| Estado | Criterio |
+|--------|----------|
+| ✅ OK | Sin fisuras nuevas, sin manchas, estructura firme |
+| ⚠️ Atención | Fisura <2mm, manchas leves, eflorescencias aisladas |
+| 🔴 Profesional | Fisura >2mm activa, armadura oxidada, deformación |
+
+## Tips de campo
+- Usar linterna en zonas oscuras (subsuelo, entretecho)
+- Fotografiar con referencia de escala (moneda o regla)
+- Marcar fisuras con cinta adhesiva y fecha para seguimiento
+- Golpear suavemente con nudillos: sonido hueco = desprendimiento`,
       },
       {
         name: 'Control de fisuras en muros',
@@ -172,6 +192,33 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceMonths: 6,
         estimatedDurationMinutes: 40,
         defaultSector: 'ROOF',
+        inspectionGuide: `## Qué buscar
+- Burbujas en la superficie (delaminación)
+- Fisuras o grietas (especialmente en bordes y solapes)
+- Zonas con agua estancada (falta de pendiente)
+- Vegetación creciendo sobre la membrana (raíces perforan)
+- Bordes despegados en perímetro y encuentros con muros
+- Estado general: flexible vs reseca/quebradiza
+
+## Cómo evaluar
+| Estado | Criterio |
+|--------|----------|
+| ✅ OK | Membrana íntegra, sin agua estancada, bordes sellados |
+| ⚠️ Atención | Burbujas aisladas, fisuras superficiales |
+| 🔴 Profesional | Membrana quebradiza, filtración activa, agua estancada |
+
+## Procedimiento
+1. Subir al techo con precaución (calzado antideslizante)
+2. Recorrer toda la superficie buscando anomalías
+3. Verificar solapes entre paños (mínimo 10cm de sobreposición)
+4. Tocar la membrana: debe ser flexible, no quebradiza
+5. Verificar encuentros con muros, chimeneas, ventilaciones
+6. Fotografiar hallazgos con referencia de ubicación
+
+## Vida útil
+- Membrana asfáltica: ~10 años (según exposición solar)
+- Membrana líquida: ~5-7 años
+- Si está reseca y se quiebra al doblar → fin de vida útil`,
       },
       {
         name: 'Limpieza de canaletas y bajadas pluviales',
@@ -312,6 +359,31 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceMonths: 12,
         estimatedDurationMinutes: 30,
         defaultSector: 'INSTALLATIONS',
+        inspectionGuide: `## Qué buscar
+- Térmicas correctas por circuito (no puenteadas)
+- Diferencial presente y funcional (30mA mínimo, norma AEA)
+- Cables con aislación íntegra (sin derretir, sin oscurecer)
+- Bornes ajustados (no girar, verificar visualmente)
+- Signos de calentamiento: plástico deformado, olor a quemado
+- Etiquetado de circuitos legible
+
+## Cómo evaluar
+| Estado | Criterio |
+|--------|----------|
+| ✅ OK | Tablero limpio, etiquetado, sin signos de calor |
+| ⚠️ Atención | Etiquetas faltantes, cable flojo visible |
+| 🔴 Profesional | Signos de arco eléctrico, cables sin aislación, sin diferencial |
+
+## Procedimiento
+1. Abrir tapa del tablero (NO tocar cables internos)
+2. Verificar visualmente estado general
+3. Contar circuitos vs protecciones
+4. Presionar botón TEST del diferencial (debe cortar)
+5. Fotografiar el tablero completo
+
+## Normativa
+- Norma AEA 90364 — instalaciones eléctricas en inmuebles
+- Diferencial 30mA obligatorio según ENRE`,
       },
       {
         name: 'Medición de puesta a tierra',
@@ -452,6 +524,31 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceMonths: 6,
         estimatedDurationMinutes: 30,
         defaultSector: 'TERRACE',
+        inspectionGuide: `## Qué buscar
+- Tapa cerrada y en buen estado (previene contaminación)
+- Flotante funcionando (debe llenar y cortar correctamente)
+- Sin pérdidas en uniones y válvulas
+- Estado del tanque: fisuras, corrosión, decoloración
+- Soportes/base firmes (sin oxidación ni deformación)
+
+## Cómo evaluar
+| Estado | Criterio |
+|--------|----------|
+| ✅ OK | Tapa cerrada, flotante funcional, sin pérdidas |
+| ⚠️ Atención | Tapa deteriorada, flotante lento, sedimento visible |
+| 🔴 Profesional | Tanque de fibrocemento con fisuras, pérdida en base |
+
+## Procedimiento
+1. Verificar acceso al tanque (escalera segura)
+2. Abrir tapa y observar estado del agua (color, olor)
+3. Verificar flotante: bajar boya manualmente y soltar
+4. Inspeccionar exterior: buscar manchas de humedad o goteo
+5. Verificar soportes en tanques elevados
+
+## IMPORTANTE
+- Tanques de fibrocemento antiguos pueden contener AMIANTO
+- NO lijar, perforar ni romper tanques de fibrocemento
+- Si tiene fisuras → reemplazar completo (profesional especializado)`,
       },
       {
         name: 'Limpieza y desinfección de tanque',
@@ -580,6 +677,32 @@ export const TEMPLATE_SEED_DATA: CategoryTemplateSeed[] = [
         recurrenceMonths: 12,
         estimatedDurationMinutes: 60,
         defaultSector: 'INSTALLATIONS',
+        inspectionGuide: `## Qué buscar
+- Color de llama: azul = correcto, amarilla/naranja = mala combustión
+- Hollín alrededor de quemadores o en paredes/techo
+- Olor a gas (fugas en conexiones)
+- Estado de flexibles: fecha de vencimiento estampada (máx 2 años)
+- Ventilaciones: rejilla baja (entrada aire) + rejilla alta (salida)
+- Llaves de paso individuales por artefacto
+
+## Cómo evaluar
+| Estado | Criterio |
+|--------|----------|
+| ✅ OK | Llama azul, flexibles vigentes, ventilaciones libres |
+| ⚠️ Atención | Flexible próximo a vencer, ventilación parcial |
+| 🔴 Profesional URGENTE | Olor a gas, llama amarilla, hollín, sin ventilación |
+
+## Procedimiento
+1. Encender cada artefacto y observar color de llama
+2. Verificar flexible: buscar fecha estampada en la manguera
+3. Verificar rejillas: pasar la mano y sentir circulación de aire
+4. Verificar llave de paso: girar para confirmar que corta el gas
+5. Oler alrededor de conexiones (gas natural es odorizado)
+
+## PELIGRO
+- NO usar fósforos para buscar fugas
+- Si detecta olor a gas: NO tocar interruptores, ventilar y evacuar
+- Requiere gasista matriculado ENARGAS para cualquier reparación`,
       },
       {
         name: 'Control de llama piloto y quemadores',

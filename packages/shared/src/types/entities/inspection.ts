@@ -13,6 +13,8 @@ export interface InspectionItem {
   photoUrl: string | null;
   taskId: string | null;
   taskTemplateId: string | null;
+  inspectionGuide: string | null;
+  guideImageUrls: string[];
   isCustom: boolean;
   order: number;
   createdAt: string;
