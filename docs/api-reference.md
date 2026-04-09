@@ -528,6 +528,16 @@ Flujo principal: Inspección visual → Generación de plan de mantenimiento.
    - NEEDS_PROFESSIONAL → URGENT + professionalRequirement: PROFESSIONAL_REQUIRED, riskScore alto
    - Cada task incluye `riskScore` (0-18) calculado como `priority × severity × sector_weight`
    - Se crea un TaskLog baseline por cada tarea para alimentar el ISV desde día 1
+   - Las guías de inspección (`inspectionGuide` + `guideImageUrls`) se copian del template al item
+
+**Campos nuevos en respuestas:**
+
+- `InspectionItem.inspectionGuide` — guía markdown copiada del template
+- `InspectionItem.guideImageUrls` — imágenes de referencia
+- `Task.riskScore` — índice de riesgo compuesto (0-18)
+- `Task.inspectionFinding` — hallazgo copiado de la inspección
+- `MaintenancePlan.sourceInspectionId` — inspección que generó el plan
+  - Se crea un TaskLog baseline por cada tarea para alimentar el ISV desde día 1
 
 ---
 

@@ -20,21 +20,23 @@ const BCRYPT_SALT_ROUNDS = 12;
 
 // —— Helpers ——————————————————————————————————————————————————————————————————
 
-/** Fecha relativa a hoy (Feb 28, 2026) */
+/** Fecha relativa al momento del seed (siempre actual). */
+const SEED_NOW = new Date();
+
 function daysAgo(days: number): Date {
-  const d = new Date('2026-02-28T12:00:00Z');
+  const d = new Date(SEED_NOW);
   d.setDate(d.getDate() - days);
   return d;
 }
 
 function monthsAgo(months: number): Date {
-  const d = new Date('2026-02-28T12:00:00Z');
+  const d = new Date(SEED_NOW);
   d.setMonth(d.getMonth() - months);
   return d;
 }
 
 function monthsFromNow(months: number): Date {
-  const d = new Date('2026-02-28T12:00:00Z');
+  const d = new Date(SEED_NOW);
   d.setMonth(d.getMonth() + months);
   return d;
 }

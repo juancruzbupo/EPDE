@@ -487,21 +487,23 @@ Checklist de inspección visual de una propiedad. Genera los items desde TaskTem
 
 Item individual de una inspección. Cada item corresponde a un TaskTemplate y se evalúa como OK, Necesita atención, o Requiere profesional.
 
-| Campo          | Tipo                 | Notas                                   |
-| -------------- | -------------------- | --------------------------------------- |
-| id             | UUID                 | PK                                      |
-| checklistId    | String               | FK → InspectionChecklist (cascade)      |
-| sector         | PropertySector       | Sector de la vivienda                   |
-| name           | String(200)          | Nombre del punto de inspección          |
-| description    | String(2000)?        | Descripción del template                |
-| status         | InspectionItemStatus | Default: PENDING                        |
-| finding        | String(2000)?        | Hallazgo encontrado                     |
-| photoUrl       | String?              | Foto del hallazgo                       |
-| taskId         | String?              | FK → Task (se vincula al generar plan)  |
-| taskTemplateId | String?              | ID del TaskTemplate origen              |
-| isCustom       | Boolean              | Default: false (true = agregado manual) |
-| order          | Int                  | Orden dentro del checklist              |
-| deletedAt      | DateTime?            | Soft delete                             |
+| Campo           | Tipo                 | Notas                                   |
+| --------------- | -------------------- | --------------------------------------- |
+| id              | UUID                 | PK                                      |
+| checklistId     | String               | FK → InspectionChecklist (cascade)      |
+| sector          | PropertySector       | Sector de la vivienda                   |
+| name            | String(200)          | Nombre del punto de inspección          |
+| description     | String(2000)?        | Descripción del template                |
+| status          | InspectionItemStatus | Default: PENDING                        |
+| finding         | String(2000)?        | Hallazgo encontrado                     |
+| photoUrl        | String?              | Foto del hallazgo                       |
+| taskId          | String?              | FK → Task (se vincula al generar plan)  |
+| taskTemplateId  | String?              | ID del TaskTemplate origen              |
+| inspectionGuide | Text?                | Guía markdown (snapshot del template)   |
+| guideImageUrls  | String[]             | URLs de imágenes de referencia          |
+| isCustom        | Boolean              | Default: false (true = agregado manual) |
+| order           | Int                  | Orden dentro del checklist              |
+| deletedAt       | DateTime?            | Soft delete                             |
 
 **Indices:** `[checklistId, sector]`, `[checklistId, order]`, `[taskTemplateId]`
 **Soft delete:** Si — via Prisma extension
@@ -539,8 +541,11 @@ Item individual de una inspección. Cada item corresponde a un TaskTemplate y se
 | createdAt                | DateTime                |                       |
 | updatedAt                | DateTime                |                       |
 
-**Indices:** `categoryId`
+**Indices:** `categoryId`, `[categoryId, displayOrder]`
 **Cascade:** onDelete de CategoryTemplate elimina sus TaskTemplates
+**inspectionGuide:** Markdown con secciones (Qué buscar, Cómo evaluar, Procedimiento, Normativa). Editable desde admin con formulario estructurado. 152/152 templates tienen guía.
+
+> **Campos no listados arriba (agregados recientemente):** `defaultSector` (PropertySector?, sector donde aplica la tarea), `inspectionGuide` (Text?, guía markdown de inspección), `guideImageUrls` (String[], URLs de imágenes de referencia para la guía).
 
 ## Notas de Implementacion
 
