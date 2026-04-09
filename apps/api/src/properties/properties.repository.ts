@@ -94,29 +94,15 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
     squareMeters?: number;
     createdBy?: string;
   }) {
-    return this.prisma.$transaction(
-      async (tx) => {
-        const property = await tx.property.create({ data });
-
-        await tx.maintenancePlan.create({
-          data: {
-            propertyId: property.id,
-            name: `Plan de Mantenimiento — ${property.address}`,
-            status: PlanStatus.DRAFT,
-            createdBy: data.createdBy,
-          },
-        });
-
-        return tx.property.findUnique({
-          where: { id: property.id },
-          include: {
-            user: { select: { id: true, name: true, email: true } },
-            maintenancePlan: true,
-          },
-        });
+    // Plan is NOT auto-created. It's generated from the inspection via
+    // POST /inspections/:id/generate-plan after the architect completes the inspection.
+    return this.prisma.property.create({
+      data,
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+        maintenancePlan: true,
       },
-      { timeout: 10_000 },
-    );
+    });
   }
 
   /**
