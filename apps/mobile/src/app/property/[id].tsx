@@ -9,6 +9,7 @@ import {
   RefreshControl,
   SectionList,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 
@@ -55,6 +56,7 @@ export default function PropertyDetailScreen() {
   const isAdmin = user?.role === UserRole.ADMIN;
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
   const [categoryFilter, setCategoryFilter] = useState<string | undefined>(undefined);
+  const [search, setSearch] = useState('');
   const [completeTask, setCompleteTask] = useState<TaskPublic | null>(null);
   const [showServiceModal, setShowServiceModal] = useState(false);
   const updatePlan = useUpdatePlan();
@@ -142,6 +144,12 @@ export default function PropertyDetailScreen() {
     if (categoryFilter) {
       result = result.filter((t) => t.category.id === categoryFilter);
     }
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(
+        (t) => t.name.toLowerCase().includes(q) || t.category.name.toLowerCase().includes(q),
+      );
+    }
 
     const grouped = new Map<string, TaskPublic[]>();
     for (const task of result) {
@@ -150,8 +158,13 @@ export default function PropertyDetailScreen() {
       grouped.get(cat)!.push(task);
     }
 
+    // Sort tasks within each category by riskScore (highest first)
+    for (const tasks of grouped.values()) {
+      tasks.sort((a, b) => (b.riskScore ?? 0) - (a.riskScore ?? 0));
+    }
+
     return Array.from(grouped.entries()).map(([title, data]) => ({ title, data }));
-  }, [plan?.tasks, statusFilter, categoryFilter]);
+  }, [plan?.tasks, statusFilter, categoryFilter, search]);
 
   const onRefresh = useCallback(() => {
     refetchProperty();
@@ -336,6 +349,53 @@ export default function PropertyDetailScreen() {
 
             {/* Photos section */}
             {photos && photos.length > 0 && <PropertyPhotosSection photos={photos} />}
+
+            {/* Task status summary */}
+            {plan?.tasks && plan.tasks.length > 0 && (
+              <View className="mb-3 flex-row gap-3">
+                {[
+                  {
+                    label: 'Vencidas',
+                    count: plan.tasks.filter((t) => t.status === TaskStatus.OVERDUE).length,
+                    color: 'text-destructive',
+                  },
+                  {
+                    label: 'Próximas',
+                    count: plan.tasks.filter((t) => t.status === TaskStatus.UPCOMING).length,
+                    color: 'text-primary',
+                  },
+                  {
+                    label: 'Pendientes',
+                    count: plan.tasks.filter((t) => t.status === TaskStatus.PENDING).length,
+                    color: 'text-muted-foreground',
+                  },
+                ].map((stat) => (
+                  <View
+                    key={stat.label}
+                    className="bg-card border-border flex-1 items-center rounded-xl border py-2"
+                  >
+                    <Text style={TYPE.titleMd} className={stat.color}>
+                      {stat.count}
+                    </Text>
+                    <Text style={TYPE.labelSm} className="text-muted-foreground">
+                      {stat.label}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* Search */}
+            {planId && (
+              <TextInput
+                value={search}
+                onChangeText={setSearch}
+                placeholder="Buscar tarea..."
+                placeholderTextColor="#999"
+                accessibilityLabel="Buscar tareas"
+                className="border-border bg-card text-foreground mb-3 rounded-xl border px-4 py-3 text-sm"
+              />
+            )}
 
             {/* Status filter tabs */}
             {planId && (

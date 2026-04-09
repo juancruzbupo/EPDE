@@ -45,6 +45,7 @@ export interface TaskListItem {
   sector: PropertySector | null;
   nextDueDate: string | null;
   recurrenceType: RecurrenceType;
+  riskScore: number;
   category: { id: string; name: string; icon: string | null };
   maintenancePlan: {
     id: string;

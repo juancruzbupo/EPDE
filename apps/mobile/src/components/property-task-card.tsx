@@ -47,6 +47,21 @@ export function PropertyTaskCard({ task, planId }: PropertyTaskCardProps) {
       </View>
       <View className="ml-4 flex-row flex-wrap items-center gap-x-2 gap-y-0.5">
         <TaskStatusBadge status={task.status} />
+        {task.riskScore > 0 && (
+          <Text
+            style={TYPE.labelMd}
+            className={
+              task.riskScore >= 12
+                ? 'text-destructive'
+                : task.riskScore >= 6
+                  ? 'text-warning'
+                  : 'text-muted-foreground'
+            }
+            accessibilityLabel={`Riesgo: ${task.riskScore}`}
+          >
+            Riesgo: {task.riskScore}
+          </Text>
+        )}
         {task.sector && (
           <Text
             style={TYPE.labelMd}

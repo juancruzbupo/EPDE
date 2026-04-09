@@ -80,15 +80,31 @@ const TaskCard = memo(function TaskCard({ task }: { task: TaskListItem }) {
           <TaskStatusBadge status={task.status} />
         </View>
       </View>
-      <Text
-        style={TYPE.bodySm}
-        className="text-muted-foreground mb-1"
-        ellipsizeMode="tail"
-        numberOfLines={1}
-      >
-        {task.category.name}
-        {task.sector && ` · ${PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}`}
-      </Text>
+      <View className="mb-1 flex-row flex-wrap items-center gap-x-2">
+        <Text
+          style={TYPE.bodySm}
+          className="text-muted-foreground"
+          ellipsizeMode="tail"
+          numberOfLines={1}
+        >
+          {task.category.name}
+          {task.sector && ` · ${PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}`}
+        </Text>
+        {task.riskScore > 0 && (
+          <Text
+            style={TYPE.labelSm}
+            className={
+              task.riskScore >= 12
+                ? 'text-destructive'
+                : task.riskScore >= 6
+                  ? 'text-warning'
+                  : 'text-muted-foreground'
+            }
+          >
+            Riesgo: {task.riskScore}
+          </Text>
+        )}
+      </View>
       {task.professionalRequirement !== ProfessionalRequirement.OWNER_CAN_DO && (
         <Text style={TYPE.labelSm} className="text-warning mt-0.5">
           Requiere profesional
