@@ -13,7 +13,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import Markdown from 'react-markdown';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -35,6 +34,8 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useCreateTaskTemplate, useUpdateTaskTemplate } from '@/hooks/use-category-templates';
 import { useUploadFile } from '@/hooks/use-upload';
+
+import { InspectionGuideRenderer } from '../../../properties/[id]/inspection-guide-renderer';
 
 interface TaskTemplateDialogProps {
   open: boolean;
@@ -364,8 +365,8 @@ function GuideEditorSection({
         control={control}
         render={({ field }) =>
           previewMode && field.value ? (
-            <div className="prose prose-sm dark:prose-invert border-border max-h-60 max-w-none overflow-y-auto rounded-md border p-3">
-              <Markdown>{field.value}</Markdown>
+            <div className="border-border max-h-60 overflow-y-auto rounded-md border p-3">
+              <InspectionGuideRenderer content={field.value} />
             </div>
           ) : (
             <Textarea
