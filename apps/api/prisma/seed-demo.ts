@@ -50,6 +50,10 @@ const ids = {
   carlosProp: randomUUID(),
   lauraProp: randomUUID(),
 
+  mariaInspection: randomUUID(),
+  carlosInspection: randomUUID(),
+  lauraInspection: randomUUID(),
+
   mariaPlan: randomUUID(),
   carlosPlan: randomUUID(),
   lauraPlan: randomUUID(),
@@ -1158,12 +1162,53 @@ export async function seedDemo(prisma: PrismaClient) {
     },
   });
 
+  // Inspección visual que originó el plan (simula flujo inspección → plan)
+  const mariaInspection = await prisma.inspectionChecklist.create({
+    data: {
+      id: ids.mariaInspection,
+      propertyId: mariaProp.id,
+      inspectedBy: admin.id,
+      inspectedAt: monthsAgo(18),
+      notes:
+        'Casa de 1985. Estructura general buena, algunos puntos de atención en humedad y techo.',
+      items: {
+        create: [
+          { sector: 'EXTERIOR', name: 'Estado general fachada', status: 'OK', order: 0 },
+          {
+            sector: 'ROOF',
+            name: 'Membrana hidrófuga',
+            status: 'NEEDS_ATTENTION',
+            finding: 'Membrana con desgaste visible en zona NE',
+            order: 1,
+          },
+          { sector: 'INSTALLATIONS', name: 'Tablero eléctrico', status: 'OK', order: 2 },
+          { sector: 'INSTALLATIONS', name: 'Instalación de gas', status: 'OK', order: 3 },
+          {
+            sector: 'BASEMENT',
+            name: 'Humedad en cimientos',
+            status: 'NEEDS_PROFESSIONAL',
+            finding: 'Humedad ascendente en muro medianero sur, eflorescencias visibles',
+            order: 4,
+          },
+          {
+            sector: 'INTERIOR',
+            name: 'Fisuras en muros',
+            status: 'NEEDS_ATTENTION',
+            finding: 'Fisura diagonal en muro dormitorio principal, ~1.5mm',
+            order: 5,
+          },
+        ],
+      },
+    },
+  });
+
   const mariaPlan = await prisma.maintenancePlan.create({
     data: {
       id: ids.mariaPlan,
       propertyId: mariaProp.id,
       name: 'Plan de Mantenimiento Preventivo',
       status: 'ACTIVE',
+      sourceInspectionId: mariaInspection.id,
       createdAt: monthsAgo(18),
       createdBy: admin.id,
     },
@@ -2169,12 +2214,44 @@ export async function seedDemo(prisma: PrismaClient) {
     },
   });
 
+  const carlosInspection = await prisma.inspectionChecklist.create({
+    data: {
+      id: ids.carlosInspection,
+      propertyId: carlosProp.id,
+      inspectedBy: admin.id,
+      inspectedAt: monthsAgo(6),
+      notes: 'Casa moderna 2015. Buen estado general, priorizar seguridad en gas y eléctrica.',
+      items: {
+        create: [
+          { sector: 'EXTERIOR', name: 'Fachada y pintura', status: 'OK', order: 0 },
+          { sector: 'ROOF', name: 'Cubierta y canaletas', status: 'OK', order: 1 },
+          {
+            sector: 'INSTALLATIONS',
+            name: 'Tablero eléctrico',
+            status: 'NEEDS_ATTENTION',
+            finding: 'Etiquetado incompleto de circuitos',
+            order: 2,
+          },
+          {
+            sector: 'INSTALLATIONS',
+            name: 'Instalación de gas',
+            status: 'NEEDS_ATTENTION',
+            finding: 'Flexible de cocina próximo a vencer',
+            order: 3,
+          },
+          { sector: 'GARDEN', name: 'Jardín y exteriores', status: 'OK', order: 4 },
+        ],
+      },
+    },
+  });
+
   const carlosPlan = await prisma.maintenancePlan.create({
     data: {
       id: ids.carlosPlan,
       propertyId: carlosProp.id,
       name: 'Plan de Mantenimiento Preventivo',
       status: 'ACTIVE',
+      sourceInspectionId: carlosInspection.id,
       createdAt: monthsAgo(6),
       createdBy: admin.id,
     },
@@ -2525,12 +2602,31 @@ export async function seedDemo(prisma: PrismaClient) {
     },
   });
 
+  const lauraInspection = await prisma.inspectionChecklist.create({
+    data: {
+      id: ids.lauraInspection,
+      propertyId: lauraProp.id,
+      inspectedBy: admin.id,
+      inspectedAt: monthsAgo(1),
+      notes: 'Casa nueva 2023. Excelente estado general, plan preventivo de rutina.',
+      items: {
+        create: [
+          { sector: 'EXTERIOR', name: 'Fachada y pintura', status: 'OK', order: 0 },
+          { sector: 'ROOF', name: 'Cubierta', status: 'OK', order: 1 },
+          { sector: 'INSTALLATIONS', name: 'Instalaciones', status: 'OK', order: 2 },
+          { sector: 'INTERIOR', name: 'Interior general', status: 'OK', order: 3 },
+        ],
+      },
+    },
+  });
+
   const lauraPlan = await prisma.maintenancePlan.create({
     data: {
       id: ids.lauraPlan,
       propertyId: lauraProp.id,
       name: 'Plan de Mantenimiento Preventivo',
       status: 'ACTIVE',
+      sourceInspectionId: lauraInspection.id,
       createdAt: monthsAgo(1),
       createdBy: admin.id,
     },
