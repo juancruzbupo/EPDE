@@ -9,6 +9,7 @@ import {
   ChevronRight,
   Circle,
   ClipboardList,
+  Eye,
   FileText,
   Plus,
   Wrench,
@@ -27,6 +28,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -92,6 +94,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
   const [planNameDialog, setPlanNameDialog] = useState(false);
   const [planName, setPlanName] = useState('');
   const [collapsedSectors, setCollapsedSectors] = useState<Set<string>>(new Set());
+  const [guideItem, setGuideItem] = useState<InspectionChecklist['items'][0] | null>(null);
 
   const activeChecklist = inspections?.[0] ?? null;
 
@@ -303,9 +306,23 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
                           )}
                         </div>
                         {item.description && (
-                          <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
-                            {item.description}
-                          </p>
+                          <div className="mt-1 flex items-start gap-1">
+                            <p className="text-muted-foreground line-clamp-2 flex-1 text-xs leading-relaxed">
+                              {item.description}
+                            </p>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-muted-foreground hover:text-primary h-6 w-6 shrink-0 p-0"
+                              aria-label="Ver guía de inspección"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setGuideItem(item);
+                              }}
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
                         )}
                         {item.finding && (
                           <p className="mt-1 text-xs font-medium text-amber-700">
@@ -453,6 +470,102 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Inspection guide dialog */}
+      <Dialog
+        open={!!guideItem}
+        onOpenChange={(open) => {
+          if (!open) setGuideItem(null);
+        }}
+      >
+        <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="h-5 w-5" />
+              {guideItem?.name}
+            </DialogTitle>
+            <div className="flex gap-2 pt-1">
+              {guideItem?.sector && (
+                <Badge variant="outline" className="text-xs">
+                  {PROPERTY_SECTOR_LABELS[guideItem.sector as PropertySector] ?? guideItem.sector}
+                </Badge>
+              )}
+              {guideItem?.status && guideItem.status !== 'PENDING' && (
+                <Badge
+                  variant={
+                    STATUS_CONFIG[guideItem.status as InspectionItemStatus]?.variant ?? 'secondary'
+                  }
+                  className="text-xs"
+                >
+                  {STATUS_CONFIG[guideItem.status as InspectionItemStatus]?.label ??
+                    guideItem.status}
+                </Badge>
+              )}
+            </div>
+          </DialogHeader>
+
+          {guideItem?.description && (
+            <div className="space-y-3">
+              <InspectionGuideContent description={guideItem.description} />
+            </div>
+          )}
+
+          {guideItem?.finding && (
+            <>
+              <Separator />
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/30">
+                <p className="text-xs font-semibold text-amber-800 dark:text-amber-200">
+                  Hallazgo registrado
+                </p>
+                <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
+                  {guideItem.finding}
+                </p>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+/** Parses technicalDescription into formatted sections with highlighted criteria. */
+function InspectionGuideContent({ description }: { description: string }) {
+  // Split by "ATENCIÓN si:" and "PROFESIONAL si:" / "PROFESIONAL URGENTE si:"
+  const attentionMatch = description.match(/ATENCIÓN si:\s*(.*?)(?=PROFESIONAL|$)/s);
+  const professionalMatch = description.match(/PROFESIONAL(?:\s+URGENTE)?\s+si:\s*(.*?)$/s);
+
+  // Main text is everything before "ATENCIÓN si:" or "PROFESIONAL si:"
+  const mainText = description
+    .replace(/ATENCIÓN si:.*$/s, '')
+    .replace(/PROFESIONAL(?:\s+URGENTE)?\s+si:.*$/s, '')
+    .trim();
+
+  return (
+    <>
+      <p className="text-foreground text-sm leading-relaxed">{mainText}</p>
+
+      {attentionMatch?.[1] && (
+        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3 dark:border-yellow-800 dark:bg-yellow-950/30">
+          <p className="text-xs font-semibold text-yellow-800 dark:text-yellow-200">
+            ⚠️ Marcar &quot;Necesita atención&quot; si:
+          </p>
+          <p className="mt-1 text-sm text-yellow-700 dark:text-yellow-300">
+            {attentionMatch[1].trim().replace(/\.\s*$/, '')}
+          </p>
+        </div>
+      )}
+
+      {professionalMatch?.[1] && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-950/30">
+          <p className="text-xs font-semibold text-red-800 dark:text-red-200">
+            🔴 Marcar &quot;Requiere profesional&quot; si:
+          </p>
+          <p className="mt-1 text-sm text-red-700 dark:text-red-300">
+            {professionalMatch[1].trim().replace(/\.\s*$/, '')}
+          </p>
+        </div>
+      )}
+    </>
   );
 }
