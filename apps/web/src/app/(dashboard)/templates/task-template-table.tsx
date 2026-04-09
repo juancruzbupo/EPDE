@@ -38,7 +38,6 @@ export function TaskTemplateTable({ tasks, onEdit, onDelete }: TaskTemplateTable
           <TableHead>Profesional</TableHead>
           <TableHead>Prioridad</TableHead>
           <TableHead>Recurrencia</TableHead>
-          <TableHead>Duración</TableHead>
           <TableHead className="w-20">Acciones</TableHead>
         </TableRow>
       </TableHeader>
@@ -74,9 +73,6 @@ export function TaskTemplateTable({ tasks, onEdit, onDelete }: TaskTemplateTable
             </TableCell>
             <TableCell className="text-muted-foreground text-sm">
               {RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}
-            </TableCell>
-            <TableCell className="text-muted-foreground text-xs">
-              {task.estimatedDurationMinutes ? `${task.estimatedDurationMinutes} min` : '—'}
             </TableCell>
             <TableCell>
               <div className="flex gap-1">
