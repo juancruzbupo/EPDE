@@ -104,13 +104,6 @@ export class InspectionsRepository {
     });
   }
 
-  async linkTask(itemId: string, taskId: string) {
-    return this.prisma.inspectionItem.update({
-      where: { id: itemId },
-      data: { taskId },
-    });
-  }
-
   async updateNotes(checklistId: string, notes: string) {
     return this.prisma.inspectionChecklist.update({
       where: { id: checklistId },

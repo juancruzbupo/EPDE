@@ -240,6 +240,7 @@ model MaintenancePlan {
 
   @@index([status])
   @@index([createdBy])
+  @@index([sourceInspectionId])
 }
 
 model Category {
@@ -280,7 +281,7 @@ model Task {
   updatedBy                String?
   taskType                 TaskType                @default(INSPECTION)
   professionalRequirement  ProfessionalRequirement @default(OWNER_CAN_DO)
-  assignedToName           String?                 @db.VarChar(200)
+  assignedToName           String?                 @db.VarChar(200) /// Dormant — not used in UI. Future: replace with assignedToId FK.
   technicalDescription     String?                 @db.VarChar(1000)
   estimatedDurationMinutes Int?
   inspectionFinding        String?                 @db.VarChar(2000)
@@ -308,6 +309,7 @@ model Task {
   @@index([maintenancePlanId, sector])
   @@index([nextDueDate, status])
   @@index([maintenancePlanId, deletedAt, status])
+  @@index([riskScore])
 }
 
 model TaskLog {

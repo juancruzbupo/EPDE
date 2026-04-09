@@ -43,11 +43,6 @@ export const addInspectionItemSchema = z.object({
 });
 export type AddInspectionItemInput = z.infer<typeof addInspectionItemSchema>;
 
-export const linkTaskSchema = z.object({
-  taskId: z.string().uuid('ID de tarea inválido'),
-});
-export type LinkTaskInput = z.infer<typeof linkTaskSchema>;
-
 export const updateNotesSchema = z.object({
   notes: z.string().max(2000, 'Máximo 2000 caracteres'),
 });

@@ -65,11 +65,6 @@ export class InspectionsService {
     return this.repository.addItem(checklistId, data);
   }
 
-  async linkTask(itemId: string, taskId: string) {
-    await this.verifyItemAccess(itemId);
-    return this.repository.linkTask(itemId, taskId);
-  }
-
   async updateNotes(checklistId: string, notes: string) {
     await this.verifyChecklistAccess(checklistId);
     return this.repository.updateNotes(checklistId, notes);

@@ -9,7 +9,6 @@ import {
   addInspectionItemSchema,
   createInspectionSchema,
   generatePlanFromInspectionSchema,
-  linkTaskSchema,
   updateInspectionItemSchema,
   updateNotesSchema,
   UserRole,
@@ -87,16 +86,6 @@ export class InspectionsController {
     body: AddInspectionItemInput,
   ) {
     const data = await this.service.addItem(checklistId, body);
-    return { data };
-  }
-
-  @Patch('items/:itemId/link-task')
-  @Roles(UserRole.ADMIN)
-  async linkTask(
-    @Param('itemId', ParseUUIDPipe) itemId: string,
-    @Body(new ZodValidationPipe(linkTaskSchema)) body: { taskId: string },
-  ) {
-    const data = await this.service.linkTask(itemId, body.taskId);
     return { data };
   }
 
