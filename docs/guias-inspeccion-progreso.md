@@ -19,34 +19,35 @@ Seguimiento de guías markdown por categoría. Cada tarea necesita una guía det
 
 ## Progreso por categoría
 
-| #   | Categoría                    | Tareas  | Con guía | Estado       | Batch |
-| --- | ---------------------------- | ------- | -------- | ------------ | ----- |
-| 1   | Estructura                   | 10      | 5        | 🟡 Parcial   | 1     |
-| 2   | Techos y Cubiertas           | 10      | 1        | 🟡 Parcial   | 1     |
-| 3   | Instalación Eléctrica        | 10      | 1        | 🟡 Parcial   | 1     |
-| 4   | Instalación Sanitaria        | 12      | 1        | 🟡 Parcial   | 1     |
-| 5   | Gas y Calefacción            | 9       | 1        | 🟡 Parcial   | 1     |
-| 6   | Aberturas                    | 8       | 0        | 🔴 Pendiente | 1     |
-| 7   | Pintura y Revestimientos     | 8       | 0        | 🔴 Pendiente | 2     |
-| 8   | Jardín y Exteriores          | 13      | 0        | 🔴 Pendiente | 2     |
-| 9   | Climatización                | 7       | 0        | 🔴 Pendiente | 2     |
-| 10  | Humedad e Impermeabilización | 6       | 0        | 🔴 Pendiente | 2     |
-| 11  | Seguridad contra Incendio    | 6       | 0        | 🔴 Pendiente | 2     |
-| 12  | Control de Plagas            | 6       | 0        | 🔴 Pendiente | 2     |
-| 13  | Pisos y Contrapisos          | 5       | 0        | 🔴 Pendiente | 3     |
-| 14  | Mobiliario y Equipamiento    | 10      | 0        | 🔴 Pendiente | 3     |
-| 15  | Gas Envasado (GLP)           | 4       | 0        | 🔴 Pendiente | 3     |
-| 16  | Agua de Pozo                 | 4       | 0        | 🔴 Pendiente | 3     |
-| 17  | Energía Solar                | 5       | 0        | 🔴 Pendiente | 3     |
-| 18  | Domótica                     | 4       | 0        | 🔴 Pendiente | 3     |
-| 19  | Cielorraso                   | 4       | 0        | 🔴 Pendiente | 3     |
-| 20  | Protección Rayos             | 3       | 0        | 🔴 Pendiente | 3     |
-| 21  | Escaleras                    | 3       | 0        | 🔴 Pendiente | 3     |
-| 22  | Documentación                | 5       | 0        | 🔴 Pendiente | 3     |
-|     | **TOTAL**                    | **152** | **9**    |              |       |
+| #   | Categoría                    | Tareas  | Con guía | Estado      | Batch |
+| --- | ---------------------------- | ------- | -------- | ----------- | ----- |
+| 1   | Estructura                   | 10      | 10       | ✅ Completa | 1     |
+| 2   | Techos y Cubiertas           | 10      | 10       | ✅ Completa | 1     |
+| 3   | Instalación Eléctrica        | 10      | 10       | ✅ Completa | 1     |
+| 4   | Instalación Sanitaria        | 12      | 12       | ✅ Completa | 1     |
+| 5   | Gas y Calefacción            | 9       | 9        | ✅ Completa | 1     |
+| 6   | Aberturas                    | 8       | 8        | ✅ Completa | 1     |
+| 7   | Pintura y Revestimientos     | 8       | 8        | ✅ Completa | 2     |
+| 8   | Jardín y Exteriores          | 13      | 13       | ✅ Completa | 2     |
+| 9   | Climatización                | 7       | 7        | ✅ Completa | 2     |
+| 10  | Humedad e Impermeabilización | 6       | 6        | ✅ Completa | 2     |
+| 11  | Seguridad contra Incendio    | 6       | 6        | ✅ Completa | 2     |
+| 12  | Control de Plagas            | 6       | 6        | ✅ Completa | 2     |
+| 13  | Pisos y Contrapisos          | 5       | 5        | ✅ Completa | 3     |
+| 14  | Mobiliario y Equipamiento    | 10      | 10       | ✅ Completa | 3     |
+| 15  | Gas Envasado (GLP)           | 4       | 4        | ✅ Completa | 3     |
+| 16  | Agua de Pozo                 | 4       | 4        | ✅ Completa | 3     |
+| 17  | Energía Solar                | 5       | 5        | ✅ Completa | 3     |
+| 18  | Domótica                     | 4       | 4        | ✅ Completa | 3     |
+| 19  | Cielorraso                   | 4       | 4        | ✅ Completa | 3     |
+| 20  | Protección Rayos             | 3       | 3        | ✅ Completa | 3     |
+| 21  | Escaleras                    | 3       | 3        | ✅ Completa | 3     |
+| 22  | Documentación                | 5       | 5        | ✅ Completa | 3     |
+|     | **TOTAL**                    | **152** | **152**  |             |       |
 
 ## Notas
 
-- Las guías ya escritas (9) cubren las tareas más críticas de seguridad
+- **152/152 guías completadas** (2026-04-09)
 - La arquitecta puede editar/extender cualquier guía desde el panel admin
-- Cada guía incluye: Qué buscar, Cómo evaluar (tabla), Procedimiento, Normativa
+- Cada guía incluye: Qué buscar, Cómo evaluar (cards), Procedimiento, Normativa
+- Renderizado con `InspectionGuideRenderer` (UI rica, no markdown raw)

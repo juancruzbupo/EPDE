@@ -68,6 +68,9 @@ Actualizar cuando se agrega o modifica una feature en cualquier plataforma.
 | Agregar item custom              | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 |                                                        |
 | Generar plan desde inspección    | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Ajusta prioridades según hallazgos                     |
 | Ver inspecciones de propiedad    |     ✅      |      ❌       |        ❌        |                 ❌                 | Tab Inspección en detalle propiedad                    |
+| Guía de inspección (modal)       | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | 152 guías con UI rica, ojo por item                    |
+| Sectores colapsables             | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Colapsar/expandir sectores completados                 |
+| Editor de guías (admin)          | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Markdown + upload imágenes en templates                |
 | **Onboarding Tours**             |             |               |                  |                                    |                                                        |
 | Tours guiados (react-joyride)    |     ❌      |      ✅       |        ❌        |                 ❌                 | Solo rol CLIENT, se muestran una vez                   |
 | **Plantillas (Templates)**       |             |               |                  |                                    |                                                        |
