@@ -14,6 +14,7 @@ import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
+import { InspectionGuideRenderer } from '@/components/inspection-guide-renderer';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -34,8 +35,6 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useCreateTaskTemplate, useUpdateTaskTemplate } from '@/hooks/use-category-templates';
 import { useUploadFile } from '@/hooks/use-upload';
-
-import { InspectionGuideRenderer } from '../../../properties/[id]/inspection-guide-renderer';
 
 interface TaskTemplateDialogProps {
   open: boolean;

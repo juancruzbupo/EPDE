@@ -17,6 +17,7 @@ import {
 import { useMemo, useState } from 'react';
 
 import { ErrorState } from '@/components/error-state';
+import { InspectionGuideRenderer } from '@/components/inspection-guide-renderer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,8 +40,6 @@ import {
   useInspectionTemplates,
   useUpdateInspectionItem,
 } from '@/hooks/use-inspections';
-
-import { InspectionGuideRenderer } from './inspection-guide-renderer';
 
 const STATUS_CONFIG: Record<
   InspectionItemStatus,
