@@ -84,6 +84,9 @@ async function bootstrap() {
   }
 
   const port = configService.get<number>('PORT') ?? 3001;
-  await app.listen(port);
+  const server = await app.listen(port);
+
+  // Prevent slow clients from holding connections indefinitely (default: 120s → 30s)
+  server.setTimeout(30_000);
 }
 bootstrap();
