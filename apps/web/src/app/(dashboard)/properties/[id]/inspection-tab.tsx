@@ -115,7 +115,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
         description: item.description ?? undefined,
         taskTemplateId: item.taskTemplateId,
         inspectionGuide: item.inspectionGuide ?? undefined,
-        guideImageUrls: item.guideImageUrls.length > 0 ? item.guideImageUrls : undefined,
+        guideImageUrls: item.guideImageUrls?.length > 0 ? item.guideImageUrls : undefined,
         status: 'PENDING' as const,
         isCustom: false,
         order: sectorIdx * 100 + itemIdx,
