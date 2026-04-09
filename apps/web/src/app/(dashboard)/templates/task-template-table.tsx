@@ -2,6 +2,7 @@ import type { TaskTemplate } from '@epde/shared';
 import {
   PRIORITY_VARIANT,
   PROFESSIONAL_REQUIREMENT_LABELS,
+  PROPERTY_SECTOR_LABELS,
   RECURRENCE_TYPE_LABELS,
   TASK_PRIORITY_LABELS,
   TASK_TYPE_LABELS,
@@ -32,10 +33,12 @@ export function TaskTemplateTable({ tasks, onEdit, onDelete }: TaskTemplateTable
         <TableRow>
           <TableHead>#</TableHead>
           <TableHead>Nombre</TableHead>
+          <TableHead>Sector</TableHead>
           <TableHead>Tipo</TableHead>
           <TableHead>Profesional</TableHead>
           <TableHead>Prioridad</TableHead>
           <TableHead>Recurrencia</TableHead>
+          <TableHead>Duración</TableHead>
           <TableHead className="w-20">Acciones</TableHead>
         </TableRow>
       </TableHeader>
@@ -44,6 +47,11 @@ export function TaskTemplateTable({ tasks, onEdit, onDelete }: TaskTemplateTable
           <TableRow key={task.id}>
             <TableCell className="text-muted-foreground text-xs">{task.displayOrder}</TableCell>
             <TableCell className="font-medium">{task.name}</TableCell>
+            <TableCell className="text-muted-foreground text-xs">
+              {task.defaultSector
+                ? (PROPERTY_SECTOR_LABELS[task.defaultSector] ?? task.defaultSector)
+                : '—'}
+            </TableCell>
             <TableCell>
               <span
                 className={`rounded px-1.5 py-0.5 text-xs ${TASK_TYPE_COLORS[task.taskType] ?? ''}`}
@@ -66,6 +74,9 @@ export function TaskTemplateTable({ tasks, onEdit, onDelete }: TaskTemplateTable
             </TableCell>
             <TableCell className="text-muted-foreground text-sm">
               {RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}
+            </TableCell>
+            <TableCell className="text-muted-foreground text-xs">
+              {task.estimatedDurationMinutes ? `${task.estimatedDurationMinutes} min` : '—'}
             </TableCell>
             <TableCell>
               <div className="flex gap-1">
