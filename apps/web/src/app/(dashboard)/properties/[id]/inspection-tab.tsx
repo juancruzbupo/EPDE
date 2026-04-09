@@ -506,9 +506,15 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
               <Markdown>{guideItem.inspectionGuide}</Markdown>
             </div>
           ) : guideItem?.description ? (
-            <div className="space-y-3">
-              <InspectionGuideContent description={guideItem.description} />
-            </div>
+            guideItem.description.includes('##') || guideItem.description.includes('| ') ? (
+              <div className="prose prose-sm dark:prose-invert max-w-none">
+                <Markdown>{guideItem.description}</Markdown>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <InspectionGuideContent description={guideItem.description} />
+              </div>
+            )
           ) : null}
 
           {/* Guide images gallery */}
