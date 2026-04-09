@@ -15,7 +15,6 @@ import {
   Wrench,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import Markdown from 'react-markdown';
 
 import { ErrorState } from '@/components/error-state';
 import { Badge } from '@/components/ui/badge';
@@ -40,6 +39,8 @@ import {
   useInspectionTemplates,
   useUpdateInspectionItem,
 } from '@/hooks/use-inspections';
+
+import { InspectionGuideRenderer } from './inspection-guide-renderer';
 
 const STATUS_CONFIG: Record<
   InspectionItemStatus,
@@ -500,16 +501,12 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
             </div>
           </DialogHeader>
 
-          {/* Markdown guide (priority) or fallback to description */}
+          {/* Rich guide renderer or fallback to description */}
           {guideItem?.inspectionGuide ? (
-            <div className="prose prose-sm dark:prose-invert max-w-none">
-              <Markdown>{guideItem.inspectionGuide}</Markdown>
-            </div>
+            <InspectionGuideRenderer content={guideItem.inspectionGuide} />
           ) : guideItem?.description ? (
-            guideItem.description.includes('##') || guideItem.description.includes('| ') ? (
-              <div className="prose prose-sm dark:prose-invert max-w-none">
-                <Markdown>{guideItem.description}</Markdown>
-              </div>
+            guideItem.description.includes('##') ? (
+              <InspectionGuideRenderer content={guideItem.description} />
             ) : (
               <div className="space-y-3">
                 <InspectionGuideContent description={guideItem.description} />
