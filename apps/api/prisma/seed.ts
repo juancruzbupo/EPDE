@@ -18,19 +18,84 @@ const BCRYPT_SALT_ROUNDS = 12;
 // Names MUST match CategoryTemplate names in TEMPLATE_SEED_DATA
 // so the FK linkage can be established during seeding.
 const CATEGORY_DEFAULTS = [
-  { name: 'Estructura', icon: 'building', order: 1 },
-  { name: 'Techos y Cubiertas', icon: 'home', order: 2 },
-  { name: 'Instalación Eléctrica', icon: 'zap', order: 3 },
-  { name: 'Instalación Sanitaria', icon: 'droplets', order: 4 },
-  { name: 'Gas y Calefacción', icon: 'flame', order: 5 },
-  { name: 'Aberturas', icon: 'door-open', order: 6 },
-  { name: 'Pintura y Revestimientos', icon: 'paintbrush', order: 7 },
-  { name: 'Jardín y Exteriores', icon: 'trees', order: 8 },
-  { name: 'Climatización', icon: 'thermometer', order: 9 },
-  { name: 'Humedad e Impermeabilización', icon: 'droplet', order: 10 },
-  { name: 'Seguridad contra Incendio', icon: 'fire-extinguisher', order: 11 },
-  { name: 'Control de Plagas', icon: 'bug', order: 12 },
-  { name: 'Pisos y Contrapisos', icon: 'layers', order: 13 },
+  {
+    name: 'Estructura',
+    icon: 'building',
+    order: 1,
+    description: 'Cimientos, vigas, columnas, muros portantes y fundaciones',
+  },
+  {
+    name: 'Techos y Cubiertas',
+    icon: 'home',
+    order: 2,
+    description: 'Membranas, tejas, canaletas, bajadas pluviales y aislación',
+  },
+  {
+    name: 'Instalación Eléctrica',
+    icon: 'zap',
+    order: 3,
+    description: 'Tablero, protecciones, puesta a tierra y cableado',
+  },
+  {
+    name: 'Instalación Sanitaria',
+    icon: 'droplets',
+    order: 4,
+    description: 'Cañerías, griferías, tanque de agua y desagües',
+  },
+  {
+    name: 'Gas y Calefacción',
+    icon: 'flame',
+    order: 5,
+    description: 'Artefactos de gas, ventilación, caldera y oblea NAG-226',
+  },
+  {
+    name: 'Aberturas',
+    icon: 'door-open',
+    order: 6,
+    description: 'Puertas, ventanas, burletes, cerraduras y persianas',
+  },
+  {
+    name: 'Pintura y Revestimientos',
+    icon: 'paintbrush',
+    order: 7,
+    description: 'Pintura interior y exterior, revoques y cerámicos',
+  },
+  {
+    name: 'Jardín y Exteriores',
+    icon: 'trees',
+    order: 8,
+    description: 'Veredas, medianeras, poda, pileta y riego',
+  },
+  {
+    name: 'Climatización',
+    icon: 'thermometer',
+    order: 9,
+    description: 'Aire acondicionado, ventilación y aislación térmica',
+  },
+  {
+    name: 'Humedad e Impermeabilización',
+    icon: 'droplet',
+    order: 10,
+    description: 'Humedad ascendente, filtraciones, drenaje y condensación',
+  },
+  {
+    name: 'Seguridad contra Incendio',
+    icon: 'fire-extinguisher',
+    order: 11,
+    description: 'Detectores de humo, matafuegos y vías de evacuación',
+  },
+  {
+    name: 'Control de Plagas',
+    icon: 'bug',
+    order: 12,
+    description: 'Desinsectación, desratización, termitas y mosquitos',
+  },
+  {
+    name: 'Pisos y Contrapisos',
+    icon: 'layers',
+    order: 13,
+    description: 'Baldosas, juntas, nivelación, madera y piedra',
+  },
 ];
 
 // Rename categories from old names to match template names (for existing DBs)
@@ -107,7 +172,7 @@ async function main() {
     if (existing) {
       await prisma.category.update({
         where: { id: existing.id },
-        data: { icon: cat.icon, order: cat.order },
+        data: { icon: cat.icon, order: cat.order, description: cat.description },
       });
     } else {
       await prisma.category.create({ data: cat });
