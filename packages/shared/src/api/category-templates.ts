@@ -16,7 +16,7 @@ export function createCategoryTemplateQueries(apiClient: AxiosInstance) {
     // --- Queries ---
 
     async getCategoryTemplates(signal?: AbortSignal): Promise<ApiResponse<CategoryTemplate[]>> {
-      const { data } = await apiClient.get('/category-templates', { signal });
+      const { data } = await apiClient.get('/category-templates?take=100', { signal });
       return data;
     },
 
