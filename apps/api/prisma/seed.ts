@@ -96,6 +96,60 @@ const CATEGORY_DEFAULTS = [
     order: 13,
     description: 'Baldosas, juntas, nivelación, madera y piedra',
   },
+  {
+    name: 'Mobiliario y Equipamiento Fijo',
+    icon: 'armchair',
+    order: 14,
+    description: 'Alacenas, mesadas, sanitarios y artefactos integrados',
+  },
+  {
+    name: 'Gas Envasado (GLP)',
+    icon: 'cylinder',
+    order: 15,
+    description: 'Regulador, flexibles, tanque y ventilación de GLP',
+  },
+  {
+    name: 'Agua de Pozo',
+    icon: 'waves',
+    order: 16,
+    description: 'Perforación, bomba, análisis de agua y tratamiento',
+  },
+  {
+    name: 'Energía Solar y Sustentable',
+    icon: 'sun',
+    order: 17,
+    description: 'Paneles fotovoltaicos, termotanque solar y recolección de agua',
+  },
+  {
+    name: 'Domótica y Electrónica',
+    icon: 'wifi',
+    order: 18,
+    description: 'Alarma, cámaras, portero eléctrico y automatización',
+  },
+  {
+    name: 'Cielorraso y Entrepisos',
+    icon: 'square-stack',
+    order: 19,
+    description: 'Durlock, machimbre, entretecho y entrepisos de madera',
+  },
+  {
+    name: 'Protección contra Rayos',
+    icon: 'cloud-lightning',
+    order: 20,
+    description: 'Pararrayos, equipotencialización y control post-tormenta',
+  },
+  {
+    name: 'Escaleras y Barandas',
+    icon: 'stairs',
+    order: 21,
+    description: 'Escaleras interiores y exteriores, barandas y pasamanos',
+  },
+  {
+    name: 'Documentación y Normativa',
+    icon: 'file-text',
+    order: 22,
+    description: 'Oblea de gas, planos, seguro del hogar y habilitaciones',
+  },
 ];
 
 // Rename categories from old names to match template names (for existing DBs)
