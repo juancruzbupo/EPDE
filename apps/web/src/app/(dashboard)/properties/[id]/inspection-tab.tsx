@@ -190,9 +190,14 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
             No hay inspecciones registradas para esta propiedad.
           </p>
           {templateCount > 0 && (
-            <p className="text-muted-foreground text-xs">
-              Se generarán {templateCount} puntos de inspección desde los templates de tareas.
-            </p>
+            <div className="text-muted-foreground space-y-1 text-center text-xs">
+              <p>Se revisarán {templateCount} elementos de la vivienda, organizados por sector.</p>
+              <p>
+                Tiempo estimado: {Math.ceil(templateCount * 1.5)} – {Math.ceil(templateCount * 3)}{' '}
+                minutos.
+              </p>
+              <p>Podés pausar y continuar en cualquier momento.</p>
+            </div>
           )}
           <Button
             onClick={handleNewInspection}
@@ -224,20 +229,27 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
             {evaluatedCount} de {activeChecklist.items.length} revisados
           </p>
         </div>
-        <div className="flex gap-2">
-          {canGeneratePlan && (
+        <div className="flex items-center gap-2">
+          <div className="relative">
             <Button
               size="sm"
               onClick={() => {
                 setPlanName('');
                 setPlanNameDialog(true);
               }}
-              disabled={generatePlan.isPending}
+              disabled={!canGeneratePlan || generatePlan.isPending}
+              title={
+                hasPlan
+                  ? 'Esta propiedad ya tiene un plan'
+                  : !allEvaluated
+                    ? `Faltan ${activeChecklist.items.length - evaluatedCount} elementos por evaluar`
+                    : undefined
+              }
             >
               <FileText className="mr-2 h-4 w-4" />
               Generar Plan
             </Button>
-          )}
+          </div>
           <Button
             variant="outline"
             size="sm"
@@ -407,6 +419,10 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
           <DialogHeader>
             <DialogTitle>¿Qué encontraste?</DialogTitle>
           </DialogHeader>
+          <p className="text-muted-foreground text-xs">
+            Describí brevemente qué observaste. Ej: &quot;Pintura descascarada en esquina NE&quot;,
+            &quot;Fisura de 2mm en muro sur&quot;, &quot;Flexible de gas vencido&quot;.
+          </p>
           <Textarea
             value={findingText}
             onChange={(e) => setFindingText(e.target.value)}
@@ -441,8 +457,9 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
             <DialogTitle>Generar plan de mantenimiento</DialogTitle>
           </DialogHeader>
           <p className="text-muted-foreground text-sm">
-            Se crearán {activeChecklist.items.length} tareas basadas en la inspección. Las
-            prioridades se ajustarán según los hallazgos.
+            Se va a crear un plan con {activeChecklist.items.length} tareas de mantenimiento basadas
+            en lo que encontraste en la inspección. Las tareas marcadas como &quot;necesita
+            atención&quot; o &quot;requiere profesional&quot; tendrán mayor prioridad.
           </p>
           <Input
             value={planName}

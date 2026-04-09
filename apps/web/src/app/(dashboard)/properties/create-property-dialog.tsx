@@ -102,7 +102,10 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Nueva Propiedad</DialogTitle>
-            <DialogDescription>Completá los datos de la nueva propiedad.</DialogDescription>
+            <DialogDescription>
+              Completá los datos de la nueva propiedad. El plan de mantenimiento se generará después
+              de completar la inspección visual.
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
