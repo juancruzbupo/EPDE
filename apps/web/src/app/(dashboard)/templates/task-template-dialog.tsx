@@ -565,13 +565,14 @@ function GuideEditorSection({
 
                 <div className="space-y-1">
                   <Label className="text-muted-foreground text-xs">
-                    📋 Normativa (uno por línea)
+                    📋 Normativa (una por línea)
                   </Label>
-                  <input
+                  <Textarea
                     value={fields.normative}
                     onChange={(e) => updateField('normative', e.target.value)}
-                    placeholder="CIRSOC 200 — estructuras de hormigón"
-                    className="border-input bg-background w-full rounded-md border px-3 py-1.5 text-sm"
+                    rows={2}
+                    placeholder="CIRSOC 200 — estructuras de hormigón&#10;AEA 90364 — instalaciones eléctricas"
+                    className="text-sm"
                   />
                 </div>
 
