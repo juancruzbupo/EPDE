@@ -139,6 +139,7 @@ export function CreateBudgetDialog({
             <Input
               id="title"
               placeholder="Ej: Reparación de techo"
+              required
               aria-invalid={!!errors.title}
               aria-describedby={errors.title ? 'title-error' : undefined}
               {...register('title')}

@@ -282,6 +282,7 @@ export function CreateServiceDialog({
             </Label>
             <Input
               id="title"
+              required
               aria-describedby={errors.title ? 'sr-title-error' : undefined}
               {...register('title')}
             />
@@ -298,6 +299,7 @@ export function CreateServiceDialog({
             </Label>
             <Textarea
               id="description"
+              required
               aria-describedby={errors.description ? 'sr-description-error' : undefined}
               {...register('description')}
             />

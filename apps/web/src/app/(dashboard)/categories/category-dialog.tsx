@@ -96,6 +96,7 @@ export function CategoryDialog({ open, onOpenChange, category }: CategoryDialogP
               <Input
                 id="cat-name"
                 placeholder="Ej: Estructura"
+                required
                 aria-describedby={errors.name ? 'cat-name-error' : undefined}
                 {...register('name')}
               />
@@ -109,7 +110,14 @@ export function CategoryDialog({ open, onOpenChange, category }: CategoryDialogP
               <Label htmlFor="cat-order">
                 Orden <span className="text-destructive">*</span>
               </Label>
-              <Input id="cat-order" type="number" min={0} placeholder="0" {...register('order')} />
+              <Input
+                id="cat-order"
+                type="number"
+                min={0}
+                placeholder="0"
+                required
+                {...register('order')}
+              />
             </div>
           </div>
           <div className="space-y-1.5">

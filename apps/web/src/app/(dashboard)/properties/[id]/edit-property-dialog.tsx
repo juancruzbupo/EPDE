@@ -87,6 +87,7 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
               </Label>
               <Input
                 id="edit-address"
+                required
                 aria-describedby={errors.address ? 'edit-address-error' : undefined}
                 {...register('address')}
               />
@@ -102,6 +103,7 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
               </Label>
               <Input
                 id="edit-city"
+                required
                 aria-describedby={errors.city ? 'edit-city-error' : undefined}
                 {...register('city')}
               />

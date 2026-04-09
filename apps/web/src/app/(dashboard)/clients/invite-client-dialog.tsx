@@ -67,6 +67,7 @@ export function InviteClientDialog({ open, onOpenChange }: InviteClientDialogPro
               id="email"
               type="email"
               placeholder="cliente@email.com"
+              required
               aria-describedby={errors.email ? 'email-error' : undefined}
               {...register('email')}
             />
@@ -83,6 +84,7 @@ export function InviteClientDialog({ open, onOpenChange }: InviteClientDialogPro
             <Input
               id="name"
               placeholder="Nombre completo"
+              required
               aria-describedby={errors.name ? 'name-error' : undefined}
               {...register('name')}
             />

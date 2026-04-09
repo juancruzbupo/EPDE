@@ -88,5 +88,21 @@ async function bootstrap() {
 
   // Prevent slow clients from holding connections indefinitely (default: 120s → 30s)
   server.setTimeout(30_000);
+
+  // Graceful shutdown: stop accepting new connections, drain in-flight requests
+  const shutdown = async (signal: string) => {
+    console.log(`Received ${signal} — shutting down gracefully...`);
+    server.close(() => {
+      console.log('HTTP server closed');
+      process.exit(0);
+    });
+    // Force exit after 10s if requests don't drain
+    setTimeout(() => {
+      console.error('Forced shutdown after 10s timeout');
+      process.exit(1);
+    }, 10_000).unref();
+  };
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
 }
 bootstrap();

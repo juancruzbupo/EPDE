@@ -71,6 +71,7 @@ export function ChangePasswordForm() {
                 type={showCurrent ? 'text' : 'password'}
                 placeholder="********"
                 className="pr-10"
+                required
                 aria-describedby={errors.currentPassword ? 'currentPassword-error' : undefined}
                 {...register('currentPassword')}
               />
@@ -101,6 +102,7 @@ export function ChangePasswordForm() {
                 type={showNew ? 'text' : 'password'}
                 placeholder="********"
                 className="pr-10"
+                required
                 aria-describedby={errors.newPassword ? 'pwd-newPassword-error' : undefined}
                 {...register('newPassword')}
               />
@@ -137,6 +139,7 @@ export function ChangePasswordForm() {
                 type={showConfirm ? 'text' : 'password'}
                 placeholder="********"
                 className="pr-10"
+                required
                 aria-describedby={errors.confirmPassword ? 'pwd-confirmPassword-error' : undefined}
                 {...register('confirmPassword')}
               />

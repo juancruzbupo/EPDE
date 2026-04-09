@@ -64,6 +64,7 @@ export function EditBudgetDialog({ open, onOpenChange, budget }: EditBudgetDialo
             </Label>
             <Input
               id="edit-title"
+              required
               aria-describedby={errors.title ? 'edit-budget-title-error' : undefined}
               {...register('title')}
             />

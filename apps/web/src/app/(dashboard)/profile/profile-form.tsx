@@ -66,6 +66,7 @@ export function ProfileForm({
             <Input
               id="name"
               placeholder="Tu nombre completo"
+              required
               aria-describedby={errors.name ? 'profile-name-error' : undefined}
               {...register('name')}
             />

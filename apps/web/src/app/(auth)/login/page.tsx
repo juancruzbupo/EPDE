@@ -63,6 +63,7 @@ export default function LoginPage() {
               id="email"
               type="email"
               placeholder="tu@email.com"
+              required
               aria-describedby={errors.email ? 'email-error' : undefined}
               {...register('email')}
             />
@@ -81,6 +82,7 @@ export default function LoginPage() {
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••"
                 className="pr-10"
+                required
                 aria-describedby={errors.password ? 'password-error' : undefined}
                 {...register('password')}
               />

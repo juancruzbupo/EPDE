@@ -77,7 +77,12 @@ export function ConsequencesCard({
           <div key={i} className="border-border space-y-2 rounded-lg border p-3">
             <div className="flex items-center justify-between">
               <Label>Ejemplo {i + 1}</Label>
-              <Button variant="ghost" size="sm" onClick={() => removeItem(i)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label="Eliminar ejemplo"
+                onClick={() => removeItem(i)}
+              >
                 <Trash2 className="text-destructive h-4 w-4" />
               </Button>
             </div>

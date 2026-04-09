@@ -252,6 +252,7 @@ export function TaskDialog({ open, onOpenChange, planId, task, activeSectors }: 
                   <Input
                     id="task-name"
                     className="flex-1"
+                    required
                     aria-invalid={!!errors.name}
                     aria-describedby={errors.name ? 'name-error' : undefined}
                     disabled={!watchedCategoryId && !isEdit}
