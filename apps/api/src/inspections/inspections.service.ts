@@ -30,10 +30,35 @@ export class InspectionsService {
       finding?: string;
       photoUrl?: string;
       taskTemplateId?: string;
+      inspectionGuide?: string;
+      guideImageUrls?: string[];
       isCustom?: boolean;
       order?: number;
     }[];
   }) {
+    // Enrich items with guide from templates (if not already provided)
+    const templateIds = data.items
+      .filter((i) => i.taskTemplateId && !i.inspectionGuide)
+      .map((i) => i.taskTemplateId!);
+
+    if (templateIds.length > 0) {
+      const templates = await this.prisma.taskTemplate.findMany({
+        where: { id: { in: templateIds } },
+        select: { id: true, inspectionGuide: true, guideImageUrls: true },
+      });
+      const tplMap = new Map(templates.map((t) => [t.id, t]));
+
+      for (const item of data.items) {
+        if (item.taskTemplateId && !item.inspectionGuide) {
+          const tpl = tplMap.get(item.taskTemplateId);
+          if (tpl) {
+            item.inspectionGuide = tpl.inspectionGuide ?? undefined;
+            item.guideImageUrls = tpl.guideImageUrls;
+          }
+        }
+      }
+    }
+
     return this.repository.create(data);
   }
 
