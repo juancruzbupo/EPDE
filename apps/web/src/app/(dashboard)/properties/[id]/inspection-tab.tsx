@@ -103,8 +103,6 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
     ? activeChecklist.items.length > 0 && activeChecklist.items.every((i) => i.status !== 'PENDING')
     : false;
 
-  const canGeneratePlan = allEvaluated && !hasPlan;
-
   const handleNewInspection = () => {
     if (!templates || templates.length === 0) return;
 
@@ -215,40 +213,21 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="type-body-sm text-muted-foreground">
-            Inspección del{' '}
-            {new Date(activeChecklist.inspectedAt).toLocaleDateString('es-AR', {
-              day: '2-digit',
-              month: 'long',
-              year: 'numeric',
-            })}
-          </p>
-          <p className="type-body-sm text-muted-foreground">
-            {evaluatedCount} de {activeChecklist.items.length} revisados
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Button
-              size="sm"
-              onClick={() => {
-                setPlanName('');
-                setPlanNameDialog(true);
-              }}
-              disabled={!canGeneratePlan || generatePlan.isPending}
-              title={
-                hasPlan
-                  ? 'Esta propiedad ya tiene un plan'
-                  : !allEvaluated
-                    ? `Faltan ${activeChecklist.items.length - evaluatedCount} elementos por evaluar`
-                    : undefined
-              }
-            >
-              <FileText className="mr-2 h-4 w-4" />
-              Generar Plan
-            </Button>
+      {/* Header */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="type-body-sm text-muted-foreground">
+              Inspección del{' '}
+              {new Date(activeChecklist.inspectedAt).toLocaleDateString('es-AR', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+              })}
+            </p>
+            <p className="type-body-sm text-muted-foreground">
+              {evaluatedCount} de {activeChecklist.items.length} revisados
+            </p>
           </div>
           <Button
             variant="outline"
@@ -260,6 +239,55 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
             Nueva inspección
           </Button>
         </div>
+
+        {/* Progress bar */}
+        <div className="space-y-1">
+          <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
+            <div
+              className="bg-primary h-full rounded-full transition-all duration-300"
+              style={{
+                width: `${Math.round((evaluatedCount / activeChecklist.items.length) * 100)}%`,
+              }}
+            />
+          </div>
+          <p className="text-muted-foreground text-xs">
+            {Math.round((evaluatedCount / activeChecklist.items.length) * 100)}% completado
+          </p>
+        </div>
+
+        {/* Generate plan CTA — prominent when ready */}
+        {allEvaluated && !hasPlan ? (
+          <div className="bg-primary/5 border-primary/20 flex items-center justify-between rounded-lg border p-3">
+            <div>
+              <p className="text-sm font-semibold">¡Inspección completa!</p>
+              <p className="text-muted-foreground text-xs">
+                Ya podés generar el plan de mantenimiento basado en los hallazgos.
+              </p>
+            </div>
+            <Button
+              onClick={() => {
+                setPlanName('');
+                setPlanNameDialog(true);
+              }}
+              disabled={generatePlan.isPending}
+            >
+              <FileText className="mr-2 h-4 w-4" />
+              Generar Plan
+            </Button>
+          </div>
+        ) : hasPlan ? (
+          <div className="bg-success/5 border-success/20 flex items-center gap-2 rounded-lg border p-3">
+            <CheckCircle className="text-success h-4 w-4 shrink-0" />
+            <p className="text-muted-foreground text-sm">
+              El plan de mantenimiento ya fue generado desde esta inspección.
+            </p>
+          </div>
+        ) : !allEvaluated ? (
+          <p className="text-muted-foreground text-xs">
+            Evaluá todos los elementos para poder generar el plan de mantenimiento. Faltan{' '}
+            {activeChecklist.items.length - evaluatedCount} elementos.
+          </p>
+        ) : null}
       </div>
 
       {sectorOrder.map((sector) => {
