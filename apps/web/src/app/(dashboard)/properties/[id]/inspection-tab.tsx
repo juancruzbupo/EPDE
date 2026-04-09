@@ -528,6 +528,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
                       key={i}
                       src={url}
                       alt={`Referencia ${i + 1} para ${guideItem.name}`}
+                      loading="lazy"
                       className="rounded-lg border object-cover"
                     />
                   ))}

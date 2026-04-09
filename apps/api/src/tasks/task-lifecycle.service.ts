@@ -297,6 +297,7 @@ export class TaskLifecycleService {
         const existingTasks = await tx.task.findMany({
           where: { maintenancePlanId: planId, deletedAt: null },
           select: { name: true },
+          take: 1_000,
         });
         const existingNames = new Set(existingTasks.map((t) => t.name.toLowerCase()));
 

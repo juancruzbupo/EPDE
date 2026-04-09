@@ -8,13 +8,18 @@ import {
   Search,
   ShieldAlert,
 } from 'lucide-react';
+import { memo, useMemo } from 'react';
 
 /**
  * Renders an inspection guide markdown with rich UI components.
  * Parses sections: Qué buscar, Cómo evaluar, Procedimiento, Normativa, Importante/Nota/Peligro, Tips.
  */
-export function InspectionGuideRenderer({ content }: { content: string }) {
-  const sections = parseGuideSections(content);
+export const InspectionGuideRenderer = memo(function InspectionGuideRenderer({
+  content,
+}: {
+  content: string;
+}) {
+  const sections = useMemo(() => parseGuideSections(content), [content]);
 
   return (
     <div className="space-y-4">
@@ -23,7 +28,7 @@ export function InspectionGuideRenderer({ content }: { content: string }) {
       ))}
     </div>
   );
-}
+});
 
 // ─── Section types ──────────────────────────────────────
 
@@ -281,7 +286,7 @@ function SectionHeader({ icon: Icon, title }: { icon: typeof Search; title: stri
   return (
     <div className="flex items-center gap-2 border-b pb-1">
       <Icon className="text-muted-foreground h-4 w-4" />
-      <h3 className="text-sm font-semibold">{title}</h3>
+      <h2 className="text-sm font-semibold">{title}</h2>
     </div>
   );
 }

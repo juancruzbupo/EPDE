@@ -32,7 +32,7 @@ export class UsersRepository extends BaseRepository<User, 'user'> {
     });
   }
 
-  /** All active clients with non-expired subscriptions (for weekly push summaries). */
+  /** All active clients with non-expired subscriptions (for weekly push summaries). Cap at 10K. */
   async findActiveClients() {
     return this.prisma.softDelete.user.findMany({
       where: {
@@ -41,6 +41,7 @@ export class UsersRepository extends BaseRepository<User, 'user'> {
         OR: [{ subscriptionExpiresAt: { gte: new Date() } }, { subscriptionExpiresAt: null }],
       },
       select: { id: true, name: true, email: true },
+      take: 10_000,
     });
   }
 }

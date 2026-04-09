@@ -424,6 +424,7 @@ function GuideImageSection({
               <img
                 src={url}
                 alt={`Referencia ${i + 1} para ${task?.name ?? 'tarea'}`}
+                loading="lazy"
                 className="border-border h-24 w-full rounded-md border object-cover"
               />
               <Button

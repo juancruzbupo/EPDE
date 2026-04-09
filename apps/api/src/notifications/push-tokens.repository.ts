@@ -31,6 +31,7 @@ export class PushTokensRepository {
     return this.prisma.pushToken.findMany({
       where: { userId: { in: userIds } },
       select: { token: true, userId: true },
+      take: 50_000,
     });
   }
 }
