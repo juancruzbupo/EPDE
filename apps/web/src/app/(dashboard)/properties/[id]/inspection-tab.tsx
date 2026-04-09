@@ -307,12 +307,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
                               Custom
                             </Badge>
                           )}
-                        </div>
-                        {item.description && (
-                          <div className="mt-1 flex items-start gap-1">
-                            <p className="text-muted-foreground line-clamp-2 flex-1 text-xs leading-relaxed">
-                              {item.description}
-                            </p>
+                          {(item.description || item.inspectionGuide) && (
                             <Button
                               variant="ghost"
                               size="sm"
@@ -325,8 +320,8 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
                             >
                               <Eye className="h-3.5 w-3.5" />
                             </Button>
-                          </div>
-                        )}
+                          )}
+                        </div>
                         {item.finding && (
                           <p className="mt-1 text-xs font-medium text-amber-700">
                             Hallazgo: {item.finding}
