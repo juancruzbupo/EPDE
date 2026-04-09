@@ -275,11 +275,11 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
               Generar Plan
             </Button>
           </div>
-        ) : hasPlan ? (
+        ) : allEvaluated && hasPlan ? (
           <div className="bg-success/5 border-success/20 flex items-center gap-2 rounded-lg border p-3">
             <CheckCircle className="text-success h-4 w-4 shrink-0" />
             <p className="text-muted-foreground text-sm">
-              El plan de mantenimiento ya fue generado desde esta inspección.
+              Inspección completa. Esta propiedad ya tiene un plan de mantenimiento activo.
             </p>
           </div>
         ) : !allEvaluated ? (
