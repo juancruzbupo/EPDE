@@ -94,7 +94,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
   const [findingText, setFindingText] = useState('');
   const [planNameDialog, setPlanNameDialog] = useState(false);
   const [planName, setPlanName] = useState('');
-  const [collapsedSectors, setCollapsedSectors] = useState<Set<string>>(new Set());
+  const [expandedSectors, setExpandedSectors] = useState<Set<string>>(new Set());
   const [guideItem, setGuideItem] = useState<InspectionChecklist['items'][0] | null>(null);
 
   const activeChecklist = inspections?.[0] ?? null;
@@ -293,7 +293,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
       {sectorOrder.map((sector) => {
         const items = itemsBySector.get(sector) ?? [];
         const completed = items.filter((i) => i.status !== 'PENDING').length;
-        const isCollapsed = collapsedSectors.has(sector);
+        const isCollapsed = !expandedSectors.has(sector);
         const allDone = completed === items.length && items.length > 0;
 
         return (
@@ -301,7 +301,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
             <CardHeader
               className="cursor-pointer pb-3 select-none"
               onClick={() => {
-                setCollapsedSectors((prev) => {
+                setExpandedSectors((prev) => {
                   const next = new Set(prev);
                   if (next.has(sector)) next.delete(sector);
                   else next.add(sector);
