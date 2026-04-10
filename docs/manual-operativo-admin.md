@@ -14,30 +14,31 @@
 3. [Flujo de primera carga paso a paso](#3-flujo-de-primera-carga-paso-a-paso)
 4. [Gestión de suscripciones](#4-gestión-de-suscripciones)
 5. [Editor del plan de mantenimiento](#5-editor-del-plan-de-mantenimiento)
-6. [Checklist de inspección visual](#6-checklist-de-inspección-visual)
-7. [Tareas que requieren profesional matriculado](#7-tareas-que-requieren-profesional-matriculado)
-8. [Criterios de decisión: agregar o no al plan](#8-criterios-de-decisión-agregar-o-no-al-plan)
-9. [Gestión de presupuestos (Admin)](#9-gestión-de-presupuestos)
-10. [Solicitudes de servicio (Admin)](#10-solicitudes-de-servicio)
-11. [Configuración de la landing page](#11-configuración-de-la-landing-page)
-12. [Dashboard del Administrador — Detalle completo](#12-dashboard-del-administrador--detalle-completo)
+6. [Inspección de la vivienda](#6-inspección-de-la-vivienda)
+7. [Checklist de inspección visual (referencia)](#7-checklist-de-inspección-visual-referencia)
+8. [Tareas que requieren profesional matriculado](#8-tareas-que-requieren-profesional-matriculado)
+9. [Criterios de decisión: agregar o no al plan](#9-criterios-de-decisión-agregar-o-no-al-plan)
+10. [Gestión de presupuestos (Admin)](#10-gestión-de-presupuestos)
+11. [Solicitudes de servicio (Admin)](#11-solicitudes-de-servicio)
+12. [Configuración de la landing page](#12-configuración-de-la-landing-page)
+13. [Dashboard del Administrador — Detalle completo](#13-dashboard-del-administrador--detalle-completo)
 
 ### Parte B — Cliente (Propietario)
 
-13. [Experiencia del cliente — Visión general](#13-experiencia-del-cliente--visión-general)
-14. [Dashboard del Cliente — Detalle completo](#14-dashboard-del-cliente--detalle-completo)
-15. [Propiedades (Cliente)](#15-propiedades-cliente)
-16. [Tareas (Cliente)](#16-tareas-cliente)
-17. [Presupuestos (Cliente)](#17-presupuestos-cliente)
-18. [Solicitudes de servicio (Cliente)](#18-solicitudes-de-servicio-cliente)
-19. [Notificaciones](#19-notificaciones)
-20. [Perfil y configuración](#20-perfil-y-configuración)
-21. [Funcionalidades exclusivas de la app móvil](#21-funcionalidades-exclusivas-de-la-app-móvil)
+14. [Experiencia del cliente — Visión general](#14-experiencia-del-cliente--visión-general)
+15. [Dashboard del Cliente — Detalle completo](#15-dashboard-del-cliente--detalle-completo)
+16. [Propiedades (Cliente)](#16-propiedades-cliente)
+17. [Tareas (Cliente)](#17-tareas-cliente)
+18. [Presupuestos (Cliente)](#18-presupuestos-cliente)
+19. [Solicitudes de servicio (Cliente)](#19-solicitudes-de-servicio-cliente)
+20. [Notificaciones](#20-notificaciones)
+21. [Perfil y configuración](#21-perfil-y-configuración)
+22. [Funcionalidades exclusivas de la app móvil](#22-funcionalidades-exclusivas-de-la-app-móvil)
 
 ### Parte C — Referencia técnica
 
-22. [Índice de Salud de la Vivienda (ISV)](#22-índice-de-salud-de-la-vivienda-isv)
-23. [Catálogo completo de plantillas de tareas](#23-catálogo-completo-de-plantillas-de-tareas)
+23. [Índice de Salud de la Vivienda (ISV)](#23-índice-de-salud-de-la-vivienda-isv)
+24. [Catálogo completo de plantillas de tareas](#24-catálogo-completo-de-plantillas-de-tareas)
 
 ---
 
@@ -104,33 +105,32 @@ El menú lateral del admin tiene **9 módulos**:
    - **Notas** (opcional)
 3. Asignar al **cliente** correspondiente
 
-### Paso 4: Crear el plan de mantenimiento
+### Paso 4: Inspección visual y generación del plan
 
-1. Dentro de la propiedad → botón **"Crear plan"**
-2. El plan se crea en estado **BORRADOR (DRAFT)**
-3. Usar el **editor del plan** para agregar tareas (ver sección 5)
-4. Una vez completo, cambiar estado a **ACTIVO (ACTIVE)**
-5. El sistema comienza a generar tareas periódicas automáticamente
-
-### Paso 5: Inspección visual y generación del plan
+El plan de mantenimiento **no se crea manualmente** — se genera a partir de la inspección completada.
 
 1. Visitar la propiedad físicamente
 2. En la app: Propiedad → tab **Inspección** → **Iniciar inspección**
-3. El sistema genera automáticamente los items de inspección desde los TaskTemplates, filtrados por los sectores activos de la propiedad
-4. Recorrer los 9 sectores evaluando cada item:
+3. El sistema genera automáticamente los **152 items de inspección** desde los TaskTemplates, filtrados por los sectores activos de la propiedad
+4. Los items se muestran en **secciones colapsables por sector** (9 sectores)
+5. Recorrer cada sector evaluando item por item:
    - **OK** — el punto está en buen estado
    - **Necesita atención** — requiere mantenimiento prioritario (sube prioridad a HIGH)
    - **Requiere profesional** — necesita un profesional (prioridad URGENT + PROFESSIONAL_REQUIRED)
-5. Para items con hallazgos: agregar descripción y foto
-6. Cuando todos los items están evaluados → click en **"Generar Plan"**
-7. El sistema crea el plan de mantenimiento con tareas y prioridades ajustadas según la inspección
+6. Usar el botón con **ícono de ojo** en cada item para consultar la **guía de inspección** (tarjetas de evaluación, procedimiento, normativa)
+7. Para items con hallazgos: agregar descripción y foto
+8. Cuando el **100% de los items** están evaluados → click en **"Generar Plan"**
+9. El sistema crea el plan de mantenimiento con tareas y prioridades ajustadas según el **Risk Score** de la inspección
 
-### Paso 6: Activar el plan
+Ver sección 6 para el detalle completo del flujo de inspección.
 
-1. Revisar que todas las tareas estén correctamente configuradas
-2. Cambiar estado del plan de BORRADOR → **ACTIVO**
-3. El cliente ya puede ver sus tareas en la app
-4. Las notificaciones automáticas comienzan a funcionar
+### Paso 5: Revisar y activar el plan
+
+1. Revisar las tareas generadas y ajustar prioridades/fechas si es necesario
+2. Opcionalmente agregar tareas adicionales desde plantillas o manualmente (ver sección 5)
+3. Cambiar estado del plan de BORRADOR → **ACTIVO**
+4. El cliente ya puede ver sus tareas en la app
+5. Las notificaciones automáticas comienzan a funcionar
 
 ---
 
@@ -217,7 +217,57 @@ BORRADOR (DRAFT) → ACTIVO (ACTIVE) → ARCHIVADO (ARCHIVED)
 
 ---
 
-## 6. Checklist de inspección visual
+## 6. Inspección de la vivienda
+
+La inspección es el paso central del flujo de EPDE. Desde el tab **"Inspección"** en el detalle de la propiedad, la arquitecta evalúa el estado de la vivienda y genera el plan de mantenimiento.
+
+### Crear la inspección
+
+1. Entrar a la propiedad → tab **"Inspección"**
+2. Botón **"Iniciar inspección"**
+3. El sistema genera automáticamente los **152 items de inspección**, organizados por sector y filtrados según los sectores activos de la propiedad
+
+### Evaluar items por sector
+
+Los items se presentan en **secciones colapsables**, una por cada sector activo de la vivienda. Para cada item:
+
+1. **Evaluar** con uno de los tres estados:
+   - **OK** — el punto está en buen estado (prioridad sin cambios)
+   - **Necesita atención** — requiere mantenimiento prioritario (sube la prioridad a Alta)
+   - **Requiere profesional** — necesita intervención profesional (prioridad Urgente + Profesional obligatorio)
+2. **Registrar hallazgos:** agregar una descripción del problema encontrado
+3. **Adjuntar foto** como evidencia (opcional pero recomendado para items con problemas)
+
+### Usar las guías de inspección
+
+Cada item tiene un botón con **ícono de ojo** que abre la **guía estructurada de inspección**. La guía incluye:
+
+| Componente                  | Qué muestra                                                                                |
+| --------------------------- | ------------------------------------------------------------------------------------------ |
+| **Tarjetas de evaluación**  | Criterios claros para cada resultado (OK / Necesita atención / Requiere profesional)       |
+| **Pasos del procedimiento** | Instrucciones paso a paso de qué revisar y cómo hacerlo                                    |
+| **Referencias normativas**  | Normativa aplicable cuando corresponde (ej: NAG-226 para gas, reglamentaciones eléctricas) |
+
+Las guías aseguran que la evaluación sea **consistente y fundamentada**, incluso entre diferentes inspecciones de la misma vivienda.
+
+### Generar el plan desde la inspección
+
+1. Cuando el **100% de los items** están evaluados, se habilita el botón **"Generar Plan"**
+2. El sistema crea el plan de mantenimiento con:
+   - Tareas generadas a partir de los hallazgos
+   - **Prioridades ajustadas** según el resultado de cada evaluación
+   - El **Risk Score** (puntaje de riesgo) determina la prioridad de cada tarea
+3. Revisar las tareas generadas y ajustar lo que haga falta
+4. Opcionalmente agregar tareas adicionales desde plantillas o manualmente
+5. Cambiar el estado del plan de **Borrador** a **Activo**
+
+### Progreso de la inspección
+
+El tab muestra un indicador de progreso con el porcentaje de items evaluados. Podés cerrar y retomar la inspección en cualquier momento — el progreso se guarda automáticamente.
+
+---
+
+## 7. Checklist de inspección visual (referencia)
 
 > **Nota:** Los items de inspección ahora se generan automáticamente desde los TaskTemplates del sistema. La lista de abajo es una referencia orientativa — la app muestra los items reales filtrados por los sectores activos de cada propiedad.
 
@@ -319,7 +369,7 @@ Guía para la inspección visual inicial de la vivienda, organizada por los **9 
 
 ---
 
-## 7. Tareas que requieren profesional matriculado
+## 8. Tareas que requieren profesional matriculado
 
 ### Profesional OBLIGATORIO (PROFESSIONAL_REQUIRED)
 
@@ -371,7 +421,7 @@ Las restantes **51 tareas** pueden ser realizadas por el propietario siguiendo l
 
 ---
 
-## 8. Criterios de decisión: agregar o no al plan
+## 9. Criterios de decisión: agregar o no al plan
 
 Después de la inspección visual, la arquitecta debe decidir qué tareas adicionales incluir en el plan. Estos son los criterios:
 
@@ -415,7 +465,7 @@ Después de la inspección visual, la arquitecta debe decidir qué tareas adicio
 
 ---
 
-## 9. Gestión de presupuestos (Admin)
+## 10. Gestión de presupuestos (Admin)
 
 ### Flujo completo de un presupuesto
 
@@ -452,7 +502,7 @@ PENDIENTE (cliente solicita)
 
 ---
 
-## 10. Solicitudes de servicio (Admin)
+## 11. Solicitudes de servicio (Admin)
 
 ### Flujo completo de una solicitud de servicio
 
@@ -492,7 +542,7 @@ ABIERTA (cliente reporta problema)
 
 ---
 
-## 11. Configuración de la landing page
+## 12. Configuración de la landing page
 
 Desde **Landing** en el menú lateral, se pueden editar cuatro secciones:
 
@@ -524,7 +574,7 @@ Desde **Landing** en el menú lateral, se pueden editar cuatro secciones:
 
 ---
 
-## 12. Dashboard del Administrador — Detalle completo
+## 13. Dashboard del Administrador — Detalle completo
 
 El dashboard del admin se organiza en **4 niveles jerárquicos**, diseñado para dar una visión ejecutiva de toda la plataforma.
 
@@ -602,7 +652,7 @@ Cada ítem muestra: ícono + descripción + tiempo relativo ("hace 2 horas", "ha
 
 ---
 
-## 13. Experiencia del cliente — Visión general
+## 14. Experiencia del cliente — Visión general
 
 El cliente accede al sistema después de ser invitado por la arquitecta. Tiene dos interfaces disponibles:
 
@@ -673,7 +723,7 @@ Además, desde la pantalla de Inicio se accede a:
 
 ---
 
-## 14. Dashboard del Cliente — Detalle completo
+## 15. Dashboard del Cliente — Detalle completo
 
 El dashboard del cliente se organiza en **3 niveles jerárquicos**, diseñado para que el propietario entienda rápidamente el estado de su vivienda y qué debe hacer.
 
@@ -857,7 +907,7 @@ Dos tarjetas prominentes debajo del ISV:
 
 ---
 
-## 15. Propiedades (Cliente)
+## 16. Propiedades (Cliente)
 
 ### Qué ve el cliente
 
@@ -887,7 +937,7 @@ Al hacer clic en una propiedad, el cliente ve:
 
 ---
 
-## 16. Tareas (Cliente)
+## 17. Tareas (Cliente)
 
 ### Vista de lista
 
@@ -951,7 +1001,7 @@ Botón **"Solicitar Servicio"** disponible en el detalle de cualquier tarea. Pre
 
 ---
 
-## 17. Presupuestos (Cliente)
+## 18. Presupuestos (Cliente)
 
 ### Acciones del cliente
 
@@ -990,7 +1040,7 @@ Botón **"Solicitar Servicio"** disponible en el detalle de cualquier tarea. Pre
 
 ---
 
-## 18. Solicitudes de servicio (Cliente)
+## 19. Solicitudes de servicio (Cliente)
 
 ### Acciones del cliente
 
@@ -1032,7 +1082,7 @@ Si la solicitud se crea desde una tarea:
 
 ---
 
-## 19. Notificaciones
+## 20. Notificaciones
 
 ### Tipos de notificaciones que recibe el cliente
 
@@ -1062,7 +1112,7 @@ Si la solicitud se crea desde una tarea:
 
 ---
 
-## 20. Perfil y configuración
+## 21. Perfil y configuración
 
 ### Información visible
 
@@ -1106,7 +1156,7 @@ Botón de logout con confirmación antes de cerrar.
 
 ---
 
-## 21. Funcionalidades exclusivas de la app móvil
+## 22. Funcionalidades exclusivas de la app móvil
 
 ### Gestos táctiles
 
@@ -1166,7 +1216,7 @@ Todas las listas cargan más elementos automáticamente al llegar al final (sin 
 
 ---
 
-## 22. Índice de Salud de la Vivienda (ISV)
+## 23. Índice de Salud de la Vivienda (ISV)
 
 ### Cómo se calcula
 
@@ -1205,7 +1255,7 @@ El ISV es un puntaje de **0 a 100** que mide la salud general de la vivienda. Se
 
 ---
 
-## 23. Catálogo completo de plantillas de tareas
+## 24. Catálogo completo de plantillas de tareas
 
 ### Tipos de tarea
 

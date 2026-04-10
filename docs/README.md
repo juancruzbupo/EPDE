@@ -4,18 +4,35 @@
 
 ## Indice
 
-| Documento                                          | Descripcion                                                    |
-| -------------------------------------------------- | -------------------------------------------------------------- |
-| [architecture.md](architecture.md)                 | Estructura del monorepo, patrones de diseno, capas del sistema |
-| [mobile.md](mobile.md)                             | App mobile Expo/React Native, navegacion, patrones             |
-| [design-system.md](design-system.md)               | Tokens de diseno, colores, tipografia, componentes UI          |
-| [development-workflow.md](development-workflow.md) | Guia de desarrollo para AI y humanos, convenciones, flujos     |
-| [data-model.md](data-model.md)                     | Modelo de datos completo, entidades, relaciones, enums         |
-| [api-reference.md](api-reference.md)               | Endpoints, autenticacion, respuestas, errores                  |
-| [monorepo-completo.md](monorepo-completo.md)       | Arquitectura completa del monorepo, tecnologias y patrones     |
-| [env-vars.md](env-vars.md)                         | Referencia completa de variables de entorno                    |
-| [runbook.md](runbook.md)                           | Runbook operativo: health checks, incidentes, deploy, rollback |
-| [audit-remediation.md](audit-remediation.md)       | Historial de remediacion de auditoria tecnica                  |
+| Documento                                                          | Descripcion                                                    |
+| ------------------------------------------------------------------ | -------------------------------------------------------------- |
+| [architecture.md](architecture.md)                                 | Estructura del monorepo, patrones de diseno, capas del sistema |
+| [mobile.md](mobile.md)                                             | App mobile Expo/React Native, navegacion, patrones             |
+| [design-system.md](design-system.md)                               | Tokens de diseno, colores, tipografia, componentes UI          |
+| [development-workflow.md](development-workflow.md)                 | Guia de desarrollo para AI y humanos, convenciones, flujos     |
+| [data-model.md](data-model.md)                                     | Modelo de datos completo, entidades, relaciones, enums         |
+| [api-reference.md](api-reference.md)                               | Endpoints, autenticacion, respuestas, errores                  |
+| [monorepo-completo.md](monorepo-completo.md)                       | Arquitectura completa del monorepo, tecnologias y patrones     |
+| [env-vars.md](env-vars.md)                                         | Referencia completa de variables de entorno                    |
+| [runbook.md](runbook.md)                                           | Runbook operativo: health checks, incidentes, deploy, rollback |
+| [deploy-checklist.md](deploy-checklist.md)                         | Checklist de deploy a produccion, variables, verificaciones    |
+| [ai-development-guide.md](ai-development-guide.md)                 | Guia de desarrollo con AI, reglas SIEMPRE/NUNCA                |
+| [audit-prompt.md](audit-prompt.md)                                 | Prompt de auditoria tecnica para revisiones                    |
+| [scheduler-registry.md](scheduler-registry.md)                     | Registro de cron jobs y schedulers del sistema                 |
+| [feature-matrix.md](feature-matrix.md)                             | Matriz de features por rol y plataforma                        |
+| [backlog.md](backlog.md)                                           | Oportunidades de negocio y features futuras                    |
+| [plan-inspeccion-admin.md](plan-inspeccion-admin.md)               | Plan de implementacion de herramientas de inspeccion admin     |
+| [plan-mejoras-ux.md](plan-mejoras-ux.md)                           | Plan de mejoras UX competitivas                                |
+| [plan-e-isv-guia-tecnica.md](plan-e-isv-guia-tecnica.md)           | Guia tecnica del plan de mantenimiento e ISV                   |
+| [actualizacion-costos.md](actualizacion-costos.md)                 | Referencia de costos para futura seccion de pricing            |
+| [guia-usuario-admin-y-cliente.md](guia-usuario-admin-y-cliente.md) | Guia de usuario para admin y cliente                           |
+| [guias-inspeccion-progreso.md](guias-inspeccion-progreso.md)       | Progreso de guias de inspeccion por sector                     |
+| [guion-video-demo-nuevo.md](guion-video-demo-nuevo.md)             | Guion para video demo del sistema                              |
+| [manual-inspeccion-ocular.md](manual-inspeccion-ocular.md)         | Manual de inspeccion ocular para la arquitecta                 |
+| [manual-operativo-admin.md](manual-operativo-admin.md)             | Manual operativo del panel de administracion                   |
+| [auditoria-competitiva-ux.md](auditoria-competitiva-ux.md)         | Auditoria competitiva de UX                                    |
+| [resumen-completo-para-ai.md](resumen-completo-para-ai.md)         | Resumen completo del proyecto para contexto AI                 |
+| [sistema-conversion-whatsapp.md](sistema-conversion-whatsapp.md)   | Sistema de conversion via WhatsApp                             |
 
 ## Stack Tecnologico
 

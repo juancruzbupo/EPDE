@@ -507,22 +507,89 @@ Flujo principal: Inspección visual → Generación de plan de mantenimiento.
 
 | Metodo | Ruta                                      | Auth | Rol   | Descripcion                                    |
 | ------ | ----------------------------------------- | ---- | ----- | ---------------------------------------------- |
-| POST   | `/inspections`                            | Si   | Admin | Crear checklist de inspección                  |
-| GET    | `/inspections/templates/:propertyId`      | Si   | Admin | Items de inspección desde TaskTemplates        |
+| POST   | `/inspections`                            | Si   | ADMIN | Crear checklist de inspección                  |
 | GET    | `/inspections/property/:propertyId`       | Si   | Ambos | Listar inspecciones de una propiedad           |
+| GET    | `/inspections/templates/:propertyId`      | Si   | ADMIN | Items de inspección desde TaskTemplates        |
 | GET    | `/inspections/:id`                        | Si   | Ambos | Detalle de inspección                          |
-| PATCH  | `/inspections/items/:itemId`              | Si   | Admin | Actualizar estado/hallazgo de un item          |
-| POST   | `/inspections/:checklistId/items`         | Si   | Admin | Agregar item custom a inspección               |
-| PATCH  | `/inspections/:checklistId/notes`         | Si   | Admin | Actualizar notas de inspección                 |
-| POST   | `/inspections/:checklistId/generate-plan` | Si   | Admin | Generar plan de mantenimiento desde inspección |
-| DELETE | `/inspections/:id`                        | Si   | Admin | Eliminar inspección (soft-delete)              |
+| PATCH  | `/inspections/items/:itemId`              | Si   | ADMIN | Actualizar estado/hallazgo de un item          |
+| POST   | `/inspections/:checklistId/items`         | Si   | ADMIN | Agregar item custom a inspección               |
+| PATCH  | `/inspections/:checklistId/notes`         | Si   | ADMIN | Actualizar notas de inspección                 |
+| POST   | `/inspections/:checklistId/generate-plan` | Si   | ADMIN | Generar plan de mantenimiento desde inspección |
+| DELETE | `/inspections/:id`                        | Si   | ADMIN | Eliminar inspección (soft-delete)              |
+
+**POST /inspections** (ADMIN)
+
+```json
+{
+  "propertyId": "uuid",
+  "notes": "Notas opcionales (max 2000 chars)",
+  "items": [
+    {
+      "sector": "ROOF",
+      "name": "Revisión de membrana",
+      "description": "Opcional",
+      "status": "PENDING",
+      "finding": "Opcional",
+      "photoUrl": "https://r2-url/foto.jpg",
+      "taskTemplateId": "uuid-opcional",
+      "inspectionGuide": "Guía markdown copiada del template",
+      "guideImageUrls": ["https://r2-url/guia.jpg"],
+      "isCustom": false,
+      "order": 0
+    }
+  ]
+}
+```
+
+**GET /inspections/property/:propertyId** — CLIENT solo ve inspecciones de sus propiedades (filtro automatico por userId).
+
+**GET /inspections/templates/:propertyId** — Retorna items agrupados por sector desde TaskTemplates para armar el checklist inicial.
+
+**PATCH /inspections/items/:itemId** (ADMIN)
+
+```json
+{
+  "status": "NEEDS_ATTENTION",
+  "finding": "Humedad visible en cielorraso",
+  "photoUrl": "https://r2-url/hallazgo.jpg"
+}
+```
+
+Todos los campos son opcionales. `status`: PENDING | OK | NEEDS_ATTENTION | NEEDS_PROFESSIONAL.
+
+**POST /inspections/:checklistId/items** (ADMIN)
+
+```json
+{
+  "sector": "INTERIOR",
+  "name": "Item custom agregado",
+  "description": "Opcional",
+  "isCustom": true
+}
+```
+
+**PATCH /inspections/:checklistId/notes** (ADMIN)
+
+```json
+{ "notes": "Notas actualizadas (max 2000 chars)" }
+```
+
+**POST /inspections/:checklistId/generate-plan** (ADMIN)
+
+```json
+{ "planName": "Plan de mantenimiento 2026" }
+```
+
+Rate limit: 3 requests/minuto. Genera MaintenancePlan + Tasks con prioridades ajustadas segun hallazgos.
+
+**DELETE /inspections/:id** (ADMIN) — Soft-delete. Respuesta: `{ "data": null, "message": "Inspección eliminada" }`.
 
 **Flujo de generación de plan:**
 
 1. `GET /inspections/templates/:propertyId` — obtiene items agrupados por sector desde TaskTemplates
 2. `POST /inspections` — crea el checklist con los items (cada uno con `taskTemplateId`)
 3. Admin evalúa cada item (OK / NEEDS_ATTENTION / NEEDS_PROFESSIONAL)
-4. `POST /inspections/:id/generate-plan` — genera MaintenancePlan + Tasks con prioridades ajustadas:
+4. `POST /inspections/:checklistId/generate-plan` — genera MaintenancePlan + Tasks con prioridades ajustadas:
    - OK → prioridad del template, riskScore bajo
    - NEEDS_ATTENTION → HIGH, riskScore medio
    - NEEDS_PROFESSIONAL → URGENT + professionalRequirement: PROFESSIONAL_REQUIRED, riskScore alto
@@ -537,7 +604,6 @@ Flujo principal: Inspección visual → Generación de plan de mantenimiento.
 - `Task.riskScore` — índice de riesgo compuesto (0-18)
 - `Task.inspectionFinding` — hallazgo copiado de la inspección
 - `MaintenancePlan.sourceInspectionId` — inspección que generó el plan
-  - Se crea un TaskLog baseline por cada tarea para alimentar el ISV desde día 1
 
 ---
 

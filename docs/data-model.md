@@ -1,6 +1,6 @@
 # Modelo de Datos
 
-Base de datos PostgreSQL 16, ORM Prisma 6.
+Base de datos PostgreSQL 16, ORM Prisma 6. **30 modelos**, 15 enums.
 
 ## Diagrama de Relaciones
 
@@ -525,27 +525,28 @@ Item individual de una inspección. Cada item corresponde a un TaskTemplate y se
 
 ### TaskTemplate
 
-| Campo                    | Tipo                    | Notas                 |
-| ------------------------ | ----------------------- | --------------------- |
-| id                       | CUID                    | PK, auto-generated    |
-| categoryId               | String                  | FK → CategoryTemplate |
-| name                     | String(200)             |                       |
-| taskType                 | TaskType                |                       |
-| professionalRequirement  | ProfessionalRequirement | Default: OWNER_CAN_DO |
-| technicalDescription     | String(1000)?           |                       |
-| priority                 | TaskPriority            | Default: MEDIUM       |
-| recurrenceType           | RecurrenceType          |                       |
-| recurrenceMonths         | Int                     | Default: 12           |
-| estimatedDurationMinutes | Int?                    |                       |
-| displayOrder             | Int                     | Default: 0            |
-| createdAt                | DateTime                |                       |
-| updatedAt                | DateTime                |                       |
+| Campo                    | Tipo                    | Notas                                        |
+| ------------------------ | ----------------------- | -------------------------------------------- |
+| id                       | CUID                    | PK, auto-generated                           |
+| categoryId               | String                  | FK → CategoryTemplate                        |
+| name                     | String(200)             |                                              |
+| taskType                 | TaskType                |                                              |
+| professionalRequirement  | ProfessionalRequirement | Default: OWNER_CAN_DO                        |
+| technicalDescription     | String(1000)?           |                                              |
+| priority                 | TaskPriority            | Default: MEDIUM                              |
+| recurrenceType           | RecurrenceType          |                                              |
+| recurrenceMonths         | Int                     | Default: 12                                  |
+| estimatedDurationMinutes | Int?                    |                                              |
+| defaultSector            | PropertySector?         | Sector donde aplica la tarea                 |
+| inspectionGuide          | Text?                   | Guía markdown de inspección                  |
+| guideImageUrls           | String[]                | URLs de imágenes de referencia (default: []) |
+| displayOrder             | Int                     | Default: 0                                   |
+| createdAt                | DateTime                |                                              |
+| updatedAt                | DateTime                |                                              |
 
 **Indices:** `categoryId`, `[categoryId, displayOrder]`
 **Cascade:** onDelete de CategoryTemplate elimina sus TaskTemplates
 **inspectionGuide:** Markdown con secciones (Qué buscar, Cómo evaluar, Procedimiento, Normativa). Editable desde admin con formulario estructurado. 152/152 templates tienen guía.
-
-> **Campos no listados arriba (agregados recientemente):** `defaultSector` (PropertySector?, sector donde aplica la tarea), `inspectionGuide` (Text?, guía markdown de inspección), `guideImageUrls` (String[], URLs de imágenes de referencia para la guía).
 
 ## Notas de Implementacion
 

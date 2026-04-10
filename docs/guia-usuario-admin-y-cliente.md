@@ -70,7 +70,6 @@ El menú lateral (sidebar) del admin tiene:
    - **Tipo:** Casa, Departamento, Dúplex, Casa de Campo, Otro
    - **Año construcción** (opcional)
    - **Metros cuadrados** (opcional)
-3. Al crear, el sistema automáticamente genera un **Plan de Mantenimiento** vacío asociado a esa propiedad
 
 ### Paso 3: Configurar sectores activos
 
@@ -88,11 +87,66 @@ El menú lateral (sidebar) del admin tiene:
 
 **Ejemplo:** Un departamento probablemente no tiene "Jardín" ni "Subsuelo". Desactivás esos sectores.
 
-### Paso 4: Cargar tareas al plan
+### Paso 4: Realizar la inspección y generar el plan
 
-Hay dos formas:
+El plan de mantenimiento **no se crea manualmente** — se genera automáticamente a partir de la inspección. Ver la sección 4b para el flujo completo de inspección.
 
-#### Opción A: Desde plantilla (recomendado para empezar)
+---
+
+## 4b. Inspección: flujo completo
+
+La inspección es el paso central del proceso. Desde el tab **"Inspección"** en el detalle de la propiedad, la arquitecta evalúa el estado de la vivienda y genera el plan de mantenimiento.
+
+### Iniciar la inspección
+
+1. Entrar a la propiedad → tab **"Inspección"**
+2. Botón **"Iniciar inspección"**
+3. El sistema genera automáticamente los **152 items de inspección**, organizados por sector y filtrados según los sectores activos de la propiedad
+
+### Evaluar items por sector
+
+Los items se muestran en **secciones colapsables por sector** (Exterior, Techo, Terraza, Interior, Cocina, Baño, Subsuelo, Jardín, Instalaciones). Para cada item:
+
+1. Evaluar con uno de los tres estados:
+   - **OK** — el punto está en buen estado
+   - **Necesita atención** — requiere mantenimiento prioritario (sube la prioridad a Alta)
+   - **Requiere profesional** — necesita intervención profesional (prioridad Urgente + Profesional obligatorio)
+2. Para items con hallazgos: agregar una **descripción** del problema encontrado
+3. Opcionalmente adjuntar **foto** como evidencia
+
+### Consultar la guía de inspección
+
+Cada item tiene un botón con **ícono de ojo** que abre la **guía estructurada de inspección**. La guía muestra:
+
+- **Tarjetas de evaluación** con criterios claros para cada resultado (OK / Necesita atención / Requiere profesional)
+- **Pasos del procedimiento** para saber exactamente qué revisar y cómo
+- **Referencias normativas** cuando aplica (ej: NAG-226 para gas, reglamentaciones eléctricas)
+
+Esto permite que la evaluación sea consistente y fundamentada, incluso entre diferentes inspecciones de la misma vivienda.
+
+### Generar el plan de mantenimiento
+
+1. Cuando el **100% de los items** están evaluados, se habilita el botón **"Generar Plan"**
+2. El sistema crea automáticamente el plan de mantenimiento con:
+   - Tareas generadas a partir de los hallazgos de la inspección
+   - **Prioridades ajustadas** según el resultado de cada evaluación
+   - El **Risk Score** (puntaje de riesgo) de la inspección determina la prioridad de las tareas
+3. Revisar las tareas generadas y ajustar lo que haga falta
+4. Cambiar el estado del plan de **Borrador** a **Activo**
+
+### Después de activar el plan
+
+- El cliente puede ver su dashboard con el ISV
+- Las tareas empiezan a generar recordatorios automáticos
+- El sistema calcula el ISV mensualmente
+
+---
+
+## 4c. Cargar tareas adicionales al plan
+
+Después de generar el plan desde la inspección, se pueden agregar tareas extra:
+
+#### Opción A: Desde plantilla
 
 1. Entrar a la propiedad → tab **"Plan"**
 2. Botón **"Agregar desde plantilla"**
@@ -453,16 +507,19 @@ El sistema ejecuta tareas automáticas sin intervención:
 
 ## 15. Glosario
 
-| Término                   | Significado                                                             |
-| ------------------------- | ----------------------------------------------------------------------- |
-| **ISV**                   | Índice de Salud de la Vivienda (0-100)                                  |
-| **Plan de mantenimiento** | Conjunto de tareas programadas para una propiedad                       |
-| **TaskLog**               | Registro inmutable de una inspección/completación de tarea              |
-| **Sector**                | Zona de la vivienda (Techo, Baño, Instalaciones, etc.)                  |
-| **Recurrencia**           | Cada cuánto se repite una tarea (mensual, trimestral, anual, etc.)      |
-| **ON_DETECTION**          | Tarea que no tiene fecha fija — se hace cuando se detecta algo          |
-| **Condición encontrada**  | Estado real observado durante una inspección                            |
-| **Acción realizada**      | Qué se hizo concretamente (solo inspección, limpieza, reparación, etc.) |
-| **Problema detectado**    | Inspección con condición Deteriorado o Crítico sin servicio activo      |
-| **ServiceRequest**        | Solicitud de servicio creada por el cliente o el admin                  |
-| **BudgetRequest**         | Solicitud de presupuesto con line items y cotización                    |
+| Término                   | Significado                                                              |
+| ------------------------- | ------------------------------------------------------------------------ |
+| **ISV**                   | Índice de Salud de la Vivienda (0-100)                                   |
+| **Plan de mantenimiento** | Conjunto de tareas programadas para una propiedad                        |
+| **TaskLog**               | Registro inmutable de una inspección/completación de tarea               |
+| **Sector**                | Zona de la vivienda (Techo, Baño, Instalaciones, etc.)                   |
+| **Recurrencia**           | Cada cuánto se repite una tarea (mensual, trimestral, anual, etc.)       |
+| **ON_DETECTION**          | Tarea que no tiene fecha fija — se hace cuando se detecta algo           |
+| **Condición encontrada**  | Estado real observado durante una inspección                             |
+| **Acción realizada**      | Qué se hizo concretamente (solo inspección, limpieza, reparación, etc.)  |
+| **Problema detectado**    | Inspección con condición Deteriorado o Crítico sin servicio activo       |
+| **ServiceRequest**        | Solicitud de servicio creada por el cliente o el admin                   |
+| **BudgetRequest**         | Solicitud de presupuesto con line items y cotización                     |
+| **Inspección**            | Evaluación visual de los 152 items de la vivienda, organizada por sector |
+| **Risk Score**            | Puntaje de riesgo de la inspección que determina la prioridad de tareas  |
+| **Guía de inspección**    | Ficha técnica con criterios de evaluación, procedimiento y normativa     |

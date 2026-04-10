@@ -42,10 +42,13 @@ EPDE (Estudio Profesional de Diagnóstico Edilicio) es una plataforma de **mante
 
 ```
 User ──1:N── Property ──1:1── MaintenancePlan ──1:N── Task
-                │                                        │
+                │                  │                      │
                 ├──1:N── BudgetRequest                   ├── TaskLog (inmutable, historial)
                 ├──1:N── ServiceRequest                  ├── TaskNote
-                └──1:N── ISVSnapshot (mensual)           └── TaskAuditLog
+                ├──1:N── ISVSnapshot (mensual)           └── TaskAuditLog
+                └──1:N── InspectionChecklist ──1:N── InspectionItem ──?:1── Task
+                              │
+                              └── sourceInspectionId → MaintenancePlan
 ```
 
 ### Property (Propiedad)
@@ -68,6 +71,7 @@ User ──1:N── Property ──1:1── MaintenancePlan ──1:N── Ta
 - `status`: PENDING → UPCOMING (30 días antes) → OVERDUE (si pasa la fecha) → PENDING (al completar)
 - `taskType`: INSPECTION, CLEANING, TEST, TREATMENT, SEALING, LUBRICATION, ADJUSTMENT, MEASUREMENT, EVALUATION
 - `professionalRequirement`: OWNER_CAN_DO, PROFESSIONAL_RECOMMENDED, PROFESSIONAL_REQUIRED
+- `riskScore`: entero 0+ (default 0). Se asigna durante la inspección inicial. Indexado para ordenar tareas por riesgo
 
 **Concepto clave:** COMPLETED es transitorio. Al completar una tarea, se crea un TaskLog y la tarea vuelve a PENDING con nueva `nextDueDate`. El historial vive en TaskLog.
 
@@ -98,6 +102,32 @@ User ──1:N── Property ──1:1── MaintenancePlan ──1:N── Ta
 - Almacena: score, label, las 5 dimensiones, scores por sector
 - Se usa solo para historial (gráfico de evolución) y alertas de caída ≥15 puntos
 - NO se usa para mostrar el ISV actual (eso siempre es real-time)
+
+### InspectionChecklist (Checklist de inspección)
+
+- Representa una inspección presencial realizada sobre una propiedad
+- Campos: `propertyId`, `inspectedBy` (User), `inspectedAt`, `notes`
+- Soft-delete (`deletedAt`)
+- Contiene N InspectionItems
+
+### InspectionItem (Ítem de inspección)
+
+- Cada ítem corresponde a un sector de la vivienda y un punto a verificar
+- `sector` (PropertySector), `name`, `description`, `finding`, `photoUrl`
+- `status`: PENDING → OK / NEEDS_ATTENTION / NEEDS_PROFESSIONAL
+- `taskId` (nullable): vincula el ítem con una Task existente en el plan
+- `taskTemplateId` (nullable): referencia al template origen
+- `inspectionGuide` + `guideImageUrls`: guía visual para el inspector
+- `isCustom`: indica si fue agregado manualmente (no viene de template)
+- Soft-delete (`deletedAt`)
+
+### Flujo Inspección → Plan
+
+1. ADMIN crea un `InspectionChecklist` para una propiedad
+2. Durante la inspección, cada ítem se evalúa y se le asigna status + finding + `riskScore`
+3. Al finalizar, se genera o actualiza el `MaintenancePlan` con tareas derivadas de los ítems
+4. `MaintenancePlan.sourceInspectionId` guarda la referencia a la inspección origen
+5. Cada `InspectionItem` puede quedar vinculado a la `Task` creada (`taskId`)
 
 ---
 

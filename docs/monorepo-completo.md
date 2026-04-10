@@ -42,13 +42,13 @@ epde/
 ├── apps/
 │   ├── api/                          # ── @epde/api ──────────────────────
 │   │   ├── prisma/
-│   │   │   ├── schema.prisma         # 26 modelos, 18 enums
+│   │   │   ├── schema.prisma         # 30 modelos, 19 enums
 │   │   │   ├── seed.ts               # Admin + 14 categorias default (upsert) + FK linkage
 │   │   │   └── migrations/
 │   │   ├── src/
 │   │   │   ├── main.ts               # Bootstrap (Helmet, CORS, Swagger, Cookies, express.json({ limit: '1mb' }))
 │   │   │   ├── instrument.ts         # OpenTelemetry + Sentry instrumentation
-│   │   │   ├── app.module.ts         # Root module (imports CoreModule + 15 feature modules)
+│   │   │   ├── app.module.ts         # Root module (imports CoreModule + 17 feature modules)
 │   │   │   ├── core/                # CoreModule (@Global) — agrupa infra: Sentry, Config, Throttler, Logger, BullMQ, Prisma, Redis, Health, Metrics
 │   │   │   ├── auth/                 # JWT + Local strategy + Token Rotation (Redis)
 │   │   │   │   ├── token.service.ts # Token pairs, rotation, blacklist, reuse detection
@@ -65,11 +65,12 @@ epde/
 │   │   │   ├── quote-templates/      # Templates de cotizacion reutilizables (CRUD)
 │   │   │   ├── category-templates/   # Templates de categorias
 │   │   │   ├── landing-settings/    # Admin edita general (teléfono, social proof), pricing, FAQ, consequences de la landing (GET público + PATCH admin-only)
+│   │   │   ├── inspections/           # Inspecciones de propiedades (CRUD + soft-delete)
 │   │   │   ├── notifications/        # Sistema de notificaciones (NotificationsHandlerService + BullMQ queues)
 │   │   │   ├── dashboard/            # Estadisticas agregadas (DashboardRepository standalone — queries multi-modelo)
 │   │   │   ├── email/                # Servicio de emails (Resend)
 │   │   │   ├── upload/               # Upload a Cloudflare R2
-│   │   │   ├── scheduler/            # Cron jobs (8 jobs: 7 diarios + 1 mensual, distributed lock)
+│   │   │   ├── scheduler/            # Cron jobs (10 jobs: 8 diarios + 1 semanal + 1 mensual, distributed lock)
 │   │   │   ├── redis/                # RedisModule (global) + DistributedLockService
 │   │   │   ├── health/              # HealthModule (@nestjs/terminus, DB + Redis)
 │   │   │   ├── metrics/             # MetricsModule (OpenTelemetry, Prometheus :9464)
@@ -480,7 +481,7 @@ Cliente → POST /upload (multipart/form-data) → { url }
 
 ### P11: Cron Jobs (Distributed Lock)
 
-8 jobs programados, cada uno envuelto en `DistributedLockService.withLock()` (Redis SETNX, TTL 5min):
+10 jobs programados, cada uno envuelto en `DistributedLockService.withLock()` (Redis SETNX, TTL 5min):
 
 | Job                        | Cron              | Descripcion                                                                                                                               |
 | -------------------------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
@@ -492,6 +493,8 @@ Cliente → POST /upload (multipart/form-data) → { url }
 | subscription-reminder      | 10:30 UTC diario  | Recordatorios de vencimiento de suscripcion (7, 3 y 1 dias restantes). Deduplica notificaciones por día (previene duplicados en redeploy) |
 | isv-monthly-snapshot       | 02:00 UTC 1ro/mes | Snapshot mensual del ISV por propiedad                                                                                                    |
 | data-cleanup               | 03:00 UTC diario  | Hard-delete de registros soft-deleted > 90 dias + retencion de ISVSnapshot a 24 meses                                                     |
+| weekly-summary             | 12:00 UTC lunes   | Resumen semanal de actividad                                                                                                              |
+| notification-cleanup       | 03:00 UTC domingo | Limpieza de notificaciones antiguas                                                                                                       |
 
 Lock key pattern: `lock:cron:<job-name>`. Previene ejecucion concurrente en deployments multi-instancia. Incluye **watchdog** que extiende TTL automaticamente cada mitad del periodo. El callback recibe `signal: { lockLost: boolean }` — los jobs verifican el flag antes de operaciones costosas y abortan si el lock se perdio. **Batch processing**: tareas procesadas en lotes de `BATCH_SIZE=50` para evitar timeouts en datasets grandes. ISV snapshot batch sizes son configurables via env vars `ISV_BATCH_SIZE` (default 50) e `ISV_MAX_PROPERTIES` (default ilimitado). `data-cleanup` usa queries secuenciales (sin `$transaction`) para evitar long-running transactions.
 
@@ -883,7 +886,7 @@ const form = useForm<MyInput>({
 
 PostgreSQL 16, ORM Prisma 6, Docker Compose para desarrollo.
 
-### Modelo de Datos (26 modelos)
+### Modelo de Datos (30 modelos)
 
 ```
 User ─1:N─ Property ─1:1─ MaintenancePlan ─1:N─ Task ─1:N─ TaskAuditLog

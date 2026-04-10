@@ -41,7 +41,7 @@ Actualizar cuando se agrega o modifica una feature en cualquier plataforma.
 | Completar tarea                  |     ✅      |      ✅       |        ✅        |                 ✅                 | Con foto, costo, nota                                  |
 | Solicitar servicio desde tarea   |     ✅      |      ✅       |        ✅        |                 ✅                 | Pre-llena propertyId + taskId + título                 |
 | Completar tarea desde PlanEditor | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Sin salir de la propiedad                              |
-| Bulk tasks desde template        | ✅ (admin)  |      ❌       |        ✅        |                 ❌                 | POST /tasks/bulk                                       |
+| Bulk tasks desde template        | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | POST /tasks/bulk (admin web only)                      |
 | Reordenar tareas                 | ✅ (admin)  |      ❌       |        ❌        |                 ❌                 | Drag & drop                                            |
 | Notas de tarea                   |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
 | Historial de tarea (logs)        |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
@@ -82,9 +82,9 @@ Actualizar cuando se agrega o modifica una feature en cualquier plataforma.
 | Ver perfil                       |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
 | Logout                           |     ✅      |      ✅       |        ✅        |                 ✅                 |                                                        |
 | **Risk Score (Priorización)**    |             |               |                  |                                    |                                                        |
-| Cálculo de riskScore por tarea   |     ✅      |      ✅       |        ❌        |                 ❌                 | priority × severity × sector_weight (0-18)             |
-| Ordenamiento por riesgo          |     ✅      |      ✅       |        ❌        |                 ❌                 | Plan viewer ordena por riskScore DESC                  |
-| Badge de riesgo en tareas        |     ✅      |      ✅       |        ❌        |                 ❌                 | Rojo ≥12, amarillo ≥6                                  |
+| Cálculo de riskScore por tarea   |     ✅      |      ✅       |        ✅        |                 ❌                 | priority × severity × sector_weight (0-18)             |
+| Ordenamiento por riesgo          |     ✅      |      ✅       |        ✅        |                 ❌                 | Plan viewer ordena por riskScore DESC                  |
+| Badge de riesgo en tareas        |     ✅      |      ✅       |        ✅        |                 ❌                 | Rojo ≥12, amarillo ≥6                                  |
 | **ISV (Índice Salud Vivienda)**  |             |               |                  |                                    |                                                        |
 | ISV score en tab Salud           |     ✅      |      ✅       |        ✅        |                 ✅                 | 5 dimensiones + sector scores                          |
 | ISV historial (chart)            |     ✅      |      ✅       |        ✅        |                 ✅                 | Barras mensuales (últimos 12 meses)                    |

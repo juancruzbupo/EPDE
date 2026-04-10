@@ -46,7 +46,7 @@
 
 ### Render: plan Starter ($7/mes) obligatorio
 
-El free tier duerme la app después de 15 min de inactividad. Los 8 cron jobs (task scheduler, ISV recalc, subscription reminders, notification cleanup, etc.) solo corren si el proceso está activo. En free tier los crons no son confiables.
+El free tier duerme la app después de 15 min de inactividad. Los 10 cron jobs (task scheduler, ISV recalc, subscription reminders, notification cleanup, etc.) solo corren si el proceso está activo. En free tier los crons no son confiables.
 
 - [ ] Upgrade a Render Starter ($7/mes) para background workers confiables
 - [ ] Verificar que los 3 schedulers loguean ejecución en las primeras 24h post-deploy

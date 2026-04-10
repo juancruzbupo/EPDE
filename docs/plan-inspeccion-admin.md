@@ -2,9 +2,19 @@
 
 14 features para optimizar el flujo de la arquitecta, desde la preparación hasta el seguimiento.
 
+**Implementado:**
+
+- [x] Checklist de inspección con 152 items por sector
+- [x] Evaluación de items (OK/Atención/Profesional) con hallazgos
+- [x] Generación de plan desde inspección completada
+- [x] Cálculo de Risk Score (`computeRiskScore()`)
+- [x] UI de sectores colapsables
+- [x] Guías de inspección con renderer estructurado
+- [x] Baseline TaskLogs desde inspección
+
 ---
 
-## Fase 1 — Quick wins (1-2 días)
+## Fase 1 — Quick wins (1-2 días) — Pendiente
 
 ### 1. Sectores al crear la propiedad
 
@@ -69,9 +79,9 @@ Al hacer click en "Activar plan", mostrar warnings si:
 
 ---
 
-## Fase 2 — Checklist de inspección (3-5 días)
+## Fase 2 — Checklist de inspección (3-5 días) — IMPLEMENTADA
 
-### 6. Checklist de inspección por sector
+### 6. [x] Checklist de inspección por sector
 
 **Modelo nuevo:**
 
@@ -109,7 +119,7 @@ InspectionItem {
 - `apps/web/src/app/(dashboard)/properties/[id]/inspection-tab.tsx` (nueva pestaña admin)
 - Templates de inspección: datos seed con items por sector + guía markdown
 
-### 7. Quick-add hallazgo
+### 7. [x] Quick-add hallazgo
 
 Formulario rápido dentro del checklist: sector + qué encontró + severidad + foto. Al guardar, crea automáticamente una tarea en el plan con:
 
@@ -126,7 +136,7 @@ Formulario rápido dentro del checklist: sector + qué encontró + severidad + f
 
 ---
 
-## Fase 3 — Detección de duplicados (1 día)
+## Fase 3 — Detección de duplicados (1 día) — Pendiente
 
 ### 9. Detección de duplicados
 

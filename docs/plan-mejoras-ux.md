@@ -6,9 +6,9 @@
 
 ## Fase 1 — Rápidas (1-2 días cada una)
 
-### 1. Resumen semanal por email
+### 1. [x] Resumen semanal por email
 
-**Estado actual:** Existe `weekly-summary.service.ts` que envía un push notification los lunes a las 9AM Argentina. No manda email.
+**Estado actual:** IMPLEMENTADO. `weekly-summary.service.ts` envía email semanal via `EmailQueueService.enqueueWeeklySummary()`. Template `weeklySummary` en `EmailService`.
 
 **Qué hacer:**
 
@@ -54,9 +54,9 @@
 
 ---
 
-### 3. Streak y semana perfecta prominentes en mobile
+### 3. [x] Streak y semana perfecta prominentes en mobile
 
-**Estado actual:** Ya se muestran como badges debajo del health score en `home-status-card.tsx` (🔥 X meses al día, ✓ Semana perfecta).
+**Estado actual:** IMPLEMENTADO. Componente `streak-card.tsx` en mobile con sección dedicada. Badges en `home-status-card.tsx`.
 
 **Qué hacer:**
 

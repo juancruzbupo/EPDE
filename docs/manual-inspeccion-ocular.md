@@ -9,11 +9,11 @@ Guía operativa para la arquitecta. Cubre desde que llegás a la vivienda hasta 
 1. Preparación antes de ir
 2. Recorrido por la vivienda (inspección visual)
 3. Carga de datos en el sistema (tab Inspección → Iniciar inspección)
-4. Evaluación de cada item (OK / Necesita atención / Requiere profesional)
-5. Generación del plan desde la inspección (botón "Generar Plan")
-6. Activación y entrega al cliente
+4. Evaluación de cada item usando las guías estructuradas (OK / Necesita atención / Requiere profesional)
+5. Generación del plan desde la inspección completada (botón "Generar Plan")
+6. Revisión, activación y entrega al cliente
 
-> **Nota:** Los items de inspección se generan automáticamente desde los TaskTemplates del sistema, filtrados por los sectores activos de la propiedad. Al completar la inspección, el sistema genera el plan de mantenimiento con prioridades ajustadas según los hallazgos.
+> **Nota:** El plan de mantenimiento **no se crea manualmente** — se genera automáticamente a partir de la inspección completada. Los items de inspección se generan desde los TaskTemplates del sistema, filtrados por los sectores activos de la propiedad. Al completar la inspección, el sistema genera el plan con prioridades ajustadas según los hallazgos y el Risk Score.
 
 ---
 
@@ -22,9 +22,11 @@ Guía operativa para la arquitecta. Cubre desde que llegás a la vivienda hasta 
 Antes de salir a la vivienda:
 
 - Verificar que la propiedad esté creada en el sistema (dirección, tipo, m², año de construcción)
-- Crear el plan de mantenimiento en estado **Borrador**
+- Verificar que los **sectores activos** estén correctamente configurados (desactivar los que no aplican)
 - Llevar: cinta métrica, linterna, cámara/celular para fotos, anotador o tablet con acceso al sistema
 - Pedirle al propietario acceso a todos los sectores: techo, terraza, sótano, tablero eléctrico, tanque de agua
+
+> **Importante:** Ya no es necesario crear el plan de mantenimiento previamente. El plan se genera automáticamente al completar la inspección.
 
 ---
 
@@ -100,9 +102,24 @@ La inspección se hace sector por sector, en este orden recomendado:
 
 ---
 
-## 3. Criterio para cargar tareas
+## 3. Carga de la inspección en el sistema
 
-Después de la inspección, cargás las tareas en el plan. Para cada hallazgo, definir estos 4 campos clave:
+### 3.0 Flujo en la app
+
+1. Entrar a la propiedad → tab **"Inspección"** → **"Iniciar inspección"**
+2. El sistema genera los 152 items organizados en **secciones colapsables por sector**
+3. Recorrer cada sector evaluando item por item
+4. Cada item tiene un botón con **ícono de ojo** que abre la **guía estructurada de inspección**:
+   - **Tarjetas de evaluación:** criterios claros para cada resultado (OK / Necesita atención / Requiere profesional)
+   - **Pasos del procedimiento:** qué revisar exactamente y cómo hacerlo
+   - **Referencias normativas:** cuando aplica (NAG-226, reglamentaciones eléctricas, etc.)
+5. Para cada item marcar el resultado y agregar descripción/foto si hay hallazgos
+6. Cuando el 100% de los items están evaluados → **"Generar Plan"**
+7. El sistema crea el plan de mantenimiento con prioridades ajustadas según el Risk Score
+
+### Criterio para ajustar las tareas generadas
+
+Después de generar el plan desde la inspección, revisás las tareas creadas y ajustás lo que haga falta. Para cada tarea, verificar estos 4 campos clave:
 
 ### 3.1 Prioridad
 
@@ -184,28 +201,31 @@ No poner todas las tareas con la misma fecha. Distribuirlas para que el propieta
 
 ## 5. Carga en el sistema paso a paso
 
-### Paso 1 — Cargar desde plantillas
+### Paso 1 — Realizar la inspección
 
-Ir al plan de mantenimiento → usar las **plantillas de categorías** para agregar tareas predefinidas. Esto carga tareas estándar con prioridad, recurrencia y tipo ya configurados. Después ajustás lo que haga falta según lo que viste en la inspección.
+1. Entrar a la propiedad → tab **"Inspección"** → **"Iniciar inspección"**
+2. Evaluar todos los items sector por sector, usando las guías estructuradas cuando sea necesario
+3. Registrar hallazgos con descripción y foto
+4. Cuando el 100% esté completo → **"Generar Plan"**
 
-### Paso 2 — Ajustar cada tarea
+### Paso 2 — Revisar las tareas generadas
 
-Para cada tarea cargada:
+El sistema crea las tareas con prioridades basadas en el Risk Score. Para cada tarea:
 
 - Verificar que la **prioridad** refleje lo que viste (subir si encontraste deterioro, bajar si está todo bien)
-- Asignar el **sector** correcto de la vivienda
+- Verificar el **sector** asignado
 - Poner la **fecha de vencimiento** según el criterio de arriba
 - Completar la **descripción técnica** si hay algo específico de esta vivienda (ej: "la canaleta del lateral derecho tiene pendiente invertida")
 - Marcar si **requiere profesional**
 - Agregar **duración estimada** si es relevante
 
-### Paso 3 — Agregar tareas específicas
+### Paso 3 — Agregar tareas adicionales
 
-Las plantillas cubren lo estándar. Agregar manualmente las tareas que son propias de esta vivienda:
+Las tareas generadas desde la inspección cubren lo detectado. Opcionalmente agregar:
 
-- Problemas detectados durante la inspección (recurrencia: Por detección)
-- Particularidades constructivas (ej: vivienda con pileta → tareas de mantenimiento de pileta)
-- Instalaciones especiales (ej: bomba presurizadora, caldera, aire acondicionado central)
+- Tareas desde **plantillas de categoría** para cubrir mantenimiento estándar no incluido
+- Tareas manuales para particularidades de la vivienda (ej: pileta, bomba presurizadora)
+- Problemas puntuales que requieran seguimiento (recurrencia: Por detección)
 
 ### Paso 4 — Revisar el plan completo
 
@@ -266,7 +286,9 @@ El ISV (Índice de Salud de la Vivienda) es un número de 0 a 100 que se calcula
 ```
 Llegar → Recorrer sector por sector → Anotar hallazgos
   ↓
-Cargar plantillas → Ajustar prioridades y fechas → Agregar tareas específicas
+Tab Inspección → Evaluar items con guías → Registrar hallazgos
+  ↓
+100% completo → Generar Plan → Ajustar tareas → Agregar extras
   ↓
 Revisar todo → Activar plan → El cliente tiene su dashboard
 ```
