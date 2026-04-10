@@ -11,8 +11,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "jest --runInBand --forceExit",
-    "test:e2e": "jest --config jest-e2e.config.ts --runInBand",
-    "test:integration": "jest --config jest-integration.config.ts --runInBand"
+    "test:e2e": "jest --config jest-e2e.config.ts --runInBand"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.997.0",

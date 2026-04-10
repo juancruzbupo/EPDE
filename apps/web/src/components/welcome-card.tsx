@@ -82,7 +82,7 @@ export function WelcomeCard({
             </Button>
           )}
           <Button asChild size="sm" variant="outline">
-            <Link href="/guia">
+            <Link href="/guide">
               <HelpCircle className="mr-2 h-4 w-4" />
               Guía de uso
             </Link>

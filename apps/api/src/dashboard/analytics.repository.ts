@@ -16,9 +16,18 @@ import { PrismaService } from '../prisma/prisma.service';
  * Analytics repository — completion trends, condition distribution,
  * category breakdown, expenses, SLA metrics.
  *
- * Uses `this.prisma.softDelete.{model}` directly (not BaseRepository) for
- * cross-model aggregations. If the soft-delete mechanism changes, this file
- * must be updated alongside BaseRepository.
+ * **Intentionally multi-model.** This repository does NOT extend `BaseRepository`
+ * because it aggregates data across Task, TaskLog, Category, BudgetRequest,
+ * BudgetResponse, ServiceRequest, and ISVSnapshot models. A single-model
+ * repository cannot express these cross-cutting analytics queries.
+ *
+ * Uses `this.prisma.softDelete.{model}` for filtered reads and `$queryRaw`
+ * for heavy aggregations (GROUP BY, window functions). If the soft-delete
+ * mechanism changes, update this file alongside BaseRepository.
+ *
+ * Split consideration: if this file exceeds ~600 LOC, split into
+ * `AdminAnalyticsRepository` (admin-scoped: global trends, SLA, pipeline)
+ * and `ClientAnalyticsRepository` (client-scoped: planIds-filtered methods).
  */
 @Injectable()
 export class AnalyticsRepository {

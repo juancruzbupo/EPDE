@@ -188,6 +188,8 @@
 171. **SIEMPRE #75 ($transaction bypasa soft-delete extension)**: Dentro de `this.prisma.$transaction([...])` (array form) y `$transaction(async (tx) => ...)` (callback form), la extensión de soft-delete NO aplica. TODOS los queries sobre modelos soft-deletable (user, property, task, category, budgetRequest, serviceRequest, inspectionChecklist, inspectionItem) DEBEN incluir `deletedAt: null` en el `where` explícitamente. Excepción: TOCTOU checks que necesitan ver el registro aunque esté soft-deleted (documentar con JSDoc).
 172. **SIEMPRE #76 (hook pattern web vs mobile)**: Web separa queries/mutations en archivos distintos (`use-budgets-queries.ts` + `use-budgets-mutations.ts` + barrel `use-budgets.ts`) porque las pages server-rendered importan solo queries y los dialogs solo mutations. Mobile combina ambos en un solo archivo (`use-budgets.ts`) porque es client-only con menos consumers por dominio. Si mobile escala con rol admin, migrar al split pattern.
 173. **SIEMPRE #77 (invalidateDashboard duplication)**: Web `invalidateDashboard()` invalida 6 query keys (admin + client). Mobile `invalidateClientDashboard()` invalida 3 keys (client-only). Duplicación intencional — extraer a `@epde/shared` requiere `QueryClient` como dependencia de React Query para ganancia mínima. Si se agrega un QUERY_KEY de dashboard nuevo, actualizar ambos archivos.
+174. **SIEMPRE #78 (dialog LOC budget)**: Todo dialog/sheet > 300 LOC DEBE splitear en composición + secciones. Patrón: archivo principal con form skeleton + secciones extraídas como componentes co-located (ej. `guide-editor-section.tsx`, `guide-image-section.tsx`). Ya aplicado en landing page (47 LOC composición + 11 secciones) y `task-template-dialog.tsx` (324 LOC + 2 secciones). Cada archivo resultante DEBE quedar bajo 400 LOC
+175. **SIEMPRE #79 (analytics repository multi-modelo)**: `AnalyticsRepository` NO extiende `BaseRepository` porque agrega datos de 7+ modelos con `$queryRaw` y window functions. Es intencionalmente multi-modelo. Si supera ~600 LOC, splitear en `AdminAnalyticsRepository` + `ClientAnalyticsRepository`. No intentar forzarlo en BaseRepository — las agregaciones cross-model no encajan en el patrón single-model
 
 ### NUNCA
 
@@ -222,6 +224,7 @@
 29. **NUNCA #21 (Redis keys sin prefix)**: No usar el cliente Redis (`ioredis`) directamente. Siempre usar `RedisService` que aplica prefix `epde:` automáticamente
 30. **NUNCA #22 (body-parser manual)**: No agregar `express.json()` ni `body-parser` manualmente en `main.ts`. NestJS maneja body parsing automáticamente (límite default 100kb, suficiente para APIs — uploads van por multipart). Agregar un segundo parser causa errores de doble-parsing
 31. **NUNCA #23 (transaction timeout sin justificación)**: Todos los `$transaction()` usan timeout de 10 segundos. Este valor cubre operaciones bulk (hasta 500 records) con margen para DB latency. No cambiar sin medir: reducir causa timeouts en bulk operations, aumentar mantiene locks más tiempo
+32. **NUNCA crear dialogs monolíticos > 300 LOC** — Un dialog que mezcla form layout, parsing logic, y sub-componentes en un solo archivo se vuelve inmantenible. Splitear secciones repetitivas (guide editors, image galleries, multi-step forms) a archivos co-located en la misma carpeta. Ref: SIEMPRE #78
 
 ---
 
