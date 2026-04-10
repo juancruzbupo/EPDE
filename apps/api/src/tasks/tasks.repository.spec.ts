@@ -85,6 +85,42 @@ describe('TasksRepository', () => {
     });
   });
 
+  describe('reorderBatch', () => {
+    it('should include deletedAt: null in where clause (soft-delete safety)', async () => {
+      const mockTransaction = jest.fn().mockResolvedValue([]);
+      (repository as unknown as { prisma: unknown }).prisma = {
+        ...(repository as unknown as { prisma: Record<string, unknown> }).prisma,
+        $transaction: mockTransaction,
+        task: { update: jest.fn() },
+      };
+
+      const tasks = [
+        { id: 'task-1', order: 0 },
+        { id: 'task-2', order: 1 },
+      ];
+
+      await repository.reorderBatch(tasks);
+
+      expect(mockTransaction).toHaveBeenCalledWith(
+        expect.arrayContaining([expect.objectContaining({}), expect.objectContaining({})]),
+      );
+
+      // Verify the Prisma operations passed to $transaction include deletedAt: null
+      // The operations are PrismaPromise objects created by task.update(),
+      // so we verify by checking the update mock was called with correct args
+      const updateMock = (repository as unknown as { prisma: { task: { update: jest.Mock } } })
+        .prisma.task.update;
+      expect(updateMock).toHaveBeenCalledWith({
+        where: { id: 'task-1', deletedAt: null },
+        data: { order: 0 },
+      });
+      expect(updateMock).toHaveBeenCalledWith({
+        where: { id: 'task-2', deletedAt: null },
+        data: { order: 1 },
+      });
+    });
+  });
+
   describe('findAllForList', () => {
     it('should cap take at TASKS_MAX_TAKE', async () => {
       await repository.findAllForList(undefined, undefined, 1000);

@@ -93,6 +93,10 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
    * layer performs a fast-fail pre-check, but the authoritative validation
    * lives here to prevent race conditions.
    *
+   * Note: `findUnique` inside `$transaction` intentionally omits `deletedAt: null` —
+   * the TOCTOU re-check needs to see the record even if concurrently soft-deleted,
+   * and the status/version guard will reject it gracefully.
+   *
    * When re-quoting (status is QUOTED), existing line items and response are
    * deleted before creating the new ones.
    */
@@ -164,6 +168,9 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
 
   /**
    * Edits a budget request within a transaction (PENDING only, TOCTOU-safe).
+   * Note: findUnique inside $transaction intentionally omits `deletedAt: null` —
+   * the TOCTOU check needs to see the record even if concurrently soft-deleted,
+   * and the subsequent status/version check will reject it gracefully.
    */
   async editBudgetRequest(
     id: string,
@@ -213,6 +220,9 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
   /**
    * Atomic status update with optimistic locking (TOCTOU-safe).
    * Re-checks status + version inside transaction before updating.
+   *
+   * `findUnique` omits `deletedAt: null` intentionally — same TOCTOU pattern
+   * as respondToBudget: the status guard rejects deleted records gracefully.
    */
   async updateStatusAtomic(
     id: string,

@@ -61,6 +61,22 @@ body {
   --color-status-pending: var(--status-pending);
   --color-status-upcoming: var(--status-upcoming);
   --color-status-completed: var(--status-completed);
+  /* Inspection guide tokens */
+  --color-guide-ok: var(--guide-ok);
+  --color-guide-ok-bg: var(--guide-ok-bg);
+  --color-guide-ok-border: var(--guide-ok-border);
+  --color-guide-attention: var(--guide-attention);
+  --color-guide-attention-bg: var(--guide-attention-bg);
+  --color-guide-attention-border: var(--guide-attention-border);
+  --color-guide-professional: var(--guide-professional);
+  --color-guide-professional-bg: var(--guide-professional-bg);
+  --color-guide-professional-border: var(--guide-professional-border);
+  --color-guide-danger: var(--guide-danger);
+  --color-guide-danger-bg: var(--guide-danger-bg);
+  --color-guide-danger-border: var(--guide-danger-border);
+  --color-guide-warning: var(--guide-warning);
+  --color-guide-warning-bg: var(--guide-warning-bg);
+  --color-guide-warning-border: var(--guide-warning-border);
   /* Task type color tokens */
   --color-task-inspection: var(--task-inspection);
   --color-task-cleaning: var(--task-cleaning);
@@ -107,6 +123,22 @@ body {
   --warning-foreground: #ffffff;
   --caution: #965018;
   --caution-foreground: #fafaf8;
+  /* Inspection guide tokens */
+  --guide-ok: #166534;
+  --guide-ok-bg: #f0fdf4;
+  --guide-ok-border: #bbf7d0;
+  --guide-attention: #854d0e;
+  --guide-attention-bg: #fefce8;
+  --guide-attention-border: #fef08a;
+  --guide-professional: #991b1b;
+  --guide-professional-bg: #fef2f2;
+  --guide-professional-border: #fecaca;
+  --guide-danger: #991b1b;
+  --guide-danger-bg: #fef2f2;
+  --guide-danger-border: #fecaca;
+  --guide-warning: #92400e;
+  --guide-warning-bg: #fffbeb;
+  --guide-warning-border: #fde68a;
   /* Task type tokens */
   --task-inspection: #3b82f6;
   --task-cleaning: #06b6d4;
@@ -163,6 +195,22 @@ body {
   --warning-foreground: #1a1715;
   --caution: #d48050;
   --caution-foreground: #1a1715;
+  /* Inspection guide tokens (dark) */
+  --guide-ok: #bbf7d0;
+  --guide-ok-bg: rgba(22, 101, 52, 0.3);
+  --guide-ok-border: #166534;
+  --guide-attention: #fef08a;
+  --guide-attention-bg: rgba(133, 77, 14, 0.3);
+  --guide-attention-border: #854d0e;
+  --guide-professional: #fecaca;
+  --guide-professional-bg: rgba(153, 27, 27, 0.3);
+  --guide-professional-border: #991b1b;
+  --guide-danger: #fecaca;
+  --guide-danger-bg: rgba(153, 27, 27, 0.3);
+  --guide-danger-border: #991b1b;
+  --guide-warning: #fde68a;
+  --guide-warning-bg: rgba(146, 64, 14, 0.3);
+  --guide-warning-border: #92400e;
   /* Task type tokens (dark) */
   --task-inspection: #60a5fa;
   --task-cleaning: #22d3ee;

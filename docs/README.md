@@ -21,8 +21,6 @@
 | [scheduler-registry.md](scheduler-registry.md)                     | Registro de cron jobs y schedulers del sistema                 |
 | [feature-matrix.md](feature-matrix.md)                             | Matriz de features por rol y plataforma                        |
 | [backlog.md](backlog.md)                                           | Oportunidades de negocio y features futuras                    |
-| [plan-inspeccion-admin.md](plan-inspeccion-admin.md)               | Plan de implementacion de herramientas de inspeccion admin     |
-| [plan-mejoras-ux.md](plan-mejoras-ux.md)                           | Plan de mejoras UX competitivas                                |
 | [plan-e-isv-guia-tecnica.md](plan-e-isv-guia-tecnica.md)           | Guia tecnica del plan de mantenimiento e ISV                   |
 | [actualizacion-costos.md](actualizacion-costos.md)                 | Referencia de costos para futura seccion de pricing            |
 | [guia-usuario-admin-y-cliente.md](guia-usuario-admin-y-cliente.md) | Guia de usuario para admin y cliente                           |

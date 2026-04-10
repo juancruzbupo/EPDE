@@ -81,11 +81,13 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
     });
   }
 
+  /** Reorders tasks in a single transaction.
+   * Uses explicit `deletedAt: null` because $transaction array bypasses the soft-delete extension. */
   async reorderBatch(tasks: { id: string; order: number }[]) {
     return this.prisma.$transaction(
       tasks.map((item) =>
         this.prisma.task.update({
-          where: { id: item.id },
+          where: { id: item.id, deletedAt: null },
           data: { order: item.order },
         }),
       ),

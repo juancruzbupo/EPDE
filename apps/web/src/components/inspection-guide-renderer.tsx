@@ -214,27 +214,23 @@ function GuideSection({ section }: { section: GuideSectionData }) {
 
     case 'danger':
       return (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-950/30">
+        <div className="border-guide-danger-border bg-guide-danger-bg rounded-lg border p-3">
           <div className="mb-1 flex items-center gap-2">
-            <ShieldAlert className="h-4 w-4 text-red-600 dark:text-red-400" />
-            <p className="text-sm font-bold text-red-800 dark:text-red-200">{section.title}</p>
+            <ShieldAlert className="text-guide-danger h-4 w-4" />
+            <p className="text-guide-danger text-sm font-bold">{section.title}</p>
           </div>
-          <p className="text-sm text-red-700 dark:text-red-300">
-            {section.text?.replace(/\*\*/g, '')}
-          </p>
+          <p className="text-guide-danger text-sm">{section.text?.replace(/\*\*/g, '')}</p>
         </div>
       );
 
     case 'warning':
       return (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/30">
+        <div className="border-guide-warning-border bg-guide-warning-bg rounded-lg border p-3">
           <div className="mb-1 flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-            <p className="text-sm font-bold text-amber-800 dark:text-amber-200">{section.title}</p>
+            <AlertTriangle className="text-guide-warning h-4 w-4" />
+            <p className="text-guide-warning text-sm font-bold">{section.title}</p>
           </div>
-          <p className="text-sm text-amber-700 dark:text-amber-300">
-            {section.text?.replace(/\*\*/g, '')}
-          </p>
+          <p className="text-guide-warning text-sm">{section.text?.replace(/\*\*/g, '')}</p>
         </div>
       );
 
@@ -301,15 +297,14 @@ function EvaluationCard({
   criteria: string;
 }) {
   const colorMap: Record<string, string> = {
-    OK: 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/30',
-    'Necesita atención':
-      'border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950/30',
-    'Requiere profesional': 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/30',
+    OK: 'border-guide-ok-border bg-guide-ok-bg',
+    'Necesita atención': 'border-guide-attention-border bg-guide-attention-bg',
+    'Requiere profesional': 'border-guide-professional-border bg-guide-professional-bg',
   };
   const textMap: Record<string, string> = {
-    OK: 'text-green-800 dark:text-green-200',
-    'Necesita atención': 'text-yellow-800 dark:text-yellow-200',
-    'Requiere profesional': 'text-red-800 dark:text-red-200',
+    OK: 'text-guide-ok',
+    'Necesita atención': 'text-guide-attention',
+    'Requiere profesional': 'text-guide-professional',
   };
 
   return (
