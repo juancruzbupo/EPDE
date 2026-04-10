@@ -15,7 +15,7 @@ interface HeroSectionProps extends SectionProps {
 
 export function HeroSection({ motionProps, socialProof }: HeroSectionProps) {
   return (
-    <section className="pt-28 pb-20 md:pt-44 md:pb-28">
+    <section id="hero" className="pt-28 pb-20 md:pt-44 md:pb-28">
       <motion.div
         variants={STAGGER_CONTAINER}
         {...motionProps}

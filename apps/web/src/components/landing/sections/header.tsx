@@ -54,7 +54,7 @@ export function Header({ general }: HeaderProps) {
     <header className="border-border/50 bg-background/80 fixed top-0 z-50 w-full border-b backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         {/* Logo */}
-        <a href="#" className="font-heading text-primary text-xl">
+        <a href="#hero" className="font-heading text-primary text-xl" aria-label="Volver al inicio">
           EPDE
         </a>
 
