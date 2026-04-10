@@ -8,7 +8,6 @@ import {
   Check,
   ClipboardList,
   Droplets,
-  FileText,
   Home,
   MonitorSmartphone,
   Search,
@@ -166,16 +165,6 @@ export const STEPS: Step[] = [
     description:
       'El sistema te dice qué hacer y cuándo hacerlo. Tareas programadas, recordatorios automáticos y seguimiento continuo.',
   },
-];
-
-export const DIAGNOSIS_INCLUDES: IconTextItem[] = [
-  { icon: BarChart3, text: 'Índice de Salud de la Vivienda (ISV)' },
-  { icon: ClipboardList, text: 'Plan de mantenimiento preventivo' },
-  { icon: Search, text: 'Inspección visual completa de la vivienda' },
-  { icon: FileText, text: 'Informe técnico imprimible' },
-  { icon: AlertTriangle, text: 'Detección de riesgos y tareas críticas' },
-  { icon: Wrench, text: 'Recomendaciones técnicas' },
-  { icon: MonitorSmartphone, text: 'Acceso al sistema EPDE por 6 meses' },
 ];
 
 export const SYSTEM_FEATURES: IconTextItem[] = [

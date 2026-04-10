@@ -8,8 +8,7 @@ import { PHONE_DISPLAY, PHONE_NUMBER } from '../landing-data';
 
 const NAV_LINKS = [
   { label: 'Cómo funciona', href: '#como-funciona' },
-  { label: 'Qué incluye', href: '#que-incluye' },
-  { label: 'Precio', href: '#inversion' },
+  { label: 'Qué incluye', href: '#inversion' },
   { label: 'Contacto', href: '#contacto' },
 ];
 
