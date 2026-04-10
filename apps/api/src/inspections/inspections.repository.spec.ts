@@ -1,11 +1,26 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { InspectionsRepository } from './inspections.repository';
 
+interface MockModel {
+  create: jest.Mock;
+  findMany: jest.Mock;
+  findUnique: jest.Mock;
+  update: jest.Mock;
+  aggregate: jest.Mock;
+  updateMany: jest.Mock;
+}
+
+interface MockPrisma {
+  inspectionChecklist: MockModel;
+  inspectionItem: MockModel;
+  $transaction: jest.Mock;
+}
+
 describe('InspectionsRepository', () => {
   let repository: InspectionsRepository;
-  let mockChecklist: Record<string, jest.Mock>;
-  let mockItem: Record<string, jest.Mock>;
-  let mockPrisma: Record<string, unknown>;
+  let mockChecklist: MockModel;
+  let mockItem: MockModel;
+  let mockPrisma: MockPrisma;
 
   beforeEach(() => {
     mockChecklist = {
@@ -13,10 +28,14 @@ describe('InspectionsRepository', () => {
       findMany: jest.fn(),
       findUnique: jest.fn(),
       update: jest.fn(),
+      aggregate: jest.fn(),
+      updateMany: jest.fn(),
     };
     mockItem = {
-      update: jest.fn(),
       create: jest.fn(),
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      update: jest.fn(),
       aggregate: jest.fn(),
       updateMany: jest.fn(),
     };
