@@ -149,6 +149,7 @@ export class TokenService {
     }
 
     this.metricsService.recordTokenRotation('success');
+    this.authAudit.logTokenRotation(sub, family);
     // Use subExp from refresh payload. Only fetch fresh from DB if subscription
     // expires within 24h (to pick up admin extensions promptly near expiry).
     let subExpDate: Date | null = payload.subExp ? new Date(payload.subExp) : null;
@@ -164,6 +165,7 @@ export class TokenService {
     // the client a short window to keep refreshing indefinitely.
     if (role === 'CLIENT' && subExpDate && subExpDate.getTime() < Date.now()) {
       await this.revokeFamily(family);
+      this.authAudit.logSubscriptionExpiredRefresh(sub, family);
       this.logger.warn(
         `Blocked refresh for user ${sub} — subscription expired at ${subExpDate.toISOString()}`,
       );

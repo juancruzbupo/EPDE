@@ -26,9 +26,13 @@ import { TokenService } from './token.service';
         signOptions: {
           expiresIn: configService.get('JWT_EXPIRATION', '15m'),
           algorithm: 'HS256',
+          issuer: 'epde-api',
+          audience: 'epde-client',
         },
         verifyOptions: {
           algorithms: ['HS256'],
+          issuer: 'epde-api',
+          audience: 'epde-client',
         },
       }),
     }),

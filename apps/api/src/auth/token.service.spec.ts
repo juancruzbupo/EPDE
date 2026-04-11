@@ -32,6 +32,8 @@ const mockConfigService = {
 
 const mockAuthAudit = {
   logTokenReuse: jest.fn(),
+  logTokenRotation: jest.fn(),
+  logSubscriptionExpiredRefresh: jest.fn(),
 };
 
 const mockMetricsService = {

@@ -42,6 +42,18 @@ export class AuthAuditService {
     this.persist({ event: 'token_reuse_attack', userId, metadata: { family } });
   }
 
+  /** Successful refresh token rotation — emitted for forensics symmetry with reuse attack. */
+  logTokenRotation(userId: string, family: string) {
+    this.logger.log({ event: 'token_rotated', userId, family });
+    this.persist({ event: 'token_rotated', userId, metadata: { family } });
+  }
+
+  /** Blocked refresh because the client's subscription already expired at rotation time. */
+  logSubscriptionExpiredRefresh(userId: string, family: string) {
+    this.logger.warn({ event: 'subscription_expired_refresh', userId, family });
+    this.persist({ event: 'subscription_expired_refresh', userId, metadata: { family } });
+  }
+
   private persist(data: {
     event: string;
     userId?: string;

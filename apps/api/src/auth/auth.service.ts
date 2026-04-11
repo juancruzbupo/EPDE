@@ -94,11 +94,28 @@ export class AuthService {
   }
 
   async logout(userId: string, jti?: string, family?: string, ttlSeconds?: number) {
+    // Both blacklist + revoke should complete OR both should surface an error.
+    // Partial failure (blacklist ok, revoke throws) would leave the refresh family
+    // valid while the client assumes they've logged out. Collect errors, log,
+    // return success to the client either way — they already intend to log out,
+    // and we've done what we could. The logged warning gives ops a signal.
+    const errors: Array<{ op: string; err: unknown }> = [];
     if (jti && ttlSeconds) {
-      await this.tokenService.blacklistAccessToken(jti, ttlSeconds);
+      await this.tokenService.blacklistAccessToken(jti, ttlSeconds).catch((err) => {
+        errors.push({ op: 'blacklistAccessToken', err });
+      });
     }
     if (family) {
-      await this.tokenService.revokeFamily(family);
+      await this.tokenService.revokeFamily(family).catch((err) => {
+        errors.push({ op: 'revokeFamily', err });
+      });
+    }
+    if (errors.length > 0) {
+      this.logger.warn(
+        `Logout partial failure for user ${userId}: ${errors
+          .map((e) => `${e.op}=${(e.err as Error).message}`)
+          .join(', ')}`,
+      );
     }
     this.authAudit.logLogout(userId, jti ?? 'unknown');
   }
