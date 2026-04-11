@@ -120,7 +120,30 @@ export default function RootLayout() {
         <ErrorBoundary>
           <PersistQueryClientProvider
             client={queryClient}
-            persistOptions={{ persister: asyncStoragePersister, maxAge: PERSISTER_MAX_AGE }}
+            persistOptions={{
+              persister: asyncStoragePersister,
+              maxAge: PERSISTER_MAX_AGE,
+              // Never persist PII-containing domains to AsyncStorage (plaintext on Android
+              // `/data/data/...`). Dashboard, notifications, categories and templates are
+              // safe to persist. Tokens live in SecureStore, not in this cache.
+              dehydrateOptions: {
+                shouldDehydrateQuery: (query) => {
+                  const key = query.queryKey[0];
+                  if (typeof key !== 'string') return false;
+                  const SENSITIVE = [
+                    'properties',
+                    'budgets',
+                    'serviceRequests',
+                    'inspections',
+                    'tasks',
+                    'maintenancePlans',
+                    'plans',
+                    'clients',
+                  ];
+                  return !SENSITIVE.includes(key);
+                },
+              },
+            }}
           >
             <AuthGate />
             <StatusBar style={effectiveTheme === 'dark' ? 'light' : 'dark'} />
