@@ -1,6 +1,7 @@
 import { type CurrentUser as CurrentUserPayload, UserRole } from '@epde/shared';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { StrictBlacklistGuard } from '../common/guards/strict-blacklist.guard';
 import { PropertiesController } from './properties.controller';
 import { PropertiesService } from './properties.service';
 
@@ -37,7 +38,10 @@ describe('PropertiesController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PropertiesController],
       providers: [{ provide: PropertiesService, useValue: mockPropertiesService }],
-    }).compile();
+    })
+      .overrideGuard(StrictBlacklistGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get<PropertiesController>(PropertiesController);
     jest.clearAllMocks();

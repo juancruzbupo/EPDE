@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { StrictBlacklistGuard } from '../common/guards/strict-blacklist.guard';
 import { ClientsController } from './clients.controller';
 import { ClientsService } from './clients.service';
 
@@ -21,7 +22,10 @@ describe('ClientsController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ClientsController],
       providers: [{ provide: ClientsService, useValue: mockClientsService }],
-    }).compile();
+    })
+      .overrideGuard(StrictBlacklistGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get<ClientsController>(ClientsController);
     jest.clearAllMocks();

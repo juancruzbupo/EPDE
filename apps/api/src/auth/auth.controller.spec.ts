@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { EmailAwareThrottlerGuard } from '../common/guards/email-aware-throttler.guard';
+import { StrictBlacklistGuard } from '../common/guards/strict-blacklist.guard';
 import { UsersService } from '../users/users.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -105,6 +106,8 @@ describe('AuthController', () => {
       ],
     })
       .overrideGuard(EmailAwareThrottlerGuard)
+      .useValue({ canActivate: () => true })
+      .overrideGuard(StrictBlacklistGuard)
       .useValue({ canActivate: () => true })
       .compile();
 

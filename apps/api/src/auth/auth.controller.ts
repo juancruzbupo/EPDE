@@ -43,7 +43,9 @@ import { Request, Response } from 'express';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
+import { StrictAuth } from '../common/decorators/strict-auth.decorator';
 import { EmailAwareThrottlerGuard } from '../common/guards/email-aware-throttler.guard';
+import { StrictBlacklistGuard } from '../common/guards/strict-blacklist.guard';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
@@ -249,6 +251,8 @@ export class AuthController {
 
   @Patch('me/password')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  @StrictAuth()
+  @UseGuards(StrictBlacklistGuard)
   @Throttle({ medium: { limit: 5, ttl: 60_000 } })
   async changePassword(
     @Body(new ZodValidationPipe(changePasswordSchema)) dto: ChangePasswordInput,

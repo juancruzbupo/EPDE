@@ -20,12 +20,15 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
+import { StrictAuth } from '../common/decorators/strict-auth.decorator';
+import { StrictBlacklistGuard } from '../common/guards/strict-blacklist.guard';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { PropertiesService } from './properties.service';
 
@@ -139,6 +142,8 @@ export class PropertiesController {
 
   @Delete(':id')
   @Roles(UserRole.ADMIN)
+  @StrictAuth()
+  @UseGuards(StrictBlacklistGuard)
   @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async deleteProperty(
     @Param('id', ParseUUIDPipe) id: string,

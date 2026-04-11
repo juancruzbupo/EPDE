@@ -205,6 +205,24 @@ export class TokenService {
     return result;
   }
 
+  /**
+   * Fail-closed variant of {@link isBlacklisted} for high-impact endpoints.
+   * When Redis is unavailable, throws `ServiceUnavailableException` (HTTP 503)
+   * instead of allowing the request through. Use for sensitive actions where
+   * honouring a revocation is more important than availability — e.g. password
+   * changes, account deletion, admin destructive operations.
+   */
+  async isBlacklistedStrict(jti: string): Promise<boolean> {
+    const result = await this.redisService.safeExists(`bl:${jti}`);
+    if (result === null) {
+      this.logger.error(
+        `Redis unavailable during strict blacklist check for JTI ${jti} — rejecting request`,
+      );
+      throw new ServiceUnavailableException('Auth service temporarily unavailable');
+    }
+    return result;
+  }
+
   private createAccessToken(
     user: { id: string; email: string; role: string; subscriptionExpiresAt?: Date | null },
     family: string,

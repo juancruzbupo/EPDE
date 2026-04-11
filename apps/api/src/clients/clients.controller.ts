@@ -15,11 +15,14 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 
 import { Roles } from '../common/decorators/roles.decorator';
+import { StrictAuth } from '../common/decorators/strict-auth.decorator';
+import { StrictBlacklistGuard } from '../common/guards/strict-blacklist.guard';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { ClientsService } from './clients.service';
 
@@ -73,6 +76,8 @@ export class ClientsController {
 
   @Delete(':id')
   @Roles(UserRole.ADMIN)
+  @StrictAuth()
+  @UseGuards(StrictBlacklistGuard)
   @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async deleteClient(@Param('id', ParseUUIDPipe) id: string) {
     await this.clientsService.deleteClient(id);
