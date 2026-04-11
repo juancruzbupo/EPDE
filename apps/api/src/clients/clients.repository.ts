@@ -46,7 +46,9 @@ export class ClientsRepository extends BaseRepository<User, 'user'> {
       cursor: params.cursor,
       take: params.take,
       where,
-      include: { _count: { select: { properties: true } } },
+      // _count over a relation to a soft-deletable model (Property) does NOT inherit
+      // the soft-delete extension filter — manual `where: { deletedAt: null }` needed.
+      include: { _count: { select: { properties: { where: { deletedAt: null } } } } },
       count: false,
     };
 
