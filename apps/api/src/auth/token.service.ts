@@ -157,6 +157,19 @@ export class TokenService {
       const freshUser = await this.usersService.findById(sub);
       subExpDate = freshUser?.subscriptionExpiresAt ?? subExpDate;
     }
+
+    // Block refresh for CLIENTs with expired subscription. ADMIN bypasses this check
+    // (admins don't have subscriptions). Grandfathered users (subExpDate === null) are allowed.
+    // Without this, the SubscriptionGuard only catches the expiry on the NEXT api call, giving
+    // the client a short window to keep refreshing indefinitely.
+    if (role === 'CLIENT' && subExpDate && subExpDate.getTime() < Date.now()) {
+      await this.revokeFamily(family);
+      this.logger.warn(
+        `Blocked refresh for user ${sub} — subscription expired at ${subExpDate.toISOString()}`,
+      );
+      throw new UnauthorizedException('Subscription expired');
+    }
+
     const user = { id: sub, email, role, subscriptionExpiresAt: subExpDate };
     const accessToken = this.createAccessToken(user, family);
     const newRefreshToken = this.createRefreshToken(user, family, newGeneration);
