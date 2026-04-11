@@ -43,6 +43,7 @@ import { Request, Response } from 'express';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
+import { EmailAwareThrottlerGuard } from '../common/guards/email-aware-throttler.guard';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
@@ -92,7 +93,7 @@ export class AuthController {
   }
 
   @Public()
-  @UseGuards(AuthGuard('local'))
+  @UseGuards(EmailAwareThrottlerGuard, AuthGuard('local'))
   @Throttle({ medium: { limit: 5, ttl: 60000 } })
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -209,6 +210,7 @@ export class AuthController {
   }
 
   @Public()
+  @UseGuards(EmailAwareThrottlerGuard)
   @Throttle({ medium: { limit: 3, ttl: 3600_000 }, short: { limit: 1, ttl: 5000 } })
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)

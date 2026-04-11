@@ -1,5 +1,12 @@
 import { BCRYPT_SALT_ROUNDS, SUBSCRIPTION_INITIAL_DAYS, UserStatus } from '@epde/shared';
-import { BadRequestException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
@@ -7,6 +14,7 @@ import { UserAlreadyHasPasswordError } from '../common/exceptions/domain.excepti
 import { EmailQueueService } from '../email/email-queue.service';
 import { UsersService } from '../users/users.service';
 import { AuthAuditService } from './auth-audit.service';
+import { LoginAttemptService } from './login-attempt.service';
 import { TokenService } from './token.service';
 
 interface LoginMeta {
@@ -24,20 +32,33 @@ export class AuthService {
     private readonly tokenService: TokenService,
     private readonly authAudit: AuthAuditService,
     private readonly emailQueueService: EmailQueueService,
+    private readonly loginAttemptService: LoginAttemptService,
   ) {}
 
   async validateUser(email: string, password: string) {
+    // Account lockout: block before bcrypt.compare to save CPU on brute-force
+    if (await this.loginAttemptService.isLocked(email)) {
+      throw new HttpException(
+        'Demasiados intentos fallidos. Intentá de nuevo en 15 minutos.',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
     const user = await this.usersService.findByEmail(email);
     if (!user || !user.passwordHash) {
+      await this.loginAttemptService.recordFailure(email);
       return null;
     }
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
+      await this.loginAttemptService.recordFailure(email);
       return null;
     }
     if (user.status !== UserStatus.ACTIVE) {
       return null;
     }
+    // Successful auth — reset counter
+    await this.loginAttemptService.clear(email);
     return user;
   }
 

@@ -8,6 +8,7 @@ import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthAuditService } from './auth-audit.service';
+import { LoginAttemptService } from './login-attempt.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { TokenService } from './token.service';
@@ -33,7 +34,14 @@ import { TokenService } from './token.service';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, TokenService, AuthAuditService, LocalStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    TokenService,
+    AuthAuditService,
+    LoginAttemptService,
+    LocalStrategy,
+    JwtStrategy,
+  ],
   exports: [AuthService, TokenService, JwtModule],
 })
 export class AuthModule {}

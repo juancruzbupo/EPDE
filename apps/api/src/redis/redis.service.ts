@@ -121,6 +121,20 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
+   * Atomically increment a key and set TTL on first creation.
+   * Returns the new counter value. Used for fail-count / rate-limit counters.
+   */
+  async incrWithTtl(key: string, ttlSeconds: number): Promise<number> {
+    const fullKey = this.prefixed(key);
+    const pipeline = this.client.multi();
+    pipeline.incr(fullKey);
+    pipeline.expire(fullKey, ttlSeconds, 'NX'); // only set TTL if not already set
+    const results = await pipeline.exec();
+    const count = results?.[0]?.[1];
+    return typeof count === 'number' ? count : 0;
+  }
+
+  /**
    * Health check: returns true if Redis responds to PING.
    */
   async isHealthy(): Promise<boolean> {

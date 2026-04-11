@@ -9,6 +9,7 @@ import { EmailQueueService } from '../email/email-queue.service';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { AuthAuditService } from './auth-audit.service';
+import { LoginAttemptService } from './login-attempt.service';
 import { TokenService } from './token.service';
 
 jest.mock('bcrypt', () => ({
@@ -84,6 +85,14 @@ describe('AuthService', () => {
             logFailedLogin: jest.fn(),
             logPasswordSet: jest.fn(),
             logTokenReuse: jest.fn(),
+          },
+        },
+        {
+          provide: LoginAttemptService,
+          useValue: {
+            isLocked: jest.fn().mockResolvedValue(false),
+            recordFailure: jest.fn().mockResolvedValue(1),
+            clear: jest.fn().mockResolvedValue(undefined),
           },
         },
       ],
