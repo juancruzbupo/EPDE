@@ -4,7 +4,7 @@ services:
     container_name: epde-postgres
     restart: unless-stopped
     ports:
-      - '5433:5432'
+      - '127.0.0.1:5433:5432'
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-epde}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-epde_dev_password}
@@ -22,7 +22,7 @@ services:
     container_name: epde-redis
     restart: unless-stopped
     ports:
-      - '6379:6379'
+      - '127.0.0.1:6379:6379'
     volumes:
       - redis_data:/data
     command: redis-server --maxmemory 256mb --maxmemory-policy volatile-lru --appendonly yes
@@ -37,10 +37,10 @@ services:
     container_name: epde-pgadmin
     restart: unless-stopped
     ports:
-      - '5050:80'
+      - '127.0.0.1:5050:80'
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@epde.local}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:?set PGADMIN_PASSWORD in .env to start pgadmin}
     depends_on:
       postgres:
         condition: service_healthy

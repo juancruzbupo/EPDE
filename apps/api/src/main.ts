@@ -67,8 +67,14 @@ async function bootstrap() {
       'CORS_ORIGIN not set — using localhost fallback. Set CORS_ORIGIN in .env for explicit control.',
     );
   }
+  const corsOrigins = corsOrigin
+    ? corsOrigin.split(',').map((o) => o.trim())
+    : ['http://localhost:3000'];
+  if (corsOrigins.includes('*')) {
+    throw new Error('CORS_ORIGIN cannot be wildcard "*" when credentials are enabled');
+  }
   app.enableCors({
-    origin: corsOrigin ? corsOrigin.split(',').map((o) => o.trim()) : 'http://localhost:3000',
+    origin: corsOrigins,
     credentials: true,
   });
 

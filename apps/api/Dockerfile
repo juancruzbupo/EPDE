@@ -1,4 +1,4 @@
-FROM node:22-alpine AS base
+FROM node:22.12.0-alpine AS base
 RUN corepack enable && corepack prepare pnpm@10.6.1 --activate
 
 # --- Install dependencies ---
@@ -22,7 +22,7 @@ RUN pnpm --filter @epde/shared build
 RUN cd apps/api && npx prisma generate && pnpm build
 
 # --- Production ---
-FROM node:22-alpine AS runner
+FROM node:22.12.0-alpine AS runner
 WORKDIR /app
 RUN addgroup -g 1001 -S epde && adduser -S epde -u 1001
 

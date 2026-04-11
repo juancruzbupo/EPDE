@@ -22,7 +22,13 @@ import { TokenService } from './token.service';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: configService.get('JWT_EXPIRATION', '15m') },
+        signOptions: {
+          expiresIn: configService.get('JWT_EXPIRATION', '15m'),
+          algorithm: 'HS256',
+        },
+        verifyOptions: {
+          algorithms: ['HS256'],
+        },
       }),
     }),
   ],

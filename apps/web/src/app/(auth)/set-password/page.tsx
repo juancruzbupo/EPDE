@@ -80,6 +80,7 @@ function SetPasswordForm() {
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   className="pr-10"
+                  autoComplete="new-password"
                   aria-describedby={errors.newPassword ? 'newPassword-error' : undefined}
                   {...register('newPassword')}
                 />

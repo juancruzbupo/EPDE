@@ -72,6 +72,7 @@ export function ChangePasswordForm() {
                 placeholder="********"
                 className="pr-10"
                 required
+                autoComplete="current-password"
                 aria-describedby={errors.currentPassword ? 'currentPassword-error' : undefined}
                 {...register('currentPassword')}
               />
@@ -103,6 +104,7 @@ export function ChangePasswordForm() {
                 placeholder="********"
                 className="pr-10"
                 required
+                autoComplete="new-password"
                 aria-describedby={errors.newPassword ? 'pwd-newPassword-error' : undefined}
                 {...register('newPassword')}
               />
@@ -140,6 +142,7 @@ export function ChangePasswordForm() {
                 placeholder="********"
                 className="pr-10"
                 required
+                autoComplete="new-password"
                 aria-describedby={errors.confirmPassword ? 'pwd-confirmPassword-error' : undefined}
                 {...register('confirmPassword')}
               />

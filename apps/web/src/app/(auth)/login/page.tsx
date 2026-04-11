@@ -83,6 +83,7 @@ export default function LoginPage() {
                 placeholder="••••••"
                 className="pr-10"
                 required
+                autoComplete="current-password"
                 aria-describedby={errors.password ? 'password-error' : undefined}
                 {...register('password')}
               />
