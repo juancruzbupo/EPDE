@@ -3,6 +3,7 @@ import Constants from 'expo-constants';
 import { useCallback, useMemo, useState } from 'react';
 import { Alert, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 
+import { GlossaryModal } from '@/components/glossary-modal';
 import { AppearanceSelector } from '@/components/profile/appearance-selector';
 import { PasswordChangeForm } from '@/components/profile/password-change-form';
 import { UserInfoCard } from '@/components/profile/user-info-card';
@@ -21,6 +22,7 @@ export default function ProfileScreen() {
   const [editingField, setEditingField] = useState<'name' | 'phone' | null>(null);
   const [editValue, setEditValue] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [glossaryOpen, setGlossaryOpen] = useState(false);
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -158,6 +160,20 @@ export default function ProfileScreen() {
           </View>
         </View>
       </View>
+
+      {/* Glossary */}
+      <Pressable
+        onPress={() => setGlossaryOpen(true)}
+        className="border-border mb-3 items-center rounded-xl border py-3"
+        accessibilityLabel="Glosario de términos"
+        accessibilityRole="button"
+        style={{ minHeight: 44 }}
+      >
+        <Text style={TYPE.labelLg} className="text-foreground">
+          📖 Glosario de términos
+        </Text>
+      </Pressable>
+      <GlossaryModal visible={glossaryOpen} onClose={() => setGlossaryOpen(false)} />
 
       {/* Logout button */}
       <Pressable

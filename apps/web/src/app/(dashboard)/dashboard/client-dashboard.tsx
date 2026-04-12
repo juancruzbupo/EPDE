@@ -20,8 +20,10 @@ import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
+import { WeeklyChallengeCard } from '@/components/weekly-challenge-card';
 import { WelcomeCard } from '@/components/welcome-card';
 import { useClientDashboardStats, useClientUpcomingTasks } from '@/hooks/use-dashboard';
+import { useStreakFreeze } from '@/hooks/use-milestones';
 import { getClientAnalytics } from '@/lib/api/dashboard';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -71,6 +73,7 @@ export function ClientDashboard({ userName }: { userName: string }) {
     refetch: refetchUpcoming,
   } = useClientUpcomingTasks();
   const [chartMonths, setChartMonths] = useState(6);
+  const streakFreeze = useStreakFreeze();
 
   // Calculate tip index on client only to avoid hydration mismatch and stale SSR cache
   const [tipIndex, setTipIndex] = useState(0);
@@ -156,9 +159,13 @@ export function ClientDashboard({ userName }: { userName: string }) {
             perfectWeek={stats.perfectWeek}
             onViewActions={() => scrollTo(actionsRef)}
             onViewAnalytics={() => scrollTo(analyticsRef)}
+            onStreakFreeze={() => streakFreeze.mutate()}
           />
         ) : null}
       </div>
+
+      {/* Weekly challenge */}
+      {!showWelcome && <WeeklyChallengeCard />}
 
       {/* Tip of the day */}
       <div className="border-primary/10 bg-primary/[0.03] mb-6 rounded-xl border p-4">

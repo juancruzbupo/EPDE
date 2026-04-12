@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { PrismaService } from '../prisma/prisma.service';
 import { DashboardService } from './dashboard.service';
 
 const analyticsQuerySchema = z.object({
@@ -19,7 +20,10 @@ const analyticsQuerySchema = z.object({
 @Throttle({ medium: { limit: 30, ttl: 60_000 } })
 @Controller('dashboard')
 export class DashboardController {
-  constructor(private readonly dashboardService: DashboardService) {}
+  constructor(
+    private readonly dashboardService: DashboardService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @Get('stats')
   @Roles(UserRole.ADMIN)
@@ -64,5 +68,22 @@ export class DashboardController {
     @Query(new ZodValidationPipe(analyticsQuerySchema)) query: { months: number },
   ) {
     return { data: await this.dashboardService.getClientAnalytics(user.id, query.months) };
+  }
+
+  /** Current week's challenge for the authenticated user. */
+  @Get('weekly-challenge')
+  @Roles(UserRole.CLIENT)
+  async getWeeklyChallenge(@CurrentUser('id') userId: string) {
+    const now = new Date();
+    const day = now.getUTCDay();
+    const diff = day === 0 ? 6 : day - 1;
+    const monday = new Date(now);
+    monday.setUTCDate(monday.getUTCDate() - diff);
+    monday.setUTCHours(0, 0, 0, 0);
+
+    const challenge = await this.prisma.weeklyChallenge.findUnique({
+      where: { userId_weekStart: { userId, weekStart: monday } },
+    });
+    return { data: challenge };
   }
 }

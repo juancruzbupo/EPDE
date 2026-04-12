@@ -25,6 +25,7 @@ interface HomeStatusCardProps {
   perfectWeek?: boolean;
   onViewActions: () => void;
   onViewAnalytics: () => void;
+  onStreakFreeze?: () => void;
 }
 
 function getScoreTheme(score: number) {
@@ -96,6 +97,7 @@ export function HomeStatusCard({
   perfectWeek,
   onViewActions,
   onViewAnalytics,
+  onStreakFreeze,
 }: HomeStatusCardProps) {
   const { shouldAnimate } = useMotionPreference();
   const theme = getScoreTheme(score);
@@ -239,6 +241,16 @@ export function HomeStatusCard({
                     >
                       Compartir
                     </button>
+                    {onStreakFreeze && (
+                      <button
+                        type="button"
+                        className="text-muted-foreground hover:text-foreground type-label-sm transition-colors"
+                        aria-label="Activar streak freeze"
+                        onClick={onStreakFreeze}
+                      >
+                        ❄️ Freeze
+                      </button>
+                    )}
                   </span>
                 )}
                 {perfectWeek && (
