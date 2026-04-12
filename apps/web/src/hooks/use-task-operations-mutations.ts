@@ -24,6 +24,7 @@ import {
   reorderTasks,
   updateTask,
 } from '@/lib/api/maintenance-plans';
+import { triggerConfetti } from '@/lib/confetti';
 import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -106,7 +107,7 @@ export function useCompleteTask(options?: {
     } & CompleteTaskInput) => completeTask(planId, taskId, dto),
 
     onSuccess: (response, variables) => {
-      // F1: Motivational toast with rotating messages
+      triggerConfetti();
       const msg = COMPLETION_MESSAGES[Math.floor(Math.random() * COMPLETION_MESSAGES.length)];
       const nextDueDate = response.data?.task?.nextDueDate;
       if (nextDueDate) {

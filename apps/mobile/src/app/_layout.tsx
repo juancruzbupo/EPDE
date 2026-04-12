@@ -13,11 +13,13 @@ import * as Linking from 'expo-linking';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useColorScheme, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { ConfettiBurst, type ConfettiBurstRef } from '@/components/confetti-burst';
 import { ErrorBoundary } from '@/components/error-boundary';
+import { confettiEvent } from '@/lib/confetti-event';
 import { registerForPushNotifications } from '@/lib/push-notifications';
 import { queryClient } from '@/lib/query-client';
 import { asyncStoragePersister, PERSISTER_MAX_AGE } from '@/lib/query-persister';
@@ -114,9 +116,18 @@ export default function RootLayout() {
     return null;
   }
 
+  const confettiRef = useRef<ConfettiBurstRef>(null);
+  useEffect(() => {
+    const unsubscribe = confettiEvent.subscribe(() => confettiRef.current?.fire());
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={themeVars} className="bg-background flex-1">
+        <ConfettiBurst ref={confettiRef} />
         <ErrorBoundary>
           <PersistQueryClientProvider
             client={queryClient}

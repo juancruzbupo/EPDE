@@ -10,6 +10,7 @@ import {
   getTaskLogs,
   getTaskNotes,
 } from '@/lib/api/maintenance-plans';
+import { confettiEvent } from '@/lib/confetti-event';
 import { haptics } from '@/lib/haptics';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
 import { useAuthStore } from '@/stores/auth-store';
@@ -58,8 +59,8 @@ export function useCompleteTask(options?: {
     } & CompleteTaskInput) => completeTask(planId, taskId, dto),
 
     onSuccess: (response, variables) => {
-      // F1: Haptic success + motivational message
       haptics.success();
+      confettiEvent.fire();
       const msg = COMPLETION_MESSAGES[Math.floor(Math.random() * COMPLETION_MESSAGES.length)];
       const nextDueDate = response.data?.task?.nextDueDate;
       if (nextDueDate) {
