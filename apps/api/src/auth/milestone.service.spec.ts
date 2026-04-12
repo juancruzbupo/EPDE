@@ -1,45 +1,47 @@
-import { PrismaService } from '../prisma/prisma.service';
+import { MilestoneRepository } from './milestone.repository';
 import { MilestoneService } from './milestone.service';
 
 describe('MilestoneService', () => {
   let service: MilestoneService;
-  let mockPrisma: {
-    userMilestone: { findMany: jest.Mock; createMany: jest.Mock };
-    taskLog: { count: jest.Mock };
-    softDelete: { user: { findUnique: jest.Mock } };
+  let mockRepo: {
+    findEarnedTypes: jest.Mock;
+    countTaskLogsByUser: jest.Mock;
+    findUserActivationDate: jest.Mock;
+    createMany: jest.Mock;
+    findAllByUser: jest.Mock;
   };
 
   beforeEach(() => {
-    mockPrisma = {
-      userMilestone: {
-        findMany: jest.fn().mockResolvedValue([]),
-        createMany: jest.fn().mockResolvedValue({ count: 0 }),
-      },
-      taskLog: { count: jest.fn().mockResolvedValue(0) },
-      softDelete: { user: { findUnique: jest.fn().mockResolvedValue(null) } },
+    mockRepo = {
+      findEarnedTypes: jest.fn().mockResolvedValue([]),
+      countTaskLogsByUser: jest.fn().mockResolvedValue(0),
+      findUserActivationDate: jest.fn().mockResolvedValue(null),
+      createMany: jest.fn().mockResolvedValue(undefined),
+      findAllByUser: jest.fn().mockResolvedValue([]),
     };
-    service = new MilestoneService(mockPrisma as unknown as PrismaService);
+    service = new MilestoneService(mockRepo as unknown as MilestoneRepository);
   });
 
   describe('checkAndAward', () => {
     it('awards TASKS_10 when taskLog count >= 10', async () => {
-      mockPrisma.taskLog.count.mockResolvedValue(10);
+      mockRepo.countTaskLogsByUser.mockResolvedValue(10);
       const result = await service.checkAndAward('user-1');
       expect(result).toContain('TASKS_10');
-      expect(mockPrisma.userMilestone.createMany).toHaveBeenCalledWith(
-        expect.objectContaining({ skipDuplicates: true }),
+      expect(mockRepo.createMany).toHaveBeenCalledWith(
+        'user-1',
+        expect.arrayContaining(['TASKS_10']),
       );
     });
 
     it('awards TASKS_50 when taskLog count >= 50', async () => {
-      mockPrisma.taskLog.count.mockResolvedValue(50);
+      mockRepo.countTaskLogsByUser.mockResolvedValue(50);
       const result = await service.checkAndAward('user-1');
       expect(result).toContain('TASKS_10');
       expect(result).toContain('TASKS_50');
     });
 
     it('awards TASKS_100 when taskLog count >= 100', async () => {
-      mockPrisma.taskLog.count.mockResolvedValue(100);
+      mockRepo.countTaskLogsByUser.mockResolvedValue(100);
       const result = await service.checkAndAward('user-1');
       expect(result).toContain('TASKS_100');
     });
@@ -63,20 +65,20 @@ describe('MilestoneService', () => {
     it('awards ANNIVERSARY_1 when user activated > 1 year ago', async () => {
       const twoYearsAgo = new Date();
       twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
-      mockPrisma.softDelete.user.findUnique.mockResolvedValue({ activatedAt: twoYearsAgo });
+      mockRepo.findUserActivationDate.mockResolvedValue(twoYearsAgo);
       const result = await service.checkAndAward('user-1');
       expect(result).toContain('ANNIVERSARY_1');
     });
 
     it('skips already earned milestones', async () => {
-      mockPrisma.userMilestone.findMany.mockResolvedValue([{ type: 'TASKS_10' }]);
-      mockPrisma.taskLog.count.mockResolvedValue(15);
+      mockRepo.findEarnedTypes.mockResolvedValue([{ type: 'TASKS_10' }]);
+      mockRepo.countTaskLogsByUser.mockResolvedValue(15);
       const result = await service.checkAndAward('user-1');
       expect(result).not.toContain('TASKS_10');
     });
 
-    it('returns empty array on Prisma error (fire-and-forget)', async () => {
-      mockPrisma.userMilestone.findMany.mockRejectedValue(new Error('DB down'));
+    it('returns empty array on repository error (fire-and-forget)', async () => {
+      mockRepo.findEarnedTypes.mockRejectedValue(new Error('DB down'));
       const result = await service.checkAndAward('user-1');
       expect(result).toEqual([]);
     });
@@ -89,7 +91,7 @@ describe('MilestoneService', () => {
 
   describe('getUserMilestones', () => {
     it('returns milestones with emoji and label from MILESTONE_MAP', async () => {
-      mockPrisma.userMilestone.findMany.mockResolvedValue([
+      mockRepo.findAllByUser.mockResolvedValue([
         { id: 'm-1', userId: 'user-1', type: 'TASKS_10', unlockedAt: new Date() },
       ]);
       const result = await service.getUserMilestones('user-1');

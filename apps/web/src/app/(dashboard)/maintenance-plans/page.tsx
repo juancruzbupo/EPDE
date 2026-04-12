@@ -1,7 +1,12 @@
 'use client';
 
 import type { PlanListItem } from '@epde/shared';
-import { PLAN_STATUS_LABELS, PLAN_STATUS_VARIANT, PlanStatus } from '@epde/shared';
+import {
+  PLAN_STATUS_HINTS,
+  PLAN_STATUS_LABELS,
+  PLAN_STATUS_VARIANT,
+  PlanStatus,
+} from '@epde/shared';
 import { ChevronDown, ChevronRight, ClipboardList, Home, MapPin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
@@ -28,7 +33,11 @@ function PlanCard({ plan, onClick }: { plan: PlanListItem; onClick: () => void }
     >
       <div className="mb-1 flex items-start justify-between gap-2">
         <span className="text-sm leading-tight font-medium">{plan.name}</span>
-        <Badge variant={PLAN_STATUS_VARIANT[plan.status] ?? 'secondary'} className="text-xs">
+        <Badge
+          variant={PLAN_STATUS_VARIANT[plan.status] ?? 'secondary'}
+          className="text-xs"
+          title={PLAN_STATUS_HINTS[plan.status]}
+        >
           {PLAN_STATUS_LABELS[plan.status] ?? plan.status}
         </Badge>
       </div>

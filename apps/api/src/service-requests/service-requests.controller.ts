@@ -16,7 +16,18 @@ import {
   updateServiceStatusSchema,
   UserRole,
 } from '@epde/shared';
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 
@@ -79,6 +90,7 @@ export class ServiceRequestsController {
   @Post()
   @Roles(UserRole.CLIENT)
   @Throttle({ medium: { limit: 5, ttl: 60_000 } })
+  @HttpCode(HttpStatus.CREATED)
   async createRequest(
     @Body(new ZodValidationPipe(createServiceRequestSchema)) dto: CreateServiceRequestInput,
     @CurrentUser() user: CurrentUserPayload,
@@ -90,6 +102,7 @@ export class ServiceRequestsController {
   @Post(':id/comments')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   @Throttle({ medium: { limit: 10, ttl: 60_000 } })
+  @HttpCode(HttpStatus.CREATED)
   async addComment(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(createServiceRequestCommentSchema))
@@ -103,6 +116,7 @@ export class ServiceRequestsController {
   @Post(':id/attachments')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   @Throttle({ medium: { limit: 10, ttl: 60_000 } })
+  @HttpCode(HttpStatus.CREATED)
   async addAttachments(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(addServiceRequestAttachmentsSchema))

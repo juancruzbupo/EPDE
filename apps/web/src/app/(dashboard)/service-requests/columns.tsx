@@ -4,6 +4,7 @@ import {
   formatRelativeDate,
   SERVICE_STATUS_LABELS,
   SERVICE_STATUS_VARIANT,
+  SERVICE_URGENCY_HINTS,
   SERVICE_URGENCY_LABELS,
   URGENCY_VARIANT,
 } from '@epde/shared';
@@ -38,7 +39,10 @@ export const serviceRequestColumns: ColumnDef<ServiceRequestPublic>[] = [
     cell: ({ row }) => {
       const urgency = row.original.urgency;
       return (
-        <Badge variant={URGENCY_VARIANT[urgency] ?? 'secondary'}>
+        <Badge
+          variant={URGENCY_VARIANT[urgency] ?? 'secondary'}
+          title={SERVICE_URGENCY_HINTS[urgency]}
+        >
           {SERVICE_URGENCY_LABELS[urgency] ?? urgency}
         </Badge>
       );

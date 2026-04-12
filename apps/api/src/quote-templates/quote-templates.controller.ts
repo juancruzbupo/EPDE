@@ -4,7 +4,18 @@ import type {
   UpdateQuoteTemplateInput,
 } from '@epde/shared';
 import { createQuoteTemplateSchema, updateQuoteTemplateSchema, UserRole } from '@epde/shared';
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 
@@ -36,6 +47,7 @@ export class QuoteTemplatesController {
   @Post()
   @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 5, ttl: 60_000 } })
+  @HttpCode(HttpStatus.CREATED)
   async create(
     @Body(new ZodValidationPipe(createQuoteTemplateSchema)) dto: CreateQuoteTemplateInput,
     @CurrentUser() user: CurrentUserPayload,

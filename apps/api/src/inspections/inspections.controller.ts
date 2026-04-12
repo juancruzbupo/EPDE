@@ -13,7 +13,18 @@ import {
   updateNotesSchema,
   UserRole,
 } from '@epde/shared';
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 
@@ -29,6 +40,7 @@ export class InspectionsController {
 
   @Post()
   @Roles(UserRole.ADMIN)
+  @HttpCode(HttpStatus.CREATED)
   async create(
     @Body(new ZodValidationPipe(createInspectionSchema))
     body: CreateInspectionInput,
@@ -80,6 +92,7 @@ export class InspectionsController {
 
   @Post(':checklistId/items')
   @Roles(UserRole.ADMIN)
+  @HttpCode(HttpStatus.CREATED)
   async addItem(
     @Param('checklistId', ParseUUIDPipe) checklistId: string,
     @Body(new ZodValidationPipe(addInspectionItemSchema))
@@ -102,6 +115,7 @@ export class InspectionsController {
   @Post(':checklistId/generate-plan')
   @Throttle({ medium: { limit: 3, ttl: 60_000 } })
   @Roles(UserRole.ADMIN)
+  @HttpCode(HttpStatus.CREATED)
   async generatePlan(
     @Param('checklistId', ParseUUIDPipe) checklistId: string,
     @Body(new ZodValidationPipe(generatePlanFromInspectionSchema))

@@ -339,4 +339,12 @@ export class DashboardStatsRepository {
     }
     return map;
   }
+
+  /** Count all task-log entries for the given maintenance-plan IDs. */
+  async countTaskLogsByPlanIds(planIds: string[]): Promise<number> {
+    if (planIds.length === 0) return 0;
+    return this.prisma.taskLog.count({
+      where: { task: { maintenancePlanId: { in: planIds } } },
+    });
+  }
 }

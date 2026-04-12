@@ -1,4 +1,4 @@
-import { PrismaService } from '../prisma/prisma.service';
+import { WeeklyChallengeRepository } from './weekly-challenge.repository';
 import { WeeklyChallengeService } from './weekly-challenge.service';
 
 jest.mock('@sentry/node', () => ({
@@ -8,8 +8,10 @@ jest.mock('@sentry/node', () => ({
 
 describe('WeeklyChallengeService', () => {
   let service: WeeklyChallengeService;
-  let mockPrisma: {
-    weeklyChallenge: { upsert: jest.Mock; findUnique: jest.Mock; update: jest.Mock };
+  let mockChallengeRepo: {
+    upsertChallenge: jest.Mock;
+    findByUserAndWeek: jest.Mock;
+    updateProgress: jest.Mock;
   };
   let mockUsersRepo: { findActiveClients: jest.Mock };
   let mockStatsRepo: { getAllClientPlanIds: jest.Mock; getBatchTaskStats: jest.Mock };
@@ -18,12 +20,10 @@ describe('WeeklyChallengeService', () => {
   let mockMetricsService: { recordCronExecution: jest.Mock };
 
   beforeEach(() => {
-    mockPrisma = {
-      weeklyChallenge: {
-        upsert: jest.fn().mockResolvedValue({}),
-        findUnique: jest.fn().mockResolvedValue(null),
-        update: jest.fn().mockResolvedValue({}),
-      },
+    mockChallengeRepo = {
+      upsertChallenge: jest.fn().mockResolvedValue({}),
+      findByUserAndWeek: jest.fn().mockResolvedValue(null),
+      updateProgress: jest.fn().mockResolvedValue({}),
     };
     mockUsersRepo = { findActiveClients: jest.fn().mockResolvedValue([]) };
     mockStatsRepo = {
@@ -37,7 +37,7 @@ describe('WeeklyChallengeService', () => {
     mockMetricsService = { recordCronExecution: jest.fn() };
 
     service = new WeeklyChallengeService(
-      mockPrisma as unknown as PrismaService,
+      mockChallengeRepo as unknown as WeeklyChallengeRepository,
       mockUsersRepo as never,
       mockStatsRepo as never,
       mockPushService as never,
@@ -48,7 +48,7 @@ describe('WeeklyChallengeService', () => {
 
   describe('incrementProgress', () => {
     it('increments progress and returns completed=false when below target', async () => {
-      mockPrisma.weeklyChallenge.findUnique.mockResolvedValue({
+      mockChallengeRepo.findByUserAndWeek.mockResolvedValue({
         id: 'ch-1',
         progress: 0,
         target: 3,
@@ -56,15 +56,11 @@ describe('WeeklyChallengeService', () => {
       });
       const result = await service.incrementProgress('user-1');
       expect(result).toEqual({ completed: false });
-      expect(mockPrisma.weeklyChallenge.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({ progress: 1, completed: false }),
-        }),
-      );
+      expect(mockChallengeRepo.updateProgress).toHaveBeenCalledWith('ch-1', 1, false);
     });
 
     it('marks completed when progress reaches target', async () => {
-      mockPrisma.weeklyChallenge.findUnique.mockResolvedValue({
+      mockChallengeRepo.findByUserAndWeek.mockResolvedValue({
         id: 'ch-1',
         progress: 2,
         target: 3,
@@ -72,25 +68,17 @@ describe('WeeklyChallengeService', () => {
       });
       const result = await service.incrementProgress('user-1');
       expect(result).toEqual({ completed: true });
-      expect(mockPrisma.weeklyChallenge.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            progress: 3,
-            completed: true,
-            completedAt: expect.any(Date),
-          }),
-        }),
-      );
+      expect(mockChallengeRepo.updateProgress).toHaveBeenCalledWith('ch-1', 3, true);
     });
 
     it('returns null when no active challenge exists', async () => {
-      mockPrisma.weeklyChallenge.findUnique.mockResolvedValue(null);
+      mockChallengeRepo.findByUserAndWeek.mockResolvedValue(null);
       const result = await service.incrementProgress('user-1');
       expect(result).toBeNull();
     });
 
     it('returns null when challenge already completed', async () => {
-      mockPrisma.weeklyChallenge.findUnique.mockResolvedValue({
+      mockChallengeRepo.findByUserAndWeek.mockResolvedValue({
         id: 'ch-1',
         progress: 3,
         target: 3,
@@ -104,13 +92,13 @@ describe('WeeklyChallengeService', () => {
   describe('getActiveChallenge', () => {
     it('returns current week challenge', async () => {
       const challenge = { id: 'ch-1', type: 'COMPLETE_N', target: 2, progress: 1 };
-      mockPrisma.weeklyChallenge.findUnique.mockResolvedValue(challenge);
+      mockChallengeRepo.findByUserAndWeek.mockResolvedValue(challenge);
       const result = await service.getActiveChallenge('user-1');
       expect(result).toEqual(challenge);
     });
 
     it('returns null when no challenge for current week', async () => {
-      mockPrisma.weeklyChallenge.findUnique.mockResolvedValue(null);
+      mockChallengeRepo.findByUserAndWeek.mockResolvedValue(null);
       const result = await service.getActiveChallenge('user-1');
       expect(result).toBeNull();
     });

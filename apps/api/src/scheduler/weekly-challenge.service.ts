@@ -5,9 +5,9 @@ import * as Sentry from '@sentry/node';
 import { DashboardStatsRepository } from '../dashboard/dashboard-stats.repository';
 import { MetricsService } from '../metrics/metrics.service';
 import { PushService } from '../notifications/push.service';
-import { PrismaService } from '../prisma/prisma.service';
 import { DistributedLockService } from '../redis/distributed-lock.service';
 import { UsersRepository } from '../users/users.repository';
+import { WeeklyChallengeRepository } from './weekly-challenge.repository';
 
 /**
  * Weekly challenge generator — creates a personalized micro-goal for each active
@@ -26,7 +26,7 @@ export class WeeklyChallengeService {
   private readonly logger = new Logger(WeeklyChallengeService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly challengeRepository: WeeklyChallengeRepository,
     private readonly usersRepository: UsersRepository,
     private readonly statsRepository: DashboardStatsRepository,
     private readonly pushService: PushService,
@@ -101,11 +101,7 @@ export class WeeklyChallengeService {
               }
 
               try {
-                await this.prisma.weeklyChallenge.upsert({
-                  where: { userId_weekStart: { userId: client.id, weekStart } },
-                  update: {},
-                  create: { userId: client.id, weekStart, type, target },
-                });
+                await this.challengeRepository.upsertChallenge(client.id, weekStart, type, target);
                 created++;
 
                 // Push notification
@@ -142,23 +138,14 @@ export class WeeklyChallengeService {
   async incrementProgress(userId: string): Promise<{ completed: boolean } | null> {
     const weekStart = this.getWeekStart();
 
-    const challenge = await this.prisma.weeklyChallenge.findUnique({
-      where: { userId_weekStart: { userId, weekStart } },
-    });
+    const challenge = await this.challengeRepository.findByUserAndWeek(userId, weekStart);
 
     if (!challenge || challenge.completed) return null;
 
     const newProgress = challenge.progress + 1;
     const isCompleted = newProgress >= challenge.target;
 
-    await this.prisma.weeklyChallenge.update({
-      where: { id: challenge.id },
-      data: {
-        progress: newProgress,
-        completed: isCompleted,
-        ...(isCompleted && { completedAt: new Date() }),
-      },
-    });
+    await this.challengeRepository.updateProgress(challenge.id, newProgress, isCompleted);
 
     return { completed: isCompleted };
   }
@@ -166,8 +153,6 @@ export class WeeklyChallengeService {
   /** Get the active challenge for a user (current week) */
   async getActiveChallenge(userId: string) {
     const weekStart = this.getWeekStart();
-    return this.prisma.weeklyChallenge.findUnique({
-      where: { userId_weekStart: { userId, weekStart } },
-    });
+    return this.challengeRepository.findByUserAndWeek(userId, weekStart);
   }
 }

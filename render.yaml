@@ -1,7 +1,6 @@
-# render.yaml — Staging configuration.
-# For production: upgrade plan to 'starter' or 'standard',
-# set NODE_ENV to 'production', and configure all sync:false
-# secrets via Render dashboard.
+# render.yaml — Production configuration.
+# Plan 'starter' is the Render billing tier, not the environment.
+# NODE_ENV=production. Secrets (sync: false) configured via Render dashboard.
 services:
   - type: web
     name: epde-api

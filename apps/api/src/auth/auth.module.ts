@@ -9,6 +9,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthAuditService } from './auth-audit.service';
 import { LoginAttemptService } from './login-attempt.service';
+import { MilestoneRepository } from './milestone.repository';
 import { MilestoneService } from './milestone.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
@@ -44,6 +45,7 @@ import { TokenService } from './token.service';
     TokenService,
     AuthAuditService,
     LoginAttemptService,
+    MilestoneRepository,
     MilestoneService,
     LocalStrategy,
     JwtStrategy,

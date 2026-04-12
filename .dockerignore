@@ -10,3 +10,5 @@ apps/mobile
 .github
 coverage
 .turbo
+.swc
+*.tsbuildinfo

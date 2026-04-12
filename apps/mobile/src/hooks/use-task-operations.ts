@@ -156,6 +156,10 @@ export function useAddTaskNote() {
       return { previousNotes };
     },
 
+    onSuccess: () => {
+      haptics.success();
+    },
+
     onError: (_err, variables, context) => {
       if (context?.previousNotes) {
         queryClient.setQueryData(

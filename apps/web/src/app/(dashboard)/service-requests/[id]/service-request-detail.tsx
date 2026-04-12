@@ -21,6 +21,7 @@ import {
   User,
   Wrench,
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { VisuallyHidden } from 'radix-ui';
 import { useState } from 'react';
@@ -217,11 +218,15 @@ export function ServiceRequestDetail({
                     className="overflow-hidden rounded-md border"
                   >
                     {/* User-uploaded photo — unknown dimensions */}
-                    <img
-                      src={photo.url}
-                      alt={`Foto adjunta ${request.photos.indexOf(photo) + 1} de ${request.photos.length}`}
-                      className="aspect-square w-full object-cover transition-transform hover:scale-105"
-                    />
+                    <div className="relative aspect-square w-full">
+                      <Image
+                        src={photo.url}
+                        alt={`Foto adjunta ${request.photos.indexOf(photo) + 1} de ${request.photos.length}`}
+                        fill
+                        className="object-cover transition-transform hover:scale-105"
+                        sizes="(max-width: 640px) 50vw, 25vw"
+                      />
+                    </div>
                   </button>
                 ))}
               </div>
@@ -279,11 +284,15 @@ export function ServiceRequestDetail({
             <DialogTitle>Vista previa de foto</DialogTitle>
           </VisuallyHidden.Root>
           {previewPhoto && (
-            <img
-              src={previewPhoto}
-              alt="Vista previa ampliada de foto adjunta"
-              className="max-h-[85vh] w-full rounded-md object-contain"
-            />
+            <div className="relative h-[85vh] w-full">
+              <Image
+                src={previewPhoto}
+                alt="Vista previa ampliada de foto adjunta"
+                fill
+                className="rounded-md object-contain"
+                unoptimized
+              />
+            </div>
           )}
         </DialogContent>
       </Dialog>

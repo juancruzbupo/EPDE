@@ -49,7 +49,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Trigger Render deploy
-        run: curl -s -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+        run: curl -sS -o /dev/null -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
 
   deploy-web:
     name: Deploy Web
@@ -104,7 +104,7 @@ jobs:
       - name: Verify API health
         run: |
           for i in {1..5}; do
-            status=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.API_PRODUCTION_URL }}/api/v1/health" || echo "000")
+            status=$(curl -sf -o /dev/null -w "%{http_code}" "${{ secrets.API_PRODUCTION_URL }}/api/v1/health" 2>/dev/null) || status="000"
             if [ "$status" = "200" ]; then
               echo "API health check passed"
               exit 0
@@ -118,7 +118,7 @@ jobs:
       - name: Verify Web availability
         run: |
           for i in {1..5}; do
-            status=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.WEB_PRODUCTION_URL }}" || echo "000")
+            status=$(curl -sf -o /dev/null -w "%{http_code}" "${{ secrets.WEB_PRODUCTION_URL }}" 2>/dev/null) || status="000"
             if [ "$status" = "200" ]; then
               echo "Web health check passed"
               exit 0

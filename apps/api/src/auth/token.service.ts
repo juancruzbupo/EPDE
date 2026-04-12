@@ -1,6 +1,4 @@
 import {
-  forwardRef,
-  Inject,
   Injectable,
   Logger,
   ServiceUnavailableException,
@@ -62,7 +60,6 @@ export class TokenService {
     private readonly redisService: RedisService,
     private readonly authAudit: AuthAuditService,
     private readonly metricsService: MetricsService,
-    @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
   ) {}
 

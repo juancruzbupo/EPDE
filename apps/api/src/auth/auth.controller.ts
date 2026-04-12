@@ -87,12 +87,17 @@ export class AuthController {
   }
 
   private get refreshCookieOptions() {
+    const expiration = this.configService.get<string>('JWT_REFRESH_EXPIRATION') ?? '7d';
+    const match = expiration.match(/^(\d+)([dhms])$/);
+    const multipliers: Record<string, number> = { d: 86400, h: 3600, m: 60, s: 1 };
+    const seconds = match ? parseInt(match[1]!, 10) * (multipliers[match[2]!] ?? 86400) : 7 * 86400;
+
     return {
       httpOnly: true,
       secure: this.isProduction || this.cookieSameSite === 'none',
       sameSite: this.cookieSameSite,
       path: '/api/v1/auth',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: seconds * 1000,
     };
   }
 
@@ -102,7 +107,8 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(
-    @Body(new ZodValidationPipe(loginSchema)) _dto: LoginInput,
+    /** Validated by ZodValidationPipe; Passport separately extracts user via req.user */
+    @Body(new ZodValidationPipe(loginSchema)) dto: LoginInput,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {

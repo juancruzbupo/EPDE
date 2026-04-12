@@ -10,6 +10,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -50,6 +52,7 @@ export class ClientsController {
   @Post()
   @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 5, ttl: 60_000 } })
+  @HttpCode(HttpStatus.CREATED)
   async createClient(@Body(new ZodValidationPipe(createClientSchema)) dto: CreateClientInput) {
     const data = await this.clientsService.createClient(dto);
     return { data, message: 'Cliente creado e invitación enviada' };

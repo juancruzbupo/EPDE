@@ -1,20 +1,20 @@
 import { MILESTONE_MAP, type MilestoneType } from '@epde/shared';
 import { Injectable, Logger } from '@nestjs/common';
 
-import { PrismaService } from '../prisma/prisma.service';
+import { MilestoneRepository } from './milestone.repository';
 
 /**
  * Checks and awards milestones after task completion or on-demand.
  *
- * Justified direct PrismaService usage: milestones are cross-model aggregations
- * (TaskLog count, streak from dashboard stats) that don't fit a single repository.
+ * Cross-model aggregations (TaskLog count, user activation date, milestone CRUD)
+ * delegated to MilestoneRepository.
  * Fire-and-forget — milestone check failures must never block the main flow.
  */
 @Injectable()
 export class MilestoneService {
   private readonly logger = new Logger(MilestoneService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly milestoneRepository: MilestoneRepository) {}
 
   /**
    * Check if the user qualifies for new milestones and award them.
@@ -27,13 +27,8 @@ export class MilestoneService {
   ): Promise<MilestoneType[]> {
     try {
       const [existing, taskLogCount] = await Promise.all([
-        this.prisma.userMilestone.findMany({
-          where: { userId },
-          select: { type: true },
-        }),
-        this.prisma.taskLog.count({
-          where: { task: { maintenancePlan: { property: { userId } } } },
-        }),
+        this.milestoneRepository.findEarnedTypes(userId),
+        this.milestoneRepository.countTaskLogsByUser(userId),
       ]);
 
       const earned = new Set(existing.map((m) => m.type));
@@ -57,23 +52,17 @@ export class MilestoneService {
 
       // Anniversary (1 year since activation)
       if (!earned.has('ANNIVERSARY_1')) {
-        const user = await this.prisma.softDelete.user.findUnique({
-          where: { id: userId },
-          select: { activatedAt: true },
-        });
-        if (user?.activatedAt) {
+        const activatedAt = await this.milestoneRepository.findUserActivationDate(userId);
+        if (activatedAt) {
           const oneYearAgo = new Date();
           oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-          if (user.activatedAt <= oneYearAgo) toAward.push('ANNIVERSARY_1');
+          if (activatedAt <= oneYearAgo) toAward.push('ANNIVERSARY_1');
         }
       }
 
       // Award new milestones
       if (toAward.length > 0) {
-        await this.prisma.userMilestone.createMany({
-          data: toAward.map((type) => ({ userId, type })),
-          skipDuplicates: true,
-        });
+        await this.milestoneRepository.createMany(userId, toAward);
         this.logger.log(
           `Awarded ${toAward.length} milestone(s) to user ${userId}: ${toAward.join(', ')}`,
         );
@@ -89,10 +78,7 @@ export class MilestoneService {
   }
 
   async getUserMilestones(userId: string) {
-    const milestones = await this.prisma.userMilestone.findMany({
-      where: { userId },
-      orderBy: { unlockedAt: 'asc' },
-    });
+    const milestones = await this.milestoneRepository.findAllByUser(userId);
     return milestones.map((m) => ({
       ...m,
       ...(MILESTONE_MAP[m.type as MilestoneType] ?? {

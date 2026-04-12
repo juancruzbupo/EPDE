@@ -12,7 +12,10 @@ export class LandingSettingsRepository {
   }
 
   async findAll() {
-    return this.prisma.landingSettings.findMany();
+    return this.prisma.landingSettings.findMany({
+      orderBy: { key: 'asc' },
+      take: 50,
+    });
   }
 
   async upsert(key: string, value: Prisma.InputJsonValue, updatedBy: string) {

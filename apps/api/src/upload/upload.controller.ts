@@ -3,6 +3,8 @@ import {
   BadRequestException,
   Body,
   Controller,
+  HttpCode,
+  HttpStatus,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -53,6 +55,7 @@ export class UploadController {
   @Roles(UserRole.ADMIN, UserRole.CLIENT)
   @Throttle({ short: { limit: 3, ttl: 1000 }, medium: { limit: 20, ttl: 60000 } })
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 10 * 1024 * 1024 } }))
+  @HttpCode(HttpStatus.CREATED)
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
     @Body(new ZodValidationPipe(uploadBodySchema)) body: { folder: string },

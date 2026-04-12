@@ -1,6 +1,7 @@
 'use client';
 
 import { Camera } from 'lucide-react';
+import Image from 'next/image';
 
 import { ErrorState } from '@/components/error-state';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -57,11 +58,12 @@ export function PropertyPhotosTab({ propertyId }: { propertyId: string }) {
               rel="noopener noreferrer"
               className="group relative aspect-square overflow-hidden rounded-lg border"
             >
-              <img
+              <Image
                 src={photo.url}
                 alt={photo.description}
-                className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                loading="lazy"
+                fill
+                className="object-cover transition-transform group-hover:scale-105"
+                sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
               />
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2">
                 <p className="truncate text-xs font-medium text-white">{photo.description}</p>

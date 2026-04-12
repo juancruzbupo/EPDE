@@ -7,20 +7,23 @@ import { DashboardStatsRepository } from '../dashboard/dashboard-stats.repositor
 import { EmailQueueService } from '../email/email-queue.service';
 import { MetricsService } from '../metrics/metrics.service';
 import { PushService } from '../notifications/push.service';
-import { PrismaService } from '../prisma/prisma.service';
 import { DistributedLockService } from '../redis/distributed-lock.service';
+import { UsersRepository } from '../users/users.repository';
 
 /**
  * Anniversary cron — runs daily at 10:00 Argentina (13:00 UTC).
  * Finds users whose activatedAt was exactly 1 year ago (±1 day) and sends
  * a celebratory email + push + ANNIVERSARY_1 milestone.
+ *
+ * User lookup delegated to UsersRepository; task-log counts delegated to
+ * DashboardStatsRepository.
  */
 @Injectable()
 export class AnniversaryService {
   private readonly logger = new Logger(AnniversaryService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly usersRepository: UsersRepository,
     private readonly emailQueueService: EmailQueueService,
     private readonly pushService: PushService,
     private readonly milestoneService: MilestoneService,
@@ -46,14 +49,7 @@ export class AnniversaryService {
             const dayAfter = new Date(oneYearAgo);
             dayAfter.setDate(dayAfter.getDate() + 1);
 
-            const users = await this.prisma.softDelete.user.findMany({
-              where: {
-                activatedAt: { gte: dayBefore, lte: dayAfter },
-                role: 'CLIENT',
-                status: 'ACTIVE',
-              },
-              select: { id: true, email: true, name: true, activatedAt: true },
-            });
+            const users = await this.usersRepository.findAnniversaryUsers(dayBefore, dayAfter);
 
             if (users.length === 0) {
               this.logger.log('No anniversaries today');
@@ -72,12 +68,7 @@ export class AnniversaryService {
                 // Gather stats for the recap
                 const clientPlanIds = await this.statsRepository.getAllClientPlanIds([user.id]);
                 const planIds = clientPlanIds.get(user.id) ?? [];
-                const taskCount =
-                  planIds.length > 0
-                    ? await this.prisma.taskLog.count({
-                        where: { task: { maintenancePlanId: { in: planIds } } },
-                      })
-                    : 0;
+                const taskCount = await this.statsRepository.countTaskLogsByPlanIds(planIds);
 
                 // Push notification
                 void this.pushService

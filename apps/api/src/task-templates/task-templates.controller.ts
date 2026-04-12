@@ -9,7 +9,17 @@ import {
   updateTaskTemplateSchema,
   UserRole,
 } from '@epde/shared';
-import { Body, Controller, Delete, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 
@@ -31,6 +41,7 @@ export class TaskTemplatesController {
   @Post('category-templates/:categoryId/tasks')
   @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 10, ttl: 60_000 } })
+  @HttpCode(HttpStatus.CREATED)
   async create(
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
     @Body(new ZodValidationPipe(createTaskTemplateSchema)) dto: CreateTaskTemplateInput,

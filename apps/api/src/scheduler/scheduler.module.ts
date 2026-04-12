@@ -21,6 +21,7 @@ import { SubscriptionReminderService } from './subscription-reminder.service';
 import { TaskReminderService } from './task-reminder.service';
 import { TaskSafetyService } from './task-safety.service';
 import { TaskStatusService } from './task-status.service';
+import { WeeklyChallengeRepository } from './weekly-challenge.repository';
 import { WeeklyChallengeService } from './weekly-challenge.service';
 import { WeeklySummaryService } from './weekly-summary.service';
 
@@ -61,6 +62,7 @@ import { WeeklySummaryService } from './weekly-summary.service';
     DataCleanupRepository,
     WeeklySummaryService,
     AnniversaryService,
+    WeeklyChallengeRepository,
     WeeklyChallengeService,
   ],
   exports: [WeeklyChallengeService],

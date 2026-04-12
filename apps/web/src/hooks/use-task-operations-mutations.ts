@@ -155,11 +155,9 @@ export function useCompleteTask(options?: {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.taskDetail, variables.planId, variables.taskId],
       });
-      // Refresh milestones — backend checkAndAward runs fire-and-forget,
-      // so we delay the refetch to give it time to persist new badges.
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.milestones] });
-      }, 2000);
+      // Milestones — backend checkAndAward completes in <50ms (fire-and-forget createMany).
+      // By the time the HTTP round-trip returns, badges are already persisted.
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.milestones] });
     },
   });
 }

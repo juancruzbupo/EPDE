@@ -1,6 +1,10 @@
 import '@/lib/sentry';
 import '../global.css';
 
+import { validateCertPinning } from '@/lib/cert-pinning';
+
+validateCertPinning();
+
 import {
   DMSans_400Regular,
   DMSans_500Medium,

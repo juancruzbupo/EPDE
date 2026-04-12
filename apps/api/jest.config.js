@@ -7,7 +7,7 @@ module.exports = {
   collectCoverageFrom: ['**/*.(t|j)s'],
   coverageDirectory: '../coverage',
   coverageThreshold: {
-    global: { statements: 65, branches: 58, functions: 65, lines: 65 },
+    global: { statements: 67, branches: 61, functions: 68, lines: 68 },
   },
   testEnvironment: 'node',
   moduleNameMapper: {

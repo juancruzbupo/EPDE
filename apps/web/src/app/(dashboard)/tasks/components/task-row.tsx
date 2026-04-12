@@ -3,6 +3,7 @@ import {
   formatRelativeDate,
   PRIORITY_VARIANT,
   PROPERTY_SECTOR_LABELS,
+  TASK_PRIORITY_HINTS,
   TASK_PRIORITY_LABELS,
 } from '@epde/shared';
 import { Calendar, MapPin } from 'lucide-react';
@@ -24,7 +25,11 @@ export const TaskRow = React.memo(function TaskRow({ task, onClick }: TaskRowPro
     >
       <div className="mb-1 flex items-start justify-between gap-2">
         <span className="text-sm leading-tight font-medium">{task.name}</span>
-        <Badge variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'} className="text-xs">
+        <Badge
+          variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'}
+          className="text-xs"
+          title={TASK_PRIORITY_HINTS[task.priority]}
+        >
           {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
         </Badge>
       </div>

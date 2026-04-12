@@ -32,6 +32,21 @@ export class UsersRepository extends BaseRepository<User, 'user'> {
     });
   }
 
+  /** Active clients whose activatedAt falls within the given date range. */
+  async findAnniversaryUsers(
+    from: Date,
+    to: Date,
+  ): Promise<Pick<User, 'id' | 'email' | 'name' | 'activatedAt'>[]> {
+    return this.prisma.softDelete.user.findMany({
+      where: {
+        activatedAt: { gte: from, lte: to },
+        role: 'CLIENT',
+        status: 'ACTIVE',
+      },
+      select: { id: true, email: true, name: true, activatedAt: true },
+    });
+  }
+
   /** All active clients with non-expired subscriptions (for weekly push summaries). Cap at 10K. */
   async findActiveClients() {
     return this.prisma.softDelete.user.findMany({

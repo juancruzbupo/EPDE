@@ -25,6 +25,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -110,6 +112,7 @@ export class MaintenancePlansController {
   @Post(':id/tasks')
   @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 5, ttl: 60_000 } })
+  @HttpCode(HttpStatus.CREATED)
   async addTask(
     @Param('id', ParseUUIDPipe) planId: string,
     @Body(new ZodValidationPipe(createTaskBodySchema)) dto: CreateTaskBody,
@@ -122,6 +125,7 @@ export class MaintenancePlansController {
   @Post(':id/tasks/bulk')
   @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 5, ttl: 60_000 } })
+  @HttpCode(HttpStatus.CREATED)
   async bulkAddTasks(
     @Param('id', ParseUUIDPipe) planId: string,
     @Body(new ZodValidationPipe(bulkAddTasksSchema)) body: BulkAddTasksInput,
@@ -211,6 +215,7 @@ export class MaintenancePlansController {
   @Post(':id/tasks/:taskId/notes')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   @Throttle({ medium: { limit: 5, ttl: 60_000 } })
+  @HttpCode(HttpStatus.CREATED)
   async addTaskNote(
     @Param('id', ParseUUIDPipe) planId: string,
     @Param('taskId', ParseUUIDPipe) taskId: string,

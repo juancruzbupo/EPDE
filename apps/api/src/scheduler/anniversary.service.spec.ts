@@ -1,4 +1,3 @@
-import { PrismaService } from '../prisma/prisma.service';
 import { AnniversaryService } from './anniversary.service';
 
 jest.mock('@sentry/node', () => ({
@@ -8,14 +7,11 @@ jest.mock('@sentry/node', () => ({
 
 describe('AnniversaryService', () => {
   let service: AnniversaryService;
-  let mockPrisma: {
-    softDelete: { user: { findMany: jest.Mock } };
-    taskLog: { count: jest.Mock };
-  };
+  let mockUsersRepo: { findAnniversaryUsers: jest.Mock };
   let mockEmailQueue: { enqueueAnniversary: jest.Mock };
   let mockPushService: { sendToUsers: jest.Mock };
   let mockMilestoneService: { checkAndAward: jest.Mock };
-  let mockStatsRepo: { getAllClientPlanIds: jest.Mock };
+  let mockStatsRepo: { getAllClientPlanIds: jest.Mock; countTaskLogsByPlanIds: jest.Mock };
   let mockLockService: { withLock: jest.Mock };
   let mockMetricsService: { recordCronExecution: jest.Mock };
 
@@ -23,21 +19,21 @@ describe('AnniversaryService', () => {
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
   beforeEach(() => {
-    mockPrisma = {
-      softDelete: { user: { findMany: jest.fn().mockResolvedValue([]) } },
-      taskLog: { count: jest.fn().mockResolvedValue(0) },
-    };
+    mockUsersRepo = { findAnniversaryUsers: jest.fn().mockResolvedValue([]) };
     mockEmailQueue = { enqueueAnniversary: jest.fn().mockResolvedValue(undefined) };
     mockPushService = { sendToUsers: jest.fn().mockResolvedValue(undefined) };
     mockMilestoneService = { checkAndAward: jest.fn().mockResolvedValue([]) };
-    mockStatsRepo = { getAllClientPlanIds: jest.fn().mockResolvedValue(new Map()) };
+    mockStatsRepo = {
+      getAllClientPlanIds: jest.fn().mockResolvedValue(new Map()),
+      countTaskLogsByPlanIds: jest.fn().mockResolvedValue(0),
+    };
     mockLockService = {
       withLock: jest.fn().mockImplementation((_key, _ttl, fn) => fn({ lockLost: false })),
     };
     mockMetricsService = { recordCronExecution: jest.fn() };
 
     service = new AnniversaryService(
-      mockPrisma as unknown as PrismaService,
+      mockUsersRepo as never,
       mockEmailQueue as never,
       mockPushService as never,
       mockMilestoneService as never,
@@ -56,9 +52,9 @@ describe('AnniversaryService', () => {
 
     it('awards milestone for anniversary user', async () => {
       const user = { id: 'user-1', email: 'u@test.com', name: 'Test', activatedAt: oneYearAgo };
-      mockPrisma.softDelete.user.findMany.mockResolvedValue([user]);
+      mockUsersRepo.findAnniversaryUsers.mockResolvedValue([user]);
       mockStatsRepo.getAllClientPlanIds.mockResolvedValue(new Map([['user-1', ['plan-1']]]));
-      mockPrisma.taskLog.count.mockResolvedValue(25);
+      mockStatsRepo.countTaskLogsByPlanIds.mockResolvedValue(25);
 
       await service.checkAnniversaries();
 
@@ -67,9 +63,9 @@ describe('AnniversaryService', () => {
 
     it('sends push notification with task count', async () => {
       const user = { id: 'user-1', email: 'u@test.com', name: 'Test', activatedAt: oneYearAgo };
-      mockPrisma.softDelete.user.findMany.mockResolvedValue([user]);
+      mockUsersRepo.findAnniversaryUsers.mockResolvedValue([user]);
       mockStatsRepo.getAllClientPlanIds.mockResolvedValue(new Map([['user-1', ['plan-1']]]));
-      mockPrisma.taskLog.count.mockResolvedValue(25);
+      mockStatsRepo.countTaskLogsByPlanIds.mockResolvedValue(25);
 
       await service.checkAnniversaries();
 
@@ -84,7 +80,7 @@ describe('AnniversaryService', () => {
 
     it('enqueues anniversary email', async () => {
       const user = { id: 'user-1', email: 'u@test.com', name: 'Test', activatedAt: oneYearAgo };
-      mockPrisma.softDelete.user.findMany.mockResolvedValue([user]);
+      mockUsersRepo.findAnniversaryUsers.mockResolvedValue([user]);
       mockStatsRepo.getAllClientPlanIds.mockResolvedValue(new Map([['user-1', []]]));
 
       await service.checkAnniversaries();
@@ -99,7 +95,7 @@ describe('AnniversaryService', () => {
         { id: 'user-1', email: 'u1@test.com', name: 'Test1', activatedAt: oneYearAgo },
         { id: 'user-2', email: 'u2@test.com', name: 'Test2', activatedAt: oneYearAgo },
       ];
-      mockPrisma.softDelete.user.findMany.mockResolvedValue(users);
+      mockUsersRepo.findAnniversaryUsers.mockResolvedValue(users);
       mockStatsRepo.getAllClientPlanIds.mockResolvedValue(new Map());
       mockMilestoneService.checkAndAward
         .mockRejectedValueOnce(new Error('Milestone error'))

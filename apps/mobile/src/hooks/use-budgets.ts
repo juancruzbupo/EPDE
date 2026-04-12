@@ -22,6 +22,7 @@ import {
   respondToBudget,
   updateBudgetStatus,
 } from '@/lib/api/budgets';
+import { haptics } from '@/lib/haptics';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
 
 /** Mobile is CLIENT-only — filters default to {} (no admin filtering needed). Web requires filters explicitly. */
@@ -50,6 +51,7 @@ export function useCreateBudgetRequest() {
   return useMutation({
     mutationFn: createBudgetRequest,
     onSuccess: () => {
+      haptics.success();
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
       invalidateClientDashboard(queryClient);
       Alert.alert('Éxito', 'Presupuesto creado correctamente');
@@ -67,6 +69,7 @@ export function useEditBudgetRequest() {
     mutationFn: ({ id, ...dto }: { id: string } & EditBudgetRequestInput) =>
       editBudgetRequest(id, dto),
     onSuccess: () => {
+      haptics.success();
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
       Alert.alert('Éxito', 'Presupuesto actualizado');
     },
@@ -97,6 +100,10 @@ export function useUpdateBudgetStatus() {
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: BudgetStatus }) =>
       updateBudgetStatus(id, status),
+
+    onSuccess: () => {
+      haptics.success();
+    },
 
     onMutate: async (variables) => {
       await queryClient.cancelQueries({ queryKey: [QUERY_KEYS.budgets, variables.id] });
@@ -151,6 +158,7 @@ export function useAddBudgetComment() {
     mutationFn: ({ budgetId, ...dto }: { budgetId: string } & CreateBudgetCommentInput) =>
       createBudgetComment(budgetId, dto),
     onSuccess: (_data, variables) => {
+      haptics.success();
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.budgets, variables.budgetId, QUERY_KEYS.budgetComments],
       });
@@ -179,6 +187,7 @@ export function useAddBudgetAttachments() {
       attachments: { url: string; fileName: string }[];
     }) => addBudgetAttachments(budgetId, { attachments }),
     onSuccess: (_data, variables) => {
+      haptics.success();
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.budgets, variables.budgetId],
       });

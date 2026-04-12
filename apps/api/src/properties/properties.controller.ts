@@ -15,6 +15,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -120,6 +122,7 @@ export class PropertiesController {
   @Post()
   @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 5, ttl: 60_000 } })
+  @HttpCode(HttpStatus.CREATED)
   async createProperty(
     @Body(new ZodValidationPipe(createPropertySchema)) dto: CreatePropertyInput,
     @CurrentUser() user: CurrentUserPayload,
