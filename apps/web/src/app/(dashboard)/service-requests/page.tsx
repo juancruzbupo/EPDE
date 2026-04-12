@@ -142,7 +142,7 @@ function ServiceRequestsPageContent() {
         hasMore={hasNextPage}
         onLoadMore={() => fetchNextPage()}
         total={total}
-        emptyMessage="Todavía no tenés solicitudes. Podés crear una desde el botón 'Nueva Solicitud' o desde el detalle de una tarea."
+        emptyMessage="Si detectás un problema en tu casa, creá una solicitud y EPDE lo evalúa. Usá el botón 'Nueva Solicitud' o hacelo desde el detalle de una tarea."
         hasActiveFilters={
           debouncedSearch !== '' ||
           status !== 'all' ||

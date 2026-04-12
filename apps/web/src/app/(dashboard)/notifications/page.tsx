@@ -85,7 +85,10 @@ export default function NotificationsPage() {
           className="justify-center py-24"
         />
       ) : allNotifications.length === 0 ? (
-        <EmptyState title="Sin notificaciones" message="No tenés notificaciones por ahora." />
+        <EmptyState
+          title="Sin notificaciones"
+          message="Te vamos a avisar cuando una tarea esté por vencer, un presupuesto esté cotizado, o una solicitud de servicio avance."
+        />
       ) : (
         <ul className="space-y-2">
           {allNotifications.map((n) => {

@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 
 import { AnimatedListItem } from '@/components/animated-list-item';
+import { ContextualEmptyState } from '@/components/contextual-empty-state';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { PropertyTypeBadge } from '@/components/status-badge';
@@ -261,14 +262,18 @@ export default function PropertiesScreen() {
       }
       ListEmptyComponent={
         !isLoading ? (
-          <EmptyState
-            title="Sin propiedades"
-            message={
-              hasActiveFilters
-                ? 'No se encontraron propiedades con esos filtros.'
-                : 'Aún no tenés propiedades registradas.'
-            }
-          />
+          hasActiveFilters ? (
+            <EmptyState
+              title="Sin resultados"
+              message="No se encontraron propiedades con esos filtros."
+            />
+          ) : (
+            <ContextualEmptyState
+              icon="🏠"
+              title="Sin propiedades"
+              message="Tu propiedad aparecerá acá cuando la arquitecta la registre en el sistema."
+            />
+          )
         ) : null
       }
     />

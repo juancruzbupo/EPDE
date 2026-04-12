@@ -136,14 +136,10 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
               <CardContent className="flex flex-col items-center gap-2 py-12">
                 <ClipboardList className="text-muted-foreground/60 h-8 w-8" />
                 <p className="text-muted-foreground text-sm">
-                  No hay plan de mantenimiento todavía.
+                  {isAdmin
+                    ? 'No hay plan de mantenimiento todavía. Para crear uno, completá la inspección en la pestaña "Inspección" y después hacé click en "Generar Plan".'
+                    : 'La arquitecta está preparando tu plan de mantenimiento. Aparecerá acá cuando la inspección esté completa. Te notificaremos cuando esté listo.'}
                 </p>
-                {isAdmin && (
-                  <p className="text-muted-foreground text-xs">
-                    Para crear uno, completá la inspección en la pestaña &quot;Inspección&quot; y
-                    después hacé click en &quot;Generar Plan&quot;.
-                  </p>
-                )}
               </CardContent>
             </Card>
           )}

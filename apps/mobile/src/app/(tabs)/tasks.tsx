@@ -21,6 +21,7 @@ import {
 } from 'react-native';
 
 import { AnimatedListItem } from '@/components/animated-list-item';
+import { ContextualEmptyState } from '@/components/contextual-empty-state';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { HelpHint } from '@/components/help-hint';
@@ -401,14 +402,18 @@ export default function TasksScreen() {
         }
         ListEmptyComponent={
           !isLoading ? (
-            <EmptyState
-              title="Sin tareas"
-              message={
-                hasActiveFilters
-                  ? 'No se encontraron tareas con esos filtros.'
-                  : 'No hay tareas registradas todavía.'
-              }
-            />
+            hasActiveFilters ? (
+              <EmptyState
+                title="Sin resultados"
+                message="No se encontraron tareas con esos filtros."
+              />
+            ) : (
+              <ContextualEmptyState
+                icon="✅"
+                title="Sin tareas"
+                message="Las tareas aparecen cuando tu plan de mantenimiento esté activo. La arquitecta lo genera después de inspeccionar tu casa."
+              />
+            )
           ) : null
         }
       />
