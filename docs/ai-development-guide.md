@@ -196,6 +196,10 @@
 179. **SIEMPRE #83 (rate limiting por email + IP)**: Endpoints que aceptan email en body (login, forgot-password) DEBEN usar `@UseGuards(EmailAwareThrottlerGuard)`. El guard keya el bucket por `ip:email` en vez de solo IP, para mitigar brute-force distribuido con botnets o VPN rotation. Combinar con `LoginAttemptService` (fail-count en Redis con lockout de 15 min) en el service
 180. **SIEMPRE #84 (refresh token bloqueado si sub expirada)**: `rotateRefreshToken` verifica `subExp` del CLIENT y revoca el family + throws 401 si ya expiró. Sin esto, el `SubscriptionGuard` solo captura la expiración en el siguiente request, dejando una ventana para seguir refrescando. ADMIN bypasea (no tiene sub), grandfathered (subExpDate === null) pasa
 181. **SIEMPRE #85 (JWT aud/iss explícitos)**: Los JWT sign/verify config DEBEN incluir `issuer: 'epde-api'` + `audience: 'epde-client'` + `algorithm: 'HS256'` explícitos. Defense-in-depth contra algorithm confusion y cross-service token reuse. Config en `auth.module.ts JwtModule.registerAsync` + `jwt.strategy.ts super()`
+182. **SIEMPRE #86 (empty states contextuales)**: Todo empty state DEBE usar `ContextualEmptyState` (web: `@/components/contextual-empty-state`, mobile: `@/components/contextual-empty-state`) con: (1) ícono, (2) título, (3) mensaje que explica POR QUÉ está vacío y QUÉ HACER, (4) CTA opcional. NUNCA mostrar solo "No hay datos" sin contexto del workflow
+183. **SIEMPRE #87 (HelpHint en vez de Tooltip para términos de dominio)**: Usar `HelpHint` (click-to-open popover en web, inline expand en mobile) para explicar ISV, índice de riesgo, sector, hallazgo, recurrencia, etc. NUNCA depender de hover-only Tooltip — usuarios mayores no hovean en desktop y es imposible en mobile
+184. **SIEMPRE #88 (admin tours obligatorios en flujos nuevos)**: Todo flujo admin nuevo DEBE tener un tour con `data-tour` attrs y un export en `onboarding-tour.tsx` con `forRole={UserRole.ADMIN}`. Agregar el storage key a `TOUR_KEYS[]` para que `resetOnboardingTour()` lo limpie
+185. **SIEMPRE #89 (glosario en @epde/shared)**: `GLOSSARY` en `@epde/shared/constants/glossary.ts` es SSoT para definiciones de términos de dominio. Web: `GlossaryButton` en header. Mobile: `GlossaryModal` accesible desde perfil. Al agregar un término nuevo, actualizar el array
 
 ### NUNCA
 
@@ -234,6 +238,7 @@
 33. **NUNCA pasar `...dto` directo a `prisma.*.update()`/`create()`** — Aún con `ZodValidationPipe` en modo strict (SIEMPRE #80), destructurar explícitamente los campos: `const { name, email } = dto; return prisma.user.update({ data: { name, email } })`. Protege contra casos donde el pipe no aplica (e.g. endpoint sin pipe) o cuando el schema es `.passthrough()`
 34. **NUNCA usar `ThrottlerGuard` default en endpoints con email en body** — Usar `EmailAwareThrottlerGuard` de `common/guards/email-aware-throttler.guard.ts`. El default keya solo por IP y es vulnerable a brute-force distribuido. Aplica a login, forgot-password, reset-password
 35. **NUNCA setear `CORS_ORIGIN=*`** — Con `credentials: true`, Express rechaza `*` pero `main.ts` ahora falla explícitamente con un error claro al bootstrap si alguien intenta. No downgradearlo
+36. **NUNCA asumir que el usuario entiende jargón de dominio** — Términos como ISV, hallazgo, sector, recurrencia, índice de riesgo DEBEN tener `HelpHint` in-place o estar definidos en el `GLOSSARY`. Si un usuario de 65 años no puede entender un label sin contexto previo, agregar ayuda
 
 ---
 
