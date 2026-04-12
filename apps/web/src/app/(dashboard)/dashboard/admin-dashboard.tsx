@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 
 import { AttentionNeeded } from '@/components/attention-needed';
 import { ErrorState } from '@/components/error-state';
+import { AdminDashboardTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
@@ -48,10 +49,11 @@ export function AdminDashboard() {
 
   return (
     <div>
+      <AdminDashboardTour />
       <PageHeader title="Dashboard" description="Resumen general de la plataforma" />
 
       {/* Level 1: Executive summary KPIs */}
-      <div className="mb-6">
+      <div data-tour="admin-kpis" className="mb-6">
         {statsLoading ? (
           <div role="status" aria-label="Cargando...">
             <Card>
@@ -74,10 +76,12 @@ export function AdminDashboard() {
       </div>
 
       {/* Level 2: Attention Needed */}
-      <div className="mb-6">{stats && <AttentionNeeded stats={stats} />}</div>
+      <div data-tour="admin-attention" className="mb-6">
+        {stats && <AttentionNeeded stats={stats} />}
+      </div>
 
       {/* Level 3: Admin Analytics Tabs */}
-      <div className="mb-6">
+      <div data-tour="admin-tabs" className="mb-6">
         <Tabs value={analyticsTab} onValueChange={setAnalyticsTab}>
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <TabsList>
@@ -117,13 +121,15 @@ export function AdminDashboard() {
       </div>
 
       {/* Level 4: Activity Feed */}
-      <ActivityFeed
-        activity={activity}
-        activityLoading={activityLoading}
-        activityError={activityError}
-        refetchActivity={refetchActivity}
-        shouldAnimate={shouldAnimate}
-      />
+      <div data-tour="admin-activity">
+        <ActivityFeed
+          activity={activity}
+          activityLoading={activityLoading}
+          activityError={activityError}
+          refetchActivity={refetchActivity}
+          shouldAnimate={shouldAnimate}
+        />
+      </div>
     </div>
   );
 }

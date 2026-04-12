@@ -18,6 +18,7 @@ import { useMemo, useState } from 'react';
 
 import { ErrorState } from '@/components/error-state';
 import { InspectionGuideRenderer } from '@/components/inspection-guide-renderer';
+import { InspectionTour } from '@/components/onboarding-tour';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -213,6 +214,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
 
   return (
     <div className="space-y-4">
+      <InspectionTour />
       {/* Header */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
@@ -241,7 +243,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
         </div>
 
         {/* Progress bar */}
-        <div className="space-y-1">
+        <div data-tour="inspection-progress" className="space-y-1">
           <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
             <div
               className="bg-primary h-full rounded-full transition-all duration-300"
@@ -290,14 +292,14 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
         ) : null}
       </div>
 
-      {sectorOrder.map((sector) => {
+      {sectorOrder.map((sector, sectorIndex) => {
         const items = itemsBySector.get(sector) ?? [];
         const completed = items.filter((i) => i.status !== 'PENDING').length;
         const isCollapsed = !expandedSectors.has(sector);
         const allDone = completed === items.length && items.length > 0;
 
         return (
-          <Card key={sector}>
+          <Card key={sector} {...(sectorIndex === 0 ? { 'data-tour': 'inspection-sectors' } : {})}>
             <CardHeader
               className="cursor-pointer pb-3 select-none"
               onClick={() => {
@@ -351,6 +353,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
                               size="sm"
                               className="text-muted-foreground hover:text-primary h-6 w-6 shrink-0 p-0"
                               aria-label="Ver guía de inspección"
+                              {...(sectorIndex === 0 ? { 'data-tour': 'inspection-guide' } : {})}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setGuideItem(item);

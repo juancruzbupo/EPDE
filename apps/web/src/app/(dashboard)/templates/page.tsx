@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ErrorState } from '@/components/error-state';
+import { TemplatesTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -72,6 +73,7 @@ export default function TemplatesPage() {
 
   return (
     <PageTransition>
+      <TemplatesTour />
       <PageHeader
         title="Plantillas de Tareas"
         description="Nomenclador maestro de categorías y tareas de mantenimiento"
@@ -105,7 +107,7 @@ export default function TemplatesPage() {
           className="justify-center py-24"
         />
       ) : categories && categories.length > 0 ? (
-        <div className="space-y-4">
+        <div data-tour="templates-categories" className="space-y-4">
           {categories.map((cat) => {
             const isExpanded = expandedCategories.has(cat.id);
             return (
@@ -131,7 +133,12 @@ export default function TemplatesPage() {
                       </Badge>
                     </button>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => handleAddTask(cat.id)}>
+                      <Button
+                        data-tour="templates-guide"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleAddTask(cat.id)}
+                      >
                         <Plus className="mr-1 h-3 w-3" />
                         Tarea
                       </Button>
@@ -160,7 +167,7 @@ export default function TemplatesPage() {
                 </CardHeader>
 
                 {isExpanded && cat.tasks.length > 0 && (
-                  <CardContent className="pt-0">
+                  <CardContent data-tour="templates-tasks" className="pt-0">
                     <TaskTemplateTable
                       tasks={cat.tasks}
                       onEdit={(task) => handleEditTask(cat.id, task)}

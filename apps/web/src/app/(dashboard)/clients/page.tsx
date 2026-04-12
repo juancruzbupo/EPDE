@@ -10,6 +10,7 @@ import { ConfirmDialog } from '@/components/confirm-dialog';
 import { DataTable } from '@/components/data-table/data-table';
 import { ErrorState } from '@/components/error-state';
 import { FilterSelect } from '@/components/filter-select';
+import { ClientsTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
 import { SearchInput } from '@/components/search-input';
 import { Button } from '@/components/ui/button';
@@ -61,18 +62,19 @@ export default function ClientsPage() {
 
   return (
     <PageTransition>
+      <ClientsTour />
       <PageHeader
         title="Clientes"
         description="Gestión de clientes de la plataforma"
         action={
-          <Button onClick={() => setInviteOpen(true)}>
+          <Button data-tour="clients-invite" onClick={() => setInviteOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Invitar Cliente
           </Button>
         }
       />
 
-      <div className="mb-4 flex flex-wrap gap-3">
+      <div data-tour="clients-list" className="mb-4 flex flex-wrap gap-3">
         <SearchInput
           value={search}
           onChange={setSearch}
