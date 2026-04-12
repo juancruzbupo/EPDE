@@ -171,6 +171,21 @@ export class HealthIndexRepository {
     const result = new Map<string, HealthResult>();
     if (planIds.length === 0) return result;
 
+    // Try Redis cache for the full batch (same TTL as single health index)
+    const batchCacheKey = `health:batch:${this.healthCacheKey(planIds).split(':')[1]}`;
+    if (this.redisService) {
+      try {
+        const cached = await this.redisService.get(batchCacheKey);
+        if (cached) {
+          const parsed = JSON.parse(cached) as Array<[string, HealthResult]>;
+          for (const [k, v] of parsed) result.set(k, v);
+          return result;
+        }
+      } catch {
+        // Cache miss or Redis unavailable — compute fresh
+      }
+    }
+
     const now = new Date();
     const twelveMonthsAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
 
@@ -229,6 +244,19 @@ export class HealthIndexRepository {
       result.set(planId, healthIndex);
     }
 
+    // Store batch in Redis cache (fire-and-forget)
+    if (this.redisService) {
+      void this.redisService
+        .setex(
+          batchCacheKey,
+          HealthIndexRepository.CACHE_TTL,
+          JSON.stringify([...result.entries()]),
+        )
+        .catch((err) =>
+          this.logger.warn(`Health batch cache store failed: ${(err as Error).message}`),
+        );
+    }
+
     return result;
   }
 
@@ -244,6 +272,7 @@ export class HealthIndexRepository {
           sector: { not: null },
         },
         select: { id: true, sector: true, status: true },
+        take: 500,
       }),
       this.prisma.taskLog.findMany({
         where: {
@@ -251,6 +280,7 @@ export class HealthIndexRepository {
           cost: { not: null },
         },
         select: { cost: true, task: { select: { sector: true } } },
+        take: 1_000,
       }),
     ]);
 

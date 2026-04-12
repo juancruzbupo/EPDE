@@ -686,6 +686,7 @@ model ISVSnapshot {
 
   @@unique([propertyId, snapshotDate])
   @@index([propertyId])
+  @@index([propertyId, snapshotDate(sort: Desc)])
 }
 
 // ─── Inspection Checklists ────────────────────────────────
