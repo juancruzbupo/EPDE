@@ -13,6 +13,7 @@ export class MetricsService implements OnModuleInit {
   private dbQueryDuration!: Histogram;
   private queueDepth!: Histogram;
   private errorTotal!: Counter;
+  private cacheHitsTotal!: Counter;
 
   onModuleInit() {
     const exporter = new PrometheusExporter({ port: 9464 });
@@ -50,6 +51,10 @@ export class MetricsService implements OnModuleInit {
     this.errorTotal = meter.createCounter('error_total', {
       description: 'Total application errors by type',
     });
+
+    this.cacheHitsTotal = meter.createCounter('cache_access_total', {
+      description: 'Redis cache accesses by key pattern and result (hit/miss)',
+    });
   }
 
   recordHttpRequest(method: string, route: string, statusCode: number, durationMs: number) {
@@ -75,5 +80,9 @@ export class MetricsService implements OnModuleInit {
 
   recordError(type: string, route?: string) {
     this.errorTotal.add(1, { type, ...(route && { route }) });
+  }
+
+  recordCacheAccess(key: string, hit: boolean) {
+    this.cacheHitsTotal.add(1, { key, result: hit ? 'hit' : 'miss' });
   }
 }

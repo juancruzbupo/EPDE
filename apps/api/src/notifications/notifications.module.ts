@@ -22,7 +22,7 @@ import { PushTokensRepository } from './push-tokens.repository';
         attempts: 3,
         backoff: { type: 'exponential', delay: 3000 },
         removeOnComplete: { count: 200 },
-        removeOnFail: { count: 500 },
+        removeOnFail: false, // Keep failed jobs for inspection + DLQ monitoring
       },
     }),
   ],

@@ -279,7 +279,9 @@ export class AnalyticsRepository {
         task: { select: { category: { select: { name: true } } } },
       },
       orderBy: { completedAt: 'desc' },
-      // 1000 logs covers ~3 years of bi-weekly inspections per property
+      // Capped at 1000 — covers ~3 years of bi-weekly inspections per property.
+      // If a client exceeds this, charts show partial data (recent months only).
+      // Acceptable trade-off: analytics accuracy vs. query cost.
       take: 1_000,
     });
 

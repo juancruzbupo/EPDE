@@ -341,6 +341,18 @@ export class HealthIndexRepository {
   async getMaintenanceStreak(planIds: string[]): Promise<number> {
     if (planIds.length === 0) return 0;
 
+    // Cache streak per-planIds for 6h (same as health index).
+    // Weekly summary cron calls this per-client — cache prevents re-computing.
+    const streakCacheKey = `streak:${this.healthCacheKey(planIds).split(':')[1]}`;
+    if (this.redisService) {
+      try {
+        const cached = await this.redisService.get(streakCacheKey);
+        if (cached !== null) return parseInt(cached, 10);
+      } catch {
+        // Cache miss — compute fresh
+      }
+    }
+
     const since = startOfMonth(subMonths(new Date(), 23));
     const nextMonth = startOfMonth(subMonths(new Date(), -1));
 
@@ -392,6 +404,13 @@ export class HealthIndexRepository {
       const netOverdue = Math.max(0, overdue - completed);
       if (netOverdue > 0) break;
       streak++;
+    }
+
+    // Cache streak result (fire-and-forget)
+    if (this.redisService) {
+      void this.redisService
+        .setex(streakCacheKey, HealthIndexRepository.CACHE_TTL, String(streak))
+        .catch(() => {});
     }
 
     return streak;
