@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { RedisService } from '../redis/redis.service';
 import { LandingSettingsRepository } from './landing-settings.repository';
 import { LandingSettingsService } from './landing-settings.service';
 
@@ -17,6 +18,14 @@ describe('LandingSettingsService', () => {
             findAll: jest.fn(),
             findByKey: jest.fn(),
             upsert: jest.fn(),
+          },
+        },
+        {
+          provide: RedisService,
+          useValue: {
+            get: jest.fn().mockResolvedValue(null),
+            setex: jest.fn().mockResolvedValue(undefined),
+            del: jest.fn().mockResolvedValue(undefined),
           },
         },
       ],

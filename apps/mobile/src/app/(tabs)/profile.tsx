@@ -1,4 +1,5 @@
 import { changePasswordSchema, WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useCallback, useMemo, useState } from 'react';
 import { Alert, Linking, Pressable, ScrollView, Text, View } from 'react-native';
@@ -8,8 +9,10 @@ import { AppearanceSelector } from '@/components/profile/appearance-selector';
 import { PasswordChangeForm } from '@/components/profile/password-change-form';
 import { UserInfoCard } from '@/components/profile/user-info-card';
 import * as authApi from '@/lib/auth';
+import { QUERY_CACHE_KEY } from '@/lib/constants';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
+import { queryClient } from '@/lib/query-client';
 import { useAuthStore } from '@/stores/auth-store';
 import { useThemeStore } from '@/stores/theme-store';
 
@@ -39,6 +42,28 @@ export default function ProfileScreen() {
       },
     ]);
   }, [logout]);
+
+  const handleClearCache = useCallback(() => {
+    Alert.alert(
+      'Limpiar Caché',
+      'Se eliminarán los datos guardados en la app. La próxima vez que abras una pantalla, se descargarán de nuevo.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Limpiar',
+          style: 'destructive',
+          onPress: async () => {
+            queryClient.clear();
+            const keys = await AsyncStorage.getAllKeys();
+            const cacheKeys = keys.filter((k) => k.startsWith(QUERY_CACHE_KEY));
+            if (cacheKeys.length > 0) await AsyncStorage.multiRemove(cacheKeys);
+            haptics.success();
+            Alert.alert('Listo', 'Caché limpiado correctamente');
+          },
+        },
+      ],
+    );
+  }, []);
 
   const startEdit = useCallback(
     (field: 'name' | 'phone') => {
@@ -159,6 +184,17 @@ export default function ProfileScreen() {
             </Text>
           </View>
         </View>
+        <Pressable
+          onPress={handleClearCache}
+          className="border-border mt-3 items-center rounded-lg border py-2"
+          accessibilityLabel="Limpiar caché de la aplicación"
+          accessibilityRole="button"
+          style={{ minHeight: 44 }}
+        >
+          <Text style={TYPE.labelMd} className="text-muted-foreground">
+            Limpiar caché
+          </Text>
+        </Pressable>
       </View>
 
       {/* Glossary */}

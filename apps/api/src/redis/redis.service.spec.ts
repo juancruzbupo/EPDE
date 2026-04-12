@@ -17,6 +17,7 @@ jest.mock('ioredis', () => {
       ping: jest.fn().mockResolvedValue('PONG'),
       quit: jest.fn().mockResolvedValue('OK'),
       eval: jest.fn(),
+      info: jest.fn(),
       // Chain-able: .on('event', handler) returns `this`
       on: jest.fn().mockReturnThis(),
     };
@@ -160,6 +161,50 @@ describe('RedisService', () => {
       // ioredis eval signature: eval(script, numkeys, ...keys, ...args)
       expect(mockRedisInstance.eval).toHaveBeenCalledWith('return 1', 1, 'epde:key1', 'arg1', 42);
       expect(result).toBe(1);
+    });
+  });
+
+  describe('getMemoryInfo', () => {
+    const REALISTIC_INFO = [
+      '# Memory',
+      'used_memory:1048576',
+      'used_memory_human:1.00M',
+      'used_memory_rss:2097152',
+      'maxmemory:536870912',
+      'maxmemory_human:512.00M',
+      'maxmemory_policy:volatile-lru',
+    ].join('\r\n');
+
+    it('should parse used_memory and maxmemory from INFO output', async () => {
+      mockRedisInstance.info.mockResolvedValue(REALISTIC_INFO);
+
+      const result = await service.getMemoryInfo();
+
+      expect(mockRedisInstance.info).toHaveBeenCalledWith('memory');
+      expect(result).toEqual({
+        usedMemoryBytes: 1_048_576,
+        maxMemoryBytes: 536_870_912,
+        usagePercentage: expect.closeTo(0.195, 2),
+      });
+    });
+
+    it('should return 0% when maxmemory is 0 (no limit)', async () => {
+      const noLimitInfo = '# Memory\r\nused_memory:500000\r\nmaxmemory:0';
+      mockRedisInstance.info.mockResolvedValue(noLimitInfo);
+
+      const result = await service.getMemoryInfo();
+
+      expect(result).toEqual({
+        usedMemoryBytes: 500_000,
+        maxMemoryBytes: 0,
+        usagePercentage: 0,
+      });
+    });
+
+    it('should return null when Redis throws (graceful degradation)', async () => {
+      mockRedisInstance.info.mockRejectedValue(new Error('Connection refused'));
+
+      expect(await service.getMemoryInfo()).toBeNull();
     });
   });
 

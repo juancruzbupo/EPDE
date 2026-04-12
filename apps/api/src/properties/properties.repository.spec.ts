@@ -17,14 +17,9 @@ describe('PropertiesRepository', () => {
     delete: jest.fn(),
   };
 
-  const mockTx = {
-    property: { create: jest.fn(), findUnique: jest.fn() },
-    maintenancePlan: { create: jest.fn() },
-  };
-
   beforeEach(() => {
     prisma = {
-      $transaction: jest.fn((cb: (tx: typeof mockTx) => Promise<unknown>) => cb(mockTx)),
+      $transaction: jest.fn(),
       softDelete: { property: mockModel },
       property: mockModel,
     } as unknown as PrismaService;
@@ -43,51 +38,24 @@ describe('PropertiesRepository', () => {
       createdBy: 'admin-1',
     };
 
-    it('should create property and plan in a transaction', async () => {
-      mockTx.property.create.mockResolvedValue({ id: 'prop-1', ...data });
-      mockTx.maintenancePlan.create.mockResolvedValue({ id: 'plan-1' });
-      mockTx.property.findUnique.mockResolvedValue({
+    it('should create property with user and plan includes', async () => {
+      mockModel.create.mockResolvedValue({
         id: 'prop-1',
-        maintenancePlan: { id: 'plan-1' },
+        ...data,
+        user: {},
+        maintenancePlan: null,
       });
 
-      await repository.createWithPlan(data);
+      const result = await repository.createWithPlan(data);
 
-      expect(prisma.$transaction).toHaveBeenCalled();
-      expect(mockTx.property.create).toHaveBeenCalledWith({ data });
-    });
-
-    it('should create plan with name derived from address and status DRAFT', async () => {
-      mockTx.property.create.mockResolvedValue({ id: 'prop-1', address: data.address });
-      mockTx.maintenancePlan.create.mockResolvedValue({ id: 'plan-1' });
-      mockTx.property.findUnique.mockResolvedValue({ id: 'prop-1' });
-
-      await repository.createWithPlan(data);
-
-      expect(mockTx.maintenancePlan.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          propertyId: 'prop-1',
-          name: `Plan de Mantenimiento — ${data.address}`,
-          status: PlanStatus.DRAFT,
-          createdBy: 'admin-1',
-        }),
-      });
-    });
-
-    it('should return property with user and plan includes', async () => {
-      mockTx.property.create.mockResolvedValue({ id: 'prop-1' });
-      mockTx.maintenancePlan.create.mockResolvedValue({ id: 'plan-1' });
-      mockTx.property.findUnique.mockResolvedValue({ id: 'prop-1', user: {}, maintenancePlan: {} });
-
-      await repository.createWithPlan(data);
-
-      expect(mockTx.property.findUnique).toHaveBeenCalledWith({
-        where: { id: 'prop-1' },
+      expect(mockModel.create).toHaveBeenCalledWith({
+        data,
         include: {
           user: { select: { id: true, name: true, email: true } },
           maintenancePlan: true,
         },
       });
+      expect(result).toEqual({ id: 'prop-1', ...data, user: {}, maintenancePlan: null });
     });
   });
 

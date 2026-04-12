@@ -5,6 +5,11 @@ import { DistributedLockService } from '../redis/distributed-lock.service';
 import { TasksRepository } from '../tasks/tasks.repository';
 import { TaskStatusService } from './task-status.service';
 
+jest.mock('@sentry/node', () => ({
+  withMonitor: jest.fn((_name, fn) => fn()),
+  captureException: jest.fn(),
+}));
+
 const mockTasksRepository = {
   markOverdue: jest.fn().mockResolvedValue(2),
   markUpcoming: jest.fn().mockResolvedValue(3),

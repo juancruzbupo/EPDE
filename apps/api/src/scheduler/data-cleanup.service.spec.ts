@@ -5,6 +5,11 @@ import { DistributedLockService } from '../redis/distributed-lock.service';
 import { DataCleanupRepository } from './data-cleanup.repository';
 import { DataCleanupService } from './data-cleanup.service';
 
+jest.mock('@sentry/node', () => ({
+  withMonitor: jest.fn((_name, fn) => fn()),
+  captureException: jest.fn(),
+}));
+
 const mockDataCleanupRepository = {
   hardDeleteSoftDeletedBefore: jest.fn().mockResolvedValue({ users: 0, properties: 0, tasks: 0 }),
   deleteOldSnapshots: jest.fn().mockResolvedValue(0),

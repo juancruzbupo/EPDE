@@ -2,6 +2,7 @@ import type { CurrentUser as CurrentUserPayload } from '@epde/shared';
 import { UserRole } from '@epde/shared';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { PrismaService } from '../prisma/prisma.service';
 import { DashboardController } from './dashboard.controller';
 import { DashboardService } from './dashboard.service';
 
@@ -36,7 +37,10 @@ describe('DashboardController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [DashboardController],
-      providers: [{ provide: DashboardService, useValue: mockDashboardService }],
+      providers: [
+        { provide: DashboardService, useValue: mockDashboardService },
+        { provide: PrismaService, useValue: { weeklyChallenge: { findUnique: jest.fn() } } },
+      ],
     }).compile();
 
     controller = module.get<DashboardController>(DashboardController);

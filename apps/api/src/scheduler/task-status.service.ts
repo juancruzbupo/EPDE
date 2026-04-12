@@ -27,22 +27,27 @@ export class TaskStatusService {
   async recalculateTaskStatuses(): Promise<void> {
     const start = Date.now();
     try {
-      await this.lockService.withLock('cron:task-status-recalculation', 300, async (signal) => {
-        this.logger.log('Starting daily task status recalculation...');
+      await Sentry.withMonitor(
+        'task-status-recalculation',
+        () =>
+          this.lockService.withLock('cron:task-status-recalculation', 300, async (signal) => {
+            this.logger.log('Starting daily task status recalculation...');
 
-        if (signal.lockLost) return;
+            if (signal.lockLost) return;
 
-        const [overdueCount, upcomingCount, resetCount] = await Promise.all([
-          this.tasksRepository.markOverdue(),
-          this.tasksRepository.markUpcoming(),
-          this.tasksRepository.resetUpcomingToPending(),
-        ]);
+            const [overdueCount, upcomingCount, resetCount] = await Promise.all([
+              this.tasksRepository.markOverdue(),
+              this.tasksRepository.markUpcoming(),
+              this.tasksRepository.resetUpcomingToPending(),
+            ]);
 
-        this.logger.log(
-          `Status recalculation complete: ${overdueCount} overdue, ` +
-            `${upcomingCount} upcoming, ${resetCount} reset to pending`,
-        );
-      });
+            this.logger.log(
+              `Status recalculation complete: ${overdueCount} overdue, ` +
+                `${upcomingCount} upcoming, ${resetCount} reset to pending`,
+            );
+          }),
+        { schedule: { type: 'crontab', value: '0 9 * * *' } },
+      );
     } catch (error) {
       this.logger.error(`Cron failed: ${(error as Error).message}`, (error as Error).stack);
       Sentry.captureException(error);

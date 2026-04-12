@@ -29,42 +29,47 @@ export class BudgetExpirationService {
   async checkBudgetExpiry(): Promise<void> {
     const start = Date.now();
     try {
-      await this.lockService.withLock('cron:budget-expiration-check', 300, async (signal) => {
-        this.logger.log('Starting daily budget expiration check...');
+      await Sentry.withMonitor(
+        'budget-expiration-check',
+        () =>
+          this.lockService.withLock('cron:budget-expiration-check', 300, async (signal) => {
+            this.logger.log('Starting daily budget expiration check...');
 
-        const expiredBudgets = await this.budgetsRepository.findExpiredQuotedBudgets();
-        if (signal.lockLost) return;
+            const expiredBudgets = await this.budgetsRepository.findExpiredQuotedBudgets();
+            if (signal.lockLost) return;
 
-        if (expiredBudgets.length === 0) {
-          this.logger.log('No expired budgets found');
-          return;
-        }
+            if (expiredBudgets.length === 0) {
+              this.logger.log('No expired budgets found');
+              return;
+            }
 
-        const ids = expiredBudgets.map((b) => b.id);
-        const count = await this.budgetsRepository.expireBudgets(ids);
-        if (signal.lockLost) return;
+            const ids = expiredBudgets.map((b) => b.id);
+            const count = await this.budgetsRepository.expireBudgets(ids);
+            if (signal.lockLost) return;
 
-        // Log audit entries for each expired budget
-        for (const budget of expiredBudgets) {
-          void this.auditLogRepository.createAuditLog(
-            budget.id,
-            budget.requestedBy,
-            'expired',
-            { status: BudgetStatus.QUOTED },
-            { status: BudgetStatus.EXPIRED },
-          );
+            // Log audit entries for each expired budget
+            for (const budget of expiredBudgets) {
+              void this.auditLogRepository.createAuditLog(
+                budget.id,
+                budget.requestedBy,
+                'expired',
+                { status: BudgetStatus.QUOTED },
+                { status: BudgetStatus.EXPIRED },
+              );
 
-          void this.notificationsHandler.handleBudgetStatusChanged({
-            budgetId: budget.id,
-            title: budget.title,
-            oldStatus: BudgetStatus.QUOTED,
-            newStatus: BudgetStatus.EXPIRED,
-            requesterId: budget.requestedBy,
-          });
-        }
+              void this.notificationsHandler.handleBudgetStatusChanged({
+                budgetId: budget.id,
+                title: budget.title,
+                oldStatus: BudgetStatus.QUOTED,
+                newStatus: BudgetStatus.EXPIRED,
+                requesterId: budget.requestedBy,
+              });
+            }
 
-        this.logger.log(`Budget expiration complete: ${count} budgets expired`);
-      });
+            this.logger.log(`Budget expiration complete: ${count} budgets expired`);
+          }),
+        { schedule: { type: 'crontab', value: '30 9 * * *' } },
+      );
     } catch (error) {
       this.logger.error(`Cron failed: ${(error as Error).message}`, (error as Error).stack);
       Sentry.captureException(error);

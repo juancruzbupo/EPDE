@@ -19,17 +19,26 @@ Pre-2000 user infrastructure guide. Code changes for pre-50/200/500 users are al
 
 **When:** > 500 concurrent sessions (typically ~500 active users)
 
-**Current:** Single Redis 7 instance, 256MB maxmemory, volatile-lru eviction policy.
+**Current:** Single Redis 7 instance, 512MB maxmemory (dev), volatile-lru eviction policy.
 
-**Risk:** At 500+ users, Redis memory usage grows to ~50-100MB (token families + blacklist + lockout counters + health cache + BullMQ queues). If memory hits 256MB, volatile-lru evicts keys with TTL — which includes refresh token families, breaking active sessions silently.
+**Risk:** At 500+ users, Redis memory usage grows to ~50-100MB (token families + blacklist + lockout counters + health cache + BullMQ queues). If memory hits the ceiling, volatile-lru evicts keys with TTL — which includes refresh token families, breaking active sessions silently.
 
 **Action:**
 
 1. **Managed Redis** (recommended): Use Upstash, AWS ElastiCache, or Redis Cloud with automatic failover, 1GB+ memory, and persistence
 2. **Redis Cluster** (self-managed): ioredis supports Cluster mode natively �� change `new Redis(url)` to `new Redis.Cluster([{ host, port }])` in `redis.service.ts`
-3. **Memory monitoring:** Add Prometheus gauge for Redis `used_memory` via `INFO memory` command. Alert at 80% of maxmemory
+3. **Memory monitoring:** ✅ Implemented — `RedisService.getMemoryInfo()` + Prometheus gauges `redis_memory_bytes` / `redis_memory_percentage` via `MetricsCollectorService` (30s interval). Alert at 80% of maxmemory
 
-**Config change:**
+**Migration to managed Redis — zero code changes required:**
+
+All Redis consumers already handle `rediss://` (TLS) URLs:
+
+- `RedisService` (redis.service.ts:30-34): auto-enables `tls: { rejectUnauthorized: true }` for `rediss://`
+- `config.module.ts`: enforces `rediss://` in production
+- `BullModule.forRootAsync` (core.module.ts:67-87): parses URL, applies TLS conditionally
+- `ThrottlerStorageRedisService` (core.module.ts:32-35): passes URL to `new Redis(url)` — ioredis auto-detects `rediss://` protocol
+
+To migrate: update `REDIS_URL` env var in Render dashboard. No code deploy required.
 
 ```env
 # Production REDIS_URL should point to managed Redis with TLS
@@ -78,23 +87,25 @@ REDIS_URL=rediss://default:password@your-redis.upstash.io:6379
 
 **When:** > 200 concurrent API requests (typically ~500 active users)
 
-**Current:** Single API instance on Render. Cron jobs use distributed locks (Redis SETNX) which work correctly with multiple instances.
+**Current:** ✅ Configured in `render.yaml` — min 2 / max 5 instances, 80% memory / 70% CPU targets.
 
-**Action:**
+**Statelessness:** The API is stateless by design — all state is in PostgreSQL + Redis. No local file storage, no in-memory sessions. ✅ Ready for multi-instance.
 
-1. **Render autoscaling:** Configure in `render.yaml`:
-   ```yaml
-   scaling:
-     minInstances: 2
-     maxInstances: 5
-     targetMemoryPercent: 80
-     targetCPUPercent: 70
-   ```
-2. **Verify statelessness:** The API is stateless by design — all state is in PostgreSQL + Redis. No local file storage, no in-memory sessions. ✅ Ready for multi-instance.
-3. **Cron deduplication:** All 12 cron jobs already use `DistributedLockService.withLock()` — only one instance executes each cron. ✅ Already handled.
-4. **Health check:** Already configured at `/api/v1/health` checking DB + Redis.
+**Cron deduplication:** All 12 cron jobs use `DistributedLockService.withLock()` — only one instance executes each cron. All 12 also report heartbeats via `Sentry.withMonitor()` for silent-failure detection. ✅ Already handled.
 
-**Connection pool consideration:** With N instances × 20 connections each = 100 connections for 5 instances. Neon pooler handles this. Verify `connection_limit` in DATABASE_URL.
+**Health checks:**
+
+- Liveness (`/api/v1/health`): DB + Redis ping — used by Render load balancer
+- Readiness (`/api/v1/health/ready`): DB + Redis + queue backlog — for deployment verification
+
+**Connection pool sizing:**
+
+| Instances | `connection_limit` | Total connections | Neon pooler capacity |
+| --------- | ------------------ | ----------------- | -------------------- |
+| 2 (min)   | 20                 | 40                | 100 (60% headroom)   |
+| 5 (max)   | 20                 | 100               | 100 (saturated)      |
+
+Formula: `connection_limit = neon_pooler_max / max_instances`. With Neon's 100 pooled connections and 5 max instances, use `connection_limit=20`. BullMQ workers connect to Redis (not DB), so they don't count toward the pool.
 
 ---
 
@@ -102,15 +113,19 @@ REDIS_URL=rediss://default:password@your-redis.upstash.io:6379
 
 **When:** API abuse detected or > 1000 users
 
-**Current:** 3-tier global throttle (short: 10/s, medium: 60/10s, long: 300/min) + email-aware throttle on login/forgot-password.
+**Current:** ✅ Comprehensive per-endpoint rate limiting implemented.
 
-**Action (when needed):**
+**Strategy:**
 
-1. Add `@Throttle({ custom: { limit: X, ttl: Y } })` to specific endpoints:
-   - Dashboard analytics: `limit: 10, ttl: 60_000` (expensive queries)
-   - File upload: `limit: 5, ttl: 60_000` (bandwidth intensive)
-   - Bulk operations: `limit: 3, ttl: 60_000`
-2. Consider IP + userId composite key for authenticated endpoints (prevent single user from hogging resources)
+1. **Global 3-tier** (ThrottlerModule): 10/s, 60/10s, 300/min — applies to all endpoints by default
+2. **Per-endpoint `@Throttle`**: 40+ endpoints have custom limits. Highlights:
+   - Auth: 5/min login, 3/hour password reset, `EmailAwareThrottlerGuard` (IP+email composite key)
+   - Upload: 3/s, 20/min
+   - Dashboard analytics: 10/min (aggregation queries — tighter than class-level 30/min)
+   - Write operations: 5-10/min depending on endpoint
+3. **Storage**: Redis-backed via `ThrottlerStorageRedisService` — survives instance restarts
+
+**Deferred:** IP + userId composite key for authenticated endpoints — implement when abuse is detected. Current IP-only throttle is appropriate for B2B SaaS with known user base.
 
 ---
 

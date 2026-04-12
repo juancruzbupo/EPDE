@@ -15,6 +15,10 @@ export class MetricsService implements OnModuleInit {
   private errorTotal!: Counter;
   private cacheHitsTotal!: Counter;
 
+  // Infrastructure gauges — values set by MetricsCollectorService every 30s
+  private _redisMemory = { bytes: 0, percentage: 0 };
+  private _dbPoolActive = 0;
+
   onModuleInit() {
     const exporter = new PrometheusExporter({ port: 9464 });
     const meterProvider = new MeterProvider({
@@ -55,6 +59,24 @@ export class MetricsService implements OnModuleInit {
     this.cacheHitsTotal = meter.createCounter('cache_access_total', {
       description: 'Redis cache accesses by key pattern and result (hit/miss)',
     });
+
+    meter
+      .createObservableGauge('redis_memory_bytes', {
+        description: 'Redis used memory in bytes',
+      })
+      .addCallback((obs) => obs.observe(this._redisMemory.bytes));
+
+    meter
+      .createObservableGauge('redis_memory_percentage', {
+        description: 'Redis memory usage as percentage of maxmemory',
+      })
+      .addCallback((obs) => obs.observe(this._redisMemory.percentage));
+
+    meter
+      .createObservableGauge('db_pool_active_connections', {
+        description: 'Number of active database connections in pool',
+      })
+      .addCallback((obs) => obs.observe(this._dbPoolActive));
   }
 
   recordHttpRequest(method: string, route: string, statusCode: number, durationMs: number) {
@@ -84,5 +106,13 @@ export class MetricsService implements OnModuleInit {
 
   recordCacheAccess(key: string, hit: boolean) {
     this.cacheHitsTotal.add(1, { key, result: hit ? 'hit' : 'miss' });
+  }
+
+  setRedisMemory(bytes: number, percentage: number) {
+    this._redisMemory = { bytes, percentage };
+  }
+
+  setDbPoolConnections(active: number) {
+    this._dbPoolActive = active;
   }
 }

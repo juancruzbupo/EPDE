@@ -7,6 +7,11 @@ import { DistributedLockService } from '../redis/distributed-lock.service';
 import { UsersRepository } from '../users/users.repository';
 import { SubscriptionReminderService } from './subscription-reminder.service';
 
+jest.mock('@sentry/node', () => ({
+  withMonitor: jest.fn((_name, fn) => fn()),
+  captureException: jest.fn(),
+}));
+
 const mockUsersRepository = {
   findExpiringSubscriptions: jest.fn().mockResolvedValue([]),
 };

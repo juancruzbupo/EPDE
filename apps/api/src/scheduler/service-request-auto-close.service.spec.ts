@@ -7,6 +7,11 @@ import { ServiceRequestAuditLogRepository } from '../service-requests/service-re
 import { ServiceRequestsRepository } from '../service-requests/service-requests.repository';
 import { ServiceRequestAutoCloseService } from './service-request-auto-close.service';
 
+jest.mock('@sentry/node', () => ({
+  withMonitor: jest.fn((_name, fn) => fn()),
+  captureException: jest.fn(),
+}));
+
 const mockServiceRequestsRepository = {
   findStaleResolvedRequests: jest.fn().mockResolvedValue([]),
   closeRequests: jest.fn().mockResolvedValue({ count: 0 }),

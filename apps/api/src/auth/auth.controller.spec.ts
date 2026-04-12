@@ -9,6 +9,7 @@ import { StrictBlacklistGuard } from '../common/guards/strict-blacklist.guard';
 import { UsersService } from '../users/users.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { MilestoneService } from './milestone.service';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -103,6 +104,7 @@ describe('AuthController', () => {
         { provide: AuthService, useValue: mockAuthService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: UsersService, useValue: mockUsersService },
+        { provide: MilestoneService, useValue: {} },
       ],
     })
       .overrideGuard(EmailAwareThrottlerGuard)

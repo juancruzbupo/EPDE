@@ -147,6 +147,7 @@ describe('Zod-Prisma schema consistency', () => {
 
   // Per-model fields set by server context (not by client input)
   const MODEL_SERVER_FIELDS: Record<string, string[]> = {
+    Task: ['riskScore'], // server-defaulted (@default(0)), computed from inspection
     TaskTemplate: ['categoryId'], // set from URL param by controller (FK to Category)
     TaskNote: ['taskId', 'authorId', 'authorName'], // set from service context
     User: ['role', 'passwordHash'], // role set by admin, passwordHash via set-password flow

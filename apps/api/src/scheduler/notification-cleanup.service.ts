@@ -24,13 +24,18 @@ export class NotificationCleanupService {
   async cleanup() {
     const start = Date.now();
     try {
-      await this.lockService.withLock('cron:notification-cleanup', 120, async () => {
-        const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
-        const deleted = await this.notificationsRepository.deleteOldRead(ninetyDaysAgo);
-        this.logger.log(
-          `Notification cleanup: deleted ${deleted} read notifications older than 90 days (${Date.now() - start}ms)`,
-        );
-      });
+      await Sentry.withMonitor(
+        'notification-cleanup',
+        () =>
+          this.lockService.withLock('cron:notification-cleanup', 120, async () => {
+            const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+            const deleted = await this.notificationsRepository.deleteOldRead(ninetyDaysAgo);
+            this.logger.log(
+              `Notification cleanup: deleted ${deleted} read notifications older than 90 days (${Date.now() - start}ms)`,
+            );
+          }),
+        { schedule: { type: 'crontab', value: '0 3 * * 0' } },
+      );
     } catch (error) {
       this.logger.error(`Cron failed: ${(error as Error).message}`, (error as Error).stack);
       Sentry.captureException(error);

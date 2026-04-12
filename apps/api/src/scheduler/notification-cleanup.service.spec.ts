@@ -5,6 +5,11 @@ import { NotificationsRepository } from '../notifications/notifications.reposito
 import { DistributedLockService } from '../redis/distributed-lock.service';
 import { NotificationCleanupService } from './notification-cleanup.service';
 
+jest.mock('@sentry/node', () => ({
+  withMonitor: jest.fn((_name, fn) => fn()),
+  captureException: jest.fn(),
+}));
+
 const mockNotificationsRepository = {
   deleteOldRead: jest.fn().mockResolvedValue(5),
 };

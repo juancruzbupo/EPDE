@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { HealthController } from './health.controller';
+import { QueueHealthIndicator } from './queue.health';
 import { RedisHealthIndicator } from './redis.health';
 
 const mockHealthCheckService = {
@@ -19,6 +20,10 @@ const mockRedisHealth = {
   isHealthy: jest.fn(),
 };
 
+const mockQueueHealth = {
+  isHealthy: jest.fn(),
+};
+
 describe('HealthController', () => {
   let controller: HealthController;
 
@@ -30,6 +35,7 @@ describe('HealthController', () => {
         { provide: PrismaHealthIndicator, useValue: mockPrismaHealth },
         { provide: PrismaService, useValue: mockPrisma },
         { provide: RedisHealthIndicator, useValue: mockRedisHealth },
+        { provide: QueueHealthIndicator, useValue: mockQueueHealth },
       ],
     }).compile();
 
@@ -94,6 +100,31 @@ describe('HealthController', () => {
       await controller.check();
 
       expect(mockRedisHealth.isHealthy).toHaveBeenCalledWith('redis');
+    });
+  });
+
+  describe('readiness', () => {
+    it('should check DB, Redis, and queues (3 indicators)', () => {
+      mockHealthCheckService.check.mockResolvedValue({ status: 'ok' });
+
+      controller.readiness();
+
+      const [indicators] = mockHealthCheckService.check.mock.calls[0];
+      expect(indicators).toHaveLength(3);
+    });
+
+    it('should pass queue isHealthy callback as third indicator', async () => {
+      mockQueueHealth.isHealthy.mockResolvedValue({ queues: { status: 'up' } });
+      mockHealthCheckService.check.mockImplementation(
+        async (indicators: (() => Promise<unknown>)[]) => {
+          await indicators[2]!();
+          return { status: 'ok' };
+        },
+      );
+
+      await controller.readiness();
+
+      expect(mockQueueHealth.isHealthy).toHaveBeenCalledWith('queues');
     });
   });
 });

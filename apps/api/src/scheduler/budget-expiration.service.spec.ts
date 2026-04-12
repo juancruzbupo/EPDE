@@ -7,6 +7,11 @@ import { NotificationsHandlerService } from '../notifications/notifications-hand
 import { DistributedLockService } from '../redis/distributed-lock.service';
 import { BudgetExpirationService } from './budget-expiration.service';
 
+jest.mock('@sentry/node', () => ({
+  withMonitor: jest.fn((_name, fn) => fn()),
+  captureException: jest.fn(),
+}));
+
 const mockBudgetsRepository = {
   findExpiredQuotedBudgets: jest.fn().mockResolvedValue([]),
   expireBudgets: jest.fn().mockResolvedValue(0),

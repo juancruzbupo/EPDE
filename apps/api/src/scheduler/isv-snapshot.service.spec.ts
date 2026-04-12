@@ -8,6 +8,11 @@ import { PropertiesRepository } from '../properties/properties.repository';
 import { DistributedLockService } from '../redis/distributed-lock.service';
 import { ISVSnapshotService } from './isv-snapshot.service';
 
+jest.mock('@sentry/node', () => ({
+  withMonitor: jest.fn((_name, fn) => fn()),
+  captureException: jest.fn(),
+}));
+
 const mockPropertiesRepository = {
   findWithActivePlans: jest.fn().mockResolvedValue([]),
 };

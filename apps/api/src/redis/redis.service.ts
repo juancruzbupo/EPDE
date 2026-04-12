@@ -147,6 +147,28 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
+   * Returns Redis memory usage via INFO memory command.
+   * Used by MetricsCollectorService for Prometheus gauges.
+   */
+  async getMemoryInfo(): Promise<{
+    usedMemoryBytes: number;
+    maxMemoryBytes: number;
+    usagePercentage: number;
+  } | null> {
+    try {
+      const info = await this.client.info('memory');
+      const usedMatch = info.match(/used_memory:(\d+)/);
+      const maxMatch = info.match(/maxmemory:(\d+)/);
+      const usedMemoryBytes = usedMatch?.[1] ? parseInt(usedMatch[1], 10) : 0;
+      const maxMemoryBytes = maxMatch?.[1] ? parseInt(maxMatch[1], 10) : 0;
+      const usagePercentage = maxMemoryBytes > 0 ? (usedMemoryBytes / maxMemoryBytes) * 100 : 0;
+      return { usedMemoryBytes, maxMemoryBytes, usagePercentage };
+    } catch {
+      return null;
+    }
+  }
+
+  /**
    * Execute a Lua script atomically.
    */
   async eval(script: string, keys: string[], args: (string | number)[]): Promise<unknown> {

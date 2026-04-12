@@ -21,25 +21,30 @@ export class DataCleanupService {
   async runCleanup(): Promise<void> {
     const start = Date.now();
     try {
-      await this.lockService.withLock('cron:data-cleanup', 600, async (signal) => {
-        this.logger.log('Starting daily data cleanup...');
-        const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60_000);
-        const isvCutoff = new Date(Date.now() - 24 * 30 * 24 * 60 * 60_000); // ~24 months
+      await Sentry.withMonitor(
+        'data-cleanup',
+        () =>
+          this.lockService.withLock('cron:data-cleanup', 600, async (signal) => {
+            this.logger.log('Starting daily data cleanup...');
+            const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60_000);
+            const isvCutoff = new Date(Date.now() - 24 * 30 * 24 * 60 * 60_000); // ~24 months
 
-        if (signal.lockLost) return;
+            if (signal.lockLost) return;
 
-        const deleted = await this.dataCleanupRepository.hardDeleteSoftDeletedBefore(cutoff);
+            const deleted = await this.dataCleanupRepository.hardDeleteSoftDeletedBefore(cutoff);
 
-        this.logger.log(`Soft-delete cleanup: ${JSON.stringify(deleted)}`);
+            this.logger.log(`Soft-delete cleanup: ${JSON.stringify(deleted)}`);
 
-        if (signal.lockLost) return;
+            if (signal.lockLost) return;
 
-        // Trim ISV snapshots older than 24 months
-        const isvCount = await this.dataCleanupRepository.deleteOldSnapshots(isvCutoff);
-        if (isvCount > 0) {
-          this.logger.log(`ISV snapshot retention: deleted ${isvCount} old snapshots`);
-        }
-      });
+            // Trim ISV snapshots older than 24 months
+            const isvCount = await this.dataCleanupRepository.deleteOldSnapshots(isvCutoff);
+            if (isvCount > 0) {
+              this.logger.log(`ISV snapshot retention: deleted ${isvCount} old snapshots`);
+            }
+          }),
+        { schedule: { type: 'crontab', value: '0 3 * * *' } },
+      );
     } catch (error) {
       this.logger.error(`Cron failed: ${(error as Error).message}`, (error as Error).stack);
       Sentry.captureException(error);

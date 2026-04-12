@@ -17,6 +17,7 @@ jest.mock('@opentelemetry/api', () => ({
     getMeter: jest.fn().mockReturnValue({
       createCounter: jest.fn().mockReturnValue({ add: jest.fn() }),
       createHistogram: jest.fn().mockReturnValue({ record: jest.fn() }),
+      createObservableGauge: jest.fn().mockReturnValue({ addCallback: jest.fn() }),
     }),
   },
 }));
@@ -75,6 +76,24 @@ describe('MetricsService', () => {
       service.recordCronExecution('task-status', 2500);
 
       expect(histogramSpy).toHaveBeenCalledWith(2.5, { job: 'task-status' });
+    });
+  });
+
+  describe('setRedisMemory', () => {
+    it('should store Redis memory values for ObservableGauge callbacks', () => {
+      const svc = service as any;
+      service.setRedisMemory(1_048_576, 12.5);
+
+      expect(svc._redisMemory).toEqual({ bytes: 1_048_576, percentage: 12.5 });
+    });
+  });
+
+  describe('setDbPoolConnections', () => {
+    it('should store DB pool active count for ObservableGauge callback', () => {
+      const svc = service as any;
+      service.setDbPoolConnections(15);
+
+      expect(svc._dbPoolActive).toBe(15);
     });
   });
 });

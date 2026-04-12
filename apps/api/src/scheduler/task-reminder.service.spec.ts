@@ -8,6 +8,11 @@ import { DistributedLockService } from '../redis/distributed-lock.service';
 import { TasksRepository } from '../tasks/tasks.repository';
 import { TaskReminderService } from './task-reminder.service';
 
+jest.mock('@sentry/node', () => ({
+  withMonitor: jest.fn((_name, fn) => fn()),
+  captureException: jest.fn(),
+}));
+
 const mockTasksRepository = {
   findUpcomingWithOwners: jest.fn().mockResolvedValue([]),
   findOverdueWithOwners: jest.fn().mockResolvedValue([]),

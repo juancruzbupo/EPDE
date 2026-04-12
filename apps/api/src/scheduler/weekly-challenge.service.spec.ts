@@ -1,6 +1,11 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { WeeklyChallengeService } from './weekly-challenge.service';
 
+jest.mock('@sentry/node', () => ({
+  withMonitor: jest.fn((_name, fn) => fn()),
+  captureException: jest.fn(),
+}));
+
 describe('WeeklyChallengeService', () => {
   let service: WeeklyChallengeService;
   let mockPrisma: {

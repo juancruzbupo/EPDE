@@ -9,6 +9,7 @@ import {
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { MilestoneService } from '../auth/milestone.service';
 import { CategoryTemplatesRepository } from '../category-templates/category-templates.repository';
 import { MaintenancePlansRepository } from '../maintenance-plans/maintenance-plans.repository';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
@@ -59,6 +60,10 @@ describe('TaskLifecycleService', () => {
         { provide: TaskAuditLogRepository, useValue: mockAuditLogRepository },
         { provide: CategoryTemplatesRepository, useValue: mockCategoryTemplatesRepository },
         { provide: NotificationsHandlerService, useValue: mockNotificationsHandler },
+        {
+          provide: MilestoneService,
+          useValue: { checkAndAward: jest.fn().mockResolvedValue(undefined) },
+        },
         {
           provide: PrismaService,
           useValue: {

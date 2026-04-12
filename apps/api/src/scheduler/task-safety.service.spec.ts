@@ -6,6 +6,11 @@ import { DistributedLockService } from '../redis/distributed-lock.service';
 import { TasksRepository } from '../tasks/tasks.repository';
 import { TaskSafetyService } from './task-safety.service';
 
+jest.mock('@sentry/node', () => ({
+  withMonitor: jest.fn((_name, fn) => fn()),
+  captureException: jest.fn(),
+}));
+
 const mockTasksRepository = {
   findStaleCompleted: jest.fn().mockResolvedValue([]),
   updateDueDateAndStatus: jest.fn().mockResolvedValue(undefined),

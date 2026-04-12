@@ -1,7 +1,7 @@
 /**
  * Mobile query client — offline-first configuration.
  *
- * - `gcTime: 24h`: Cached data survives app close; persisted to AsyncStorage
+ * - `gcTime: 6h`: Cached data survives app close; persisted to AsyncStorage
  *   via `createAsyncStoragePersister` in the root layout.
  * - `networkMode: 'offlineFirst'`: Serves stale cache immediately, then
  *   revalidates in the background when network is available.
@@ -35,7 +35,7 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 2 * 60_000, // 2 minutes
-      gcTime: 24 * 60 * 60_000, // 24 hours — offline support
+      gcTime: 6 * 60 * 60_000, // 6 hours — balanced offline support vs storage pressure
       retry: (failureCount, error) => {
         const status = (error as { response?: { status?: number } })?.response?.status;
         // Retry 429 (rate-limited) and 503 (service unavailable) with backoff

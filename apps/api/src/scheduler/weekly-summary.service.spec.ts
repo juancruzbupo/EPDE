@@ -9,6 +9,11 @@ import { DistributedLockService } from '../redis/distributed-lock.service';
 import { UsersRepository } from '../users/users.repository';
 import { WeeklySummaryService } from './weekly-summary.service';
 
+jest.mock('@sentry/node', () => ({
+  withMonitor: jest.fn((_name, fn) => fn()),
+  captureException: jest.fn(),
+}));
+
 const mockStatsRepository = {
   getAllClientPlanIds: jest.fn(),
   getBatchTaskStats: jest.fn(),

@@ -1,6 +1,11 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { AnniversaryService } from './anniversary.service';
 
+jest.mock('@sentry/node', () => ({
+  withMonitor: jest.fn((_name, fn) => fn()),
+  captureException: jest.fn(),
+}));
+
 describe('AnniversaryService', () => {
   let service: AnniversaryService;
   let mockPrisma: {

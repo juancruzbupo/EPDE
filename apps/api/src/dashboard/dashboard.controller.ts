@@ -41,6 +41,7 @@ export class DashboardController {
 
   @Get('analytics')
   @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async getAnalytics(
     @Query(new ZodValidationPipe(analyticsQuerySchema)) query: { months: number },
   ) {
@@ -63,6 +64,7 @@ export class DashboardController {
 
   @Get('client-analytics')
   @Roles(UserRole.CLIENT)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
   async getClientAnalytics(
     @CurrentUser() user: CurrentUserPayload,
     @Query(new ZodValidationPipe(analyticsQuerySchema)) query: { months: number },

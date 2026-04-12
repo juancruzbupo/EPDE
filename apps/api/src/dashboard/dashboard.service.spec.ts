@@ -34,6 +34,10 @@ const mockDashboardRepository = {
   getPropertyHealthIndex: jest.fn(),
   getSlaMetrics: jest.fn(),
   getProblematicSectors: jest.fn(),
+  getAnnualSummary: jest.fn(),
+  getIsvDelta: jest.fn(),
+  getMaintenanceStreak: jest.fn(),
+  getPerfectWeek: jest.fn(),
 };
 
 describe('DashboardService', () => {
@@ -205,6 +209,9 @@ describe('DashboardService', () => {
       repository.getClientTaskStats.mockResolvedValue(taskStats);
       repository.getClientBudgetAndServiceCounts.mockResolvedValue(budgetServiceStats);
       repository.getPropertyHealthIndex.mockResolvedValue({ score: 82, label: 'Bueno' });
+      repository.getIsvDelta.mockResolvedValue({ delta: 5, direction: 'up' });
+      repository.getMaintenanceStreak.mockResolvedValue({ current: 3, best: 5 });
+      repository.getPerfectWeek.mockResolvedValue(false);
 
       const result = await service.getClientStats(userId);
 
@@ -223,6 +230,9 @@ describe('DashboardService', () => {
         openServices: 1,
         healthScore: 82,
         healthLabel: 'Bueno',
+        isvDelta: { delta: 5, direction: 'up' },
+        streak: { current: 3, best: 5 },
+        perfectWeek: false,
       });
     });
 
@@ -239,6 +249,9 @@ describe('DashboardService', () => {
         openServices: 0,
       });
       repository.getPropertyHealthIndex.mockResolvedValue({ score: 0, label: 'Sin datos' });
+      repository.getIsvDelta.mockResolvedValue({ delta: 0, direction: 'neutral' });
+      repository.getMaintenanceStreak.mockResolvedValue({ current: 0, best: 0 });
+      repository.getPerfectWeek.mockResolvedValue(false);
 
       const result = await service.getClientStats('user-empty');
 
@@ -402,6 +415,8 @@ describe('DashboardService', () => {
         sectorScores: [],
       };
       repository.getPropertyHealthIndex.mockResolvedValue(mockHealthIndex);
+      const mockAnnualSummary = { tasksCompleted: 10, tasksTotal: 20, completionRate: 50 };
+      repository.getAnnualSummary.mockResolvedValue(mockAnnualSummary);
 
       const result = await service.getClientAnalytics('user-1');
 
@@ -433,6 +448,11 @@ describe('DashboardService', () => {
         label: 'Sin datos',
         dimensions: { compliance: 0, condition: 0, coverage: 0, investment: 0, trend: 0 },
         sectorScores: [],
+      });
+      repository.getAnnualSummary.mockResolvedValue({
+        tasksCompleted: 0,
+        tasksTotal: 0,
+        completionRate: 0,
       });
 
       const result = await service.getClientAnalytics('user-no-props');
