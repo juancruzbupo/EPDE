@@ -3,6 +3,7 @@
 import { UserRole } from '@epde/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { EventData, Props, Step } from 'react-joyride';
+import { toast } from 'sonner';
 
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -81,6 +82,7 @@ function Tour({
       if (data.status === 'finished' || data.status === 'skipped') {
         localStorage.setItem(storageKey, 'true');
         setRun(false);
+        toast.info('Podés repetir el tour desde Perfil → Guía de uso', { duration: 5000 });
       }
       // Pause (not dismiss) if a dialog opens mid-tour
       if (data.type === 'step:after' && document.querySelector('[role="dialog"]')) {

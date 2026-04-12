@@ -28,9 +28,11 @@ const NOTIF_TYPE_ICONS: Record<NotificationType, string> = {
 const NotificationCard = memo(function NotificationCard({
   notification,
   onPress,
+  onMarkRead,
 }: {
   notification: NotificationPublic;
   onPress: () => void;
+  onMarkRead?: () => void;
 }) {
   const icon = NOTIF_TYPE_ICONS[notification.type] ?? '\u{1F514}';
   const typeLabel = NOTIFICATION_TYPE_LABELS[notification.type] ?? notification.type;
@@ -54,7 +56,25 @@ const NotificationCard = memo(function NotificationCard({
             >
               {notification.title}
             </Text>
-            {!notification.read && (
+            {!notification.read && onMarkRead && (
+              <Pressable
+                onPress={(e) => {
+                  e.stopPropagation();
+                  haptics.light();
+                  onMarkRead();
+                }}
+                hitSlop={8}
+                style={{ minHeight: 32 }}
+                className="bg-success/10 ml-2 items-center justify-center rounded-full px-2.5 py-1"
+                accessibilityRole="button"
+                accessibilityLabel="Marcar como leída"
+              >
+                <Text style={TYPE.labelSm} className="text-success">
+                  ✓ Leída
+                </Text>
+              </Pressable>
+            )}
+            {!notification.read && !onMarkRead && (
               <View
                 className="bg-primary ml-2 h-2 w-2 rounded-full"
                 accessibilityLabel="No leída"
@@ -171,7 +191,11 @@ export default function NotificationsScreen() {
                 : []
             }
           >
-            <NotificationCard notification={item} onPress={() => handleNotificationPress(item)} />
+            <NotificationCard
+              notification={item}
+              onPress={() => handleNotificationPress(item)}
+              onMarkRead={!item.read ? () => markAsRead.mutate(item.id) : undefined}
+            />
           </SwipeableRow>
         </AnimatedListItem>
       )}
