@@ -16,6 +16,7 @@ import {
   useClientDashboardStats,
   useClientUpcomingTasks,
 } from '@/hooks/use-dashboard';
+import { useStreakFreeze } from '@/hooks/use-milestones';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
@@ -60,6 +61,7 @@ function ClientDashboard() {
   const user = useAuthStore((s) => s.user);
   const userName = user?.name ?? '';
   const [chartMonths, setChartMonths] = useState<number | undefined>(undefined);
+  const streakFreeze = useStreakFreeze();
 
   const {
     data: stats,
@@ -213,7 +215,12 @@ function ClientDashboard() {
 
       {/* Streak & perfect week — prominent section */}
       {stats && !showWelcome && (
-        <StreakCard streak={stats.streak ?? 0} perfectWeek={stats.perfectWeek ?? false} />
+        <StreakCard
+          streak={stats.streak ?? 0}
+          perfectWeek={stats.perfectWeek ?? false}
+          onFreeze={() => streakFreeze.mutate()}
+          freezePending={streakFreeze.isPending}
+        />
       )}
 
       {/* Level 2: Actions — what to do next */}

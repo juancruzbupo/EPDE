@@ -1,3 +1,8 @@
+export {
+  createAuthFeatureQueries,
+  type StreakFreezeResult,
+  type UserMilestonePublic,
+} from './auth';
 export { type BudgetFilters, createBudgetQueries } from './budgets';
 export { createCategoryQueries } from './categories';
 export { createCategoryTemplateQueries } from './category-templates';

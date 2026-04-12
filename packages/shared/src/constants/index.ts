@@ -449,4 +449,6 @@ export const QUERY_KEYS = {
   inspections: 'inspections',
   // Landing settings
   landingSettings: 'landing-settings',
+  // User features
+  milestones: 'milestones',
 } as const;

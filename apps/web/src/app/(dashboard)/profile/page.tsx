@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuthStore } from '@/stores/auth-store';
 
 import { ChangePasswordForm } from './change-password-form';
+import { MilestonesSection } from './milestones-section';
 import { ProfileForm } from './profile-form';
 import { SubscriptionInfo } from './subscription-info';
 
@@ -108,6 +109,7 @@ export default function ProfilePage() {
       </Card>
 
       <ProfileForm user={user} onSuccess={checkAuth} />
+      <MilestonesSection />
       <ChangePasswordForm />
     </PageTransition>
   );

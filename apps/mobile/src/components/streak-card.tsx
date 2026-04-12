@@ -14,9 +14,16 @@ import { TYPE } from '@/lib/fonts';
 interface StreakCardProps {
   streak: number;
   perfectWeek: boolean;
+  onFreeze?: () => void;
+  freezePending?: boolean;
 }
 
-export const StreakCard = memo(function StreakCard({ streak, perfectWeek }: StreakCardProps) {
+export const StreakCard = memo(function StreakCard({
+  streak,
+  perfectWeek,
+  onFreeze,
+  freezePending,
+}: StreakCardProps) {
   const reduced = useReducedMotion();
   const pulseScale = useSharedValue(1);
 
@@ -65,6 +72,21 @@ export const StreakCard = memo(function StreakCard({ streak, perfectWeek }: Stre
             <Text style={TYPE.bodySm} className="text-muted-foreground flex-1">
               Sin tareas vencidas. Seguí así.
             </Text>
+            {onFreeze && (
+              <Pressable
+                hitSlop={8}
+                style={{ minHeight: 32 }}
+                className="bg-muted rounded-full px-3 py-1.5"
+                accessibilityRole="button"
+                accessibilityLabel="Activar streak freeze"
+                disabled={freezePending}
+                onPress={onFreeze}
+              >
+                <Text style={TYPE.labelSm} className="text-muted-foreground">
+                  ❄️ Freeze
+                </Text>
+              </Pressable>
+            )}
             <Pressable
               hitSlop={8}
               style={{ minHeight: 32 }}
