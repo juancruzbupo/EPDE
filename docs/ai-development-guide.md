@@ -200,6 +200,8 @@
 183. **SIEMPRE #87 (HelpHint en vez de Tooltip para términos de dominio)**: Usar `HelpHint` (click-to-open popover en web, inline expand en mobile) para explicar ISV, índice de riesgo, sector, hallazgo, recurrencia, etc. NUNCA depender de hover-only Tooltip — usuarios mayores no hovean en desktop y es imposible en mobile
 184. **SIEMPRE #88 (admin tours obligatorios en flujos nuevos)**: Todo flujo admin nuevo DEBE tener un tour con `data-tour` attrs y un export en `onboarding-tour.tsx` con `forRole={UserRole.ADMIN}`. Agregar el storage key a `TOUR_KEYS[]` para que `resetOnboardingTour()` lo limpie
 185. **SIEMPRE #89 (glosario en @epde/shared)**: `GLOSSARY` en `@epde/shared/constants/glossary.ts` es SSoT para definiciones de términos de dominio. Web: `GlossaryButton` en header. Mobile: `GlossaryModal` accesible desde perfil. Al agregar un término nuevo, actualizar el array
+186. **SIEMPRE #90 (specs obligatorios para features nuevas)**: Todo `*.service.ts` nuevo DEBE tener un `*.service.spec.ts` antes de merge. CI enforces via `enforce-specs` step en PRs. Schedulers (cron services) tambien DEBEN tener spec — un cron que falla silenciosamente es peor que un endpoint que retorna 500
+187. **SIEMPRE #91 (full-stack wiring de endpoints nuevos)**: Todo endpoint nuevo DEBE tener: (1) shared API factory en `@epde/shared/api/`, (2) web hook en `hooks/`, (3) mobile hook si aplica, (4) QUERY_KEYS entry. NUNCA mergear endpoints "orphan" (backend-only sin frontend consumer)
 
 ### NUNCA
 
@@ -239,6 +241,7 @@
 34. **NUNCA usar `ThrottlerGuard` default en endpoints con email en body** — Usar `EmailAwareThrottlerGuard` de `common/guards/email-aware-throttler.guard.ts`. El default keya solo por IP y es vulnerable a brute-force distribuido. Aplica a login, forgot-password, reset-password
 35. **NUNCA setear `CORS_ORIGIN=*`** — Con `credentials: true`, Express rechaza `*` pero `main.ts` ahora falla explícitamente con un error claro al bootstrap si alguien intenta. No downgradearlo
 36. **NUNCA asumir que el usuario entiende jargón de dominio** — Términos como ISV, hallazgo, sector, recurrencia, índice de riesgo DEBEN tener `HelpHint` in-place o estar definidos en el `GLOSSARY`. Si un usuario de 65 años no puede entender un label sin contexto previo, agregar ayuda
+37. **NUNCA mergear endpoints sin frontend wiring** — Si el backend crea `POST /auth/me/streak-freeze` o `GET /auth/me/milestones`, el mismo PR DEBE incluir shared factory + web hook + mobile hook. Endpoints orphan generan deuda técnica invisible. CI check: todo controller endpoint debe tener un consumer en `apps/*/src/lib/api/`
 
 ---
 
