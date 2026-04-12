@@ -1,6 +1,7 @@
 import { ServiceStatus } from '@epde/shared';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
+import * as Sentry from '@sentry/node';
 
 import { MetricsService } from '../metrics/metrics.service';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
@@ -30,43 +31,48 @@ export class ServiceRequestAutoCloseService {
   @Cron('0 10 * * *', { name: 'service-request-auto-close' })
   async checkAutoClose(): Promise<void> {
     const start = Date.now();
-    await this.lockService.withLock('cron:service-request-auto-close', 300, async (signal) => {
-      this.logger.log('Starting daily service request auto-close check...');
+    try {
+      await this.lockService.withLock('cron:service-request-auto-close', 300, async (signal) => {
+        this.logger.log('Starting daily service request auto-close check...');
 
-      const olderThan = new Date(Date.now() - AUTO_CLOSE_DAYS * 24 * 60 * 60 * 1000);
-      const staleRequests =
-        await this.serviceRequestsRepository.findStaleResolvedRequests(olderThan);
-      if (signal.lockLost) return;
+        const olderThan = new Date(Date.now() - AUTO_CLOSE_DAYS * 24 * 60 * 60 * 1000);
+        const staleRequests =
+          await this.serviceRequestsRepository.findStaleResolvedRequests(olderThan);
+        if (signal.lockLost) return;
 
-      if (staleRequests.length === 0) {
-        this.logger.log('No stale resolved service requests found');
-        return;
-      }
+        if (staleRequests.length === 0) {
+          this.logger.log('No stale resolved service requests found');
+          return;
+        }
 
-      const ids = staleRequests.map((r) => r.id);
-      const { count } = await this.serviceRequestsRepository.closeRequests(ids);
-      if (signal.lockLost) return;
+        const ids = staleRequests.map((r) => r.id);
+        const { count } = await this.serviceRequestsRepository.closeRequests(ids);
+        if (signal.lockLost) return;
 
-      for (const request of staleRequests) {
-        void this.auditLogRepository.createAuditLog(
-          request.id,
-          request.requestedBy,
-          'closed',
-          { status: ServiceStatus.RESOLVED },
-          { status: ServiceStatus.CLOSED, reason: 'auto-close after 7 days' },
-        );
+        for (const request of staleRequests) {
+          void this.auditLogRepository.createAuditLog(
+            request.id,
+            request.requestedBy,
+            'closed',
+            { status: ServiceStatus.RESOLVED },
+            { status: ServiceStatus.CLOSED, reason: 'auto-close after 7 days' },
+          );
 
-        void this.notificationsHandler.handleServiceStatusChanged({
-          serviceRequestId: request.id,
-          title: request.title,
-          oldStatus: ServiceStatus.RESOLVED,
-          newStatus: ServiceStatus.CLOSED,
-          requesterId: request.requestedBy,
-        });
-      }
+          void this.notificationsHandler.handleServiceStatusChanged({
+            serviceRequestId: request.id,
+            title: request.title,
+            oldStatus: ServiceStatus.RESOLVED,
+            newStatus: ServiceStatus.CLOSED,
+            requesterId: request.requestedBy,
+          });
+        }
 
-      this.logger.log(`Service request auto-close complete: ${count} requests closed`);
-    });
+        this.logger.log(`Service request auto-close complete: ${count} requests closed`);
+      });
+    } catch (error) {
+      this.logger.error(`Cron failed: ${(error as Error).message}`, (error as Error).stack);
+      Sentry.captureException(error);
+    }
     this.metricsService.recordCronExecution('service-request-auto-close', Date.now() - start);
   }
 }

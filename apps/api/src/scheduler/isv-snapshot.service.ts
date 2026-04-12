@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
+import * as Sentry from '@sentry/node';
 
 import { DashboardRepository } from '../dashboard/dashboard.repository';
 import { ISVSnapshotRepository } from '../dashboard/isv-snapshot.repository';
@@ -29,85 +30,90 @@ export class ISVSnapshotService {
   @Cron('0 2 1 * *', { name: 'isv-monthly-snapshot' })
   async captureMonthlySnapshots(): Promise<void> {
     const start = Date.now();
-    await this.lockService.withLock('cron:isv-monthly-snapshot', 600, async (signal) => {
-      this.logger.log('Starting monthly ISV snapshot capture...');
+    try {
+      await this.lockService.withLock('cron:isv-monthly-snapshot', 600, async (signal) => {
+        this.logger.log('Starting monthly ISV snapshot capture...');
 
-      // Fetch properties with active plans (bounded for safety).
-      // Configurable via ISV_MAX_PROPERTIES env var for larger deployments.
-      const maxProperties = parseInt(process.env.ISV_MAX_PROPERTIES ?? '10000', 10);
-      const properties = await this.propertiesRepository.findWithActivePlans(maxProperties);
+        // Fetch properties with active plans (bounded for safety).
+        // Configurable via ISV_MAX_PROPERTIES env var for larger deployments.
+        const maxProperties = parseInt(process.env.ISV_MAX_PROPERTIES ?? '10000', 10);
+        const properties = await this.propertiesRepository.findWithActivePlans(maxProperties);
 
-      if (signal.lockLost) return;
-
-      const snapshotDate = new Date();
-      snapshotDate.setDate(1);
-      snapshotDate.setHours(0, 0, 0, 0);
-
-      const BATCH_SIZE = parseInt(process.env.ISV_BATCH_SIZE ?? '10', 10);
-      let captured = 0;
-      let alerts = 0;
-
-      const eligible = properties.filter((p) => p.maintenancePlan);
-
-      for (let i = 0; i < eligible.length; i += BATCH_SIZE) {
         if (signal.lockLost) return;
 
-        const batch = eligible.slice(i, i + BATCH_SIZE);
-        const planIds = batch.map((p) => p.maintenancePlan!.id);
+        const snapshotDate = new Date();
+        snapshotDate.setDate(1);
+        snapshotDate.setHours(0, 0, 0, 0);
 
-        // Batch ISV calculation: 2 queries for N properties instead of 3×N
-        const batchIndex = await this.dashboardRepository.getPropertyHealthIndexBatch(planIds);
+        const BATCH_SIZE = parseInt(process.env.ISV_BATCH_SIZE ?? '10', 10);
+        let captured = 0;
+        let alerts = 0;
 
-        const results = await Promise.allSettled(
-          batch.map(async (prop) => {
-            const index = batchIndex.get(prop.maintenancePlan!.id);
-            if (!index) return { alerted: false };
+        const eligible = properties.filter((p) => p.maintenancePlan);
 
-            await this.isvRepository.createSnapshot(prop.id, snapshotDate, {
-              score: index.score,
-              label: index.label,
-              compliance: index.dimensions.compliance,
-              condition: index.dimensions.condition,
-              coverage: index.dimensions.coverage,
-              investment: index.dimensions.investment,
-              trend: index.dimensions.trend,
-              sectorScores: index.sectorScores,
-            });
+        for (let i = 0; i < eligible.length; i += BATCH_SIZE) {
+          if (signal.lockLost) return;
 
-            // Check for significant drop
-            const previous = await this.isvRepository.findPrevious(prop.id, snapshotDate);
-            let alerted = false;
-            if (previous && previous.score - index.score >= 15) {
-              void this.notificationsHandler.handleISVAlert({
-                propertyId: prop.id,
-                userId: prop.userId,
-                address: prop.address,
-                previousScore: previous.score,
-                currentScore: index.score,
+          const batch = eligible.slice(i, i + BATCH_SIZE);
+          const planIds = batch.map((p) => p.maintenancePlan!.id);
+
+          // Batch ISV calculation: 2 queries for N properties instead of 3×N
+          const batchIndex = await this.dashboardRepository.getPropertyHealthIndexBatch(planIds);
+
+          const results = await Promise.allSettled(
+            batch.map(async (prop) => {
+              const index = batchIndex.get(prop.maintenancePlan!.id);
+              if (!index) return { alerted: false };
+
+              await this.isvRepository.createSnapshot(prop.id, snapshotDate, {
+                score: index.score,
+                label: index.label,
+                compliance: index.dimensions.compliance,
+                condition: index.dimensions.condition,
+                coverage: index.dimensions.coverage,
+                investment: index.dimensions.investment,
+                trend: index.dimensions.trend,
+                sectorScores: index.sectorScores,
               });
-              alerted = true;
+
+              // Check for significant drop
+              const previous = await this.isvRepository.findPrevious(prop.id, snapshotDate);
+              let alerted = false;
+              if (previous && previous.score - index.score >= 15) {
+                void this.notificationsHandler.handleISVAlert({
+                  propertyId: prop.id,
+                  userId: prop.userId,
+                  address: prop.address,
+                  previousScore: previous.score,
+                  currentScore: index.score,
+                });
+                alerted = true;
+              }
+
+              return { alerted };
+            }),
+          );
+
+          for (let j = 0; j < results.length; j++) {
+            const result = results[j]!;
+            if (result.status === 'fulfilled') {
+              captured++;
+              if (result.value.alerted) alerts++;
+            } else if (result.status === 'rejected') {
+              const reason = result.reason as Error | string;
+              this.logger.error(
+                `Failed to capture ISV for property ${batch[j]?.id}: ${reason instanceof Error ? reason.message : reason}`,
+              );
             }
-
-            return { alerted };
-          }),
-        );
-
-        for (let j = 0; j < results.length; j++) {
-          const result = results[j]!;
-          if (result.status === 'fulfilled') {
-            captured++;
-            if (result.value.alerted) alerts++;
-          } else if (result.status === 'rejected') {
-            const reason = result.reason as Error | string;
-            this.logger.error(
-              `Failed to capture ISV for property ${batch[j]?.id}: ${reason instanceof Error ? reason.message : reason}`,
-            );
           }
         }
-      }
 
-      this.logger.log(`ISV snapshot complete: ${captured} captured, ${alerts} alerts triggered`);
-    });
+        this.logger.log(`ISV snapshot complete: ${captured} captured, ${alerts} alerts triggered`);
+      });
+    } catch (error) {
+      this.logger.error(`Cron failed: ${(error as Error).message}`, (error as Error).stack);
+      Sentry.captureException(error);
+    }
     this.metricsService.recordCronExecution('isv-monthly-snapshot', Date.now() - start);
   }
 }
