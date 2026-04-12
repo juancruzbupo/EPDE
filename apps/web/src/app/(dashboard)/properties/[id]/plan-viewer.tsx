@@ -16,6 +16,7 @@ import { CheckCircle, ChevronDown, ChevronRight, ClipboardList } from 'lucide-re
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { ErrorState } from '@/components/error-state';
+import { HelpHint } from '@/components/help-hint';
 import { PlanViewerTour } from '@/components/onboarding-tour';
 import { SearchInput } from '@/components/search-input';
 import { Badge } from '@/components/ui/badge';
@@ -146,6 +147,26 @@ function CategorySection({
                       >
                         {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
                       </Badge>
+                      {(task.riskScore ?? 0) > 0 && (
+                        <>
+                          <span className="text-muted-foreground/40">·</span>
+                          <span
+                            className={
+                              (task.riskScore ?? 0) >= 12
+                                ? 'text-destructive font-medium'
+                                : (task.riskScore ?? 0) >= 6
+                                  ? 'text-warning font-medium'
+                                  : ''
+                            }
+                          >
+                            Riesgo: {task.riskScore}
+                          </span>
+                          <HelpHint term="Índice de riesgo">
+                            Número que indica urgencia. Más alto = atender primero. Los problemas
+                            estructurales (techo, cimientos) puntúan más alto.
+                          </HelpHint>
+                        </>
+                      )}
                       {task.sector && (
                         <>
                           <span className="text-muted-foreground/40">·</span>

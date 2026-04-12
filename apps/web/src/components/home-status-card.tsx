@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { AlertTriangle, ArrowRight, CheckCircle, Clock, FileText } from 'lucide-react';
 import Link from 'next/link';
 
+import { HelpHint } from '@/components/help-hint';
 import { AnimatedNumber } from '@/components/ui/animated-number';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -154,16 +155,19 @@ export function HomeStatusCard({
 
             {/* Score + progress bar */}
             <div data-tour="health-score" className="mb-4 flex items-center gap-4">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className={`type-number-lg ${theme.textColor} cursor-default`}>
-                    <AnimatedNumber value={score} />
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Índice de Salud de la Vivienda — 100 es excelente, 0 es crítico
-                </TooltipContent>
-              </Tooltip>
+              <span className={`type-number-lg ${theme.textColor}`}>
+                <AnimatedNumber value={score} />
+              </span>
+              <HelpHint term="Puntaje de Salud (ISV)" className="self-start">
+                <p>
+                  Mide cuánto cuidado necesita tu casa de 0 a 100. Mantenerlo arriba de 60 evita
+                  reparaciones costosas.
+                </p>
+                <p className="mt-1">
+                  Se calcula en base a: tareas al día, estado reportado, cobertura de inspecciones,
+                  inversión en prevención y tendencia.
+                </p>
+              </HelpHint>
               <div
                 role="progressbar"
                 aria-valuenow={score}

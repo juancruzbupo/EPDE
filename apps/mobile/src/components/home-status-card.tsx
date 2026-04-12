@@ -12,6 +12,7 @@ import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 
 import { AnimatedNumber } from './animated-number';
+import { HelpHint } from './help-hint';
 
 interface MobileHomeStatusCardProps {
   score: number;
@@ -135,11 +136,15 @@ export const HomeStatusCard = memo(function HomeStatusCard({
             {getStatusTitle(score)}
           </Text>
         </View>
-        <View
-          className="items-center"
-          accessibilityHint="Índice de Salud de tu Vivienda — 100 es excelente, 0 es crítico"
-        >
-          <AnimatedNumber value={score} suffix="/100" style={[TYPE.numberLg, { color }]} />
+        <View className="items-center">
+          <View className="flex-row items-center gap-1">
+            <AnimatedNumber value={score} suffix="/100" style={[TYPE.numberLg, { color }]} />
+            <HelpHint term="Puntaje de Salud (ISV)">
+              Mide cuánto cuidado necesita tu casa de 0 a 100. Arriba de 60 = bien mantenida. Debajo
+              = las reparaciones futuras van a costar mucho más. Se calcula con: tareas al día,
+              estado reportado, cobertura de inspecciones, inversión en prevención y tendencia.
+            </HelpHint>
+          </View>
           <Text style={[TYPE.labelSm, { color }]}>{label}</Text>
         </View>
       </View>
