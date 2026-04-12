@@ -195,6 +195,7 @@ model User {
   @@index([email])
   @@index([role, deletedAt])
   @@index([status, subscriptionExpiresAt])
+  @@index([role, status, deletedAt])
 }
 
 model Property {
