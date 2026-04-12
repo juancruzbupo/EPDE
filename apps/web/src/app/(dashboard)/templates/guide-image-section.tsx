@@ -42,7 +42,7 @@ export function GuideImageSection({
     <div className="space-y-2">
       <Label>Imágenes de referencia ({urls.length}/10)</Label>
       {urls.length > 0 && (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {urls.map((url, i) => (
             <div key={i} className="group relative">
               <img

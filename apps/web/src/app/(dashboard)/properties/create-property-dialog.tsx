@@ -268,7 +268,7 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
               <p className="text-muted-foreground text-xs">
                 Seleccioná los sectores que tiene esta propiedad. Podés modificarlos después.
               </p>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {Object.entries(PROPERTY_SECTOR_LABELS).map(([value, label]) => (
                   <label key={value} className="flex cursor-pointer items-center gap-2 text-sm">
                     <input

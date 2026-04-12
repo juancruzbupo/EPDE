@@ -61,7 +61,7 @@ export const ReportExecutiveSummary = React.memo(function ReportExecutiveSummary
           );
         })}
       </div>
-      <div className="grid grid-cols-4 gap-3 print:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 print:grid-cols-4">
         {STAT_CARDS.map((st) => (
           <div key={st.key} className={`report-item rounded-lg p-3 text-center ${st.color}`}>
             <p className="text-2xl font-bold">{taskStats[st.key]}</p>

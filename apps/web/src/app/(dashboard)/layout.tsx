@@ -25,7 +25,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <Sidebar className="sticky top-0 hidden h-screen lg:flex" />
       <div className="flex flex-1 flex-col">
         <Header />
-        <main id="main-content" className="flex-1 p-6">
+        <main id="main-content" className="flex-1 p-4 sm:p-6">
           <ServerUserProvider role={user.role} email={user.email}>
             {children}
           </ServerUserProvider>

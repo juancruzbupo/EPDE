@@ -155,81 +155,83 @@ export function RespondBudgetDialog({
               Items <span className="text-destructive">*</span>
             </legend>
 
-            {/* Header row */}
-            <div className="text-muted-foreground grid grid-cols-[1fr_70px_90px_90px_36px] gap-2 text-xs">
-              <span>Descripción</span>
-              <span>Cant.</span>
-              <span>P. Unitario</span>
-              <span>Subtotal</span>
-              <span />
-            </div>
+            <div className="overflow-x-auto">
+              {/* Header row */}
+              <div className="text-muted-foreground grid min-w-[480px] grid-cols-[1fr_70px_90px_90px_36px] gap-2 text-xs">
+                <span>Descripción</span>
+                <span>Cant.</span>
+                <span>P. Unitario</span>
+                <span>Subtotal</span>
+                <span />
+              </div>
 
-            {fields.map((field, index) => {
-              const qty = Number(watchedLineItems?.[index]?.quantity) || 0;
-              const price = Number(watchedLineItems?.[index]?.unitPrice) || 0;
-              const subtotal = qty * price;
+              {fields.map((field, index) => {
+                const qty = Number(watchedLineItems?.[index]?.quantity) || 0;
+                const price = Number(watchedLineItems?.[index]?.unitPrice) || 0;
+                const subtotal = qty * price;
 
-              return (
-                <div
-                  key={field.id}
-                  className="grid grid-cols-[1fr_70px_90px_90px_36px] items-start gap-2"
-                >
-                  <div>
-                    <Input
-                      placeholder="Descripción del item"
-                      className="h-9 text-sm"
-                      aria-label={`Descripción del item ${index + 1}`}
-                      aria-describedby={
-                        errors.lineItems?.[index]?.description
-                          ? `lineItem-${index}-desc-error`
-                          : undefined
-                      }
-                      {...register(`lineItems.${index}.description`)}
-                    />
-                    {errors.lineItems?.[index]?.description && (
-                      <p
-                        id={`lineItem-${index}-desc-error`}
-                        role="alert"
-                        className="text-destructive mt-0.5 text-xs"
-                      >
-                        {errors.lineItems[index].description.message}
-                      </p>
-                    )}
-                  </div>
-                  <Input
-                    type="number"
-                    placeholder="1"
-                    min={1}
-                    className="h-9 text-sm"
-                    aria-label={`Cantidad del item ${index + 1}`}
-                    {...register(`lineItems.${index}.quantity`)}
-                  />
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    min={0}
-                    aria-label={`Precio unitario del item ${index + 1}`}
-                    step="0.01"
-                    className="h-9 text-sm"
-                    {...register(`lineItems.${index}.unitPrice`)}
-                  />
-                  <div className="text-muted-foreground flex h-9 items-center text-sm tabular-nums">
-                    {formatARS(subtotal)}
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => remove(index)}
-                    disabled={fields.length === 1}
-                    className="h-9 w-9 p-0"
-                    aria-label="Eliminar item"
+                return (
+                  <div
+                    key={field.id}
+                    className="grid min-w-[480px] grid-cols-[1fr_70px_90px_90px_36px] items-start gap-2"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              );
-            })}
+                    <div>
+                      <Input
+                        placeholder="Descripción del item"
+                        className="h-9 text-sm"
+                        aria-label={`Descripción del item ${index + 1}`}
+                        aria-describedby={
+                          errors.lineItems?.[index]?.description
+                            ? `lineItem-${index}-desc-error`
+                            : undefined
+                        }
+                        {...register(`lineItems.${index}.description`)}
+                      />
+                      {errors.lineItems?.[index]?.description && (
+                        <p
+                          id={`lineItem-${index}-desc-error`}
+                          role="alert"
+                          className="text-destructive mt-0.5 text-xs"
+                        >
+                          {errors.lineItems[index].description.message}
+                        </p>
+                      )}
+                    </div>
+                    <Input
+                      type="number"
+                      placeholder="1"
+                      min={1}
+                      className="h-9 text-sm"
+                      aria-label={`Cantidad del item ${index + 1}`}
+                      {...register(`lineItems.${index}.quantity`)}
+                    />
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      min={0}
+                      aria-label={`Precio unitario del item ${index + 1}`}
+                      step="0.01"
+                      className="h-9 text-sm"
+                      {...register(`lineItems.${index}.unitPrice`)}
+                    />
+                    <div className="text-muted-foreground flex h-9 items-center text-sm tabular-nums">
+                      {formatARS(subtotal)}
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => remove(index)}
+                      disabled={fields.length === 1}
+                      className="h-9 w-9 p-0"
+                      aria-label="Eliminar item"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
 
             {errors.lineItems?.root && (
               <p role="alert" className="text-destructive text-xs">

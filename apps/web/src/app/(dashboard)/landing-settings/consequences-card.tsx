@@ -91,7 +91,7 @@ export function ConsequencesCard({
               onChange={(e) => updateItem(i, 'problem', e.target.value)}
               placeholder="Problema (ej: Filtración en techo)"
             />
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <Input
                 value={ex.preventive}
                 onChange={(e) => updateItem(i, 'preventive', e.target.value)}

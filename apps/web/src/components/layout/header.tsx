@@ -32,7 +32,7 @@ export function Header() {
   };
 
   return (
-    <header className="flex h-14 items-center gap-4 border-b px-6">
+    <header className="flex h-14 items-center gap-4 border-b px-4 sm:px-6">
       <div className="lg:hidden">
         <Sheet>
           <SheetTrigger asChild>

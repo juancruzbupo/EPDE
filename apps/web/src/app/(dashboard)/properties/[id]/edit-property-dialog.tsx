@@ -176,7 +176,7 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
             <p className="text-muted-foreground text-xs">
               Desmarcá los sectores que no aplican a esta propiedad.
             </p>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {Object.entries(PROPERTY_SECTOR_LABELS).map(([value, label]) => (
                 <label key={value} className="flex cursor-pointer items-center gap-2 text-sm">
                   <input

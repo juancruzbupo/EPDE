@@ -83,7 +83,7 @@ export const TaskStatCards = React.memo(function TaskStatCards({
 }: TaskStatCardsProps) {
   return (
     <TooltipProvider>
-      <div className="mb-4 grid grid-cols-3 gap-2">
+      <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
         {TASK_STATUS_ORDER.map((status) =>
           isLoading ? (
             <StatCardSkeleton key={status} status={status} />

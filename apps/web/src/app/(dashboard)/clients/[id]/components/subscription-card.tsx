@@ -109,7 +109,7 @@ export const SubscriptionCard = memo(function SubscriptionCard({
         </div>
       </CardHeader>
       <CardContent>
-        <dl className="grid grid-cols-2 gap-4 text-sm">
+        <dl className="grid gap-4 text-sm sm:grid-cols-2">
           <div className="space-y-1">
             <dt className="text-muted-foreground">Activación</dt>
             <dd className="font-medium">
@@ -125,7 +125,7 @@ export const SubscriptionCard = memo(function SubscriptionCard({
             </dd>
           </div>
         </dl>
-        <div className="mt-4 flex gap-2">
+        <div className="mt-4 flex flex-wrap gap-2">
           <Button size="sm" variant="outline" onClick={() => handleExtend(30)} disabled={extending}>
             +30 días
           </Button>

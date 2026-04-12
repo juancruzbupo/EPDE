@@ -318,7 +318,7 @@ export function HomeStatusCard({
             {/* Mini stats grid */}
             <div
               data-tour="mini-stats"
-              className="border-border grid grid-cols-4 gap-3 border-t pt-4"
+              className="border-border grid grid-cols-2 gap-3 border-t pt-4 sm:grid-cols-4"
             >
               {miniStats.map((stat, i) => {
                 const Icon = miniIcons[i]!;
