@@ -1,6 +1,11 @@
 'use client';
 
-import { BUDGET_STATUS_LABELS, BUDGET_STATUS_VARIANT, formatRelativeDate } from '@epde/shared';
+import {
+  BUDGET_STATUS_HINTS,
+  BUDGET_STATUS_LABELS,
+  BUDGET_STATUS_VARIANT,
+  formatRelativeDate,
+} from '@epde/shared';
 import { ColumnDef } from '@tanstack/react-table';
 import Link from 'next/link';
 
@@ -35,7 +40,10 @@ export const budgetColumns: ColumnDef<BudgetRequestPublic>[] = [
     cell: ({ row }) => {
       const status = row.original.status;
       return (
-        <Badge variant={BUDGET_STATUS_VARIANT[status] ?? 'secondary'}>
+        <Badge
+          variant={BUDGET_STATUS_VARIANT[status] ?? 'secondary'}
+          title={BUDGET_STATUS_HINTS[status]}
+        >
           {BUDGET_STATUS_LABELS[status] ?? status}
         </Badge>
       );

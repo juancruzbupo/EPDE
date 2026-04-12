@@ -239,17 +239,24 @@ export function HomeStatusCard({
                         window.open(`https://wa.me/?text=${msg}`, '_blank');
                       }}
                     >
-                      Compartir
+                      WhatsApp
                     </button>
                     {onStreakFreeze && (
-                      <button
-                        type="button"
-                        className="text-muted-foreground hover:text-foreground type-label-sm transition-colors"
-                        aria-label="Activar streak freeze"
-                        onClick={onStreakFreeze}
-                      >
-                        ❄️ Freeze
-                      </button>
+                      <span className="inline-flex items-center gap-0.5">
+                        <button
+                          type="button"
+                          className="text-muted-foreground hover:text-foreground type-label-sm transition-colors"
+                          aria-label="Proteger racha este mes"
+                          onClick={onStreakFreeze}
+                        >
+                          ❄️ Proteger racha
+                        </button>
+                        <HelpHint term="Proteger racha" className="ml-0">
+                          Si este mes no podés completar las tareas (vacaciones, mudanza, etc.),
+                          activá la protección para que tu racha no se rompa. Se puede usar 1 vez
+                          por mes.
+                        </HelpHint>
+                      </span>
                     )}
                   </span>
                 )}

@@ -43,7 +43,7 @@ export function WeeklyChallengeCard() {
       className={`mb-4 ${challenge.completed ? 'border-success/30 bg-success/5' : 'border-primary/20 bg-primary/[0.03]'}`}
     >
       <CardContent className="p-4">
-        <div className="mb-2 flex items-center justify-between">
+        <div className="mb-1 flex items-center justify-between">
           <p className="text-sm font-semibold">
             🎯 {challenge.completed ? '¡Desafío completado!' : label}
           </p>
@@ -51,6 +51,11 @@ export function WeeklyChallengeCard() {
             {challenge.progress}/{challenge.target}
           </span>
         </div>
+        <p className="text-muted-foreground mb-2 text-xs">
+          {challenge.completed
+            ? 'Completaste el desafío de esta semana. ¡Seguí así!'
+            : 'Cada semana te proponemos un mini-objetivo para mantener tu casa al día.'}
+        </p>
         <div className="bg-muted h-2 overflow-hidden rounded-full">
           <div
             className={`h-full rounded-full transition-all duration-500 ${challenge.completed ? 'bg-success' : 'bg-primary'}`}

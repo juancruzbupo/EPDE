@@ -78,12 +78,13 @@ export const StreakCard = memo(function StreakCard({
                 style={{ minHeight: 32 }}
                 className="bg-muted rounded-full px-3 py-1.5"
                 accessibilityRole="button"
-                accessibilityLabel="Activar streak freeze"
+                accessibilityLabel="Proteger racha — si no podés completar tareas este mes, tu racha no se rompe"
+                accessibilityHint="Se puede usar 1 vez por mes"
                 disabled={freezePending}
                 onPress={onFreeze}
               >
                 <Text style={TYPE.labelSm} className="text-muted-foreground">
-                  ❄️ Freeze
+                  ❄️ Proteger racha
                 </Text>
               </Pressable>
             )}
@@ -101,7 +102,7 @@ export const StreakCard = memo(function StreakCard({
               }}
             >
               <Text style={TYPE.labelSm} className="text-primary">
-                Compartir
+                WhatsApp
               </Text>
             </Pressable>
           </View>
