@@ -125,4 +125,13 @@ export class EmailQueueService {
     );
     this.logger.log(`Enqueued weekly summary email for ${maskEmail(opts.to)}`);
   }
+
+  async enqueueAnniversary(opts: { to: string; name: string; taskCount: number }): Promise<void> {
+    await this.emailQueue.add(
+      'anniversary',
+      { type: 'anniversary' as const, ...opts },
+      { jobId: `anniversary:${opts.to}:${new Date().toISOString().slice(0, 10)}` },
+    );
+    this.logger.log(`Enqueued anniversary email for ${maskEmail(opts.to)}`);
+  }
 }

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 
+import { AuthModule } from '../auth/auth.module';
 import { BudgetsModule } from '../budgets/budgets.module';
 import { DashboardModule } from '../dashboard/dashboard.module';
 import { EmailModule } from '../email/email.module';
@@ -9,6 +10,7 @@ import { PropertiesModule } from '../properties/properties.module';
 import { ServiceRequestsModule } from '../service-requests/service-requests.module';
 import { TasksModule } from '../tasks/tasks.module';
 import { UsersModule } from '../users/users.module';
+import { AnniversaryService } from './anniversary.service';
 import { BudgetExpirationService } from './budget-expiration.service';
 import { DataCleanupRepository } from './data-cleanup.repository';
 import { DataCleanupService } from './data-cleanup.service';
@@ -19,6 +21,7 @@ import { SubscriptionReminderService } from './subscription-reminder.service';
 import { TaskReminderService } from './task-reminder.service';
 import { TaskSafetyService } from './task-safety.service';
 import { TaskStatusService } from './task-status.service';
+import { WeeklyChallengeService } from './weekly-challenge.service';
 import { WeeklySummaryService } from './weekly-summary.service';
 
 /**
@@ -43,6 +46,7 @@ import { WeeklySummaryService } from './weekly-summary.service';
     DashboardModule,
     PropertiesModule,
     UsersModule,
+    AuthModule,
   ],
   providers: [
     TaskStatusService,
@@ -56,6 +60,9 @@ import { WeeklySummaryService } from './weekly-summary.service';
     DataCleanupService,
     DataCleanupRepository,
     WeeklySummaryService,
+    AnniversaryService,
+    WeeklyChallengeService,
   ],
+  exports: [WeeklyChallengeService],
 })
 export class SchedulerModule {}

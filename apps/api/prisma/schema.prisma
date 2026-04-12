@@ -190,6 +190,7 @@ model User {
   pushTokens              PushToken[]
   inspections             InspectionChecklist[]
   milestones              UserMilestone[]
+  weeklyChallenges        WeeklyChallenge[]
 
   @@index([email])
   @@index([role, deletedAt])
@@ -758,4 +759,22 @@ model UserMilestone {
 
   @@unique([userId, type])
   @@index([userId])
+}
+
+// ─── Weekly Challenges ───────────────────────────────────
+
+model WeeklyChallenge {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weekStart   DateTime
+  type        String    @db.VarChar(50)
+  target      Int
+  progress    Int       @default(0)
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, weekStart])
+  @@index([userId, completed])
 }

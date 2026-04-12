@@ -310,4 +310,29 @@ export class EmailService {
 
     this.logger.log(`Email semanal enviado a ${maskEmail(data.to)}`);
   }
+
+  async sendAnniversaryEmail(data: { to: string; name: string; taskCount: number }): Promise<void> {
+    await this.resend?.emails.send({
+      from: this.emailFrom,
+      to: data.to,
+      subject: '🎂 ¡1 año cuidando tu casa con EPDE!',
+      html: this.wrapEmailHtml(`
+        <h3>¡Felicitaciones, ${escapeHtml(data.name)}!</h3>
+        <p>Hace un año empezaste a cuidar tu casa con EPDE. En este tiempo:</p>
+        <table style="margin: 20px 0; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 16px; text-align: center; border: 1px solid ${DESIGN_TOKENS_LIGHT.border};">
+              <p style="margin: 0; font-size: 32px; font-weight: bold; color: ${DESIGN_TOKENS_LIGHT.primary};">${data.taskCount}</p>
+              <p style="margin: 4px 0 0; color: #666; font-size: 14px;">inspecciones completadas</p>
+            </td>
+          </tr>
+        </table>
+        <p>Cada tarea que completaste fue un paso más para proteger tu patrimonio y evitar reparaciones costosas.</p>
+        <p><strong>Gracias por confiar en EPDE. Seguimos cuidando tu casa.</strong></p>
+        ${this.ctaButton(`${this.frontendUrl}/dashboard`, 'Ver mi dashboard')}
+      `),
+    });
+
+    this.logger.log(`Email aniversario enviado a ${maskEmail(data.to)}`);
+  }
 }

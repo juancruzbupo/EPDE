@@ -46,7 +46,8 @@ export type EmailJobData =
       streak: number;
       nextTaskName: string | null;
       nextTaskDate: string | null;
-    };
+    }
+  | { type: 'anniversary'; to: string; name: string; taskCount: number };
 
 @Processor(EMAIL_QUEUE, {
   concurrency: 3,
@@ -106,6 +107,9 @@ export class EmailQueueProcessor extends WorkerHost {
           break;
         case 'weeklySummary':
           await this.emailService.sendWeeklySummaryEmail(job.data);
+          break;
+        case 'anniversary':
+          await this.emailService.sendAnniversaryEmail(job.data);
           break;
       }
     } catch (error) {

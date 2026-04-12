@@ -73,6 +73,7 @@ export async function cleanDatabase(prisma: PrismaService): Promise<void> {
     'TaskTemplate',
     'CategoryTemplate',
     'Category',
+    'WeeklyChallenge',
     'UserMilestone',
     'AuthAuditLog',
     'User',
