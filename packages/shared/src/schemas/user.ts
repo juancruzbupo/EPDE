@@ -46,6 +46,7 @@ export type ClientFiltersInput = z.infer<typeof clientFiltersSchema>;
 export const updateProfileSchema = z.object({
   name: z.string().min(2).max(200).optional(),
   phone: z.string().max(30).optional(),
+  isvGoal: z.number().int().min(40).max(100).nullable().optional(),
 });
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 

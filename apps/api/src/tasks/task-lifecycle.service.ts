@@ -25,6 +25,7 @@ import {
 } from '@nestjs/common';
 import type { Task } from '@prisma/client';
 
+import { MilestoneService } from '../auth/milestone.service';
 import { CategoryTemplatesRepository } from '../category-templates/category-templates.repository';
 import {
   TaskAccessDeniedError,
@@ -50,6 +51,7 @@ export class TaskLifecycleService {
     private readonly categoryTemplatesRepository: CategoryTemplatesRepository,
     private readonly prisma: PrismaService,
     private readonly notificationsHandler: NotificationsHandlerService,
+    private readonly milestoneService: MilestoneService,
   ) {}
 
   /**
@@ -239,6 +241,9 @@ export class TaskLifecycleService {
           conditionLabel: condLabel,
         });
       }
+
+      // Fire-and-forget: check milestones after task completion (never blocks response)
+      void this.milestoneService.checkAndAward(userId, { problemDetected }).catch(() => {});
 
       return { ...result, problemDetected };
     } catch (error) {

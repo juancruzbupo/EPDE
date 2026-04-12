@@ -49,6 +49,7 @@ import { StrictBlacklistGuard } from '../common/guards/strict-blacklist.guard';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
+import { MilestoneService } from './milestone.service';
 
 const ACCESS_COOKIE_NAME = 'access_token';
 const REFRESH_COOKIE_NAME = 'refresh_token';
@@ -62,6 +63,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
+    private readonly milestoneService: MilestoneService,
   ) {}
 
   private get isProduction(): boolean {
@@ -276,5 +278,12 @@ export class AuthController {
   async useStreakFreeze(@CurrentUser('id') userId: string) {
     const result = await this.authService.useStreakFreeze(userId);
     return { data: result, message: 'Streak freeze activado' };
+  }
+
+  @Get('me/milestones')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  async getMilestones(@CurrentUser('id') userId: string) {
+    const data = await this.milestoneService.getUserMilestones(userId);
+    return { data };
   }
 }

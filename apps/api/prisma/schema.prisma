@@ -169,6 +169,7 @@ model User {
   activatedAt           DateTime?
   subscriptionExpiresAt DateTime?
   streakFreezeUsedAt    DateTime?
+  isvGoal               Int?
   createdAt             DateTime   @default(now())
   updatedAt             DateTime   @updatedAt
   deletedAt             DateTime?
@@ -188,6 +189,7 @@ model User {
   quoteTemplates          QuoteTemplate[]          @relation("QuoteTemplateCreator")
   pushTokens              PushToken[]
   inspections             InspectionChecklist[]
+  milestones              UserMilestone[]
 
   @@index([email])
   @@index([role, deletedAt])
@@ -743,4 +745,17 @@ model LandingSettings {
   value     Json
   updatedAt DateTime @updatedAt
   updatedBy String?
+}
+
+// ─── User Milestones / Achievements ──────────────────────
+
+model UserMilestone {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       String   @db.VarChar(50)
+  unlockedAt DateTime @default(now())
+
+  @@unique([userId, type])
+  @@index([userId])
 }

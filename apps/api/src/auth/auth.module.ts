@@ -9,6 +9,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthAuditService } from './auth-audit.service';
 import { LoginAttemptService } from './login-attempt.service';
+import { MilestoneService } from './milestone.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { TokenService } from './token.service';
@@ -43,9 +44,10 @@ import { TokenService } from './token.service';
     TokenService,
     AuthAuditService,
     LoginAttemptService,
+    MilestoneService,
     LocalStrategy,
     JwtStrategy,
   ],
-  exports: [AuthService, TokenService, JwtModule],
+  exports: [AuthService, TokenService, MilestoneService, JwtModule],
 })
 export class AuthModule {}
