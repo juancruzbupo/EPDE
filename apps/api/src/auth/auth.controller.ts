@@ -268,4 +268,13 @@ export class AuthController {
     const user = await this.authService.getMe(userId);
     return { data: user };
   }
+
+  @Post('me/streak-freeze')
+  @Roles(UserRole.CLIENT)
+  @Throttle({ medium: { limit: 3, ttl: 60_000 } })
+  @HttpCode(HttpStatus.OK)
+  async useStreakFreeze(@CurrentUser('id') userId: string) {
+    const result = await this.authService.useStreakFreeze(userId);
+    return { data: result, message: 'Streak freeze activado' };
+  }
 }

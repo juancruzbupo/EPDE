@@ -217,14 +217,29 @@ export function HomeStatusCard({
                   </Tooltip>
                 )}
                 {streak !== undefined && streak > 0 && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="bg-primary/10 text-primary type-label-sm inline-flex cursor-default items-center gap-1 rounded-full px-2.5 py-1 font-medium">
-                        🔥 {streak} {streak === 1 ? 'mes' : 'meses'} al día
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>Meses consecutivos sin tareas vencidas</TooltipContent>
-                  </Tooltip>
+                  <span className="inline-flex items-center gap-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="bg-primary/10 text-primary type-label-sm inline-flex cursor-default items-center gap-1 rounded-full px-2.5 py-1 font-medium">
+                          🔥 {streak} {streak === 1 ? 'mes' : 'meses'} al día
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>Meses consecutivos sin tareas vencidas</TooltipContent>
+                    </Tooltip>
+                    <button
+                      type="button"
+                      className="text-primary/60 hover:text-primary type-label-sm transition-colors"
+                      aria-label="Compartir racha por WhatsApp"
+                      onClick={() => {
+                        const msg = encodeURIComponent(
+                          `🔥 Llevo ${streak} ${streak === 1 ? 'mes' : 'meses'} al día con el mantenimiento de mi casa usando EPDE. epde.com.ar`,
+                        );
+                        window.open(`https://wa.me/?text=${msg}`, '_blank');
+                      }}
+                    >
+                      Compartir
+                    </button>
+                  </span>
                 )}
                 {perfectWeek && (
                   <Tooltip>

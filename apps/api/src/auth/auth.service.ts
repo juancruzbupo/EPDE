@@ -226,4 +226,25 @@ export class AuthService {
     const { passwordHash: _passwordHash, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
+
+  /**
+   * Activate a streak freeze for the current month. Prevents the user's streak
+   * from breaking if tasks go overdue this month. One use per calendar month.
+   */
+  async useStreakFreeze(userId: string) {
+    const user = await this.usersService.findById(userId);
+
+    // Check if already used this month
+    if (user.streakFreezeUsedAt) {
+      const usedAt = new Date(user.streakFreezeUsedAt);
+      const now = new Date();
+      if (usedAt.getMonth() === now.getMonth() && usedAt.getFullYear() === now.getFullYear()) {
+        throw new BadRequestException('Ya usaste tu freeze este mes');
+      }
+    }
+
+    await this.usersService.update(userId, { streakFreezeUsedAt: new Date() });
+
+    return { used: true };
+  }
 }

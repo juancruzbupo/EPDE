@@ -1,5 +1,5 @@
 import { memo, useEffect } from 'react';
-import { Text, View } from 'react-native';
+import { Linking, Pressable, Text, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -61,9 +61,28 @@ export const StreakCard = memo(function StreakCard({ streak, perfectWeek }: Stre
           </View>
         )}
         {streak > 0 && (
-          <Text style={TYPE.bodySm} className="text-muted-foreground">
-            Sin tareas vencidas. Seguí así.
-          </Text>
+          <View className="flex-row items-center gap-3">
+            <Text style={TYPE.bodySm} className="text-muted-foreground flex-1">
+              Sin tareas vencidas. Seguí así.
+            </Text>
+            <Pressable
+              hitSlop={8}
+              style={{ minHeight: 32 }}
+              className="bg-primary/10 rounded-full px-3 py-1.5"
+              accessibilityRole="button"
+              accessibilityLabel="Compartir racha por WhatsApp"
+              onPress={() => {
+                const msg = encodeURIComponent(
+                  `🔥 Llevo ${streak} ${streak === 1 ? 'mes' : 'meses'} al día con el mantenimiento de mi casa usando EPDE. epde.com.ar`,
+                );
+                void Linking.openURL(`whatsapp://send?text=${msg}`);
+              }}
+            >
+              <Text style={TYPE.labelSm} className="text-primary">
+                Compartir
+              </Text>
+            </Pressable>
+          </View>
         )}
         {perfectWeek && (
           <View className="mt-1 flex-row items-center gap-1.5">

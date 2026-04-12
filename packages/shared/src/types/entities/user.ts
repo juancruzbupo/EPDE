@@ -12,6 +12,7 @@ export interface User extends BaseEntity, SoftDeletable {
   lastLoginAt: Date | null;
   activatedAt: Date | null;
   subscriptionExpiresAt: Date | null;
+  streakFreezeUsedAt: Date | null;
 }
 
 export type UserPublic = Serialized<Omit<User, 'passwordHash'>>;

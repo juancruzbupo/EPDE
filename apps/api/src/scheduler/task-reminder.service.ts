@@ -90,10 +90,10 @@ export class TaskReminderService {
         );
         const isOverdue = daysUntilDue < 0;
 
-        const title = isOverdue ? 'Tarea vencida' : 'Tarea próxima a vencer';
+        const title = isOverdue ? '⚠️ Tarea vencida' : '🔔 Tarea próxima';
         const message = isOverdue
-          ? `La tarea "${task.name}" en ${property.address} está vencida hace ${Math.abs(daysUntilDue)} día(s)`
-          : `La tarea "${task.name}" en ${property.address} vence en ${daysUntilDue} día(s)`;
+          ? `"${task.name}" en ${property.address} está vencida. Tu ISV puede bajar si no la completás pronto.`
+          : `"${task.name}" en ${property.address} vence en ${daysUntilDue} día(s). Completala para mantener tu racha 🔥`;
 
         notifications.push({
           userId: owner.id,
@@ -124,8 +124,8 @@ export class TaskReminderService {
             notifications.push({
               userId: adminId,
               type: 'TASK_REMINDER',
-              title: 'Tarea vencida',
-              message: `La tarea "${task.name}" (${owner.name} - ${property.address}) está vencida`,
+              title: '⚠️ Tarea vencida',
+              message: `"${task.name}" de ${owner.name} (${property.address}) está vencida`,
               data: { taskId: task.id, planId: task.maintenancePlanId, propertyId: property.id },
             });
           }
