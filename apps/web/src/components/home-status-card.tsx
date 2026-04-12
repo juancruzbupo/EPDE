@@ -1,7 +1,15 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { AlertTriangle, ArrowRight, CheckCircle, Clock, FileText } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowRight,
+  CheckCircle,
+  Clock,
+  FileText,
+  Share2,
+  ShieldCheck,
+} from 'lucide-react';
 import Link from 'next/link';
 
 import { HelpHint } from '@/components/help-hint';
@@ -199,9 +207,14 @@ export function HomeStatusCard({
               <span className="type-body-sm text-muted-foreground">/ 100</span>
             </div>
 
-            {/* ISV delta + streak badges */}
-            {((isvDelta !== null && isvDelta !== undefined) || (streak && streak > 0)) && (
-              <div data-tour="streak-badges" className="mb-4 flex flex-wrap gap-2">
+            {/* Badges — delta, streak, perfect week */}
+            {((isvDelta !== null && isvDelta !== undefined && isvDelta !== 0) ||
+              (streak && streak > 0) ||
+              perfectWeek) && (
+              <div
+                data-tour="streak-badges"
+                className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2"
+              >
                 {isvDelta !== null && isvDelta !== undefined && isvDelta !== 0 && (
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -218,48 +231,18 @@ export function HomeStatusCard({
                     <TooltipContent>Cambio en el puntaje respecto al mes anterior</TooltipContent>
                   </Tooltip>
                 )}
+
                 {streak !== undefined && streak > 0 && (
-                  <span className="inline-flex items-center gap-1">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="bg-primary/10 text-primary type-label-sm inline-flex cursor-default items-center gap-1 rounded-full px-2.5 py-1 font-medium">
-                          🔥 {streak} {streak === 1 ? 'mes' : 'meses'} al día
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>Meses consecutivos sin tareas vencidas</TooltipContent>
-                    </Tooltip>
-                    <button
-                      type="button"
-                      className="text-primary/60 hover:text-primary type-label-sm transition-colors"
-                      aria-label="Compartir racha por WhatsApp"
-                      onClick={() => {
-                        const msg = encodeURIComponent(
-                          `🔥 Llevo ${streak} ${streak === 1 ? 'mes' : 'meses'} al día con el mantenimiento de mi casa usando EPDE. epde.com.ar`,
-                        );
-                        window.open(`https://wa.me/?text=${msg}`, '_blank');
-                      }}
-                    >
-                      WhatsApp
-                    </button>
-                    {onStreakFreeze && (
-                      <span className="inline-flex items-center gap-0.5">
-                        <button
-                          type="button"
-                          className="text-muted-foreground hover:text-foreground type-label-sm transition-colors"
-                          aria-label="Proteger racha este mes"
-                          onClick={onStreakFreeze}
-                        >
-                          ❄️ Proteger racha
-                        </button>
-                        <HelpHint term="Proteger racha" className="ml-0">
-                          Si este mes no podés completar las tareas (vacaciones, mudanza, etc.),
-                          activá la protección para que tu racha no se rompa. Se puede usar 1 vez
-                          por mes.
-                        </HelpHint>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="bg-primary/10 text-primary type-label-sm inline-flex cursor-default items-center gap-1 rounded-full px-2.5 py-1 font-medium">
+                        🔥 {streak} {streak === 1 ? 'mes' : 'meses'} al día
                       </span>
-                    )}
-                  </span>
+                    </TooltipTrigger>
+                    <TooltipContent>Meses consecutivos sin tareas vencidas</TooltipContent>
+                  </Tooltip>
                 )}
+
                 {perfectWeek && (
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -269,6 +252,45 @@ export function HomeStatusCard({
                     </TooltipTrigger>
                     <TooltipContent>Completaste todas las tareas de esta semana</TooltipContent>
                   </Tooltip>
+                )}
+
+                {/* Streak actions — text links, visually secondary */}
+                {streak !== undefined && streak > 0 && (
+                  <span className="type-label-sm text-muted-foreground hidden items-center gap-2 sm:inline-flex">
+                    <button
+                      type="button"
+                      className="hover:text-primary inline-flex items-center gap-1 transition-colors"
+                      aria-label="Compartir racha por WhatsApp"
+                      onClick={() => {
+                        const msg = encodeURIComponent(
+                          `🔥 Llevo ${streak} ${streak === 1 ? 'mes' : 'meses'} al día con el mantenimiento de mi casa usando EPDE. epde.com.ar`,
+                        );
+                        window.open(`https://wa.me/?text=${msg}`, '_blank');
+                      }}
+                    >
+                      <Share2 className="h-3 w-3" />
+                      Compartir
+                    </button>
+                    {onStreakFreeze && (
+                      <>
+                        <span className="text-border">·</span>
+                        <button
+                          type="button"
+                          className="hover:text-foreground inline-flex items-center gap-1 transition-colors"
+                          aria-label="Proteger racha este mes"
+                          onClick={onStreakFreeze}
+                        >
+                          <ShieldCheck className="h-3 w-3" />
+                          Proteger
+                        </button>
+                        <HelpHint term="Proteger racha" className="ml-0">
+                          Si este mes no podés completar las tareas (vacaciones, mudanza, etc.),
+                          activá la protección para que tu racha no se rompa. Se puede usar 1 vez
+                          por mes.
+                        </HelpHint>
+                      </>
+                    )}
+                  </span>
                 )}
               </div>
             )}
