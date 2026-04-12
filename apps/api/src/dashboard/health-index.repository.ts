@@ -1,9 +1,11 @@
 import { type PropertySector, TaskStatus } from '@epde/shared';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { createHash } from 'crypto';
 import { addDays, format, startOfMonth, subMonths } from 'date-fns';
 
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import { computeHealthIndex } from './health-index.calculator';
 
 /**
@@ -28,7 +30,22 @@ export class HealthIndexRepository {
     OLDER_LOGS: 1_000,
   } as const;
 
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(HealthIndexRepository.name);
+  private static readonly CACHE_TTL = 6 * 60 * 60; // 6 hours
+
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() private readonly redisService?: RedisService,
+  ) {}
+
+  /** Cache key for health index — hash of sorted planIds for deterministic keys. */
+  private healthCacheKey(planIds: string[]): string {
+    const hash = createHash('md5')
+      .update([...planIds].sort().join(','))
+      .digest('hex')
+      .slice(0, 12);
+    return `health:${hash}`;
+  }
 
   async getPropertyHealthIndex(planIds: string[]) {
     if (planIds.length === 0) {
@@ -38,6 +55,16 @@ export class HealthIndexRepository {
         dimensions: { compliance: 0, condition: 0, coverage: 0, investment: 0, trend: 0 },
         sectorScores: [],
       };
+    }
+
+    // Try Redis cache first (6h TTL — health index changes slowly)
+    if (this.redisService) {
+      try {
+        const cached = await this.redisService.get(this.healthCacheKey(planIds));
+        if (cached) return JSON.parse(cached);
+      } catch {
+        // Cache miss or Redis unavailable — compute fresh
+      }
     }
 
     const now = new Date();
@@ -79,7 +106,7 @@ export class HealthIndexRepository {
       }),
     ]);
 
-    return computeHealthIndex(
+    const result = computeHealthIndex(
       tasks,
       recentLogs.map((l) => ({
         conditionFound: l.conditionFound,
@@ -93,6 +120,19 @@ export class HealthIndexRepository {
       })),
       threeMonthsAgo,
     );
+
+    // Store in Redis cache (fire-and-forget, never blocks response)
+    if (this.redisService) {
+      void this.redisService
+        .setex(
+          this.healthCacheKey(planIds),
+          HealthIndexRepository.CACHE_TTL,
+          JSON.stringify(result),
+        )
+        .catch((err) => this.logger.warn(`Health cache store failed: ${(err as Error).message}`));
+    }
+
+    return result;
   }
 
   /**

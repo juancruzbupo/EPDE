@@ -119,18 +119,32 @@ export class TokenService {
     const newGeneration = generation + 1;
     const refreshTtl = this.getRefreshTtlSeconds();
 
-    // Atomic check-and-increment via Lua script
+    // Atomic check-and-increment via Lua script with application-level retry.
+    // ioredis handles TCP retries (maxRetriesPerRequest: 3), but Lua eval can
+    // fail under Redis memory pressure or transient overload without triggering
+    // TCP reconnect. 3 attempts with exponential backoff (100ms, 200ms, 400ms).
     let result: unknown;
-    try {
-      result = await this.redisService.eval(
-        TokenService.ROTATE_LUA,
-        [`rt:${family}`],
-        [generation, newGeneration, refreshTtl],
-      );
-    } catch (error) {
+    let lastError: Error | undefined;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        result = await this.redisService.eval(
+          TokenService.ROTATE_LUA,
+          [`rt:${family}`],
+          [generation, newGeneration, refreshTtl],
+        );
+        lastError = undefined;
+        break;
+      } catch (error) {
+        lastError = error as Error;
+        if (attempt < 2) {
+          await new Promise((r) => setTimeout(r, 100 * Math.pow(2, attempt)));
+        }
+      }
+    }
+    if (lastError) {
       this.logger.error(
-        `Redis unavailable during token rotation for user ${sub}: ${(error as Error).message}`,
-        (error as Error).stack,
+        `Redis unavailable during token rotation for user ${sub}: ${lastError.message}`,
+        lastError.stack,
       );
       throw new ServiceUnavailableException('Auth service temporarily unavailable');
     }
