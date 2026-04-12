@@ -376,7 +376,7 @@ export class AnalyticsRepository {
     // Query 1: All tasks with their category (1 query, no nested subqueries)
     const tasks = await this.prisma.softDelete.task.findMany({
       where: { maintenancePlanId: { in: planIds } },
-      take: 200,
+      take: 100,
       select: {
         id: true,
         status: true,

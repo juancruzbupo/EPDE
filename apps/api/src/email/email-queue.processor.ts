@@ -50,9 +50,9 @@ export type EmailJobData =
   | { type: 'anniversary'; to: string; name: string; taskCount: number };
 
 @Processor(EMAIL_QUEUE, {
-  concurrency: 3,
+  concurrency: 10,
   drainDelay: 30,
-  stalledInterval: 5 * 60_000,
+  stalledInterval: 30_000,
 })
 export class EmailQueueProcessor extends WorkerHost {
   private readonly logger = new Logger(EmailQueueProcessor.name);

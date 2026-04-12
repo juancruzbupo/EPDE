@@ -161,6 +161,25 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   }
 
   async onModuleInit() {
+    // Subscribe to Prisma log events for observability
+    // @ts-expect-error -- Prisma event callback types are not perfectly typed
+    this.$on('warn', (e: { message: string }) => {
+      this.logger.warn(`Prisma: ${e.message}`);
+    });
+    // @ts-expect-error -- Prisma event callback types
+    this.$on('error', (e: { message: string }) => {
+      this.logger.error(`Prisma: ${e.message}`);
+    });
+    if (process.env.NODE_ENV !== 'production') {
+      // Log slow queries (> 500ms) in development for early detection
+      // @ts-expect-error -- Prisma event callback types
+      this.$on('query', (e: { query: string; duration: number }) => {
+        if (e.duration > 500) {
+          this.logger.warn(`Slow query (${e.duration}ms): ${e.query.slice(0, 200)}`);
+        }
+      });
+    }
+
     await this.$connect();
     this.logger.log('Database connected');
   }

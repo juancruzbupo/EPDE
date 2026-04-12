@@ -1,6 +1,7 @@
 import { type PropertySector, TaskStatus } from '@epde/shared';
 import { Injectable } from '@nestjs/common';
-import { addDays, startOfMonth, subMonths } from 'date-fns';
+import { Prisma } from '@prisma/client';
+import { addDays, format, startOfMonth, subMonths } from 'date-fns';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { computeHealthIndex } from './health-index.calculator';
@@ -257,47 +258,68 @@ export class HealthIndexRepository {
     return snapshots[0].score - snapshots[1].score;
   }
 
-  /** Count consecutive months (from now backwards) where the user had
+  /**
+   * Count consecutive months (from now backwards) where the user had
    * zero OVERDUE tasks that the owner can do (OWNER_CAN_DO).
-   * Professional-only tasks are excluded — the owner can't control those. */
+   * Professional-only tasks are excluded — the owner can't control those.
+   *
+   * **Performance (P1 fix):** Uses 2 batch queries instead of the previous
+   * 24-iteration loop (up to 48 queries). The two queries aggregate overdue
+   * and completed-late counts per month via `date_trunc`, then TypeScript
+   * iterates the 24 month-buckets in memory to find the break point.
+   */
   async getMaintenanceStreak(planIds: string[]): Promise<number> {
     if (planIds.length === 0) return 0;
 
-    const now = new Date();
+    const since = startOfMonth(subMonths(new Date(), 23));
+    const nextMonth = startOfMonth(subMonths(new Date(), -1));
+
+    // Query 1: overdue OWNER_CAN_DO tasks grouped by month (1 query)
+    const overdueByMonth = await this.prisma.$queryRaw<{ month: Date; count: bigint }[]>(Prisma.sql`
+      SELECT date_trunc('month', "nextDueDate") AS month, COUNT(*)::bigint AS count
+      FROM "Task"
+      WHERE "maintenancePlanId" = ANY(${planIds})
+        AND "professionalRequirement" = 'OWNER_CAN_DO'
+        AND "status" = 'OVERDUE'
+        AND "deletedAt" IS NULL
+        AND "nextDueDate" >= ${since}
+        AND "nextDueDate" < ${nextMonth}
+      GROUP BY 1
+    `);
+
+    // Query 2: completed-late tasks grouped by month (1 query)
+    const completedByMonth = await this.prisma.$queryRaw<
+      { month: Date; count: bigint }[]
+    >(Prisma.sql`
+      SELECT date_trunc('month', tl."completedAt") AS month, COUNT(*)::bigint AS count
+      FROM "TaskLog" tl
+      JOIN "Task" t ON tl."taskId" = t.id
+      WHERE t."maintenancePlanId" = ANY(${planIds})
+        AND t."professionalRequirement" = 'OWNER_CAN_DO'
+        AND t."deletedAt" IS NULL
+        AND tl."completedAt" >= ${since}
+        AND tl."completedAt" < ${nextMonth}
+      GROUP BY 1
+    `);
+
+    // Build month-keyed maps for O(1) lookup
+    const overdueMap = new Map<string, number>();
+    for (const row of overdueByMonth) {
+      overdueMap.set(format(row.month, 'yyyy-MM'), Number(row.count));
+    }
+    const completedMap = new Map<string, number>();
+    for (const row of completedByMonth) {
+      completedMap.set(format(row.month, 'yyyy-MM'), Number(row.count));
+    }
+
+    // Iterate months from now backwards, count consecutive zero-net-overdue
     let streak = 0;
-
-    // Check up to 24 months back
     for (let i = 0; i < 24; i++) {
-      const monthStart = startOfMonth(subMonths(now, i));
-      const monthEnd = startOfMonth(subMonths(now, i - 1));
-
-      // Count tasks that were overdue during this month AND are OWNER_CAN_DO
-      const overdueCount = await this.prisma.softDelete.task.count({
-        where: {
-          maintenancePlanId: { in: planIds },
-          professionalRequirement: 'OWNER_CAN_DO',
-          status: TaskStatus.OVERDUE,
-          nextDueDate: { gte: monthStart, lt: monthEnd },
-        },
-      });
-
-      // Also check if any OWNER_CAN_DO tasks had a log entry this month (completed late = still counts)
-      const completedLateCount =
-        i === 0
-          ? 0
-          : await this.prisma.taskLog.count({
-              where: {
-                task: {
-                  maintenancePlanId: { in: planIds },
-                  professionalRequirement: 'OWNER_CAN_DO',
-                },
-                completedAt: { gte: monthStart, lt: monthEnd },
-              },
-            });
-
-      // Net overdue = overdue that month minus those completed late
-      const netOverdue = Math.max(0, overdueCount - completedLateCount);
-
+      const key = format(subMonths(new Date(), i), 'yyyy-MM');
+      const overdue = overdueMap.get(key) ?? 0;
+      // Current month (i===0): don't subtract completed (same as original logic)
+      const completed = i === 0 ? 0 : (completedMap.get(key) ?? 0);
+      const netOverdue = Math.max(0, overdue - completed);
       if (netOverdue > 0) break;
       streak++;
     }
