@@ -44,7 +44,7 @@ export const ClientInfoCard = memo(function ClientInfoCard({
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
         <CardTitle className="text-lg">Información del cliente</CardTitle>
         <div className="flex items-center gap-2">
           <Badge>{USER_STATUS_LABELS[client.status] ?? client.status}</Badge>

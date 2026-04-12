@@ -58,7 +58,7 @@ export const TaskFilters = React.memo(function TaskFilters({
         value={search}
         onChange={onSearchChange}
         placeholder="Buscar tarea, categoría o dirección..."
-        className="min-w-[360px]"
+        className="w-full sm:w-auto sm:min-w-[360px]"
       />
       <div className="flex gap-1">
         {PRIORITY_OPTIONS.map((opt) => (

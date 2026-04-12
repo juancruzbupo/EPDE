@@ -24,10 +24,10 @@ export const PlanStatusBar = React.memo(function PlanStatusBar({
   onAddTask,
 }: PlanStatusBarProps) {
   return (
-    <CardHeader className="flex flex-row items-center justify-between">
+    <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <CardTitle className="text-lg">{planName}</CardTitle>
-        <div className="mt-1 flex items-center gap-2">
+        <div className="mt-1 flex flex-wrap items-center gap-2">
           <Badge variant="outline">{PLAN_STATUS_LABELS[planStatus] ?? planStatus}</Badge>
           {planStatus === PlanStatus.DRAFT && (
             <Button size="sm" variant="outline" onClick={onActivate}>

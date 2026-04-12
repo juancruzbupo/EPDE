@@ -124,7 +124,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
 
       <BudgetTour />
       <Card data-tour="budget-status">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
           <CardTitle className="text-lg">Información del presupuesto</CardTitle>
           <Badge variant={BUDGET_STATUS_VARIANT[budget.status] ?? 'secondary'}>
             {BUDGET_STATUS_LABELS[budget.status] ?? budget.status}

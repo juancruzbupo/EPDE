@@ -21,7 +21,7 @@ export const ClientPropertiesSection = memo(function ClientPropertiesSection({
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
         <CardTitle className="flex items-center gap-2 text-lg">
           <Home className="h-4 w-4" aria-hidden="true" />
           Propiedades

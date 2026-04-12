@@ -130,7 +130,7 @@ export function ServiceRequestDetail({
       <ServiceDetailTour />
       <div className="space-y-6">
         <Card data-tour="service-info">
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
             <CardTitle className="text-lg">Información de la solicitud</CardTitle>
             <Badge variant={SERVICE_STATUS_VARIANT[request.status] ?? 'secondary'}>
               {SERVICE_STATUS_LABELS[request.status] ?? request.status}

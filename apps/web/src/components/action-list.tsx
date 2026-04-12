@@ -57,18 +57,18 @@ function TaskItem({ task, showRegister }: { task: UpcomingTask; showRegister?: b
               </Badge>
             )}
           </div>
-          <div className="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
-            <span className="truncate" title={task.propertyAddress}>
+          <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
+            <span className="max-w-[200px] truncate" title={task.propertyAddress}>
               {task.propertyAddress}
             </span>
             {task.sector && (
               <>
                 <span>·</span>
-                <span>{task.sector}</span>
+                <span className="shrink-0">{task.sector}</span>
               </>
             )}
             <span>·</span>
-            <span className={overdue ? 'text-destructive font-medium' : ''}>
+            <span className={`shrink-0 ${overdue ? 'text-destructive font-medium' : ''}`}>
               {task.nextDueDate
                 ? overdue
                   ? `Vencida ${formatRelativeDate(new Date(task.nextDueDate))}`

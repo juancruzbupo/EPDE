@@ -22,7 +22,7 @@ export const ClientBudgetsSection = memo(function ClientBudgetsSection({
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
         <CardTitle className="flex items-center gap-2 text-lg">
           <FileText className="h-4 w-4" aria-hidden="true" />
           Presupuestos

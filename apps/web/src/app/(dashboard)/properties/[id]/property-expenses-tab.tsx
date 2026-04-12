@@ -200,7 +200,7 @@ export function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
 
       {/* Row 2 — Breakdown with toggle */}
       <Card data-tour="expenses-breakdown">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
           <div>
             <CardTitle className="type-title-md">
               Gasto por {groupBy === 'sector' ? 'sector' : 'categoría'}
