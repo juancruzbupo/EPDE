@@ -43,7 +43,7 @@ export function InvestmentSection({ motionProps, pricing }: InvestmentSectionPro
         </div>
 
         {/* Two-column: benefits + price card */}
-        <div className="mt-12 grid items-start gap-8 md:grid-cols-2">
+        <div className="mt-12 grid grid-cols-1 items-start gap-8 md:grid-cols-2">
           {/* Left: benefits list */}
           <motion.div variants={FADE_IN_UP} className="space-y-4">
             <p className="type-title-md text-foreground">Tu diagnóstico incluye:</p>

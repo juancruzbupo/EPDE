@@ -24,7 +24,7 @@ export function HowItWorksSection({ motionProps }: SectionProps) {
           </motion.h2>
         </div>
 
-        <div className="mt-12 grid gap-8 md:grid-cols-3">
+        <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
           {STEPS.map((step) => (
             <motion.div key={step.number} variants={STAGGER_ITEM}>
               <span className="font-heading text-primary/20 text-5xl">{step.number}</span>

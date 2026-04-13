@@ -62,7 +62,7 @@ export function FinalCtaSection({ motionProps, price }: FinalCtaSectionProps) {
           completo de mantenimiento.
         </motion.p>
 
-        <motion.div variants={FADE_IN} className="mt-10 grid gap-8 md:grid-cols-2">
+        <motion.div variants={FADE_IN} className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-2">
           {/* Contact form */}
           <div className="bg-background/10 rounded-xl p-6">
             <p className="type-title-sm text-background mb-4">Dejá tus datos y te contactamos</p>

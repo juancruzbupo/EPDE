@@ -273,7 +273,7 @@ export function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
         <button
           aria-expanded={historyOpen}
           onClick={() => setHistoryOpen(!historyOpen)}
-          className="flex w-full items-center justify-between p-6 text-left"
+          className="flex w-full items-center justify-between p-4 text-left sm:p-6"
         >
           <div>
             <p className="type-title-md">Historial detallado</p>
