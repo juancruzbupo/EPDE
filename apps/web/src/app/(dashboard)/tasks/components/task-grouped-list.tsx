@@ -49,8 +49,8 @@ function StatusSection({
           <ChevronRight className="text-muted-foreground h-4 w-4" aria-hidden="true" />
         )}
         <Icon className={cn('h-4 w-4', color)} aria-hidden="true" />
-        <span className="text-sm font-medium">{TASK_STATUS_LABELS[status]}</span>
-        <span className="text-muted-foreground text-sm">({tasks.length})</span>
+        <span className="type-title-sm">{TASK_STATUS_LABELS[status]}</span>
+        <span className="text-muted-foreground type-body-md">({tasks.length})</span>
       </button>
       {open && (
         <div className="space-y-1.5 pl-6">
@@ -147,7 +147,7 @@ export const TaskGroupedList = React.memo(function TaskGroupedList({
 
   return (
     <div className="space-y-4">
-      <p data-tour="task-list" className="text-muted-foreground text-sm">
+      <p data-tour="task-list" className="text-muted-foreground type-body-md">
         {filtered.length} tarea{filtered.length !== 1 ? 's' : ''}
       </p>
       {displayStatuses.map((status) => (

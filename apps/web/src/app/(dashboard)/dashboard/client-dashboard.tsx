@@ -19,6 +19,7 @@ import { DashboardTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { WeeklyChallengeCard } from '@/components/weekly-challenge-card';
 import { WelcomeCard } from '@/components/welcome-card';
@@ -137,8 +138,29 @@ export function ClientDashboard({ userName }: { userName: string }) {
         {statsLoading ? (
           <div role="status" aria-label="Cargando...">
             <Card>
-              <CardContent className="p-6">
-                <SkeletonShimmer className="h-40 w-full" />
+              <CardContent className="space-y-4 p-4 sm:p-6">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-6 w-48" />
+                  <Skeleton className="h-5 w-20" />
+                </div>
+                <Skeleton className="h-4 w-64" />
+                <div className="flex items-center gap-4">
+                  <Skeleton className="h-8 w-12" />
+                  <Skeleton className="h-3 flex-1" />
+                </div>
+                <div className="flex gap-2">
+                  <Skeleton className="h-8 w-28" />
+                  <Skeleton className="h-8 w-36" />
+                </div>
+                <div className="grid grid-cols-2 gap-3 border-t pt-4 sm:grid-cols-4">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="space-y-2 text-center">
+                      <Skeleton className="mx-auto h-4 w-4" />
+                      <Skeleton className="mx-auto h-5 w-8" />
+                      <Skeleton className="mx-auto h-3 w-16" />
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -164,16 +186,13 @@ export function ClientDashboard({ userName }: { userName: string }) {
         ) : null}
       </div>
 
-      {/* Weekly challenge */}
-      {!showWelcome && <WeeklyChallengeCard />}
-
-      {/* Tip of the day */}
-      <div className="border-primary/10 bg-primary/[0.03] mb-6 rounded-xl border p-4">
-        <p className="type-label-sm text-primary mb-1 font-medium">Tip del día</p>
-        <p className="type-body-sm text-foreground/80">{DAILY_TIPS[tipIndex]}</p>
+      {/* Tip of the day — compact inline banner */}
+      <div className="text-primary/80 bg-primary/[0.03] mb-4 flex items-start gap-2 rounded-lg px-3 py-2 text-xs">
+        <span className="shrink-0 font-medium">💡</span>
+        <p className="type-body-sm">{DAILY_TIPS[tipIndex]}</p>
       </div>
 
-      {/* Level 2: Action List */}
+      {/* Level 2: Action List — most important, right after status */}
       <div ref={actionsRef} className="mb-6 scroll-mt-4">
         {upcomingLoading ? (
           <div role="status" aria-label="Cargando...">
@@ -193,6 +212,13 @@ export function ClientDashboard({ userName }: { userName: string }) {
           <ActionList tasks={upcoming} nextUpcoming={nextUpcoming} />
         ) : null}
       </div>
+
+      {/* Weekly challenge — after action list, before analytics */}
+      {!showWelcome && (
+        <div className="mb-6">
+          <WeeklyChallengeCard />
+        </div>
+      )}
 
       {/* Level 3: Analytics — collapsed by default to reduce cognitive load */}
       <div ref={analyticsRef} id="analytics" className="scroll-mt-4">

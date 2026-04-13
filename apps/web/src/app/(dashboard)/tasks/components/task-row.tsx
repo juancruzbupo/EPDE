@@ -24,7 +24,7 @@ export const TaskRow = React.memo(function TaskRow({ task, onClick }: TaskRowPro
       className="bg-card hover:bg-muted/40 w-full rounded-lg border p-3 text-left transition-all active:opacity-60"
     >
       <div className="mb-1 flex items-start justify-between gap-2">
-        <span className="text-sm leading-tight font-medium">{task.name}</span>
+        <span className="type-title-sm leading-tight">{task.name}</span>
         <Badge
           variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'}
           className="text-xs"
@@ -34,7 +34,7 @@ export const TaskRow = React.memo(function TaskRow({ task, onClick }: TaskRowPro
         </Badge>
       </div>
 
-      <p className="text-muted-foreground mt-0.5 text-xs leading-relaxed">
+      <p className="text-muted-foreground type-body-sm mt-0.5 leading-relaxed">
         {task.category.name}
         {task.sector && ` · ${PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}`}
         {' · '}

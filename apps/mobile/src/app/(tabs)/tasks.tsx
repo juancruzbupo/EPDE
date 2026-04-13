@@ -136,11 +136,20 @@ const TaskCard = memo(function TaskCard({ task }: { task: TaskListItem }) {
   );
 });
 
+type SortOption = 'date' | 'priority' | 'name';
+const SORT_OPTIONS: { key: SortOption; label: string }[] = [
+  { key: 'date', label: 'Fecha' },
+  { key: 'priority', label: 'Prioridad' },
+  { key: 'name', label: 'Nombre' },
+];
+const PRIORITY_ORDER: Record<string, number> = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
+
 export default function TasksScreen() {
   const [statusFilter, setStatusFilter] = useState<TaskStatus | undefined>(undefined);
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | undefined>(undefined);
   const [propertyFilter, setPropertyFilter] = useState<string | undefined>(undefined);
   const [search, setSearch] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('date');
   const debouncedSearch = useDebounce(search);
 
   // Server-side status filtering: pass status to API when stat card is active.
@@ -183,8 +192,22 @@ export default function TasksScreen() {
       );
     }
 
+    // Sort
+    result = [...result].sort((a, b) => {
+      if (sortBy === 'priority') {
+        return (PRIORITY_ORDER[a.priority] ?? 9) - (PRIORITY_ORDER[b.priority] ?? 9);
+      }
+      if (sortBy === 'name') {
+        return a.name.localeCompare(b.name, 'es');
+      }
+      // Default: date (overdue first, then by nextDueDate ascending)
+      const aDate = a.nextDueDate ? new Date(a.nextDueDate).getTime() : Infinity;
+      const bDate = b.nextDueDate ? new Date(b.nextDueDate).getTime() : Infinity;
+      return aDate - bDate;
+    });
+
     return result;
-  }, [tasks, priorityFilter, propertyFilter, debouncedSearch]);
+  }, [tasks, priorityFilter, propertyFilter, debouncedSearch, sortBy]);
 
   /** Counts per status (from full dataset, independent of active status filter). */
   const statusCounts = useMemo(() => {
@@ -393,6 +416,36 @@ export default function TasksScreen() {
                 ))}
               </ScrollView>
             )}
+
+            {/* Sort */}
+            <View className="mt-2 flex-row items-center gap-2">
+              <Text style={TYPE.labelSm} className="text-muted-foreground">
+                Ordenar:
+              </Text>
+              {SORT_OPTIONS.map((opt) => (
+                <Pressable
+                  key={opt.key}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: sortBy === opt.key }}
+                  onPress={() => {
+                    haptics.selection();
+                    setSortBy(opt.key);
+                  }}
+                  className={`rounded-full px-2.5 py-1 ${
+                    sortBy === opt.key ? 'bg-primary' : 'bg-muted'
+                  }`}
+                >
+                  <Text
+                    style={TYPE.labelSm}
+                    className={
+                      sortBy === opt.key ? 'text-primary-foreground' : 'text-muted-foreground'
+                    }
+                  >
+                    {opt.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
 
             {/* Count */}
             <Text style={TYPE.bodySm} className="text-muted-foreground mt-2">

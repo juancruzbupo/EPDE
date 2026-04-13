@@ -32,7 +32,7 @@ function PlanCard({ plan, onClick }: { plan: PlanListItem; onClick: () => void }
       className="bg-card hover:bg-muted/40 w-full rounded-lg border p-3 text-left transition-all active:opacity-60"
     >
       <div className="mb-1 flex items-start justify-between gap-2">
-        <span className="text-sm leading-tight font-medium">{plan.name}</span>
+        <span className="type-title-sm leading-tight">{plan.name}</span>
         <Badge
           variant={PLAN_STATUS_VARIANT[plan.status] ?? 'secondary'}
           className="text-xs"
@@ -42,7 +42,7 @@ function PlanCard({ plan, onClick }: { plan: PlanListItem; onClick: () => void }
         </Badge>
       </div>
 
-      <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
+      <div className="text-muted-foreground type-body-sm flex flex-wrap items-center gap-x-2 gap-y-0.5">
         <span className="flex items-center gap-1">
           <MapPin className="h-3 w-3" aria-hidden="true" />
           {plan.property.address}, {plan.property.city}
@@ -99,8 +99,8 @@ function StatusSection({
         ) : (
           <ChevronRight className="text-muted-foreground h-4 w-4" aria-hidden="true" />
         )}
-        <span className="text-sm font-medium">{PLAN_STATUS_LABELS[status]}</span>
-        <span className="text-muted-foreground text-sm">({plans.length})</span>
+        <span className="type-title-sm">{PLAN_STATUS_LABELS[status]}</span>
+        <span className="text-muted-foreground type-body-md">({plans.length})</span>
       </button>
       {open && (
         <div className="space-y-1.5 pl-6">
@@ -184,7 +184,7 @@ function MaintenancePlansPageContent() {
         />
       ) : (
         <div data-tour="plans-list" className="space-y-4">
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground type-body-md">
             {filtered.length} plan{filtered.length !== 1 ? 'es' : ''}
           </p>
           {STATUS_ORDER.map((status) => (
