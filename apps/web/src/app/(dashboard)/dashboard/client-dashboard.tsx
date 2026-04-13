@@ -186,10 +186,15 @@ export function ClientDashboard({ userName }: { userName: string }) {
         ) : null}
       </div>
 
-      {/* Tip of the day — compact inline banner */}
-      <div className="text-primary/80 bg-primary/[0.03] mb-4 flex items-start gap-2 rounded-lg px-3 py-2 text-xs">
-        <span className="shrink-0 font-medium">💡</span>
-        <p className="type-body-sm">{DAILY_TIPS[tipIndex]}</p>
+      {/* Tip of the day */}
+      <div className="bg-muted/50 border-border/60 mb-4 flex items-start gap-2.5 rounded-lg border px-4 py-3">
+        <span className="mt-0.5 shrink-0 text-sm">💡</span>
+        <div className="min-w-0">
+          <p className="type-label-sm text-muted-foreground mb-0.5 font-medium tracking-wider uppercase">
+            Tip del día
+          </p>
+          <p className="type-body-sm text-foreground/80">{DAILY_TIPS[tipIndex]}</p>
+        </div>
       </div>
 
       {/* Level 2: Action List — most important, right after status */}

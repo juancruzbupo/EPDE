@@ -155,7 +155,7 @@ export default function TasksPage() {
       <TasksTour />
       <PageHeader
         title="Tareas"
-        description="Seguimiento de todas las tareas de mantenimiento de tus propiedades."
+        description="Todas las tareas de mantenimiento de tus propiedades. Filtrá por prioridad o sector para encontrar lo que necesitás."
       />
 
       <div data-tour="task-stats">

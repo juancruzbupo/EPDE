@@ -1,9 +1,12 @@
 import type { PropertySector } from '@epde/shared';
 import { PROPERTY_SECTOR_LABELS, TaskPriority } from '@epde/shared';
+import { SlidersHorizontal, X } from 'lucide-react';
 import React from 'react';
 
 import { SearchInput } from '@/components/search-input';
 import { SearchableFilterSelect } from '@/components/searchable-filter-select';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -11,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { cn } from '@/lib/utils';
 
 const PRIORITY_OPTIONS: { value: TaskPriority | 'all'; label: string }[] = [
   { value: 'all', label: 'Todas' },
@@ -21,7 +23,7 @@ const PRIORITY_OPTIONS: { value: TaskPriority | 'all'; label: string }[] = [
 ];
 
 const SECTOR_OPTIONS: { value: PropertySector | 'all'; label: string }[] = [
-  { value: 'all', label: 'Todos' },
+  { value: 'all', label: 'Todos los sectores' },
   ...(Object.keys(PROPERTY_SECTOR_LABELS) as PropertySector[]).map((value) => ({
     value,
     label: PROPERTY_SECTOR_LABELS[value],
@@ -51,86 +53,128 @@ export const TaskFilters = React.memo(function TaskFilters({
   onPropertyChange,
   propertyOptions,
 }: TaskFiltersProps) {
+  const activeFilters: { label: string; onClear: () => void }[] = [];
+
+  if (priority !== 'all') {
+    const opt = PRIORITY_OPTIONS.find((o) => o.value === priority);
+    activeFilters.push({
+      label: `Prioridad: ${opt?.label ?? priority}`,
+      onClear: () => onPriorityChange('all'),
+    });
+  }
+  if (sectorFilter !== 'all') {
+    activeFilters.push({
+      label: PROPERTY_SECTOR_LABELS[sectorFilter] ?? sectorFilter,
+      onClear: () => onSectorChange('all'),
+    });
+  }
+  if (propertyFilter !== 'all') {
+    const opt = propertyOptions.find((o) => o.value === propertyFilter);
+    activeFilters.push({
+      label: opt?.label ?? 'Propiedad',
+      onClear: () => onPropertyChange('all'),
+    });
+  }
+
+  const clearAll = () => {
+    onPriorityChange('all');
+    onSectorChange('all');
+    onPropertyChange('all');
+    onSearchChange('');
+  };
+
   return (
     <div className="mb-4 space-y-3">
-      {/* Search row */}
-      <div className="flex flex-wrap items-center gap-3">
-        {propertyOptions.length > 1 && (
-          <SearchableFilterSelect
-            value={propertyFilter}
-            onChange={onPropertyChange}
-            options={propertyOptions}
-            placeholder="Propiedad"
-          />
-        )}
+      {/* Single toolbar row: search + compact dropdown filters */}
+      <div className="flex flex-wrap items-center gap-2">
         <SearchInput
           value={search}
           onChange={onSearchChange}
           placeholder="Buscar tarea, categoría o dirección..."
-          className="w-full sm:w-auto sm:min-w-[360px]"
+          className="w-full sm:w-auto sm:min-w-[320px] sm:flex-1"
         />
-      </div>
 
-      {/* Filter row — priority pills + sector select, single line */}
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="flex items-center gap-1">
-          {PRIORITY_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              aria-pressed={priority === opt.value}
-              onClick={() => onPriorityChange(opt.value)}
-              className={cn(
-                'rounded-full px-3 py-1 text-xs font-medium transition-colors',
-                priority === opt.value
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80',
-              )}
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal className="text-muted-foreground hidden h-4 w-4 sm:block" />
+
+          {propertyOptions.length > 1 && (
+            <SearchableFilterSelect
+              value={propertyFilter}
+              onChange={onPropertyChange}
+              options={propertyOptions}
+              placeholder="Propiedad"
+            />
+          )}
+
+          <Select
+            value={priority === 'all' ? 'all' : priority}
+            onValueChange={(v) => onPriorityChange(v as TaskPriority | 'all')}
+          >
+            <SelectTrigger
+              className="h-9 w-auto min-w-[120px] gap-1.5 text-sm"
+              aria-label="Filtrar por prioridad"
             >
-              {opt.label}
-            </button>
-          ))}
-        </div>
+              <SelectValue placeholder="Prioridad" />
+            </SelectTrigger>
+            <SelectContent>
+              {PRIORITY_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.value === 'all' ? 'Toda prioridad' : opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        {/* Sector — Select on mobile, pills on desktop */}
-        <Select
-          value={sectorFilter}
-          onValueChange={(v) => onSectorChange(v as PropertySector | 'all')}
-        >
-          <SelectTrigger
-            className="bg-muted h-auto w-auto gap-1 rounded-full border-0 px-3 py-1 text-xs sm:hidden"
-            aria-label="Filtrar por sector"
+          <Select
+            value={sectorFilter}
+            onValueChange={(v) => onSectorChange(v as PropertySector | 'all')}
           >
-            <span className="text-muted-foreground">Sector:</span>
-            <span className="font-medium">
-              <SelectValue />
-            </span>
-          </SelectTrigger>
-          <SelectContent>
-            {SECTOR_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+            <SelectTrigger
+              className="h-9 w-auto min-w-[140px] gap-1.5 text-sm"
+              aria-label="Filtrar por sector"
+            >
+              <SelectValue placeholder="Sector" />
+            </SelectTrigger>
+            <SelectContent>
+              {SECTOR_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
-      <div className="hidden flex-wrap gap-1 sm:flex">
-        {SECTOR_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            aria-pressed={sectorFilter === opt.value}
-            onClick={() => onSectorChange(opt.value)}
-            className={cn(
-              'rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors',
-              sectorFilter === opt.value
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground hover:bg-muted/80',
-            )}
+
+      {/* Active filter chips */}
+      {activeFilters.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          {activeFilters.map((f) => (
+            <Badge
+              key={f.label}
+              variant="secondary"
+              className="gap-1 py-1 pr-1.5 pl-2.5 font-normal"
+            >
+              {f.label}
+              <button
+                onClick={f.onClear}
+                className="text-muted-foreground hover:text-foreground rounded-full p-0.5 transition-colors"
+                aria-label={`Quitar filtro: ${f.label}`}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearAll}
+            className="text-muted-foreground h-auto px-2 py-1 text-xs"
           >
-            {opt.label}
-          </button>
-        ))}
-      </div>
+            Limpiar todo
+          </Button>
+        </div>
+      )}
     </div>
   );
 });

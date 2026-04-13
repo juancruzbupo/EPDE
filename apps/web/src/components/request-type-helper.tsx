@@ -14,18 +14,32 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 
-export function RequestTypeInlineHelper() {
+export function ServiceRequestInlineHelper() {
   return (
     <div className="bg-muted/30 border-border mb-4 rounded-lg border p-3">
-      <p className="type-body-sm mb-1 font-medium">¿Presupuesto o solicitud?</p>
-      <div className="text-muted-foreground type-body-sm space-y-0.5">
-        <p>
-          <strong>Presupuesto:</strong> Sabés qué necesitás y querés un precio.
-        </p>
-        <p>
-          <strong>Solicitud:</strong> Detectaste algo y querés que EPDE lo evalúe.
-        </p>
-      </div>
+      <p className="text-muted-foreground type-body-sm">
+        <strong className="text-foreground">Solicitud de servicio:</strong> pedí que EPDE coordine
+        una tarea de mantenimiento que necesita un profesional.
+        <span className="italic">
+          {' '}
+          Ej: reparar una canilla, sellar una fisura, limpiar canaletas.
+        </span>
+      </p>
+    </div>
+  );
+}
+
+export function BudgetInlineHelper() {
+  return (
+    <div className="bg-muted/30 border-border mb-4 rounded-lg border p-3">
+      <p className="text-muted-foreground type-body-sm">
+        <strong className="text-foreground">Presupuesto:</strong> pedí una cotización para un
+        trabajo de arquitectura fuera del mantenimiento preventivo.
+        <span className="italic">
+          {' '}
+          Ej: remodelación, ampliación, plano municipal, relevamiento.
+        </span>
+      </p>
     </div>
   );
 }
@@ -48,18 +62,19 @@ export function RequestTypeHelper() {
           <Card className="border-primary/20 hover:border-primary/40 transition-colors">
             <CardContent className="p-4">
               <div className="mb-2 flex items-center gap-2">
-                <ClipboardList className="text-primary h-5 w-5" />
-                <p className="font-semibold">Pedir cotización (Presupuesto)</p>
+                <Wrench className="text-primary h-5 w-5" />
+                <p className="font-semibold">Solicitud de servicio</p>
               </div>
-              <p className="text-muted-foreground mb-3 text-sm leading-relaxed">
-                Sabés qué reparación necesitás y querés saber cuánto cuesta. EPDE te envía el
-                detalle de costos.
+              <p className="text-muted-foreground mb-2 text-sm leading-relaxed">
+                Una tarea de mantenimiento que necesita un profesional. EPDE coordina la ejecución y
+                se encarga de resolverlo.
               </p>
               <p className="text-muted-foreground mb-3 text-xs italic">
-                Ejemplo: &ldquo;Las canaletas están rotas, ¿cuánto sale repararlas?&rdquo;
+                Ej: reparar una canilla, sellar una fisura, limpiar canaletas, revisar la
+                instalación eléctrica.
               </p>
-              <Button asChild size="sm" className="w-full">
-                <Link href="/budgets?action=create">Solicitar presupuesto</Link>
+              <Button asChild size="sm" variant="outline" className="w-full">
+                <Link href="/service-requests?action=create">Crear solicitud de servicio</Link>
               </Button>
             </CardContent>
           </Card>
@@ -67,17 +82,19 @@ export function RequestTypeHelper() {
           <Card className="border-primary/20 hover:border-primary/40 transition-colors">
             <CardContent className="p-4">
               <div className="mb-2 flex items-center gap-2">
-                <Wrench className="text-primary h-5 w-5" />
-                <p className="font-semibold">Reportar un problema (Solicitud)</p>
+                <ClipboardList className="text-primary h-5 w-5" />
+                <p className="font-semibold">Presupuesto</p>
               </div>
-              <p className="text-muted-foreground mb-3 text-sm leading-relaxed">
-                Detectaste algo raro y necesitás que EPDE lo evalúe y te diga qué hacer.
+              <p className="text-muted-foreground mb-2 text-sm leading-relaxed">
+                Un trabajo de arquitectura que no es mantenimiento. EPDE te envía el detalle de
+                costos y alcance.
               </p>
               <p className="text-muted-foreground mb-3 text-xs italic">
-                Ejemplo: &ldquo;Hay humedad en la pared, no sé de dónde viene.&rdquo;
+                Ej: remodelación, ampliación, plano para entrega municipal, habilitación,
+                relevamiento.
               </p>
-              <Button asChild size="sm" variant="outline" className="w-full">
-                <Link href="/service-requests?action=create">Crear solicitud de servicio</Link>
+              <Button asChild size="sm" className="w-full">
+                <Link href="/budgets?action=create">Solicitar presupuesto</Link>
               </Button>
             </CardContent>
           </Card>

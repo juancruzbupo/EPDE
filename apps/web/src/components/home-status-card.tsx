@@ -149,26 +149,37 @@ export function HomeStatusCard({
         {...(shouldAnimate ? { variants: FADE_IN_UP, initial: 'hidden', animate: 'visible' } : {})}
       >
         <Card className={`${theme.bg} ${theme.border}`}>
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-5 sm:p-7">
             {/* Title + label */}
-            <div className="mb-1 flex items-center justify-between">
-              <h2 className="type-title-lg text-foreground">{theme.title}</h2>
-              <span className={`type-label-md ${theme.textColor}`}>{label}</span>
+            <div className="mb-2 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="type-display-sm text-foreground tracking-tight">{theme.title}</h2>
+                <p className="type-body-md text-muted-foreground mt-0.5">{message}</p>
+              </div>
+              <span
+                className={`type-label-sm ${theme.textColor} mt-1 shrink-0 rounded-full px-2.5 py-0.5 font-medium ${theme.bg}`}
+              >
+                {label}
+              </span>
             </div>
 
-            {/* Human message */}
-            <p className="type-body-md text-muted-foreground mb-1">{message}</p>
+            {/* Consequence — only when score < 80 */}
             {consequence && (
               <p className="type-body-sm text-muted-foreground mb-4">{consequence}</p>
             )}
-            {!consequence && <div className="mb-4" />}
+            {!consequence && <div className="mb-3" />}
 
             {/* Score + progress bar */}
-            <div data-tour="health-score" className="mb-4 flex items-center gap-2 sm:gap-4">
-              <span className={`type-number-lg ${theme.textColor}`}>
-                <AnimatedNumber value={score} />
-              </span>
-              <HelpHint term="Puntaje de Salud (ISV)" className="self-start">
+            <div data-tour="health-score" className="mb-5 flex items-center gap-3 sm:gap-4">
+              <div className="flex items-baseline gap-1">
+                <span
+                  className={`text-[2rem] leading-none font-bold tracking-tight ${theme.textColor}`}
+                >
+                  <AnimatedNumber value={score} />
+                </span>
+                <span className="type-body-sm text-muted-foreground">/100</span>
+              </div>
+              <HelpHint term="Puntaje de Salud (ISV)" className="self-center">
                 <p>
                   Mide cuánto cuidado necesita tu casa de 0 a 100. Mantenerlo arriba de 60 evita
                   reparaciones costosas.
@@ -184,7 +195,7 @@ export function HomeStatusCard({
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-label="Índice de Salud de la Vivienda"
-                className="bg-muted h-3 flex-1 overflow-hidden rounded-full"
+                className="bg-muted h-2 flex-1 overflow-hidden rounded-full"
               >
                 {shouldAnimate ? (
                   <motion.div
@@ -204,16 +215,7 @@ export function HomeStatusCard({
                   />
                 )}
               </div>
-              <span className="type-body-sm text-muted-foreground">/ 100</span>
             </div>
-
-            <p className="type-body-sm text-muted-foreground -mt-2 mb-2">
-              {score >= 60
-                ? 'Arriba de 60 es bueno. Tu casa está bien cuidada.'
-                : score >= 40
-                  ? 'Un puntaje debajo de 60 indica que hay tareas acumuladas.'
-                  : 'Debajo de 40 es urgente. Conviene actuar pronto.'}
-            </p>
 
             {/* Badges — delta, streak, perfect week */}
             {((isvDelta !== null && isvDelta !== undefined && isvDelta !== 0) ||
@@ -308,9 +310,8 @@ export function HomeStatusCard({
             )}
 
             {/* Action buttons */}
-            <div data-tour="action-buttons" className="mb-5 flex flex-wrap gap-2 sm:gap-3">
+            <div data-tour="action-buttons" className="mb-6 flex flex-wrap gap-3">
               <Button
-                size="sm"
                 aria-label="Ver tareas pendientes y acciones recomendadas"
                 onClick={onViewActions}
               >
@@ -318,7 +319,6 @@ export function HomeStatusCard({
                 <ArrowRight className="ml-1.5 h-4 w-4" />
               </Button>
               <Button
-                size="sm"
                 variant="outline"
                 aria-label="Ver análisis completo de salud de tu vivienda"
                 onClick={onViewAnalytics}
@@ -330,21 +330,21 @@ export function HomeStatusCard({
             {/* Mini stats grid */}
             <div
               data-tour="mini-stats"
-              className="border-border grid grid-cols-2 gap-3 border-t pt-4 sm:grid-cols-4"
+              className="border-border sm:divide-border grid grid-cols-2 gap-y-4 border-t pt-5 sm:grid-cols-4 sm:gap-y-0 sm:divide-x"
             >
               {miniStats.map((stat, i) => {
                 const Icon = miniIcons[i]!;
                 const content = (
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="cursor-default text-center">
-                        <div className="mb-1 flex justify-center">
+                      <div className="cursor-default px-3 text-center">
+                        <div className="bg-muted/60 mx-auto mb-1.5 flex h-8 w-8 items-center justify-center rounded-full">
                           <Icon className={`h-4 w-4 ${stat.color}`} />
                         </div>
-                        <p className={`type-number-md ${stat.color}`}>
+                        <p className={`text-xl font-semibold tracking-tight ${stat.color}`}>
                           <AnimatedNumber value={stat.value} />
                         </p>
-                        <p className="type-label-sm text-muted-foreground">{stat.label}</p>
+                        <p className="type-label-sm text-muted-foreground mt-0.5">{stat.label}</p>
                         <p className="text-muted-foreground mt-0.5 text-[10px] leading-tight sm:hidden">
                           {stat.hint}
                         </p>

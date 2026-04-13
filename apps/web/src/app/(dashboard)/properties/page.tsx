@@ -9,13 +9,12 @@ import {
   UserRole,
 } from '@epde/shared';
 import { useQueryClient } from '@tanstack/react-query';
-import { Plus } from 'lucide-react';
+import { Plus, SlidersHorizontal, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { DataTable } from '@/components/data-table/data-table';
 import { ErrorState } from '@/components/error-state';
-import { FilterSelect } from '@/components/filter-select';
 import { PropertiesListTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
 import { SearchInput } from '@/components/search-input';
@@ -23,6 +22,13 @@ import { SearchableFilterSelect } from '@/components/searchable-filter-select';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PageTransition } from '@/components/ui/page-transition';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useProperties } from '@/hooks/use-properties';
 import { useUrlFilters } from '@/hooks/use-url-filters';
@@ -180,26 +186,125 @@ export default function PropertiesPage() {
         }
       />
 
-      <div data-tour="properties-filters" className="mb-4 flex flex-wrap gap-3">
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Buscar por dirección o ciudad..."
-        />
-        <FilterSelect value={type} onChange={setType} options={typeOptions} placeholder="Tipo" />
-        <FilterSelect
-          value={planStatus}
-          onChange={setPlanStatus}
-          options={planStatusOptions}
-          placeholder="Estado del plan"
-        />
-        {isAdmin && clientOptions.length > 1 && (
-          <SearchableFilterSelect
-            value={clientFilter}
-            onChange={setClientFilter}
-            options={clientOptions}
-            placeholder="Cliente"
+      <div data-tour="properties-filters" className="mb-4 space-y-3">
+        {/* Toolbar: search + dropdown filters */}
+        <div className="flex flex-wrap items-center gap-2">
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Buscar por dirección o ciudad..."
+            className="w-full sm:w-auto sm:min-w-[320px] sm:flex-1"
           />
+
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="text-muted-foreground hidden h-4 w-4 sm:block" />
+
+            <Select value={type} onValueChange={setType}>
+              <SelectTrigger
+                className="h-9 w-auto min-w-[120px] gap-1.5 text-sm"
+                aria-label="Filtrar por tipo"
+              >
+                <SelectValue>
+                  {type === 'all'
+                    ? 'Tipo'
+                    : (typeOptions.find((o) => o.value === type)?.label ?? type)}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los tipos</SelectItem>
+                {typeOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={planStatus} onValueChange={setPlanStatus}>
+              <SelectTrigger
+                className="h-9 w-auto min-w-[150px] gap-1.5 text-sm"
+                aria-label="Filtrar por estado del plan"
+              >
+                <SelectValue>
+                  {planStatus === 'all'
+                    ? 'Estado del plan'
+                    : (planStatusOptions.find((o) => o.value === planStatus)?.label ?? planStatus)}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los estados</SelectItem>
+                {planStatusOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {isAdmin && clientOptions.length > 1 && (
+              <SearchableFilterSelect
+                value={clientFilter}
+                onChange={setClientFilter}
+                options={clientOptions}
+                placeholder="Cliente"
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Active filter chips */}
+        {(type !== 'all' || planStatus !== 'all' || clientFilter !== 'all') && (
+          <div className="flex flex-wrap items-center gap-2">
+            {type !== 'all' && (
+              <Badge variant="secondary" className="gap-1 py-1 pr-1.5 pl-2.5 font-normal">
+                {typeOptions.find((o) => o.value === type)?.label ?? type}
+                <button
+                  onClick={() => setType('all')}
+                  className="text-muted-foreground hover:text-foreground rounded-full p-0.5 transition-colors"
+                  aria-label="Quitar filtro de tipo"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            {planStatus !== 'all' && (
+              <Badge variant="secondary" className="gap-1 py-1 pr-1.5 pl-2.5 font-normal">
+                {planStatusOptions.find((o) => o.value === planStatus)?.label ?? planStatus}
+                <button
+                  onClick={() => setPlanStatus('all')}
+                  className="text-muted-foreground hover:text-foreground rounded-full p-0.5 transition-colors"
+                  aria-label="Quitar filtro de estado"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            {clientFilter !== 'all' && (
+              <Badge variant="secondary" className="gap-1 py-1 pr-1.5 pl-2.5 font-normal">
+                {clientOptions.find((o) => o.value === clientFilter)?.label ?? 'Cliente'}
+                <button
+                  onClick={() => setClientFilter('all')}
+                  className="text-muted-foreground hover:text-foreground rounded-full p-0.5 transition-colors"
+                  aria-label="Quitar filtro de cliente"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setType('all');
+                setPlanStatus('all');
+                setClientFilter('all');
+                setSearch('');
+              }}
+              className="text-muted-foreground h-auto px-2 py-1 text-xs"
+            >
+              Limpiar todo
+            </Button>
+          </div>
         )}
       </div>
 
@@ -211,8 +316,13 @@ export default function PropertiesPage() {
         />
       )}
 
-      <p data-tour="properties-table" className="text-muted-foreground mb-2 text-sm">
-        {total !== undefined ? `${total} propiedad${total !== 1 ? 'es' : ''}` : '\u00A0'}
+      <p
+        data-tour="properties-table"
+        className="type-label-sm text-muted-foreground mb-2 tracking-wider uppercase"
+      >
+        {total !== undefined
+          ? `${total} propiedad${total !== 1 ? 'es' : ''} encontrada${total !== 1 ? 's' : ''}`
+          : '\u00A0'}
       </p>
 
       {/* Mobile: cards — Desktop: table */}

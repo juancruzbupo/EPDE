@@ -9,21 +9,27 @@ import {
   URGENCY_VARIANT,
   UserRole,
 } from '@epde/shared';
-import { Plus } from 'lucide-react';
+import { Plus, SlidersHorizontal, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 
 import { DataTable } from '@/components/data-table/data-table';
 import { ErrorState } from '@/components/error-state';
-import { FilterSelect } from '@/components/filter-select';
 import { ServicesListTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
-import { RequestTypeInlineHelper } from '@/components/request-type-helper';
+import { ServiceRequestInlineHelper } from '@/components/request-type-helper';
 import { SearchInput } from '@/components/search-input';
 import { SearchableFilterSelect } from '@/components/searchable-filter-select';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PageTransition } from '@/components/ui/page-transition';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useServiceRequests } from '@/hooks/use-service-requests';
 import { useUrlFilters } from '@/hooks/use-url-filters';
@@ -151,30 +157,127 @@ function ServiceRequestsPageContent() {
       />
 
       <div className="mb-3">
-        <RequestTypeInlineHelper />
+        <ServiceRequestInlineHelper />
       </div>
-      <div data-tour="services-filters" className="mb-4 flex flex-wrap gap-3">
-        {propertyOptions.length > 1 && (
-          <SearchableFilterSelect
-            value={propertyFilter}
-            onChange={setPropertyFilter}
-            options={propertyOptions}
-            placeholder="Propiedad"
+      <div data-tour="services-filters" className="mb-4 space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Buscar por título..."
+            className="w-full sm:w-auto sm:min-w-[320px] sm:flex-1"
           />
+
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="text-muted-foreground hidden h-4 w-4 sm:block" />
+
+            {propertyOptions.length > 1 && (
+              <SearchableFilterSelect
+                value={propertyFilter}
+                onChange={setPropertyFilter}
+                options={propertyOptions}
+                placeholder="Propiedad"
+              />
+            )}
+
+            <Select value={status} onValueChange={(v) => setStatus(v as ServiceStatus | 'all')}>
+              <SelectTrigger
+                className="h-9 w-auto min-w-[120px] gap-1.5 text-sm"
+                aria-label="Filtrar por estado"
+              >
+                <SelectValue>
+                  {status === 'all'
+                    ? 'Estado'
+                    : (statusOptions.find((o) => o.value === status)?.label ?? status)}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los estados</SelectItem>
+                {statusOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={urgency} onValueChange={(v) => setUrgency(v as ServiceUrgency | 'all')}>
+              <SelectTrigger
+                className="h-9 w-auto min-w-[120px] gap-1.5 text-sm"
+                aria-label="Filtrar por urgencia"
+              >
+                <SelectValue>
+                  {urgency === 'all'
+                    ? 'Urgencia'
+                    : (urgencyOptions.find((o) => o.value === urgency)?.label ?? urgency)}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toda urgencia</SelectItem>
+                {urgencyOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Active filter chips */}
+        {(status !== 'all' || urgency !== 'all' || propertyFilter !== 'all') && (
+          <div className="flex flex-wrap items-center gap-2">
+            {status !== 'all' && (
+              <Badge variant="secondary" className="gap-1 py-1 pr-1.5 pl-2.5 font-normal">
+                {statusOptions.find((o) => o.value === status)?.label ?? status}
+                <button
+                  onClick={() => setStatus('all')}
+                  className="text-muted-foreground hover:text-foreground rounded-full p-0.5 transition-colors"
+                  aria-label="Quitar filtro de estado"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            {urgency !== 'all' && (
+              <Badge variant="secondary" className="gap-1 py-1 pr-1.5 pl-2.5 font-normal">
+                {urgencyOptions.find((o) => o.value === urgency)?.label ?? urgency}
+                <button
+                  onClick={() => setUrgency('all')}
+                  className="text-muted-foreground hover:text-foreground rounded-full p-0.5 transition-colors"
+                  aria-label="Quitar filtro de urgencia"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            {propertyFilter !== 'all' && (
+              <Badge variant="secondary" className="gap-1 py-1 pr-1.5 pl-2.5 font-normal">
+                {propertyOptions.find((o) => o.value === propertyFilter)?.label ?? 'Propiedad'}
+                <button
+                  onClick={() => setPropertyFilter('all')}
+                  className="text-muted-foreground hover:text-foreground rounded-full p-0.5 transition-colors"
+                  aria-label="Quitar filtro de propiedad"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setStatus('all');
+                setUrgency('all');
+                setPropertyFilter('all');
+                setSearch('');
+              }}
+              className="text-muted-foreground h-auto px-2 py-1 text-xs"
+            >
+              Limpiar todo
+            </Button>
+          </div>
         )}
-        <SearchInput value={search} onChange={setSearch} placeholder="Buscar por título..." />
-        <FilterSelect
-          value={status}
-          onChange={(v: string) => setStatus(v as ServiceStatus | 'all')}
-          options={statusOptions}
-          placeholder="Estado"
-        />
-        <FilterSelect
-          value={urgency}
-          onChange={(v: string) => setUrgency(v as ServiceUrgency | 'all')}
-          options={urgencyOptions}
-          placeholder="Urgencia"
-        />
       </div>
 
       {isError && (

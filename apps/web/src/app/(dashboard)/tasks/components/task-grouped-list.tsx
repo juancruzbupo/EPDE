@@ -147,8 +147,12 @@ export const TaskGroupedList = React.memo(function TaskGroupedList({
 
   return (
     <div className="space-y-4">
-      <p data-tour="task-list" className="text-muted-foreground type-body-md">
-        {filtered.length} tarea{filtered.length !== 1 ? 's' : ''}
+      <p
+        data-tour="task-list"
+        className="type-label-sm text-muted-foreground tracking-wider uppercase"
+      >
+        {filtered.length} tarea{filtered.length !== 1 ? 's' : ''} encontrada
+        {filtered.length !== 1 ? 's' : ''}
       </p>
       {displayStatuses.map((status) => (
         <StatusSection
