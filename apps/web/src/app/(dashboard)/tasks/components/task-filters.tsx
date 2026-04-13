@@ -4,6 +4,13 @@ import React from 'react';
 
 import { SearchInput } from '@/components/search-input';
 import { SearchableFilterSelect } from '@/components/searchable-filter-select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
 const PRIORITY_OPTIONS: { value: TaskPriority | 'all'; label: string }[] = [
@@ -77,7 +84,23 @@ export const TaskFilters = React.memo(function TaskFilters({
           </button>
         ))}
       </div>
-      <div className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
+      {/* Sector filter — Select on mobile, pill buttons on desktop */}
+      <Select
+        value={sectorFilter}
+        onValueChange={(v) => onSectorChange(v as PropertySector | 'all')}
+      >
+        <SelectTrigger className="w-full sm:hidden" aria-label="Filtrar por sector">
+          <SelectValue placeholder="Sector" />
+        </SelectTrigger>
+        <SelectContent>
+          {SECTOR_OPTIONS.map((opt) => (
+            <SelectItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <div className="hidden gap-1 sm:flex">
         {SECTOR_OPTIONS.map((opt) => (
           <button
             key={opt.value}
