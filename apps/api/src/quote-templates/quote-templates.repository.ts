@@ -5,6 +5,23 @@ import { PrismaService } from '../prisma/prisma.service';
 
 const INCLUDE_ITEMS = { items: { orderBy: { displayOrder: 'asc' as const } } };
 
+/**
+ * QuoteTemplatesRepository
+ *
+ * Intentionally bypasses BaseRepository for two reasons:
+ *
+ * 1. **Nested transaction requirement** — `update()` must atomically delete all
+ *    existing QuoteTemplateItems and recreate them (replace-all pattern).
+ *    BaseRepository does not expose the Prisma transaction client (`tx`) to
+ *    callers, making this pattern impossible without direct PrismaService access.
+ *
+ * 2. **Hard-delete by design** — QuoteTemplates are admin-only, low-volume
+ *    config data with no audit-trail requirements. Soft-delete would add
+ *    complexity (deletedAt filter on every query) without benefit.
+ *    If a template is deleted in error, restore from DB backup.
+ *
+ * If BaseRepository is ever extended to expose transaction access, migrate then.
+ */
 @Injectable()
 export class QuoteTemplatesRepository {
   constructor(private readonly prisma: PrismaService) {}

@@ -1,3 +1,12 @@
+/**
+ * Mobile notification hooks.
+ * Web equivalent: apps/web/src/hooks/use-notifications.ts
+ *
+ * Includes mark-as-read and mark-all-as-read mutations (available to all users).
+ * Admin notification management (bulk delete, send system notification) is web-only.
+ *
+ * If the notification API response shape changes, update BOTH this file and the web hook.
+ */
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';

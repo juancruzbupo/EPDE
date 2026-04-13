@@ -1,3 +1,12 @@
+/**
+ * Mobile task operation hooks.
+ * Web equivalent: apps/web/src/hooks/use-task-operations.ts + use-task-operations-mutations.ts
+ *
+ * Includes complete-task and note mutations (available to all users).
+ * Admin-only operations (create/edit/delete task, reorder, bulk-create) are web-only.
+ *
+ * If the task completion or note API response shape changes, update BOTH this file and the web hooks.
+ */
 import type { CompleteTaskInput, TaskNotePublic } from '@epde/shared';
 import { COMPLETION_MESSAGES, getErrorMessage, PREVENTION_SAVINGS, QUERY_KEYS } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';

@@ -1,3 +1,13 @@
+/**
+ * Mobile budget hooks.
+ * Web equivalent: apps/web/src/hooks/use-budgets.ts
+ *
+ * Mutations included (client can approve/reject budgets and create comments).
+ * Admin-only mutations (respond/re-quote, start-work, complete) are omitted
+ * because mobile admin performs those actions via the web panel.
+ *
+ * If the budget API response shape changes, update BOTH this file and the web hook.
+ */
 import type {
   BudgetRequestPublic,
   BudgetStatus,

@@ -1,3 +1,12 @@
+/**
+ * Mobile milestone hooks.
+ * Web equivalent: apps/web/src/hooks/use-milestones.ts
+ *
+ * Includes streak-freeze mutation (client action). Milestone awarding is
+ * server-side only (triggered by cron and task completion).
+ *
+ * If the milestones API response shape changes, update BOTH this file and the web hook.
+ */
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';

@@ -1,3 +1,13 @@
+/**
+ * Mobile maintenance plan hooks.
+ * Web equivalent: apps/web/src/hooks/use-plans.ts
+ *
+ * Includes plan status mutations (activate/archive) because mobile admin
+ * uses them via the property detail screen.
+ * Plan creation/deletion are admin-web-only and omitted here.
+ *
+ * If the plan or task API response shape changes, update BOTH this file and the web hook.
+ */
 import type { PlanStatus, TaskStatus } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';

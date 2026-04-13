@@ -3,6 +3,8 @@ import {
   CHART_TOKENS_LIGHT,
   DESIGN_TOKENS_DARK,
   DESIGN_TOKENS_LIGHT,
+  INSPECTION_TOKENS_DARK,
+  INSPECTION_TOKENS_LIGHT,
   TASK_TYPE_TOKENS_DARK,
   TASK_TYPE_TOKENS_LIGHT,
 } from '@epde/shared';
@@ -101,9 +103,11 @@ describe('Web CSS token sync', () => {
     const orphans: string[] = [];
 
     for (const cssKey of rootValues.keys()) {
-      // Only check color-semantic tokens (skip radius, font, sidebar, chart, task-type)
+      // Only check color-semantic tokens (skip radius, font, sidebar, chart, task-type, guide)
+      // guide-* tokens are checked separately against INSPECTION_TOKENS_LIGHT/DARK
       if (cssKey.startsWith('chart-') || cssKey.startsWith('task-') || cssKey.startsWith('sidebar'))
         continue;
+      if (cssKey.startsWith('guide-')) continue;
       if (ALLOWLIST.has(cssKey)) continue;
       if (!sharedKeys.has(cssKey)) {
         orphans.push(`--${cssKey} defined in :root but not in DESIGN_TOKENS_LIGHT`);
@@ -175,6 +179,45 @@ describe('Web CSS token sync', () => {
 
     for (const [key, expected] of Object.entries(CHART_TOKENS_DARK)) {
       const cssKey = toChartCssKey(key);
+      const actual = darkValues.get(cssKey);
+      if (!actual) {
+        mismatches.push(`--${cssKey}: missing in .dark`);
+      } else if (actual !== expected) {
+        mismatches.push(`--${cssKey}: expected "${expected}", got "${actual}"`);
+      }
+    }
+
+    expect(mismatches).toEqual([]);
+  });
+
+  /** Convert camelCase inspection token key to CSS var name (e.g. guideOkBg → guide-ok-bg). */
+  function toGuideCssKey(key: string): string {
+    return key.replace(/([A-Z])/g, '-$1').toLowerCase();
+  }
+
+  it(':root guide values should match INSPECTION_TOKENS_LIGHT', () => {
+    const rootValues = extractSectionValues(/:root\s*\{([^}]+)\}/s);
+    const mismatches: string[] = [];
+
+    for (const [key, expected] of Object.entries(INSPECTION_TOKENS_LIGHT)) {
+      const cssKey = toGuideCssKey(key);
+      const actual = rootValues.get(cssKey);
+      if (!actual) {
+        mismatches.push(`--${cssKey}: missing in :root`);
+      } else if (actual !== expected) {
+        mismatches.push(`--${cssKey}: expected "${expected}", got "${actual}"`);
+      }
+    }
+
+    expect(mismatches).toEqual([]);
+  });
+
+  it('.dark guide values should match INSPECTION_TOKENS_DARK', () => {
+    const darkValues = extractSectionValues(/\.dark\s*\{([^}]+)\}/s);
+    const mismatches: string[] = [];
+
+    for (const [key, expected] of Object.entries(INSPECTION_TOKENS_DARK)) {
+      const cssKey = toGuideCssKey(key);
       const actual = darkValues.get(cssKey);
       if (!actual) {
         mismatches.push(`--${cssKey}: missing in .dark`);

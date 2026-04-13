@@ -1,3 +1,12 @@
+/**
+ * Mobile dashboard hooks — read-only (client view only).
+ * Web equivalent: apps/web/src/hooks/use-dashboard.ts
+ *
+ * Only client dashboard endpoints are used (stats, upcoming tasks, analytics).
+ * Admin dashboard endpoints (admin stats, activity feed, admin analytics) are web-only.
+ *
+ * If the dashboard API response shape changes, update BOTH this file and the web hook.
+ */
 import { QUERY_KEYS } from '@epde/shared';
 import { useQuery } from '@tanstack/react-query';
 

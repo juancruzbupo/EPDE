@@ -1,3 +1,13 @@
+/**
+ * Mobile service request hooks.
+ * Web equivalent: apps/web/src/hooks/use-service-requests-queries.ts + use-service-requests-mutations.ts
+ *
+ * Includes client mutations (create, add attachments, add comments).
+ * Admin-only transitions (in-review → in-progress → resolved → closed) are omitted
+ * because mobile admin performs state changes via the web panel.
+ *
+ * If the service request API response shape changes, update BOTH this file and the web hooks.
+ */
 import type { ServiceRequestPublic, ServiceStatus, ServiceUrgency } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';

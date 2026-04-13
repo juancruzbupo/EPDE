@@ -17,6 +17,11 @@ function isTaskReminderData(data: unknown): data is { taskId: string } {
 @Injectable()
 export class NotificationsRepository extends BaseRepository<Notification, 'notification'> {
   constructor(prisma: PrismaService) {
+    // hasSoftDelete=false: Notifications are ephemeral data — no audit trail required.
+    // Old read notifications are periodically hard-deleted by NotificationCleanupService
+    // (scheduler, every Sunday 03:00 UTC) to prevent table bloat. See deleteOldRead().
+    // If you need to add deletedAt to Notification in the future, switch this to true
+    // AND add a Prisma migration to create the deletedAt column.
     super(prisma, 'notification', false);
   }
 

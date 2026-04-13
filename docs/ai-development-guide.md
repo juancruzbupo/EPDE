@@ -202,6 +202,7 @@
 185. **SIEMPRE #89 (glosario en @epde/shared)**: `GLOSSARY` en `@epde/shared/constants/glossary.ts` es SSoT para definiciones de términos de dominio. Web: `GlossaryButton` en header. Mobile: `GlossaryModal` accesible desde perfil. Al agregar un término nuevo, actualizar el array
 186. **SIEMPRE #90 (specs obligatorios para features nuevas)**: Todo `*.service.ts` nuevo DEBE tener un `*.service.spec.ts` antes de merge. CI enforces via `enforce-specs` step en PRs. Schedulers (cron services) tambien DEBEN tener spec — un cron que falla silenciosamente es peor que un endpoint que retorna 500
 187. **SIEMPRE #91 (full-stack wiring de endpoints nuevos)**: Todo endpoint nuevo DEBE tener: (1) shared API factory en `@epde/shared/api/`, (2) web hook en `hooks/`, (3) mobile hook si aplica, (4) QUERY_KEYS entry. NUNCA mergear endpoints "orphan" (backend-only sin frontend consumer)
+188. **SIEMPRE #92 (web↔mobile hook sync)**: Cuando se modifica la query function, el tipo de response, o los parámetros de un hook en `apps/web/src/hooks/`, verificar si existe un equivalente en `apps/mobile/src/hooks/` con el mismo nombre base (ej. `use-budgets.ts`). Si existe, aplicar el mismo cambio en ambos. Los archivos mobile tienen un header "Web equivalent: ..." que actúa como puntero bidireccional. Un cambio en un lado sin el otro produce desincronización silenciosa — los tipos compilarán pero el runtime consumirá shapes distintas
 
 ### NUNCA
 

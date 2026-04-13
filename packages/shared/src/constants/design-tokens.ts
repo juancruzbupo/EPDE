@@ -141,3 +141,54 @@ export const CHART_TOKENS_DARK = {
 } as const;
 
 export type ChartTokens = typeof CHART_TOKENS_LIGHT;
+
+/**
+ * Inspection guide color tokens — light mode.
+ *
+ * Used in the inspection UI (condition badges, guide highlights in web).
+ * Propagated to: apps/web/src/app/globals.css (--guide-* vars in :root)
+ *
+ * NOT propagated to mobile CSS — the inspection module is web-only.
+ * If mobile ever adds inspection views, extend apps/mobile/src/app/global.css
+ * and apps/mobile/src/lib/colors.ts with these values.
+ *
+ * Each condition has three variants: text / background / border.
+ */
+export const INSPECTION_TOKENS_LIGHT = {
+  guideOk: '#166534',
+  guideOkBg: '#f0fdf4',
+  guideOkBorder: '#bbf7d0',
+  guideAttention: '#854d0e',
+  guideAttentionBg: '#fefce8',
+  guideAttentionBorder: '#fef08a',
+  guideProfessional: '#991b1b',
+  guideProfessionalBg: '#fef2f2',
+  guideProfessionalBorder: '#fecaca',
+  guideDanger: '#991b1b',
+  guideDangerBg: '#fef2f2',
+  guideDangerBorder: '#fecaca',
+  guideWarning: '#92400e',
+  guideWarningBg: '#fffbeb',
+  guideWarningBorder: '#fde68a',
+} as const;
+
+/** Inspection guide color tokens — dark mode. */
+export const INSPECTION_TOKENS_DARK = {
+  guideOk: '#bbf7d0',
+  guideOkBg: 'rgba(22, 101, 52, 0.3)',
+  guideOkBorder: '#166534',
+  guideAttention: '#fef08a',
+  guideAttentionBg: 'rgba(133, 77, 14, 0.3)',
+  guideAttentionBorder: '#854d0e',
+  guideProfessional: '#fecaca',
+  guideProfessionalBg: 'rgba(153, 27, 27, 0.3)',
+  guideProfessionalBorder: '#991b1b',
+  guideDanger: '#fecaca',
+  guideDangerBg: 'rgba(153, 27, 27, 0.3)',
+  guideDangerBorder: '#991b1b',
+  guideWarning: '#fde68a',
+  guideWarningBg: 'rgba(146, 64, 14, 0.3)',
+  guideWarningBorder: '#92400e',
+} as const;
+
+export type InspectionTokens = typeof INSPECTION_TOKENS_LIGHT;
