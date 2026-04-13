@@ -8,7 +8,7 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, action }: PageHeaderProps) {
   return (
-    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div className="mb-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-start sm:justify-between">
       <div className="min-w-0">
         <h1 className="type-display-sm text-foreground tracking-tight">{title}</h1>
         {description && (
