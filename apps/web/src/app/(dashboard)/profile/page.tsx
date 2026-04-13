@@ -1,8 +1,8 @@
 'use client';
 
 import { UserRole } from '@epde/shared';
-import { HelpCircle } from 'lucide-react';
-import { useEffect } from 'react';
+import { HelpCircle, Monitor, Moon, Sun } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { resetOnboardingTour } from '@/components/onboarding-tour';
@@ -108,9 +108,63 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
 
+      <AppearanceCard />
+
       <ProfileForm user={user} onSuccess={checkAuth} />
       <MilestonesSection />
       <ChangePasswordForm />
     </PageTransition>
+  );
+}
+
+const THEME_OPTIONS = [
+  { key: 'light', label: 'Claro', icon: Sun },
+  { key: 'dark', label: 'Oscuro', icon: Moon },
+  { key: 'system', label: 'Sistema', icon: Monitor },
+] as const;
+
+function AppearanceCard() {
+  const [theme, setTheme] = useState<string>('system');
+
+  useEffect(() => {
+    setTheme(localStorage.getItem('theme') ?? 'system');
+  }, []);
+
+  const handleChange = useCallback((value: string) => {
+    setTheme(value);
+    if (value === 'system') {
+      localStorage.removeItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.classList.toggle('dark', prefersDark);
+    } else {
+      localStorage.setItem('theme', value);
+      document.documentElement.classList.toggle('dark', value === 'dark');
+    }
+  }, []);
+
+  return (
+    <Card className="mb-6">
+      <CardHeader>
+        <CardTitle>Apariencia</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex gap-2">
+          {THEME_OPTIONS.map((opt) => (
+            <button
+              key={opt.key}
+              onClick={() => handleChange(opt.key)}
+              className={`flex flex-1 flex-col items-center gap-1.5 rounded-lg border p-3 text-sm transition-all ${
+                theme === opt.key
+                  ? 'border-primary bg-primary/5 text-foreground'
+                  : 'border-border text-muted-foreground hover:bg-muted/40'
+              }`}
+            >
+              <opt.icon className="h-5 w-5" />
+              <span className="type-label-sm">{opt.label}</span>
+            </button>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

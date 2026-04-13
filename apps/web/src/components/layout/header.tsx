@@ -7,7 +7,6 @@ import { VisuallyHidden } from 'radix-ui';
 import { useEffect, useState } from 'react';
 
 import { NotificationBell } from '@/components/notification-bell';
-import { ThemeToggle } from '@/components/theme-toggle';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,7 +62,6 @@ export function Header() {
       <span className="font-heading text-primary text-lg font-bold lg:hidden">EPDE</span>
 
       <div className="ml-auto flex items-center gap-3">
-        <ThemeToggle />
         <NotificationBell />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
