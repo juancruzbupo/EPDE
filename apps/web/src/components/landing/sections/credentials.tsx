@@ -70,7 +70,7 @@ export function CredentialsSection({ motionProps }: SectionProps) {
               validado con propietarios reales en Paraná.
             </p>
 
-            <div className="grid grid-cols-2 gap-3 pt-2">
+            <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-2">
               {CREDENTIALS.map((cred) => (
                 <div key={cred.text} className="flex items-center gap-2">
                   <cred.icon className="text-primary h-4 w-4 shrink-0" strokeWidth={1.5} />

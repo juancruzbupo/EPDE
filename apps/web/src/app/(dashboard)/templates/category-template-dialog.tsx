@@ -106,7 +106,7 @@ export function CategoryTemplateDialog({
             <Label htmlFor="tpl-cat-description">Descripción (opcional)</Label>
             <Input id="tpl-cat-description" {...register('description')} />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="tpl-cat-icon">Ícono (opcional)</Label>
               <Input id="tpl-cat-icon" {...register('icon')} placeholder="ej: zap, home..." />

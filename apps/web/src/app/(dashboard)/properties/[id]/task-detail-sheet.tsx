@@ -169,7 +169,7 @@ export function TaskDetailSheet({
               )}
             </button>
             {techDescOpen && (
-              <dl className="mt-3 grid grid-cols-2 gap-4 text-sm">
+              <dl className="mt-3 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                 <div className="space-y-1">
                   <dt className="text-muted-foreground flex items-center gap-1.5">
                     <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />

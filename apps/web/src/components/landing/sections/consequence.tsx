@@ -44,7 +44,7 @@ export function ConsequenceSection({
               className="border-border bg-card rounded-xl border p-5"
             >
               <h3 className="type-title-md text-foreground">{example.problem}</h3>
-              <div className="mt-3 grid grid-cols-2 gap-3">
+              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="bg-success/5 rounded-lg px-3 py-2">
                   <p className="type-body-sm text-muted-foreground">Detectado a tiempo</p>
                   <p className="type-body-md text-success font-semibold">{example.preventive}</p>

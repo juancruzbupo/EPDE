@@ -80,7 +80,7 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
           <DialogDescription>Modificá los datos de la propiedad.</DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="edit-address">
                 Dirección <span className="text-destructive">*</span>
@@ -132,7 +132,7 @@ export function EditPropertyDialog({ open, onOpenChange, property }: EditPropert
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="edit-year" className="text-muted-foreground">
                 Año de construcción

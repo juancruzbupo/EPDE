@@ -35,12 +35,12 @@ function TaskItem({ task, showRegister }: { task: UpcomingTask; showRegister?: b
 
   return (
     <li>
-      <div className="hover:bg-accent flex items-center gap-3 rounded-lg border p-3 transition-colors">
+      <div className="hover:bg-accent flex items-start gap-2 rounded-lg border p-3 transition-colors sm:items-center sm:gap-3">
         <Link href={`/tasks?taskId=${task.id}`} className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="type-title-sm text-foreground truncate" title={task.name}>
-              {task.name}
-            </span>
+          <p className="type-title-sm text-foreground leading-snug" title={task.name}>
+            {task.name}
+          </p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             <Badge variant="outline" className="shrink-0 text-xs">
               {task.categoryName}
             </Badge>
@@ -57,8 +57,8 @@ function TaskItem({ task, showRegister }: { task: UpcomingTask; showRegister?: b
               </Badge>
             )}
           </div>
-          <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
-            <span className="max-w-[200px] truncate" title={task.propertyAddress}>
+          <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs">
+            <span className="truncate" title={task.propertyAddress}>
               {task.propertyAddress}
             </span>
             {task.sector && (

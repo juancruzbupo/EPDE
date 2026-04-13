@@ -143,7 +143,7 @@ export function TaskTemplateDialog({
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Tipo de Tarea</Label>
               <Controller
@@ -188,7 +188,7 @@ export function TaskTemplateDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Prioridad</Label>
               <Controller
@@ -233,7 +233,7 @@ export function TaskTemplateDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="tpl-task-months">Meses de recurrencia</Label>
               <Input

@@ -149,7 +149,7 @@ export function HomeStatusCard({
         {...(shouldAnimate ? { variants: FADE_IN_UP, initial: 'hidden', animate: 'visible' } : {})}
       >
         <Card className={`${theme.bg} ${theme.border}`}>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             {/* Title + label */}
             <div className="mb-1 flex items-center justify-between">
               <h2 className="type-title-lg text-foreground">{theme.title}</h2>
@@ -164,7 +164,7 @@ export function HomeStatusCard({
             {!consequence && <div className="mb-4" />}
 
             {/* Score + progress bar */}
-            <div data-tour="health-score" className="mb-4 flex items-center gap-4">
+            <div data-tour="health-score" className="mb-4 flex items-center gap-2 sm:gap-4">
               <span className={`type-number-lg ${theme.textColor}`}>
                 <AnimatedNumber value={score} />
               </span>
@@ -296,7 +296,7 @@ export function HomeStatusCard({
             )}
 
             {/* Action buttons */}
-            <div data-tour="action-buttons" className="mb-5 flex gap-3">
+            <div data-tour="action-buttons" className="mb-5 flex flex-wrap gap-2 sm:gap-3">
               <Button
                 size="sm"
                 aria-label="Ver tareas pendientes y acciones recomendadas"

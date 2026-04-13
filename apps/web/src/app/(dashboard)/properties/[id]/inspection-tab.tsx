@@ -569,7 +569,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
                 <p className="text-muted-foreground mb-2 text-xs font-semibold">
                   Imágenes de referencia
                 </p>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {guideItem.guideImageUrls.map((url, i) => (
                     <img
                       key={i}
