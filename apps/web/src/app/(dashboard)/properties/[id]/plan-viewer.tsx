@@ -127,16 +127,16 @@ function CategorySection({
                 }}
                 className="bg-card hover:bg-muted/40 w-full cursor-pointer space-y-1.5 rounded-lg border p-3 text-left transition-all active:opacity-60"
               >
-                {/* Title + status badge */}
-                <div className="flex flex-wrap items-start gap-1.5">
-                  <span className="text-sm leading-tight font-medium">{task.name}</span>
+                {/* Title + status badge — inline so badge stays with last word */}
+                <p className="text-sm leading-snug font-medium">
+                  {task.name}{' '}
                   <Badge
                     variant={TASK_STATUS_VARIANT[task.status] ?? 'secondary'}
-                    className="shrink-0 text-xs"
+                    className="relative top-[-1px] ml-0.5 inline-flex text-xs"
                   >
                     {TASK_STATUS_LABELS[task.status] ?? task.status}
                   </Badge>
-                </div>
+                </p>
 
                 {/* Metadata — plain text flow */}
                 <p className="text-muted-foreground text-xs leading-relaxed">

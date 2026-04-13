@@ -3,17 +3,15 @@
 import type { UpcomingTask } from '@epde/shared';
 import {
   formatRelativeDate,
-  PRIORITY_VARIANT,
   ProfessionalRequirement,
   RECURRENCE_TYPE_LABELS,
   TASK_PRIORITY_LABELS,
 } from '@epde/shared';
 import { motion } from 'framer-motion';
-import { Calendar, CheckCircle, ChevronRight, ClipboardCheck, Wrench } from 'lucide-react';
+import { Calendar, CheckCircle, ChevronRight, ClipboardCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { STAGGER_CONTAINER, STAGGER_ITEM, useMotionPreference } from '@/lib/motion';
@@ -37,26 +35,15 @@ function TaskItem({ task, showRegister }: { task: UpcomingTask; showRegister?: b
     <li>
       <div className="hover:bg-accent flex items-start gap-2 rounded-lg border p-3 transition-colors sm:items-center sm:gap-3">
         <Link href={`/tasks?taskId=${task.id}`} className="min-w-0 flex-1">
-          <p className="type-title-sm text-foreground leading-snug" title={task.name}>
+          <p className="text-sm leading-snug font-medium" title={task.name}>
             {task.name}
           </p>
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-            <Badge variant="outline" className="shrink-0 text-xs">
-              {task.categoryName}
-            </Badge>
-            <Badge
-              variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'}
-              className="shrink-0 text-xs"
-            >
-              {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
-            </Badge>
-            {needsPro && (
-              <Badge variant="secondary" className="shrink-0 text-xs">
-                <Wrench className="mr-1 h-3 w-3" />
-                Requiere profesional
-              </Badge>
-            )}
-          </div>
+          <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
+            {task.categoryName}
+            {' · '}
+            {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
+            {needsPro && ' · Requiere profesional'}
+          </p>
           <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
             {task.propertyAddress}
             {task.sector && ` · ${task.sector}`}
