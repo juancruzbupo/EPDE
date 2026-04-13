@@ -26,7 +26,6 @@ import Link from 'next/link';
 import { VisuallyHidden } from 'radix-ui';
 import { useState } from 'react';
 
-import { Breadcrumbs } from '@/components/breadcrumbs';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ErrorState } from '@/components/error-state';
 import { ServiceDetailTour } from '@/components/onboarding-tour';
@@ -103,27 +102,23 @@ export function ServiceRequestDetail({
 
   return (
     <div>
-      <Breadcrumbs
-        items={[{ label: 'Servicios', href: '/service-requests' }, { label: request.title }]}
-      />
+      <Link
+        href="/service-requests"
+        className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+        Solicitudes
+      </Link>
       <PageHeader
         title={request.title}
         description={`Solicitud #${request.id.slice(0, 8)}`}
         action={
-          <div className="flex gap-2">
-            {canEdit && (
-              <Button variant="outline" onClick={() => setEditOpen(true)}>
-                <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />
-                Editar
-              </Button>
-            )}
-            <Button variant="outline" asChild>
-              <Link href="/service-requests">
-                <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-                Volver
-              </Link>
+          canEdit ? (
+            <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+              <Pencil className="mr-1.5 h-4 w-4" aria-hidden="true" />
+              Editar
             </Button>
-          </div>
+          ) : undefined
         }
       />
 

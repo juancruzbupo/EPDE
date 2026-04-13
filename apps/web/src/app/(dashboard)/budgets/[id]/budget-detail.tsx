@@ -22,7 +22,6 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { Breadcrumbs } from '@/components/breadcrumbs';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ErrorState } from '@/components/error-state';
 import { BudgetTour } from '@/components/onboarding-tour';
@@ -108,19 +107,14 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs items={[{ label: 'Presupuestos', href: '/budgets' }, { label: budget.title }]} />
-      <PageHeader
-        title={budget.title}
-        description={`Solicitado por ${budget.requester.name}`}
-        action={
-          <Button variant="outline" asChild>
-            <Link href="/budgets">
-              <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-              Volver
-            </Link>
-          </Button>
-        }
-      />
+      <Link
+        href="/budgets"
+        className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+        Presupuestos
+      </Link>
+      <PageHeader title={budget.title} description={`Solicitado por ${budget.requester.name}`} />
 
       <BudgetTour />
       <Card data-tour="budget-status">
@@ -190,7 +184,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
             <CardTitle className="text-lg">Detalle de cotización</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="rounded-md border">
+            <div className="overflow-x-auto rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -267,7 +261,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
       (isClient &&
         (budget.status === BudgetStatus.PENDING || budget.status === BudgetStatus.QUOTED)) ? (
         <Card data-tour="budget-actions">
-          <CardContent className="flex gap-2 p-4">
+          <CardContent className="flex flex-wrap gap-2 p-4">
             {isClient && budget.status === BudgetStatus.PENDING && (
               <Button variant="outline" onClick={() => setEditOpen(true)}>
                 Editar
