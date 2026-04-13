@@ -3,7 +3,6 @@
 import {
   formatRelativeDate,
   PLAN_STATUS_LABELS,
-  PRIORITY_VARIANT,
   PROPERTY_SECTOR_LABELS,
   RECURRENCE_TYPE_LABELS,
   TASK_PRIORITY_LABELS,
@@ -16,7 +15,6 @@ import { CheckCircle, ChevronDown, ChevronRight, ClipboardList } from 'lucide-re
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { ErrorState } from '@/components/error-state';
-import { HelpHint } from '@/components/help-hint';
 import { PlanViewerTour } from '@/components/onboarding-tour';
 import { SearchInput } from '@/components/search-input';
 import { Badge } from '@/components/ui/badge';
@@ -127,80 +125,49 @@ function CategorySection({
                     onTaskClick(task);
                   }
                 }}
-                className="bg-card hover:bg-muted/40 w-full cursor-pointer rounded-lg border p-3 text-left transition-all active:opacity-60"
+                className="bg-card hover:bg-muted/40 w-full cursor-pointer space-y-1.5 rounded-lg border p-3 text-left transition-all active:opacity-60"
               >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-1 flex items-start gap-2">
-                      <span className="text-sm leading-tight font-medium">{task.name}</span>
-                      <Badge
-                        variant={TASK_STATUS_VARIANT[task.status] ?? 'secondary'}
-                        className="shrink-0 text-xs"
-                      >
-                        {TASK_STATUS_LABELS[task.status] ?? task.status}
-                      </Badge>
-                    </div>
-                    <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
-                      <Badge
-                        variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'}
-                        className="text-xs"
-                      >
-                        {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
-                      </Badge>
-                      {(task.riskScore ?? 0) > 0 && (
-                        <>
-                          <span className="text-muted-foreground/40">·</span>
-                          <span
-                            className={
-                              (task.riskScore ?? 0) >= 12
-                                ? 'text-destructive font-medium'
-                                : (task.riskScore ?? 0) >= 6
-                                  ? 'text-warning font-medium'
-                                  : ''
-                            }
-                          >
-                            Riesgo: {task.riskScore}
-                          </span>
-                          <HelpHint term="Índice de riesgo">
-                            Número que indica urgencia. Más alto = atender primero. Los problemas
-                            estructurales (techo, cimientos) puntúan más alto.
-                          </HelpHint>
-                        </>
-                      )}
-                      {task.sector && (
-                        <>
-                          <span className="text-muted-foreground/40">·</span>
-                          <span>{PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}</span>
-                        </>
-                      )}
-                      <span className="text-muted-foreground/40">·</span>
-                      <span>
-                        {RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}
-                      </span>
-                      <span className="text-muted-foreground/40">·</span>
-                      <span className={isOverdue ? 'text-destructive font-medium' : ''}>
-                        {task.nextDueDate
-                          ? formatRelativeDate(new Date(task.nextDueDate))
-                          : RECURRENCE_TYPE_LABELS.ON_DETECTION}
-                      </span>
-                    </div>
-                  </div>
-
-                  {canComplete(task.status) && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="shrink-0"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onComplete(task);
-                      }}
-                    >
-                      <CheckCircle className="mr-1 h-3.5 w-3.5" />
-                      Registrar inspección
-                    </Button>
-                  )}
+                {/* Title + status badge */}
+                <div className="flex flex-wrap items-start gap-1.5">
+                  <span className="text-sm leading-tight font-medium">{task.name}</span>
+                  <Badge
+                    variant={TASK_STATUS_VARIANT[task.status] ?? 'secondary'}
+                    className="shrink-0 text-xs"
+                  >
+                    {TASK_STATUS_LABELS[task.status] ?? task.status}
+                  </Badge>
                 </div>
+
+                {/* Metadata — plain text flow */}
+                <p className="text-muted-foreground text-xs leading-relaxed">
+                  {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
+                  {task.sector && ` · ${PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}`}
+                  {` · ${RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}`}
+                  {task.nextDueDate && (
+                    <>
+                      {' · '}
+                      <span className={isOverdue ? 'text-destructive font-medium' : ''}>
+                        {formatRelativeDate(new Date(task.nextDueDate))}
+                      </span>
+                    </>
+                  )}
+                </p>
+
+                {/* Action button — full width on mobile */}
+                {canComplete(task.status) && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onComplete(task);
+                    }}
+                  >
+                    <CheckCircle className="mr-1.5 h-3.5 w-3.5" />
+                    Registrar inspección
+                  </Button>
+                )}
               </div>
             );
           })}
