@@ -68,9 +68,22 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
   return (
     <div className="space-y-6">
       <div className="no-print">
-        <Breadcrumbs
-          items={[{ label: 'Propiedades', href: '/properties' }, { label: property.address }]}
-        />
+        <div className="mb-4 flex items-center justify-between">
+          <Breadcrumbs
+            items={[{ label: 'Propiedades', href: '/properties' }, { label: property.address }]}
+          />
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/properties/${id}/report`}>Informe</Link>
+            </Button>
+            {isAdmin && (
+              <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+                <Pencil className="mr-1.5 h-4 w-4" />
+                Editar
+              </Button>
+            )}
+          </div>
+        </div>
         <PageHeader
           title={property.address}
           description={[
@@ -82,19 +95,6 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
           ]
             .filter(Boolean)
             .join(' · ')}
-          action={
-            <div className="no-print flex gap-2">
-              <Button variant="outline" size="sm" asChild>
-                <Link href={`/properties/${id}/report`}>Informe</Link>
-              </Button>
-              {isAdmin && (
-                <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
-                  <Pencil className="mr-1.5 h-4 w-4" />
-                  Editar
-                </Button>
-              )}
-            </div>
-          }
         />
       </div>
 
