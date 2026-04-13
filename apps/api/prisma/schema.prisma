@@ -478,7 +478,7 @@ model ServiceRequest {
   description String         @db.VarChar(2000)
   urgency          ServiceUrgency @default(MEDIUM)
   status           ServiceStatus  @default(OPEN)
-  assignedToName   String?        @db.VarChar(200)
+  assignedToName   String?        @db.VarChar(200) /// Dormant — not used in UI. Future: replace with assignedToId FK.
   firstResponseAt  DateTime?
   resolvedAt       DateTime?
   createdBy        String?

@@ -79,6 +79,7 @@ export class PushService {
           Accept: 'application/json',
         },
         body: JSON.stringify(messages),
+        signal: AbortSignal.timeout(5_000), // 5s — prevent hanging Node threads
       });
 
       if (!response.ok) {

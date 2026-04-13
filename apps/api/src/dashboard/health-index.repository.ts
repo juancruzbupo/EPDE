@@ -3,6 +3,7 @@ import { Injectable, Logger, Optional } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { createHash } from 'crypto';
 import { addDays, format, startOfMonth, subMonths } from 'date-fns';
+import { z } from 'zod';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
@@ -33,6 +34,20 @@ export class HealthIndexRepository {
   private readonly logger = new Logger(HealthIndexRepository.name);
   private static readonly CACHE_TTL = 6 * 60 * 60; // 6 hours
 
+  /** Zod schema for health index cache entries — prevents serving stale/corrupt shapes. */
+  private static readonly HealthResultSchema = z.object({
+    score: z.number(),
+    label: z.string(),
+    dimensions: z.object({
+      compliance: z.number(),
+      condition: z.number(),
+      coverage: z.number(),
+      investment: z.number(),
+      trend: z.number(),
+    }),
+    sectorScores: z.array(z.object({ sector: z.string(), score: z.number(), overdue: z.number() })),
+  });
+
   constructor(
     private readonly prisma: PrismaService,
     @Optional() private readonly redisService?: RedisService,
@@ -61,7 +76,12 @@ export class HealthIndexRepository {
     if (this.redisService) {
       try {
         const cached = await this.redisService.get(this.healthCacheKey(planIds));
-        if (cached) return JSON.parse(cached);
+        if (cached) {
+          const parsed = HealthIndexRepository.HealthResultSchema.safeParse(JSON.parse(cached));
+          if (parsed.success) return parsed.data;
+          // Shape mismatch after deploy — fall through and recompute
+          this.logger.warn('Health index cache shape mismatch — recomputing');
+        }
       } catch {
         // Cache miss or Redis unavailable — compute fresh
       }
@@ -177,9 +197,19 @@ export class HealthIndexRepository {
       try {
         const cached = await this.redisService.get(batchCacheKey);
         if (cached) {
-          const parsed = JSON.parse(cached) as Array<[string, HealthResult]>;
-          for (const [k, v] of parsed) result.set(k, v);
-          return result;
+          const entries = JSON.parse(cached) as Array<[string, unknown]>;
+          let valid = true;
+          for (const [k, v] of entries) {
+            const check = HealthIndexRepository.HealthResultSchema.safeParse(v);
+            if (!check.success) {
+              valid = false;
+              break;
+            }
+            result.set(k, check.data);
+          }
+          if (valid && result.size > 0) return result;
+          result.clear();
+          this.logger.warn('Health batch cache shape mismatch — recomputing');
         }
       } catch {
         // Cache miss or Redis unavailable — compute fresh

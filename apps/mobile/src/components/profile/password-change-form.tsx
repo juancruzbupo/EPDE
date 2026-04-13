@@ -36,6 +36,7 @@ export const PasswordChangeForm = React.memo(function PasswordChangeForm({
             Contraseña actual *
           </Text>
           <TextInput
+            accessibilityLabel="Contraseña actual"
             value={currentPassword}
             onChangeText={onCurrentPasswordChange}
             placeholder="Contraseña actual"
@@ -51,6 +52,7 @@ export const PasswordChangeForm = React.memo(function PasswordChangeForm({
             Nueva contraseña *
           </Text>
           <TextInput
+            accessibilityLabel="Nueva contraseña"
             value={newPassword}
             onChangeText={onNewPasswordChange}
             placeholder="Mín. 8, mayúscula, minúscula, número"
@@ -66,6 +68,7 @@ export const PasswordChangeForm = React.memo(function PasswordChangeForm({
             Confirmar contraseña *
           </Text>
           <TextInput
+            accessibilityLabel="Confirmar nueva contraseña"
             value={confirmPassword}
             onChangeText={onConfirmPasswordChange}
             placeholder="Repetir nueva contraseña"
@@ -80,8 +83,10 @@ export const PasswordChangeForm = React.memo(function PasswordChangeForm({
           onPress={onSubmit}
           disabled={isChangingPassword}
           className="bg-primary items-center rounded-lg py-2.5"
+          style={{ opacity: isChangingPassword ? 0.5 : 1 }}
           accessibilityLabel="Cambiar contraseña"
           accessibilityRole="button"
+          accessibilityState={{ disabled: isChangingPassword }}
         >
           {isChangingPassword ? (
             <ActivityIndicator color={COLORS.primaryForeground} size="small" />

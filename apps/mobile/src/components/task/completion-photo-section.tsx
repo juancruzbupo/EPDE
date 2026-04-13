@@ -48,12 +48,12 @@ export const CompletionPhotoSection = React.memo(function CompletionPhotoSection
             {uploadFailed && !isUploading && (
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Reintentar subida de foto"
+                accessibilityLabel="Error al subir foto. Toca para reintentar"
                 onPress={onRetryUpload}
                 className="absolute inset-0 h-40 w-40 items-center justify-center rounded-xl bg-black/50"
               >
                 <Text style={TYPE.labelMd} className="text-white">
-                  Reintentar
+                  Error. Reintentar
                 </Text>
               </Pressable>
             )}

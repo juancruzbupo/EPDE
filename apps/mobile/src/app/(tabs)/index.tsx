@@ -1,7 +1,7 @@
 import { DAILY_TIPS, formatRelativeDate, UserRole, WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
 import { useRouter } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
-import { Linking, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, Linking, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 
 import { ActionList } from '@/components/action-list';
 import { AnalyticsSection } from '@/components/analytics-section';
@@ -105,6 +105,25 @@ function ClientDashboard() {
     refetchTasks();
     refetchAnalytics();
   }, [refetchStats, refetchTasks, refetchAnalytics]);
+
+  // Notify when a refresh fails but cached data is still shown (m7)
+  const wasRefreshingRef = useRef(false);
+  useEffect(() => {
+    if (isLoading) {
+      wasRefreshingRef.current = true;
+    } else if (wasRefreshingRef.current) {
+      wasRefreshingRef.current = false;
+      const hasCachedData = !!stats || !!tasks;
+      if ((statsError || tasksError) && hasCachedData) {
+        Alert.alert(
+          'Sin conexión',
+          'No se pudo actualizar. Mostrando datos guardados.',
+          [{ text: 'OK' }],
+          { cancelable: true },
+        );
+      }
+    }
+  }, [isLoading, statsError, tasksError, stats, tasks]);
 
   // Show welcome card until client has properties with active tasks
   const hasTasks =

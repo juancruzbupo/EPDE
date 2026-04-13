@@ -47,24 +47,37 @@ export class BudgetExpirationService {
             const count = await this.budgetsRepository.expireBudgets(ids);
             if (signal.lockLost) return;
 
-            // Log audit entries for each expired budget
-            for (const budget of expiredBudgets) {
-              void this.auditLogRepository.createAuditLog(
-                budget.id,
-                budget.requestedBy,
-                'expired',
-                { status: BudgetStatus.QUOTED },
-                { status: BudgetStatus.EXPIRED },
-              );
-
-              void this.notificationsHandler.handleBudgetStatusChanged({
-                budgetId: budget.id,
-                title: budget.title,
-                oldStatus: BudgetStatus.QUOTED,
-                newStatus: BudgetStatus.EXPIRED,
-                requesterId: budget.requestedBy,
-              });
-            }
+            // Audit + notifications — parallel, errors logged but never blocking
+            await Promise.allSettled(
+              expiredBudgets.flatMap((budget) => [
+                this.auditLogRepository
+                  .createAuditLog(
+                    budget.id,
+                    budget.requestedBy,
+                    'expired',
+                    { status: BudgetStatus.QUOTED },
+                    { status: BudgetStatus.EXPIRED },
+                  )
+                  .catch((err) =>
+                    this.logger.error(
+                      `Audit log failed for budget ${budget.id}: ${(err as Error).message}`,
+                    ),
+                  ),
+                this.notificationsHandler
+                  .handleBudgetStatusChanged({
+                    budgetId: budget.id,
+                    title: budget.title,
+                    oldStatus: BudgetStatus.QUOTED,
+                    newStatus: BudgetStatus.EXPIRED,
+                    requesterId: budget.requestedBy,
+                  })
+                  .catch((err) =>
+                    this.logger.error(
+                      `Notification failed for budget ${budget.id}: ${(err as Error).message}`,
+                    ),
+                  ),
+              ]),
+            );
 
             this.logger.log(`Budget expiration complete: ${count} budgets expired`);
           }),

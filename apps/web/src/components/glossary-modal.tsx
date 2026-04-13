@@ -56,6 +56,7 @@ export function GlossaryButton() {
           </DialogDescription>
         </DialogHeader>
         <Input
+          aria-label="Buscar términos del glosario"
           placeholder="Buscar término..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}

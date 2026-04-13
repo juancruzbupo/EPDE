@@ -78,9 +78,9 @@ export function Sidebar({
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4">
-        <h2 className="font-heading text-sidebar-primary text-xl font-bold">
+        <span className="font-heading text-sidebar-primary text-xl font-bold" aria-label="EPDE">
           {collapsed ? 'E' : 'EPDE'}
-        </h2>
+        </span>
         {!hideCollapse && (
           <button
             onClick={() => setCollapsed(!collapsed)}

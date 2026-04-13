@@ -28,7 +28,11 @@ export class SubscriptionReminderService {
     private readonly notificationsRepository: NotificationsRepository,
   ) {}
 
-  @Cron('0 9 * * *', { name: 'subscription-reminder' })
+  /**
+   * Runs at 09:15 UTC (not 09:00) to avoid simultaneous DB load with
+   * task-status-recalculation which also fires at 09:00 UTC.
+   */
+  @Cron('15 9 * * *', { name: 'subscription-reminder' })
   async checkExpiringSubscriptions(): Promise<void> {
     const start = Date.now();
     try {
@@ -77,7 +81,7 @@ export class SubscriptionReminderService {
               this.logger.log(`Sent ${totalReminders} subscription reminders`);
             }
           }),
-        { schedule: { type: 'crontab', value: '0 9 * * *' } },
+        { schedule: { type: 'crontab', value: '15 9 * * *' } },
       );
     } catch (error) {
       this.logger.error(`Cron failed: ${(error as Error).message}`, (error as Error).stack);

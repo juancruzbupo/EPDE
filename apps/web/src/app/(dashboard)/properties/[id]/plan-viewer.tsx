@@ -302,11 +302,12 @@ export function PlanViewer({ planId, propertyId, highlightTaskId }: PlanViewerPr
                     <button
                       key={opt.value}
                       onClick={() => setPriority(opt.value)}
+                      aria-pressed={priority === opt.value}
                       className={cn(
-                        'rounded-full px-3 py-1 text-xs font-medium transition-colors',
+                        'min-h-[44px] rounded-full px-3 py-1 text-xs font-medium transition-colors',
                         priority === opt.value
                           ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted text-muted-foreground hover:bg-muted/80',
+                          : 'bg-muted text-foreground hover:bg-muted/80',
                       )}
                     >
                       {opt.label}

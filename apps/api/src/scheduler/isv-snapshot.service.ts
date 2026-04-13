@@ -54,6 +54,12 @@ export class ISVSnapshotService {
 
             const eligible = properties.filter((p) => p.maintenancePlan);
 
+            // Pre-load previous snapshots in one batch query to avoid N+1 inside the loop
+            const previousSnapshotsMap = await this.isvRepository.findPreviousForProperties(
+              eligible.map((p) => p.id),
+              snapshotDate,
+            );
+
             for (let i = 0; i < eligible.length; i += BATCH_SIZE) {
               if (signal.lockLost) return;
 
@@ -80,8 +86,8 @@ export class ISVSnapshotService {
                     sectorScores: index.sectorScores,
                   });
 
-                  // Check for significant drop
-                  const previous = await this.isvRepository.findPrevious(prop.id, snapshotDate);
+                  // Check for significant drop — uses pre-loaded map (no extra query per property)
+                  const previous = previousSnapshotsMap.get(prop.id) ?? null;
                   let alerted = false;
                   if (previous && previous.score - index.score >= 15) {
                     void this.notificationsHandler.handleISVAlert({

@@ -46,6 +46,30 @@ export class ISVSnapshotRepository {
     });
   }
 
+  /**
+   * Batch-load the most recent snapshot before `beforeDate` for multiple properties.
+   * Returns a Map<propertyId, { score }> — O(1) lookup in the caller.
+   * Use this instead of calling findPrevious() in a loop (avoids N+1).
+   */
+  async findPreviousForProperties(
+    propertyIds: string[],
+    beforeDate: Date,
+  ): Promise<Map<string, { score: number }>> {
+    if (propertyIds.length === 0) return new Map();
+
+    const snapshots = await this.prisma.iSVSnapshot.findMany({
+      where: {
+        propertyId: { in: propertyIds },
+        snapshotDate: { lt: beforeDate },
+      },
+      orderBy: { snapshotDate: 'desc' },
+      distinct: ['propertyId'],
+      select: { propertyId: true, score: true },
+    });
+
+    return new Map(snapshots.map((s) => [s.propertyId, { score: s.score }]));
+  }
+
   /** Get the latest snapshot per property (for table column). */
   async findLatestForProperties(propertyIds: string[]) {
     if (propertyIds.length === 0) return [];

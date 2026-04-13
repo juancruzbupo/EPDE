@@ -69,6 +69,7 @@ export function CollapsibleSection({
         style={{ minHeight: 44 }}
         accessibilityRole="button"
         accessibilityLabel={title}
+        accessibilityHint={open ? 'Toca para colapsar' : 'Toca para expandir'}
         accessibilityState={{ expanded: open }}
       >
         <View className="flex-row items-center gap-2">

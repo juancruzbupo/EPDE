@@ -68,6 +68,20 @@ export abstract class BaseRepository<
     protected readonly hasSoftDelete: boolean = false,
   ) {}
 
+  /**
+   * Returns the Prisma model accessor.
+   *
+   * When `hasSoftDelete=true`, uses `prisma.softDelete.{model}` which appends
+   * `{ deletedAt: null }` to every `findMany`/`findFirst`/`findUnique` query.
+   *
+   * ⚠️ **Soft-delete does NOT cascade into nested `include` clauses.**
+   * Any nested relation loaded via `include: { task: true }` will return ALL
+   * records including soft-deleted ones. Always add `where: { deletedAt: null }`
+   * manually on nested includes or on `_count.select` fields:
+   * ```ts
+   * include: { _count: { select: { tasks: { where: { deletedAt: null } } } } }
+   * ```
+   */
   protected get model() {
     if (this.hasSoftDelete) {
       // Dynamic access — Prisma typed client doesn't support string-keyed model access

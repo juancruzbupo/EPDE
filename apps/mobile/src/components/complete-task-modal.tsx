@@ -255,6 +255,16 @@ export function CompleteTaskModal({
             disabled={
               !canSubmit || isSubmitting || isUploading || (photoUri !== null && !uploadedUrl)
             }
+            style={{
+              opacity:
+                !canSubmit || isSubmitting || isUploading || (photoUri !== null && !uploadedUrl)
+                  ? 0.4
+                  : 1,
+            }}
+            accessibilityState={{
+              disabled:
+                !canSubmit || isSubmitting || isUploading || (photoUri !== null && !uploadedUrl),
+            }}
           >
             <Text
               style={TYPE.titleMd}

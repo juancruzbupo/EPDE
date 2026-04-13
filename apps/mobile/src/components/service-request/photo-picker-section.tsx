@@ -41,8 +41,13 @@ export const PhotoPickerSection = React.memo(function PhotoPickerSection({
               className="h-24 w-24 rounded-xl"
             />
             {!photo.uploadedUrl && (
-              <View className="absolute inset-0 h-24 w-24 items-center justify-center rounded-xl bg-black/40">
+              <View
+                className="absolute inset-0 h-24 w-24 items-center justify-center rounded-xl bg-black/40"
+                accessibilityLabel="Subiendo foto"
+                accessibilityLiveRegion="polite"
+              >
                 <ActivityIndicator color="white" />
+                <Text style={{ color: 'white', fontSize: 10, marginTop: 4 }}>Subiendo...</Text>
               </View>
             )}
             <Pressable

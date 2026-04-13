@@ -70,6 +70,7 @@ export function TextInputModal({
                 {title}
               </Text>
               <TextInput
+                accessibilityLabel={title}
                 style={TYPE.bodyMd}
                 className="border-border text-foreground mb-4 rounded-lg border px-3 py-2.5"
                 placeholder={placeholder}

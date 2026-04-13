@@ -80,6 +80,7 @@ export const CategoryFilter = React.memo(function CategoryFilter({
     >
       <Pressable
         accessibilityRole="radio"
+        accessibilityLabel="Filtrar por todas las categorías"
         accessibilityState={{ selected: !categoryFilter }}
         onPress={() => {
           haptics.selection();
@@ -99,6 +100,7 @@ export const CategoryFilter = React.memo(function CategoryFilter({
         <Pressable
           key={c.key}
           accessibilityRole="radio"
+          accessibilityLabel={`Filtrar por ${c.label}`}
           accessibilityState={{ selected: categoryFilter === c.key }}
           onPress={() => {
             haptics.selection();

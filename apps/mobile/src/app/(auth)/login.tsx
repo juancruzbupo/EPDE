@@ -73,6 +73,7 @@ export default function LoginScreen() {
             name="email"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
+                accessibilityLabel="Email"
                 className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3"
                 style={TYPE.bodyLg}
                 placeholder="tu@email.com"
@@ -87,7 +88,7 @@ export default function LoginScreen() {
             )}
           />
           {errors.email && (
-            <Text className="text-destructive mb-2 text-xs">{errors.email.message}</Text>
+            <Text className="text-destructive mb-2 text-sm">{errors.email.message}</Text>
           )}
 
           <Text style={TYPE.labelLg} className="text-foreground mt-3 mb-1.5">
@@ -99,6 +100,7 @@ export default function LoginScreen() {
             render={({ field: { onChange, onBlur, value } }) => (
               <View className="relative">
                 <TextInput
+                  accessibilityLabel="Contraseña"
                   className="bg-background border-border text-foreground mb-1 rounded-lg border px-4 py-3 pr-12"
                   style={TYPE.bodyLg}
                   placeholder="••••••"
@@ -123,7 +125,7 @@ export default function LoginScreen() {
             )}
           />
           {errors.password && (
-            <Text className="text-destructive mb-2 text-xs">{errors.password.message}</Text>
+            <Text className="text-destructive mb-2 text-sm">{errors.password.message}</Text>
           )}
 
           <Pressable

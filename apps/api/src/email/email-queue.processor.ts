@@ -50,7 +50,7 @@ export type EmailJobData =
   | { type: 'anniversary'; to: string; name: string; taskCount: number };
 
 @Processor(EMAIL_QUEUE, {
-  concurrency: 10,
+  concurrency: 5, // Reduced from 10 — SendGrid rate limit ~600 req/min; weekly-summary + anniversary can overlap on Mondays
   drainDelay: 30,
   stalledInterval: 30_000,
 })
