@@ -21,7 +21,11 @@ export class EmailQueueService {
     await this.emailQueue.add(
       'invite',
       { type: 'invite', to, name, token },
-      { jobId: `invite:${to}:${token.slice(-8)}` },
+      {
+        jobId: `invite:${to}:${token.slice(-8)}`,
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 2000 },
+      },
     );
     this.logger.log(`Enqueued invite email for ${maskEmail(to)}`);
   }
@@ -30,7 +34,11 @@ export class EmailQueueService {
     await this.emailQueue.add(
       'passwordReset',
       { type: 'passwordReset', to, name, token },
-      { jobId: `passwordReset:${to}:${token.slice(-8)}` },
+      {
+        jobId: `passwordReset:${to}:${token.slice(-8)}`,
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 2000 },
+      },
     );
     this.logger.log(`Enqueued password reset email for ${maskEmail(to)}`);
   }
@@ -58,7 +66,11 @@ export class EmailQueueService {
         categoryName: opts.categoryName,
         isOverdue: opts.isOverdue,
       },
-      { jobId: `taskReminder:${opts.to}:${opts.taskId}:${dueDateStr}` },
+      {
+        jobId: `taskReminder:${opts.to}:${opts.taskId}:${dueDateStr}`,
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 2000 },
+      },
     );
     this.logger.log(`Enqueued task reminder email for ${maskEmail(opts.to)}`);
   }
@@ -80,7 +92,11 @@ export class EmailQueueService {
         totalAmount,
         budgetId,
       },
-      { jobId: `budgetQuoted:${to}:${budgetId}` },
+      {
+        jobId: `budgetQuoted:${to}:${budgetId}`,
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 2000 },
+      },
     );
     this.logger.log(`Enqueued budget quoted email for ${maskEmail(to)}`);
   }
@@ -102,7 +118,11 @@ export class EmailQueueService {
         newStatus,
         budgetId,
       },
-      { jobId: `budgetStatus:${to}:${budgetId}:${newStatus}` },
+      {
+        jobId: `budgetStatus:${to}:${budgetId}:${newStatus}`,
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 2000 },
+      },
     );
     this.logger.log(`Enqueued budget status email for ${maskEmail(to)}`);
   }
@@ -121,7 +141,11 @@ export class EmailQueueService {
     await this.emailQueue.add(
       'weeklySummary',
       { type: 'weeklySummary' as const, ...opts },
-      { jobId: `weeklySummary:${opts.to}:${new Date().toISOString().slice(0, 10)}` },
+      {
+        jobId: `weeklySummary:${opts.to}:${new Date().toISOString().slice(0, 10)}`,
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 2000 },
+      },
     );
     this.logger.log(`Enqueued weekly summary email for ${maskEmail(opts.to)}`);
   }
@@ -130,7 +154,11 @@ export class EmailQueueService {
     await this.emailQueue.add(
       'anniversary',
       { type: 'anniversary' as const, ...opts },
-      { jobId: `anniversary:${opts.to}:${new Date().toISOString().slice(0, 10)}` },
+      {
+        jobId: `anniversary:${opts.to}:${new Date().toISOString().slice(0, 10)}`,
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 2000 },
+      },
     );
     this.logger.log(`Enqueued anniversary email for ${maskEmail(opts.to)}`);
   }

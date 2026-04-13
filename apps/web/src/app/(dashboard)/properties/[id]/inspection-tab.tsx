@@ -628,22 +628,22 @@ function InspectionGuideContent({ description }: { description: string }) {
       <p className="text-foreground text-sm leading-relaxed">{mainText}</p>
 
       {attentionMatch?.[1] && (
-        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3 dark:border-yellow-800 dark:bg-yellow-950/30">
-          <p className="text-xs font-semibold text-yellow-800 dark:text-yellow-200">
+        <div className="border-warning/30 bg-warning/10 rounded-lg border p-3">
+          <p className="type-label-sm text-warning font-semibold">
             ⚠️ Marcar &quot;Necesita atención&quot; si:
           </p>
-          <p className="mt-1 text-sm text-yellow-700 dark:text-yellow-300">
+          <p className="type-body-sm text-warning/90 mt-1">
             {attentionMatch[1].trim().replace(/\.\s*$/, '')}
           </p>
         </div>
       )}
 
       {professionalMatch?.[1] && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-950/30">
-          <p className="text-xs font-semibold text-red-800 dark:text-red-200">
+        <div className="border-destructive/30 bg-destructive/10 rounded-lg border p-3">
+          <p className="type-label-sm text-destructive font-semibold">
             🔴 Marcar &quot;Requiere profesional&quot; si:
           </p>
-          <p className="mt-1 text-sm text-red-700 dark:text-red-300">
+          <p className="type-body-sm text-destructive/90 mt-1">
             {professionalMatch[1].trim().replace(/\.\s*$/, '')}
           </p>
         </div>

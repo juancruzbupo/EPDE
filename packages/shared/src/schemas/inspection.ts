@@ -1,13 +1,6 @@
 import { z } from 'zod';
 
-import { PROPERTY_SECTOR_VALUES } from '../types/enums';
-
-const INSPECTION_ITEM_STATUS_VALUES = [
-  'PENDING',
-  'OK',
-  'NEEDS_ATTENTION',
-  'NEEDS_PROFESSIONAL',
-] as const;
+import { INSPECTION_ITEM_STATUS_VALUES, PROPERTY_SECTOR_VALUES } from '../types/enums';
 
 export const createInspectionSchema = z.object({
   propertyId: z.string().uuid(),

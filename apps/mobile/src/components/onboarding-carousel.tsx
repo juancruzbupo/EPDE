@@ -165,7 +165,7 @@ export const OnboardingCarousel = memo(function OnboardingCarousel({
           accessibilityRole="button"
           accessibilityLabel={isLast ? 'Empezar' : 'Siguiente'}
           onPress={handleNext}
-          className="w-full items-center rounded-xl py-4"
+          className="w-full items-center rounded-xl py-4 active:opacity-80"
           style={{ backgroundColor: COLORS.primary }}
         >
           <Text style={TYPE.titleMd} className="text-white">

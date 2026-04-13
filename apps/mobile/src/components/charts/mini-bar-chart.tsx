@@ -118,7 +118,7 @@ export const MiniBarChart = memo(function MiniBarChart({ data, height = 150 }: M
               y={height - 4}
               textAnchor="middle"
               fill={COLORS.mutedForeground}
-              fontSize={10}
+              fontSize={12}
               fontFamily="DMSans_500Medium"
             >
               {d.label}

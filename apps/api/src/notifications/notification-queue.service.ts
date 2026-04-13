@@ -25,14 +25,20 @@ export class NotificationQueueService {
   constructor(@InjectQueue(NOTIFICATION_QUEUE) private readonly notificationQueue: Queue) {}
 
   async enqueue(data: NotificationJobData): Promise<void> {
-    await this.notificationQueue.add('single', data);
+    await this.notificationQueue.add('single', data, {
+      attempts: 3,
+      backoff: { type: 'exponential', delay: 2000 },
+    });
     this.logger.log(`Enqueued notification for user ${data.userId} (${data.type})`);
   }
 
   async enqueueBatch(notifications: NotificationJobData[]): Promise<void> {
     if (notifications.length === 0) return;
     const data: NotificationBatchJobData = { notifications };
-    await this.notificationQueue.add('batch', data);
+    await this.notificationQueue.add('batch', data, {
+      attempts: 3,
+      backoff: { type: 'exponential', delay: 2000 },
+    });
     this.logger.log(`Enqueued batch of ${notifications.length} notifications`);
   }
 }

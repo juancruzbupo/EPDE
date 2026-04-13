@@ -394,8 +394,8 @@ export function CompleteTaskDialog({
                       <X className="h-3 w-3" />
                     </button>
                     {uploadFile.isPending && (
-                      <div className="absolute inset-0 flex items-center justify-center rounded-md bg-black/40">
-                        <Loader2 className="h-6 w-6 animate-spin text-white" />
+                      <div className="bg-foreground/40 absolute inset-0 flex items-center justify-center rounded-md">
+                        <Loader2 className="text-background h-6 w-6 animate-spin" />
                       </div>
                     )}
                   </div>

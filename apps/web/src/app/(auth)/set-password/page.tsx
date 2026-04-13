@@ -67,7 +67,7 @@ function SetPasswordForm() {
       </CardHeader>
       <CardContent>
         {!hasToken ? (
-          <p role="alert" className="text-destructive text-center text-sm">
+          <p role="alert" className="text-destructive type-label-sm text-center">
             Token no proporcionado. Verificá el enlace de invitación.
           </p>
         ) : (
@@ -95,11 +95,11 @@ function SetPasswordForm() {
                 </button>
               </div>
               {errors.newPassword && (
-                <p id="newPassword-error" role="alert" className="text-destructive text-sm">
+                <p id="newPassword-error" role="alert" className="text-destructive type-label-sm">
                   {errors.newPassword.message}
                 </p>
               )}
-              <ul className="text-muted-foreground space-y-1 text-sm">
+              <ul className="text-muted-foreground type-body-sm space-y-1">
                 <li>Mínimo 8 caracteres</li>
                 <li>Al menos una mayúscula</li>
                 <li>Al menos una minúscula</li>
@@ -133,14 +133,18 @@ function SetPasswordForm() {
                 </button>
               </div>
               {errors.confirmPassword && (
-                <p id="confirmPassword-error" role="alert" className="text-destructive text-sm">
+                <p
+                  id="confirmPassword-error"
+                  role="alert"
+                  className="text-destructive type-label-sm"
+                >
                   {errors.confirmPassword.message}
                 </p>
               )}
             </div>
 
             {error && (
-              <p role="alert" className="text-destructive text-center text-sm">
+              <p role="alert" className="text-destructive type-label-sm text-center">
                 {error}
               </p>
             )}

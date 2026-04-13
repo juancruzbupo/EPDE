@@ -195,9 +195,7 @@ export function GuideEditorSection({
 
                 <div className="grid grid-cols-1 gap-2">
                   <div className="space-y-1">
-                    <Label className="text-xs text-green-700 dark:text-green-400">
-                      ✅ Criterio OK
-                    </Label>
+                    <Label className="type-label-sm text-success">✅ Criterio OK</Label>
                     <input
                       value={fields.criteriaOk}
                       onChange={(e) => updateField('criteriaOk', e.target.value)}
@@ -206,7 +204,7 @@ export function GuideEditorSection({
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs text-yellow-700 dark:text-yellow-400">
+                    <Label className="type-label-sm text-warning">
                       ⚠️ Criterio Necesita atención
                     </Label>
                     <input
@@ -217,7 +215,7 @@ export function GuideEditorSection({
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs text-red-700 dark:text-red-400">
+                    <Label className="type-label-sm text-destructive">
                       🔴 Criterio Requiere profesional
                     </Label>
                     <input

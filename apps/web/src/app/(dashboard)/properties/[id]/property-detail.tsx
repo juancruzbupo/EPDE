@@ -91,7 +91,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
                 aria-label="Copiar dirección"
               >
                 {addressCopied ? (
-                  <Check className="h-4 w-4 text-green-500" />
+                  <Check className="text-success h-4 w-4" />
                 ) : (
                   <Copy className="h-4 w-4" />
                 )}

@@ -240,7 +240,7 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
                     <span className="text-muted-foreground type-label-sm mt-1">
                       {s.month.slice(5)}
                     </span>
-                    <div className="type-label-sm pointer-events-none absolute -top-6 hidden rounded bg-black/80 px-1.5 py-0.5 text-white group-hover:block">
+                    <div className="type-label-sm bg-foreground text-background pointer-events-none absolute -top-6 hidden rounded px-1.5 py-0.5 group-hover:block">
                       {s.score}
                     </div>
                   </div>

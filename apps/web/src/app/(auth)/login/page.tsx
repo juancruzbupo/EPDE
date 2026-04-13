@@ -68,7 +68,7 @@ export default function LoginPage() {
               {...register('email')}
             />
             {errors.email && (
-              <p id="email-error" role="alert" className="text-destructive text-sm">
+              <p id="email-error" role="alert" className="text-destructive type-label-sm">
                 {errors.email.message}
               </p>
             )}
@@ -98,14 +98,14 @@ export default function LoginPage() {
               </button>
             </div>
             {errors.password && (
-              <p id="password-error" role="alert" className="text-destructive text-sm">
+              <p id="password-error" role="alert" className="text-destructive type-label-sm">
                 {errors.password.message}
               </p>
             )}
           </div>
 
           <div className="flex justify-end">
-            <Link href="/forgot-password" className="text-primary text-sm hover:underline">
+            <Link href="/forgot-password" className="text-primary type-body-sm hover:underline">
               ¿Olvidaste tu contraseña?
             </Link>
           </div>

@@ -123,7 +123,7 @@ const ActionTaskCard = memo(function ActionTaskCard({
               accessibilityRole="button"
               accessibilityLabel={`Registrar inspección de ${task.name}`}
               onPress={handleRegister}
-              className="bg-destructive rounded-lg px-3 py-1.5"
+              className="bg-destructive rounded-lg px-3 py-1.5 active:opacity-80"
             >
               <Text style={TYPE.labelSm} className="text-destructive-foreground">
                 Registrar

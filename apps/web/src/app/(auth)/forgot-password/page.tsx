@@ -50,10 +50,10 @@ export default function ForgotPasswordPage() {
       <CardContent>
         {submitted ? (
           <div className="space-y-4 text-center">
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground type-body-sm">
               Si el email está registrado, recibirás instrucciones para restablecer tu contraseña.
             </p>
-            <Link href="/login" className="text-primary text-sm hover:underline">
+            <Link href="/login" className="text-primary type-body-sm hover:underline">
               Volver al inicio de sesión
             </Link>
           </div>
@@ -69,7 +69,7 @@ export default function ForgotPasswordPage() {
                 {...register('email')}
               />
               {errors.email && (
-                <p id="email-error" role="alert" className="text-destructive text-sm">
+                <p id="email-error" role="alert" className="text-destructive type-label-sm">
                   {errors.email.message}
                 </p>
               )}
@@ -86,7 +86,7 @@ export default function ForgotPasswordPage() {
             </Button>
 
             <p className="text-center">
-              <Link href="/login" className="text-primary text-sm hover:underline">
+              <Link href="/login" className="text-primary type-body-sm hover:underline">
                 Volver al inicio de sesión
               </Link>
             </p>

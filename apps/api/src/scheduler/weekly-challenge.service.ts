@@ -52,7 +52,7 @@ export class WeeklyChallengeService {
       await Sentry.withMonitor(
         'weekly-challenge-generate',
         () =>
-          this.lockService.withLock('cron:weekly-challenge', 300, async (signal) => {
+          this.lockService.withLock('cron:weekly-challenge-generate', 300, async (signal) => {
             this.logger.log('Generating weekly challenges...');
 
             const weekStart = this.getWeekStart();

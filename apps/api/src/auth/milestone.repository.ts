@@ -3,6 +3,15 @@ import { UserMilestone } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 
+/**
+ * MilestoneRepository
+ *
+ * Intentionally bypasses BaseRepository because:
+ * 1. No pagination — milestone queries are always full-set per user (findMany without cursor).
+ * 2. No soft-delete — UserMilestone has no deletedAt; milestones are permanent once earned.
+ * 3. No complex transactions — operations are simple createMany (skipDuplicates) + findMany.
+ * BaseRepository's generic interface adds no value here; direct PrismaService access is cleaner.
+ */
 @Injectable()
 export class MilestoneRepository {
   constructor(private readonly prisma: PrismaService) {}

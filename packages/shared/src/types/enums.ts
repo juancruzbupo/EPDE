@@ -182,6 +182,16 @@ export const PropertySector = {
 } as const;
 export type PropertySector = (typeof PropertySector)[keyof typeof PropertySector];
 
+// ─── Inspection ───────────────────────────────────────────
+
+export const InspectionItemStatus = {
+  PENDING: 'PENDING',
+  OK: 'OK',
+  NEEDS_ATTENTION: 'NEEDS_ATTENTION',
+  NEEDS_PROFESSIONAL: 'NEEDS_PROFESSIONAL',
+} as const;
+export type InspectionItemStatus = (typeof InspectionItemStatus)[keyof typeof InspectionItemStatus];
+
 // ─── Enum Value Arrays (for Zod schemas) ─────────────────
 
 export const TASK_TYPE_VALUES = Object.values(TaskType) as [TaskType, ...TaskType[]];
@@ -237,4 +247,8 @@ export const PROPERTY_SECTOR_VALUES = Object.values(PropertySector) as [
 export const ACTIVITY_TYPE_VALUES = Object.values(ActivityType) as [
   ActivityType,
   ...ActivityType[],
+];
+export const INSPECTION_ITEM_STATUS_VALUES = Object.values(InspectionItemStatus) as [
+  InspectionItemStatus,
+  ...InspectionItemStatus[],
 ];

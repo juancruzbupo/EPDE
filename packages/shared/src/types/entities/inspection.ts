@@ -1,6 +1,7 @@
 import type { PropertySector } from '../enums';
 
-export type InspectionItemStatus = 'PENDING' | 'OK' | 'NEEDS_ATTENTION' | 'NEEDS_PROFESSIONAL';
+// Derived from the canonical enum in enums.ts — do not redeclare as union here
+export type { InspectionItemStatus } from '../enums';
 
 export interface InspectionItem {
   id: string;
