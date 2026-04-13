@@ -117,8 +117,8 @@ export function Sidebar({ className }: { className?: string }) {
         })}
       </nav>
 
-      {/* Help link — pinned to bottom */}
-      <div className="border-border border-t px-2 py-2">
+      {/* Footer — help + user info */}
+      <div className="border-border space-y-1 border-t px-2 py-2">
         <Link
           href="/guide"
           aria-label="Guía de uso"
@@ -132,6 +132,22 @@ export function Sidebar({ className }: { className?: string }) {
           <HelpCircle className="h-4 w-4 shrink-0" />
           {!collapsed && <span>Guía de uso</span>}
         </Link>
+
+        {/* User info — visible when expanded */}
+        {!collapsed && user && (
+          <Link
+            href="/profile"
+            className="text-sidebar-foreground/70 hover:bg-sidebar-accent/50 flex items-center gap-3 rounded-md px-3 py-2 transition-colors"
+          >
+            <div className="bg-sidebar-accent flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-medium">
+              {user.name?.charAt(0)?.toUpperCase() ?? '?'}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium">{user.name}</p>
+              <p className="text-sidebar-foreground/50 truncate text-xs">{user.email}</p>
+            </div>
+          </Link>
+        )}
       </div>
     </aside>
   );
