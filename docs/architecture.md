@@ -338,7 +338,7 @@ Frontend (ADMIN) → POST /upload (multipart/form-data)
 3. **task-safety-sweep** (09:10 UTC diario): Fix para tareas COMPLETED con nextDueDate vencida que no se avanzaron (edge case crash)
 4. **budget-expiration** (09:30 UTC diario): Expira presupuestos QUOTED con `validUntil` vencida
 5. **service-request-auto-close** (10:00 UTC diario): Cierra solicitudes RESOLVED con >30 días sin actividad
-6. **subscription-reminder** (10:30 UTC diario): Envía recordatorios de vencimiento de suscripción a clientes con 7, 3 y 1 días restantes. Notificación in-app + email. Deduplicación por día
+6. **subscription-reminder** (09:15 UTC / 06:15 AR diario): Envía recordatorios de vencimiento de suscripción a clientes con 7, 3 y 1 días restantes. Notificación in-app + email. Deduplicación por día. Escalonado 15min después de task-status-recalculation para evitar pico de DB simultáneo
 7. **isv-snapshot** (02:00 UTC, 1ro de cada mes): Captura ISV (Índice de Salud de la Vivienda) para todas las propiedades con plan ACTIVE. Compara con snapshot anterior — si bajó >15 puntos → dispara alerta via `NotificationsHandlerService.handleISVAlert()` (notificación in-app + push)
 
 **Batch Processing:** Las tareas se procesan en lotes de `BATCH_SIZE=50`, verificando `signal.lockLost` entre cada batch para abortar si el lock se perdio.

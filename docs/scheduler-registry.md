@@ -7,7 +7,7 @@ Todos los cron jobs del sistema, con su frecuencia, horario en Argentina, y SLA 
 | Job                        | Cron (UTC)   | Hora (AR)            | Servicio                         | Entidades tocadas             | Descripción                          | SLA    |
 | -------------------------- | ------------ | -------------------- | -------------------------------- | ----------------------------- | ------------------------------------ | ------ |
 | task-status-recalculation  | `0 9 * * *`  | 06:00 diario         | `TaskStatusService`              | Task                          | PENDING→UPCOMING (30d) / OVERDUE     | <5min  |
-| subscription-reminder      | `0 9 * * *`  | 06:00 diario         | `SubscriptionReminderService`    | User, Notification            | Notifica vencimiento de suscripción  | <1min  |
+| subscription-reminder      | `15 9 * * *` | 06:15 diario         | `SubscriptionReminderService`    | User, Notification            | Notifica vencimiento de suscripción  | <1min  |
 | task-upcoming-reminders    | `5 9 * * *`  | 06:05 diario         | `TaskReminderService`            | Task, Notification, Email     | Push a clientes con tareas próximas  | <2min  |
 | task-safety-sweep          | `10 9 * * *` | 06:10 diario         | `TaskSafetyService`              | Task                          | Corrige anomalías de status          | <1min  |
 | budget-expiration-check    | `30 9 * * *` | 06:30 diario         | `BudgetExpirationService`        | BudgetRequest                 | Cierra presupuestos vencidos         | <1min  |
@@ -24,9 +24,9 @@ Todos los cron jobs del sistema, con su frecuencia, horario en Argentina, y SLA 
 Los primeros tres jobs diarios están escalonados por diseño:
 
 1. **task-status** (06:00) — Recalcula los estados de todas las tareas primero.
-2. **subscription-reminder** (06:00) — Corre en paralelo con task-status (entidades distintas, sin contención).
-3. **task-reminder** (06:05) — Lee los estados **ya actualizados** por task-status antes de enviar notificaciones.
-4. **task-safety** (06:10) — Barre anomalías después de que task-status y task-reminder terminaron.
+2. **task-reminder** (06:05) — Lee los estados **ya actualizados** por task-status antes de enviar notificaciones.
+3. **task-safety** (06:10) — Barre anomalías después de que task-status y task-reminder terminaron.
+4. **subscription-reminder** (06:15) — Escalonado intencionalmente para no solapar el pico de DB de task-status.
 
 **Regla para nuevos jobs:** Si el job toca `Task` o `Notification` entre 06:00 y 06:15 AR, verificar si necesita esperar a que `task-status` termine. Si el job genera notificaciones de tipo `TASK_REMINDER` en cualquier horario, agregar deduplicación via `NotificationsRepository.findTodayReminderTaskIds()`.
 
