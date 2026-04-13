@@ -1,6 +1,5 @@
 'use client';
 
-import type { LandingConsequenceExample } from '@epde/shared';
 import { Pencil, Plus, Save, Trash2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -8,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import type { LandingConsequenceExample } from '@/types/landing-settings';
 
 export function ConsequencesCard({
   data,

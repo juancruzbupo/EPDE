@@ -1,6 +1,5 @@
 'use client';
 
-import type { LandingGeneral } from '@epde/shared';
 import { Pencil, Save, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -8,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import type { LandingGeneral } from '@/types/landing-settings';
 
 export function GeneralCard({
   data,

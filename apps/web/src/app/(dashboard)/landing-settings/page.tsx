@@ -1,11 +1,5 @@
 'use client';
 
-import type {
-  LandingConsequenceExample,
-  LandingFaqItem,
-  LandingGeneral,
-  LandingPricing,
-} from '@epde/shared';
 import { UserRole } from '@epde/shared';
 import { useEffect } from 'react';
 
@@ -15,6 +9,12 @@ import { PageTransition } from '@/components/ui/page-transition';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { useLandingSettings, useUpdateLandingSetting } from '@/hooks/use-landing-settings';
 import { useAuthStore } from '@/stores/auth-store';
+import type {
+  LandingConsequenceExample,
+  LandingFaqItem,
+  LandingGeneral,
+  LandingPricing,
+} from '@/types/landing-settings';
 
 import { ConsequencesCard } from './components/consequences-card';
 import { FaqCard } from './components/faq-card';

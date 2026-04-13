@@ -1,10 +1,10 @@
 'use client';
 
-import type { LandingFaqItem } from '@epde/shared';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
 import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/motion';
+import type { LandingFaqItem } from '@/types/landing-settings';
 
 import type { SectionProps } from '../landing-data';
 

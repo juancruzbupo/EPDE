@@ -1,6 +1,5 @@
 'use client';
 
-import type { LandingFaqItem } from '@epde/shared';
 import { Pencil, Plus, Save, Trash2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -9,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import type { LandingFaqItem } from '@/types/landing-settings';
 
 export function FaqCard({
   data,

@@ -1,5 +1,6 @@
-import type { LandingGeneral } from '@epde/shared';
 import { Phone } from 'lucide-react';
+
+import type { LandingGeneral } from '@/types/landing-settings';
 
 import { PHONE_DISPLAY, PHONE_NUMBER } from '../landing-data';
 

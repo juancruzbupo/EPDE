@@ -1,7 +1,7 @@
-import type { LandingConsequenceExample } from '@epde/shared';
 import { motion } from 'framer-motion';
 
 import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/motion';
+import type { LandingConsequenceExample } from '@/types/landing-settings';
 
 import type { SectionProps } from '../landing-data';
 import { CONSEQUENCE_EXAMPLES, COST_DISCLAIMER } from '../landing-data';

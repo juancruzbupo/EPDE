@@ -1,8 +1,9 @@
 'use client';
 
-import type { LandingGeneral } from '@epde/shared';
 import { Menu, Phone, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+
+import type { LandingGeneral } from '@/types/landing-settings';
 
 import { PHONE_DISPLAY, PHONE_NUMBER } from '../landing-data';
 

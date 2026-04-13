@@ -3,7 +3,7 @@ import type {
   LandingFaqItem,
   LandingGeneral,
   LandingPricing,
-} from '@epde/shared';
+} from '@/types/landing-settings';
 
 import { apiClient } from '../api-client';
 

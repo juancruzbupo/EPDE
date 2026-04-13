@@ -3,7 +3,7 @@ import type {
   LandingFaqItem,
   LandingGeneral,
   LandingPricing,
-} from '@epde/shared';
+} from '@/types/landing-settings';
 
 /**
  * Fetches landing settings from the API (public endpoint, no auth needed).

@@ -1,9 +1,9 @@
-import type { LandingPricing } from '@epde/shared';
 import { motion } from 'framer-motion';
 import { ArrowRight, MessageCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/motion';
+import type { LandingPricing } from '@/types/landing-settings';
 
 import type { SectionProps } from '../landing-data';
 import {

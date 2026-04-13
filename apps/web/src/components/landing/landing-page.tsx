@@ -1,13 +1,12 @@
 'use client';
 
+import { useMotionPreference } from '@/lib/motion';
 import type {
   LandingConsequenceExample,
   LandingFaqItem,
   LandingGeneral,
   LandingPricing,
-} from '@epde/shared';
-
-import { useMotionPreference } from '@/lib/motion';
+} from '@/types/landing-settings';
 
 import { ConsequenceSection } from './sections/consequence';
 import { CredentialsSection } from './sections/credentials';

@@ -3,7 +3,6 @@ export * from './category';
 export * from './category-template';
 export type { Serialized } from './common';
 export * from './inspection';
-export * from './landing-settings';
 export * from './maintenance-plan';
 export * from './notification';
 export * from './property';
