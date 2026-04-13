@@ -1,6 +1,7 @@
 'use client';
 
-import type { ConditionDistribution } from '@epde/shared';
+import type { ConditionDistribution, ConditionFound } from '@epde/shared';
+import { CONDITION_CHART_INDEX } from '@epde/shared';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 import { useMotionPreference } from '@/lib/motion';
@@ -18,13 +19,14 @@ export function ConditionDonutChart({ data }: ConditionDonutChartProps) {
   const chartColors = useChartColors();
   const { shouldAnimate } = useMotionPreference();
 
-  const colorMap: Record<string, string> = {
-    EXCELLENT: chartColors[1]!,
-    GOOD: chartColors[2]!,
-    FAIR: chartColors[3]!,
-    POOR: chartColors[4]!,
-    CRITICAL: 'var(--destructive)',
-  };
+  // Chart colors resolved from CONDITION_CHART_INDEX (shared) — keeps index mapping
+  // in one place while color resolution stays dynamic (dark-mode reactive).
+  const colorMap = Object.fromEntries(
+    (Object.keys(CONDITION_CHART_INDEX) as ConditionFound[]).map((cond) => {
+      const idx = CONDITION_CHART_INDEX[cond];
+      return [cond, idx === -1 ? 'var(--destructive)' : chartColors[idx]!];
+    }),
+  ) as Record<ConditionFound, string>;
 
   const sorted = [...data].sort(
     (a, b) => CONDITION_ORDER.indexOf(a.condition) - CONDITION_ORDER.indexOf(b.condition),

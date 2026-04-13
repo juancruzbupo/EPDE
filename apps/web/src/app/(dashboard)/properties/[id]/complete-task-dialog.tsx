@@ -6,6 +6,7 @@ import {
   ACTION_TAKEN_LABELS,
   type CompleteTaskInput,
   completeTaskSchema,
+  CONDITION_BG_VARIANTS,
   CONDITION_FOUND_HINTS,
   CONDITION_FOUND_LABELS,
   CONDITION_TO_DEFAULT_RESULT,
@@ -42,14 +43,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { useCompleteTask } from '@/hooks/use-task-operations';
 import { useUploadFile } from '@/hooks/use-upload';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
-
-const CONDITION_COLORS: Record<string, string> = {
-  EXCELLENT: 'bg-success',
-  GOOD: 'bg-success/60',
-  FAIR: 'bg-warning',
-  POOR: 'bg-caution',
-  CRITICAL: 'bg-destructive',
-};
 
 interface CompleteTaskDialogProps {
   open: boolean;
@@ -249,7 +242,7 @@ export function CompleteTaskDialog({
                     placeholder="Estado general"
                     required
                     errorId={errors.conditionFound ? 'conditionFound-error' : undefined}
-                    colorMap={CONDITION_COLORS}
+                    colorMap={CONDITION_BG_VARIANTS}
                   />
                   {field.value && (
                     <p className="text-muted-foreground mt-1 text-xs">
