@@ -123,38 +123,42 @@ export function PropertyHealthTab({
                 key={problem.taskId}
                 role="button"
                 tabIndex={0}
-                className="border-border hover:border-primary/30 cursor-pointer space-y-2 rounded-lg border p-3 transition-colors"
+                className="border-border hover:border-primary/30 cursor-pointer rounded-lg border p-3 transition-colors"
                 onClick={() => onNavigateToTask?.(problem.taskId)}
                 onKeyDown={(e) => e.key === 'Enter' && onNavigateToTask?.(problem.taskId)}
               >
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="type-body-md text-foreground font-medium">
-                    {problem.taskName}
-                  </span>
-                  <Badge variant={problem.severity === 'high' ? 'destructive' : 'warning'}>
-                    {CONDITION_FOUND_LABELS[problem.conditionFound as ConditionFound] ??
-                      problem.conditionFound}
-                  </Badge>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="type-body-md text-foreground font-medium">
+                        {problem.taskName}
+                      </span>
+                      <Badge variant={problem.severity === 'high' ? 'destructive' : 'warning'}>
+                        {CONDITION_FOUND_LABELS[problem.conditionFound as ConditionFound] ??
+                          problem.conditionFound}
+                      </Badge>
+                    </div>
+                    <p className="type-body-sm text-muted-foreground">
+                      {getImpactMessage(problem.sector, problem.severity)}
+                    </p>
+                    {problem.severity === 'high' && (
+                      <p className="type-body-sm text-destructive font-medium">
+                        Recomendado resolver cuanto antes
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full sm:w-auto sm:shrink-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setServiceDialogProblem(problem);
+                    }}
+                  >
+                    Solicitar servicio
+                  </Button>
                 </div>
-                <p className="type-body-sm text-muted-foreground">
-                  {getImpactMessage(problem.sector, problem.severity)}
-                </p>
-                {problem.severity === 'high' && (
-                  <p className="type-body-sm text-destructive font-medium">
-                    Recomendado resolver cuanto antes
-                  </p>
-                )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full sm:w-auto"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setServiceDialogProblem(problem);
-                  }}
-                >
-                  Solicitar servicio
-                </Button>
               </div>
             ))}
           </CardContent>
