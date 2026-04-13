@@ -31,3 +31,17 @@ export const PLAN_STATUS_HINTS: Record<PlanStatus, string> = {
   DRAFT: 'Plan preparado pero no activado todavía',
   ARCHIVED: 'Plan completado o descartado. Se mantiene como referencia',
 };
+
+export const SERVICE_STATUS_HINTS: Record<string, string> = {
+  OPEN: 'Tu solicitud fue recibida y está esperando revisión',
+  IN_REVIEW: 'EPDE está evaluando el problema',
+  IN_PROGRESS: 'Se está trabajando en la solución',
+  RESOLVED: 'El problema fue resuelto. Verificá que esté todo bien',
+  CLOSED: 'Solicitud cerrada y archivada',
+};
+
+export const TASK_EXECUTOR_HINTS: Partial<Record<string, string>> = {
+  OWNER: 'Lo hiciste vos personalmente',
+  HIRED_PROFESSIONAL: 'Contrataste a un profesional por tu cuenta',
+  EPDE_PROFESSIONAL: 'EPDE coordinó al profesional',
+};

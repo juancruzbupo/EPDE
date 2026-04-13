@@ -16,7 +16,7 @@ import { ErrorState } from '@/components/error-state';
 import { FilterSelect } from '@/components/filter-select';
 import { BudgetsListTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
-import { RequestTypeHelper } from '@/components/request-type-helper';
+import { RequestTypeInlineHelper } from '@/components/request-type-helper';
 import { SearchInput } from '@/components/search-input';
 import { SearchableFilterSelect } from '@/components/searchable-filter-select';
 import { Badge } from '@/components/ui/badge';
@@ -139,7 +139,7 @@ function BudgetsPageContent() {
       />
 
       <div className="mb-3">
-        <RequestTypeHelper />
+        <RequestTypeInlineHelper />
       </div>
       <div className="mb-4 flex flex-wrap gap-3">
         {propertyOptions.length > 1 && (

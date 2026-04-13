@@ -2,6 +2,7 @@
 
 import type { BudgetRequestPublic } from '@epde/shared';
 import {
+  BUDGET_STATUS_HINTS,
   BUDGET_STATUS_LABELS,
   BUDGET_STATUS_VARIANT,
   BudgetStatus,
@@ -26,6 +27,7 @@ import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ErrorState } from '@/components/error-state';
 import { BudgetTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
+import { StatusFlow } from '@/components/status-flow';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -103,6 +105,12 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
   }
   if (!budget) return null;
 
+  const budgetFlowSteps = Object.entries(BUDGET_STATUS_LABELS).map(([key, label]) => ({
+    key,
+    label,
+    hint: BUDGET_STATUS_HINTS[key as BudgetStatus],
+  }));
+
   const hasResponse = budget.status !== BudgetStatus.PENDING && budget.lineItems.length > 0;
 
   return (
@@ -125,6 +133,9 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
           </Badge>
         </CardHeader>
         <CardContent>
+          <div className="mb-4">
+            <StatusFlow steps={budgetFlowSteps} current={budget.status} />
+          </div>
           <div className="bg-muted/40 rounded-lg p-4">
             <dl className="grid gap-4 text-sm sm:grid-cols-2">
               <div className="space-y-1">

@@ -2,6 +2,7 @@
 
 import { UserRole } from '@epde/shared';
 import {
+  BookOpen,
   CheckSquare,
   ChevronsLeft,
   ChevronsRight,
@@ -144,6 +145,19 @@ export function Sidebar({
           <HelpCircle className="h-4 w-4 shrink-0" />
           {!collapsed && <span>Guía de uso</span>}
         </Link>
+
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent('open-glossary'))}
+          className={cn(
+            'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground flex items-center rounded-md text-sm font-medium transition-all',
+            collapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2',
+          )}
+          aria-label="Glosario"
+          title={collapsed ? 'Glosario' : undefined}
+        >
+          <BookOpen className="h-4 w-4 shrink-0" />
+          {!collapsed && <span>Glosario</span>}
+        </button>
 
         {/* User info — visible when expanded */}
         {!collapsed && user && (

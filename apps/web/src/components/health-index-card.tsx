@@ -11,21 +11,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 const DIMENSION_LABELS = {
   compliance: {
     name: '¿Estás al día?',
-    hint: 'Tareas completadas a tiempo, ponderadas por prioridad',
+    hint: 'Cuántas tareas completaste a tiempo (las urgentes cuentan más)',
   },
   condition: {
     name: '¿En qué estado está?',
-    hint: 'Condición encontrada en las últimas inspecciones',
+    hint: 'El estado que reportaste en las últimas inspecciones',
   },
   coverage: {
     name: '¿Cuánto revisamos?',
-    hint: 'Sectores de tu casa inspeccionados en los últimos 12 meses',
+    hint: 'Cuántos sectores de tu casa fueron revisados en el último año',
   },
   investment: {
     name: '¿Prevenís o reparás?',
-    hint: '¿Gastás más en prevención (inspecciones) o en reparaciones? Ideal: más prevención',
+    hint: 'Si gastás más en prevención o en reparaciones de emergencia',
   },
-  trend: { name: '¿Mejora o empeora?', hint: 'Comparación con el trimestre anterior' },
+  trend: {
+    name: '¿Mejora o empeora?',
+    hint: 'Si tu puntaje mejoró o empeoró en los últimos 3 meses',
+  },
 } as const;
 
 function scoreColor(score: number): string {

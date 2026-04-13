@@ -26,6 +26,15 @@ export function HelpHint({ term, children, className }: HelpHintProps) {
       <PopoverContent className="max-w-xs text-sm" side="top">
         <p className="mb-1 font-semibold">{term}</p>
         <div className="text-muted-foreground leading-relaxed">{children}</div>
+        <button
+          type="button"
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent('open-glossary', { detail: term }));
+          }}
+          className="text-primary mt-2 block text-xs underline"
+        >
+          Ver en glosario
+        </button>
       </PopoverContent>
     </Popover>
   );

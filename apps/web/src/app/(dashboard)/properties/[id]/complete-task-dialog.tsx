@@ -10,6 +10,7 @@ import {
   CONDITION_FOUND_LABELS,
   CONDITION_TO_DEFAULT_RESULT,
   getErrorMessage,
+  TASK_EXECUTOR_HINTS,
   TASK_EXECUTOR_LABELS,
   TASK_RESULT_LABELS,
   TASK_TYPE_TO_DEFAULT_ACTION,
@@ -42,6 +43,14 @@ import { useCompleteTask } from '@/hooks/use-task-operations';
 import { useUploadFile } from '@/hooks/use-upload';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
 
+const CONDITION_COLORS: Record<string, string> = {
+  EXCELLENT: 'bg-success',
+  GOOD: 'bg-success/60',
+  FAIR: 'bg-warning',
+  POOR: 'bg-caution',
+  CRITICAL: 'bg-destructive',
+};
+
 interface CompleteTaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -58,6 +67,7 @@ function LabelSelect({
   placeholder,
   required,
   errorId,
+  colorMap,
 }: {
   label: string;
   labels: Record<string, string>;
@@ -67,6 +77,8 @@ function LabelSelect({
   required?: boolean;
   /** When provided, links the trigger to the error message via aria-describedby. */
   errorId?: string;
+  /** Optional color dot map — renders a colored circle before each label. */
+  colorMap?: Record<string, string>;
 }) {
   return (
     <div className="space-y-1.5">
@@ -80,7 +92,14 @@ function LabelSelect({
         <SelectContent>
           {Object.entries(labels).map(([val, lab]) => (
             <SelectItem key={val} value={val}>
-              {lab}
+              {colorMap?.[val] ? (
+                <span className="flex items-center gap-2">
+                  <span className={`h-2 w-2 rounded-full ${colorMap[val]}`} />
+                  {lab}
+                </span>
+              ) : (
+                lab
+              )}
             </SelectItem>
           ))}
         </SelectContent>
@@ -230,6 +249,7 @@ export function CompleteTaskDialog({
                     placeholder="Estado general"
                     required
                     errorId={errors.conditionFound ? 'conditionFound-error' : undefined}
+                    colorMap={CONDITION_COLORS}
                   />
                   {field.value && (
                     <p className="text-muted-foreground mt-1 text-xs">
@@ -252,15 +272,22 @@ export function CompleteTaskDialog({
               control={control}
               name="executor"
               render={({ field }) => (
-                <LabelSelect
-                  label="¿Quién lo hizo?"
-                  labels={TASK_EXECUTOR_LABELS}
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder="Ejecutor"
-                  required
-                  errorId={errors.executor ? 'executor-error' : undefined}
-                />
+                <>
+                  <LabelSelect
+                    label="¿Quién lo hizo?"
+                    labels={TASK_EXECUTOR_LABELS}
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Ejecutor"
+                    required
+                    errorId={errors.executor ? 'executor-error' : undefined}
+                  />
+                  {field.value && TASK_EXECUTOR_HINTS[field.value] && (
+                    <p className="text-muted-foreground mt-1 text-xs">
+                      {TASK_EXECUTOR_HINTS[field.value]}
+                    </p>
+                  )}
+                </>
               )}
             />
             {errors.executor && (

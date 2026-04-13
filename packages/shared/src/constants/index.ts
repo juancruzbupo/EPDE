@@ -183,6 +183,18 @@ export const PROPERTY_SECTOR_LABELS = {
   INSTALLATIONS: 'Instalaciones centrales',
 } satisfies Record<PropertySector, string>;
 
+export const PROPERTY_SECTOR_HINTS: Record<PropertySector, string> = {
+  EXTERIOR: 'Paredes exteriores, fachada, revoque y pintura exterior',
+  ROOF: 'Techo, membrana, canaletas y desagües pluviales',
+  TERRACE: 'Terraza, balcón, impermeabilización y barandas',
+  INTERIOR: 'Paredes interiores, cielorrasos, pisos y aberturas',
+  KITCHEN: 'Instalaciones de cocina: gas, agua, ventilación y revestimientos',
+  BATHROOM: 'Grifería, desagües, ventilación y revestimientos de baño',
+  BASEMENT: 'Cimientos, subsuelo, humedad ascendente y estructura',
+  GARDEN: 'Jardín, veredas, cercos, portones y desagüe perimetral',
+  INSTALLATIONS: 'Tablero eléctrico, termotanque, calefacción y gas central',
+};
+
 export const RECURRENCE_TYPE_LABELS = {
   MONTHLY: 'Mensual',
   QUARTERLY: 'Trimestral',

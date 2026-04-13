@@ -114,7 +114,7 @@ const DASHBOARD_STEPS: Step[] = [
     target: '[data-tour="health-score"]',
     title: 'ISV: el estado de tu casa',
     content:
-      'Va de 0 a 100. Sube cuando completás tareas a tiempo, baja cuando se vencen. Si ves un fuego 🔥 es tu racha de meses al día. Un ISV bajo = reparaciones más caras.',
+      'Va de 0 a 100. Arriba de 60 es bueno. Debajo de 40 es urgente. Sube cuando completás tareas a tiempo, baja cuando se vencen. 🔥 es tu racha de meses al día.',
     skipBeacon: true,
     ...SHARED_STEP_DEFAULTS,
   },
@@ -241,7 +241,7 @@ const PLAN_VIEWER_STEPS: Step[] = [
     target: '[data-tour="plan-tasks"]',
     title: 'Índice de riesgo',
     content:
-      'Cada tarea tiene un número de riesgo. Cuanto más alto, más urgente es resolverla. Las tareas se ordenan automáticamente para que veas primero las más importantes. Los problemas estructurales (techo, exterior, cimientos) puntúan más alto porque si no se atienden, escalan rápido.',
+      'Cada tarea tiene un número de riesgo (más alto = más urgente). Se ordenan automáticamente para que veas primero las más importantes.',
     ...SHARED_STEP_DEFAULTS,
   },
 ];

@@ -45,6 +45,9 @@ function StatCard({
             <p className="type-body-sm text-muted-foreground mt-0.5 truncate">
               {TASK_STATUS_LABELS[status]}
             </p>
+            <p className="text-muted-foreground mt-0.5 hidden text-[10px] leading-tight sm:block">
+              {TASK_STATUS_HINTS[status]}
+            </p>
           </div>
         </button>
       </TooltipTrigger>

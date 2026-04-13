@@ -14,6 +14,22 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 
+export function RequestTypeInlineHelper() {
+  return (
+    <div className="bg-muted/30 border-border mb-4 rounded-lg border p-3">
+      <p className="type-body-sm mb-1 font-medium">¿Presupuesto o solicitud?</p>
+      <div className="text-muted-foreground type-body-sm space-y-0.5">
+        <p>
+          <strong>Presupuesto:</strong> Sabés qué necesitás y querés un precio.
+        </p>
+        <p>
+          <strong>Solicitud:</strong> Detectaste algo y querés que EPDE lo evalúe.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function RequestTypeHelper() {
   return (
     <Dialog>

@@ -3,6 +3,7 @@
 import type { ServiceRequestPublic } from '@epde/shared';
 import {
   formatRelativeDate,
+  SERVICE_STATUS_HINTS,
   SERVICE_STATUS_LABELS,
   SERVICE_STATUS_VARIANT,
   SERVICE_URGENCY_LABELS,
@@ -30,6 +31,7 @@ import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ErrorState } from '@/components/error-state';
 import { ServiceDetailTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
+import { StatusFlow } from '@/components/status-flow';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -95,6 +97,12 @@ export function ServiceRequestDetail({
   }
   if (!request) return null;
 
+  const serviceFlowSteps = Object.entries(SERVICE_STATUS_LABELS).map(([key, label]) => ({
+    key,
+    label,
+    hint: SERVICE_STATUS_HINTS[key],
+  }));
+
   const nextStatus = STATUS_TRANSITIONS[request.status];
   const canEdit = isClient && request.status === ServiceStatus.OPEN;
   const isTerminal =
@@ -132,6 +140,9 @@ export function ServiceRequestDetail({
             </Badge>
           </CardHeader>
           <CardContent>
+            <div className="mb-4">
+              <StatusFlow steps={serviceFlowSteps} current={request.status} />
+            </div>
             <div className="bg-muted/40 rounded-lg p-4">
               <dl className="grid gap-4 text-sm sm:grid-cols-2">
                 <div className="space-y-1">

@@ -5,6 +5,7 @@ import {
   PROPERTY_SECTOR_LABELS,
   TASK_PRIORITY_HINTS,
   TASK_PRIORITY_LABELS,
+  TaskPriority,
 } from '@epde/shared';
 import React from 'react';
 
@@ -39,6 +40,9 @@ export const TaskRow = React.memo(function TaskRow({ task, onClick }: TaskRowPro
         {' · '}
         {task.maintenancePlan.property.address}
         {task.nextDueDate && ` · ${formatRelativeDate(new Date(task.nextDueDate))}`}
+        {(task.priority === TaskPriority.HIGH || task.priority === TaskPriority.URGENT) && (
+          <span className="italic"> · {TASK_PRIORITY_HINTS[task.priority]}</span>
+        )}
       </p>
     </button>
   );

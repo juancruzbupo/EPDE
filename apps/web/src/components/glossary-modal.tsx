@@ -2,7 +2,7 @@
 
 import { GLOSSARY } from '@epde/shared';
 import { BookOpen, HelpCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -18,6 +18,16 @@ import { Input } from '@/components/ui/input';
 export function GlossaryButton() {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (typeof detail === 'string') setSearch(detail);
+      setOpen(true);
+    };
+    window.addEventListener('open-glossary', handler);
+    return () => window.removeEventListener('open-glossary', handler);
+  }, []);
 
   const filtered = search.trim()
     ? GLOSSARY.filter(

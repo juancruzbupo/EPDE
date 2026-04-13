@@ -207,6 +207,14 @@ export function HomeStatusCard({
               <span className="type-body-sm text-muted-foreground">/ 100</span>
             </div>
 
+            <p className="type-body-sm text-muted-foreground -mt-2 mb-2">
+              {score >= 60
+                ? 'Arriba de 60 es bueno. Tu casa está bien cuidada.'
+                : score >= 40
+                  ? 'Un puntaje debajo de 60 indica que hay tareas acumuladas.'
+                  : 'Debajo de 40 es urgente. Conviene actuar pronto.'}
+            </p>
+
             {/* Badges — delta, streak, perfect week */}
             {((isvDelta !== null && isvDelta !== undefined && isvDelta !== 0) ||
               (streak && streak > 0) ||
@@ -239,7 +247,9 @@ export function HomeStatusCard({
                         🔥 {streak} {streak === 1 ? 'mes' : 'meses'} al día
                       </span>
                     </TooltipTrigger>
-                    <TooltipContent>Meses consecutivos sin tareas vencidas</TooltipContent>
+                    <TooltipContent>
+                      Meses seguidos en los que completaste todas las tareas a tiempo
+                    </TooltipContent>
                   </Tooltip>
                 )}
 
@@ -250,7 +260,9 @@ export function HomeStatusCard({
                         ✓ Semana perfecta
                       </span>
                     </TooltipTrigger>
-                    <TooltipContent>Completaste todas las tareas de esta semana</TooltipContent>
+                    <TooltipContent>
+                      Esta semana completaste todas las tareas programadas. ¡Seguí así!
+                    </TooltipContent>
                   </Tooltip>
                 )}
 
@@ -333,6 +345,9 @@ export function HomeStatusCard({
                           <AnimatedNumber value={stat.value} />
                         </p>
                         <p className="type-label-sm text-muted-foreground">{stat.label}</p>
+                        <p className="text-muted-foreground mt-0.5 text-[10px] leading-tight sm:hidden">
+                          {stat.hint}
+                        </p>
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>{stat.hint}</TooltipContent>
