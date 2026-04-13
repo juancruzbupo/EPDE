@@ -57,25 +57,18 @@ function TaskItem({ task, showRegister }: { task: UpcomingTask; showRegister?: b
               </Badge>
             )}
           </div>
-          <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs">
-            <span className="truncate" title={task.propertyAddress}>
-              {task.propertyAddress}
-            </span>
-            {task.sector && (
-              <>
-                <span>·</span>
-                <span className="shrink-0">{task.sector}</span>
-              </>
-            )}
-            <span>·</span>
-            <span className={`shrink-0 ${overdue ? 'text-destructive font-medium' : ''}`}>
+          <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
+            {task.propertyAddress}
+            {task.sector && ` · ${task.sector}`}
+            {' · '}
+            <span className={overdue ? 'text-destructive font-medium' : ''}>
               {task.nextDueDate
                 ? overdue
                   ? `Vencida ${formatRelativeDate(new Date(task.nextDueDate))}`
                   : formatRelativeDate(new Date(task.nextDueDate))
                 : RECURRENCE_TYPE_LABELS.ON_DETECTION}
             </span>
-          </div>
+          </p>
         </Link>
         {showRegister ? (
           <Button size="sm" variant="destructive" className="shrink-0 gap-1.5" asChild>

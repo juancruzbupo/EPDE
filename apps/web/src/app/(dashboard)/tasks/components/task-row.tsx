@@ -6,7 +6,6 @@ import {
   TASK_PRIORITY_HINTS,
   TASK_PRIORITY_LABELS,
 } from '@epde/shared';
-import { Calendar, MapPin } from 'lucide-react';
 import React from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -34,31 +33,13 @@ export const TaskRow = React.memo(function TaskRow({ task, onClick }: TaskRowPro
         </Badge>
       </div>
 
-      <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
-        <span>{task.category.name}</span>
-        {task.sector && (
-          <>
-            <span className="text-muted-foreground/40">·</span>
-            <span>{PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}</span>
-          </>
-        )}
-        <span className="text-muted-foreground/40">·</span>
-        <span className="inline-flex min-w-0 items-center gap-1">
-          <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
-          <span className="truncate">
-            {task.maintenancePlan.property.address}, {task.maintenancePlan.property.city}
-          </span>
-        </span>
-        {task.nextDueDate && (
-          <>
-            <span className="text-muted-foreground/40">·</span>
-            <span className="flex items-center gap-1">
-              <Calendar className="h-3 w-3" aria-hidden="true" />
-              {formatRelativeDate(new Date(task.nextDueDate))}
-            </span>
-          </>
-        )}
-      </div>
+      <p className="text-muted-foreground mt-0.5 text-xs leading-relaxed">
+        {task.category.name}
+        {task.sector && ` · ${PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}`}
+        {' · '}
+        {task.maintenancePlan.property.address}
+        {task.nextDueDate && ` · ${formatRelativeDate(new Date(task.nextDueDate))}`}
+      </p>
     </button>
   );
 });
