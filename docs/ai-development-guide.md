@@ -63,7 +63,7 @@
 50. **Analytics queries con `staleTime: 5 * 60_000`** — Los hooks `useAdminAnalytics()` y `useClientAnalytics()` usan staleTime de 5 minutos (mayor al default global de 2 min) porque analytics es data agregada que cambia lentamente. El service backend paraleliza todas las queries con `Promise.all`
 51. **Inline DTOs en API wrappers DEBEN usar shared schema types** — Cuando un Zod schema ya define el input (`CreateTaskInput`, `UpdateTaskInput`, `RespondBudgetInput`, `ReorderTasksInput`), las funciones en `apps/*/src/lib/api/*.ts` y hooks DEBEN importar ese tipo de `@epde/shared`. Si el wire format difiere del Zod-inferred (e.g. `string` vs `Date` por `z.coerce`), usar `z.input<typeof schema>` o documentar via JSDoc referenciando el schema como SSoT de validacion
 52. **`cleanDatabase()` en E2E setup DEBE incluir TODAS las tablas** — Al agregar un nuevo modelo en `schema.prisma`, agregar su nombre a la lista en `apps/api/src/test/setup.ts`. Incluir logging tables (`AuthAuditLog`, `TaskAuditLog`) aunque tengan FK CASCADE — la limpieza explicita evita asumir el comportamiento de cascade
-53. **Terminal status checks via helpers, no `.includes()` directo** — Usar `isBudgetTerminal(status)` e `isServiceRequestTerminal(status)` de `@epde/shared` en vez de `BUDGET_TERMINAL_STATUSES.includes(status as never)`. Los helpers encapsulan el cast de `readonly` array y eliminan `as never` en call sites. Definidos en `packages/shared/src/constants/index.ts`
+53. **Terminal status checks via helpers, no `.includes()` directo** — Usar `isBudgetTerminal(status)` e `isServiceRequestTerminal(status)` de `@epde/shared` en vez de `BUDGET_TERMINAL_STATUSES.includes(status as never)`. Los helpers encapsulan el cast de `readonly` array y eliminan `as never` en call sites. Definidos en `packages/shared/src/constants/enum-labels.ts`
 54. **`as never` en mobile `router.push()` es esperado** — Expo Router 6 (SDK 54) no soporta `typedRoutes`. Las rutas dinámicas (`/property/${id}`) requieren `as never` para satisfacer el tipo `Href`. Es una limitación del SDK, no un cast inseguro. Cuando Expo Router soporte typed routes, eliminar los casts
 55. **Dashboard invalidation en TODA mutación que afecte conteos** — useCreate/useUpdate/useDelete de plans, properties, tasks, budgets, service-requests DEBEN llamar `invalidateDashboard(queryClient)` (web) o `invalidateClientDashboard(qc)` (mobile). Ambas funciones invalidan analytics keys
 56. **Detail pages como Client Components** — Las detail pages `[id]/page.tsx` son `'use client'` que usan `use(params)` + `useAuthStore` para rol. NO usar `serverFetch()` (causa blocking de navegacion). Data se carga client-side con React Query + skeleton loading. Property detail usa lazy tab loading (queries solo se ejecutan en tab activo)
@@ -109,10 +109,10 @@
 96. **Login redirect con `window.location.href`** — Después de login exitoso, usar `window.location.href = '/dashboard'` (full page navigation) en vez de `router.push()`. Esto asegura que el browser procese los Set-Cookie headers antes de que el middleware verifique la cookie. `router.push()` causa race condition donde el middleware redirige de vuelta a `/login`
 97. **Agregar un PropertySector (sector de vivienda)** — Los sectores son un enum fijo (9 valores: EXTERIOR, ROOF, TERRACE, INTERIOR, KITCHEN, BATHROOM, BASEMENT, GARDEN, INSTALLATIONS). Para agregar uno nuevo (ej. POOL):
     1. `packages/shared/src/types/enums.ts`: agregar `POOL: 'POOL'` a `PropertySector` + agregar a `PROPERTY_SECTOR_VALUES`
-    2. `packages/shared/src/constants/index.ts`: agregar `POOL: 'Piscina'` a `PROPERTY_SECTOR_LABELS`
+    2. `packages/shared/src/constants/enum-labels.ts`: agregar `POOL: 'Piscina'` a `PROPERTY_SECTOR_LABELS`
     3. `npx prisma migrate dev --name add_pool_sector` (agrega el valor al enum de PostgreSQL)
     4. Zero cambios de UI — los filtros, toggles de activeSectors y selectores se generan automáticamente desde `PROPERTY_SECTOR_LABELS`/`PROPERTY_SECTOR_VALUES`. Los ISV sectorScores incluyen sectores nuevos automáticamente si tienen tareas asignadas
-98. **Agregar un enum value a cualquier enum compartido** — Mismo patrón que PropertySector: (1) agregar al enum + values array en `enums.ts`, (2) agregar label en `constants/index.ts`, (3) migración Prisma si el enum existe en schema. Los schemas Zod usan `z.enum(XXX_VALUES)` y se actualizan automáticamente. Badge variants en `badge-variants.ts` pueden necesitar mapeo si el enum tiene badge visual
+98. **Agregar un enum value a cualquier enum compartido** — Mismo patrón que PropertySector: (1) agregar al enum + values array en `enums.ts`, (2) agregar label en `constants/enum-labels.ts`, (3) migración Prisma si el enum existe en schema. Los schemas Zod usan `z.enum(XXX_VALUES)` y se actualizan automáticamente. Badge variants en `badge-variants.ts` pueden necesitar mapeo si el enum tiene badge visual
 99. **Problemas detectados — derivados, no persistidos** — Los problemas se derivan de TaskLog (`conditionFound IN POOR/CRITICAL`) filtrado contra ServiceRequest activos. NO crear entidades nuevas (Opportunity, Problem, etc.). El endpoint `GET /properties/:id/problems` consulta datos existentes. Un problema desaparece cuando: (a) se crea un ServiceRequest con `taskId` asociado, o (b) la tarea se re-completa con mejor condición. No hay campo `problemDetected` ni `problemResolved` en TaskLog — son derivables de `conditionFound`
 100. **Detección automática en completeTask** — Cuando `conditionFound` es POOR o CRITICAL, el backend retorna `problemDetected: true` y dispara `notificationsHandler.handleProblemDetected()` (fire-and-forget). Los hooks `useCompleteTask` aceptan `onProblemDetected` callback para que las páginas padres muestren prompt de crear ServiceRequest
 101. **Post-service-request feedback** — Al crear un ServiceRequest, el toast muestra "Este problema ya está en proceso" con botón "Ver servicio" que navega al detalle del SR creado (web). Mobile muestra Alert con mensaje similar. Ambos invalidan `[QUERY_KEYS.properties]` para refrescar la lista de problemas
@@ -364,7 +364,7 @@ export interface PropertyBrief {
 Labels en espanol centralizados:
 
 ```typescript
-// packages/shared/src/constants/index.ts
+// packages/shared/src/constants/enum-labels.ts
 export const BUDGET_STATUS_LABELS: Record<string, string> = {
   PENDING: 'Pendiente',
   QUOTED: 'Cotizado',
@@ -383,7 +383,7 @@ export const PAGINATION_MAX_TAKE = 100;
 Query keys centralizados en `@epde/shared` (SSoT para web y mobile):
 
 ```typescript
-// packages/shared/src/constants/index.ts
+// packages/shared/src/constants/enum-labels.ts
 export const QUERY_KEYS = {
   budgets: 'budgets',
   dashboard: 'dashboard',
@@ -1460,7 +1460,7 @@ Los thresholds se bumpen progresivamente al subir la cobertura real. El floor ac
 1. **Schema Prisma** — Agregar modelo en `apps/api/prisma/schema.prisma`, ejecutar `prisma migrate dev`
 2. **Shared: Schema Zod** — `packages/shared/src/schemas/<entity>.ts` (create, update, filters)
 3. **Shared: Types** — `packages/shared/src/types/entities/<entity>.ts` (entity, public, brief)
-4. **Shared: Constants** — Labels en espanol en `constants/index.ts`
+4. **Shared: Constants** — Labels en español en `constants/enum-labels.ts`, config en `app-config.ts`, query keys en `query-keys.ts`
 5. **Shared: Exports** — Registrar en `schemas/index.ts`, `types/entities/index.ts`
 6. **Shared: Build** — `pnpm --filter @epde/shared build`
 7. **API: Repository** — Extiende `BaseRepository<T, 'modelName'>`, con includes LIST vs DETAIL

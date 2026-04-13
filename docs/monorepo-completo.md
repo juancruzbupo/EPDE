@@ -340,14 +340,14 @@ pnpm --filter @epde/api test:e2e                # E2E (requiere DB + Redis)
 
 Estos archivos son la fuente de verdad para cada dominio. Consultar en lugar de confiar en valores hardcoded en este documento:
 
-| Fuente                                            | Contenido                                                                   |
-| ------------------------------------------------- | --------------------------------------------------------------------------- |
-| `apps/api/prisma/schema.prisma`                   | Modelo de datos completo (modelos, enums, relaciones, indices, constraints) |
-| `docs/ai-development-guide.md`                    | Patrones de desarrollo, reglas SIEMPRE/NUNCA, guia para IA                  |
-| `docs/api-reference.md`                           | Endpoints API completos con parametros y respuestas                         |
-| `docs/data-model.md`                              | Documentacion detallada de entidades y campos                               |
-| `docs/architecture.md`                            | Arquitectura de modulos y decisiones de diseno                              |
-| `packages/shared/src/`                            | Tipos, schemas Zod, constantes, API factories — SSoT compartido             |
-| `packages/shared/src/constants/design-tokens.ts`  | Paleta de colores y tokens de diseno (SSoT)                                 |
-| `packages/shared/src/constants/badge-variants.ts` | Variantes de Badge compartidas web/mobile                                   |
-| `packages/shared/src/constants/index.ts`          | Labels, QUERY_KEYS, defaults                                                |
+| Fuente                                            | Contenido                                                                                                                               |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/api/prisma/schema.prisma`                   | Modelo de datos completo (modelos, enums, relaciones, indices, constraints)                                                             |
+| `docs/ai-development-guide.md`                    | Patrones de desarrollo, reglas SIEMPRE/NUNCA, guia para IA                                                                              |
+| `docs/api-reference.md`                           | Endpoints API completos con parametros y respuestas                                                                                     |
+| `docs/data-model.md`                              | Documentacion detallada de entidades y campos                                                                                           |
+| `docs/architecture.md`                            | Arquitectura de modulos y decisiones de diseno                                                                                          |
+| `packages/shared/src/`                            | Tipos, schemas Zod, constantes, API factories — SSoT compartido                                                                         |
+| `packages/shared/src/constants/design-tokens.ts`  | Paleta de colores y tokens de diseno (SSoT)                                                                                             |
+| `packages/shared/src/constants/badge-variants.ts` | Variantes de Badge compartidas web/mobile                                                                                               |
+| `packages/shared/src/constants/`                  | Modularizado: `enum-labels.ts`, `app-config.ts`, `query-keys.ts`, `engagement.ts`, `category-defaults.ts`. `index.ts` es puro re-export |

@@ -90,7 +90,7 @@ epde/
     shared/           # Tipos, schemas Zod, constantes, utilidades
       src/
         api/          # Tipos de API (respuestas paginadas, etc.)
-        constants/    # Labels en espanol, defaults, badge-variants
+        constants/    # Modularizado: enum-labels, app-config, query-keys, design-tokens, badge-variants, engagement, etc.
         schemas/      # Zod schemas (validacion compartida)
         seed/         # Template seed data (nomenclador de tareas)
         types/        # Interfaces TypeScript + enums (types/enums.ts)
