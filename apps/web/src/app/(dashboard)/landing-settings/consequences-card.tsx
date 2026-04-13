@@ -46,11 +46,8 @@ export function ConsequencesCard({
         <CardContent>
           <div className="space-y-2">
             {data.map((ex, i) => (
-              <div
-                key={i}
-                className="border-border flex items-center justify-between rounded-lg border p-3"
-              >
-                <span className="font-medium">{ex.problem}</span>
+              <div key={i} className="border-border space-y-1 rounded-lg border p-3">
+                <p className="font-medium">{ex.problem}</p>
                 <div className="flex gap-4 text-sm">
                   <span className="text-success">{ex.preventive}</span>
                   <span className="text-destructive">{ex.emergency}</span>

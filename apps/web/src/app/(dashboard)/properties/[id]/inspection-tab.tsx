@@ -259,7 +259,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
 
         {/* Generate plan CTA — prominent when ready */}
         {allEvaluated && !hasPlan ? (
-          <div className="bg-primary/5 border-primary/20 flex items-center justify-between rounded-lg border p-3">
+          <div className="bg-primary/5 border-primary/20 flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold">¡Inspección completa!</p>
               <p className="text-muted-foreground text-xs">
@@ -369,7 +369,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
                           </p>
                         )}
                       </div>
-                      <div className="flex shrink-0 gap-1">
+                      <div className="flex shrink-0 flex-wrap gap-1">
                         {(
                           ['OK', 'NEEDS_ATTENTION', 'NEEDS_PROFESSIONAL'] as InspectionItemStatus[]
                         ).map((status) => {
@@ -379,7 +379,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
                               key={status}
                               size="sm"
                               variant={item.status === status ? 'default' : 'outline'}
-                              className="h-7 px-2 text-xs"
+                              className="h-7 px-1.5 text-[11px] sm:px-2 sm:text-xs"
                               disabled={isUpdating}
                               onClick={() => {
                                 if (
@@ -403,7 +403,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
                 })}
 
                 {addingSector === sector ? (
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row">
                     <Input
                       value={customItemName}
                       onChange={(e) => setCustomItemName(e.target.value)}
@@ -413,16 +413,24 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
                         if (e.key === 'Enter') handleAddCustomItem(sector);
                       }}
                     />
-                    <Button
-                      size="sm"
-                      onClick={() => handleAddCustomItem(sector)}
-                      disabled={addItem.isPending}
-                    >
-                      Agregar
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => setAddingSector(null)}>
-                      Cancelar
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        className="flex-1 sm:flex-none"
+                        onClick={() => handleAddCustomItem(sector)}
+                        disabled={addItem.isPending}
+                      >
+                        Agregar
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 sm:flex-none"
+                        onClick={() => setAddingSector(null)}
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <button

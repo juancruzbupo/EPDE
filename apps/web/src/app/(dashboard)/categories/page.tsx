@@ -88,6 +88,57 @@ import { useAuthStore } from '@/stores/auth-store';
 
 import { CategoryDialog } from './category-dialog';
 
+function CategoryMobileCard({
+  category,
+  templateName,
+  onEdit,
+  onDelete,
+}: {
+  category: CategoryPublic;
+  templateName: string | null;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  return (
+    <div className="bg-card hover:bg-muted/40 w-full rounded-lg border p-3 transition-colors">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground shrink-0">
+              {renderCategoryIcon(category.icon ?? null)}
+            </span>
+            <p className="text-sm font-medium">{category.name}</p>
+          </div>
+          {category.description && (
+            <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">
+              {category.description}
+            </p>
+          )}
+          {templateName && (
+            <p className="text-muted-foreground mt-1 text-xs">Plantilla: {templateName}</p>
+          )}
+        </div>
+        <div className="flex shrink-0 gap-1">
+          <button
+            onClick={onEdit}
+            className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded p-2 focus-visible:ring-[3px] focus-visible:outline-none"
+            aria-label="Editar categoría"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+          <button
+            onClick={onDelete}
+            className="text-muted-foreground hover:text-destructive focus-visible:ring-ring/50 rounded p-2 focus-visible:ring-[3px] focus-visible:outline-none"
+            aria-label="Eliminar categoría"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function CategoriesPage() {
   useEffect(() => {
     document.title = 'Categorías | EPDE';
@@ -128,8 +179,8 @@ export default function CategoriesPage() {
               setDialogOpen(true);
             }}
           >
-            <Plus className="mr-2 h-4 w-4" />
-            Nueva Categoría
+            <Plus className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Nueva Categoría</span>
           </Button>
         }
       />
@@ -138,89 +189,131 @@ export default function CategoriesPage() {
         <SearchInput value={search} onChange={setSearch} placeholder="Buscar categoría..." />
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Orden</TableHead>
-                <TableHead>Ícono</TableHead>
-                <TableHead>Nombre</TableHead>
-                <TableHead>Descripción</TableHead>
-                <TableHead>Plantilla</TableHead>
-                <TableHead className="w-24">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    {Array.from({ length: 6 }).map((_, j) => (
-                      <TableCell key={j}>
-                        <Skeleton className="h-5 w-full" />
+      {/* Mobile: cards — Desktop: table */}
+      <div className="sm:hidden">
+        {isLoading ? (
+          <div className="space-y-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="bg-card h-20 animate-pulse rounded-lg border" />
+            ))}
+          </div>
+        ) : isError ? (
+          <ErrorState
+            message="No se pudieron cargar las categorías"
+            onRetry={refetch}
+            className="justify-center py-12"
+          />
+        ) : filtered.length === 0 ? (
+          <p className="text-muted-foreground py-12 text-center text-sm">
+            No se encontraron categorías
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {filtered.map((cat) => (
+              <CategoryMobileCard
+                key={cat.id}
+                category={cat}
+                templateName={
+                  cat.categoryTemplateId
+                    ? (categoryTemplates?.find((ct) => ct.id === cat.categoryTemplateId)?.name ??
+                      null)
+                    : null
+                }
+                onEdit={() => {
+                  setEditingCategory(cat);
+                  setDialogOpen(true);
+                }}
+                onDelete={() => setDeleteId(cat.id)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="hidden sm:block">
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Orden</TableHead>
+                  <TableHead>Ícono</TableHead>
+                  <TableHead>Nombre</TableHead>
+                  <TableHead>Descripción</TableHead>
+                  <TableHead>Plantilla</TableHead>
+                  <TableHead className="w-24">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      {Array.from({ length: 6 }).map((_, j) => (
+                        <TableCell key={j}>
+                          <Skeleton className="h-5 w-full" />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : isError ? (
+                  <TableRow>
+                    <TableCell colSpan={6}>
+                      <ErrorState
+                        message="No se pudieron cargar las categorías"
+                        onRetry={refetch}
+                        className="justify-center py-8"
+                      />
+                    </TableCell>
+                  </TableRow>
+                ) : filtered.length > 0 ? (
+                  filtered.map((cat) => (
+                    <TableRow key={cat.id}>
+                      <TableCell>{cat.order}</TableCell>
+                      <TableCell>{renderCategoryIcon(cat.icon ?? null)}</TableCell>
+                      <TableCell className="font-medium">{cat.name}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {cat.description ?? '—'}
                       </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : isError ? (
-                <TableRow>
-                  <TableCell colSpan={6}>
-                    <ErrorState
-                      message="No se pudieron cargar las categorías"
-                      onRetry={refetch}
-                      className="justify-center py-8"
-                    />
-                  </TableCell>
-                </TableRow>
-              ) : filtered.length > 0 ? (
-                filtered.map((cat) => (
-                  <TableRow key={cat.id}>
-                    <TableCell>{cat.order}</TableCell>
-                    <TableCell>{renderCategoryIcon(cat.icon ?? null)}</TableCell>
-                    <TableCell className="font-medium">{cat.name}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {cat.description ?? '—'}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {cat.categoryTemplateId
-                        ? (categoryTemplates?.find((ct) => ct.id === cat.categoryTemplateId)
-                            ?.name ?? '—')
-                        : '—'}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => {
-                            setEditingCategory(cat);
-                            setDialogOpen(true);
-                          }}
-                          className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded p-2 focus-visible:ring-[3px] focus-visible:outline-none"
-                          aria-label="Editar categoría"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => setDeleteId(cat.id)}
-                          className="text-muted-foreground hover:text-destructive focus-visible:ring-ring/50 rounded p-2 focus-visible:ring-[3px] focus-visible:outline-none"
-                          aria-label="Eliminar categoría"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
+                      <TableCell className="text-muted-foreground">
+                        {cat.categoryTemplateId
+                          ? (categoryTemplates?.find((ct) => ct.id === cat.categoryTemplateId)
+                              ?.name ?? '—')
+                          : '—'}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => {
+                              setEditingCategory(cat);
+                              setDialogOpen(true);
+                            }}
+                            className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded p-2 focus-visible:ring-[3px] focus-visible:outline-none"
+                            aria-label="Editar categoría"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => setDeleteId(cat.id)}
+                            className="text-muted-foreground hover:text-destructive focus-visible:ring-ring/50 rounded p-2 focus-visible:ring-[3px] focus-visible:outline-none"
+                            aria-label="Eliminar categoría"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} className="h-24 text-center">
+                      No se encontraron categorías
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
-                    No se encontraron categorías
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
 
       <CategoryDialog open={dialogOpen} onOpenChange={setDialogOpen} category={editingCategory} />
 
