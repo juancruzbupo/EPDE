@@ -40,7 +40,9 @@ export class NotificationRetryService {
       await Sentry.withMonitor(
         'notification-retry',
         () =>
-          this.lockService.withLock('cron:notification-retry', 120, async () => {
+          this.lockService.withLock('cron:notification-retry', 120, async (signal) => {
+            if (signal.lockLost) return;
+
             const records = await this.failedNotificationRepository.findRetryable();
             if (records.length === 0) return;
 
@@ -51,6 +53,9 @@ export class NotificationRetryService {
 
             await Promise.allSettled(
               records.map(async (record) => {
+                // Abort mid-flight if another node acquired the lock — prevents
+                // double-processing of DLQ entries across instances.
+                if (signal.lockLost) return;
                 try {
                   await this.notificationsHandler.retryDispatch(
                     record.handler,

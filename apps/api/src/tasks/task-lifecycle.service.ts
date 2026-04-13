@@ -21,6 +21,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import type { Task } from '@prisma/client';
@@ -44,6 +45,8 @@ type UpdateTaskData = Omit<UpdateTaskInput, 'categoryId'> & {
 
 @Injectable()
 export class TaskLifecycleService {
+  private readonly logger = new Logger(TaskLifecycleService.name);
+
   constructor(
     private readonly tasksRepository: TasksRepository,
     private readonly plansRepository: MaintenancePlansRepository,
@@ -242,8 +245,11 @@ export class TaskLifecycleService {
         });
       }
 
-      // Fire-and-forget: check milestones after task completion (never blocks response)
-      void this.milestoneService.checkAndAward(userId, { problemDetected }).catch(() => {});
+      // Fire-and-forget: check milestones after task completion (never blocks response).
+      // Logs failures so silent milestone service errors don't go unnoticed.
+      void this.milestoneService.checkAndAward(userId, { problemDetected }).catch((err) => {
+        this.logger.error(`Milestone award failed for user ${userId}: ${(err as Error).message}`);
+      });
 
       return { ...result, problemDetected };
     } catch (error) {

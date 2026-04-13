@@ -118,7 +118,11 @@ export class WeeklySummaryService {
 
               void this.pushService
                 .sendToUsers([client.id], { title: 'Tu casa esta semana', body })
-                .catch((err) => this.logger.error(`Weekly push failed for ${client.id}: ${err}`));
+                .catch((err) =>
+                  this.logger.error(
+                    `Weekly push failed for ${client.id}: ${(err as Error).message}`,
+                  ),
+                );
 
               void this.emailQueueService
                 .enqueueWeeklySummary({
@@ -132,7 +136,11 @@ export class WeeklySummaryService {
                   nextTaskName: nextTask?.name ?? null,
                   nextTaskDate: nextTask?.nextDueDate?.toISOString() ?? null,
                 })
-                .catch((err) => this.logger.error(`Weekly email failed for ${client.id}: ${err}`));
+                .catch((err) =>
+                  this.logger.error(
+                    `Weekly email failed for ${client.id}: ${(err as Error).message}`,
+                  ),
+                );
 
               sent++;
             }

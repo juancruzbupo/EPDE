@@ -1,7 +1,7 @@
 import type { CurrentUser as CurrentUserType, UpdateLandingSettingInput } from '@epde/shared';
 import { updateLandingSettingSchema, UserRole } from '@epde/shared';
 import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import type { Prisma } from '@prisma/client';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -23,6 +23,7 @@ export class LandingSettingsController {
     return { data };
   }
 
+  @ApiBearerAuth()
   @Roles(UserRole.ADMIN)
   @Patch(':key')
   async update(
