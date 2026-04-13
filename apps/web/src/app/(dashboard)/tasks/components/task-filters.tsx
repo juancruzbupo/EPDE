@@ -90,7 +90,8 @@ export const TaskFilters = React.memo(function TaskFilters({
         onValueChange={(v) => onSectorChange(v as PropertySector | 'all')}
       >
         <SelectTrigger className="w-full sm:hidden" aria-label="Filtrar por sector">
-          <SelectValue placeholder="Sector" />
+          <span className="text-muted-foreground mr-1">Sector:</span>
+          <SelectValue placeholder="Todos" />
         </SelectTrigger>
         <SelectContent>
           {SECTOR_OPTIONS.map((opt) => (
