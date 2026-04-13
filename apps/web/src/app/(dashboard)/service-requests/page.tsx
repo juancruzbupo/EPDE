@@ -43,7 +43,7 @@ function ServiceMobileCard({
   return (
     <button
       onClick={onClick}
-      className="bg-card hover:bg-muted/40 w-full rounded-lg border p-3 text-left transition-colors"
+      className="bg-card hover:bg-muted/40 w-full rounded-lg border p-3 text-left transition-all hover:shadow-sm"
     >
       <div className="flex items-start justify-between gap-2">
         <p className="min-w-0 flex-1 text-sm font-medium">{request.title}</p>

@@ -26,6 +26,9 @@ export function useUploadFile() {
       });
       return data.data.url;
     },
+    onSuccess: () => {
+      toast.success('Archivo subido');
+    },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al subir archivo')),
   });
 }

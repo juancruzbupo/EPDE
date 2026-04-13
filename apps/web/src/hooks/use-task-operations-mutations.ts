@@ -225,6 +225,10 @@ export function useAddTaskNote() {
       return { previousNotes };
     },
 
+    onSuccess: () => {
+      toast.success('Nota agregada');
+    },
+
     onError: (_err, variables, context) => {
       toast.error(getErrorMessage(_err, 'Error al agregar nota'));
       if (context?.previousNotes) {

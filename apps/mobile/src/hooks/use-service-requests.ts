@@ -15,6 +15,7 @@ import {
   type ServiceRequestFilters,
   updateServiceStatus,
 } from '@/lib/api/service-requests';
+import { haptics } from '@/lib/haptics';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
 
 /** Mobile is CLIENT-only — filters default to {} (no admin filtering needed). Web requires filters explicitly. */
@@ -44,6 +45,7 @@ export function useCreateServiceRequest() {
   return useMutation({
     mutationFn: createServiceRequest,
     onSuccess: () => {
+      haptics.success();
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
       invalidateClientDashboard(queryClient);
@@ -53,6 +55,7 @@ export function useCreateServiceRequest() {
       );
     },
     onError: (err) => {
+      haptics.error();
       Alert.alert('Error', getErrorMessage(err, 'Error al crear solicitud'));
     },
   });
@@ -73,10 +76,12 @@ export function useEditServiceRequest() {
       urgency?: ServiceUrgency;
     }) => editServiceRequest(id, dto),
     onSuccess: () => {
+      haptics.success();
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
       Alert.alert('Éxito', 'Solicitud actualizada');
     },
     onError: (err) => {
+      haptics.error();
       Alert.alert('Error', getErrorMessage(err, 'Error al editar solicitud'));
     },
   });
@@ -101,7 +106,12 @@ export function useUpdateServiceStatus() {
       return { previous };
     },
 
+    onSuccess: () => {
+      haptics.success();
+    },
+
     onError: (_err, variables, context) => {
+      haptics.error();
       if (context?.previous) {
         queryClient.setQueryData([QUERY_KEYS.serviceRequests, variables.id], context.previous);
       }
@@ -141,6 +151,7 @@ export function useAddServiceRequestComment() {
     mutationFn: ({ serviceRequestId, content }: { serviceRequestId: string; content: string }) =>
       createServiceRequestComment(serviceRequestId, { content }),
     onSuccess: (_, { serviceRequestId }) => {
+      haptics.success();
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.serviceRequests, serviceRequestId, QUERY_KEYS.serviceRequestComments],
       });
@@ -150,6 +161,7 @@ export function useAddServiceRequestComment() {
       Alert.alert('Éxito', 'Comentario agregado');
     },
     onError: (err) => {
+      haptics.error();
       Alert.alert('Error', getErrorMessage(err, 'Error al agregar comentario'));
     },
   });
@@ -168,12 +180,14 @@ export function useAddServiceRequestAttachments() {
       attachments: { url: string; fileName: string }[];
     }) => addServiceRequestAttachments(serviceRequestId, { attachments }),
     onSuccess: (_data, variables) => {
+      haptics.success();
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.serviceRequests, variables.serviceRequestId],
       });
       Alert.alert('Éxito', 'Adjuntos agregados');
     },
     onError: (err) => {
+      haptics.error();
       Alert.alert('Error', getErrorMessage(err, 'Error al agregar adjuntos'));
     },
   });

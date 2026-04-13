@@ -57,6 +57,7 @@ export function useCreateBudgetRequest() {
       Alert.alert('Éxito', 'Presupuesto creado correctamente');
     },
     onError: (err) => {
+      haptics.error();
       Alert.alert('Error', getErrorMessage(err, 'Error al crear presupuesto'));
     },
   });
@@ -74,6 +75,7 @@ export function useEditBudgetRequest() {
       Alert.alert('Éxito', 'Presupuesto actualizado');
     },
     onError: (err) => {
+      haptics.error();
       Alert.alert('Error', getErrorMessage(err, 'Error al actualizar presupuesto'));
     },
   });
@@ -84,11 +86,13 @@ export function useRespondToBudget() {
   return useMutation({
     mutationFn: ({ id, ...dto }: { id: string } & RespondBudgetInput) => respondToBudget(id, dto),
     onSuccess: () => {
+      haptics.success();
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
       invalidateClientDashboard(queryClient);
       Alert.alert('Éxito', 'Cotización enviada');
     },
     onError: (err) => {
+      haptics.error();
       Alert.alert('Error', getErrorMessage(err, 'Error al enviar cotización'));
     },
   });
@@ -118,6 +122,7 @@ export function useUpdateBudgetStatus() {
     },
 
     onError: (_err, variables, context) => {
+      haptics.error();
       if (context?.previous) {
         queryClient.setQueryData([QUERY_KEYS.budgets, variables.id], context.previous);
       }
@@ -168,6 +173,7 @@ export function useAddBudgetComment() {
       Alert.alert('Éxito', 'Comentario agregado');
     },
     onError: (err) => {
+      haptics.error();
       Alert.alert('Error', getErrorMessage(err, 'Error al agregar comentario'));
     },
   });
@@ -194,6 +200,7 @@ export function useAddBudgetAttachments() {
       Alert.alert('Éxito', 'Adjuntos agregados');
     },
     onError: (err) => {
+      haptics.error();
       Alert.alert('Error', getErrorMessage(err, 'Error al agregar adjuntos'));
     },
   });

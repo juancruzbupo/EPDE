@@ -1,6 +1,7 @@
 import { TASK_STATUS_LABELS, TaskStatus } from '@epde/shared';
 import React from 'react';
 
+import { AnimatedNumber } from '@/components/ui/animated-number';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { TASK_STATUS_COLORS, TASK_STATUS_ICONS, TASK_STATUS_ORDER } from '@/lib/style-maps';
@@ -40,7 +41,7 @@ function StatCard({
           <Icon className={cn('h-4 w-4 shrink-0 sm:h-5 sm:w-5', color)} aria-hidden="true" />
           <div className="min-w-0">
             <p className={cn('sm:type-number-md text-lg leading-none font-semibold', color)}>
-              {count}
+              <AnimatedNumber value={count} />
             </p>
             <p className="type-body-sm text-muted-foreground mt-0.5 truncate">
               {TASK_STATUS_LABELS[status]}

@@ -45,6 +45,7 @@ export function useUpdateInspectionItem(propertyId: string) {
     mutationFn: ({ itemId, ...dto }: UpdateInspectionItemInput & { itemId: string }) =>
       updateInspectionItem(itemId, dto),
     onSuccess: () => {
+      toast.success('Actualizado correctamente');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.inspections, propertyId] });
     },
     onError: (err) => {

@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Alert } from 'react-native';
 
 import { uploadFile } from '@/lib/api/upload';
+import { haptics } from '@/lib/haptics';
 
 /**
  * Upload hook — validation lives in `uploadFile()` (API layer), not here.
@@ -14,8 +15,12 @@ import { uploadFile } from '@/lib/api/upload';
 export function useUploadFile() {
   return useMutation({
     mutationFn: ({ uri, folder }: { uri: string; folder: string }) => uploadFile(uri, folder),
-    onSuccess: () => Alert.alert('Éxito', 'Archivo subido'),
+    onSuccess: () => {
+      haptics.success();
+      Alert.alert('Éxito', 'Archivo subido');
+    },
     onError: (err) => {
+      haptics.error();
       Alert.alert('Error', getErrorMessage(err, 'Error al subir archivo'));
     },
   });

@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
 
 import { getAllTasks, getPlan, getPlans, updatePlan } from '@/lib/api/maintenance-plans';
+import { haptics } from '@/lib/haptics';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
 
 export function usePlans() {
@@ -38,12 +39,14 @@ export function useUpdatePlan() {
   return useMutation({
     mutationFn: ({ id, ...dto }: { id: string; status?: PlanStatus }) => updatePlan(id, dto),
     onSuccess: () => {
+      haptics.success();
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
       invalidateClientDashboard(queryClient);
       Alert.alert('Éxito', 'Plan actualizado');
     },
     onError: (err) => {
+      haptics.error();
       Alert.alert('Error', getErrorMessage(err, 'Error al actualizar plan'));
     },
   });

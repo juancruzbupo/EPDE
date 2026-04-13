@@ -95,6 +95,7 @@ export function useCompleteTask(options?: {
     },
 
     onError: (err) => {
+      haptics.error();
       Alert.alert('Error', getErrorMessage(err, 'Error al completar tarea'));
     },
 
@@ -161,6 +162,7 @@ export function useAddTaskNote() {
     },
 
     onError: (_err, variables, context) => {
+      haptics.error();
       if (context?.previousNotes) {
         queryClient.setQueryData(
           [QUERY_KEYS.taskNotes, variables.planId, variables.taskId],
