@@ -34,7 +34,7 @@ function TaskItem({ task, showRegister }: { task: UpcomingTask; showRegister?: b
   return (
     <li>
       <div
-        className={`flex items-start gap-2 rounded-lg border p-3 transition-all sm:items-center sm:gap-3 ${overdue ? 'border-l-destructive hover:bg-destructive/5 border-l-4' : 'hover:bg-accent hover:shadow-sm'}`}
+        className={`flex items-start gap-2 rounded-lg border p-3 transition-all sm:items-center sm:gap-3 ${overdue ? 'border-l-destructive hover:bg-destructive/5 border-l-4' : 'hover:bg-muted/40 hover:shadow-sm'}`}
       >
         <Link href={`/tasks?taskId=${task.id}`} className="min-w-0 flex-1">
           <p className="text-sm leading-snug font-medium" title={task.name}>

@@ -447,6 +447,24 @@ export default function TasksScreen() {
               ))}
             </View>
 
+            {/* Clear filters */}
+            {hasActiveFilters && (
+              <Pressable
+                onPress={() => {
+                  setStatusFilter(undefined);
+                  setPriorityFilter(undefined);
+                  setPropertyFilter(undefined);
+                  setSearch('');
+                  haptics.selection();
+                }}
+                className="mt-1"
+              >
+                <Text style={TYPE.labelSm} className="text-primary">
+                  Limpiar filtros
+                </Text>
+              </Pressable>
+            )}
+
             {/* Count */}
             <Text style={TYPE.bodySm} className="text-muted-foreground mt-2">
               {filtered.length} tarea{filtered.length !== 1 ? 's' : ''}

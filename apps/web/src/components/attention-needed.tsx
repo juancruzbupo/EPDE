@@ -102,7 +102,7 @@ export function AttentionNeeded({ stats }: AttentionNeededProps) {
                 <Item key={item.href} {...(shouldAnimate ? { variants: STAGGER_ITEM } : {})}>
                   <Link
                     href={item.href}
-                    className="hover:bg-accent flex items-center gap-3 rounded-lg border p-3 transition-colors"
+                    className="hover:bg-muted/40 flex items-center gap-3 rounded-lg border p-3 transition-colors"
                   >
                     <Icon className={`h-5 w-5 shrink-0 ${iconColor}`} />
                     <span className="type-body-md text-foreground flex-1">{item.label}</span>

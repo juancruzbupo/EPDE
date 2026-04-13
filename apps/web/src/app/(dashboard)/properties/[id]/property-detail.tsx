@@ -2,10 +2,11 @@
 
 import type { PropertyPublic, PropertySector } from '@epde/shared';
 import { PROPERTY_TYPE_LABELS } from '@epde/shared';
-import { ArrowLeft, ClipboardList, Pencil } from 'lucide-react';
+import { ArrowLeft, Check, ClipboardList, Copy, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 import { ErrorState } from '@/components/error-state';
 import { PropertyTour } from '@/components/onboarding-tour';
@@ -35,6 +36,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
   const { data: problemsCount } = usePropertyProblems(id);
   const [editOpen, setEditOpen] = useState(false);
   const [highlightTaskId, setHighlightTaskId] = useState<string | null>(null);
+  const [addressCopied, setAddressCopied] = useState(false);
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState(
     searchParams.get('tab') ?? (isAdmin ? 'plan' : 'health'),
@@ -75,7 +77,26 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
         </Link>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h1 className="type-display-sm text-foreground tracking-tight">{property.address}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="type-display-sm text-foreground tracking-tight">{property.address}</h1>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(property.address);
+                  toast.success('Dirección copiada');
+                  setAddressCopied(true);
+                  setTimeout(() => setAddressCopied(false), 1500);
+                }}
+                className="text-muted-foreground hover:text-foreground shrink-0 transition-colors"
+                aria-label="Copiar dirección"
+              >
+                {addressCopied ? (
+                  <Check className="h-4 w-4 text-green-500" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+              </button>
+            </div>
             <p className="type-body-md text-muted-foreground mt-0.5">
               {[
                 property.city,

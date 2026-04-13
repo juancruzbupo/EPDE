@@ -85,7 +85,7 @@ export const ActivityFeed = React.memo(function ActivityFeed({
                     <li
                       className={cn(
                         'flex items-start gap-3 rounded-lg border p-3',
-                        href && 'hover:bg-accent cursor-pointer transition-colors',
+                        href && 'hover:bg-muted/40 cursor-pointer transition-colors',
                       )}
                     >
                       <div className="bg-muted mt-0.5 rounded-full p-2">

@@ -403,7 +403,7 @@ export function CompleteTaskDialog({
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="border-input hover:bg-accent flex items-center gap-2 rounded-md border border-dashed px-4 py-3 text-sm transition-colors"
+                    className="border-input hover:bg-muted/40 flex items-center gap-2 rounded-md border border-dashed px-4 py-3 text-sm transition-colors"
                   >
                     <Upload className="h-4 w-4" aria-hidden="true" />
                     Subir foto

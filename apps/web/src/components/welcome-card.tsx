@@ -1,10 +1,12 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { CheckCircle, Circle, HelpCircle, Home, ListChecks } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useMotionPreference } from '@/lib/motion';
 
 interface WelcomeCardProps {
   userName: string;
@@ -19,6 +21,7 @@ export function WelcomeCard({
   hasActivePlan,
   hasCompletedTasks,
 }: WelcomeCardProps) {
+  const { shouldAnimate } = useMotionPreference();
   const steps = [
     { label: 'Tu propiedad fue registrada por EPDE', done: hasProperties },
     {
@@ -43,7 +46,17 @@ export function WelcomeCard({
           {steps.map((step) => (
             <div key={step.label} className="flex items-center gap-3">
               {step.done ? (
-                <CheckCircle className="text-success h-5 w-5 shrink-0" />
+                shouldAnimate ? (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', bounce: 0.5 }}
+                  >
+                    <CheckCircle className="text-success h-5 w-5 shrink-0" />
+                  </motion.div>
+                ) : (
+                  <CheckCircle className="text-success h-5 w-5 shrink-0" />
+                )
               ) : (
                 <Circle className="text-muted-foreground h-5 w-5 shrink-0" />
               )}
