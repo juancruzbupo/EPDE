@@ -1,3 +1,4 @@
+import { CHART_TOKENS_LIGHT, DESIGN_TOKENS_LIGHT } from '@epde/shared';
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
@@ -32,7 +33,13 @@ export const ConfettiBurst = forwardRef<ConfettiBurstRef>(function ConfettiBurst
       autoStart
       explosionSpeed={300}
       fallSpeed={2500}
-      colors={['#C4704B', '#e8ddd3', '#4ade80', '#facc15', '#60a5fa']}
+      colors={[
+        DESIGN_TOKENS_LIGHT.primary,
+        DESIGN_TOKENS_LIGHT.accent,
+        CHART_TOKENS_LIGHT.chart2,
+        CHART_TOKENS_LIGHT.chart4,
+        CHART_TOKENS_LIGHT.chart3,
+      ]}
       autoStartDelay={0}
     />
   );
