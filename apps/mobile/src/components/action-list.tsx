@@ -1,5 +1,5 @@
 import type { UpcomingTask } from '@epde/shared';
-import { PROPERTY_SECTOR_LABELS } from '@epde/shared';
+import { ProfessionalRequirement, PROPERTY_SECTOR_LABELS } from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { memo, useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -64,9 +64,7 @@ const ActionTaskCard = memo(function ActionTaskCard({
     router.push(`/task/${task.maintenancePlanId}/${task.id}` as never);
   };
 
-  const needsProfessional =
-    task.professionalRequirement === 'PROFESSIONAL_REQUIRED' ||
-    task.professionalRequirement === 'PROFESSIONAL_RECOMMENDED';
+  const needsProfessional = task.professionalRequirement !== ProfessionalRequirement.OWNER_CAN_DO;
 
   return (
     <AnimatedListItem index={index}>
@@ -184,30 +182,16 @@ export const ActionList = memo(function ActionList({ tasks, nextUpcoming }: Mobi
   const router = useRouter();
   const { overdue, upcoming } = useMemo(() => {
     const now = new Date();
-    now.setHours(0, 0, 0, 0);
-    const nextWeek = new Date(now);
-    nextWeek.setDate(nextWeek.getDate() + 7);
+    const weekFromNow = new Date();
+    weekFromNow.setDate(weekFromNow.getDate() + 7);
 
-    const overdueList: UpcomingTask[] = [];
-    const upcomingList: UpcomingTask[] = [];
-
-    for (const task of tasks) {
-      if (!task.nextDueDate) {
-        upcomingList.push(task);
-        continue;
-      }
-      const due = new Date(task.nextDueDate);
-      due.setHours(0, 0, 0, 0);
-      if (due < now) {
-        overdueList.push(task);
-      } else if (due <= nextWeek) {
-        upcomingList.push(task);
-      } else {
-        upcomingList.push(task);
-      }
-    }
-
-    return { overdue: overdueList, upcoming: upcomingList };
+    return {
+      overdue: tasks.filter((t) => t.nextDueDate && new Date(t.nextDueDate) < now),
+      upcoming: tasks.filter(
+        (t) =>
+          t.nextDueDate && new Date(t.nextDueDate) >= now && new Date(t.nextDueDate) <= weekFromNow,
+      ),
+    };
   }, [tasks]);
 
   if (overdue.length === 0 && upcoming.length === 0) {

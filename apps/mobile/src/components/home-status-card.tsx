@@ -35,20 +35,16 @@ function getStatusTitle(score: number): string {
   return 'Tu casa necesita atención urgente';
 }
 
-function getHumanMessage(score: number, overdue: number, upcoming: number): string {
-  if (score >= 80) {
-    return 'Todo bajo control. Seguí así y tu hogar se va a mantener en excelente estado.';
-  }
-  if (score >= 60) {
-    if (overdue > 0) {
-      return `Tenés ${overdue} tarea${overdue > 1 ? 's' : ''} vencida${overdue > 1 ? 's' : ''}. Revisalas para mantener tu casa al día.`;
-    }
-    return 'Hay algunas tareas pendientes. Un poco de atención ahora evita problemas mayores.';
-  }
-  if (score >= 40) {
-    return `Hay varias tareas que necesitan atención${upcoming > 0 ? `, incluyendo ${upcoming} esta semana` : ''}. Te recomendamos revisarlas pronto.`;
-  }
-  return 'Tu hogar necesita atención urgente. Revisá las tareas pendientes lo antes posible para evitar problemas mayores.';
+function getHumanMessage(overdue: number, urgent: number, upcoming: number): string {
+  if (overdue > 0 && urgent > 0)
+    return `Tenés ${overdue} tarea${overdue !== 1 ? 's' : ''} vencida${overdue !== 1 ? 's' : ''} y ${urgent} urgente${urgent !== 1 ? 's' : ''}. Revisalas cuanto antes.`;
+  if (overdue > 0)
+    return `Tenés ${overdue} tarea${overdue !== 1 ? 's' : ''} vencida${overdue !== 1 ? 's' : ''}. Revisalas para mantener tu casa al día.`;
+  if (urgent > 0)
+    return `Tenés ${urgent} tarea${urgent !== 1 ? 's' : ''} urgente${urgent !== 1 ? 's' : ''}. Completá${urgent !== 1 ? 'las' : 'la'} esta semana.`;
+  if (upcoming > 0)
+    return `Tenés ${upcoming} tarea${upcoming !== 1 ? 's' : ''} programada${upcoming !== 1 ? 's' : ''} esta semana.`;
+  return 'Todo bajo control. Seguí así y tu hogar se va a mantener en excelente estado.';
 }
 
 function getScoreConsequence(score: number): string | null {
@@ -62,15 +58,15 @@ function getScoreConsequence(score: number): string | null {
 
 function getScoreColor(score: number): string {
   if (score >= 80) return COLORS.success;
-  if (score >= 60) return COLORS.primary;
-  if (score >= 40) return COLORS.warning;
+  if (score >= 60) return COLORS.warning;
+  if (score >= 40) return COLORS.caution;
   return COLORS.destructive;
 }
 
 function getContainerClasses(score: number): string {
   if (score >= 80) return 'border-success/20 bg-success/5';
-  if (score >= 60) return 'border-primary/20 bg-primary/5';
-  if (score >= 40) return 'border-warning/20 bg-warning/5';
+  if (score >= 60) return 'border-warning/20 bg-warning/5';
+  if (score >= 40) return 'border-caution/20 bg-caution/5';
   return 'border-destructive/20 bg-destructive/5';
 }
 
@@ -104,6 +100,7 @@ export const HomeStatusCard = memo(function HomeStatusCard({
   label,
   overdueTasks,
   upcomingThisWeek,
+  urgentTasks,
   pendingTasks,
   completedThisMonth,
   pendingBudgets,
@@ -194,7 +191,7 @@ export const HomeStatusCard = memo(function HomeStatusCard({
 
       {/* Human message */}
       <Text style={TYPE.bodySm} className="text-muted-foreground mb-1">
-        {getHumanMessage(score, overdueTasks, upcomingThisWeek)}
+        {getHumanMessage(overdueTasks, urgentTasks, upcomingThisWeek)}
       </Text>
       {getScoreConsequence(score) && (
         <Text style={TYPE.labelSm} className="text-muted-foreground mb-3">

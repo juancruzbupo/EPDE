@@ -1,4 +1,4 @@
-import type { PlanStatus, PropertyPublic, PropertyType } from '@epde/shared';
+import type { BadgeVariant, PlanStatus, PropertyPublic, PropertyType } from '@epde/shared';
 import { PLAN_STATUS_LABELS, PROPERTY_TYPE_LABELS } from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { memo, useCallback, useMemo, useState } from 'react';
@@ -17,7 +17,7 @@ import { AnimatedListItem } from '@/components/animated-list-item';
 import { ContextualEmptyState } from '@/components/contextual-empty-state';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
-import { PropertyTypeBadge } from '@/components/status-badge';
+import { PropertyTypeBadge, StatusBadge } from '@/components/status-badge';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useProperties } from '@/hooks/use-properties';
 import { COLORS } from '@/lib/colors';
@@ -40,8 +40,16 @@ const PLAN_FILTERS: { key: PlanStatus | undefined; label: string }[] = [
   { key: 'ARCHIVED', label: PLAN_STATUS_LABELS.ARCHIVED },
 ];
 
+function getIsvVariant(score: number): BadgeVariant {
+  if (score >= 80) return 'success';
+  if (score >= 60) return 'warning';
+  if (score >= 40) return 'caution';
+  return 'destructive';
+}
+
 const PropertyCard = memo(function PropertyCard({ property }: { property: PropertyPublic }) {
   const router = useRouter();
+  const isv = property.latestISV;
 
   return (
     <Pressable
@@ -59,7 +67,10 @@ const PropertyCard = memo(function PropertyCard({ property }: { property: Proper
         >
           {property.address}
         </Text>
-        <PropertyTypeBadge type={property.type} />
+        <View className="flex-row items-center gap-1.5">
+          {isv && <StatusBadge label={String(isv.score)} variant={getIsvVariant(isv.score)} />}
+          <PropertyTypeBadge type={property.type} />
+        </View>
       </View>
       <Text style={TYPE.bodySm} className="text-muted-foreground">
         {[

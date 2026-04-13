@@ -80,15 +80,29 @@ apps/mobile/
       profile/                       # 3 sub-components extracted from profile.tsx (243 LOC)
       service-request/               # 2 sub-components extracted from create-service-request-modal
       task/                          # 2 sub-components extracted from complete-task-modal
-      home-status-card.tsx           # Nivel 1: score ISV + mensaje humano + mini-stats
+      home-status-card.tsx           # Nivel 1: score ISV + mensaje contextual (overdue/urgente/semana) + mini-stats
       action-list.tsx                # Nivel 2: tareas vencidas + semana
       analytics-section.tsx          # Nivel 3: charts colapsable
-    charts/
-      chart-card.tsx                 # Wrapper con loading/empty states
-      mini-donut-chart.tsx           # Donut SVG (condicion distribution)
-      mini-bar-chart.tsx             # Barras SVG animadas (costos)
-      mini-trend-chart.tsx           # Linea SVG (tendencia condicion)
-      category-breakdown-list.tsx    # Lista con progress bars + condition dots
+      welcome-card.tsx               # Onboarding: estado vacío (sin propiedades o sin tareas)
+      streak-card.tsx                # Racha de meses al día + botón de freeze
+      onboarding-carousel.tsx        # Carrusel de bienvenida (primera vez)
+      help-hint.tsx                  # Icono ❓ con tooltip de glosario en línea
+      contextual-empty-state.tsx     # EmptyState con contexto (ej: "Las tareas aparecen cuando...")
+      glossary-modal.tsx             # Modal glosario de términos (desde Perfil)
+      confetti-burst.tsx             # Animación de confeti (completar tarea)
+      animated-stat-card.tsx         # StatCard con animación de entrada
+      respond-budget-modal.tsx       # Modal responder presupuesto (ADMIN: cotizar)
+      edit-budget-modal.tsx          # Modal editar presupuesto
+      text-input-modal.tsx           # Modal genérico de input de texto
+      property-task-card.tsx         # Card de tarea en detalle de propiedad
+      request-type-helper.tsx        # Helper visual para tipo de solicitud
+      offline-banner.tsx             # Banner de estado offline
+      charts/
+        chart-card.tsx               # Wrapper con loading/empty states
+        mini-donut-chart.tsx         # Donut SVG (condicion distribution)
+        mini-bar-chart.tsx           # Barras SVG animadas (costos)
+        mini-trend-chart.tsx         # Linea SVG (tendencia condicion)
+        category-breakdown-list.tsx  # Lista con progress bars + condition dots
     hooks/
       use-dashboard.ts               # Stats, tareas proximas y analytics
       use-properties.ts              # CRUD propiedades (infinite scroll)
@@ -98,6 +112,10 @@ apps/mobile/
       use-plans.ts                   # Plan queries + tareas list
       use-task-operations.ts         # Task detail, logs, notas, mutations
       use-upload.ts                  # Upload de archivos
+      use-milestones.ts              # Streak freeze mutation
+      use-network-status.ts          # Estado de red (online/offline)
+      use-debounce.ts                # Debounce para inputs de búsqueda
+      use-draft.ts                   # Persistencia de estado de formularios
     lib/
       api-client.ts                  # Axios instance + interceptors
       token-service.ts               # SecureStore abstraction
@@ -226,8 +244,8 @@ Estructura en 3 niveles (conclusión primero, datos después):
 
 **Nivel 1 — Resumen (siempre visible):**
 
-- `HomeStatusCard`: mensaje humano ("Tu casa está bien"), score ISV con AnimatedNumber + progress bar, color dinámico según score
-- 4 mini-stats inline: Vencidas, Pendientes, Completadas, Presupuestos
+- `HomeStatusCard`: mensaje contextual basado en overdue/urgente/semana (no en score), score ISV con AnimatedNumber + progress bar animado, color dinámico (`success` ≥80 / `warning` 60-79 / `caution` 40-59 / `destructive` <40), badges de delta ISV + racha + semana perfecta
+- 4 mini-stats inline: Vencidas, Pendientes, Completadas este mes, Presupuestos pendientes
 
 **Nivel 2 — Acciones concretas:**
 
@@ -305,11 +323,24 @@ Estructura en 3 niveles (conclusión primero, datos después):
 - Auto-refresh del conteo cada 60 segundos
 - El cliente recibe notificación push + in-app cuando el admin cambia su suscripción (extensión, suspensión, o acceso ilimitado)
 
+### Tareas
+
+- Lista global (todas las propiedades del cliente) con `FlatList` + paginación server-side por status
+- **Stat cards compactas** (layout inline): número + label en la misma fila (`flex-row items-center gap-1.5`), coloreados por estado (Vencidas=destructive, Pendientes=status-pending, Próximas=status-upcoming). Tap togglea filtro de status como radiogroup
+- Búsqueda client-side por nombre, categoría y dirección (debounced)
+- Filtros: prioridad (pills horizontales) + propiedad (pills horizontales, solo si >1 propiedad) + orden (fecha/prioridad/nombre)
+- `ContextualEmptyState` cuando no hay tareas aún
+- Tap → detalle de tarea
+
 ### Perfil
 
 - Avatar placeholder + info del usuario (nombre, email, telefono)
+- Info de suscripción con badge de estado + botón de renovación cuando está próxima a expirar
+- Cambio de contraseña
+- **Apariencia**: selector de tema (auto/claro/oscuro) via `AppearanceSelector`
+- Glosario de términos (modal)
+- Limpiar caché de la app
 - Info de la app (version, plataforma)
-- Botón de renovación de suscripción prominente (`bg-primary`, full-width) cuando la suscripción está próxima a expirar
 - Boton de logout con alerta de confirmacion
 
 ## Sub-Component Pattern (28 sub-components)

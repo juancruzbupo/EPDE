@@ -19,9 +19,12 @@ export function WelcomeCard({
   const router = useRouter();
 
   const steps = [
-    { label: 'Tu propiedad fue registrada', done: hasProperties },
-    { label: 'Tu plan de mantenimiento está activo', done: hasActivePlan },
-    { label: 'Completá tu primera tarea cuando llegue la fecha', done: !!hasCompletedTasks },
+    { label: 'Tu propiedad fue registrada por EPDE', done: hasProperties },
+    {
+      label: 'La arquitecta inspecciona tu casa y crea el plan (puede tardar unos días)',
+      done: hasActivePlan,
+    },
+    { label: 'Cuando el plan esté activo, completá tu primera tarea', done: !!hasCompletedTasks },
   ];
 
   const completedSteps = steps.filter((s) => s.done).length;

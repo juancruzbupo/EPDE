@@ -278,26 +278,28 @@ export default function TasksScreen() {
                     key={status}
                     accessibilityRole="radio"
                     accessibilityState={{ selected: statusFilter === status }}
-                    accessibilityLabel={`Filtrar por ${TASK_STATUS_LABELS[status]}`}
+                    accessibilityLabel={`Filtrar por ${TASK_STATUS_LABELS[status]}: ${statusCounts[status] ?? 0}`}
                     onPress={() => {
                       haptics.selection();
                       setStatusFilter((prev) => (prev === status ? undefined : status));
                     }}
-                    className={`flex-1 items-center rounded-lg p-2 ${
+                    className={`flex-1 rounded-lg p-2.5 ${
                       statusFilter === status ? 'border-primary border-2' : STAT_BG[status]
                     }`}
                   >
-                    <Text style={TYPE.titleMd} className={STAT_COLORS[status]}>
-                      {statusCounts[status]}
-                    </Text>
-                    <Text
-                      style={TYPE.bodySm}
-                      className="text-muted-foreground"
-                      ellipsizeMode="tail"
-                      numberOfLines={1}
-                    >
-                      {TASK_STATUS_LABELS[status]}
-                    </Text>
+                    <View className="flex-row items-center gap-1.5">
+                      <Text style={TYPE.titleMd} className={STAT_COLORS[status]} numberOfLines={1}>
+                        {statusCounts[status]}
+                      </Text>
+                      <Text
+                        style={TYPE.bodySm}
+                        className={STAT_COLORS[status]}
+                        ellipsizeMode="tail"
+                        numberOfLines={1}
+                      >
+                        {TASK_STATUS_LABELS[status]}
+                      </Text>
+                    </View>
                   </Pressable>
                 ))}
               </View>
