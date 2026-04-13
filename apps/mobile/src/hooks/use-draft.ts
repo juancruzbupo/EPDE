@@ -1,3 +1,4 @@
+// Web equivalent: apps/web/src/hooks/use-draft.ts
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef } from 'react';
 import type { FieldValues, UseFormReturn } from 'react-hook-form';

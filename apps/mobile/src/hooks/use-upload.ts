@@ -1,3 +1,4 @@
+// Web equivalent: apps/web/src/hooks/use-upload.ts
 import { getErrorMessage } from '@epde/shared';
 import { useMutation } from '@tanstack/react-query';
 import { Alert } from 'react-native';

@@ -16,10 +16,10 @@ import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { useLandingSettings, useUpdateLandingSetting } from '@/hooks/use-landing-settings';
 import { useAuthStore } from '@/stores/auth-store';
 
-import { ConsequencesCard } from './consequences-card';
-import { FaqCard } from './faq-card';
-import { GeneralCard } from './general-card';
-import { PricingCard } from './pricing-card';
+import { ConsequencesCard } from './components/consequences-card';
+import { FaqCard } from './components/faq-card';
+import { GeneralCard } from './components/general-card';
+import { PricingCard } from './components/pricing-card';
 
 const DEFAULT_PRICING: LandingPricing = {
   price: '$35.000',
