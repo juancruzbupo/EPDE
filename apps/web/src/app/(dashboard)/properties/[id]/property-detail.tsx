@@ -2,7 +2,7 @@
 
 import type { PropertyPublic, PropertySector } from '@epde/shared';
 import { PROPERTY_TYPE_LABELS } from '@epde/shared';
-import { ArrowLeft, ClipboardList, Pencil } from 'lucide-react';
+import { ClipboardList, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
@@ -83,20 +83,14 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
             .filter(Boolean)
             .join(' · ')}
           action={
-            <div className="no-print flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/properties">
-                  <ArrowLeft className="h-4 w-4 sm:mr-1.5" />
-                  <span className="hidden sm:inline">Volver</span>
-                </Link>
-              </Button>
+            <div className="no-print flex gap-2">
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/properties/${id}/report`}>Informe</Link>
               </Button>
               {isAdmin && (
                 <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
-                  <Pencil className="h-4 w-4 sm:mr-1.5" />
-                  <span className="hidden sm:inline">Editar</span>
+                  <Pencil className="mr-1.5 h-4 w-4" />
+                  Editar
                 </Button>
               )}
             </div>
