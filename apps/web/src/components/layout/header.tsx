@@ -2,7 +2,9 @@
 
 import { LogOut, Menu, User } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { VisuallyHidden } from 'radix-ui';
+import { useEffect, useState } from 'react';
 
 import { GlossaryButton } from '@/components/glossary-modal';
 import { NotificationBell } from '@/components/notification-bell';
@@ -22,6 +24,13 @@ import { Sidebar } from './sidebar';
 export function Header() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Close mobile menu on navigation
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
 
   const handleLogout = async () => {
     try {
@@ -34,7 +43,7 @@ export function Header() {
   return (
     <header className="flex h-14 items-center gap-4 border-b px-4 sm:px-6">
       <div className="lg:hidden">
-        <Sheet>
+        <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
           <SheetTrigger asChild>
             <button
               className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded-md p-2 focus-visible:ring-[3px] focus-visible:outline-none"
