@@ -33,14 +33,16 @@ function StatCard({
         <button
           onClick={onClick}
           className={cn(
-            'bg-card flex flex-1 items-center gap-3 rounded-lg border p-3 text-left transition-all',
+            'bg-card flex flex-1 items-center gap-2 rounded-lg border p-2 text-left transition-all sm:gap-3 sm:p-3',
             active ? 'ring-primary ring-2' : 'hover:bg-muted/40',
           )}
         >
-          <Icon className={cn('h-5 w-5 shrink-0', color)} aria-hidden="true" />
+          <Icon className={cn('h-4 w-4 shrink-0 sm:h-5 sm:w-5', color)} aria-hidden="true" />
           <div className="min-w-0">
-            <p className={cn('type-number-md leading-none', color)}>{count}</p>
-            <p className="type-body-sm text-muted-foreground mt-0.5">
+            <p className={cn('sm:type-number-md text-lg leading-none font-semibold', color)}>
+              {count}
+            </p>
+            <p className="type-body-sm text-muted-foreground mt-0.5 truncate">
               {TASK_STATUS_LABELS[status]}
             </p>
           </div>
@@ -57,7 +59,7 @@ function StatCardSkeleton({ status }: { status: TaskStatus }) {
       key={status}
       role="status"
       aria-label="Cargando..."
-      className="bg-card flex flex-1 items-center gap-3 rounded-lg border p-3"
+      className="bg-card flex flex-1 items-center gap-2 rounded-lg border p-2 sm:gap-3 sm:p-3"
     >
       <Skeleton className="h-5 w-5 rounded" />
       <div>
@@ -83,7 +85,7 @@ export const TaskStatCards = React.memo(function TaskStatCards({
 }: TaskStatCardsProps) {
   return (
     <TooltipProvider>
-      <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+      <div className="mb-4 grid grid-cols-3 gap-2">
         {TASK_STATUS_ORDER.map((status) =>
           isLoading ? (
             <StatCardSkeleton key={status} status={status} />
