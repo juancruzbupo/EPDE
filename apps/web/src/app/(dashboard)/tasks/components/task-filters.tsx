@@ -71,19 +71,18 @@ export const TaskFilters = React.memo(function TaskFilters({
         />
       </div>
 
-      {/* Filter row */}
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="type-label-sm text-muted-foreground mr-0.5">Prioridad</span>
-        <div className="border-border flex items-center gap-0.5 rounded-lg border p-0.5">
+      {/* Filter row — priority segmented + sector select, single line */}
+      <div className="flex items-center gap-2">
+        <div className="bg-muted/50 flex items-center gap-0.5 rounded-lg p-0.5">
           {PRIORITY_OPTIONS.map((opt) => (
             <button
               key={opt.value}
               aria-pressed={priority === opt.value}
               onClick={() => onPriorityChange(opt.value)}
               className={cn(
-                'rounded-md px-2.5 py-1 text-xs font-medium transition-all',
+                'rounded-md px-2.5 py-1.5 text-xs font-medium transition-all',
                 priority === opt.value
-                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  ? 'bg-background text-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground',
               )}
             >
@@ -92,16 +91,13 @@ export const TaskFilters = React.memo(function TaskFilters({
           ))}
         </div>
 
-        {/* Sector filter — compact Select on mobile, pill buttons on desktop */}
-        <span className="type-label-sm text-muted-foreground mr-0.5 ml-1 hidden sm:inline">
-          Sector
-        </span>
+        {/* Sector — Select on mobile, segmented on desktop */}
         <Select
           value={sectorFilter}
           onValueChange={(v) => onSectorChange(v as PropertySector | 'all')}
         >
           <SelectTrigger
-            className="h-auto w-auto gap-1.5 rounded-lg px-2.5 py-1 text-xs sm:hidden"
+            className="bg-muted/50 h-auto w-auto gap-1 rounded-lg border-0 px-3 py-1.5 text-xs sm:hidden"
             aria-label="Filtrar por sector"
           >
             <span className="text-muted-foreground">Sector:</span>
@@ -118,16 +114,16 @@ export const TaskFilters = React.memo(function TaskFilters({
           </SelectContent>
         </Select>
       </div>
-      <div className="border-border hidden items-center gap-0.5 rounded-lg border p-0.5 sm:flex">
+      <div className="bg-muted/50 hidden items-center gap-0.5 rounded-lg p-0.5 sm:flex">
         {SECTOR_OPTIONS.map((opt) => (
           <button
             key={opt.value}
             aria-pressed={sectorFilter === opt.value}
             onClick={() => onSectorChange(opt.value)}
             className={cn(
-              'rounded-md px-2.5 py-1 text-xs font-medium whitespace-nowrap transition-all',
+              'rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-all',
               sectorFilter === opt.value
-                ? 'bg-primary text-primary-foreground shadow-sm'
+                ? 'bg-background text-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground',
             )}
           >
