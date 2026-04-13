@@ -293,7 +293,7 @@ export function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
               {expenses.items.map((item) => (
                 <div
                   key={`${item.date}-${item.description}`}
-                  className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
+                  className="flex items-start justify-between gap-3 py-3 first:pt-0 last:pb-0"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium">{item.description}</p>
@@ -302,16 +302,16 @@ export function PropertyExpensesTab({ propertyId }: { propertyId: string }) {
                       {new Date(item.date).toLocaleDateString('es-AR')}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="shrink-0 text-right">
                     <Badge
                       variant={item.type === 'task' ? 'secondary' : 'default'}
                       className="text-xs"
                     >
                       {item.type === 'task' ? 'Tarea' : 'Presupuesto'}
                     </Badge>
-                    <span className="text-sm font-medium tabular-nums">
+                    <p className="mt-0.5 text-sm font-medium tabular-nums">
                       {formatCurrency(item.amount)}
-                    </span>
+                    </p>
                   </div>
                 </div>
               ))}
