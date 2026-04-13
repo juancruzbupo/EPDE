@@ -102,6 +102,35 @@ jobs:
           pnpm typecheck &
           wait
 
+      - name: Guard — this.prisma only in allowed files
+        run: |
+          # Repository pattern enforcement: this.prisma must not appear in service/controller files.
+          # Allowed exceptions (documented with JSDoc justification in each file):
+          #   *.repository.ts, prisma.service.ts — by design
+          #   metrics-collector.service.ts — infrastructure metrics (fire-and-forget)
+          #   auth-audit.service.ts — fire-and-forget audit logging
+          #   inspections.service.ts — cross-domain $transaction (5 tables)
+          #   task-lifecycle.service.ts — cross-domain $transaction (bulk plan creation)
+          #   dashboard.controller.ts — single inline query (tracked for future repo migration)
+          violations=$(grep -rn "this\.prisma\." apps/api/src \
+            --include="*.service.ts" \
+            --include="*.controller.ts" \
+            | grep -v "\.repository\." \
+            | grep -v "prisma\.service\.ts" \
+            | grep -v "metrics-collector\.service\.ts" \
+            | grep -v "auth-audit\.service\.ts" \
+            | grep -v "inspections\.service\.ts" \
+            | grep -v "task-lifecycle\.service\.ts" \
+            | grep -v "dashboard\.controller\.ts" \
+            || true)
+          if [ -n "$violations" ]; then
+            echo "::error::Direct Prisma access outside repositories detected:"
+            echo "$violations"
+            echo ""
+            echo "Move data access to a repository. See docs/adr/002-soft-delete-base-repository.md"
+            exit 1
+          fi
+
       - name: Push schema to test database
         run: pnpm --filter @epde/api exec prisma db push --skip-generate
 
