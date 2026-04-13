@@ -117,9 +117,9 @@ body {
   --chart-4: #d4a843;
   --chart-5: #d4956f;
   /* Priority severity tokens */
-  --success: #3d6a4c;
+  --success: #4d7d5c;
   --success-foreground: #ffffff;
-  --warning: #6a5811;
+  --warning: #7a6514;
   --warning-foreground: #ffffff;
   --caution: #965018;
   --caution-foreground: #fafaf8;

@@ -11,3 +11,5 @@ Decisiones arquitectónicas clave del proyecto EPDE. Cada ADR documenta una deci
 | [005](005-notification-orchestration.md)     | NotificationsHandlerService como punto único de side-effects | Aceptada |
 | [006](006-notification-handler-vs-events.md) | NotificationsHandlerService vs Event-Driven                  | Aceptada |
 | [007](007-plan-data-module-circular-dep.md)  | PlanDataModule para romper dependencia circular TasksModule  | Aceptada |
+| [008](008-bullmq-notification-queue.md)      | BullMQ sobre Redis para colas de notificaciones y emails     | Aceptada |
+| [009](009-soft-delete-scope.md)              | Alcance del soft-delete: 8 modelos + nested include caveat   | Aceptada |
