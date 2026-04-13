@@ -160,19 +160,29 @@ Componente `AuthGate` que decide la ruta segun el estado de autenticacion:
 
 Wraps: `GestureHandlerRootView` → `ErrorBoundary` (con `accessibilityRole` + `accessibilityLabel`) → `PersistQueryClientProvider` (offline cache, gcTime 24h, maxAge 24h, throttle 2s) → `AuthGate` → rutas. Filter pills con `minHeight: 44` para cumplir WCAG 2.5.5 touch target.
 
-### Tabs (7 pantallas)
+### Tabs (5 visibles + 3 ocultas)
 
-| Tab          | Ruta                | Icono | Descripcion                        |
-| ------------ | ------------------- | ----- | ---------------------------------- |
-| Inicio       | `/(tabs)`           | 🏠    | Dashboard con stats y tareas       |
-| Propiedades  | `/properties`       | 🏘️    | Lista de propiedades               |
-| Servicios    | `/service-requests` | 🔧    | Solicitudes de servicio            |
-| Tareas       | `/tasks`            | ✅    | Todas las tareas (todas las props) |
-| Presupuestos | `/budgets`          | 📋    | Lista de presupuestos              |
-| Avisos       | `/notifications`    | 📢    | Centro de notificaciones           |
-| Perfil       | `/profile`          | 👤    | Info de usuario + logout           |
+#### Tabs visibles en barra
 
-La tab de Avisos muestra un **badge con conteo de no leidas** (auto-refresh cada 60s).
+| Tab            | Ruta             | Icono | Descripcion                        |
+| -------------- | ---------------- | ----- | ---------------------------------- |
+| Inicio         | `/(tabs)`        | 🏠    | Dashboard con stats y tareas       |
+| Tareas         | `/tasks`         | ✅    | Todas las tareas (todas las props) |
+| Propiedades    | `/properties`    | 🏘️    | Lista de propiedades               |
+| Notificaciones | `/notifications` | 🔔    | Centro de notificaciones           |
+| Perfil         | `/profile`       | 👤    | Info de usuario + logout           |
+
+La tab de Notificaciones muestra un **badge con conteo de no leidas** (auto-refresh cada 60s).
+
+#### Tabs ocultas (`href: null`, accesibles por deep link)
+
+| Tab          | Ruta                 | Descripcion             |
+| ------------ | -------------------- | ----------------------- |
+| Solicitudes  | `/service-requests`  | Solicitudes de servicio |
+| Planes       | `/maintenance-plans` | Planes de mantenimiento |
+| Presupuestos | `/budgets`           | Lista de presupuestos   |
+
+Las tabs ocultas existen como rutas y se registran con `href: null` en `_layout.tsx` para que Expo Router las reconozca sin mostrarlas en la barra.
 
 ### Rutas de Detalle
 

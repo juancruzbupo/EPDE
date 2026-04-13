@@ -44,20 +44,24 @@ Las credenciales de Docker Compose se parametrizan via variables de entorno con 
 
 ## Web (`apps/web`)
 
-| Variable                 | Requerida | Default                 | Descripcion                                                                                                                            |
-| ------------------------ | --------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `API_PROXY_TARGET`       | **Prod**  | `http://localhost:3001` | Origen del API (sin `/api/v1`). Next.js proxea `/api/v1/*` via `rewrites`. Server-side only. Ejemplo prod: `https://epde.onrender.com` |
-| `NEXT_PUBLIC_SENTRY_DSN` | No        | `""`                    | DSN de Sentry para el frontend web. Si esta vacio, Sentry se desactiva                                                                 |
-| `NODE_ENV`               | No        | `development`           | Entorno de ejecucion                                                                                                                   |
+| Variable                   | Requerida | Default                 | Descripcion                                                                                                                            |
+| -------------------------- | --------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `API_PROXY_TARGET`         | **Prod**  | `http://localhost:3001` | Origen del API (sin `/api/v1`). Next.js proxea `/api/v1/*` via `rewrites`. Server-side only. Ejemplo prod: `https://epde.onrender.com` |
+| `NEXT_PUBLIC_WHATSAPP_URL` | **Prod**  | Placeholder hardcodeado | URL de WhatsApp para CTAs de landing. Formato: `https://wa.me/549XXXXXXXXXX?text=...`. Si no se setea, usa un numero placeholder       |
+| `NEXT_PUBLIC_SENTRY_DSN`   | No        | `""`                    | DSN de Sentry para el frontend web. Si esta vacio, Sentry se desactiva                                                                 |
+| `NODE_ENV`                 | No        | `development`           | Entorno de ejecucion                                                                                                                   |
 
 > **Proxy pattern:** El browser hace requests a `/api/v1/*` (mismo origen). Next.js los reescribe a `API_PROXY_TARGET/api/v1/*` via `rewrites` en `next.config.ts`. Esto elimina problemas cross-domain de cookies (SameSite, HttpOnly). Server Components usan `API_PROXY_TARGET` directamente para server-to-server fetches.
 
 ## Mobile (`apps/mobile`)
 
-| Variable              | Requerida | Default | Descripcion                                                                    |
-| --------------------- | --------- | ------- | ------------------------------------------------------------------------------ |
-| `EXPO_PUBLIC_API_URL` | Si        | —       | URL base del API para la app mobile                                            |
-| `sentryDsn`           | No        | `""`    | DSN de Sentry para mobile. Se configura en `app.json` > `expo.extra.sentryDsn` |
+Las variables de mobile se configuran en `app.json` bajo `expo.extra`, **no** en un archivo `.env`. Expo las expone en runtime via `process.env.EXPO_PUBLIC_*` o `Constants.expoConfig.extra.*`.
+
+| Variable              | Requerida | Default                   | Descripcion                                                                                  |
+| --------------------- | --------- | ------------------------- | -------------------------------------------------------------------------------------------- |
+| `EXPO_PUBLIC_API_URL` | Si        | —                         | URL base del API. En `app.json > expo.extra.apiUrl`. Ejemplo prod: `https://api.epde.com.ar` |
+| `EXPO_PUBLIC_WEB_URL` | No        | `https://app.epde.com.ar` | URL del frontend web. Usada para abrir el reporte ISV desde la app mobile                    |
+| `sentryDsn`           | No        | `""`                      | DSN de Sentry para mobile. Se configura en `app.json` > `expo.extra.sentryDsn`               |
 
 ## GitHub Secrets (CI/CD)
 
