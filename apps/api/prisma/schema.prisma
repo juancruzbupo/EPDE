@@ -763,6 +763,26 @@ model UserMilestone {
   @@index([userId])
 }
 
+// ─── Notification Dead-Letter Queue ─────────────────────
+
+/**
+ * Failed notification side-effects recorded by NotificationsHandlerService.
+ * Retried hourly (up to 3 times) by NotificationRetryService.
+ * Entries with retryCount = 3 and resolvedAt = null are permanently failed — inspect manually.
+ */
+model FailedNotification {
+  id          String    @id @default(uuid())
+  handler     String    @db.VarChar(100) // NotificationsHandlerService method name
+  payload     Json // Original handler payload serialized for replay
+  lastError   String    @db.VarChar(1000)
+  retryCount  Int       @default(0)
+  nextRetryAt DateTime  @default(now())
+  resolvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([resolvedAt, retryCount, nextRetryAt])
+}
+
 // ─── Weekly Challenges ───────────────────────────────────
 
 model WeeklyChallenge {

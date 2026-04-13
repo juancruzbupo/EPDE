@@ -16,6 +16,7 @@ import { DataCleanupRepository } from './data-cleanup.repository';
 import { DataCleanupService } from './data-cleanup.service';
 import { ISVSnapshotService } from './isv-snapshot.service';
 import { NotificationCleanupService } from './notification-cleanup.service';
+import { NotificationRetryService } from './notification-retry.service';
 import { ServiceRequestAutoCloseService } from './service-request-auto-close.service';
 import { SubscriptionReminderService } from './subscription-reminder.service';
 import { TaskReminderService } from './task-reminder.service';
@@ -57,6 +58,7 @@ import { WeeklySummaryService } from './weekly-summary.service';
     ServiceRequestAutoCloseService,
     ISVSnapshotService,
     NotificationCleanupService,
+    NotificationRetryService,
     SubscriptionReminderService,
     DataCleanupService,
     DataCleanupRepository,

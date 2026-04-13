@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 
 import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
 import { EmailModule } from '../email/email.module';
+import { FailedNotificationRepository } from './failed-notification.repository';
 import { NotificationQueueProcessor } from './notification-queue.processor';
 import { NotificationQueueService } from './notification-queue.service';
 import { NOTIFICATION_QUEUE } from './notification-queue.types';
@@ -36,6 +37,7 @@ import { PushTokensRepository } from './push-tokens.repository';
     UserLookupRepository,
     PushService,
     PushTokensRepository,
+    FailedNotificationRepository,
   ],
   exports: [
     NotificationsService,
@@ -44,6 +46,7 @@ import { PushTokensRepository } from './push-tokens.repository';
     NotificationsRepository,
     UserLookupRepository,
     PushService,
+    FailedNotificationRepository,
   ],
 })
 export class NotificationsModule {}
