@@ -2,15 +2,13 @@
 
 import type { PropertyPublic, PropertySector } from '@epde/shared';
 import { PROPERTY_TYPE_LABELS } from '@epde/shared';
-import { ClipboardList, Pencil } from 'lucide-react';
+import { ArrowLeft, ClipboardList, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
-import { Breadcrumbs } from '@/components/breadcrumbs';
 import { ErrorState } from '@/components/error-state';
 import { PropertyTour } from '@/components/onboarding-tour';
-import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
@@ -67,35 +65,40 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
 
   return (
     <div className="space-y-6">
-      <div className="no-print">
-        <div className="mb-4 flex items-center justify-between">
-          <Breadcrumbs
-            items={[{ label: 'Propiedades', href: '/properties' }, { label: property.address }]}
-          />
-          <div className="flex gap-2">
+      <div className="no-print space-y-1">
+        <Link
+          href="/properties"
+          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Propiedades
+        </Link>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="type-display-sm text-foreground tracking-tight">{property.address}</h1>
+            <p className="type-body-md text-muted-foreground mt-0.5">
+              {[
+                property.city,
+                PROPERTY_TYPE_LABELS[property.type] ?? property.type,
+                property.yearBuilt && `${property.yearBuilt}`,
+                property.squareMeters && `${property.squareMeters} m²`,
+                property.user && `Cliente: ${property.user.name}`,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            </p>
+          </div>
+          <div className="flex shrink-0 gap-2">
             <Button variant="outline" size="sm" asChild>
               <Link href={`/properties/${id}/report`}>Informe</Link>
             </Button>
             {isAdmin && (
               <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
-                <Pencil className="mr-1.5 h-4 w-4" />
-                Editar
+                <Pencil className="h-4 w-4" />
               </Button>
             )}
           </div>
         </div>
-        <PageHeader
-          title={property.address}
-          description={[
-            property.city,
-            PROPERTY_TYPE_LABELS[property.type] ?? property.type,
-            property.yearBuilt && `${property.yearBuilt}`,
-            property.squareMeters && `${property.squareMeters} m²`,
-            property.user && `Cliente: ${property.user.name}`,
-          ]
-            .filter(Boolean)
-            .join(' · ')}
-        />
       </div>
 
       <PropertyTour />
