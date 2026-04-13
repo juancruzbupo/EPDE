@@ -1,21 +1,24 @@
 'use client';
 
 import { GLOSSARY } from '@epde/shared';
-import { BookOpen, HelpCircle } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 
-export function GlossaryButton() {
+/**
+ * GlossaryModal — event-driven, no trigger button.
+ * Mount once in the dashboard layout. Sidebar + help-hint popovers open it
+ * via `window.dispatchEvent(new CustomEvent('open-glossary', { detail: term }))`.
+ */
+export function GlossaryModal() {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
 
@@ -40,11 +43,6 @@ export function GlossaryButton() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Glosario de términos">
-          <HelpCircle className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
       <DialogContent className="max-h-[80vh] max-w-md overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
