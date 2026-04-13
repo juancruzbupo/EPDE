@@ -43,9 +43,11 @@ export const TaskRow = React.memo(function TaskRow({ task, onClick }: TaskRowPro
           </>
         )}
         <span className="text-muted-foreground/40">·</span>
-        <span className="flex items-center gap-1">
-          <MapPin className="h-3 w-3" aria-hidden="true" />
-          {task.maintenancePlan.property.address}, {task.maintenancePlan.property.city}
+        <span className="inline-flex min-w-0 items-center gap-1">
+          <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
+          <span className="truncate">
+            {task.maintenancePlan.property.address}, {task.maintenancePlan.property.city}
+          </span>
         </span>
         {task.nextDueDate && (
           <>

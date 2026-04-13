@@ -77,7 +77,7 @@ export const TaskFilters = React.memo(function TaskFilters({
           </button>
         ))}
       </div>
-      <div className="flex gap-1 overflow-x-auto">
+      <div className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
         {SECTOR_OPTIONS.map((opt) => (
           <button
             key={opt.value}
