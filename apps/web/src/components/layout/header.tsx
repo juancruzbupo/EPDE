@@ -67,10 +67,9 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <button
               aria-label={`Menú de usuario: ${user?.name ?? 'Mi cuenta'}`}
-              className="text-muted-foreground hover:text-foreground flex items-center gap-2 rounded-md px-2 py-1 text-sm transition-colors"
+              className="text-muted-foreground hover:text-foreground flex items-center rounded-md px-2 py-1 transition-colors"
             >
               <User className="h-4 w-4" aria-hidden="true" />
-              <span className="hidden sm:inline">{user?.name}</span>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
