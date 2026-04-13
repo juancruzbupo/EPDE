@@ -67,14 +67,27 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
       </div>
 
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle data-tour="property-health" className="type-title-md">
             Índice de Salud de la Vivienda
           </CardTitle>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="no-print" onClick={() => window.print()}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="no-print hidden sm:inline-flex"
+              onClick={() => window.print()}
+            >
               <Printer className="mr-1.5 h-4 w-4" />
               Imprimir
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="no-print sm:hidden"
+              onClick={() => window.print()}
+            >
+              <Printer className="h-4 w-4" />
             </Button>
             <span className={`type-number-md ${scoreColor(index.score)}`}>{index.score}</span>
             <span className="type-body-sm text-muted-foreground">/ 100</span>

@@ -83,20 +83,20 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
             .filter(Boolean)
             .join(' · ')}
           action={
-            <div className="no-print flex gap-2">
-              <Button variant="outline" asChild>
+            <div className="no-print flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" asChild>
                 <Link href="/properties">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Volver
+                  <ArrowLeft className="h-4 w-4 sm:mr-1.5" />
+                  <span className="hidden sm:inline">Volver</span>
                 </Link>
               </Button>
               <Button variant="outline" size="sm" asChild>
-                <Link href={`/properties/${id}/report`}>Ver Informe</Link>
+                <Link href={`/properties/${id}/report`}>Informe</Link>
               </Button>
               {isAdmin && (
                 <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Editar
+                  <Pencil className="h-4 w-4 sm:mr-1.5" />
+                  <span className="hidden sm:inline">Editar</span>
                 </Button>
               )}
             </div>
