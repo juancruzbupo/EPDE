@@ -1,7 +1,6 @@
 'use client';
 
-import type { TaskType } from '@epde/shared';
-import type { ConditionFound } from '@epde/shared';
+import type { ConditionFound, TaskType } from '@epde/shared';
 import {
   ACTION_TAKEN_LABELS,
   type CompleteTaskInput,
@@ -10,17 +9,15 @@ import {
   CONDITION_FOUND_HINTS,
   CONDITION_FOUND_LABELS,
   CONDITION_TO_DEFAULT_RESULT,
-  getErrorMessage,
   TASK_EXECUTOR_HINTS,
   TASK_EXECUTOR_LABELS,
   TASK_RESULT_LABELS,
   TASK_TYPE_TO_DEFAULT_ACTION,
 } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronDown, Loader2, Upload, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { ChevronDown } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -32,17 +29,13 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { LabelSelect } from '@/components/ui/label-select';
 import { Textarea } from '@/components/ui/textarea';
 import { useCompleteTask } from '@/hooks/use-task-operations';
 import { useUploadFile } from '@/hooks/use-upload';
 import type { TaskPublic } from '@/lib/api/maintenance-plans';
+
+import { TaskPhotoUpload } from './task-photo-upload';
 
 interface CompleteTaskDialogProps {
   open: boolean;
@@ -50,55 +43,6 @@ interface CompleteTaskDialogProps {
   task: TaskPublic | null;
   planId: string;
   onProblemDetected?: (info: { taskId: string; taskName: string; propertyId?: string }) => void;
-}
-
-function LabelSelect({
-  label,
-  labels,
-  value,
-  onChange,
-  placeholder,
-  required,
-  errorId,
-  colorMap,
-}: {
-  label: string;
-  labels: Record<string, string>;
-  value: string | undefined;
-  onChange: (value: string) => void;
-  placeholder: string;
-  required?: boolean;
-  /** When provided, links the trigger to the error message via aria-describedby. */
-  errorId?: string;
-  /** Optional color dot map — renders a colored circle before each label. */
-  colorMap?: Record<string, string>;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label>
-        {label} {required && <span className="text-destructive">*</span>}
-      </Label>
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger aria-describedby={errorId}>
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent>
-          {Object.entries(labels).map(([val, lab]) => (
-            <SelectItem key={val} value={val}>
-              {colorMap?.[val] ? (
-                <span className="flex items-center gap-2">
-                  <span className={`h-2 w-2 rounded-full ${colorMap[val]}`} />
-                  {lab}
-                </span>
-              ) : (
-                lab
-              )}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
-  );
 }
 
 export function CompleteTaskDialog({
@@ -110,9 +54,6 @@ export function CompleteTaskDialog({
 }: CompleteTaskDialogProps) {
   const completeTask = useCompleteTask({ onProblemDetected });
   const uploadFile = useUploadFile();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const currentObjectUrl = useRef<string | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState(false);
 
   const defaultAction = task ? TASK_TYPE_TO_DEFAULT_ACTION[task.taskType as TaskType] : undefined;
@@ -143,51 +84,6 @@ export function CompleteTaskDialog({
     }
   }, [watchedCondition, showDetails, setValue, defaultAction]);
 
-  useEffect(() => {
-    return () => {
-      if (currentObjectUrl.current) URL.revokeObjectURL(currentObjectUrl.current);
-    };
-  }, []);
-
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (currentObjectUrl.current) URL.revokeObjectURL(currentObjectUrl.current);
-    const objectUrl = URL.createObjectURL(file);
-    currentObjectUrl.current = objectUrl;
-    setPreview(objectUrl);
-
-    uploadFile.mutate(
-      { file, folder: 'task-photos' },
-      {
-        onSuccess: (url) => {
-          // Guard: ignore if user already picked a different file
-          if (currentObjectUrl.current !== objectUrl) return;
-          setValue('photoUrl', url);
-        },
-        onError: (err) => {
-          if (currentObjectUrl.current !== objectUrl) return;
-          URL.revokeObjectURL(objectUrl);
-          currentObjectUrl.current = null;
-          setPreview(null);
-          setValue('photoUrl', undefined);
-          toast.error(getErrorMessage(err, 'Error al subir foto'));
-        },
-      },
-    );
-  };
-
-  const removePhoto = () => {
-    if (currentObjectUrl.current) URL.revokeObjectURL(currentObjectUrl.current);
-    currentObjectUrl.current = null;
-    setPreview(null);
-    setValue('photoUrl', undefined);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
   const onSubmit = (data: CompleteTaskInput) => {
     if (!task) return;
     completeTask.mutate(
@@ -195,9 +91,6 @@ export function CompleteTaskDialog({
       {
         onSuccess: () => {
           reset();
-          if (currentObjectUrl.current) URL.revokeObjectURL(currentObjectUrl.current);
-          currentObjectUrl.current = null;
-          setPreview(null);
           setShowDetails(false);
           onOpenChange(false);
         },
@@ -366,52 +259,10 @@ export function CompleteTaskDialog({
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label>Foto (opcional)</Label>
-                <p className="text-muted-foreground text-xs">
-                  Foto del área inspeccionada para registro.
-                </p>
-                {preview ? (
-                  <div className="relative inline-block">
-                    <img
-                      src={preview}
-                      alt="Vista previa de foto para completar tarea"
-                      className="h-32 w-32 rounded-md object-cover"
-                    />
-                    <button
-                      type="button"
-                      onClick={removePhoto}
-                      className="bg-destructive focus-visible:ring-ring/50 absolute -top-2 -right-2 rounded-full p-1 text-white focus-visible:ring-[3px] focus-visible:outline-none"
-                      aria-label="Eliminar foto"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                    {uploadFile.isPending && (
-                      <div className="bg-foreground/40 absolute inset-0 flex items-center justify-center rounded-md">
-                        <Loader2 className="text-background h-6 w-6 animate-spin" />
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="border-input hover:bg-muted/40 flex items-center gap-2 rounded-md border border-dashed px-4 py-3 text-sm transition-colors"
-                  >
-                    <Upload className="h-4 w-4" aria-hidden="true" />
-                    Subir foto
-                  </button>
-                )}
-                <p className="type-body-sm text-muted-foreground">Máx. 10 MB por archivo</p>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                  aria-label="Seleccionar foto de inspección"
-                />
-              </div>
+              <TaskPhotoUpload
+                uploadMutation={uploadFile}
+                onChange={(url) => setValue('photoUrl', url ?? undefined)}
+              />
             </>
           )}
 
