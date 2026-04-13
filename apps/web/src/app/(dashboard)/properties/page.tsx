@@ -1,7 +1,13 @@
 'use client';
 
 import type { PropertyType } from '@epde/shared';
-import { PLAN_STATUS_LABELS, PROPERTY_TYPE_LABELS, QUERY_KEYS, UserRole } from '@epde/shared';
+import {
+  PLAN_STATUS_LABELS,
+  PLAN_STATUS_VARIANT,
+  PROPERTY_TYPE_LABELS,
+  QUERY_KEYS,
+  UserRole,
+} from '@epde/shared';
 import { useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -14,6 +20,7 @@ import { PropertiesListTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
 import { SearchInput } from '@/components/search-input';
 import { SearchableFilterSelect } from '@/components/searchable-filter-select';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PageTransition } from '@/components/ui/page-transition';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -25,6 +32,57 @@ import { useAuthStore } from '@/stores/auth-store';
 
 import { propertyColumns } from './columns';
 import { CreatePropertyDialog } from './create-property-dialog';
+
+function PropertyMobileCard({
+  property,
+  onClick,
+}: {
+  property: PropertyPublic;
+  onClick: () => void;
+}) {
+  const plan = property.maintenancePlan;
+  const isv = property.latestISV;
+  const isvVariant = isv
+    ? isv.score >= 80
+      ? 'success'
+      : isv.score >= 60
+        ? 'warning'
+        : isv.score >= 40
+          ? 'caution'
+          : 'destructive'
+    : undefined;
+
+  return (
+    <button
+      onClick={onClick}
+      className="bg-card hover:bg-muted/40 w-full rounded-lg border p-3 text-left transition-colors"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium">{property.address}</p>
+          <p className="text-muted-foreground text-xs">
+            {property.city}
+            {property.yearBuilt && ` · ${property.yearBuilt}`}
+            {' · '}
+            {PROPERTY_TYPE_LABELS[property.type] ?? property.type}
+          </p>
+        </div>
+        {isv && isvVariant && (
+          <Badge variant={isvVariant} className="shrink-0 text-xs">
+            {isv.score}
+          </Badge>
+        )}
+      </div>
+      {plan && (
+        <div className="mt-1.5 flex items-center gap-1.5">
+          <Badge variant={PLAN_STATUS_VARIANT[plan.status] ?? 'secondary'} className="text-xs">
+            {PLAN_STATUS_LABELS[plan.status] ?? plan.status}
+          </Badge>
+        </div>
+      )}
+    </button>
+  );
+}
 
 const typeOptions = Object.entries(PROPERTY_TYPE_LABELS).map(([value, label]) => ({
   value,
@@ -156,17 +214,44 @@ export default function PropertiesPage() {
       <p data-tour="properties-table" className="text-muted-foreground mb-2 text-sm">
         {total !== undefined ? `${total} propiedad${total !== 1 ? 'es' : ''}` : '\u00A0'}
       </p>
-      <DataTable
-        columns={columns}
-        data={allProperties}
-        isLoading={isLoading}
-        hasMore={hasNextPage}
-        onLoadMore={() => fetchNextPage()}
-        total={total}
-        emptyMessage="No se encontraron propiedades"
-        onRowClick={(row) => router.push(`/properties/${row.id}`)}
-        onRowHover={handleRowHover}
-      />
+
+      {/* Mobile: cards — Desktop: table */}
+      <div className="sm:hidden">
+        {isLoading ? (
+          <div className="space-y-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="bg-card h-20 animate-pulse rounded-lg border" />
+            ))}
+          </div>
+        ) : allProperties.length === 0 ? (
+          <p className="text-muted-foreground py-8 text-center text-sm">
+            No se encontraron propiedades
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {allProperties.map((p) => (
+              <PropertyMobileCard
+                key={p.id}
+                property={p}
+                onClick={() => router.push(`/properties/${p.id}`)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="hidden sm:block">
+        <DataTable
+          columns={columns}
+          data={allProperties}
+          isLoading={isLoading}
+          hasMore={hasNextPage}
+          onLoadMore={() => fetchNextPage()}
+          total={total}
+          emptyMessage="No se encontraron propiedades"
+          onRowClick={(row) => router.push(`/properties/${row.id}`)}
+          onRowHover={handleRowHover}
+        />
+      </div>
 
       {isAdmin && <CreatePropertyDialog open={createOpen} onOpenChange={setCreateOpen} />}
     </PageTransition>
