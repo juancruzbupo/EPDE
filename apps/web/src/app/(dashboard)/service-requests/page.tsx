@@ -1,7 +1,14 @@
 'use client';
 
 import type { ServiceStatus, ServiceUrgency } from '@epde/shared';
-import { SERVICE_STATUS_LABELS, SERVICE_URGENCY_LABELS, UserRole } from '@epde/shared';
+import {
+  formatRelativeDate,
+  SERVICE_STATUS_LABELS,
+  SERVICE_STATUS_VARIANT,
+  SERVICE_URGENCY_LABELS,
+  URGENCY_VARIANT,
+  UserRole,
+} from '@epde/shared';
 import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
@@ -14,15 +21,54 @@ import { PageHeader } from '@/components/page-header';
 import { RequestTypeHelper } from '@/components/request-type-helper';
 import { SearchInput } from '@/components/search-input';
 import { SearchableFilterSelect } from '@/components/searchable-filter-select';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PageTransition } from '@/components/ui/page-transition';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useServiceRequests } from '@/hooks/use-service-requests';
 import { useUrlFilters } from '@/hooks/use-url-filters';
+import type { ServiceRequestPublic } from '@/lib/api/service-requests';
 import { useAuthStore } from '@/stores/auth-store';
 
 import { serviceRequestColumns } from './columns';
 import { CreateServiceDialog } from './create-service-dialog';
+
+function ServiceMobileCard({
+  request,
+  onClick,
+}: {
+  request: ServiceRequestPublic;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="bg-card hover:bg-muted/40 w-full rounded-lg border p-3 text-left transition-colors"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <p className="min-w-0 flex-1 text-sm font-medium">{request.title}</p>
+        <Badge
+          variant={SERVICE_STATUS_VARIANT[request.status] ?? 'secondary'}
+          className="shrink-0 text-xs"
+        >
+          {SERVICE_STATUS_LABELS[request.status] ?? request.status}
+        </Badge>
+      </div>
+      <p className="text-muted-foreground mt-0.5 text-xs">
+        {request.property.address}
+        {' · '}
+        <Badge
+          variant={URGENCY_VARIANT[request.urgency] ?? 'secondary'}
+          className="inline-flex px-1.5 py-0 text-[10px]"
+        >
+          {SERVICE_URGENCY_LABELS[request.urgency] ?? request.urgency}
+        </Badge>
+        {' · '}
+        {formatRelativeDate(new Date(request.createdAt))}
+      </p>
+    </button>
+  );
+}
 
 const statusOptions = Object.entries(SERVICE_STATUS_LABELS).map(([value, label]) => ({
   value,
@@ -96,9 +142,9 @@ function ServiceRequestsPageContent() {
         description="Gestión de solicitudes de servicio"
         action={
           user?.role === UserRole.CLIENT ? (
-            <Button data-tour="services-action" onClick={() => setCreateOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Nueva Solicitud
+            <Button data-tour="services-action" onClick={() => setCreateOpen(true)} size="sm">
+              <Plus className="h-4 w-4 sm:mr-1.5" />
+              <span className="hidden sm:inline">Nueva Solicitud</span>
             </Button>
           ) : undefined
         }
@@ -139,22 +185,50 @@ function ServiceRequestsPageContent() {
         />
       )}
 
-      <DataTable
-        columns={serviceRequestColumns}
-        data={allRequests}
-        isLoading={isLoading}
-        hasMore={hasNextPage}
-        onLoadMore={() => fetchNextPage()}
-        total={total}
-        emptyMessage="Si detectás un problema en tu casa, creá una solicitud y EPDE lo evalúa. Usá el botón 'Nueva Solicitud' o hacelo desde el detalle de una tarea."
-        hasActiveFilters={
-          debouncedSearch !== '' ||
-          status !== 'all' ||
-          urgency !== 'all' ||
-          propertyFilter !== 'all'
-        }
-        onRowClick={(row) => router.push(`/service-requests/${row.id}`)}
-      />
+      {/* Mobile: cards */}
+      <div className="sm:hidden">
+        {isLoading ? (
+          <div className="space-y-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="bg-card h-16 animate-pulse rounded-lg border" />
+            ))}
+          </div>
+        ) : allRequests.length === 0 ? (
+          <p className="text-muted-foreground py-8 text-center text-sm">
+            No se encontraron solicitudes.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {allRequests.map((r) => (
+              <ServiceMobileCard
+                key={r.id}
+                request={r}
+                onClick={() => router.push(`/service-requests/${r.id}`)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="hidden sm:block">
+        <DataTable
+          columns={serviceRequestColumns}
+          data={allRequests}
+          isLoading={isLoading}
+          hasMore={hasNextPage}
+          onLoadMore={() => fetchNextPage()}
+          total={total}
+          emptyMessage="Si detectás un problema en tu casa, creá una solicitud y EPDE lo evalúa. Usá el botón 'Nueva Solicitud' o hacelo desde el detalle de una tarea."
+          hasActiveFilters={
+            debouncedSearch !== '' ||
+            status !== 'all' ||
+            urgency !== 'all' ||
+            propertyFilter !== 'all'
+          }
+          onRowClick={(row) => router.push(`/service-requests/${row.id}`)}
+        />
+      </div>
 
       {user?.role === UserRole.CLIENT && (
         <CreateServiceDialog open={createOpen} onOpenChange={setCreateOpen} />
