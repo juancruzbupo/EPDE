@@ -71,7 +71,12 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
         user: { select: { id: true, name: true, email: true } },
         maintenancePlan: {
           include: {
-            tasks: { include: { category: true }, orderBy: { order: 'asc' }, take: 500 },
+            tasks: {
+              where: { deletedAt: null },
+              include: { category: true },
+              orderBy: { order: 'asc' },
+              take: 500,
+            },
           },
         },
       },

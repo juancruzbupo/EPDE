@@ -73,6 +73,7 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
           take: 20,
         },
         taskNotes: {
+          where: { deletedAt: null }, // TaskNote has deletedAt but is not in the Prisma extension — must filter manually
           include: { author: { select: { id: true, name: true } } },
           orderBy: { createdAt: 'desc' },
           take: 50,
