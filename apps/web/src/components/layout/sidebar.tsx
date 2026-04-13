@@ -44,7 +44,13 @@ const clientNavItems = [
   { label: 'Servicios', href: '/service-requests', icon: Wrench },
 ];
 
-export function Sidebar({ className }: { className?: string }) {
+export function Sidebar({
+  className,
+  hideCollapse,
+}: {
+  className?: string;
+  hideCollapse?: boolean;
+}) {
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
   const [collapsed, setCollapsed] = useState(false);
@@ -74,14 +80,20 @@ export function Sidebar({ className }: { className?: string }) {
         <h2 className="font-heading text-sidebar-primary text-xl font-bold">
           {collapsed ? 'E' : 'EPDE'}
         </h2>
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="text-sidebar-foreground/60 hover:text-sidebar-foreground rounded p-1 transition-colors"
-          aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'}
-          aria-expanded={!collapsed}
-        >
-          {collapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
-        </button>
+        {!hideCollapse && (
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="text-sidebar-foreground/60 hover:text-sidebar-foreground rounded p-1 transition-colors"
+            aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'}
+            aria-expanded={!collapsed}
+          >
+            {collapsed ? (
+              <ChevronsRight className="h-4 w-4" />
+            ) : (
+              <ChevronsLeft className="h-4 w-4" />
+            )}
+          </button>
+        )}
       </div>
 
       {/* Navigation */}

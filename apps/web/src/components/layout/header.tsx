@@ -47,7 +47,7 @@ export function Header() {
             <VisuallyHidden.Root>
               <SheetTitle>Menú de navegación</SheetTitle>
             </VisuallyHidden.Root>
-            <Sidebar />
+            <Sidebar hideCollapse className="h-full" />
           </SheetContent>
         </Sheet>
       </div>
