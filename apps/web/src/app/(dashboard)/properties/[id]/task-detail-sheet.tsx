@@ -74,7 +74,7 @@ export function TaskDetailSheet({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="flex w-full flex-col sm:max-w-lg">
-        <SheetHeader className="px-6 pb-4">
+        <SheetHeader className="px-4 pb-4 sm:px-6">
           <SheetTitle className="text-lg leading-tight">{task.name}</SheetTitle>
           <SheetDescription className="sr-only">
             Detalle de tarea, historial y notas
@@ -95,7 +95,7 @@ export function TaskDetailSheet({
 
         <Separator />
 
-        <div className="flex-1 space-y-6 overflow-y-auto px-6 pb-6">
+        <div className="flex-1 space-y-5 overflow-y-auto px-4 pb-4 sm:space-y-6 sm:px-6 sm:pb-6">
           {/* Key info: due date + professional requirement (most important for the user) */}
           <div className="bg-muted/40 space-y-3 rounded-lg p-4">
             <div className="flex items-start justify-between gap-4">
@@ -239,12 +239,11 @@ export function TaskDetailSheet({
         </div>
 
         {/* Sticky CTA footer — always visible without scrolling */}
-        <div className="border-t px-6 py-4">
-          <div className="flex gap-2">
+        <div className="border-t px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex flex-col gap-2 sm:flex-row">
             {canComplete && onComplete && (
               <Button
-                className="flex-1"
-                size="lg"
+                className="w-full sm:flex-1"
                 onClick={() => onComplete(task)}
                 title="Registrar inspección de esta tarea"
               >
@@ -255,7 +254,7 @@ export function TaskDetailSheet({
             {onRequestService && (
               <Button
                 variant="outline"
-                className={canComplete && onComplete ? '' : 'w-full'}
+                className="w-full sm:w-auto"
                 onClick={() => onRequestService(task)}
               >
                 <Wrench className="mr-2 h-4 w-4" aria-hidden="true" />
