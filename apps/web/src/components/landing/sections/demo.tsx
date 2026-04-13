@@ -35,7 +35,7 @@ export function DemoSection({ motionProps }: SectionProps) {
         <motion.div variants={FADE_IN_UP} className="mt-12">
           <div className="border-border bg-card mx-auto aspect-video max-w-3xl overflow-hidden rounded-2xl border shadow-lg">
             {/* Replace this div with a real video: <video> or YouTube embed */}
-            <div className="flex h-full flex-col items-center justify-center gap-4 bg-gradient-to-br from-[#a65636]/5 to-[#a65636]/10">
+            <div className="from-primary/5 to-primary/10 flex h-full flex-col items-center justify-center gap-4 bg-gradient-to-br">
               <div className="bg-primary/10 flex h-16 w-16 items-center justify-center rounded-full">
                 <Play className="text-primary h-7 w-7" fill="currentColor" />
               </div>

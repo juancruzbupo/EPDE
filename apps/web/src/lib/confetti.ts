@@ -1,3 +1,4 @@
+import { DESIGN_TOKENS_LIGHT } from '@epde/shared';
 import confetti from 'canvas-confetti';
 
 /**
@@ -6,7 +7,13 @@ import confetti from 'canvas-confetti';
  */
 export function triggerConfetti() {
   const end = Date.now() + 800;
-  const colors = ['#C4704B', '#e8ddd3', '#4ade80', '#facc15', '#60a5fa'];
+  const colors = [
+    DESIGN_TOKENS_LIGHT.primary,
+    DESIGN_TOKENS_LIGHT.secondary,
+    '#4ade80',
+    '#facc15',
+    '#60a5fa',
+  ];
 
   (function frame() {
     confetti({

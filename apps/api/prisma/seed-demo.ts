@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment, no-console */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck — Seed script, array indexing returns T|undefined in strict mode
 // ============================================================================
 // apps/api/prisma/seed-demo.ts

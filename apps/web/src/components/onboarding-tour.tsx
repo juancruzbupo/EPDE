@@ -1,6 +1,6 @@
 'use client';
 
-import { UserRole } from '@epde/shared';
+import { DESIGN_TOKENS_LIGHT, UserRole } from '@epde/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { EventData, Props, Step } from 'react-joyride';
 import { toast } from 'sonner';
@@ -22,7 +22,7 @@ const SHARED_STEP_DEFAULTS: Partial<Step> = {
   showProgress: true,
   scrollOffset: 100,
   spotlightPadding: 8,
-  primaryColor: '#a65636',
+  primaryColor: DESIGN_TOKENS_LIGHT.primary,
   overlayColor: 'rgba(0, 0, 0, 0.6)',
   zIndex: 10000,
 };
@@ -36,10 +36,10 @@ const STYLES: Props['styles'] = {
     boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
   },
   tooltipTitle: { fontSize: 18, fontWeight: 700, marginBottom: 8 },
-  tooltipContent: { fontSize: 15, lineHeight: 1.6, color: '#444' },
+  tooltipContent: { fontSize: 15, lineHeight: 1.6, color: DESIGN_TOKENS_LIGHT.foreground },
   buttonPrimary: { borderRadius: 8, fontSize: 14, padding: '10px 20px', fontWeight: 600 },
-  buttonBack: { color: '#666', fontSize: 14 },
-  buttonSkip: { color: '#999', fontSize: 13 },
+  buttonBack: { color: DESIGN_TOKENS_LIGHT.mutedForeground, fontSize: 14 },
+  buttonSkip: { color: DESIGN_TOKENS_LIGHT.mutedForeground, fontSize: 13 },
   overlay: { mixBlendMode: 'normal' as const },
 };
 

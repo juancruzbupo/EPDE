@@ -27,9 +27,23 @@ export default [
         { argsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
-      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'no-console': ['error', { allow: ['warn', 'error'] }],
       // TypeScript handles undefined variables better than ESLint
       'no-undef': 'off',
+    },
+  },
+  {
+    // Test files, seed scripts, and bootstrap entrypoint may use any console method
+    files: [
+      '**/*.spec.ts',
+      '**/*.test.ts',
+      '**/*.spec.tsx',
+      '**/*.test.tsx',
+      '**/prisma/seed*.ts',
+      '**/src/main.ts',
+    ],
+    rules: {
+      'no-console': 'off',
     },
   },
   {

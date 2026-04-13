@@ -22,8 +22,7 @@ export async function POST(request: Request) {
   const { name, contact, address } = parsed.data;
 
   if (!apiKey) {
-    console.warn('RESEND_API_KEY not set — contact form submission logged only');
-    console.log('Contact form:', { name, contact, address });
+    console.warn('RESEND_API_KEY not set — contact form submission dropped (dev/staging only)');
     return NextResponse.json({ ok: true });
   }
 
