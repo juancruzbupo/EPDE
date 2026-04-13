@@ -3,36 +3,23 @@
 import type { InspectionChecklist, InspectionItemStatus, PropertySector } from '@epde/shared';
 import { PROPERTY_SECTOR_LABELS } from '@epde/shared';
 import {
-  AlertTriangle,
   CheckCircle,
   ChevronDown,
   ChevronRight,
-  Circle,
   ClipboardList,
   Eye,
   FileText,
   Plus,
-  Wrench,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { ErrorState } from '@/components/error-state';
-import { InspectionGuideRenderer } from '@/components/inspection-guide-renderer';
 import { InspectionTour } from '@/components/onboarding-tour';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Textarea } from '@/components/ui/textarea';
 import {
   useAddInspectionItem,
   useCreateInspection,
@@ -42,35 +29,10 @@ import {
   useUpdateInspectionItem,
 } from '@/hooks/use-inspections';
 
-const STATUS_CONFIG: Record<
-  InspectionItemStatus,
-  {
-    label: string;
-    icon: typeof CheckCircle;
-    color: string;
-    variant: 'success' | 'warning' | 'destructive' | 'secondary';
-  }
-> = {
-  PENDING: {
-    label: 'Pendiente',
-    icon: Circle,
-    color: 'text-muted-foreground',
-    variant: 'secondary',
-  },
-  OK: { label: 'OK', icon: CheckCircle, color: 'text-success', variant: 'success' },
-  NEEDS_ATTENTION: {
-    label: 'Necesita atención',
-    icon: AlertTriangle,
-    color: 'text-warning',
-    variant: 'warning',
-  },
-  NEEDS_PROFESSIONAL: {
-    label: 'Requiere profesional',
-    icon: Wrench,
-    color: 'text-destructive',
-    variant: 'destructive',
-  },
-};
+import { FindingDialog } from './dialogs/finding-dialog';
+import { InspectionGuideDialog } from './dialogs/inspection-guide-dialog';
+import { PlanGenerationDialog } from './dialogs/plan-generation-dialog';
+import { STATUS_CONFIG } from './inspection-status-config';
 
 interface InspectionTabProps {
   propertyId: string;
@@ -92,9 +54,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
     itemId: string;
     status: InspectionItemStatus;
   } | null>(null);
-  const [findingText, setFindingText] = useState('');
   const [planNameDialog, setPlanNameDialog] = useState(false);
-  const [planName, setPlanName] = useState('');
   const [expandedSectors, setExpandedSectors] = useState<Set<string>>(new Set());
   const [guideItem, setGuideItem] = useState<InspectionChecklist['items'][0] | null>(null);
 
@@ -139,10 +99,10 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
     );
   };
 
-  const handleGeneratePlan = () => {
-    if (!activeChecklist || !planName.trim()) return;
+  const handleGeneratePlan = (planName: string) => {
+    if (!activeChecklist) return;
     generatePlan.mutate(
-      { checklistId: activeChecklist.id, planName: planName.trim() },
+      { checklistId: activeChecklist.id, planName },
       { onSuccess: () => setPlanNameDialog(false) },
     );
   };
@@ -266,13 +226,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
                 Ya podés generar el plan de mantenimiento basado en los hallazgos.
               </p>
             </div>
-            <Button
-              onClick={() => {
-                setPlanName('');
-                setPlanNameDialog(true);
-              }}
-              disabled={generatePlan.isPending}
-            >
+            <Button onClick={() => setPlanNameDialog(true)} disabled={generatePlan.isPending}>
               <FileText className="mr-2 h-4 w-4" />
               Generar Plan
             </Button>
@@ -387,7 +341,6 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
                                   status === 'NEEDS_PROFESSIONAL'
                                 ) {
                                   setFindingDialog({ itemId: item.id, status });
-                                  setFindingText('');
                                 } else {
                                   handleUpdateItem(item.id, status);
                                 }
@@ -447,207 +400,29 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
         );
       })}
 
-      {/* Finding dialog */}
-      <Dialog
+      <FindingDialog
         open={!!findingDialog}
         onOpenChange={(open) => {
           if (!open) setFindingDialog(null);
         }}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>¿Qué encontraste?</DialogTitle>
-          </DialogHeader>
-          <p className="text-muted-foreground text-xs">
-            Describí brevemente qué observaste. Ej: &quot;Pintura descascarada en esquina NE&quot;,
-            &quot;Fisura de 2mm en muro sur&quot;, &quot;Flexible de gas vencido&quot;.
-          </p>
-          <Textarea
-            value={findingText}
-            onChange={(e) => setFindingText(e.target.value)}
-            placeholder="Describí el hallazgo..."
-            rows={3}
-            className="resize-none"
-            autoFocus
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setFindingDialog(null)}>
-              Cancelar
-            </Button>
-            <Button
-              disabled={updateItem.isPending}
-              onClick={() => {
-                if (findingDialog) {
-                  handleUpdateItem(findingDialog.itemId, findingDialog.status, findingText);
-                  setFindingDialog(null);
-                }
-              }}
-            >
-              Guardar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Generate plan dialog */}
-      <Dialog open={planNameDialog} onOpenChange={setPlanNameDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Generar plan de mantenimiento</DialogTitle>
-          </DialogHeader>
-          <p className="text-muted-foreground text-sm">
-            Se va a crear un plan con {activeChecklist.items.length} tareas de mantenimiento basadas
-            en lo que encontraste en la inspección. Las tareas marcadas como &quot;necesita
-            atención&quot; o &quot;requiere profesional&quot; tendrán mayor prioridad.
-          </p>
-          <Input
-            value={planName}
-            onChange={(e) => setPlanName(e.target.value)}
-            placeholder="Nombre del plan..."
-            autoFocus
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && planName.trim()) handleGeneratePlan();
-            }}
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setPlanNameDialog(false)}>
-              Cancelar
-            </Button>
-            <Button
-              onClick={handleGeneratePlan}
-              disabled={!planName.trim() || generatePlan.isPending}
-            >
-              Generar plan
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Inspection guide dialog */}
-      <Dialog
-        open={!!guideItem}
-        onOpenChange={(open) => {
-          if (!open) setGuideItem(null);
+        itemId={findingDialog?.itemId ?? null}
+        status={findingDialog?.status ?? null}
+        isSaving={updateItem.isPending}
+        onSave={(itemId, status, finding) => {
+          handleUpdateItem(itemId, status, finding);
+          setFindingDialog(null);
         }}
-      >
-        <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5" />
-              {guideItem?.name}
-            </DialogTitle>
-            <div className="flex gap-2 pt-1">
-              {guideItem?.sector && (
-                <Badge variant="outline" className="text-xs">
-                  {PROPERTY_SECTOR_LABELS[guideItem.sector as PropertySector] ?? guideItem.sector}
-                </Badge>
-              )}
-              {guideItem?.status && guideItem.status !== 'PENDING' && (
-                <Badge
-                  variant={
-                    STATUS_CONFIG[guideItem.status as InspectionItemStatus]?.variant ?? 'secondary'
-                  }
-                  className="text-xs"
-                >
-                  {STATUS_CONFIG[guideItem.status as InspectionItemStatus]?.label ??
-                    guideItem.status}
-                </Badge>
-              )}
-            </div>
-          </DialogHeader>
+      />
 
-          {/* Rich guide renderer or fallback to description */}
-          {guideItem?.inspectionGuide ? (
-            <InspectionGuideRenderer content={guideItem.inspectionGuide} />
-          ) : guideItem?.description ? (
-            guideItem.description.includes('##') ? (
-              <InspectionGuideRenderer content={guideItem.description} />
-            ) : (
-              <div className="space-y-3">
-                <InspectionGuideContent description={guideItem.description} />
-              </div>
-            )
-          ) : null}
+      <PlanGenerationDialog
+        open={planNameDialog}
+        onOpenChange={setPlanNameDialog}
+        taskCount={activeChecklist.items.length}
+        isGenerating={generatePlan.isPending}
+        onGenerate={handleGeneratePlan}
+      />
 
-          {/* Guide images gallery */}
-          {guideItem?.guideImageUrls && guideItem.guideImageUrls.length > 0 && (
-            <>
-              <Separator />
-              <div>
-                <p className="text-muted-foreground mb-2 text-xs font-semibold">
-                  Imágenes de referencia
-                </p>
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {guideItem.guideImageUrls.map((url, i) => (
-                    <img
-                      key={i}
-                      src={url}
-                      alt={`Referencia ${i + 1} para ${guideItem.name}`}
-                      loading="lazy"
-                      className="rounded-lg border object-cover"
-                    />
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-
-          {guideItem?.finding && (
-            <>
-              <Separator />
-              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/30">
-                <p className="text-xs font-semibold text-amber-800 dark:text-amber-200">
-                  Hallazgo registrado
-                </p>
-                <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
-                  {guideItem.finding}
-                </p>
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+      <InspectionGuideDialog item={guideItem} onClose={() => setGuideItem(null)} />
     </div>
-  );
-}
-
-/** Parses technicalDescription into formatted sections with highlighted criteria. */
-function InspectionGuideContent({ description }: { description: string }) {
-  // Split by "ATENCIÓN si:" and "PROFESIONAL si:" / "PROFESIONAL URGENTE si:"
-  const attentionMatch = description.match(/ATENCIÓN si:\s*(.*?)(?=PROFESIONAL|$)/s);
-  const professionalMatch = description.match(/PROFESIONAL(?:\s+URGENTE)?\s+si:\s*(.*?)$/s);
-
-  // Main text is everything before "ATENCIÓN si:" or "PROFESIONAL si:"
-  const mainText = description
-    .replace(/ATENCIÓN si:.*$/s, '')
-    .replace(/PROFESIONAL(?:\s+URGENTE)?\s+si:.*$/s, '')
-    .trim();
-
-  return (
-    <>
-      <p className="text-foreground text-sm leading-relaxed">{mainText}</p>
-
-      {attentionMatch?.[1] && (
-        <div className="border-warning/30 bg-warning/10 rounded-lg border p-3">
-          <p className="type-label-sm text-warning font-semibold">
-            ⚠️ Marcar &quot;Necesita atención&quot; si:
-          </p>
-          <p className="type-body-sm text-warning/90 mt-1">
-            {attentionMatch[1].trim().replace(/\.\s*$/, '')}
-          </p>
-        </div>
-      )}
-
-      {professionalMatch?.[1] && (
-        <div className="border-destructive/30 bg-destructive/10 rounded-lg border p-3">
-          <p className="type-label-sm text-destructive font-semibold">
-            🔴 Marcar &quot;Requiere profesional&quot; si:
-          </p>
-          <p className="type-body-sm text-destructive/90 mt-1">
-            {professionalMatch[1].trim().replace(/\.\s*$/, '')}
-          </p>
-        </div>
-      )}
-    </>
   );
 }
