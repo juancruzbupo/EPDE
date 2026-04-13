@@ -34,22 +34,20 @@ function StatCard({
         <button
           onClick={onClick}
           className={cn(
-            'bg-card flex flex-1 items-center gap-2 rounded-lg border p-2 text-left transition-all sm:gap-3 sm:p-3',
+            'bg-card flex flex-1 flex-col rounded-lg border p-2.5 text-left transition-all sm:p-3',
             active ? 'ring-primary ring-2' : 'hover:bg-muted/40',
           )}
         >
-          <Icon className={cn('h-4 w-4 shrink-0 sm:h-5 sm:w-5', color)} aria-hidden="true" />
-          <div className="min-w-0">
-            <p className={cn('sm:type-number-md text-lg leading-none font-semibold', color)}>
+          <div className="flex items-center gap-1.5">
+            <Icon className={cn('h-4 w-4 shrink-0', color)} aria-hidden="true" />
+            <span className={cn('text-xl leading-none font-bold tabular-nums', color)}>
               <AnimatedNumber value={count} />
-            </p>
-            <p className="type-body-sm text-muted-foreground mt-0.5 truncate">
-              {TASK_STATUS_LABELS[status]}
-            </p>
-            <p className="text-muted-foreground mt-0.5 hidden text-[10px] leading-tight sm:block">
-              {TASK_STATUS_HINTS[status]}
-            </p>
+            </span>
+            <span className={cn('type-body-sm truncate', color)}>{TASK_STATUS_LABELS[status]}</span>
           </div>
+          <p className="text-muted-foreground mt-1 text-[11px] leading-snug">
+            {TASK_STATUS_HINTS[status]}
+          </p>
         </button>
       </TooltipTrigger>
       <TooltipContent>{TASK_STATUS_HINTS[status]}</TooltipContent>
@@ -63,13 +61,14 @@ function StatCardSkeleton({ status }: { status: TaskStatus }) {
       key={status}
       role="status"
       aria-label="Cargando..."
-      className="bg-card flex flex-1 items-center gap-2 rounded-lg border p-2 sm:gap-3 sm:p-3"
+      className="bg-card flex flex-1 flex-col rounded-lg border p-2.5 sm:p-3"
     >
-      <Skeleton className="h-5 w-5 rounded" />
-      <div>
+      <div className="flex items-center gap-1.5">
+        <Skeleton className="h-4 w-4 rounded" />
         <Skeleton className="h-5 w-8" />
-        <Skeleton className="mt-1 h-3 w-16" />
+        <Skeleton className="h-4 w-16" />
       </div>
+      <Skeleton className="mt-1 h-3 w-full" />
     </div>
   );
 }
