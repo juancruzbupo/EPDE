@@ -125,7 +125,9 @@ function CategorySection({
                     onTaskClick(task);
                   }
                 }}
-                className="bg-card hover:bg-muted/40 w-full cursor-pointer space-y-1.5 rounded-lg border p-3 text-left transition-all active:opacity-60"
+                className={`bg-card hover:bg-muted/40 w-full cursor-pointer space-y-1.5 rounded-lg border p-3 text-left transition-all active:opacity-60 ${
+                  isOverdue ? 'border-l-destructive border-l-4' : ''
+                }`}
               >
                 {/* Title + status badge — inline so badge stays with last word */}
                 <p className="text-sm leading-snug font-medium">
