@@ -39,6 +39,27 @@ export interface JwtPayload {
   exp?: number;
 }
 
+/**
+ * Common auth store contract shared by web and mobile Zustand stores.
+ *
+ * Each app extends this with platform-specific fields (e.g. mobile adds
+ * `subscriptionExpired`) and platform-specific implementations of each method.
+ *
+ * This type is the SSoT for fields that MUST exist on both stores.
+ * If you rename or remove a field here, update both `apps/web/src/stores/auth-store.ts`
+ * and `apps/mobile/src/stores/auth-store.ts`.
+ */
+export interface BaseAuthState {
+  user: UserPublic | null;
+  isAuthenticated: boolean;
+  /** True while the initial auth check (checkAuth) is in progress. */
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  /** Validates an existing session on app startup. Must set isLoading=false when done. */
+  checkAuth: () => Promise<void>;
+}
+
 /** Shape returned by JwtStrategy.validate() — set on req.user for all authenticated requests. */
 export interface CurrentUser {
   id: string;

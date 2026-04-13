@@ -1,4 +1,4 @@
-import type { UserPublic } from '@epde/shared';
+import type { BaseAuthState } from '@epde/shared';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 
@@ -8,15 +8,10 @@ import { unregisterPushToken } from '@/lib/push-notifications';
 import { queryClient } from '@/lib/query-client';
 import { tokenService } from '@/lib/token-service';
 
-interface AuthState {
-  user: UserPublic | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
+/** Mobile auth state — extends BaseAuthState (@epde/shared) with mobile-only fields. */
+interface AuthState extends BaseAuthState {
+  /** True when the subscription has expired. Drives the SubscriptionExpiredScreen. */
   subscriptionExpired: boolean;
-
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  checkAuth: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({

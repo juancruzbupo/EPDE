@@ -1,4 +1,4 @@
-import type { PropertySector } from '../enums';
+import type { InspectionItemStatus, PropertySector } from '../enums';
 
 // Derived from the canonical enum in enums.ts — do not redeclare as union here
 export type { InspectionItemStatus } from '../enums';
