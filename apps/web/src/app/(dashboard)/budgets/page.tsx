@@ -1,7 +1,12 @@
 'use client';
 
 import type { BudgetStatus } from '@epde/shared';
-import { BUDGET_STATUS_LABELS, UserRole } from '@epde/shared';
+import {
+  BUDGET_STATUS_LABELS,
+  BUDGET_STATUS_VARIANT,
+  formatRelativeDate,
+  UserRole,
+} from '@epde/shared';
 import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
@@ -14,6 +19,7 @@ import { PageHeader } from '@/components/page-header';
 import { RequestTypeHelper } from '@/components/request-type-helper';
 import { SearchInput } from '@/components/search-input';
 import { SearchableFilterSelect } from '@/components/searchable-filter-select';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PageTransition } from '@/components/ui/page-transition';
 import { useBudgets } from '@/hooks/use-budgets';
@@ -24,6 +30,43 @@ import { useAuthStore } from '@/stores/auth-store';
 
 import { budgetColumns } from './columns';
 import { CreateBudgetDialog } from './create-budget-dialog';
+
+function BudgetMobileCard({
+  budget,
+  onClick,
+}: {
+  budget: BudgetRequestPublic;
+  onClick: () => void;
+}) {
+  const amount = budget.response
+    ? new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(
+        Number(budget.response.totalAmount),
+      )
+    : null;
+
+  return (
+    <button
+      onClick={onClick}
+      className="bg-card hover:bg-muted/40 w-full rounded-lg border p-3 text-left transition-colors"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <p className="min-w-0 flex-1 text-sm font-medium">{budget.title}</p>
+        <Badge
+          variant={BUDGET_STATUS_VARIANT[budget.status] ?? 'secondary'}
+          className="shrink-0 text-xs"
+        >
+          {BUDGET_STATUS_LABELS[budget.status] ?? budget.status}
+        </Badge>
+      </div>
+      <p className="text-muted-foreground mt-0.5 text-xs">
+        {budget.property.address}
+        {amount && ` · ${amount}`}
+        {' · '}
+        {formatRelativeDate(new Date(budget.createdAt))}
+      </p>
+    </button>
+  );
+}
 
 const statusOptions = Object.entries(BUDGET_STATUS_LABELS).map(([value, label]) => ({
   value,
@@ -87,9 +130,9 @@ function BudgetsPageContent() {
         description="Gestión de presupuestos"
         action={
           user?.role === UserRole.CLIENT ? (
-            <Button data-tour="budgets-action" onClick={() => setCreateOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Solicitar Presupuesto
+            <Button data-tour="budgets-action" onClick={() => setCreateOpen(true)} size="sm">
+              <Plus className="h-4 w-4 sm:mr-1.5" />
+              <span className="hidden sm:inline">Solicitar Presupuesto</span>
             </Button>
           ) : undefined
         }
@@ -127,17 +170,46 @@ function BudgetsPageContent() {
       <p data-tour="budgets-table" className="text-muted-foreground mb-2 text-sm">
         {total !== undefined ? `${total} presupuesto${total !== 1 ? 's' : ''}` : '\u00A0'}
       </p>
-      <DataTable
-        columns={budgetColumns}
-        data={allBudgets}
-        isLoading={isLoading}
-        hasMore={hasNextPage}
-        onLoadMore={() => fetchNextPage()}
-        total={total}
-        emptyMessage="Todavía no tenés presupuestos. Cuando necesites una reparación, pedí una cotización desde el botón 'Solicitar Presupuesto'."
-        hasActiveFilters={debouncedSearch !== '' || status !== 'all' || propertyFilter !== 'all'}
-        onRowClick={(row: BudgetRequestPublic) => router.push(`/budgets/${row.id}`)}
-      />
+
+      {/* Mobile: cards */}
+      <div className="sm:hidden">
+        {isLoading ? (
+          <div className="space-y-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="bg-card h-16 animate-pulse rounded-lg border" />
+            ))}
+          </div>
+        ) : allBudgets.length === 0 ? (
+          <p className="text-muted-foreground py-8 text-center text-sm">
+            Todavía no tenés presupuestos.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {allBudgets.map((b) => (
+              <BudgetMobileCard
+                key={b.id}
+                budget={b}
+                onClick={() => router.push(`/budgets/${b.id}`)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="hidden sm:block">
+        <DataTable
+          columns={budgetColumns}
+          data={allBudgets}
+          isLoading={isLoading}
+          hasMore={hasNextPage}
+          onLoadMore={() => fetchNextPage()}
+          total={total}
+          emptyMessage="Todavía no tenés presupuestos. Cuando necesites una reparación, pedí una cotización desde el botón 'Solicitar Presupuesto'."
+          hasActiveFilters={debouncedSearch !== '' || status !== 'all' || propertyFilter !== 'all'}
+          onRowClick={(row: BudgetRequestPublic) => router.push(`/budgets/${row.id}`)}
+        />
+      </div>
 
       <CreateBudgetDialog open={createOpen} onOpenChange={setCreateOpen} />
     </PageTransition>
