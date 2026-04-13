@@ -67,7 +67,8 @@ export const TaskFilters = React.memo(function TaskFilters({
         placeholder="Buscar tarea, categoría o dirección..."
         className="w-full sm:w-auto sm:min-w-[360px]"
       />
-      <div className="flex gap-1">
+      <div className="flex items-center gap-1.5">
+        <span className="type-label-sm text-muted-foreground shrink-0">Prioridad:</span>
         {PRIORITY_OPTIONS.map((opt) => (
           <button
             key={opt.value}
@@ -89,8 +90,9 @@ export const TaskFilters = React.memo(function TaskFilters({
         value={sectorFilter}
         onValueChange={(v) => onSectorChange(v as PropertySector | 'all')}
       >
-        <SelectTrigger className="w-auto gap-1 sm:hidden" aria-label="Filtrar por sector">
-          <SelectValue placeholder="Sector" />
+        <SelectTrigger className="w-auto gap-1.5 sm:hidden" aria-label="Filtrar por sector">
+          <span className="type-label-sm text-muted-foreground">Sector:</span>
+          <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {SECTOR_OPTIONS.map((opt) => (
