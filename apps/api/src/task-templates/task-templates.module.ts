@@ -9,6 +9,6 @@ import { TaskTemplatesService } from './task-templates.service';
   imports: [CategoryTemplatesModule],
   controllers: [TaskTemplatesController],
   providers: [TaskTemplatesService, TaskTemplatesRepository],
-  exports: [TaskTemplatesService],
+  exports: [TaskTemplatesService, TaskTemplatesRepository],
 })
 export class TaskTemplatesModule {}

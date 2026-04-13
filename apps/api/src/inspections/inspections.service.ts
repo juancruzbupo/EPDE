@@ -8,13 +8,19 @@ import {
 } from '@nestjs/common';
 import { type InspectionItemStatus, type PropertySector } from '@prisma/client';
 
+import { CategoryTemplatesRepository } from '../category-templates/category-templates.repository';
 import { PrismaService } from '../prisma/prisma.service';
+import { PropertiesRepository } from '../properties/properties.repository';
+import { TaskTemplatesRepository } from '../task-templates/task-templates.repository';
 import { InspectionsRepository } from './inspections.repository';
 
 @Injectable()
 export class InspectionsService {
   constructor(
     private readonly repository: InspectionsRepository,
+    private readonly taskTemplatesRepository: TaskTemplatesRepository,
+    private readonly categoryTemplatesRepository: CategoryTemplatesRepository,
+    private readonly propertiesRepository: PropertiesRepository,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -42,10 +48,7 @@ export class InspectionsService {
       .map((i) => i.taskTemplateId!);
 
     if (templateIds.length > 0) {
-      const templates = await this.prisma.taskTemplate.findMany({
-        where: { id: { in: templateIds } },
-        select: { id: true, inspectionGuide: true, guideImageUrls: true },
-      });
+      const templates = await this.taskTemplatesRepository.findByIdsWithGuide(templateIds);
       const tplMap = new Map(templates.map((t) => [t.id, t]));
 
       for (const item of data.items) {
@@ -104,18 +107,12 @@ export class InspectionsService {
 
   /** Generate inspection items from TaskTemplates filtered by property's activeSectors. */
   async generateItemsFromTemplates(propertyId: string) {
-    const property = await this.prisma.property.findUnique({
-      where: { id: propertyId, deletedAt: null },
-      select: { activeSectors: true },
-    });
-    if (!property) throw new NotFoundException('Propiedad no encontrada');
+    const activeSectors = await this.propertiesRepository.findActiveSectors(propertyId);
+    if (!activeSectors) throw new NotFoundException('Propiedad no encontrada');
 
-    const templates = await this.prisma.categoryTemplate.findMany({
-      include: { tasks: { orderBy: { displayOrder: 'asc' } } },
-      orderBy: { displayOrder: 'asc' },
-    });
+    const templates = await this.categoryTemplatesRepository.findAllWithTasks();
 
-    const sectors = new Set(property.activeSectors);
+    const sectors = new Set(activeSectors);
     const grouped = new Map<
       PropertySector,
       {
@@ -148,12 +145,17 @@ export class InspectionsService {
 
   // ─── Plan generation from inspection ──────────────────
 
-  /** Create a MaintenancePlan + Tasks from a completed inspection checklist. */
+  /**
+   * Create a MaintenancePlan + Tasks from a completed inspection checklist.
+   *
+   * NOTE: This method uses `$transaction` directly because it orchestrates writes
+   * across 5 tables (maintenancePlan, category, task, taskLog, inspectionItem) atomically.
+   * No single repository owns this cross-domain operation. The pre-transaction reads
+   * (checklist, existingPlan, templates) use repositories; only the transactional writes
+   * remain as direct Prisma calls for atomicity.
+   */
   async generatePlanFromInspection(checklistId: string, planName: string, createdBy: string) {
-    const checklist = await this.prisma.inspectionChecklist.findUnique({
-      where: { id: checklistId, deletedAt: null },
-      include: { items: { where: { deletedAt: null }, orderBy: { order: 'asc' } } },
-    });
+    const checklist = await this.repository.findByIdWithActiveItems(checklistId);
     if (!checklist) throw new NotFoundException('Inspección no encontrada');
 
     // All items must be evaluated
@@ -179,10 +181,7 @@ export class InspectionsService {
 
     const taskTemplates =
       templateIds.length > 0
-        ? await this.prisma.taskTemplate.findMany({
-            where: { id: { in: templateIds } },
-            include: { category: true },
-          })
+        ? await this.taskTemplatesRepository.findByIdsWithCategory(templateIds)
         : [];
     const templateMap = new Map(taskTemplates.map((t) => [t.id, t]));
 
@@ -343,29 +342,20 @@ export class InspectionsService {
   // ─── Ownership validation ─────────────────────────────
 
   private async verifyPropertyOwnership(propertyId: string, userId: string) {
-    const property = await this.prisma.property.findUnique({
-      where: { id: propertyId },
-      select: { userId: true },
-    });
-    if (!property) throw new NotFoundException('Propiedad no encontrada');
-    if (property.userId !== userId) {
+    const ownership = await this.propertiesRepository.findOwnership(propertyId);
+    if (!ownership) throw new NotFoundException('Propiedad no encontrada');
+    if (ownership.userId !== userId) {
       throw new ForbiddenException('No tenés acceso a esta propiedad');
     }
   }
 
   private async verifyChecklistAccess(checklistId: string) {
-    const checklist = await this.prisma.inspectionChecklist.findUnique({
-      where: { id: checklistId },
-      select: { propertyId: true },
-    });
-    if (!checklist) throw new NotFoundException('Inspección no encontrada');
+    const propertyId = await this.repository.findChecklistProperty(checklistId);
+    if (!propertyId) throw new NotFoundException('Inspección no encontrada');
   }
 
   private async verifyItemAccess(itemId: string) {
-    const item = await this.prisma.inspectionItem.findUnique({
-      where: { id: itemId },
-      select: { checklistId: true },
-    });
-    if (!item) throw new NotFoundException('Item de inspección no encontrado');
+    const exists = await this.repository.findItemExists(itemId);
+    if (!exists) throw new NotFoundException('Item de inspección no encontrado');
   }
 }

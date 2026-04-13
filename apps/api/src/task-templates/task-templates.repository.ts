@@ -17,6 +17,20 @@ export class TaskTemplatesRepository extends BaseRepository<TaskTemplate, 'taskT
     });
   }
 
+  async findByIdsWithGuide(ids: string[]) {
+    return this.prisma.taskTemplate.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, inspectionGuide: true, guideImageUrls: true },
+    });
+  }
+
+  async findByIdsWithCategory(ids: string[]) {
+    return this.prisma.taskTemplate.findMany({
+      where: { id: { in: ids } },
+      include: { category: true },
+    });
+  }
+
   async reorder(categoryId: string, ids: string[]) {
     return this.prisma.$transaction(
       ids.map((id, index) =>

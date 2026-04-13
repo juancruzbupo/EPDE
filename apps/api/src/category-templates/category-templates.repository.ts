@@ -20,6 +20,13 @@ export class CategoryTemplatesRepository extends BaseRepository<
     });
   }
 
+  async findAllWithTasks() {
+    return this.prisma.categoryTemplate.findMany({
+      include: { tasks: { orderBy: { displayOrder: 'asc' } } },
+      orderBy: { displayOrder: 'asc' },
+    });
+  }
+
   async findByName(name: string): Promise<CategoryTemplate | null> {
     return this.model.findFirst({ where: { name } });
   }

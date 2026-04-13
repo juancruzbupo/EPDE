@@ -90,6 +90,14 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
     });
   }
 
+  async findActiveSectors(id: string): Promise<string[] | null> {
+    const result = await this.prisma.property.findFirst({
+      where: { id, deletedAt: null },
+      select: { activeSectors: true },
+    });
+    return result?.activeSectors ?? null;
+  }
+
   async createWithPlan(data: {
     userId: string;
     address: string;

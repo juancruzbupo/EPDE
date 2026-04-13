@@ -115,6 +115,30 @@ export class InspectionsRepository {
     });
   }
 
+  /** Fetches checklist with items filtered by deletedAt — for plan generation. */
+  async findByIdWithActiveItems(id: string) {
+    return this.prisma.inspectionChecklist.findUnique({
+      where: { id, deletedAt: null },
+      include: { items: { where: { deletedAt: null }, orderBy: { order: 'asc' } } },
+    });
+  }
+
+  async findChecklistProperty(id: string): Promise<string | null> {
+    const result = await this.prisma.inspectionChecklist.findUnique({
+      where: { id },
+      select: { propertyId: true },
+    });
+    return result?.propertyId ?? null;
+  }
+
+  async findItemExists(itemId: string): Promise<boolean> {
+    const result = await this.prisma.inspectionItem.findUnique({
+      where: { id: itemId },
+      select: { id: true },
+    });
+    return result !== null;
+  }
+
   async softDelete(id: string) {
     const now = new Date();
     return this.prisma.$transaction([
