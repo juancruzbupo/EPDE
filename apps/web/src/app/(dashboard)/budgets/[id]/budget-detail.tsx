@@ -184,7 +184,23 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
             <CardTitle className="text-lg">Detalle de cotización</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="overflow-x-auto rounded-md border">
+            {/* Mobile: stacked cards */}
+            <div className="space-y-2 sm:hidden">
+              {budget.lineItems.map((item) => (
+                <div key={item.id} className="bg-muted/30 rounded-lg p-3">
+                  <p className="text-sm font-medium">{item.description}</p>
+                  <div className="text-muted-foreground mt-1 flex items-center justify-between text-xs">
+                    <span>
+                      {item.quantity} × {formatARS(item.unitPrice)}
+                    </span>
+                    <span className="text-foreground font-medium">{formatARS(item.subtotal)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop: table */}
+            <div className="hidden rounded-md border sm:block">
               <Table>
                 <TableHeader>
                   <TableRow>
