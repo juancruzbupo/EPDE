@@ -248,7 +248,7 @@ Las notificaciones y emails se disparan con **inyeccion directa** desde los serv
 void this.notificationsHandler.handleBudgetCreated({ budgetId, title, requesterId });
 ```
 
-**Error Boundaries:** Cada metodo de `NotificationsHandlerService` esta envuelto en `try-catch` con `logger.error`. Los errores de BullMQ se manejan con reintentos automaticos.
+**Error Boundaries + Dead-Letter Queue:** Cada método handler está envuelto con `withDLQ(handler, payload, fn)`. Si el handler falla, el error se loguea Y se persiste en la tabla `FailedNotification` (handler name + payload JSON + error message). `NotificationRetryService` (cron `0 * * * *`) reintenta hasta 3 veces con backoff exponencial (1h → 2h → 4h). Un `AsyncLocalStorage` flag previene que los reintentos creen nuevas entradas DLQ en caso de fallo (evita cadenas infinitas). Ver ADR-008 y `scheduler-registry.md` sección DLQ para detalles.
 
 **Notification Queue (BullMQ):** Las notificaciones in-app se encolan via `NotificationQueueService` (`enqueue` / `enqueueBatch`) y se procesan por `NotificationQueueProcessor`. Configuracion: 3 reintentos con backoff exponencial (base 3s). Queue name: `notification`.
 
@@ -349,13 +349,23 @@ Frontend (ADMIN) → POST /upload (multipart/form-data)
 
 Dependencias: `TasksRepository`, `NotificationsRepository`, `UsersRepository`, `DistributedLockService`
 
-### 12. Frontend State Management
+### 12. Module Boundary Rules (ESLint)
+
+El `eslint.config.mjs` aplica reglas `no-restricted-imports` que refuerzan la jerarquía de capas:
+
+- **core/prisma/redis/metrics** → no pueden importar de módulos de dominio (auth, budgets, tasks, etc.)
+- **Módulos de dominio** → no pueden importar de `scheduler/` (solo `app.module.ts` puede)
+- **health/** está exento de la regla core→domain porque necesita importar queue names para health checks
+
+Jerarquía: `core → infrastructure (email, upload) → domain → scheduler (orquestación)`
+
+### 13. Frontend State Management
 
 **Zustand (auth-store):**
 
-- `user`, `isAuthenticated`, `isLoading`
-- `login()`, `logout()`, `refreshToken()`, `fetchUser()`
-- Persistencia via cookies HttpOnly (no localStorage)
+- `BaseAuthState` (interfaz compartida en `@epde/shared/types/auth.ts`) define los campos y métodos comunes: `user`, `isAuthenticated`, `isLoading`, `login()`, `logout()`, `checkAuth()`
+- Web: `type AuthState = BaseAuthState` (sin campos extra, cookies HttpOnly)
+- Mobile: `interface AuthState extends BaseAuthState { subscriptionExpired: boolean }` (SecureStore + push tokens)
 
 **TanStack React Query (server state):**
 
