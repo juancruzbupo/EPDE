@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import { VisuallyHidden } from 'radix-ui';
 import { useEffect, useState } from 'react';
 
-import { GlossaryButton } from '@/components/glossary-modal';
 import { NotificationBell } from '@/components/notification-bell';
 import { ThemeToggle } from '@/components/theme-toggle';
 import {
@@ -64,7 +63,6 @@ export function Header() {
       <span className="font-heading text-primary text-lg font-bold lg:hidden">EPDE</span>
 
       <div className="ml-auto flex items-center gap-3">
-        <GlossaryButton />
         <ThemeToggle />
         <NotificationBell />
         <DropdownMenu>
