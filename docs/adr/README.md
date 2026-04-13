@@ -10,3 +10,4 @@ Decisiones arquitectónicas clave del proyecto EPDE. Cada ADR documenta una deci
 | [004](004-isv-health-index.md)               | ISV: cálculo de 5 dimensiones con batch para listas          | Aceptada |
 | [005](005-notification-orchestration.md)     | NotificationsHandlerService como punto único de side-effects | Aceptada |
 | [006](006-notification-handler-vs-events.md) | NotificationsHandlerService vs Event-Driven                  | Aceptada |
+| [007](007-plan-data-module-circular-dep.md)  | PlanDataModule para romper dependencia circular TasksModule  | Aceptada |
