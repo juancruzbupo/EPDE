@@ -85,22 +85,24 @@ export const TaskFilters = React.memo(function TaskFilters({
         ))}
       </div>
       {/* Sector filter — Select on mobile, pill buttons on desktop */}
-      <Select
-        value={sectorFilter}
-        onValueChange={(v) => onSectorChange(v as PropertySector | 'all')}
-      >
-        <SelectTrigger className="w-full sm:hidden" aria-label="Filtrar por sector">
-          <span className="text-muted-foreground mr-1">Sector:</span>
-          <SelectValue placeholder="Todos" />
-        </SelectTrigger>
-        <SelectContent>
-          {SECTOR_OPTIONS.map((opt) => (
-            <SelectItem key={opt.value} value={opt.value}>
-              {opt.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="w-full sm:hidden">
+        <label className="type-label-sm text-muted-foreground mb-1 block">Sector</label>
+        <Select
+          value={sectorFilter}
+          onValueChange={(v) => onSectorChange(v as PropertySector | 'all')}
+        >
+          <SelectTrigger aria-label="Filtrar por sector">
+            <SelectValue placeholder="Todos los sectores" />
+          </SelectTrigger>
+          <SelectContent>
+            {SECTOR_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
       <div className="hidden gap-1 sm:flex">
         {SECTOR_OPTIONS.map((opt) => (
           <button
