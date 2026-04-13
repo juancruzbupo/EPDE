@@ -52,67 +52,83 @@ export const TaskFilters = React.memo(function TaskFilters({
   propertyOptions,
 }: TaskFiltersProps) {
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-3">
-      {propertyOptions.length > 1 && (
-        <SearchableFilterSelect
-          value={propertyFilter}
-          onChange={onPropertyChange}
-          options={propertyOptions}
-          placeholder="Propiedad"
+    <div className="mb-4 space-y-3">
+      {/* Search row */}
+      <div className="flex flex-wrap items-center gap-3">
+        {propertyOptions.length > 1 && (
+          <SearchableFilterSelect
+            value={propertyFilter}
+            onChange={onPropertyChange}
+            options={propertyOptions}
+            placeholder="Propiedad"
+          />
+        )}
+        <SearchInput
+          value={search}
+          onChange={onSearchChange}
+          placeholder="Buscar tarea, categoría o dirección..."
+          className="w-full sm:w-auto sm:min-w-[360px]"
         />
-      )}
-      <SearchInput
-        value={search}
-        onChange={onSearchChange}
-        placeholder="Buscar tarea, categoría o dirección..."
-        className="w-full sm:w-auto sm:min-w-[360px]"
-      />
-      <div className="flex items-center gap-1.5">
-        <span className="type-label-sm text-muted-foreground shrink-0">Prioridad:</span>
-        {PRIORITY_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            aria-pressed={priority === opt.value}
-            onClick={() => onPriorityChange(opt.value)}
-            className={cn(
-              'rounded-full px-3 py-1 text-xs font-medium transition-colors',
-              priority === opt.value
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground hover:bg-muted/80',
-            )}
-          >
-            {opt.label}
-          </button>
-        ))}
       </div>
-      {/* Sector filter — compact Select on mobile, pill buttons on desktop */}
-      <Select
-        value={sectorFilter}
-        onValueChange={(v) => onSectorChange(v as PropertySector | 'all')}
-      >
-        <SelectTrigger className="w-auto gap-1.5 sm:hidden" aria-label="Filtrar por sector">
-          <span className="type-label-sm text-muted-foreground">Sector:</span>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {SECTOR_OPTIONS.map((opt) => (
-            <SelectItem key={opt.value} value={opt.value}>
+
+      {/* Filter row */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="type-label-sm text-muted-foreground mr-0.5">Prioridad</span>
+        <div className="border-border flex items-center gap-0.5 rounded-lg border p-0.5">
+          {PRIORITY_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              aria-pressed={priority === opt.value}
+              onClick={() => onPriorityChange(opt.value)}
+              className={cn(
+                'rounded-md px-2.5 py-1 text-xs font-medium transition-all',
+                priority === opt.value
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
               {opt.label}
-            </SelectItem>
+            </button>
           ))}
-        </SelectContent>
-      </Select>
-      <div className="hidden gap-1 sm:flex">
+        </div>
+
+        {/* Sector filter — compact Select on mobile, pill buttons on desktop */}
+        <span className="type-label-sm text-muted-foreground mr-0.5 ml-1 hidden sm:inline">
+          Sector
+        </span>
+        <Select
+          value={sectorFilter}
+          onValueChange={(v) => onSectorChange(v as PropertySector | 'all')}
+        >
+          <SelectTrigger
+            className="h-auto w-auto gap-1.5 rounded-lg px-2.5 py-1 text-xs sm:hidden"
+            aria-label="Filtrar por sector"
+          >
+            <span className="text-muted-foreground">Sector:</span>
+            <span className="font-medium">
+              <SelectValue />
+            </span>
+          </SelectTrigger>
+          <SelectContent>
+            {SECTOR_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="border-border hidden items-center gap-0.5 rounded-lg border p-0.5 sm:flex">
         {SECTOR_OPTIONS.map((opt) => (
           <button
             key={opt.value}
             aria-pressed={sectorFilter === opt.value}
             onClick={() => onSectorChange(opt.value)}
             className={cn(
-              'rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors',
+              'rounded-md px-2.5 py-1 text-xs font-medium whitespace-nowrap transition-all',
               sectorFilter === opt.value
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground hover:bg-muted/80',
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground',
             )}
           >
             {opt.label}
