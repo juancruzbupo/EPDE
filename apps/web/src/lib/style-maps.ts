@@ -46,9 +46,11 @@ export const TASK_STATUS_ICONS: Record<TaskStatus, LucideIcon> = {
   [TaskStatus.COMPLETED]: CheckCircle2,
 };
 
+// Color mapping follows urgency gradient, not the token name: UPCOMING (≤30 días) is the
+// warning/attention tier (amber), PENDING (>30 días) is the informational tier (blue).
 export const TASK_STATUS_COLORS: Record<TaskStatus, string> = {
   [TaskStatus.OVERDUE]: 'text-destructive',
-  [TaskStatus.PENDING]: 'text-status-pending',
-  [TaskStatus.UPCOMING]: 'text-status-upcoming',
+  [TaskStatus.UPCOMING]: 'text-status-pending',
+  [TaskStatus.PENDING]: 'text-status-upcoming',
   [TaskStatus.COMPLETED]: 'text-status-completed',
 };

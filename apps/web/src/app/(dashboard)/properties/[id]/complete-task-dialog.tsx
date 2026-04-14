@@ -187,16 +187,19 @@ export function CompleteTaskDialog({
           <button
             type="button"
             onClick={() => setShowDetails(!showDetails)}
+            aria-expanded={showDetails}
+            aria-controls="complete-task-details"
             className="text-primary hover:text-primary/80 flex items-center gap-1 text-sm font-medium transition-colors"
           >
             <ChevronDown
               className={`h-4 w-4 transition-transform ${showDetails ? 'rotate-180' : ''}`}
+              aria-hidden="true"
             />
             {showDetails ? 'Menos detalles' : 'Agregar más detalles'}
           </button>
 
           {showDetails && (
-            <>
+            <div id="complete-task-details" className="contents">
               <div>
                 <Controller
                   control={control}
@@ -263,7 +266,7 @@ export function CompleteTaskDialog({
                 uploadMutation={uploadFile}
                 onChange={(url) => setValue('photoUrl', url ?? undefined)}
               />
-            </>
+            </div>
           )}
 
           <div className="flex justify-end gap-2">

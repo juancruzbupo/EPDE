@@ -13,10 +13,13 @@ import { toast } from 'sonner';
 import { addTask, getAllTasks, getPlan, getPlans, updatePlan } from '@/lib/api/maintenance-plans';
 import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 
+import { STALE_TIME } from './query-stale-times';
+
 export function usePlans() {
   return useQuery({
     queryKey: [QUERY_KEYS.plans, QUERY_KEYS.plansList],
     queryFn: ({ signal }) => getPlans(signal).then((r) => r.data),
+    staleTime: STALE_TIME.MEDIUM,
   });
 }
 
@@ -29,6 +32,7 @@ export function useAllTasks(params?: { status?: TaskStatus; propertyId?: string 
       params?.propertyId ?? 'all',
     ],
     queryFn: ({ signal }) => getAllTasks(params, signal).then((r) => r.data),
+    staleTime: STALE_TIME.VOLATILE,
   });
 }
 
@@ -37,6 +41,7 @@ export function usePlan(id: string) {
     queryKey: [QUERY_KEYS.plans, id],
     queryFn: ({ signal }) => getPlan(id, signal).then((r) => r.data),
     enabled: !!id,
+    staleTime: STALE_TIME.VOLATILE,
   });
 }
 

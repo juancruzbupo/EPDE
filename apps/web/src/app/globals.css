@@ -103,7 +103,7 @@ body {
   --secondary: #e8ddd3;
   --secondary-foreground: #2e2a27;
   --muted: #f5f0eb;
-  --muted-foreground: #3d3a37;
+  --muted-foreground: #2a2622;
   --accent: #e8ddd3;
   --accent-foreground: #2e2a27;
   --destructive: #b04a3a;
@@ -150,7 +150,7 @@ body {
   --task-measurement: #14b8a6;
   --task-evaluation: #8b5cf6;
   /* Task status tokens */
-  --status-pending: #924408;
+  --status-pending: #d97706;
   --status-upcoming: #2563eb;
   --status-completed: #059669;
   --sidebar: #f5f0eb;

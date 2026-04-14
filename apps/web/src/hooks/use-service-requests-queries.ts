@@ -10,6 +10,8 @@ import {
   type ServiceRequestFilters,
 } from '@/lib/api/service-requests';
 
+import { STALE_TIME } from './query-stale-times';
+
 export function useServiceRequests(filters: Omit<ServiceRequestFilters, 'cursor'>) {
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.serviceRequests, filters],
@@ -18,6 +20,7 @@ export function useServiceRequests(filters: Omit<ServiceRequestFilters, 'cursor'
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
     maxPages: 10,
+    staleTime: STALE_TIME.VOLATILE,
   });
 }
 
@@ -27,6 +30,7 @@ export function useServiceRequest(id: string, options?: { initialData?: ServiceR
     queryFn: ({ signal }) => getServiceRequest(id, signal).then((r) => r.data),
     initialData: options?.initialData,
     enabled: !!id,
+    staleTime: STALE_TIME.VOLATILE,
   });
 }
 
@@ -38,6 +42,7 @@ export function useServiceRequestAuditLog(serviceRequestId: string) {
     queryFn: ({ signal }) =>
       getServiceRequestAuditLog(serviceRequestId, signal).then((r) => r.data),
     enabled: !!serviceRequestId,
+    staleTime: STALE_TIME.SLOW,
   });
 }
 
@@ -49,5 +54,6 @@ export function useServiceRequestComments(serviceRequestId: string) {
     queryFn: ({ signal }) =>
       getServiceRequestComments(serviceRequestId, signal).then((r) => r.data),
     enabled: !!serviceRequestId,
+    staleTime: STALE_TIME.MEDIUM,
   });
 }
