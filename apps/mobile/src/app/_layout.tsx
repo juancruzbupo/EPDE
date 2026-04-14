@@ -23,6 +23,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { ConfettiBurst, type ConfettiBurstRef } from '@/components/confetti-burst';
 import { ErrorBoundary } from '@/components/error-boundary';
+import { ToastHost } from '@/components/toast-host';
 import { confettiEvent } from '@/lib/confetti-event';
 import { registerForPushNotifications } from '@/lib/push-notifications';
 import { queryClient } from '@/lib/query-client';
@@ -161,6 +162,7 @@ export default function RootLayout() {
             }}
           >
             <AuthGate />
+            <ToastHost />
             <StatusBar style={effectiveTheme === 'dark' ? 'light' : 'dark'} />
           </PersistQueryClientProvider>
         </ErrorBoundary>

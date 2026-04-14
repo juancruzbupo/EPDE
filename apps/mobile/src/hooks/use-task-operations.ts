@@ -22,6 +22,7 @@ import {
 import { confettiEvent } from '@/lib/confetti-event';
 import { haptics } from '@/lib/haptics';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
+import { toast } from '@/lib/toast';
 import { useAuthStore } from '@/stores/auth-store';
 
 import { STALE_TIME } from './query-stale-times';
@@ -83,12 +84,13 @@ export function useCompleteTask(options?: {
           month: 'long',
           year: 'numeric',
         });
-        Alert.alert(msg, `Próxima: ${formatted}`);
+        toast.success(`${msg} Próxima: ${formatted}`, 4500);
       } else {
-        Alert.alert('Tarea completada', msg);
+        toast.success(msg);
       }
 
-      // F6: "Evitaste un problema" — show savings
+      // F6: "Evitaste un problema" — savings info is deliberately blocking so
+      // the user sees the prevention value before the problem dialog opens.
       if (response.data?.problemDetected) {
         const categoryName = response.data.task?.category?.name;
         const savings = categoryName ? PREVENTION_SAVINGS[categoryName] : undefined;
@@ -110,7 +112,7 @@ export function useCompleteTask(options?: {
 
     onError: (err) => {
       haptics.error();
-      Alert.alert('Error', getErrorMessage(err, 'Error al completar tarea'));
+      toast.error(getErrorMessage(err, 'Error al completar tarea'));
     },
 
     onSettled: (_data, _error, variables) => {
@@ -183,7 +185,7 @@ export function useAddTaskNote() {
           context.previousNotes,
         );
       }
-      Alert.alert('Error', getErrorMessage(_err, 'Error al agregar nota'));
+      toast.error(getErrorMessage(_err, 'Error al agregar nota'));
     },
 
     onSettled: (_data, _error, variables) => {

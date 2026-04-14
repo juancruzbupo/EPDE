@@ -9,7 +9,6 @@
  */
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Alert } from 'react-native';
 
 import {
   getNotifications,
@@ -18,6 +17,7 @@ import {
   markAsRead,
 } from '@/lib/api/notifications';
 import { haptics } from '@/lib/haptics';
+import { toast } from '@/lib/toast';
 
 import { STALE_TIME } from './query-stale-times';
 
@@ -70,7 +70,7 @@ export function useMarkAsRead() {
     },
 
     onError: (_err, _id, context) => {
-      Alert.alert('Error', getErrorMessage(_err, 'Error al marcar notificación'));
+      toast.error(getErrorMessage(_err, 'Error al marcar notificación'));
       if (context?.prev !== undefined) {
         queryClient.setQueryData(
           [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
@@ -108,7 +108,7 @@ export function useMarkAllAsRead() {
     },
 
     onError: (_err, _vars, context) => {
-      Alert.alert('Error', getErrorMessage(_err, 'Error al marcar notificaciones'));
+      toast.error(getErrorMessage(_err, 'Error al marcar notificaciones'));
       if (context?.prev !== undefined) {
         queryClient.setQueryData(
           [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],

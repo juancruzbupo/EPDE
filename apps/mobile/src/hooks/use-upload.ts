@@ -1,10 +1,10 @@
 // Web equivalent: apps/web/src/hooks/use-upload.ts
 import { getErrorMessage } from '@epde/shared';
 import { useMutation } from '@tanstack/react-query';
-import { Alert } from 'react-native';
 
 import { uploadFile } from '@/lib/api/upload';
 import { haptics } from '@/lib/haptics';
+import { toast } from '@/lib/toast';
 
 /**
  * Upload hook — validation lives in `uploadFile()` (API layer), not here.
@@ -18,11 +18,11 @@ export function useUploadFile() {
     mutationFn: ({ uri, folder }: { uri: string; folder: string }) => uploadFile(uri, folder),
     onSuccess: () => {
       haptics.success();
-      Alert.alert('Éxito', 'Archivo subido');
+      toast.success('Archivo subido');
     },
     onError: (err) => {
       haptics.error();
-      Alert.alert('Error', getErrorMessage(err, 'Error al subir archivo'));
+      toast.error(getErrorMessage(err, 'Error al subir archivo'));
     },
   });
 }

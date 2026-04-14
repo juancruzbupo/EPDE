@@ -2,7 +2,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef } from 'react';
 import type { FieldValues, UseFormReturn } from 'react-hook-form';
-import { Alert } from 'react-native';
+
+import { toast } from '@/lib/toast';
 
 /**
  * Persists form state to AsyncStorage as a draft.
@@ -40,7 +41,7 @@ export function useDraft<T extends FieldValues>(
 
         if (hasContent) {
           form.reset(parsed);
-          Alert.alert('Borrador', 'Se restauró un borrador guardado.');
+          toast.info('Se restauró un borrador guardado.');
         } else {
           void AsyncStorage.removeItem(key);
         }

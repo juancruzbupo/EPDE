@@ -1,7 +1,8 @@
 import { QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react-native';
-import { Alert } from 'react-native';
+
+import { toast } from '@/lib/toast';
 
 import {
   useBudget,
@@ -21,8 +22,8 @@ jest.mock('@tanstack/react-query', () => ({
   useQueryClient: jest.fn(),
 }));
 
-jest.mock('react-native', () => ({
-  Alert: { alert: jest.fn() },
+jest.mock('@/lib/toast', () => ({
+  toast: { success: jest.fn(), error: jest.fn(), info: jest.fn() },
 }));
 
 jest.mock('@/lib/api/budgets', () => ({
@@ -114,13 +115,13 @@ describe('useCreateBudgetRequest', () => {
     });
   });
 
-  it('shows Alert on error', () => {
+  it('shows toast on error', () => {
     renderHook(() => useCreateBudgetRequest());
 
     const config = (useMutation as jest.Mock).mock.calls[0][0];
     config.onError(new Error('fail'));
 
-    expect(Alert.alert).toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalled();
   });
 });
 
@@ -156,7 +157,7 @@ describe('useUpdateBudgetStatus', () => {
     config.onError(new Error('fail'), { id: 'b-1', status: 'APPROVED' }, { previous });
 
     expect(mockSetQueryData).toHaveBeenCalledWith([QUERY_KEYS.budgets, 'b-1'], previous);
-    expect(Alert.alert).toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalled();
   });
 
   it('invalidates budgets and dashboard on settled', () => {

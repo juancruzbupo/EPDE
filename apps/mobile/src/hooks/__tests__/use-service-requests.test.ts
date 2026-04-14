@@ -1,7 +1,8 @@
 import { QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react-native';
-import { Alert } from 'react-native';
+
+import { toast } from '@/lib/toast';
 
 import {
   useCreateServiceRequest,
@@ -20,8 +21,8 @@ jest.mock('@tanstack/react-query', () => ({
   useQueryClient: jest.fn(),
 }));
 
-jest.mock('react-native', () => ({
-  Alert: { alert: jest.fn() },
+jest.mock('@/lib/toast', () => ({
+  toast: { success: jest.fn(), error: jest.fn(), info: jest.fn() },
 }));
 
 jest.mock('@/lib/api/service-requests', () => ({
@@ -103,12 +104,12 @@ describe('useCreateServiceRequest', () => {
     });
   });
 
-  it('shows Alert on error', () => {
+  it('shows toast on error', () => {
     renderHook(() => useCreateServiceRequest());
 
     const config = (useMutation as jest.Mock).mock.calls[0][0];
     config.onError(new Error('fail'));
 
-    expect(Alert.alert).toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalled();
   });
 });

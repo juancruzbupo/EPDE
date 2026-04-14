@@ -11,11 +11,11 @@
 import type { PlanStatus, TaskStatus } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Alert } from 'react-native';
 
 import { getAllTasks, getPlan, getPlans, updatePlan } from '@/lib/api/maintenance-plans';
 import { haptics } from '@/lib/haptics';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
+import { toast } from '@/lib/toast';
 
 import { STALE_TIME } from './query-stale-times';
 
@@ -58,11 +58,11 @@ export function useUpdatePlan() {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
       invalidateClientDashboard(queryClient);
-      Alert.alert('Éxito', 'Plan actualizado');
+      toast.success('Plan actualizado');
     },
     onError: (err) => {
       haptics.error();
-      Alert.alert('Error', getErrorMessage(err, 'Error al actualizar plan'));
+      toast.error(getErrorMessage(err, 'Error al actualizar plan'));
     },
   });
 }

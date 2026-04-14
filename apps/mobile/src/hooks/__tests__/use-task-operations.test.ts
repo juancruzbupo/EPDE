@@ -1,7 +1,8 @@
 import { QUERY_KEYS } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react-native';
-import { Alert } from 'react-native';
+
+import { toast } from '@/lib/toast';
 
 import {
   useAddTaskNote,
@@ -18,7 +19,14 @@ jest.mock('@tanstack/react-query', () => ({
 }));
 
 jest.mock('react-native', () => ({
+  // Alert is still used in use-task-operations for the "Evitaste un problema"
+  // blocking callout (deliberate UX — the savings number needs acknowledgement).
   Alert: { alert: jest.fn() },
+  Platform: { OS: 'ios' },
+}));
+
+jest.mock('@/lib/toast', () => ({
+  toast: { success: jest.fn(), error: jest.fn(), info: jest.fn() },
 }));
 
 jest.mock('@/lib/api/maintenance-plans', () => ({
@@ -129,13 +137,13 @@ describe('useCompleteTask', () => {
     expect(config.onMutate).toBeUndefined();
   });
 
-  it('shows error alert on error', () => {
+  it('shows error toast on error', () => {
     renderHook(() => useCompleteTask());
 
     const config = (useMutation as jest.Mock).mock.calls[0][0];
     config.onError(new Error('fail'));
 
-    expect(Alert.alert).toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalled();
   });
 
   it('handles onError when context is undefined', () => {
@@ -147,7 +155,7 @@ describe('useCompleteTask', () => {
     config.onError(new Error('fail'), variables, undefined);
 
     expect(mockSetQueryData).not.toHaveBeenCalled();
-    expect(Alert.alert).toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalled();
   });
 });
 
@@ -181,7 +189,7 @@ describe('useAddTaskNote', () => {
       [QUERY_KEYS.taskNotes, 'plan-1', 'task-1'],
       previousNotes,
     );
-    expect(Alert.alert).toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalled();
   });
 
   it('handles onMutate when user is null', async () => {
@@ -224,6 +232,6 @@ describe('useAddTaskNote', () => {
     config.onError(new Error('fail'), variables, undefined);
 
     expect(mockSetQueryData).not.toHaveBeenCalled();
-    expect(Alert.alert).toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalled();
   });
 });

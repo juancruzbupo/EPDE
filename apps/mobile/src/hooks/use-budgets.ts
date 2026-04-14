@@ -17,7 +17,6 @@ import type {
 } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Alert } from 'react-native';
 
 import {
   addBudgetAttachments,
@@ -34,6 +33,7 @@ import {
 } from '@/lib/api/budgets';
 import { haptics } from '@/lib/haptics';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
+import { toast } from '@/lib/toast';
 
 import { STALE_TIME } from './query-stale-times';
 
@@ -68,11 +68,11 @@ export function useCreateBudgetRequest() {
       haptics.success();
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
       invalidateClientDashboard(queryClient);
-      Alert.alert('Éxito', 'Presupuesto creado correctamente');
+      toast.success('Presupuesto creado correctamente');
     },
     onError: (err) => {
       haptics.error();
-      Alert.alert('Error', getErrorMessage(err, 'Error al crear presupuesto'));
+      toast.error(getErrorMessage(err, 'Error al crear presupuesto'));
     },
   });
 }
@@ -86,11 +86,11 @@ export function useEditBudgetRequest() {
     onSuccess: () => {
       haptics.success();
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
-      Alert.alert('Éxito', 'Presupuesto actualizado');
+      toast.success('Presupuesto actualizado');
     },
     onError: (err) => {
       haptics.error();
-      Alert.alert('Error', getErrorMessage(err, 'Error al actualizar presupuesto'));
+      toast.error(getErrorMessage(err, 'Error al actualizar presupuesto'));
     },
   });
 }
@@ -103,11 +103,11 @@ export function useRespondToBudget() {
       haptics.success();
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
       invalidateClientDashboard(queryClient);
-      Alert.alert('Éxito', 'Cotización enviada');
+      toast.success('Cotización enviada');
     },
     onError: (err) => {
       haptics.error();
-      Alert.alert('Error', getErrorMessage(err, 'Error al enviar cotización'));
+      toast.error(getErrorMessage(err, 'Error al enviar cotización'));
     },
   });
 }
@@ -140,7 +140,7 @@ export function useUpdateBudgetStatus() {
       if (context?.previous) {
         queryClient.setQueryData([QUERY_KEYS.budgets, variables.id], context.previous);
       }
-      Alert.alert('Error', getErrorMessage(_err, 'Error al actualizar estado'));
+      toast.error(getErrorMessage(_err, 'Error al actualizar estado'));
     },
 
     onSettled: () => {
@@ -186,11 +186,11 @@ export function useAddBudgetComment() {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.budgets, variables.budgetId, QUERY_KEYS.budgetAuditLog],
       });
-      Alert.alert('Éxito', 'Comentario agregado');
+      toast.success('Comentario agregado');
     },
     onError: (err) => {
       haptics.error();
-      Alert.alert('Error', getErrorMessage(err, 'Error al agregar comentario'));
+      toast.error(getErrorMessage(err, 'Error al agregar comentario'));
     },
   });
 }
@@ -213,11 +213,11 @@ export function useAddBudgetAttachments() {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.budgets, variables.budgetId],
       });
-      Alert.alert('Éxito', 'Adjuntos agregados');
+      toast.success('Adjuntos agregados');
     },
     onError: (err) => {
       haptics.error();
-      Alert.alert('Error', getErrorMessage(err, 'Error al agregar adjuntos'));
+      toast.error(getErrorMessage(err, 'Error al agregar adjuntos'));
     },
   });
 }

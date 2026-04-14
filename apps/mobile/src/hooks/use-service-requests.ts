@@ -11,7 +11,6 @@
 import type { ServiceRequestPublic, ServiceStatus, ServiceUrgency } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Alert } from 'react-native';
 
 import {
   addServiceRequestAttachments,
@@ -27,6 +26,7 @@ import {
 } from '@/lib/api/service-requests';
 import { haptics } from '@/lib/haptics';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
+import { toast } from '@/lib/toast';
 
 import { STALE_TIME } from './query-stale-times';
 
@@ -63,14 +63,11 @@ export function useCreateServiceRequest() {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
       invalidateClientDashboard(queryClient);
-      Alert.alert(
-        'Solicitud creada',
-        'Este problema ya está en proceso. Podés seguir el estado en la sección de servicios.',
-      );
+      toast.success('Solicitud creada. Podés seguir el estado en la sección de servicios.');
     },
     onError: (err) => {
       haptics.error();
-      Alert.alert('Error', getErrorMessage(err, 'Error al crear solicitud'));
+      toast.error(getErrorMessage(err, 'Error al crear solicitud'));
     },
   });
 }
@@ -92,11 +89,11 @@ export function useEditServiceRequest() {
     onSuccess: () => {
       haptics.success();
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
-      Alert.alert('Éxito', 'Solicitud actualizada');
+      toast.success('Solicitud actualizada');
     },
     onError: (err) => {
       haptics.error();
-      Alert.alert('Error', getErrorMessage(err, 'Error al editar solicitud'));
+      toast.error(getErrorMessage(err, 'Error al editar solicitud'));
     },
   });
 }
@@ -129,7 +126,7 @@ export function useUpdateServiceStatus() {
       if (context?.previous) {
         queryClient.setQueryData([QUERY_KEYS.serviceRequests, variables.id], context.previous);
       }
-      Alert.alert('Error', getErrorMessage(_err, 'Error al actualizar estado'));
+      toast.error(getErrorMessage(_err, 'Error al actualizar estado'));
     },
 
     onSettled: () => {
@@ -174,11 +171,11 @@ export function useAddServiceRequestComment() {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.serviceRequests, serviceRequestId, QUERY_KEYS.serviceRequestAuditLog],
       });
-      Alert.alert('Éxito', 'Comentario agregado');
+      toast.success('Comentario agregado');
     },
     onError: (err) => {
       haptics.error();
-      Alert.alert('Error', getErrorMessage(err, 'Error al agregar comentario'));
+      toast.error(getErrorMessage(err, 'Error al agregar comentario'));
     },
   });
 }
@@ -200,11 +197,11 @@ export function useAddServiceRequestAttachments() {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.serviceRequests, variables.serviceRequestId],
       });
-      Alert.alert('Éxito', 'Adjuntos agregados');
+      toast.success('Adjuntos agregados');
     },
     onError: (err) => {
       haptics.error();
-      Alert.alert('Error', getErrorMessage(err, 'Error al agregar adjuntos'));
+      toast.error(getErrorMessage(err, 'Error al agregar adjuntos'));
     },
   });
 }

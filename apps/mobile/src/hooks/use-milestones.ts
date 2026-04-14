@@ -9,11 +9,11 @@
  */
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Alert } from 'react-native';
 
 import { activateStreakFreeze, getMilestones } from '@/lib/api/auth-features';
 import { haptics } from '@/lib/haptics';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
+import { toast } from '@/lib/toast';
 
 import { STALE_TIME } from './query-stale-times';
 
@@ -32,12 +32,12 @@ export function useStreakFreeze() {
     mutationFn: activateStreakFreeze,
     onSuccess: () => {
       haptics.success();
-      Alert.alert('❄️ Freeze activado', 'Tu racha está protegida este mes.');
+      toast.success('❄️ Freeze activado — tu racha está protegida este mes.', 4500);
       invalidateClientDashboard(queryClient);
     },
     onError: (err) => {
       haptics.error();
-      Alert.alert('Error', getErrorMessage(err, 'No se pudo activar el freeze'));
+      toast.error(getErrorMessage(err, 'No se pudo activar el freeze'));
     },
   });
 }

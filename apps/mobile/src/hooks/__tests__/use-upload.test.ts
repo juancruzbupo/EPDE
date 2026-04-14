@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react-native';
-import { Alert } from 'react-native';
+
+import { toast } from '@/lib/toast';
 
 import { useUploadFile } from '../use-upload';
 
@@ -8,8 +9,8 @@ jest.mock('@tanstack/react-query', () => ({
   useMutation: jest.fn(),
 }));
 
-jest.mock('react-native', () => ({
-  Alert: { alert: jest.fn() },
+jest.mock('@/lib/toast', () => ({
+  toast: { success: jest.fn(), error: jest.fn(), info: jest.fn() },
 }));
 
 jest.mock('@/lib/api/upload', () => ({
@@ -31,17 +32,17 @@ describe('useUploadFile', () => {
     );
   });
 
-  it('should show success alert on success', () => {
+  it('should show success toast on success', () => {
     renderHook(() => useUploadFile());
     const { onSuccess } = (useMutation as jest.Mock).mock.calls[0][0];
     onSuccess();
-    expect(Alert.alert).toHaveBeenCalledWith('Éxito', 'Archivo subido');
+    expect(toast.success).toHaveBeenCalledWith('Archivo subido');
   });
 
-  it('should show error alert on error', () => {
+  it('should show error toast on error', () => {
     renderHook(() => useUploadFile());
     const { onError } = (useMutation as jest.Mock).mock.calls[0][0];
     onError(new Error('fail'));
-    expect(Alert.alert).toHaveBeenCalledWith('Error', expect.any(String));
+    expect(toast.error).toHaveBeenCalledWith(expect.any(String));
   });
 });

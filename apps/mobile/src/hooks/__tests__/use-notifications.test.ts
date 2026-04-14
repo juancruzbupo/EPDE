@@ -1,7 +1,8 @@
 import { QUERY_KEYS } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react-native';
-import { Alert } from 'react-native';
+
+import { toast } from '@/lib/toast';
 
 import {
   useMarkAllAsRead,
@@ -21,8 +22,8 @@ jest.mock('@tanstack/react-query', () => ({
   useQueryClient: jest.fn(),
 }));
 
-jest.mock('react-native', () => ({
-  Alert: { alert: jest.fn() },
+jest.mock('@/lib/toast', () => ({
+  toast: { success: jest.fn(), error: jest.fn(), info: jest.fn() },
 }));
 
 jest.mock('@/lib/api/notifications', () => ({
@@ -62,7 +63,7 @@ describe('useNotifications', () => {
     expect(useInfiniteQuery).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: [QUERY_KEYS.notifications],
-        maxPages: 10,
+        maxPages: 5,
       }),
     );
   });
@@ -118,7 +119,7 @@ describe('useMarkAsRead', () => {
       [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
       5,
     );
-    expect(Alert.alert).toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalled();
   });
 
   it('invalidates notifications on settled', () => {
@@ -154,7 +155,7 @@ describe('useMarkAsRead', () => {
     const config = (useMutation as jest.Mock).mock.calls[0][0];
     config.onError(new Error('fail'), 'notif-1', undefined);
 
-    expect(Alert.alert).toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalled();
     expect(mockSetQueryData).not.toHaveBeenCalled();
   });
 });
@@ -189,7 +190,7 @@ describe('useMarkAllAsRead', () => {
       [QUERY_KEYS.notifications, QUERY_KEYS.notificationsUnreadCount],
       10,
     );
-    expect(Alert.alert).toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalled();
   });
 
   it('invalidates notifications on settled', () => {
@@ -209,7 +210,7 @@ describe('useMarkAllAsRead', () => {
     const config = (useMutation as jest.Mock).mock.calls[0][0];
     config.onError(new Error('fail'), undefined, undefined);
 
-    expect(Alert.alert).toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalled();
     expect(mockSetQueryData).not.toHaveBeenCalled();
   });
 });
