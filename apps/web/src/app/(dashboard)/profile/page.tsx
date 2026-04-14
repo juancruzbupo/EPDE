@@ -1,7 +1,7 @@
 'use client';
 
 import { UserRole } from '@epde/shared';
-import { HelpCircle, Monitor, Moon, Sun, Type } from 'lucide-react';
+import { HelpCircle, Monitor, Moon, Sparkles, Sun, Type } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -15,6 +15,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import {
   FONT_SCALE_LABELS,
   type FontScale,
+  type MotivationStyle,
   useUiPreferencesStore,
 } from '@/stores/ui-preferences-store';
 
@@ -115,9 +116,10 @@ export default function ProfilePage() {
 
       <AppearanceCard />
       <TextSizeCard />
+      <MotivationCard />
 
       <ProfileForm user={user} onSuccess={checkAuth} />
-      <MilestonesSection />
+      <MilestonesCardGuarded />
       <ChangePasswordForm />
     </PageTransition>
   );
@@ -234,4 +236,71 @@ function TextSizeCard() {
       </CardContent>
     </Card>
   );
+}
+
+const MOTIVATION_OPTIONS: {
+  value: MotivationStyle;
+  label: string;
+  description: string;
+}[] = [
+  {
+    value: 'rewards',
+    label: 'Con celebraciones',
+    description: 'Confeti, mensajes motivacionales, rachas y logros visibles.',
+  },
+  {
+    value: 'minimal',
+    label: 'Modo profesional',
+    description: 'Solo datos. Sin confeti, sin rachas, sin desafíos semanales.',
+  },
+];
+
+function MotivationCard() {
+  const motivationStyle = useUiPreferencesStore((s) => s.motivationStyle);
+  const setMotivationStyle = useUiPreferencesStore((s) => s.setMotivationStyle);
+
+  return (
+    <Card className="mb-6">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4" aria-hidden="true" />
+          Estilo de la app
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-muted-foreground type-body-sm">
+          Elegí cómo querés que se sienta la experiencia al completar tareas.
+        </p>
+        <div
+          role="radiogroup"
+          aria-label="Estilo de motivación"
+          className="grid grid-cols-1 gap-2 sm:grid-cols-2"
+        >
+          {MOTIVATION_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              role="radio"
+              aria-checked={motivationStyle === opt.value}
+              onClick={() => setMotivationStyle(opt.value)}
+              className={`flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-all ${
+                motivationStyle === opt.value
+                  ? 'border-primary bg-primary/5 text-foreground'
+                  : 'border-border text-muted-foreground hover:bg-muted/40'
+              }`}
+            >
+              <span className="type-label-lg text-foreground">{opt.label}</span>
+              <span className="type-body-sm leading-relaxed">{opt.description}</span>
+            </button>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function MilestonesCardGuarded() {
+  const motivationStyle = useUiPreferencesStore((s) => s.motivationStyle);
+  if (motivationStyle === 'minimal') return null;
+  return <MilestonesSection />;
 }

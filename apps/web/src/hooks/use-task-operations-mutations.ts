@@ -28,6 +28,7 @@ import {
 import { triggerConfetti } from '@/lib/confetti';
 import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 import { useAuthStore } from '@/stores/auth-store';
+import { useUiPreferencesStore } from '@/stores/ui-preferences-store';
 
 export function useUpdateTask() {
   const queryClient = useQueryClient();
@@ -111,6 +112,8 @@ export function useCompleteTask(options?: {
 
     onSuccess: (response, variables) => {
       const isClient = useAuthStore.getState().user?.role === UserRole.CLIENT;
+      const wantsRewards = useUiPreferencesStore.getState().motivationStyle === 'rewards';
+      const showMotivation = isClient && wantsRewards;
       const nextDueDate = response.data?.task?.nextDueDate;
       const formattedDate = nextDueDate
         ? new Date(nextDueDate).toLocaleDateString('es-AR', {
@@ -120,20 +123,20 @@ export function useCompleteTask(options?: {
           })
         : null;
 
-      if (isClient) {
+      if (showMotivation) {
         // Motivational flow: confetti + random completion message + savings toast
         triggerConfetti();
         const msg = COMPLETION_MESSAGES[Math.floor(Math.random() * COMPLETION_MESSAGES.length)];
         toast.success(formattedDate ? `${msg} Próxima: ${formattedDate}` : msg);
       } else {
-        // Admin operates on many clients — keep it neutral.
+        // Admin or client in 'minimal' motivation style — neutral confirmation.
         toast.success(
           formattedDate ? `Tarea completada. Próxima: ${formattedDate}` : 'Tarea completada',
         );
       }
 
       if (response.data?.problemDetected) {
-        if (isClient) {
+        if (showMotivation) {
           const categoryName = response.data.task?.category?.name;
           const savings = categoryName ? PREVENTION_SAVINGS[categoryName] : undefined;
           if (savings) {
@@ -145,7 +148,7 @@ export function useCompleteTask(options?: {
             }, 1500);
           }
         }
-        // The follow-up dialog fires for both roles — it's functional, not motivational.
+        // The follow-up dialog fires regardless — it's functional, not motivational.
         options?.onProblemDetected?.({
           taskId: variables.taskId,
           taskName: variables.taskName ?? response.data.task?.name ?? 'Tarea',

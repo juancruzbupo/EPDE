@@ -27,6 +27,7 @@ import { useClientDashboardStats, useClientUpcomingTasks } from '@/hooks/use-das
 import { useStreakFreeze } from '@/hooks/use-milestones';
 import { getClientAnalytics } from '@/lib/api/dashboard';
 import { useAuthStore } from '@/stores/auth-store';
+import { useUiPreferencesStore } from '@/stores/ui-preferences-store';
 
 function SubscriptionWarningBanner() {
   const user = useAuthStore((s) => s.user);
@@ -75,6 +76,8 @@ export function ClientDashboard({ userName }: { userName: string }) {
   } = useClientUpcomingTasks();
   const [chartMonths, setChartMonths] = useState(6);
   const streakFreeze = useStreakFreeze();
+  const motivationStyle = useUiPreferencesStore((s) => s.motivationStyle);
+  const showRewards = motivationStyle === 'rewards';
 
   // Calculate tip index on client only to avoid hydration mismatch and stale SSR cache
   const [tipIndex, setTipIndex] = useState(0);
@@ -218,8 +221,8 @@ export function ClientDashboard({ userName }: { userName: string }) {
         ) : null}
       </div>
 
-      {/* Weekly challenge — after action list, before analytics */}
-      {!showWelcome && (
+      {/* Weekly challenge — after action list, before analytics. Hidden in 'minimal' motivation style. */}
+      {!showWelcome && showRewards && (
         <div className="mb-6">
           <WeeklyChallengeCard />
         </div>

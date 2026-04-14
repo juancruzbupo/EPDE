@@ -8,8 +8,11 @@ import { create } from 'zustand';
  */
 
 export type FontScale = 'sm' | 'base' | 'lg' | 'xl';
+/** rewards = confetti + motivational toasts + milestones/challenges; minimal = data-first, no celebrations. */
+export type MotivationStyle = 'rewards' | 'minimal';
 
 const FONT_SCALE_STORAGE_KEY = 'epde-font-scale';
+const MOTIVATION_STYLE_STORAGE_KEY = 'epde-motivation-style';
 
 export const FONT_SCALE_VALUES: Record<FontScale, number> = {
   sm: 0.9, // denser — power users / Gen Z
@@ -27,7 +30,9 @@ export const FONT_SCALE_LABELS: Record<FontScale, string> = {
 
 interface UiPreferencesState {
   fontScale: FontScale;
+  motivationStyle: MotivationStyle;
   setFontScale: (scale: FontScale) => void;
+  setMotivationStyle: (style: MotivationStyle) => void;
 }
 
 function applyFontScaleToDocument(scale: FontScale): void {
@@ -48,8 +53,20 @@ function loadFontScale(): FontScale {
   return 'base';
 }
 
+function loadMotivationStyle(): MotivationStyle {
+  if (typeof window === 'undefined') return 'rewards';
+  try {
+    const stored = window.localStorage.getItem(MOTIVATION_STYLE_STORAGE_KEY);
+    if (stored === 'rewards' || stored === 'minimal') return stored;
+  } catch {
+    // localStorage unavailable
+  }
+  return 'rewards';
+}
+
 export const useUiPreferencesStore = create<UiPreferencesState>((set) => ({
   fontScale: loadFontScale(),
+  motivationStyle: loadMotivationStyle(),
   setFontScale: (scale) => {
     try {
       window.localStorage.setItem(FONT_SCALE_STORAGE_KEY, scale);
@@ -58,5 +75,13 @@ export const useUiPreferencesStore = create<UiPreferencesState>((set) => ({
     }
     applyFontScaleToDocument(scale);
     set({ fontScale: scale });
+  },
+  setMotivationStyle: (style) => {
+    try {
+      window.localStorage.setItem(MOTIVATION_STYLE_STORAGE_KEY, style);
+    } catch {
+      // best-effort persistence
+    }
+    set({ motivationStyle: style });
   },
 }));
