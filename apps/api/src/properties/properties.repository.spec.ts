@@ -164,20 +164,6 @@ describe('PropertiesRepository', () => {
     });
   });
 
-  describe('findByUserId', () => {
-    it('should filter by userId and order by createdAt desc', async () => {
-      mockModel.findMany.mockResolvedValue([]);
-
-      await repository.findByUserId('user-1');
-
-      expect(mockModel.findMany).toHaveBeenCalledWith({
-        where: { userId: 'user-1' },
-        include: { maintenancePlan: true },
-        orderBy: { createdAt: 'desc' },
-      });
-    });
-  });
-
   describe('findWithActivePlans', () => {
     it('should query non-deleted properties with active plans and bounded take', async () => {
       const mockProperty = {

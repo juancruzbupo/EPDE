@@ -137,14 +137,6 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
     ]);
   }
 
-  async findByUserId(userId: string) {
-    return this.model.findMany({
-      where: { userId },
-      include: { maintenancePlan: true },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
   /** Aggregates expenses for a property from TaskLog costs + approved BudgetResponse amounts. */
   async getPropertyExpenses(propertyId: string) {
     const [taskExpenses, budgetExpenses] = await Promise.all([
