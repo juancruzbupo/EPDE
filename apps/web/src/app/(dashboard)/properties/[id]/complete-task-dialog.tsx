@@ -15,7 +15,7 @@ import {
   TASK_TYPE_TO_DEFAULT_ACTION,
 } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronDown } from 'lucide-react';
+import { Camera, ChevronDown, ClipboardCheck, FileText } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -54,7 +54,16 @@ export function CompleteTaskDialog({
 }: CompleteTaskDialogProps) {
   const completeTask = useCompleteTask({ onProblemDetected });
   const uploadFile = useUploadFile();
-  const [showDetails, setShowDetails] = useState(false);
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set());
+
+  const toggleSection = (id: string) => {
+    setOpenSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const defaultAction = task ? TASK_TYPE_TO_DEFAULT_ACTION[task.taskType as TaskType] : undefined;
 
@@ -74,15 +83,29 @@ export function CompleteTaskDialog({
     },
   });
 
-  // Quick mode: auto-infer result from conditionFound
+  // Quick mode: auto-infer result/action when the user hasn't opened the 'result' section.
+  // Once they open it to edit, we stop overwriting so their explicit choice wins.
   const watchedCondition = watch('conditionFound');
+  const resultSectionOpen = openSections.has('result');
   useEffect(() => {
-    if (!showDetails && watchedCondition) {
+    if (!resultSectionOpen && watchedCondition) {
       const inferred = CONDITION_TO_DEFAULT_RESULT[watchedCondition as ConditionFound];
       if (inferred) setValue('result', inferred);
       if (defaultAction) setValue('actionTaken', defaultAction);
     }
-  }, [watchedCondition, showDetails, setValue, defaultAction]);
+  }, [watchedCondition, resultSectionOpen, setValue, defaultAction]);
+
+  // If validation surfaces an error on a hidden section, expand it so the user sees the error.
+  useEffect(() => {
+    if (errors.result || errors.actionTaken) {
+      setOpenSections((prev) => {
+        if (prev.has('result')) return prev;
+        const next = new Set(prev);
+        next.add('result');
+        return next;
+      });
+    }
+  }, [errors.result, errors.actionTaken]);
 
   const onSubmit = (data: CompleteTaskInput) => {
     if (!task) return;
@@ -91,7 +114,7 @@ export function CompleteTaskDialog({
       {
         onSuccess: () => {
           reset();
-          setShowDetails(false);
+          setOpenSections(new Set());
           onOpenChange(false);
         },
       },
@@ -101,7 +124,7 @@ export function CompleteTaskDialog({
   if (!task) return null;
 
   const handleOpenChange = (value: boolean) => {
-    if (!value) setShowDetails(false);
+    if (!value) setOpenSections(new Set());
     onOpenChange(value);
   };
 
@@ -111,8 +134,8 @@ export function CompleteTaskDialog({
         <DialogHeader>
           <DialogTitle>Registrar: {task.name}</DialogTitle>
           <DialogDescription>
-            Solo necesitás completar 2 campos. Si querés agregar costo, notas o fotos, expandí
-            &quot;Más detalles&quot;.
+            Solo necesitás completar 2 campos. Si querés, agregá detalles del resultado, costo o
+            foto en las secciones de abajo.
           </DialogDescription>
         </DialogHeader>
         <form
@@ -183,91 +206,99 @@ export function CompleteTaskDialog({
             )}
           </div>
 
-          {/* Toggle details */}
-          <button
-            type="button"
-            onClick={() => setShowDetails(!showDetails)}
-            aria-expanded={showDetails}
-            aria-controls="complete-task-details"
-            className="text-primary hover:text-primary/80 flex items-center gap-1 text-sm font-medium transition-colors"
+          {/* Progressive-disclosure sections — each collapsed by default but labeled so
+              users know what's inside without expanding. */}
+          <CollapsibleSection
+            id="result"
+            icon={ClipboardCheck}
+            label="Resultado y acción"
+            hint="¿Cómo resultó y qué se hizo?"
+            open={openSections.has('result')}
+            onToggle={() => toggleSection('result')}
           >
-            <ChevronDown
-              className={`h-4 w-4 transition-transform ${showDetails ? 'rotate-180' : ''}`}
-              aria-hidden="true"
-            />
-            {showDetails ? 'Menos detalles' : 'Agregar más detalles'}
-          </button>
-
-          {showDetails && (
-            <div id="complete-task-details" className="contents">
-              <div>
-                <Controller
-                  control={control}
-                  name="result"
-                  render={({ field }) => (
-                    <LabelSelect
-                      label="Resultado"
-                      labels={TASK_RESULT_LABELS}
-                      value={field.value}
-                      onChange={field.onChange}
-                      placeholder="¿Cómo resultó?"
-                      required
-                      errorId={errors.result ? 'result-error' : undefined}
-                    />
-                  )}
-                />
-                {errors.result && (
-                  <p id="result-error" role="alert" className="text-destructive mt-1 text-sm">
-                    {errors.result.message}
-                  </p>
+            <div>
+              <Controller
+                control={control}
+                name="result"
+                render={({ field }) => (
+                  <LabelSelect
+                    label="Resultado"
+                    labels={TASK_RESULT_LABELS}
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="¿Cómo resultó?"
+                    errorId={errors.result ? 'result-error' : undefined}
+                  />
                 )}
-              </div>
+              />
+              {errors.result && (
+                <p id="result-error" role="alert" className="text-destructive mt-1 text-sm">
+                  {errors.result.message}
+                </p>
+              )}
+            </div>
 
-              <div>
-                <Controller
-                  control={control}
-                  name="actionTaken"
-                  render={({ field }) => (
-                    <LabelSelect
-                      label="Acción realizada"
-                      labels={ACTION_TAKEN_LABELS}
-                      value={field.value}
-                      onChange={field.onChange}
-                      placeholder="¿Qué se hizo?"
-                      required
-                      errorId={errors.actionTaken ? 'actionTaken-error' : undefined}
-                    />
-                  )}
-                />
-                {errors.actionTaken && (
-                  <p id="actionTaken-error" role="alert" className="text-destructive mt-1 text-sm">
-                    {errors.actionTaken.message}
-                  </p>
+            <div>
+              <Controller
+                control={control}
+                name="actionTaken"
+                render={({ field }) => (
+                  <LabelSelect
+                    label="Acción realizada"
+                    labels={ACTION_TAKEN_LABELS}
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="¿Qué se hizo?"
+                    errorId={errors.actionTaken ? 'actionTaken-error' : undefined}
+                  />
                 )}
-              </div>
+              />
+              {errors.actionTaken && (
+                <p id="actionTaken-error" role="alert" className="text-destructive mt-1 text-sm">
+                  {errors.actionTaken.message}
+                </p>
+              )}
+            </div>
+          </CollapsibleSection>
 
-              <div className="space-y-1.5">
-                <Label className="text-muted-foreground">Costo</Label>
-                <Input type="number" step="0.01" min="0" placeholder="0.00" {...register('cost')} />
-                <p className="text-muted-foreground text-xs">Monto en ARS (opcional).</p>
-              </div>
+          <CollapsibleSection
+            id="notes"
+            icon={FileText}
+            label="Costo y notas"
+            hint="Registrá el gasto y observaciones"
+            open={openSections.has('notes')}
+            onToggle={() => toggleSection('notes')}
+          >
+            <div className="space-y-1.5">
+              <Label className="text-muted-foreground">Costo</Label>
+              <Input type="number" step="0.01" min="0" placeholder="0.00" {...register('cost')} />
+              <p className="text-muted-foreground text-xs">Monto en ARS (opcional).</p>
+            </div>
 
-              <div className="space-y-2">
-                <Label>Notas (opcional)</Label>
-                <Textarea
-                  {...register('note')}
-                  placeholder="Describí el trabajo realizado..."
-                  className="resize-none"
-                  rows={3}
-                />
-              </div>
-
-              <TaskPhotoUpload
-                uploadMutation={uploadFile}
-                onChange={(url) => setValue('photoUrl', url ?? undefined)}
+            <div className="space-y-2">
+              <Label>Notas</Label>
+              <Textarea
+                {...register('note')}
+                placeholder="Describí el trabajo realizado..."
+                className="resize-none"
+                rows={3}
               />
             </div>
-          )}
+          </CollapsibleSection>
+
+          <CollapsibleSection
+            id="photo"
+            icon={Camera}
+            label="Foto del trabajo"
+            hint="Subí una foto de cómo quedó"
+            open={openSections.has('photo')}
+            onToggle={() => toggleSection('photo')}
+          >
+            <TaskPhotoUpload
+              uploadMutation={uploadFile}
+              onChange={(url) => setValue('photoUrl', url ?? undefined)}
+            />
+          </CollapsibleSection>
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
@@ -280,5 +311,53 @@ export function CompleteTaskDialog({
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function CollapsibleSection({
+  id,
+  icon: Icon,
+  label,
+  hint,
+  open,
+  onToggle,
+  children,
+}: {
+  id: string;
+  icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
+  label: string;
+  hint: string;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  const panelId = `complete-task-section-${id}`;
+  return (
+    <div className="border-border rounded-lg border">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        aria-controls={panelId}
+        className="hover:bg-muted/40 focus-visible:ring-ring/50 flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left transition-colors focus-visible:ring-[3px] focus-visible:outline-none"
+      >
+        <Icon className="text-muted-foreground h-4 w-4 shrink-0" aria-hidden={true} />
+        <div className="min-w-0 flex-1">
+          <p className="type-label-lg">{label}</p>
+          <p className="text-muted-foreground text-xs">{hint}</p>
+        </div>
+        <ChevronDown
+          className={`text-muted-foreground h-4 w-4 shrink-0 transition-transform ${
+            open ? 'rotate-180' : ''
+          }`}
+          aria-hidden="true"
+        />
+      </button>
+      {open && (
+        <div id={panelId} className="space-y-4 px-3 pt-1 pb-3">
+          {children}
+        </div>
+      )}
+    </div>
   );
 }
