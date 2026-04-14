@@ -163,11 +163,18 @@ const CATEGORY_RENAMES: Record<string, string> = {
 async function main() {
   console.log('Seeding database...');
 
-  // Create admin user
-  const seedPassword = process.env.SEED_ADMIN_PASSWORD || 'Admin123!';
-  if (!process.env.SEED_ADMIN_PASSWORD) {
+  // Create admin user. In production, SEED_ADMIN_PASSWORD is mandatory — falling back
+  // to a default would leave a known-credential superuser reachable from the public internet.
+  const envAdminPassword = process.env.SEED_ADMIN_PASSWORD;
+  if (!envAdminPassword) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(
+        'SEED_ADMIN_PASSWORD is required when NODE_ENV=production. Refusing to seed with a default password.',
+      );
+    }
     console.warn('WARNING: Using default admin password. Set SEED_ADMIN_PASSWORD in production.');
   }
+  const seedPassword = envAdminPassword ?? 'Admin123!';
   const passwordHash = await bcrypt.hash(seedPassword, BCRYPT_SALT_ROUNDS);
 
   const admin = await prisma.user.upsert({

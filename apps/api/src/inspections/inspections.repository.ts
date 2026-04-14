@@ -57,8 +57,10 @@ export class InspectionsRepository {
   }
 
   async findByProperty(propertyId: string) {
+    // Filter out soft-deleted checklists so cancelled/removed inspections don't
+    // resurface in the UI for the property.
     return this.prisma.inspectionChecklist.findMany({
-      where: { propertyId },
+      where: { propertyId, deletedAt: null },
       include: {
         items: { orderBy: { order: 'asc' } },
         inspector: { select: { id: true, name: true } },

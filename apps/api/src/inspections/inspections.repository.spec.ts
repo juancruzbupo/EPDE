@@ -100,14 +100,14 @@ describe('InspectionsRepository', () => {
   });
 
   describe('findByProperty', () => {
-    it('passes propertyId and orders by inspectedAt desc', async () => {
+    it('passes propertyId, filters out soft-deleted, orders by inspectedAt desc', async () => {
       mockChecklist.findMany.mockResolvedValue([]);
 
       await repository.findByProperty('prop-1');
 
       expect(mockChecklist.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { propertyId: 'prop-1' },
+          where: { propertyId: 'prop-1', deletedAt: null },
           orderBy: { inspectedAt: 'desc' },
         }),
       );
