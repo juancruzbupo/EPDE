@@ -44,6 +44,8 @@ export const updateNotesSchema = z.object({
 export type UpdateNotesInput = z.infer<typeof updateNotesSchema>;
 
 export const generatePlanFromInspectionSchema = z.object({
-  planName: z.string().min(2).max(200),
+  // trim() runs before the length checks, so "   " is rejected (trims to "")
+  // and "  Plan A  " normalizes to "Plan A" before persistence.
+  planName: z.string().trim().min(2).max(200),
 });
 export type GeneratePlanFromInspectionInput = z.infer<typeof generatePlanFromInspectionSchema>;

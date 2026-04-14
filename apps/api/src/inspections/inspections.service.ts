@@ -380,7 +380,10 @@ export class InspectionsService {
             data: {
               taskId: task.id,
               completedAt: checklist.inspectedAt,
-              completedBy: createdBy,
+              // Baseline log represents the ocular inspection — attribute it to the
+              // inspector who actually evaluated the item, not the admin who clicked
+              // 'Generar Plan' (the latter is `createdBy` on the plan / task rows).
+              completedBy: checklist.inspectedBy,
               conditionFound,
               result,
               executor: 'EPDE_PROFESSIONAL',

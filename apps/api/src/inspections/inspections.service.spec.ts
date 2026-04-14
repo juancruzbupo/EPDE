@@ -29,6 +29,9 @@ describe('InspectionsService', () => {
     task: { create: jest.fn() },
     taskLog: { create: jest.fn() },
     inspectionItem: { update: jest.fn() },
+    // The service marks the checklist COMPLETED at the end of the transaction
+    // once tasks are created. Mocked as a no-op here.
+    inspectionChecklist: { update: jest.fn() },
   };
 
   const mockPrisma = {
@@ -239,6 +242,7 @@ describe('InspectionsService', () => {
     const makeChecklist = (items: Partial<Record<string, unknown>>[]) => ({
       id: 'c1',
       propertyId: 'p1',
+      inspectedBy: 'inspector-1',
       inspectedAt: new Date('2026-04-08'),
       deletedAt: null,
       items: items.map((item, i) => ({
@@ -370,6 +374,27 @@ describe('InspectionsService', () => {
             executor: 'EPDE_PROFESSIONAL',
             actionTaken: 'INSPECTION_ONLY',
             conditionFound: 'GOOD',
+          }),
+        }),
+      );
+    });
+
+    it('should attribute baseline TaskLog to the inspector, not the admin who generated the plan', async () => {
+      const checklist = makeChecklist([{ status: 'OK' }]);
+      (mockPrisma as unknown as Record<string, unknown>).inspectionChecklist = {
+        findUnique: jest.fn().mockResolvedValue(checklist),
+      };
+      mockPrisma.taskTemplate.findMany = jest
+        .fn()
+        .mockResolvedValue([makeTemplate('tpl-0', 'cat-tpl-1')]);
+
+      // u1 = admin running generate-plan; inspector-1 = who actually inspected.
+      await service.generatePlanFromInspection('c1', 'Plan', 'u1');
+
+      expect(mockTx.taskLog.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            completedBy: 'inspector-1',
           }),
         }),
       );
