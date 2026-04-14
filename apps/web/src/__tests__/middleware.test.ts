@@ -71,4 +71,49 @@ describe('middleware', () => {
     middleware(req);
     expect(NextResponse.next).toHaveBeenCalled();
   });
+
+  describe('role-based routing', () => {
+    const validExp = Math.floor(Date.now() / 1000) + 3600;
+
+    it('redirects CLIENT away from /clients to /', () => {
+      const token = fakeJwt({ exp: validExp, role: 'CLIENT', sub: 'u1' });
+      const req = createRequest('/clients', token);
+      middleware(req);
+      expect(NextResponse.redirect).toHaveBeenCalledWith(
+        expect.objectContaining({ pathname: '/' }),
+      );
+    });
+
+    it('redirects CLIENT away from /landing-settings to /', () => {
+      const token = fakeJwt({ exp: validExp, role: 'CLIENT', sub: 'u1' });
+      const req = createRequest('/landing-settings', token);
+      middleware(req);
+      expect(NextResponse.redirect).toHaveBeenCalledWith(
+        expect.objectContaining({ pathname: '/' }),
+      );
+    });
+
+    it('redirects CLIENT away from /templates/foo to /', () => {
+      const token = fakeJwt({ exp: validExp, role: 'CLIENT', sub: 'u1' });
+      const req = createRequest('/templates/foo', token);
+      middleware(req);
+      expect(NextResponse.redirect).toHaveBeenCalledWith(
+        expect.objectContaining({ pathname: '/' }),
+      );
+    });
+
+    it('allows ADMIN on /clients', () => {
+      const token = fakeJwt({ exp: validExp, role: 'ADMIN', sub: 'u1' });
+      const req = createRequest('/clients', token);
+      middleware(req);
+      expect(NextResponse.next).toHaveBeenCalled();
+    });
+
+    it('allows CLIENT on /properties (not admin-only)', () => {
+      const token = fakeJwt({ exp: validExp, role: 'CLIENT', sub: 'u1' });
+      const req = createRequest('/properties', token);
+      middleware(req);
+      expect(NextResponse.next).toHaveBeenCalled();
+    });
+  });
 });
