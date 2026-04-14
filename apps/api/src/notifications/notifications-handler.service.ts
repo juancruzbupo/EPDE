@@ -283,6 +283,27 @@ export class NotificationsHandlerService {
     });
   }
 
+  /** Fires after an inspection checklist is converted into a maintenance plan.
+   *  Sends an in-app SYSTEM notification to the property owner so they learn the plan
+   *  is ready without having to check the app. Intentionally in-app only — the plan
+   *  ready flow surfaces on the dashboard too, no need to add email noise. */
+  async handlePlanGenerated(payload: {
+    userId: string;
+    planId: string;
+    propertyId: string;
+    propertyAddress: string;
+  }): Promise<void> {
+    return this.withDLQ('handlePlanGenerated', payload as Record<string, unknown>, async () => {
+      await this.notificationQueueService.enqueue({
+        userId: payload.userId,
+        type: 'SYSTEM',
+        title: 'Tu plan de mantenimiento está listo',
+        message: `Ya podés ver el plan generado para ${payload.propertyAddress}.`,
+        data: { planId: payload.planId, propertyId: payload.propertyId },
+      });
+    });
+  }
+
   /**
    * Bulk task reminder handler — used by TaskReminderService (scheduler).
    * Uses direct DB writes (NotificationsService) instead of BullMQ queue

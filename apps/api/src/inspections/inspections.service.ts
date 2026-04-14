@@ -13,9 +13,16 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { type InspectionItemStatus, Prisma, type PropertySector } from '@prisma/client';
+import {
+  type ConditionFound,
+  type InspectionItemStatus,
+  Prisma,
+  type PropertySector,
+  type TaskResult,
+} from '@prisma/client';
 
 import { CategoryTemplatesRepository } from '../category-templates/category-templates.repository';
+import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { PropertiesRepository } from '../properties/properties.repository';
 import { TaskTemplatesRepository } from '../task-templates/task-templates.repository';
@@ -32,13 +39,13 @@ const ITEM_STATUS_TO_CONDITION = {
   OK: 'GOOD',
   NEEDS_ATTENTION: 'FAIR',
   NEEDS_PROFESSIONAL: 'POOR',
-} as const satisfies Record<EvaluatedInspectionItemStatus, string>;
+} as const satisfies Record<EvaluatedInspectionItemStatus, ConditionFound>;
 
 const ITEM_STATUS_TO_RESULT = {
   OK: 'OK',
   NEEDS_ATTENTION: 'OK_WITH_OBSERVATIONS',
   NEEDS_PROFESSIONAL: 'NEEDS_REPAIR',
-} as const satisfies Record<EvaluatedInspectionItemStatus, string>;
+} as const satisfies Record<EvaluatedInspectionItemStatus, TaskResult>;
 
 @Injectable()
 export class InspectionsService {
@@ -49,6 +56,7 @@ export class InspectionsService {
     private readonly taskTemplatesRepository: TaskTemplatesRepository,
     private readonly categoryTemplatesRepository: CategoryTemplatesRepository,
     private readonly propertiesRepository: PropertiesRepository,
+    private readonly notificationsHandler: NotificationsHandlerService,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -70,6 +78,18 @@ export class InspectionsService {
       order?: number;
     }[];
   }) {
+    // Reject a new inspection if one is already in progress for the property. The UI
+    // shows only the latest checklist, so two DRAFTs would strand the older one
+    // forever (the first to finish locks out the rest via MaintenancePlan.propertyId
+    // unique). Surfacing it here keeps state coherent for the rare case of two admins
+    // clicking 'Nueva inspección' in parallel or a direct API call.
+    const existingDraft = await this.repository.findActiveDraftByProperty(data.propertyId);
+    if (existingDraft) {
+      throw new ConflictException(
+        'Ya hay una inspección en progreso para esta propiedad. Completala o eliminala antes de iniciar otra.',
+      );
+    }
+
     // Enrich items with guide from templates (if not already provided)
     const templateIds = data.items
       .filter((i) => i.taskTemplateId && !i.inspectionGuide)
@@ -217,7 +237,7 @@ export class InspectionsService {
         : [];
     const templateMap = new Map(taskTemplates.map((t) => [t.id, t]));
 
-    return this.prisma.$transaction(
+    const result = await this.prisma.$transaction(
       async (tx) => {
         // Find-or-create categories
         const categoryMap = new Map<string, string>(); // categoryTemplateId → categoryId
@@ -362,8 +382,8 @@ export class InspectionsService {
           // PENDING items are rejected earlier in this method, so `item.status` here
           // is always one of the three evaluated statuses; the fallback is a defensive
           // belt-and-suspenders with a warning log so an unexpected value is not silent.
-          let conditionFound: string;
-          let result: string;
+          let conditionFound: ConditionFound;
+          let result: TaskResult;
           if (item.status in ITEM_STATUS_TO_CONDITION) {
             const evaluated = item.status as EvaluatedInspectionItemStatus;
             conditionFound = ITEM_STATUS_TO_CONDITION[evaluated];
@@ -411,6 +431,21 @@ export class InspectionsService {
       },
       { timeout: 15_000 },
     );
+
+    // Post-commit: notify the property owner their plan is ready. Fire-and-forget
+    // (void + handler has its own DLQ), so a notification failure never rolls the
+    // plan creation back. The 'property' shape was loaded inside the checklist
+    // lookup at the top of this method.
+    if (result && checklist.property) {
+      void this.notificationsHandler.handlePlanGenerated({
+        userId: checklist.property.userId,
+        planId: result.id,
+        propertyId: checklist.propertyId,
+        propertyAddress: checklist.property.address,
+      });
+    }
+
+    return result;
   }
 
   // ─── Ownership validation ─────────────────────────────

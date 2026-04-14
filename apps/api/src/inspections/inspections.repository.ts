@@ -56,6 +56,16 @@ export class InspectionsRepository {
     });
   }
 
+  /** Returns the id of an active (DRAFT, not soft-deleted) checklist for a property,
+   *  or null. Used by the create-guard to prevent concurrent DRAFT inspections. */
+  async findActiveDraftByProperty(propertyId: string): Promise<string | null> {
+    const result = await this.prisma.inspectionChecklist.findFirst({
+      where: { propertyId, status: 'DRAFT', deletedAt: null },
+      select: { id: true },
+    });
+    return result?.id ?? null;
+  }
+
   async findByProperty(propertyId: string) {
     // Filter out soft-deleted checklists so cancelled/removed inspections don't
     // resurface in the UI for the property.
@@ -121,11 +131,16 @@ export class InspectionsRepository {
     });
   }
 
-  /** Fetches checklist with items filtered by deletedAt — for plan generation. */
+  /** Fetches checklist with items filtered by deletedAt — for plan generation.
+   *  Also pulls the owner's userId and the property address, used by the post-commit
+   *  notification in generatePlanFromInspection without an extra round-trip. */
   async findByIdWithActiveItems(id: string) {
     return this.prisma.inspectionChecklist.findUnique({
       where: { id, deletedAt: null },
-      include: { items: { where: { deletedAt: null }, orderBy: { order: 'asc' } } },
+      include: {
+        items: { where: { deletedAt: null }, orderBy: { order: 'asc' } },
+        property: { select: { userId: true, address: true } },
+      },
     });
   }
 
