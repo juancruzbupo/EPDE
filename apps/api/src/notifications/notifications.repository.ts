@@ -128,11 +128,37 @@ export class NotificationsRepository extends BaseRepository<Notification, 'notif
     return new Set(existing.map((n: { userId: string }) => n.userId));
   }
 
-  /** Delete read notifications older than the given date. Returns count deleted. */
+  /**
+   * Delete read notifications older than the given date, in bounded batches.
+   * A single unconstrained deleteMany on a large Notification table can hold row
+   * locks for seconds and block concurrent reads. The batch loop yields between
+   * chunks so other transactions can progress.
+   */
   async deleteOldRead(olderThan: Date): Promise<number> {
-    const { count } = await this.prisma.notification.deleteMany({
-      where: { read: true, createdAt: { lt: olderThan } },
-    });
-    return count;
+    const BATCH_SIZE = 10_000;
+    const BATCH_DELAY_MS = 100;
+    let totalDeleted = 0;
+
+    // Hard ceiling to avoid infinite loops in case of clock-skew or pathological input.
+    for (let i = 0; i < 200; i++) {
+      const rows = await this.prisma.notification.findMany({
+        where: { read: true, createdAt: { lt: olderThan } },
+        select: { id: true },
+        take: BATCH_SIZE,
+      });
+      if (rows.length === 0) break;
+
+      const { count } = await this.prisma.notification.deleteMany({
+        where: { id: { in: rows.map((r) => r.id) } },
+      });
+      totalDeleted += count;
+
+      // If the fetch came back short of BATCH_SIZE, there's nothing left to do.
+      if (rows.length < BATCH_SIZE) break;
+
+      await new Promise((resolve) => setTimeout(resolve, BATCH_DELAY_MS));
+    }
+
+    return totalDeleted;
   }
 }
