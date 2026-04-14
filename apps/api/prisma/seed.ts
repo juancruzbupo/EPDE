@@ -9,6 +9,10 @@ import type {
 const { TEMPLATE_SEED_DATA } = require('../../../packages/shared/dist/seed/index.cjs') as {
   TEMPLATE_SEED_DATA: CategoryTemplateSeed[];
 };
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { generateReferralCode } = require('../../../packages/shared/dist/index.cjs') as {
+  generateReferralCode: (firstName: string) => string;
+};
 import { seedDemo } from './seed-demo';
 
 const prisma = new PrismaClient();
@@ -342,6 +346,36 @@ async function main() {
       },
     });
     console.log(`E2E fixture: recreated property "${E2E_ADDRESS}" (no plan, no inspection)`);
+  }
+
+  // Referral program backfill — every user needs a referralCode before the
+  // frontend can render the "Tu código" card. Idempotent: users that already
+  // have a code are skipped. Unique-constraint collisions retry up to 5 times
+  // with a fresh suffix before giving up (probability ≈ 1 in 30^(3*5)).
+  const usersWithoutCode = await prisma.user.findMany({
+    where: { referralCode: null },
+    select: { id: true, name: true },
+  });
+  if (usersWithoutCode.length > 0) {
+    console.log(`Backfilling referral codes for ${usersWithoutCode.length} user(s)...`);
+    for (const u of usersWithoutCode) {
+      let assigned = false;
+      for (let attempt = 0; attempt < 5 && !assigned; attempt++) {
+        const code = generateReferralCode(u.name);
+        try {
+          await prisma.user.update({ where: { id: u.id }, data: { referralCode: code } });
+          assigned = true;
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          if (!message.includes('Unique constraint')) throw err;
+          // collision — retry with a fresh random suffix
+        }
+      }
+      if (!assigned) {
+        throw new Error(`Failed to assign referralCode to user ${u.id} after 5 attempts`);
+      }
+    }
+    console.log(`  Assigned codes to ${usersWithoutCode.length} user(s).`);
   }
 
   console.log('Seeding complete!');
