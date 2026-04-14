@@ -178,6 +178,15 @@ export class InspectionsRepository {
     return result ? { checklistId: result.checklistId, status: result.checklist.status } : null;
   }
 
+  /**
+   * Soft-delete a checklist and its items, and detach any plan that was generated
+   * from it. The plan and its tasks remain valid — only the historical origin
+   * pointer (MaintenancePlan.sourceInspectionId) is dropped so the UI doesn't
+   * try to render traceability back to a now-invisible inspection.
+   *
+   * Task does NOT carry a sourceInspectionId of its own; the only orphan back-
+   * reference lives on MaintenancePlan.
+   */
   async softDelete(id: string) {
     const now = new Date();
     return this.prisma.$transaction([
@@ -188,6 +197,10 @@ export class InspectionsRepository {
       this.prisma.inspectionChecklist.update({
         where: { id },
         data: { deletedAt: now },
+      }),
+      this.prisma.maintenancePlan.updateMany({
+        where: { sourceInspectionId: id },
+        data: { sourceInspectionId: null },
       }),
     ]);
   }

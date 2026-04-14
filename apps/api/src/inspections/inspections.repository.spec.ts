@@ -13,6 +13,7 @@ interface MockModel {
 interface MockPrisma {
   inspectionChecklist: MockModel;
   inspectionItem: MockModel;
+  maintenancePlan: MockModel;
   $transaction: jest.Mock;
 }
 
@@ -20,28 +21,25 @@ describe('InspectionsRepository', () => {
   let repository: InspectionsRepository;
   let mockChecklist: MockModel;
   let mockItem: MockModel;
+  let mockPlan: MockModel;
   let mockPrisma: MockPrisma;
 
   beforeEach(() => {
-    mockChecklist = {
+    const mkModel = (): MockModel => ({
       create: jest.fn(),
       findMany: jest.fn(),
       findUnique: jest.fn(),
       update: jest.fn(),
       aggregate: jest.fn(),
       updateMany: jest.fn(),
-    };
-    mockItem = {
-      create: jest.fn(),
-      findMany: jest.fn(),
-      findUnique: jest.fn(),
-      update: jest.fn(),
-      aggregate: jest.fn(),
-      updateMany: jest.fn(),
-    };
+    });
+    mockChecklist = mkModel();
+    mockItem = mkModel();
+    mockPlan = mkModel();
     mockPrisma = {
       inspectionChecklist: mockChecklist,
       inspectionItem: mockItem,
+      maintenancePlan: mockPlan,
       $transaction: jest.fn(),
     };
     repository = new InspectionsRepository(mockPrisma as unknown as PrismaService);
@@ -207,7 +205,7 @@ describe('InspectionsRepository', () => {
   });
 
   describe('softDelete', () => {
-    it('uses $transaction with deletedAt:null filter on items and shared timestamp', async () => {
+    it('uses $transaction with deletedAt:null filter, shared timestamp, and detaches plan back-reference', async () => {
       mockPrisma.$transaction.mockResolvedValue([]);
       const before = new Date();
 
@@ -215,9 +213,10 @@ describe('InspectionsRepository', () => {
 
       expect(mockPrisma.$transaction).toHaveBeenCalledTimes(1);
 
-      // $transaction receives an array of two operations
+      // $transaction receives an array of three operations: items soft-delete,
+      // checklist soft-delete, and plan back-reference detach.
       const txArg = mockPrisma.$transaction.mock.calls[0][0];
-      expect(txArg).toHaveLength(2);
+      expect(txArg).toHaveLength(3);
 
       // Verify updateMany was called with deletedAt:null filter
       expect(mockItem.updateMany).toHaveBeenCalledWith({
@@ -231,7 +230,14 @@ describe('InspectionsRepository', () => {
         data: { deletedAt: expect.any(Date) },
       });
 
-      // Both operations share the same timestamp
+      // Verify plan back-reference is detached so the UI doesn't try to resolve
+      // a now-soft-deleted inspection from sourceInspectionId.
+      expect(mockPlan.updateMany).toHaveBeenCalledWith({
+        where: { sourceInspectionId: 'checklist-1' },
+        data: { sourceInspectionId: null },
+      });
+
+      // Items and checklist share the same timestamp (atomic snapshot).
       const itemDeletedAt = mockItem.updateMany.mock.calls[0][0].data.deletedAt;
       const checklistDeletedAt = mockChecklist.update.mock.calls[0][0].data.deletedAt;
       expect(itemDeletedAt).toBe(checklistDeletedAt);
