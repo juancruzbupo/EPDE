@@ -5,6 +5,30 @@ import Redis from 'ioredis';
 /** Key prefix to avoid collisions in shared Redis instances. */
 const KEY_PREFIX = 'epde:';
 
+/** TLS-layer Node.js error codes that surface at connect time. Presence of any
+ *  of these in the failure means the Redis transport never even negotiated —
+ *  the problem is the cert, not the server. Keep the list short and exact; the
+ *  match is by `code` or by substring in message for engines that stringify. */
+const TLS_ERROR_CODES: ReadonlyArray<string> = [
+  'ERR_TLS_CERT_ALTNAME_INVALID',
+  'DEPTH_ZERO_SELF_SIGNED_CERT',
+  'SELF_SIGNED_CERT_IN_CHAIN',
+  'UNABLE_TO_VERIFY_LEAF_SIGNATURE',
+  'CERT_HAS_EXPIRED',
+  'UNABLE_TO_GET_ISSUER_CERT',
+  'UNABLE_TO_GET_ISSUER_CERT_LOCALLY',
+];
+
+function describeTlsError(err: unknown): string | null {
+  if (!err || typeof err !== 'object') return null;
+  const e = err as { code?: unknown; message?: unknown };
+  const code = typeof e.code === 'string' ? e.code : null;
+  if (code && TLS_ERROR_CODES.includes(code)) return `${code}`;
+  const message = typeof e.message === 'string' ? e.message : '';
+  const matched = TLS_ERROR_CODES.find((c) => message.includes(c));
+  return matched ? `${matched} (${message})` : null;
+}
+
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
   private readonly client: Redis;
@@ -58,6 +82,18 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       this.logger.log('Redis connection verified');
     } catch (err) {
       const isProd = this.configService.get<string>('NODE_ENV') === 'production';
+      const tlsHint = describeTlsError(err);
+
+      if (tlsHint) {
+        // TLS misconfiguration is almost always a deploy-time mistake (bad CA,
+        // hostname mismatch, self-signed without trust chain). Fail hard with a
+        // specific message in any environment so the operator sees it during
+        // boot rather than at the first real traffic.
+        throw new Error(
+          `Redis TLS handshake failed — ${tlsHint}. Check REDIS_URL scheme (rediss://) and TLS cert trust chain.`,
+        );
+      }
+
       if (isProd) {
         throw new Error(
           `Redis is unreachable in production — auth token rotation will not work: ${err instanceof Error ? err.message : String(err)}`,
