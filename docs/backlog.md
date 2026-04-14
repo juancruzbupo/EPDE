@@ -99,3 +99,53 @@
 7. **Onboarding interactivo con tour guiado** — `react-joyride` en web (5 pasos: health card, stats, tareas, sidebar, notificaciones). En mobile: carrusel de 4 slides en primer acceso.
 8. **Notificaciones por WhatsApp** — Integración WhatsApp Business API (Twilio o Meta). Recordatorios, resumen semanal, presupuestos cotizados. Preferencias por usuario. Campo `phone` en User.
 9. **Galería de fotos en el dashboard** — Sección "Estado visual" con últimas 4-6 fotos (inspecciones + tareas). Click abre foto con contexto. En mobile: carrusel horizontal.
+
+## Deuda técnica arquitectónica (audit round 2 — Fase C diferida)
+
+> Ambos items fueron identificados en la auditoría arquitectónica de 2026-04-14 (ver commits `a989491`..`af56fe8`). Son riesgos hipotéticos que hoy NO han causado incidentes; el backlog los captura para cuando una feature real los fuerce al frente.
+
+### SchedulerModule adapter layer
+
+**Qué es**: `apps/api/src/scheduler/scheduler.module.ts` importa 9 feature modules (`TasksModule`, `BudgetsModule`, `ServiceRequestsModule`, `NotificationsModule`, `EmailModule`, `DashboardModule`, `PropertiesModule`, `UsersModule`, `AuthModule`). Cada cron nuevo potencialmente agrega otro import. Mitigado hoy por SIEMPRE #94 (ESLint rule que bloquea imports `scheduler/` desde domain modules), pero la dirección `scheduler → domain` es un hot-zone.
+
+**Por qué está diferido**:
+
+- No ha causado un ciclo real
+- Refactor es 2-3 semanas (15 cron services + re-provider de repos)
+- El audit explícitamente dijo "no tocar ahora"
+
+**Trigger para activar**:
+
+- Feature nueva necesita invocar un cron desde un domain module (ej. "re-inspección" podría querer programar un recordatorio).
+- Aparece un ciclo de imports que forza un `forwardRef()`.
+- SchedulerModule crece a 12+ imports.
+
+**Shape propuesto cuando se active**:
+
+1. Crear `apps/api/src/scheduler/adapters/scheduler-domain-access.module.ts` que re-exporta solo los repos/services que crons consumen (no los feature modules enteros).
+2. Migrar 1 cron service como prueba del patrón (recomendable: `ISVSnapshotService` — usa solo `PropertiesRepository.findWithActivePlans`, `DashboardRepository.getPropertyHealthIndexBatch`, `ISVSnapshotRepository`).
+3. El resto de crons migran oportunisticamente cuando se tocan por otra razón.
+4. Cuando todos migraron, `SchedulerModule` importa solo `SchedulerDomainAccessModule` + `ScheduleModule.forRoot()`.
+
+### Runtime schema validation en mutation responses
+
+**Qué es**: Los hooks web y mobile leen campos anidados directamente desde la respuesta (`response.data.task.category.name`). Si la API cambia shape sin sync de ambos lados, TypeScript compila (porque el tipo en `@epde/shared` se actualiza), pero el acceso inline puede romper en runtime.
+
+**Por qué está diferido**:
+
+- Factories unificadas en `@epde/shared/api/*` hacen que ambas plataformas consuman de una sola fuente — drift silencioso es hoy muy difícil.
+- Zod runtime validation agrega latencia + complejidad.
+- No se ha observado un incidente de este tipo.
+
+**Trigger para activar**:
+
+- Un incidente donde una API change rompe una plataforma y no la otra.
+- Integración con un endpoint externo (no-EPDE) donde el contract no es controlado.
+- Migración a tRPC / GraphQL (contract-first sería redundante).
+
+**Shape propuesto cuando se active**:
+
+1. Crear `packages/shared/src/schemas/responses/` con Zod schemas por mutation crítica (empezar con `completeTask`, `respondBudget`, `updateServiceStatus`).
+2. Factories `createXQueries(apiClient)` añaden `.safeParse()` internamente y logean drift a Sentry en dev; fallan duro en tests.
+3. Hooks siguen igual — el cambio es transparente.
+4. Documentar SIEMPRE rule para nuevos factories.
