@@ -15,10 +15,13 @@ import { activateStreakFreeze, getMilestones } from '@/lib/api/auth-features';
 import { haptics } from '@/lib/haptics';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
 
+import { STALE_TIME } from './query-stale-times';
+
 export function useMilestones() {
   return useQuery({
     queryKey: [QUERY_KEYS.milestones ?? 'milestones'],
     queryFn: ({ signal }) => getMilestones(signal).then((r) => r.data),
+    staleTime: STALE_TIME.SLOW,
   });
 }
 

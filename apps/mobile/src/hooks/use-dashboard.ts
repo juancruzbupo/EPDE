@@ -16,10 +16,13 @@ import {
   getClientUpcomingTasks,
 } from '@/lib/api/dashboard';
 
+import { STALE_TIME } from './query-stale-times';
+
 export function useClientDashboardStats() {
   return useQuery({
     queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientStats],
     queryFn: ({ signal }) => getClientDashboardStats(signal).then((r) => r.data),
+    staleTime: STALE_TIME.MEDIUM,
   });
 }
 
@@ -27,6 +30,7 @@ export function useClientUpcomingTasks() {
   return useQuery({
     queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientUpcoming],
     queryFn: ({ signal }) => getClientUpcomingTasks(signal).then((r) => r.data),
+    staleTime: STALE_TIME.VOLATILE,
   });
 }
 
@@ -34,7 +38,7 @@ export function useClientAnalytics(months?: number) {
   return useQuery({
     queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientAnalytics, months],
     queryFn: ({ signal }) => getClientAnalytics(signal, months).then((r) => r.data),
-    staleTime: 5 * 60_000,
+    staleTime: STALE_TIME.SLOW,
     enabled: months != null,
   });
 }

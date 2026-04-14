@@ -28,6 +28,8 @@ import {
 import { haptics } from '@/lib/haptics';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
 
+import { STALE_TIME } from './query-stale-times';
+
 /** Mobile is CLIENT-only — filters default to {} (no admin filtering needed). Web requires filters explicitly. */
 export function useServiceRequests(filters: Omit<ServiceRequestFilters, 'cursor'> = {}) {
   return useInfiniteQuery({
@@ -37,6 +39,7 @@ export function useServiceRequests(filters: Omit<ServiceRequestFilters, 'cursor'
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
     maxPages: 10,
+    staleTime: STALE_TIME.MEDIUM,
   });
 }
 
@@ -46,6 +49,7 @@ export function useServiceRequest(id: string, options?: { initialData?: ServiceR
     queryFn: ({ signal }) => getServiceRequest(id, signal).then((r) => r.data),
     initialData: options?.initialData,
     enabled: !!id,
+    staleTime: STALE_TIME.MEDIUM,
   });
 }
 
@@ -142,6 +146,7 @@ export function useServiceRequestAuditLog(id: string) {
     queryKey: [QUERY_KEYS.serviceRequests, id, QUERY_KEYS.serviceRequestAuditLog],
     queryFn: ({ signal }) => getServiceRequestAuditLog(id, signal).then((r) => r.data),
     enabled: !!id,
+    staleTime: STALE_TIME.SLOW,
   });
 }
 
@@ -152,6 +157,7 @@ export function useServiceRequestComments(id: string) {
     queryKey: [QUERY_KEYS.serviceRequests, id, QUERY_KEYS.serviceRequestComments],
     queryFn: ({ signal }) => getServiceRequestComments(id, signal).then((r) => r.data),
     enabled: !!id,
+    staleTime: STALE_TIME.VOLATILE,
   });
 }
 

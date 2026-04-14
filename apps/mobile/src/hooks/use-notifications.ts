@@ -19,6 +19,8 @@ import {
 } from '@/lib/api/notifications';
 import { haptics } from '@/lib/haptics';
 
+import { STALE_TIME } from './query-stale-times';
+
 export function useNotifications() {
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.notifications],
@@ -26,6 +28,7 @@ export function useNotifications() {
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined as string | undefined,
     maxPages: 5,
+    staleTime: STALE_TIME.VOLATILE,
   });
 }
 
@@ -37,6 +40,7 @@ export function useUnreadCount() {
       return res.data.count;
     },
     refetchInterval: 60_000,
+    staleTime: STALE_TIME.VOLATILE,
   });
 }
 
