@@ -87,12 +87,16 @@ export class NotificationsRepository extends BaseRepository<Notification, 'notif
     nowAR.setUTCHours(0, 0, 0, 0);
     const todayStart = new Date(nowAR.getTime() + AR_OFFSET_MS);
 
+    // Safety cap — the (type, createdAt) index makes the filter cheap, but we never want
+    // this lookup to materialize millions of rows if the notifications table balloons.
+    // 10k covers realistic max daily reminders by 2+ orders of magnitude.
     const existing = await this.model.findMany({
       where: {
         type: NotificationType.TASK_REMINDER,
         createdAt: { gte: todayStart },
       },
       select: { data: true },
+      take: 10_000,
     });
 
     return new Set(
@@ -109,6 +113,8 @@ export class NotificationsRepository extends BaseRepository<Notification, 'notif
     nowAR.setUTCHours(0, 0, 0, 0);
     const todayStart = new Date(nowAR.getTime() + AR_OFFSET_MS);
 
+    // Safety cap: a realistic deployment sends far fewer than 5k subscription reminders
+    // in a single day; this prevents a runaway scan if the table grows unexpectedly.
     const existing = await this.model.findMany({
       where: {
         type: NotificationType.SYSTEM,
@@ -116,6 +122,7 @@ export class NotificationsRepository extends BaseRepository<Notification, 'notif
         createdAt: { gte: todayStart },
       },
       select: { userId: true },
+      take: 5_000,
     });
 
     return new Set(existing.map((n: { userId: string }) => n.userId));

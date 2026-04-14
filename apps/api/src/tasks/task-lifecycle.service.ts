@@ -304,11 +304,18 @@ export class TaskLifecycleService {
 
         const maxOrder = await this.tasksRepository.getMaxOrder(planId);
 
-        // Skip tasks with names that already exist in the plan (duplicate detection)
+        // Skip tasks with names that already exist in the plan (duplicate detection).
+        // Query only for the candidate template names rather than scanning the whole plan —
+        // avoids the earlier `take: 1_000` silently missing duplicates on larger plans, and
+        // keeps the query bounded by the template size (typically <50 entries).
+        const candidateNames = categoryTemplate.tasks.map((tpl) => tpl.name);
         const existingTasks = await tx.task.findMany({
-          where: { maintenancePlanId: planId, deletedAt: null },
+          where: {
+            maintenancePlanId: planId,
+            deletedAt: null,
+            name: { in: candidateNames, mode: 'insensitive' },
+          },
           select: { name: true },
-          take: 1_000,
         });
         const existingNames = new Set(existingTasks.map((t) => t.name.toLowerCase()));
 
