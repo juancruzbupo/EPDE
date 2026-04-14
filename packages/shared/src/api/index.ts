@@ -17,3 +17,9 @@ export {
   type QuoteTemplatePublic,
 } from './quote-templates';
 export { createServiceRequestQueries, type ServiceRequestFilters } from './service-requests';
+export {
+  type AddTaskRequest,
+  createTaskQueries,
+  type TaskListFilters,
+  type UpdateTaskRequest,
+} from './tasks';
