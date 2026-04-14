@@ -1,5 +1,6 @@
 import type { UserRole } from '@epde/shared';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 import { decodeJwtPayload } from './jwt';
 
@@ -23,4 +24,20 @@ export async function getServerUser(): Promise<ServerUser | null> {
   if (!payload) return null;
 
   return { id: payload.sub, email: payload.email, role: payload.role };
+}
+
+/**
+ * Server-side gate for ADMIN-only route groups. Call from a layout's server
+ * component to hard-redirect CLIENT tokens before any admin shell renders.
+ *
+ * Pairs with the middleware redirect (see apps/web/src/middleware.ts
+ * ADMIN_ONLY_PREFIXES): middleware catches the common case at the edge;
+ * this layer catches edge-case bypasses (rewrites, direct HTML fetches,
+ * stale middleware bundle) with the backend's authoritative answer.
+ */
+export async function requireAdmin(): Promise<ServerUser> {
+  const user = await getServerUser();
+  if (!user) redirect('/login');
+  if (user.role !== 'ADMIN') redirect('/');
+  return user;
 }
