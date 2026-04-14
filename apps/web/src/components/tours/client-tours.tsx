@@ -9,9 +9,9 @@ import { SHARED_STEP_DEFAULTS, Tour } from './tour-core';
 const DASHBOARD_STEPS: Step[] = [
   {
     target: '[data-tour="health-score"]',
-    title: 'ISV: el estado de tu casa',
+    title: 'Índice de Salud de la Vivienda (ISV)',
     content:
-      'Va de 0 a 100. Arriba de 60 es bueno. Debajo de 40 es urgente. Sube cuando completás tareas a tiempo, baja cuando se vencen. 🔥 es tu racha de meses al día.',
+      'Un número de 0 a 100 que resume el estado de tu casa. Arriba de 60 es bueno. Debajo de 40 es urgente. Sube cuando completás tareas a tiempo, baja cuando se vencen. 🔥 es tu racha de meses al día.',
     skipBeacon: true,
     ...SHARED_STEP_DEFAULTS,
   },

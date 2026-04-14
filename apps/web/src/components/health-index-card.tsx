@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+import { HelpHint } from './help-hint';
+
 const DIMENSION_LABELS = {
   compliance: {
     name: '¿Estás al día?',
@@ -71,9 +73,21 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
 
       <CardHeader className="pb-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <CardTitle data-tour="property-health" className="type-title-md">
-            Índice de Salud de la Vivienda
-          </CardTitle>
+          <div className="flex items-center gap-1.5">
+            <CardTitle data-tour="property-health" className="type-title-md">
+              Índice de Salud de la Vivienda
+            </CardTitle>
+            <HelpHint term="Índice de Salud de la Vivienda (ISV)" className="no-print">
+              <p>
+                Un número de 0 a 100 que resume cuánto cuidado necesita tu vivienda. Mantenerlo
+                arriba de 60 evita reparaciones costosas.
+              </p>
+              <p className="mt-1">
+                Se calcula con 5 dimensiones: si estás al día con las tareas, el estado reportado,
+                qué sectores se revisaron, si prevenís o reparás, y cómo evolucionó.
+              </p>
+            </HelpHint>
+          </div>
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
