@@ -6,7 +6,7 @@
  * It intentionally exposes only the minimal projections each consumer needs.
  */
 import { UserRole } from '@epde/shared';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -14,6 +14,8 @@ const MAX_ADMIN_FETCH = 500;
 
 @Injectable()
 export class UserLookupRepository {
+  private readonly logger = new Logger(UserLookupRepository.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async findAdminIds(): Promise<string[]> {
@@ -22,6 +24,13 @@ export class UserLookupRepository {
       select: { id: true },
       take: MAX_ADMIN_FETCH,
     });
+    // If we hit the cap, callers are silently missing admins. Surface it so it's
+    // investigable before someone wonders why a notification didn't arrive.
+    if (admins.length === MAX_ADMIN_FETCH) {
+      this.logger.warn(
+        `findAdminIds hit MAX_ADMIN_FETCH=${MAX_ADMIN_FETCH} — additional admins are being silently excluded`,
+      );
+    }
     return admins.map((a) => a.id);
   }
 

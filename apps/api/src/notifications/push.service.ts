@@ -17,6 +17,12 @@ interface ExpoPushMessage {
 @Injectable()
 export class PushService {
   private readonly logger = new Logger(PushService.name);
+  /** Safety cap for a single sendToUsers call. Above this we split into chunks so the
+   *  `IN (?)` clause against PushToken stays manageable and memory doesn't spike. */
+  private static readonly USER_CHUNK_SIZE = 2_000;
+  /** Above this we also log a warning — any caller sending to this many users at once
+   *  probably wants to refactor toward a broadcast mechanism instead. */
+  private static readonly USER_WARN_THRESHOLD = 5_000;
 
   constructor(private readonly pushTokensRepository: PushTokensRepository) {}
 
@@ -41,7 +47,19 @@ export class PushService {
     notification: { title: string; body: string; data?: Record<string, string> },
   ) {
     try {
-      const tokens = await this.pushTokensRepository.findByUserIds(userIds);
+      if (userIds.length > PushService.USER_WARN_THRESHOLD) {
+        this.logger.warn(
+          `sendToUsers called with ${userIds.length} recipients — consider batching from the caller or introducing a broadcast channel`,
+        );
+      }
+
+      // Chunk the userId list to keep the token-lookup IN clause bounded in size.
+      const tokens: Awaited<ReturnType<typeof this.pushTokensRepository.findByUserIds>> = [];
+      for (let i = 0; i < userIds.length; i += PushService.USER_CHUNK_SIZE) {
+        const slice = userIds.slice(i, i + PushService.USER_CHUNK_SIZE);
+        const chunkTokens = await this.pushTokensRepository.findByUserIds(slice);
+        tokens.push(...chunkTokens);
+      }
       if (tokens.length === 0) return;
 
       const messages: ExpoPushMessage[] = tokens.map((t) => ({
