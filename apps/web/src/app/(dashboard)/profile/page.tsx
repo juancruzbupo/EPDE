@@ -1,7 +1,8 @@
 'use client';
 
-import { UserRole } from '@epde/shared';
-import { HelpCircle, Monitor, Moon, Sparkles, Sun, Type } from 'lucide-react';
+import type { NotificationType } from '@epde/shared';
+import { NOTIFICATION_TYPE_LABELS, UserRole } from '@epde/shared';
+import { Bell, HelpCircle, Monitor, Moon, Sparkles, Sun, Type } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -117,6 +118,7 @@ export default function ProfilePage() {
       <AppearanceCard />
       <TextSizeCard />
       <MotivationCard />
+      <NotificationsCard />
 
       <ProfileForm user={user} onSuccess={checkAuth} />
       <MilestonesCardGuarded />
@@ -303,4 +305,66 @@ function MilestonesCardGuarded() {
   const motivationStyle = useUiPreferencesStore((s) => s.motivationStyle);
   if (motivationStyle === 'minimal') return null;
   return <MilestonesSection />;
+}
+
+const NOTIFICATION_TYPES: NotificationType[] = [
+  'TASK_REMINDER',
+  'BUDGET_UPDATE',
+  'SERVICE_UPDATE',
+  'SYSTEM',
+];
+
+const NOTIFICATION_HINTS: Record<NotificationType, string> = {
+  TASK_REMINDER: 'Avisos de tareas por vencer o vencidas.',
+  BUDGET_UPDATE: 'Cuando un presupuesto se cotiza o cambia de estado.',
+  SERVICE_UPDATE: 'Avances en tus solicitudes de servicio.',
+  SYSTEM: 'Anuncios y novedades de la plataforma.',
+};
+
+function NotificationsCard() {
+  const hidden = useUiPreferencesStore((s) => s.hiddenNotificationTypes);
+  const toggle = useUiPreferencesStore((s) => s.toggleHiddenNotificationType);
+
+  return (
+    <Card className="mb-6">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Bell className="h-4 w-4" aria-hidden="true" />
+          Notificaciones
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-muted-foreground type-body-sm">
+          Elegí qué tipos de notificaciones querés ver en la bandeja. Esto solo oculta la lista acá
+          en la app; la entrega por correo o push depende del tipo de aviso.
+        </p>
+        <ul className="space-y-2">
+          {NOTIFICATION_TYPES.map((type) => {
+            const isHidden = hidden.includes(type);
+            const id = `notif-${type}`;
+            return (
+              <li key={type} className="border-border flex items-start gap-3 rounded-lg border p-3">
+                <div className="min-w-0 flex-1">
+                  <label htmlFor={id} className="type-label-lg cursor-pointer">
+                    {NOTIFICATION_TYPE_LABELS[type]}
+                  </label>
+                  <p className="text-muted-foreground text-xs leading-relaxed">
+                    {NOTIFICATION_HINTS[type]}
+                  </p>
+                </div>
+                <input
+                  id={id}
+                  type="checkbox"
+                  checked={!isHidden}
+                  onChange={() => toggle(type)}
+                  aria-label={`Mostrar notificaciones de ${NOTIFICATION_TYPE_LABELS[type]}`}
+                  className="accent-primary mt-1 h-4 w-4 shrink-0"
+                />
+              </li>
+            );
+          })}
+        </ul>
+      </CardContent>
+    </Card>
+  );
 }

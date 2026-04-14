@@ -16,6 +16,7 @@ import { PageTransition } from '@/components/ui/page-transition';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMarkAllAsRead, useMarkAsRead, useNotifications } from '@/hooks/use-notifications';
 import type { NotificationPublic } from '@/lib/api/notifications';
+import { useUiPreferencesStore } from '@/stores/ui-preferences-store';
 
 const typeIcons: Record<NotificationType, typeof Bell> = {
   TASK_REMINDER: Clock,
@@ -43,8 +44,14 @@ export default function NotificationsPage() {
   const { data, isLoading, isError, refetch, hasNextPage, fetchNextPage } = useNotifications();
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
+  const hiddenTypes = useUiPreferencesStore((s) => s.hiddenNotificationTypes);
 
-  const allNotifications = useMemo(() => data?.pages.flatMap((p) => p.data) ?? [], [data]);
+  const allNotifications = useMemo(() => {
+    const list = data?.pages.flatMap((p) => p.data) ?? [];
+    if (hiddenTypes.length === 0) return list;
+    const hidden = new Set(hiddenTypes);
+    return list.filter((n) => !hidden.has(n.type));
+  }, [data, hiddenTypes]);
 
   const handleClick = (notification: NotificationPublic) => {
     if (!notification.read) {
