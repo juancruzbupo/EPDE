@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { type InspectionItemStatus, type PropertySector } from '@prisma/client';
+import {
+  type InspectionChecklistStatus,
+  type InspectionItemStatus,
+  type PropertySector,
+} from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -131,12 +135,30 @@ export class InspectionsRepository {
     return result?.propertyId ?? null;
   }
 
+  async findChecklistStatus(id: string): Promise<InspectionChecklistStatus | null> {
+    const result = await this.prisma.inspectionChecklist.findUnique({
+      where: { id },
+      select: { status: true },
+    });
+    return result?.status ?? null;
+  }
+
   async findItemExists(itemId: string): Promise<boolean> {
     const result = await this.prisma.inspectionItem.findUnique({
       where: { id: itemId },
       select: { id: true },
     });
     return result !== null;
+  }
+
+  async findItemChecklistStatus(
+    itemId: string,
+  ): Promise<{ checklistId: string; status: InspectionChecklistStatus } | null> {
+    const result = await this.prisma.inspectionItem.findUnique({
+      where: { id: itemId },
+      select: { checklistId: true, checklist: { select: { status: true } } },
+    });
+    return result ? { checklistId: result.checklistId, status: result.checklist.status } : null;
   }
 
   async softDelete(id: string) {

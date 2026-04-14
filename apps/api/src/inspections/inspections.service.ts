@@ -87,7 +87,7 @@ export class InspectionsService {
     itemId: string,
     data: { status?: InspectionItemStatus; finding?: string; photoUrl?: string },
   ) {
-    await this.verifyItemAccess(itemId);
+    await this.verifyItemAccessAndEditable(itemId);
     return this.repository.updateItem(itemId, data);
   }
 
@@ -95,12 +95,12 @@ export class InspectionsService {
     checklistId: string,
     data: { sector: PropertySector; name: string; description?: string; isCustom?: boolean },
   ) {
-    await this.verifyChecklistAccess(checklistId);
+    await this.verifyChecklistAccessAndEditable(checklistId);
     return this.repository.addItem(checklistId, data);
   }
 
   async updateNotes(checklistId: string, notes: string) {
-    await this.verifyChecklistAccess(checklistId);
+    await this.verifyChecklistAccessAndEditable(checklistId);
     return this.repository.updateNotes(checklistId, notes);
   }
 
@@ -363,6 +363,16 @@ export class InspectionsService {
           });
         }
 
+        // Lock the checklist: once a plan exists for it, editing items would
+        // silently drift from the generated tasks. The write below is what the
+        // later verifyChecklistAccessAndEditable / verifyItemAccessAndEditable
+        // guards key off, and it stays in the same transaction as the plan/task
+        // creation so an aborted run never leaves a half-locked checklist.
+        await tx.inspectionChecklist.update({
+          where: { id: checklistId },
+          data: { status: 'COMPLETED', completedAt: new Date() },
+        });
+
         return tx.maintenancePlan.findUnique({
           where: { id: plan.id },
           include: { tasks: { orderBy: { order: 'asc' } } },
@@ -387,8 +397,25 @@ export class InspectionsService {
     if (!propertyId) throw new NotFoundException('Inspección no encontrada');
   }
 
-  private async verifyItemAccess(itemId: string) {
-    const exists = await this.repository.findItemExists(itemId);
-    if (!exists) throw new NotFoundException('Item de inspección no encontrado');
+  /** Like verifyChecklistAccess but also rejects once the checklist has been
+   *  locked by a plan generation. Used by every mutation path. */
+  private async verifyChecklistAccessAndEditable(checklistId: string) {
+    const status = await this.repository.findChecklistStatus(checklistId);
+    if (!status) throw new NotFoundException('Inspección no encontrada');
+    if (status === 'COMPLETED') {
+      throw new ForbiddenException(
+        'La inspección ya generó un plan de mantenimiento y no es editable.',
+      );
+    }
+  }
+
+  private async verifyItemAccessAndEditable(itemId: string) {
+    const info = await this.repository.findItemChecklistStatus(itemId);
+    if (!info) throw new NotFoundException('Item de inspección no encontrado');
+    if (info.status === 'COMPLETED') {
+      throw new ForbiddenException(
+        'La inspección ya generó un plan de mantenimiento y no es editable.',
+      );
+    }
   }
 }

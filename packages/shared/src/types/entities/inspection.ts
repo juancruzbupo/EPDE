@@ -1,7 +1,7 @@
-import type { InspectionItemStatus, PropertySector } from '../enums';
+import type { InspectionChecklistStatus, InspectionItemStatus, PropertySector } from '../enums';
 
 // Derived from the canonical enum in enums.ts — do not redeclare as union here
-export type { InspectionItemStatus } from '../enums';
+export type { InspectionChecklistStatus, InspectionItemStatus } from '../enums';
 
 export interface InspectionItem {
   id: string;
@@ -28,6 +28,8 @@ export interface InspectionChecklist {
   inspectedBy: string;
   inspectedAt: string;
   notes: string | null;
+  status: InspectionChecklistStatus;
+  completedAt: string | null;
   items: InspectionItem[];
   createdAt: string;
   updatedAt: string;

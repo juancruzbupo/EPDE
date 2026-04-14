@@ -704,17 +704,24 @@ enum InspectionItemStatus {
   NEEDS_PROFESSIONAL
 }
 
+enum InspectionChecklistStatus {
+  DRAFT /// Still being filled in or ready to generate a plan.
+  COMPLETED /// Plan already generated from this checklist; items are read-only.
+}
+
 model InspectionChecklist {
-  id          String           @id @default(uuid())
+  id          String                    @id @default(uuid())
   propertyId  String
-  property    Property         @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  property    Property                  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   inspectedBy String
-  inspector   User             @relation(fields: [inspectedBy], references: [id])
-  inspectedAt DateTime         @default(now())
-  notes       String?          @db.VarChar(2000)
+  inspector   User                      @relation(fields: [inspectedBy], references: [id])
+  inspectedAt DateTime                  @default(now())
+  notes       String?                   @db.VarChar(2000)
+  status      InspectionChecklistStatus @default(DRAFT)
+  completedAt DateTime?
   items       InspectionItem[]
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  createdAt   DateTime                  @default(now())
+  updatedAt   DateTime                  @updatedAt
   deletedAt   DateTime?
 
   @@index([propertyId, inspectedAt(sort: Desc)])

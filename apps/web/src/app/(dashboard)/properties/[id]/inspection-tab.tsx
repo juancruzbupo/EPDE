@@ -63,6 +63,8 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
   const allEvaluated = activeChecklist
     ? activeChecklist.items.length > 0 && activeChecklist.items.every((i) => i.status !== 'PENDING')
     : false;
+  /** True once a plan has been generated from this checklist: items become read-only. */
+  const isLocked = activeChecklist?.status === 'COMPLETED';
 
   const handleNewInspection = () => {
     if (!templates || templates.length === 0) return;
@@ -83,11 +85,12 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
   };
 
   const handleUpdateItem = (itemId: string, status: InspectionItemStatus, finding?: string) => {
+    if (isLocked) return;
     updateItem.mutate({ itemId, status, finding });
   };
 
   const handleAddCustomItem = (sector: PropertySector) => {
-    if (!activeChecklist || !customItemName.trim()) return;
+    if (!activeChecklist || !customItemName.trim() || isLocked) return;
     addItem.mutate(
       { checklistId: activeChecklist.id, sector, name: customItemName.trim(), isCustom: true },
       {
@@ -218,7 +221,18 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
         </div>
 
         {/* Generate plan CTA — prominent when ready */}
-        {allEvaluated && !hasPlan ? (
+        {isLocked ? (
+          <div className="bg-success/5 border-success/20 flex items-center gap-2 rounded-lg border p-3">
+            <CheckCircle className="text-success h-4 w-4 shrink-0" />
+            <p className="text-muted-foreground text-sm">
+              Inspección completada. El plan de mantenimiento fue generado el{' '}
+              {activeChecklist.completedAt
+                ? new Date(activeChecklist.completedAt).toLocaleDateString('es-AR')
+                : 'día que se inspeccionó'}{' '}
+              y los items ya no son editables.
+            </p>
+          </div>
+        ) : allEvaluated && !hasPlan ? (
           <div className="bg-primary/5 border-primary/20 flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold">¡Inspección completa!</p>
@@ -334,8 +348,9 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
                               size="sm"
                               variant={item.status === status ? 'default' : 'outline'}
                               className="h-7 px-1.5 text-[11px] sm:px-2 sm:text-xs"
-                              disabled={isUpdating}
+                              disabled={isUpdating || isLocked}
                               onClick={() => {
+                                if (isLocked) return;
                                 if (
                                   status === 'NEEDS_ATTENTION' ||
                                   status === 'NEEDS_PROFESSIONAL'
@@ -385,7 +400,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
                       </Button>
                     </div>
                   </div>
-                ) : (
+                ) : !isLocked ? (
                   <button
                     onClick={() => setAddingSector(sector)}
                     className="text-primary flex items-center gap-1 text-xs font-medium hover:underline"
@@ -393,7 +408,7 @@ export function InspectionTab({ propertyId, activeSectors, hasPlan }: Inspection
                     <Plus className="h-3 w-3" />
                     Agregar observación
                   </button>
-                )}
+                ) : null}
               </CardContent>
             )}
           </Card>

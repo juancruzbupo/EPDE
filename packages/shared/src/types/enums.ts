@@ -192,6 +192,13 @@ export const InspectionItemStatus = {
 } as const;
 export type InspectionItemStatus = (typeof InspectionItemStatus)[keyof typeof InspectionItemStatus];
 
+export const InspectionChecklistStatus = {
+  DRAFT: 'DRAFT',
+  COMPLETED: 'COMPLETED',
+} as const;
+export type InspectionChecklistStatus =
+  (typeof InspectionChecklistStatus)[keyof typeof InspectionChecklistStatus];
+
 // ─── Enum Value Arrays (for Zod schemas) ─────────────────
 
 export const TASK_TYPE_VALUES = Object.values(TaskType) as [TaskType, ...TaskType[]];
