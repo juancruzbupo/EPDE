@@ -158,6 +158,8 @@ export function useServiceRequestComments(id: string) {
   });
 }
 
+/** Adds a comment to a service request thread. Does NOT invalidate dashboard —
+ *  comments don't feed counters. */
 export function useAddServiceRequestComment() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -182,6 +184,8 @@ export function useAddServiceRequestComment() {
 
 // ─── Attachments ───────────────────────────────────────────
 
+/** Adds attachments to an existing service request. Does NOT invalidate
+ *  dashboard — attachments don't feed counters. */
 export function useAddServiceRequestAttachments() {
   const queryClient = useQueryClient();
   return useMutation({

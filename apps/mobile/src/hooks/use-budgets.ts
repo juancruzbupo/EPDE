@@ -77,6 +77,8 @@ export function useCreateBudgetRequest() {
   });
 }
 
+/** Edits title/description of a PENDING budget. Does NOT invalidate dashboard —
+ *  only status transitions move counters (see SIEMPRE #59 in ai-development-guide). */
 export function useEditBudgetRequest() {
   const queryClient = useQueryClient();
 
@@ -172,6 +174,8 @@ export function useBudgetComments(budgetId: string) {
   });
 }
 
+/** Adds a comment to a budget thread. Does NOT invalidate dashboard — comments
+ *  are not part of any client stat. */
 export function useAddBudgetComment() {
   const queryClient = useQueryClient();
 
@@ -197,6 +201,8 @@ export function useAddBudgetComment() {
 
 // ─── Attachments ───────────────────────────────────────────
 
+/** Adds attachments to an existing budget. Does NOT invalidate dashboard —
+ *  attachments don't feed counters. */
 export function useAddBudgetAttachments() {
   const queryClient = useQueryClient();
 

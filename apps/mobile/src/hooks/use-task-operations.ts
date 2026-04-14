@@ -129,6 +129,8 @@ export function useCompleteTask(options?: {
   });
 }
 
+/** Adds a note to a task. Does NOT invalidate dashboard — notes don't feed any
+ *  client stat. */
 export function useAddTaskNote() {
   const queryClient = useQueryClient();
 
