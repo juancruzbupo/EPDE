@@ -80,9 +80,10 @@ export function useAddTask() {
       technicalDescription?: string;
       estimatedDurationMinutes?: number;
     }) => addTask(planId, dto),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       toast.success('Tarea agregada');
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, QUERY_KEYS.plansTasks] });
     },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al agregar tarea')),
   });

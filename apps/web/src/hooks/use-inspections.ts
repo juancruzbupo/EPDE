@@ -85,8 +85,9 @@ export function useGeneratePlan(propertyId: string) {
     onSuccess: () => {
       toast.success('Plan de mantenimiento generado');
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.inspections, propertyId] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
+      // A new plan is created; the list needs to refresh but individual plan details don't.
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, QUERY_KEYS.plansList] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties, propertyId] });
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Error al generar plan'));

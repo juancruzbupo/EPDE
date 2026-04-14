@@ -51,9 +51,10 @@ export function useUpdateTask() {
       technicalDescription?: string | null;
       estimatedDurationMinutes?: number | null;
     }) => updateTask(planId, taskId, dto),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       toast.success('Tarea actualizada');
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, QUERY_KEYS.plansTasks] });
       invalidateDashboard(queryClient);
     },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al actualizar tarea')),
@@ -65,9 +66,10 @@ export function useRemoveTask() {
   return useMutation({
     mutationFn: ({ planId, taskId }: { planId: string; taskId: string }) =>
       removeTask(planId, taskId),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       toast.success('Tarea eliminada');
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, QUERY_KEYS.plansTasks] });
       invalidateDashboard(queryClient);
     },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al eliminar tarea')),
@@ -79,9 +81,9 @@ export function useReorderTasks() {
   return useMutation({
     mutationFn: ({ planId, tasks }: { planId: string; tasks: { id: string; order: number }[] }) =>
       reorderTasks(planId, tasks),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       toast.success('Orden actualizado');
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
     },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al reordenar tareas')),
   });
@@ -147,6 +149,10 @@ export function useCompleteTask(options?: {
 
     onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, QUERY_KEYS.plansTasks] });
+      // Property-level queries (health index, problems) can change after completion.
+      // We don't know propertyId here without a lookup, so keep the broader invalidation
+      // but note this as a future optimization if property detail becomes chatty.
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
       invalidateDashboard(queryClient);
       queryClient.invalidateQueries({
@@ -167,14 +173,15 @@ export function useBulkAddTasks() {
   return useMutation({
     mutationFn: ({ planId, categoryTemplateId }: { planId: string; categoryTemplateId: string }) =>
       bulkAddTasksFromTemplate(planId, categoryTemplateId),
-    onSuccess: (response) => {
+    onSuccess: (response, variables) => {
       const count = response.data?.count ?? 0;
       if (count === 0) {
         toast.info('No se agregaron tareas — ya existían en el plan.');
       } else {
         toast.success(`${count} tarea${count !== 1 ? 's' : ''} agregada${count !== 1 ? 's' : ''}`);
       }
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, QUERY_KEYS.plansTasks] });
       invalidateDashboard(queryClient);
     },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al aplicar template')),
