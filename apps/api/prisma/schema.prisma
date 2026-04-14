@@ -176,6 +176,17 @@ model User {
   updatedAt             DateTime   @updatedAt
   deletedAt             DateTime?
 
+  /// Referral program — "Trae un amigo". See ADR-010.
+  /// Nullable until every existing user is backfilled (see prisma/seed.ts).
+  /// New users always get a code assigned in UserService.create.
+  referralCode                    String? @unique @db.VarChar(20)
+  referredByCode                  String? @db.VarChar(20) /// Code of the referrer at signup, historical.
+  referralCount                   Int     @default(0) /// Total referrals registered (any status).
+  convertedCount                  Int     @default(0) /// Referrals that actually paid (cap at 10 for rewards).
+  referralCreditMonths            Int     @default(0) /// Absolute months of credit earned at current milestone.
+  referralCreditAnnualDiagnosis   Int     @default(0) /// 0 or 1 — earned at milestone 3.
+  referralCreditBiannualDiagnosis Int     @default(0) /// 0 or 1 — earned at milestone 10 (program cap).
+
   properties      Property[]
   taskLogs        TaskLog[]
   taskNotes       TaskNote[]
@@ -193,6 +204,8 @@ model User {
   inspections             InspectionChecklist[]
   milestones              UserMilestone[]
   weeklyChallenges        WeeklyChallenge[]
+  referralsMade           Referral[]               @relation("ReferralsMade")
+  referralsReceived       Referral[]               @relation("ReferralsReceived")
 
   @@index([email])
   @@index([role, deletedAt])
@@ -812,4 +825,40 @@ model WeeklyChallenge {
 
   @@unique([userId, weekStart])
   @@index([userId, completed])
+}
+
+// ─── Referral Program ─────────────────────────────────────
+
+/// Status of a single referral. See ADR-010 for program rules.
+/// CONVERTED is the terminal state; when it triggers, the referrer's
+/// reward counters (referralCreditMonths, referralCreditAnnualDiagnosis,
+/// referralCreditBiannualDiagnosis) are recalculated absolutely — never
+/// summed across milestones, always set to the value of the current
+/// highest milestone reached.
+/// EXPIRED is intentionally NOT modeled until the product adds a
+/// caducity window (current program has no expiration).
+enum ReferralStatus {
+  PENDING
+  CONVERTED
+}
+
+/// A referral record — one row per referred user, regardless of conversion.
+/// NOT soft-deletable: referral history is audit-relevant forever.
+/// If a referred user is deleted, referredUserId becomes null but the
+/// referredEmail (captured at signup) remains for traceability.
+model Referral {
+  id             String         @id @default(uuid())
+  referrerId     String
+  referrer       User           @relation("ReferralsMade", fields: [referrerId], references: [id], onDelete: Cascade)
+  referredUserId String?
+  referredUser   User?          @relation("ReferralsReceived", fields: [referredUserId], references: [id], onDelete: SetNull)
+  referredEmail  String?        @db.VarChar(254) /// Captured at signup for post-deletion traceability.
+  status         ReferralStatus @default(PENDING)
+  convertedAt    DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([referrerId, status])
+  @@index([referredUserId])
+  @@index([status])
 }
