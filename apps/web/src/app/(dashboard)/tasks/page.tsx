@@ -2,7 +2,7 @@
 
 import type { TaskListItem, TaskPublic } from '@epde/shared';
 import type { PropertySector } from '@epde/shared';
-import { TaskPriority, TaskStatus } from '@epde/shared';
+import { TaskPriority, TaskStatus, UserRole } from '@epde/shared';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -13,6 +13,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useAllTasks } from '@/hooks/use-plans';
 import { useTaskDetail } from '@/hooks/use-task-operations';
 import { TASK_STATUS_ORDER } from '@/lib/style-maps';
+import { useAuthStore } from '@/stores/auth-store';
 
 import { CompleteTaskDialog } from '../properties/[id]/complete-task-dialog';
 import { TaskDetailSheet } from '../properties/[id]/task-detail-sheet';
@@ -162,13 +163,16 @@ export default function TasksPage() {
 
   const hasActiveFilters = !!(debouncedSearch || priority !== 'all' || activeStatus);
 
+  const role = useAuthStore((s) => s.user?.role);
+  const description =
+    role === UserRole.ADMIN
+      ? 'Todas las tareas de mantenimiento de las propiedades gestionadas. Filtrá por prioridad o sector.'
+      : 'Todas las tareas de mantenimiento de tus propiedades. Filtrá por prioridad o sector para encontrar lo que necesitás.';
+
   return (
     <PageTransition>
       <TasksTour />
-      <PageHeader
-        title="Tareas"
-        description="Todas las tareas de mantenimiento de tus propiedades. Filtrá por prioridad o sector para encontrar lo que necesitás."
-      />
+      <PageHeader title="Tareas" description={description} />
 
       <div data-tour="task-stats">
         <TaskStatCards

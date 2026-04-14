@@ -11,6 +11,7 @@ import {
   PREVENTION_SAVINGS,
   QUERY_KEYS,
   TaskStatus,
+  UserRole,
 } from '@epde/shared';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -109,33 +110,42 @@ export function useCompleteTask(options?: {
     } & CompleteTaskInput) => completeTask(planId, taskId, dto),
 
     onSuccess: (response, variables) => {
-      triggerConfetti();
-      const msg = COMPLETION_MESSAGES[Math.floor(Math.random() * COMPLETION_MESSAGES.length)];
+      const isClient = useAuthStore.getState().user?.role === UserRole.CLIENT;
       const nextDueDate = response.data?.task?.nextDueDate;
-      if (nextDueDate) {
-        const formatted = new Date(nextDueDate).toLocaleDateString('es-AR', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        });
-        toast.success(`${msg} Próxima: ${formatted}`);
+      const formattedDate = nextDueDate
+        ? new Date(nextDueDate).toLocaleDateString('es-AR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          })
+        : null;
+
+      if (isClient) {
+        // Motivational flow: confetti + random completion message + savings toast
+        triggerConfetti();
+        const msg = COMPLETION_MESSAGES[Math.floor(Math.random() * COMPLETION_MESSAGES.length)];
+        toast.success(formattedDate ? `${msg} Próxima: ${formattedDate}` : msg);
       } else {
-        toast.success(msg);
+        // Admin operates on many clients — keep it neutral.
+        toast.success(
+          formattedDate ? `Tarea completada. Próxima: ${formattedDate}` : 'Tarea completada',
+        );
       }
 
-      // F6: "Evitaste un problema" — show savings when problem detected early
       if (response.data?.problemDetected) {
-        const categoryName = response.data.task?.category?.name;
-        const savings = categoryName ? PREVENTION_SAVINGS[categoryName] : undefined;
-        if (savings) {
-          setTimeout(() => {
-            toast.info(
-              `Detectaste un problema a tiempo. Sin prevención, podría costarte ${savings}.`,
-              { duration: 6000 },
-            );
-          }, 1500);
+        if (isClient) {
+          const categoryName = response.data.task?.category?.name;
+          const savings = categoryName ? PREVENTION_SAVINGS[categoryName] : undefined;
+          if (savings) {
+            setTimeout(() => {
+              toast.info(
+                `Detectaste un problema a tiempo. Sin prevención, podría costarte ${savings}.`,
+                { duration: 6000 },
+              );
+            }, 1500);
+          }
         }
-
+        // The follow-up dialog fires for both roles — it's functional, not motivational.
         options?.onProblemDetected?.({
           taskId: variables.taskId,
           taskName: variables.taskName ?? response.data.task?.name ?? 'Tarea',

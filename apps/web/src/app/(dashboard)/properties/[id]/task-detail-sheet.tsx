@@ -166,11 +166,11 @@ export function TaskDetailSheet({
             </div>
             <p className="text-muted-foreground text-xs">
               {task.professionalRequirement === ProfessionalRequirement.OWNER_CAN_DO &&
-                'Podés hacerla vos mismo'}
+                'Apta para el propietario'}
               {task.professionalRequirement === ProfessionalRequirement.PROFESSIONAL_RECOMMENDED &&
-                'Mejor con un profesional, pero podés intentar'}
+                'Se recomienda un profesional'}
               {task.professionalRequirement === ProfessionalRequirement.PROFESSIONAL_REQUIRED &&
-                'Necesariamente debe hacerlo un profesional'}
+                'Requiere un profesional'}
             </p>
           </div>
 
