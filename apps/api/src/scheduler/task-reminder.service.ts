@@ -84,6 +84,18 @@ export class TaskReminderService {
               isOverdue: boolean;
             }> = [];
 
+            // Aggregate overdue tasks for an admin-digest notification emitted once per
+            // admin at the end of the loop. Avoids an O(tasks × admins) fan-out that
+            // floods both the Notification table and admin inboxes.
+            const overdueAdminDigest: Array<{
+              taskId: string;
+              taskName: string;
+              ownerName: string;
+              propertyAddress: string;
+              propertyId: string;
+              planId: string;
+            }> = [];
+
             for (const task of allTasks) {
               if (alreadyRemindedTaskIds.has(task.id)) continue;
 
@@ -125,19 +137,42 @@ export class TaskReminderService {
               });
 
               if (isOverdue) {
-                for (const adminId of adminIds) {
-                  notifications.push({
-                    userId: adminId,
-                    type: 'TASK_REMINDER',
-                    title: '⚠️ Tarea vencida',
-                    message: `"${task.name}" de ${owner.name} (${property.address}) está vencida`,
-                    data: {
-                      taskId: task.id,
-                      planId: task.maintenancePlanId,
-                      propertyId: property.id,
-                    },
-                  });
-                }
+                overdueAdminDigest.push({
+                  taskId: task.id,
+                  taskName: task.name,
+                  ownerName: owner.name,
+                  propertyAddress: property.address,
+                  propertyId: property.id,
+                  planId: task.maintenancePlanId,
+                });
+              }
+            }
+
+            // One digest per admin instead of N per task × M admins
+            if (overdueAdminDigest.length > 0 && adminIds.length > 0) {
+              const total = overdueAdminDigest.length;
+              const sample = overdueAdminDigest.slice(0, 3);
+              const preview = sample
+                .map((t) => `• "${t.taskName}" (${t.ownerName}, ${t.propertyAddress})`)
+                .join('\n');
+              const extra = total > sample.length ? `\n…y ${total - sample.length} más` : '';
+              const title = total === 1 ? '⚠️ 1 tarea vencida' : `⚠️ ${total} tareas vencidas hoy`;
+              const message = `${preview}${extra}`;
+
+              for (const adminId of adminIds) {
+                notifications.push({
+                  userId: adminId,
+                  type: 'TASK_REMINDER',
+                  title,
+                  message,
+                  data: {
+                    // digest=true marks this as an aggregate; consumers can render a
+                    // link to /tasks?status=OVERDUE instead of drilling into one task.
+                    digest: true,
+                    count: total,
+                    taskIds: overdueAdminDigest.map((t) => t.taskId),
+                  },
+                });
               }
             }
 
