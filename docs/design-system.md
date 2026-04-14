@@ -218,6 +218,8 @@ import { TASK_TYPE_COLORS } from '@/lib/style-maps';
 
 Badge variants (desde `@epde/shared`): `TASK_STATUS_VARIANT`, `BUDGET_STATUS_VARIANT`, `SERVICE_STATUS_VARIANT`, `URGENCY_VARIANT`, `PRIORITY_VARIANT`, `CLIENT_STATUS_VARIANT`, `PLAN_STATUS_VARIANT`.
 
+**Clases por variante (web + mobile):** `BADGE_VARIANT_CLASSES` en `@epde/shared/constants/badge-variants.ts` mapea cada `BadgeVariant` a `{ bg, text, border }` Tailwind/NativeWind. Web `Badge` CVA y mobile `StatusBadge` consumen ambos desde ahí — agregar una variante nueva requiere actualizar solo el record (el `satisfies Record<BadgeVariant, ...>` forza sincronización cross-platform, y `packages/shared/src/constants/__tests__/badge-variants.test.ts` valida exhaustividad en runtime).
+
 Color maps locales (desde `lib/style-maps.ts`):
 
 | Export                    | Entidad   | Descripcion                                                                                               |

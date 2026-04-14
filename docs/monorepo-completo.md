@@ -118,9 +118,10 @@ app/
   budget/[id]          # Detalle presupuesto + sub-components
   service-requests/[id]# Detalle solicitud + sub-components
   task/[planId]/[taskId] # Detalle tarea + logs + notas
-components/            # StatusBadge, EmptyState, StatCard, HomeStatusCard, ActionList, etc.
-hooks/                 # React Query hooks (infinite scroll)
+components/            # StatusBadge, EmptyState, StatCard, HomeStatusCard, ActionList, ToastHost, etc.
+hooks/                 # React Query hooks (infinite scroll) + query-stale-times.ts (STALE_TIME tiers)
 lib/api/               # Endpoints por entidad
+lib/toast.ts           # Non-blocking toast emitter (success/error/info)
 stores/                # auth-store, theme-store (Zustand)
 ```
 
@@ -131,6 +132,10 @@ types/                 # Enums, entity interfaces, API types, dashboard types, a
 schemas/               # Zod schemas por dominio (SSoT validacion)
 constants/             # Labels espanol, badge variants, design tokens, QUERY_KEYS
 api/                   # API query/mutation factories: createXxxQueries(apiClient)
+                       #   incluye createTaskQueries (tasks, task detail, logs, notes, mutations)
+                       #   y createMaintenancePlanQueries (solo plan-level)
+testing/               # Entity factories para specs (makeUser, makeTask, makePlan, etc.)
+                       #   export vía @epde/shared/testing (tree-shaken en prod)
 utils/                 # Date/string helpers, getErrorMessage, validateUpload
 ```
 
@@ -144,7 +149,7 @@ Cada modulo tiene un repositorio que extiende `BaseRepository<T, M>` con `model`
 
 ### Soft Delete (Prisma Extension)
 
-Extension global en `PrismaService` que auto-agrega `deletedAt: null` en queries de lectura y convierte `delete` en `update({ deletedAt })`. Modelos: User, Property, Task, Category, BudgetRequest, ServiceRequest.
+Extension global en `PrismaService` que auto-agrega `deletedAt: null` en queries de lectura y convierte `delete` en `update({ deletedAt })`. Modelos: User, Property, Task, Category, BudgetRequest, ServiceRequest, InspectionChecklist, InspectionItem, MaintenancePlan. Dentro de `$transaction` la extensión NO aplica — enforzado por la ESLint rule `local/no-tx-without-soft-delete-filter` (ver `eslint-rules/`). Para nested includes usar `ACTIVE_FILTER` de `soft-delete-include.ts`.
 
 ### Guard Composition (APP_GUARD)
 

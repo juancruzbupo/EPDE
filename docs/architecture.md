@@ -28,7 +28,7 @@ epde/
         upload/       # Upload a Cloudflare R2
         users/        # Usuarios base
         health/       # Health check (Terminus)
-        inspections/  # Inspecciones de propiedades (checklist + items)
+        inspections/  # InspectionChecklistRepository + InspectionItemRepository (ambos extienden BaseRepository)
         metrics/      # MetricsModule + MetricsInterceptor + PrometheusExporter
       prisma/
         schema.prisma
@@ -154,8 +154,9 @@ Configurado en `PrismaService` via extension:
 - `delete` se convierte en `update({ deletedAt: new Date() })`
 - La condicion usa `hasDeletedAtKey(where)` que inspecciona recursivamente el nivel raiz y operadores logicos (`AND`, `OR`, `NOT`) para detectar si `deletedAt` ya esta presente
 - `updateMany` no esta cubierto por la extension — requiere `deletedAt: null` explicito
-- Dentro de `$transaction` callbacks, la extension no aplica — usar filtro manual
-- Modelos con soft delete: `User`, `Property`, `Task`, `Category`, `BudgetRequest`, `ServiceRequest`, `InspectionChecklist`
+- Dentro de `$transaction` callbacks, la extension no aplica — usar filtro manual (enforzado por la ESLint rule `local/no-tx-without-soft-delete-filter`, ver SIEMPRE #96)
+- Modelos con soft delete: `User`, `Property`, `Task`, `Category`, `BudgetRequest`, `ServiceRequest`, `InspectionChecklist`, `InspectionItem`, `MaintenancePlan`
+- Para nested includes de modelos soft-deletables, usar `ACTIVE_FILTER` de `apps/api/src/prisma/soft-delete-include.ts` con spread (ver SIEMPRE #93)
 - Para acceder a registros eliminados, usar `writeModel`
 
 ### 3. Module Pattern (NestJS)
@@ -550,7 +551,7 @@ Repositories live in the folder of the **domain owner** that controls the entity
 - `properties/properties.repository.ts` — Properties are standalone features
 - `tasks/tasks.repository.ts` — Tasks were extracted to their own module (`TasksModule`) but remain domain children of MaintenancePlans
 - `tasks/task-audit-log.repository.ts` — TaskAuditLogs are always in context of a task
-- `inspections/inspections.repository.ts` — Inspections are standalone features (custom repo, no BaseRepository)
+- `inspections/inspection-checklist.repository.ts` + `inspections/inspection-item.repository.ts` — Split repos, each extending `BaseRepository`. `InspectionChecklistRepository` owns the checklist lifecycle (create-with-items, soft-delete cascade that nulls `MaintenancePlan.sourceInspectionId`); `InspectionItemRepository` owns per-item mutations (evaluations, add custom)
 - `maintenance-plans/maintenance-plans.repository.ts` — Plans own the plan lifecycle; `TasksModule` imports `MaintenancePlansRepository` directly (dual-provider to avoid circular dep)
 
 **Note on dual-provider:** Both `TasksModule` and `MaintenancePlansModule` register `MaintenancePlansRepository` as a provider. This avoids `forwardRef()` with the circular import chain. Both instances are stateless (pure BaseRepository subclass).

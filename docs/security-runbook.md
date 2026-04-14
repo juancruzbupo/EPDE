@@ -6,18 +6,21 @@ Operational playbook for the security controls in the EPDE monorepo. Written for
 
 ## Quick reference: where each control lives
 
-| Control                        | File                                                                                                                   | Notes                                      |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
-| JWT sign/verify config         | [apps/api/src/auth/auth.module.ts](apps/api/src/auth/auth.module.ts)                                                   | HS256 + `iss=epde-api` + `aud=epde-client` |
-| JWT strategy (validate)        | [apps/api/src/auth/strategies/jwt.strategy.ts](apps/api/src/auth/strategies/jwt.strategy.ts)                           | Reads cookie then Bearer header            |
-| Token rotation (Lua)           | [apps/api/src/auth/token.service.ts](apps/api/src/auth/token.service.ts)                                               | `rotateRefreshToken` + `ROTATE_LUA`        |
-| Strict blacklist (fail-closed) | [apps/api/src/common/guards/strict-blacklist.guard.ts](apps/api/src/common/guards/strict-blacklist.guard.ts)           | Gated by `@StrictAuth()`                   |
-| Email-aware rate limiter       | [apps/api/src/common/guards/email-aware-throttler.guard.ts](apps/api/src/common/guards/email-aware-throttler.guard.ts) | Key = `ip:email`                           |
-| Account lockout                | [apps/api/src/auth/login-attempt.service.ts](apps/api/src/auth/login-attempt.service.ts)                               | 10 fails / 15 min                          |
-| Mass-assignment defense        | [apps/api/src/common/pipes/zod-validation.pipe.ts](apps/api/src/common/pipes/zod-validation.pipe.ts)                   | `ZodObject.strict()`                       |
-| Soft-delete extension          | [apps/api/src/prisma/prisma.service.ts](apps/api/src/prisma/prisma.service.ts)                                         | `this.softDelete.{model}`                  |
-| CSP headers                    | [apps/web/next.config.ts](apps/web/next.config.ts)                                                                     | `headers()` callback                       |
-| Mobile query persister         | [apps/mobile/src/app/\_layout.tsx](apps/mobile/src/app/_layout.tsx)                                                    | `dehydrateOptions.shouldDehydrateQuery`    |
+| Control                         | File                                                                                                                   | Notes                                                                                        |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| JWT sign/verify config          | [apps/api/src/auth/auth.module.ts](apps/api/src/auth/auth.module.ts)                                                   | HS256 + `iss=epde-api` + `aud=epde-client`                                                   |
+| JWT strategy (validate)         | [apps/api/src/auth/strategies/jwt.strategy.ts](apps/api/src/auth/strategies/jwt.strategy.ts)                           | Reads cookie then Bearer header                                                              |
+| Token rotation (Lua)            | [apps/api/src/auth/token.service.ts](apps/api/src/auth/token.service.ts)                                               | `rotateRefreshToken` + `ROTATE_LUA`                                                          |
+| Strict blacklist (fail-closed)  | [apps/api/src/common/guards/strict-blacklist.guard.ts](apps/api/src/common/guards/strict-blacklist.guard.ts)           | Gated by `@StrictAuth()`                                                                     |
+| Email-aware rate limiter        | [apps/api/src/common/guards/email-aware-throttler.guard.ts](apps/api/src/common/guards/email-aware-throttler.guard.ts) | Key = `ip:email`                                                                             |
+| Account lockout                 | [apps/api/src/auth/login-attempt.service.ts](apps/api/src/auth/login-attempt.service.ts)                               | 10 fails / 15 min                                                                            |
+| Mass-assignment defense         | [apps/api/src/common/pipes/zod-validation.pipe.ts](apps/api/src/common/pipes/zod-validation.pipe.ts)                   | `ZodObject.strict()`                                                                         |
+| Soft-delete extension           | [apps/api/src/prisma/prisma.service.ts](apps/api/src/prisma/prisma.service.ts)                                         | `this.softDelete.{model}`                                                                    |
+| CSP headers                     | [apps/web/next.config.ts](apps/web/next.config.ts)                                                                     | `headers()` callback                                                                         |
+| Web middleware role gate (edge) | [apps/web/src/middleware.ts](apps/web/src/middleware.ts)                                                               | Decodifica JWT y redirige CLIENT fuera de `ADMIN_ONLY_PREFIXES`                              |
+| Web admin guard (server-side)   | [apps/web/src/lib/server-auth.ts](apps/web/src/lib/server-auth.ts)                                                     | `requireAdmin()` en layouts de `(dashboard)/{clients,categories,landing-settings,templates}` |
+| `$transaction` soft-delete lint | [eslint-rules/no-tx-without-soft-delete-filter.mjs](eslint-rules/no-tx-without-soft-delete-filter.mjs)                 | Error en lint si falta `deletedAt: null` en tx                                               |
+| Mobile query persister          | [apps/mobile/src/app/\_layout.tsx](apps/mobile/src/app/_layout.tsx)                                                    | `dehydrateOptions.shouldDehydrateQuery` + `CACHE_SCHEMA_VERSION`                             |
 
 ---
 
@@ -169,7 +172,8 @@ After flush, active access tokens still work until they expire (15 min max). To 
 - ✅ Roles: `@Roles(...)` required on every non-`@Public` endpoint (`RolesGuard` default-deny)
 - ✅ Subscription: `SubscriptionGuard` blocks CLIENTs with expired subs on every request
 - ✅ Ownership: services verify `userId` before returning/modifying client-owned resources (SIEMPRE #56)
-- ✅ Soft-delete: reads auto-filter `deletedAt: null` via Prisma extension (with caveats — SIEMPRE #72, #82)
+- ✅ Soft-delete: reads auto-filter `deletedAt: null` via Prisma extension (with caveats — SIEMPRE #72, #82); `$transaction` callbacks enforzados por la ESLint rule `local/no-tx-without-soft-delete-filter` (SIEMPRE #96)
+- ✅ Role-based routing (web): middleware edge (fast path) + server-side layout guard (`requireAdmin()`) defense-in-depth sobre `/clients`, `/categories`, `/landing-settings`, `/templates` (SIEMPRE #98)
 - ✅ CORS: explicit origin whitelist, `*` rejected at bootstrap with `credentials: true`
 - ✅ Fail-closed blacklist on destructive admin + password-change endpoints
 - ✅ Pino redact on sensitive request headers + body fields

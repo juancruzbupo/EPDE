@@ -401,7 +401,28 @@ Mutations con actualizacion optimista para UX instantanea:
 - Marcar notificacion como leida
 - Rollback automatico en caso de error
 
-> **Nota:** Completar tarea NO usa optimistic update. El server resetea el status a PENDING con nueva fecha (modelo ciclico de mantenimiento preventivo). El feedback al usuario muestra la fecha de reprogramacion en el Alert.
+> **Nota:** Completar tarea NO usa optimistic update. El server resetea el status a PENDING con nueva fecha (modelo ciclico de mantenimiento preventivo). El feedback al usuario muestra la fecha de reprogramacion en un toast (`toast.success`).
+
+### Toast feedback (no-bloqueante)
+
+`apps/mobile/src/lib/toast.ts` + `components/toast-host.tsx` proveen un emitter simple para confirmaciones pasivas:
+
+```ts
+import { toast } from '@/lib/toast';
+
+toast.success('Presupuesto creado');
+toast.error(getErrorMessage(err, 'Error al crear presupuesto'));
+toast.info('Borrador restaurado', 4000); // duracion custom
+```
+
+- Variantes: `success` (verde), `error` (rojo), `info` (primary).
+- Stack de hasta 3 toasts concurrentes, auto-dismiss a 3s (override por call).
+- `<ToastHost />` ya está montado en `_layout.tsx`; no se configura por pantalla.
+- Reservar `Alert.alert` para confirmaciones destructivas (delete/logout) y callouts deliberadamente bloqueantes (ej. "Detectaste un problema a tiempo" en `use-task-operations` que muestra el ahorro). Ver SIEMPRE #99.
+
+### Stale time tiers
+
+`apps/mobile/src/hooks/query-stale-times.ts` exporta `STALE_TIME.VOLATILE` (30s), `STALE_TIME.MEDIUM` (1m), `STALE_TIME.SLOW` (5m). Todo hook nuevo aplica uno de los tres — el default global de 2min existe pero es invisible (buscar `STALE_TIME.X` hace explícita la decisión).
 
 ### Upload de Imagenes
 
@@ -436,7 +457,7 @@ Las queries de React Query se persisten automaticamente en `AsyncStorage` via `P
 
 - **gcTime**: 24 horas (datos cacheados disponibles offline)
 - **Persister**: `@tanstack/query-async-storage-persister` con `@react-native-async-storage/async-storage`
-- **Cache key versionado**: incluye `Constants.expoConfig?.version` para invalidar cache automaticamente al actualizar la app. Al iniciar, limpia keys de versiones anteriores
+- **Cache key versionado**: incluye `Constants.expoConfig?.version` Y `CACHE_SCHEMA_VERSION` (constante en `query-persister.ts`). La app version bump invalida al release; `CACHE_SCHEMA_VERSION` se bumpea manualmente cuando una response shape cambia mid-version (vía OTA update). Al iniciar, limpia keys de versiones anteriores
 - Al abrir la app sin conexion, los datos del ultimo uso se muestran inmediatamente
 - Las queries se revalidan automaticamente cuando hay conexion
 - En logout, se limpian todas las keys de cache (`epde-query-cache*`) de AsyncStorage
