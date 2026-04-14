@@ -12,7 +12,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { type InspectionItemStatus, type PropertySector } from '@prisma/client';
+import { type InspectionItemStatus, Prisma, type PropertySector } from '@prisma/client';
 
 import { CategoryTemplatesRepository } from '../category-templates/category-templates.repository';
 import { PrismaService } from '../prisma/prisma.service';
@@ -172,7 +172,11 @@ export class InspectionsService {
       );
     }
 
-    // Property must not already have a plan
+    // Fast-path check: if a plan clearly already exists, fail before we do any
+    // of the expensive template-fetch work. The unique constraint on
+    // MaintenancePlan.propertyId is the authoritative protection against the
+    // two-clicks-at-once race; the catch around tx.maintenancePlan.create below
+    // turns the resulting P2002 into the same friendly message.
     const existingPlan = await this.prisma.maintenancePlan.findUnique({
       where: { propertyId: checklist.propertyId },
     });
@@ -216,16 +220,32 @@ export class InspectionsService {
         // Create a fallback "Observaciones" category for custom items
         let observacionesCategoryId: string | null = null;
 
-        // Create the plan
-        const plan = await tx.maintenancePlan.create({
-          data: {
-            propertyId: checklist.propertyId,
-            name: planName,
-            status: 'DRAFT',
-            sourceInspectionId: checklistId,
-            createdBy,
-          },
-        });
+        // Create the plan. If a concurrent request beat us to it, Postgres will
+        // raise a unique-violation on MaintenancePlan.propertyId — rethrow as a
+        // ConflictException with the same message the fast-path check uses, so
+        // the client sees a consistent error either way.
+        let plan: { id: string };
+        try {
+          plan = await tx.maintenancePlan.create({
+            data: {
+              propertyId: checklist.propertyId,
+              name: planName,
+              status: 'DRAFT',
+              sourceInspectionId: checklistId,
+              createdBy,
+            },
+          });
+        } catch (err) {
+          if (
+            err instanceof Prisma.PrismaClientKnownRequestError &&
+            err.code === 'P2002' &&
+            Array.isArray(err.meta?.target) &&
+            (err.meta.target as string[]).includes('propertyId')
+          ) {
+            throw new ConflictException('Esta propiedad ya tiene un plan de mantenimiento');
+          }
+          throw err;
+        }
 
         // Create tasks from items and link them back
         for (let i = 0; i < checklist.items.length; i++) {

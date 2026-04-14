@@ -90,6 +90,14 @@ export function useGeneratePlan(propertyId: string) {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties, propertyId] });
     },
     onError: (err) => {
+      const status = (err as { response?: { status?: number } } | undefined)?.response?.status;
+      if (status === 409) {
+        // The property already has a plan — this likely means a concurrent request
+        // (or stale UI) beat us to it. Resync so the UI reflects reality and stops
+        // offering the Generate button.
+        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties, propertyId] });
+        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.inspections, propertyId] });
+      }
       toast.error(getErrorMessage(err, 'Error al generar plan'));
     },
   });
