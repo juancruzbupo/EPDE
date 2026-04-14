@@ -9,6 +9,7 @@ import type {
   TaskStatus,
 } from '@epde/shared';
 import {
+  BADGE_VARIANT_CLASSES,
   BUDGET_STATUS_LABELS,
   BUDGET_STATUS_VARIANT,
   PLAN_STATUS_LABELS,
@@ -32,26 +33,21 @@ interface StatusBadgeProps {
   variant?: BadgeVariant;
 }
 
-const variantStyles: Record<BadgeVariant, { bg: string; text: string }> = {
-  default: { bg: 'bg-primary', text: 'text-primary-foreground' },
-  secondary: { bg: 'bg-secondary', text: 'text-secondary-foreground' },
-  destructive: { bg: 'bg-destructive', text: 'text-destructive-foreground' },
-  outline: { bg: 'border-border bg-transparent border', text: 'text-foreground' },
-  success: { bg: 'bg-success/15', text: 'text-success' },
-  warning: { bg: 'bg-warning/15', text: 'text-warning' },
-  caution: { bg: 'bg-caution/15', text: 'text-caution' },
-};
-
+/**
+ * Derives the container + label classes from the shared BADGE_VARIANT_CLASSES
+ * table. Any new BadgeVariant must be declared in shared (see the satisfies
+ * guard there) — this component auto-picks it up without a manual sync step.
+ */
 export function StatusBadge({ label, variant = 'default' }: StatusBadgeProps) {
-  const styles = variantStyles[variant];
+  const { bg, text, border } = BADGE_VARIANT_CLASSES[variant];
 
   return (
     <View
-      className={`rounded-full px-2.5 py-0.5 ${styles.bg}`}
+      className={`rounded-full px-2.5 py-0.5 ${bg} ${border}`.trim()}
       accessibilityLabel={label}
       accessibilityRole="text"
     >
-      <Text style={TYPE.labelMd} className={styles.text}>
+      <Text style={TYPE.labelMd} className={text}>
         {label}
       </Text>
     </View>

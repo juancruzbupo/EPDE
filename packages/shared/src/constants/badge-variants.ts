@@ -22,6 +22,54 @@ export type BadgeVariant =
   | 'warning'
   | 'caution';
 
+/**
+ * Per-variant Tailwind class fragments shared across web (CVA) and mobile
+ * (NativeWind). `satisfies Record<BadgeVariant, ...>` forces every new variant
+ * added to `BadgeVariant` to declare its classes here — otherwise consumers
+ * break at compile time rather than drifting visually between platforms.
+ *
+ * Web layers extra interactive affordances (hover/focus-visible, aria-invalid,
+ * [a&] anchor styling) on top of these in its CVA base; mobile uses them
+ * as-is. The per-variant tokens live here.
+ */
+export const BADGE_VARIANT_CLASSES = {
+  default: {
+    bg: 'bg-primary',
+    text: 'text-primary-foreground',
+    border: '',
+  },
+  secondary: {
+    bg: 'bg-secondary',
+    text: 'text-secondary-foreground',
+    border: '',
+  },
+  destructive: {
+    bg: 'bg-destructive',
+    text: 'text-white',
+    border: '',
+  },
+  outline: {
+    bg: 'bg-transparent',
+    text: 'text-foreground',
+    border: 'border border-border',
+  },
+  success: {
+    bg: 'bg-success/15',
+    text: 'text-success',
+    border: 'border border-success/20',
+  },
+  warning: {
+    bg: 'bg-warning/15',
+    text: 'text-warning',
+    border: 'border border-warning/20',
+  },
+  caution: {
+    bg: 'bg-caution/15',
+    text: 'text-caution',
+    border: 'border border-caution/20',
+  },
+} as const satisfies Record<BadgeVariant, { bg: string; text: string; border: string }>;
+
 export const TASK_STATUS_VARIANT = {
   PENDING: 'warning',
   UPCOMING: 'secondary',
