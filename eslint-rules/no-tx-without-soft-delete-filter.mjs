@@ -16,6 +16,11 @@
  * TypeScript source is unavailable at runtime.
  */
 
+// Must match SOFT_DELETABLE_MODELS in apps/api/src/prisma/prisma.service.ts
+// (validated at runtime by the sync test in
+// packages/shared/src/__tests__/soft-deletable-models.sync.spec.ts).
+// MaintenancePlan is NOT in this list — its schema has no deletedAt column;
+// it uses PlanStatus (DRAFT|ACTIVE|ARCHIVED) for lifecycle.
 const SOFT_DELETABLE_MODELS = new Set([
   'user',
   'property',
@@ -25,7 +30,6 @@ const SOFT_DELETABLE_MODELS = new Set([
   'serviceRequest',
   'inspectionChecklist',
   'inspectionItem',
-  'maintenancePlan',
 ]);
 
 const READ_OPERATIONS = new Set([

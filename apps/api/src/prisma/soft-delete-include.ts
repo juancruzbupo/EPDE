@@ -54,9 +54,3 @@
  *   maintenancePlan (singular, 1:1).
  */
 export const ACTIVE_FILTER = { where: { deletedAt: null } } as const;
-
-/** @deprecated Use `ACTIVE_FILTER` — name didn't scale beyond the tasks relation. */
-export const TASKS_INCLUDE_WHERE = ACTIVE_FILTER;
-
-/** @deprecated Use `ACTIVE_FILTER`. */
-export const TASK_NOTES_INCLUDE_WHERE = ACTIVE_FILTER;

@@ -456,7 +456,8 @@ export class InspectionsService {
             data: { status: 'COMPLETED', completedAt: new Date() },
           });
 
-          // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- plan was just created in this transaction; soft-delete state is irrelevant.
+          // maintenancePlan has no deletedAt column (not soft-deletable) —
+          // re-reading the plan just created in this transaction.
           return tx.maintenancePlan.findUnique({
             where: { id: plan.id },
             include: { tasks: { orderBy: { order: 'asc' } } },

@@ -149,7 +149,7 @@ Cada modulo tiene un repositorio que extiende `BaseRepository<T, M>` con `model`
 
 ### Soft Delete (Prisma Extension)
 
-Extension global en `PrismaService` que auto-agrega `deletedAt: null` en queries de lectura y convierte `delete` en `update({ deletedAt })`. Modelos: User, Property, Task, Category, BudgetRequest, ServiceRequest, InspectionChecklist, InspectionItem, MaintenancePlan. Dentro de `$transaction` la extensión NO aplica — enforzado por la ESLint rule `local/no-tx-without-soft-delete-filter` (ver `eslint-rules/`). Para nested includes usar `ACTIVE_FILTER` de `soft-delete-include.ts`.
+Extension global en `PrismaService` que auto-agrega `deletedAt: null` en queries de lectura y convierte `delete` en `update({ deletedAt })`. Modelos (8): User, Property, Task, Category, BudgetRequest, ServiceRequest, InspectionChecklist, InspectionItem. `MaintenancePlan` NO es soft-deletable — usa `PlanStatus`. Dentro de `$transaction` la extensión NO aplica — enforzado por la ESLint rule `local/no-tx-without-soft-delete-filter` (ver `eslint-rules/`). El sync entre la lista del service y la del rule está validado por `packages/shared/src/__tests__/soft-deletable-models-sync.test.ts`. Para nested includes usar `ACTIVE_FILTER` de `soft-delete-include.ts`.
 
 ### Guard Composition (APP_GUARD)
 

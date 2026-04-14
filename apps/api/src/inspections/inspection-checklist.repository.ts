@@ -173,7 +173,8 @@ export class InspectionChecklistRepository extends BaseRepository<
         where: { id },
         data: { deletedAt: now },
       }),
-      // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- nulling sourceInspectionId is idempotent regardless of plan deletedAt: soft-deleted plans with a stale pointer still get cleaned up harmlessly.
+      // maintenancePlan has no deletedAt column — lifecycle is PlanStatus;
+      // nulling sourceInspectionId is a pure back-reference detach.
       this.prisma.maintenancePlan.updateMany({
         where: { sourceInspectionId: id },
         data: { sourceInspectionId: null },

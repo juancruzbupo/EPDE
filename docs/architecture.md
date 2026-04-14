@@ -155,7 +155,7 @@ Configurado en `PrismaService` via extension:
 - La condicion usa `hasDeletedAtKey(where)` que inspecciona recursivamente el nivel raiz y operadores logicos (`AND`, `OR`, `NOT`) para detectar si `deletedAt` ya esta presente
 - `updateMany` no esta cubierto por la extension — requiere `deletedAt: null` explicito
 - Dentro de `$transaction` callbacks, la extension no aplica — usar filtro manual (enforzado por la ESLint rule `local/no-tx-without-soft-delete-filter`, ver SIEMPRE #96)
-- Modelos con soft delete: `User`, `Property`, `Task`, `Category`, `BudgetRequest`, `ServiceRequest`, `InspectionChecklist`, `InspectionItem`, `MaintenancePlan`
+- Modelos con soft delete (8): `User`, `Property`, `Task`, `Category`, `BudgetRequest`, `ServiceRequest`, `InspectionChecklist`, `InspectionItem`. `MaintenancePlan` NO tiene `deletedAt` — su lifecycle es `PlanStatus` (`DRAFT | ACTIVE | ARCHIVED`)
 - Para nested includes de modelos soft-deletables, usar `ACTIVE_FILTER` de `apps/api/src/prisma/soft-delete-include.ts` con spread (ver SIEMPRE #93)
 - Para acceder a registros eliminados, usar `writeModel`
 
