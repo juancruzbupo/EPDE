@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 
 import { GlossaryModal } from '@/components/glossary-modal';
+import { Footer } from '@/components/layout/footer';
 import { Header } from '@/components/layout/header';
 import { Sidebar } from '@/components/layout/sidebar';
 import { getServerUser } from '@/lib/server-auth';
@@ -31,6 +32,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             {children}
           </ServerUserProvider>
         </main>
+        <Footer />
         <GlossaryModal />
       </div>
     </div>
