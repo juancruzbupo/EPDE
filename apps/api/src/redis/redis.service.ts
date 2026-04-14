@@ -81,10 +81,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     return this.client.get(this.prefixed(key));
   }
 
-  async set(key: string, value: string): Promise<void> {
-    await this.client.set(this.prefixed(key), value);
-  }
-
+  /**
+   * Set a key with a mandatory TTL (seconds). We intentionally do not expose an
+   * untimed `set()` to prevent unbounded Redis memory growth via forgotten TTLs.
+   * If you need a write-once key, use `setnx` (it also requires TTL).
+   */
   async setex(key: string, seconds: number, value: string): Promise<void> {
     await this.client.setex(this.prefixed(key), seconds, value);
   }

@@ -65,16 +65,6 @@ describe('RedisService', () => {
     });
   });
 
-  describe('set', () => {
-    it('should call Redis set with key and value', async () => {
-      mockRedisInstance.set.mockResolvedValue('OK');
-
-      await service.set('my-key', 'my-value');
-
-      expect(mockRedisInstance.set).toHaveBeenCalledWith('epde:my-key', 'my-value');
-    });
-  });
-
   describe('setex', () => {
     it('should call Redis setex with key, ttl, and value', async () => {
       mockRedisInstance.setex.mockResolvedValue('OK');
