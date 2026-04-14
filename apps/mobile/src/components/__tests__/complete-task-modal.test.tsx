@@ -1,3 +1,4 @@
+import { makeTaskDetail } from '@epde/shared/testing';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import React from 'react';
 
@@ -31,12 +32,8 @@ jest.mock('expo-image-picker', () => ({
 import { CompleteTaskModal } from '../complete-task-modal';
 
 const mockTask = {
-  id: 'task-1',
-  name: 'Test Task',
-  status: 'PENDING',
-  priority: 'MEDIUM',
-  recurrenceType: 'ANNUAL',
-  category: { id: 'cat-1', name: 'Test Category' },
+  ...makeTaskDetail({ name: 'Test Task' }),
+  category: { id: 'cat-1', name: 'Test Category', icon: '🛠️' },
 } as Parameters<typeof CompleteTaskModal>[0]['task'];
 
 describe('CompleteTaskModal', () => {

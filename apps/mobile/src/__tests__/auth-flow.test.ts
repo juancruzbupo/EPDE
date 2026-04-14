@@ -1,4 +1,4 @@
-import type { UserPublic } from '@epde/shared';
+import { makeUser } from '@epde/shared/testing';
 
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -22,20 +22,7 @@ const mockedQueryClient = queryClient as jest.Mocked<typeof queryClient>;
 // Fixtures
 // ---------------------------------------------------------------------------
 
-const mockUser: UserPublic = {
-  id: 'user-1',
-  email: 'test@epde.com',
-  name: 'Test User',
-  phone: null,
-  role: 'CLIENT',
-  status: 'ACTIVE',
-  createdAt: '2025-01-01T00:00:00.000Z',
-  updatedAt: '2025-01-01T00:00:00.000Z',
-  deletedAt: null,
-  lastLoginAt: null,
-  activatedAt: '2025-01-01T00:00:00.000Z',
-  subscriptionExpiresAt: '2025-03-02T00:00:00.000Z',
-};
+const mockUser = makeUser({ email: 'test@epde.com' });
 
 // ---------------------------------------------------------------------------
 // Helpers

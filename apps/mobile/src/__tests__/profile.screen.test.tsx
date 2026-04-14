@@ -1,3 +1,4 @@
+import { makeUser } from '@epde/shared/testing';
 import { render } from '@testing-library/react-native';
 import React from 'react';
 
@@ -26,13 +27,7 @@ import ProfileScreen from '@/app/(tabs)/profile';
 // Fixtures
 // ---------------------------------------------------------------------------
 
-const mockUser = {
-  id: 'user-1',
-  name: 'Juan Perez',
-  email: 'juan@test.com',
-  phone: '+5411123456',
-  role: 'CLIENT',
-};
+const mockUser = makeUser({ name: 'Juan Perez', email: 'juan@test.com', phone: '+5411123456' });
 
 // ---------------------------------------------------------------------------
 // Tests

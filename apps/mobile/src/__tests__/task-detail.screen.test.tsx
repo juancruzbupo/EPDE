@@ -1,3 +1,4 @@
+import { makeTaskDetail } from '@epde/shared/testing';
 import { render } from '@testing-library/react-native';
 import React from 'react';
 
@@ -61,17 +62,15 @@ import TaskDetailScreen from '@/app/task/[planId]/[taskId]';
 // Fixtures
 // ---------------------------------------------------------------------------
 
-const mockTask = {
-  id: 'task-1',
+const mockTask = makeTaskDetail({
   name: 'Revisar caldera',
   description: 'Inspección anual del sistema de calefacción',
-  status: 'PENDING',
   priority: 'HIGH',
   recurrenceType: 'ANNUAL',
   recurrenceMonths: null,
   nextDueDate: '2025-04-15',
-  category: { id: 'cat-1', name: 'Calefacción' },
-};
+  category: { id: 'cat-1', name: 'Calefacción', icon: '🔥' },
+});
 
 // ---------------------------------------------------------------------------
 // Helpers

@@ -1,3 +1,4 @@
+import { makePlan, makeProperty, makeTask } from '@epde/shared/testing';
 import { render } from '@testing-library/react-native';
 import React from 'react';
 
@@ -162,27 +163,20 @@ import PropertyDetailScreen from '@/app/property/[id]';
 // ---------------------------------------------------------------------------
 
 const mockProperty = {
-  id: 'prop-1',
-  address: 'Av. Corrientes 1234',
-  city: 'CABA',
-  type: 'HOUSE',
-  yearBuilt: 1990,
-  squareMeters: 120,
+  ...makeProperty({ address: 'Av. Corrientes 1234', yearBuilt: 1990, squareMeters: 120 }),
   maintenancePlan: { id: 'plan-1', name: 'Plan Anual', status: 'ACTIVE' },
 };
 
 const mockPlan = {
-  id: 'plan-1',
-  name: 'Plan Anual',
-  status: 'ACTIVE',
+  ...makePlan({ name: 'Plan Anual', status: 'ACTIVE' }),
   tasks: [
     {
-      id: 'task-1',
-      name: 'Revisar caldera',
-      status: 'UPCOMING',
-      priority: 'HIGH',
-      nextDueDate: '2025-04-15',
-      sector: null,
+      ...makeTask({
+        name: 'Revisar caldera',
+        status: 'UPCOMING',
+        priority: 'HIGH',
+        nextDueDate: '2025-04-15',
+      }),
       category: { id: 'cat-1', name: 'Calefacción' },
     },
   ],

@@ -1,3 +1,4 @@
+import { makeProperty } from '@epde/shared/testing';
 import { fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
 
@@ -42,21 +43,16 @@ const mockProperties = {
     {
       data: [
         {
-          id: 'prop-1',
-          address: 'Av. Corrientes 1234',
-          city: 'CABA',
-          type: 'HOUSE',
-          yearBuilt: 1990,
-          squareMeters: 120,
+          ...makeProperty({ id: 'prop-1', address: 'Av. Corrientes 1234', yearBuilt: 1990 }),
           maintenancePlan: { name: 'Plan Anual', status: 'ACTIVE' },
         },
         {
-          id: 'prop-2',
-          address: 'Av. Santa Fe 5678',
-          city: 'CABA',
-          type: 'APARTMENT',
-          yearBuilt: 2005,
-          squareMeters: 80,
+          ...makeProperty({
+            id: 'prop-2',
+            address: 'Av. Santa Fe 5678',
+            yearBuilt: 2005,
+            squareMeters: 80,
+          }),
           maintenancePlan: null,
         },
       ],
