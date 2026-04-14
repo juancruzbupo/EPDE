@@ -6,7 +6,23 @@ import { QUERY_CACHE_KEY } from './constants';
 import { Sentry } from './sentry';
 
 const APP_VERSION = Constants.expoConfig?.version ?? '0.0.0';
-const CACHE_KEY = `${QUERY_CACHE_KEY}-v${APP_VERSION}`;
+
+/**
+ * Monotonic schema version independent of APP_VERSION. Bump this ANY time a
+ * persisted query's response shape changes in a backwards-incompatible way
+ * (e.g., renamed field, dropped nullable, changed enum values). On next app
+ * launch every cached query lands under a new key and the cleanup below
+ * discards the old ones — no manual AsyncStorage.clear() needed, and no
+ * need to wait for an app version bump for cache changes to take effect.
+ *
+ * Why not rely on APP_VERSION alone:
+ *   - We ship schema changes mid-version via OTA updates.
+ *   - A shape change without an APP_VERSION bump would surface stale rows
+ *     as silently wrong UI until the user updates the app.
+ */
+export const CACHE_SCHEMA_VERSION = 1;
+
+const CACHE_KEY = `${QUERY_CACHE_KEY}-v${APP_VERSION}-s${CACHE_SCHEMA_VERSION}`;
 
 export const asyncStoragePersister = createAsyncStoragePersister({
   storage: AsyncStorage,
