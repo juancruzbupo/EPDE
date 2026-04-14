@@ -69,6 +69,13 @@ export class HealthIndexRepository {
     return `health:${hash}`;
   }
 
+  /**
+   * Aggregated health index for a **set** of maintenance plans, returned as a single score.
+   * Typical callers: property detail (one planId), client dashboard/analytics (all plans of a user).
+   *
+   * If you need a score **per plan** (e.g. rendering a list of N properties), use
+   * `getPropertyHealthIndexBatch()` — it runs 2 queries regardless of N instead of 2 × N.
+   */
   async getPropertyHealthIndex(planIds: string[]) {
     if (planIds.length === 0) {
       return {
