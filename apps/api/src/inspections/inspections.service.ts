@@ -28,7 +28,8 @@ import { NotificationsHandlerService } from '../notifications/notifications-hand
 import { PrismaService } from '../prisma/prisma.service';
 import { PropertiesRepository } from '../properties/properties.repository';
 import { TaskTemplatesRepository } from '../task-templates/task-templates.repository';
-import { InspectionsRepository } from './inspections.repository';
+import { InspectionChecklistRepository } from './inspection-checklist.repository';
+import { InspectionItemRepository } from './inspection-item.repository';
 
 /** Statuses that generate-plan actually sees — PENDING is filtered out before we reach
  *  the task-creation loop, so the remaining three are the only keys we need to map. */
@@ -54,7 +55,8 @@ export class InspectionsService {
   private readonly logger = new Logger(InspectionsService.name);
 
   constructor(
-    private readonly repository: InspectionsRepository,
+    private readonly checklistRepository: InspectionChecklistRepository,
+    private readonly itemRepository: InspectionItemRepository,
     private readonly taskTemplatesRepository: TaskTemplatesRepository,
     private readonly categoryTemplatesRepository: CategoryTemplatesRepository,
     private readonly propertiesRepository: PropertiesRepository,
@@ -86,7 +88,7 @@ export class InspectionsService {
     // forever (the first to finish locks out the rest via MaintenancePlan.propertyId
     // unique). Surfacing it here keeps state coherent for the rare case of two admins
     // clicking 'Nueva inspección' in parallel or a direct API call.
-    const existingDraft = await this.repository.findActiveDraftByProperty(data.propertyId);
+    const existingDraft = await this.checklistRepository.findActiveDraftByProperty(data.propertyId);
     if (existingDraft) {
       throw new ConflictException(
         'Ya hay una inspección en progreso para esta propiedad. Completala o eliminala antes de iniciar otra.',
@@ -113,16 +115,16 @@ export class InspectionsService {
       }
     }
 
-    return this.repository.create(data);
+    return this.checklistRepository.createWithItems(data);
   }
 
   async findByProperty(propertyId: string, userId?: string) {
     if (userId) await this.verifyPropertyOwnership(propertyId, userId);
-    return this.repository.findByProperty(propertyId);
+    return this.checklistRepository.findByProperty(propertyId);
   }
 
   async findById(id: string, userId?: string) {
-    const checklist = await this.repository.findById(id);
+    const checklist = await this.checklistRepository.findByIdWithRelations(id);
     if (!checklist) throw new NotFoundException('Inspección no encontrada');
     if (userId) await this.verifyPropertyOwnership(checklist.propertyId, userId);
     return checklist;
@@ -133,7 +135,7 @@ export class InspectionsService {
     data: { status?: InspectionItemStatus; finding?: string; photoUrl?: string },
   ) {
     await this.verifyItemAccessAndEditable(itemId);
-    return this.repository.updateItem(itemId, data);
+    return this.itemRepository.updateEvaluation(itemId, data);
   }
 
   async addItem(
@@ -141,17 +143,17 @@ export class InspectionsService {
     data: { sector: PropertySector; name: string; description?: string; isCustom?: boolean },
   ) {
     await this.verifyChecklistAccessAndEditable(checklistId);
-    return this.repository.addItem(checklistId, data);
+    return this.itemRepository.addToChecklist(checklistId, data);
   }
 
   async updateNotes(checklistId: string, notes: string) {
     await this.verifyChecklistAccessAndEditable(checklistId);
-    return this.repository.updateNotes(checklistId, notes);
+    return this.checklistRepository.updateNotes(checklistId, notes);
   }
 
   async remove(id: string) {
     await this.verifyChecklistAccess(id);
-    return this.repository.softDelete(id);
+    return this.checklistRepository.softDelete(id);
   }
 
   // ─── Inspection from templates ────────────────────────
@@ -206,7 +208,7 @@ export class InspectionsService {
    * remain as direct Prisma calls for atomicity.
    */
   async generatePlanFromInspection(checklistId: string, planName: string, createdBy: string) {
-    const checklist = await this.repository.findByIdWithActiveItems(checklistId);
+    const checklist = await this.checklistRepository.findByIdWithActiveItems(checklistId);
     if (!checklist) throw new NotFoundException('Inspección no encontrada');
 
     // All items must be evaluated
@@ -504,14 +506,14 @@ export class InspectionsService {
   }
 
   private async verifyChecklistAccess(checklistId: string) {
-    const propertyId = await this.repository.findChecklistProperty(checklistId);
+    const propertyId = await this.checklistRepository.findPropertyId(checklistId);
     if (!propertyId) throw new NotFoundException('Inspección no encontrada');
   }
 
   /** Like verifyChecklistAccess but also rejects once the checklist has been
    *  locked by a plan generation. Used by every mutation path. */
   private async verifyChecklistAccessAndEditable(checklistId: string) {
-    const status = await this.repository.findChecklistStatus(checklistId);
+    const status = await this.checklistRepository.findStatus(checklistId);
     if (!status) throw new NotFoundException('Inspección no encontrada');
     if (status === 'COMPLETED') {
       throw new ForbiddenException(
@@ -521,7 +523,7 @@ export class InspectionsService {
   }
 
   private async verifyItemAccessAndEditable(itemId: string) {
-    const info = await this.repository.findItemChecklistStatus(itemId);
+    const info = await this.itemRepository.findChecklistStatus(itemId);
     if (!info) throw new NotFoundException('Item de inspección no encontrado');
     if (info.status === 'COMPLETED') {
       throw new ForbiddenException(
