@@ -9,6 +9,12 @@ import { MetricsService } from './metrics.service';
  * feeds them into MetricsService ObservableGauges for Prometheus scraping.
  *
  * Internal to MetricsModule — not exported.
+ *
+ * ## Why direct PrismaService (bypassing BaseRepository)
+ * This service queries `pg_stat_activity` (a Postgres system view), not any
+ * application model. BaseRepository is domain-scoped and has nothing to
+ * offer here — there's no entity, no soft-delete, no cursor pagination.
+ * `$queryRaw` on a system view is the intended escape hatch.
  */
 @Injectable()
 export class MetricsCollectorService implements OnModuleInit, OnModuleDestroy {
