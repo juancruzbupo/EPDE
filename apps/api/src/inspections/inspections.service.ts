@@ -1,4 +1,10 @@
-import { computeRiskScore, recurrenceTypeToMonths, TaskPriority, TaskStatus } from '@epde/shared';
+import {
+  computeRiskScore,
+  recurrenceTypeToMonths,
+  suggestDueDate,
+  TaskPriority,
+  TaskStatus,
+} from '@epde/shared';
 import {
   BadRequestException,
   ConflictException,
@@ -275,6 +281,12 @@ export class InspectionsService {
 
           const riskScore = computeRiskScore(priority, item.status, item.sector);
 
+          // Derive the first-cycle due date from the final priority + recurrence so that
+          // the task lands in the correct stat card (Vencida / Próxima / Pendiente) and
+          // the ISV compliance dimension has a valid reference date from day one.
+          // ON_DETECTION tasks intentionally keep nextDueDate = null.
+          const nextDueDate = suggestDueDate(priority, recurrenceType, recurrenceMonths);
+
           const task = await tx.task.create({
             data: {
               maintenancePlanId: plan.id,
@@ -287,6 +299,7 @@ export class InspectionsService {
               taskType: tpl?.taskType ?? 'INSPECTION',
               recurrenceType,
               recurrenceMonths,
+              nextDueDate,
               estimatedDurationMinutes: tpl?.estimatedDurationMinutes,
               inspectionFinding: item.finding,
               inspectionPhotoUrl: item.photoUrl,

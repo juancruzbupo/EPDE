@@ -1,7 +1,10 @@
 import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { CategoryTemplatesRepository } from '../category-templates/category-templates.repository';
 import { PrismaService } from '../prisma/prisma.service';
+import { PropertiesRepository } from '../properties/properties.repository';
+import { TaskTemplatesRepository } from '../task-templates/task-templates.repository';
 import { InspectionsRepository } from './inspections.repository';
 import { InspectionsService } from './inspections.service';
 
@@ -43,6 +46,17 @@ describe('InspectionsService', () => {
       create: jest.fn(),
       findByProperty: jest.fn(),
       findById: jest.fn(),
+      // Delegated by default to the inspectionChecklist.findUnique prisma mock so
+      // existing tests that set `mockPrisma.inspectionChecklist.findUnique.mockResolvedValue(...)`
+      // keep working after the service was refactored to call the repository method.
+      findByIdWithActiveItems: jest.fn(
+        (id: string) =>
+          (
+            mockPrisma as unknown as {
+              inspectionChecklist?: { findUnique: (args: { where: { id: string } }) => unknown };
+            }
+          ).inspectionChecklist?.findUnique({ where: { id } }) ?? Promise.resolve(null),
+      ),
       updateItem: jest.fn(),
       addItem: jest.fn(),
       updateNotes: jest.fn(),
@@ -54,6 +68,28 @@ describe('InspectionsService', () => {
         InspectionsService,
         { provide: InspectionsRepository, useValue: repository },
         { provide: PrismaService, useValue: mockPrisma },
+        {
+          provide: TaskTemplatesRepository,
+          // Delegate to mockPrisma.taskTemplate.findMany so tests that set that mock keep working.
+          useValue: {
+            findByIdsWithCategory: jest.fn((ids: string[]) =>
+              mockPrisma.taskTemplate.findMany({
+                where: { id: { in: ids } },
+                include: { category: true },
+              }),
+            ),
+          },
+        },
+        {
+          provide: CategoryTemplatesRepository,
+          useValue: {
+            findAll: jest.fn(),
+            findManyWithTasksByPropertyActiveSectors: jest.fn((propertyId: string) =>
+              mockPrisma.categoryTemplate.findMany({ where: { propertyId } }),
+            ),
+          },
+        },
+        { provide: PropertiesRepository, useValue: { findById: jest.fn() } },
       ],
     }).compile();
 
@@ -373,6 +409,50 @@ describe('InspectionsService', () => {
           data: expect.objectContaining({
             priority: 'URGENT',
             professionalRequirement: 'PROFESSIONAL_REQUIRED',
+          }),
+        }),
+      );
+    });
+
+    it('should set nextDueDate in the future for recurrent tasks', async () => {
+      const checklist = makeChecklist([{ status: 'OK' }]);
+      (mockPrisma as unknown as Record<string, unknown>).inspectionChecklist = {
+        findUnique: jest.fn().mockResolvedValue(checklist),
+      };
+      mockPrisma.taskTemplate.findMany = jest
+        .fn()
+        .mockResolvedValue([makeTemplate('tpl-0', 'cat-tpl-1')]);
+
+      const before = Date.now();
+      await service.generatePlanFromInspection('c1', 'Plan', 'u1');
+
+      const createCall = mockTx.task.create.mock.calls[0]?.[0] as
+        | { data: { nextDueDate: Date | null } }
+        | undefined;
+      const nextDueDate = createCall?.data.nextDueDate;
+      expect(nextDueDate).toBeInstanceOf(Date);
+      expect((nextDueDate as Date).getTime()).toBeGreaterThan(before);
+    });
+
+    it('should set nextDueDate to null for ON_DETECTION tasks', async () => {
+      const checklist = makeChecklist([{ status: 'OK' }]);
+      (mockPrisma as unknown as Record<string, unknown>).inspectionChecklist = {
+        findUnique: jest.fn().mockResolvedValue(checklist),
+      };
+      const onDetectionTemplate = {
+        ...makeTemplate('tpl-0', 'cat-tpl-1'),
+        recurrenceType: 'ON_DETECTION',
+        recurrenceMonths: null,
+      };
+      mockPrisma.taskTemplate.findMany = jest.fn().mockResolvedValue([onDetectionTemplate]);
+
+      await service.generatePlanFromInspection('c1', 'Plan', 'u1');
+
+      expect(mockTx.task.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            recurrenceType: 'ON_DETECTION',
+            nextDueDate: null,
           }),
         }),
       );
