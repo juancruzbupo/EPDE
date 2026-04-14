@@ -14,7 +14,10 @@ export const LOCALE = {
   close: 'Cerrar',
   last: 'Listo',
   next: 'Siguiente',
-  skip: 'Cerrar',
+  // Shown on every step. Clicking it persists to localStorage so the tour never
+  // auto-fires again — 'No mostrar más' tells the user that up front instead of
+  // the ambiguous 'Cerrar'.
+  skip: 'No mostrar más',
   open: 'Abrir guía',
 };
 
@@ -69,11 +72,13 @@ export function Tour({
 
     import('react-joyride').then((mod) => {
       setJoyrideComponent(() => mod.Joyride as React.ComponentType<Props>);
+      // 2s gives the user time to orient on the page before the spotlight takes over.
+      // Shorter delays felt intrusive in the generational audit, especially for older users.
       timeoutRef.current = setTimeout(() => {
         if (!document.querySelector('[role="dialog"]')) {
           setRun(true);
         }
-      }, 800);
+      }, 2000);
     });
 
     return () => {

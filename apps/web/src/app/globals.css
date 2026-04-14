@@ -467,9 +467,10 @@ body {
     max-width: 100% !important;
   }
 
-  /* ISV card print: compact everything to fit 1 page */
+  /* ISV card print: compact everything to fit 1 page. Honors the user's --font-scale,
+     so a visually-impaired user who set 'Extra grande' (1.3) gets a larger print too. */
   [data-print-target] {
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale));
     line-height: 1.3;
     border: none !important;
     box-shadow: none !important;
