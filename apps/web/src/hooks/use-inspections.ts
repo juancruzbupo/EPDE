@@ -82,8 +82,25 @@ export function useGeneratePlan(propertyId: string) {
   return useMutation({
     mutationFn: ({ checklistId, planName }: { checklistId: string; planName: string }) =>
       generatePlanFromInspection(checklistId, planName),
-    onSuccess: () => {
+    onSuccess: (response) => {
       toast.success('Plan de mantenimiento generado');
+      // Optimistic write: stamp the freshly-created plan onto the cached property so
+      // hasPlan flips true immediately, even if the subsequent invalidate refetch
+      // is slow or fails transparently. The shape is a minimal placeholder; the
+      // invalidate below fills in the rest.
+      const freshPlan = response?.data as { id?: string; status?: string } | undefined;
+      if (freshPlan?.id) {
+        queryClient.setQueryData([QUERY_KEYS.properties, propertyId], (prev: unknown) => {
+          if (!prev || typeof prev !== 'object') return prev;
+          return {
+            ...(prev as Record<string, unknown>),
+            maintenancePlan: {
+              id: freshPlan.id,
+              status: freshPlan.status ?? 'DRAFT',
+            },
+          };
+        });
+      }
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.inspections, propertyId] });
       // A new plan is created; the list needs to refresh but individual plan details don't.
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, QUERY_KEYS.plansList] });

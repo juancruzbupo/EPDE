@@ -10,6 +10,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { type InspectionItemStatus, Prisma, type PropertySector } from '@prisma/client';
@@ -20,8 +21,29 @@ import { PropertiesRepository } from '../properties/properties.repository';
 import { TaskTemplatesRepository } from '../task-templates/task-templates.repository';
 import { InspectionsRepository } from './inspections.repository';
 
+/** Statuses that generate-plan actually sees — PENDING is filtered out before we reach
+ *  the task-creation loop, so the remaining three are the only keys we need to map. */
+type EvaluatedInspectionItemStatus = Exclude<InspectionItemStatus, 'PENDING'>;
+
+/** Exhaustive maps for the baseline TaskLog derived from the inspection finding.
+ *  Using `satisfies Record<...>` forces the compiler to complain if
+ *  InspectionItemStatus ever gains a new evaluated value that we forget to handle. */
+const ITEM_STATUS_TO_CONDITION = {
+  OK: 'GOOD',
+  NEEDS_ATTENTION: 'FAIR',
+  NEEDS_PROFESSIONAL: 'POOR',
+} as const satisfies Record<EvaluatedInspectionItemStatus, string>;
+
+const ITEM_STATUS_TO_RESULT = {
+  OK: 'OK',
+  NEEDS_ATTENTION: 'OK_WITH_OBSERVATIONS',
+  NEEDS_PROFESSIONAL: 'NEEDS_REPAIR',
+} as const satisfies Record<EvaluatedInspectionItemStatus, string>;
+
 @Injectable()
 export class InspectionsService {
+  private readonly logger = new Logger(InspectionsService.name);
+
   constructor(
     private readonly repository: InspectionsRepository,
     private readonly taskTemplatesRepository: TaskTemplatesRepository,
@@ -336,25 +358,31 @@ export class InspectionsService {
             data: { taskId: task.id },
           });
 
-          // Create baseline TaskLog from inspection — feeds ISV from day 1
-          const conditionMap = {
-            OK: 'GOOD',
-            NEEDS_ATTENTION: 'FAIR',
-            NEEDS_PROFESSIONAL: 'POOR',
-          } as const;
-          const resultMap = {
-            OK: 'OK',
-            NEEDS_ATTENTION: 'OK_WITH_OBSERVATIONS',
-            NEEDS_PROFESSIONAL: 'NEEDS_REPAIR',
-          } as const;
+          // Create baseline TaskLog from inspection — feeds ISV from day 1.
+          // PENDING items are rejected earlier in this method, so `item.status` here
+          // is always one of the three evaluated statuses; the fallback is a defensive
+          // belt-and-suspenders with a warning log so an unexpected value is not silent.
+          let conditionFound: string;
+          let result: string;
+          if (item.status in ITEM_STATUS_TO_CONDITION) {
+            const evaluated = item.status as EvaluatedInspectionItemStatus;
+            conditionFound = ITEM_STATUS_TO_CONDITION[evaluated];
+            result = ITEM_STATUS_TO_RESULT[evaluated];
+          } else {
+            this.logger.warn(
+              `Unexpected inspection item status "${item.status}" for item ${item.id}; defaulting condition=GOOD, result=OK`,
+            );
+            conditionFound = 'GOOD';
+            result = 'OK';
+          }
 
           await tx.taskLog.create({
             data: {
               taskId: task.id,
               completedAt: checklist.inspectedAt,
               completedBy: createdBy,
-              conditionFound: conditionMap[item.status as keyof typeof conditionMap] ?? 'GOOD',
-              result: resultMap[item.status as keyof typeof resultMap] ?? 'OK',
+              conditionFound,
+              result,
               executor: 'EPDE_PROFESSIONAL',
               actionTaken: 'INSPECTION_ONLY',
               notes: item.finding,
