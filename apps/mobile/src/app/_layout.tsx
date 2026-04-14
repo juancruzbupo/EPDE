@@ -27,7 +27,11 @@ import { ToastHost } from '@/components/toast-host';
 import { confettiEvent } from '@/lib/confetti-event';
 import { registerForPushNotifications } from '@/lib/push-notifications';
 import { queryClient } from '@/lib/query-client';
-import { asyncStoragePersister, PERSISTER_MAX_AGE } from '@/lib/query-persister';
+import {
+  asyncStoragePersister,
+  PERSISTER_MAX_AGE,
+  SENSITIVE_PERSIST_DENY,
+} from '@/lib/query-persister';
 import { darkTheme, lightTheme } from '@/lib/theme-tokens';
 import { useAuthStore } from '@/stores/auth-store';
 import { useThemeStore } from '@/stores/theme-store';
@@ -146,17 +150,7 @@ export default function RootLayout() {
                 shouldDehydrateQuery: (query) => {
                   const key = query.queryKey[0];
                   if (typeof key !== 'string') return false;
-                  const SENSITIVE = [
-                    'properties',
-                    'budgets',
-                    'serviceRequests',
-                    'inspections',
-                    'tasks',
-                    'maintenancePlans',
-                    'plans',
-                    'clients',
-                  ];
-                  return !SENSITIVE.includes(key);
+                  return !(SENSITIVE_PERSIST_DENY as readonly string[]).includes(key);
                 },
               },
             }}

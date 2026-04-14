@@ -19,8 +19,35 @@ const APP_VERSION = Constants.expoConfig?.version ?? '0.0.0';
  *   - We ship schema changes mid-version via OTA updates.
  *   - A shape change without an APP_VERSION bump would surface stale rows
  *     as silently wrong UI until the user updates the app.
+ *
+ * The fingerprint test at `apps/mobile/src/lib/__tests__/cache-schema.test.ts`
+ * locks this value and the PERSISTED_DOMAINS list. Any change to either —
+ * including the "I added a new domain to persistence" or "I bumped the
+ * version" cases — requires updating the test's expected values in the
+ * same commit, making the decision visible in review.
  */
 export const CACHE_SCHEMA_VERSION = 1;
+
+/**
+ * Domain query keys that MUST NOT be persisted to AsyncStorage (contain PII
+ * or change with high frequency). Used by the `shouldDehydrateQuery`
+ * callback in `_layout.tsx`; the inverse — domains this list doesn't
+ * mention — IS persisted and therefore subject to `CACHE_SCHEMA_VERSION`.
+ *
+ * Adding a domain to this list → NO action on schema version.
+ * Removing a domain (i.e., starting to persist it) → bump CACHE_SCHEMA_VERSION
+ * so any stale value from previous installs gets invalidated.
+ */
+export const SENSITIVE_PERSIST_DENY = [
+  'properties',
+  'budgets',
+  'serviceRequests',
+  'inspections',
+  'tasks',
+  'maintenancePlans',
+  'plans',
+  'clients',
+] as const;
 
 const CACHE_KEY = `${QUERY_CACHE_KEY}-v${APP_VERSION}-s${CACHE_SCHEMA_VERSION}`;
 
