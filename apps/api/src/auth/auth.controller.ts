@@ -76,6 +76,15 @@ export class AuthController {
     return 'strict';
   }
 
+  // Cookie path scoping is intentionally asymmetric:
+  //   - access_token:   path '/' — every authenticated route reads it.
+  //   - refresh_token:  path '/api/v1/auth' — only the /refresh endpoint needs it.
+  // The refresh token is long-lived (7d default) and the bigger blast radius if
+  // leaked; limiting it to the auth path means even if it escapes via XSS on any
+  // other route, the browser won't auto-attach it outside /api/v1/auth. The
+  // access token lives 15 minutes and is expected to travel everywhere, so the
+  // wider path is acceptable. Both cookies share HttpOnly + Secure + SameSite.
+
   private get accessCookieOptions() {
     return {
       httpOnly: true,
@@ -221,7 +230,10 @@ export class AuthController {
 
   @Public()
   @UseGuards(EmailAwareThrottlerGuard)
-  @Throttle({ medium: { limit: 3, ttl: 3600_000 }, short: { limit: 1, ttl: 5000 } })
+  // One reset email per hour per IP+email. Password-reset is a common spam vector
+  // (email bombing, enumeration attempts) — the lower cap cuts abuse without
+  // hurting legitimate users, who rarely request two resets within the hour.
+  @Throttle({ medium: { limit: 1, ttl: 3600_000 }, short: { limit: 1, ttl: 5000 } })
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   async forgotPassword(
