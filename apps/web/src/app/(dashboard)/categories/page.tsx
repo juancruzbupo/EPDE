@@ -100,22 +100,25 @@ function CategoryMobileCard({
   onDelete: () => void;
 }) {
   return (
-    <div className="bg-card hover:bg-muted/40 w-full rounded-lg border p-3 transition-all hover:shadow-sm">
+    <div className="bg-card hover:bg-muted/40 hover:border-border/80 w-full rounded-lg border p-3 shadow-xs transition-all">
       <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground shrink-0">
               {renderCategoryIcon(category.icon ?? null)}
             </span>
-            <p className="text-sm font-medium">{category.name}</p>
+            <p className="text-sm leading-snug font-medium">{category.name}</p>
           </div>
           {category.description && (
-            <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">
+            <p className="text-muted-foreground line-clamp-2 text-xs leading-relaxed">
               {category.description}
+              {templateName && ` · Plantilla: ${templateName}`}
             </p>
           )}
-          {templateName && (
-            <p className="text-muted-foreground mt-1 text-xs">Plantilla: {templateName}</p>
+          {!category.description && templateName && (
+            <p className="text-muted-foreground text-xs leading-relaxed">
+              Plantilla: {templateName}
+            </p>
           )}
         </div>
         <div className="flex shrink-0 gap-1">

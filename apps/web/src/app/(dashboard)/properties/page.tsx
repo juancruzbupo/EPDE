@@ -58,34 +58,37 @@ function PropertyMobileCard({
           : 'destructive'
     : undefined;
 
+  const isIsvCritical = isv ? isv.score < 40 : false;
+
   return (
     <button
       onClick={onClick}
-      className="bg-card hover:bg-muted/40 w-full rounded-lg border p-3 text-left transition-all hover:shadow-sm"
+      className={`bg-card hover:bg-muted/40 hover:border-border/80 w-full space-y-1 rounded-lg border p-3 text-left shadow-xs transition-all active:opacity-60 ${
+        isIsvCritical ? 'border-l-destructive border-l-4' : ''
+      }`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium">{property.address}</p>
-          <p className="text-muted-foreground text-xs">
-            {property.city}
-            {property.yearBuilt && ` · ${property.yearBuilt}`}
-            {' · '}
-            {PROPERTY_TYPE_LABELS[property.type] ?? property.type}
-          </p>
-        </div>
+      <p className="text-sm leading-snug font-medium">
+        {property.address}{' '}
         {isv && isvVariant && (
-          <Badge variant={isvVariant} className="shrink-0 text-xs">
-            {isv.score}
+          <Badge variant={isvVariant} className="relative top-[-1px] ml-0.5 inline-flex text-xs">
+            ISV {isv.score}
           </Badge>
         )}
-      </div>
-      {plan && (
-        <div className="mt-1.5 flex items-center gap-1.5">
-          <Badge variant={PLAN_STATUS_VARIANT[plan.status] ?? 'secondary'} className="text-xs">
+        {plan && (
+          <Badge
+            variant={PLAN_STATUS_VARIANT[plan.status] ?? 'secondary'}
+            className="relative top-[-1px] ml-1 inline-flex text-xs"
+          >
             {PLAN_STATUS_LABELS[plan.status] ?? plan.status}
           </Badge>
-        </div>
-      )}
+        )}
+      </p>
+      <p className="text-muted-foreground text-xs leading-relaxed">
+        {property.city}
+        {property.yearBuilt && ` · ${property.yearBuilt}`}
+        {' · '}
+        {PROPERTY_TYPE_LABELS[property.type] ?? property.type}
+      </p>
     </button>
   );
 }

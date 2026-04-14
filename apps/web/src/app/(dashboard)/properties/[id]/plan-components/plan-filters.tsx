@@ -1,11 +1,18 @@
 import { TASK_STATUS_LABELS, TaskPriority, TaskStatus } from '@epde/shared';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, SlidersHorizontal, X } from 'lucide-react';
 import React from 'react';
 
 import { SearchInput } from '@/components/search-input';
 import { SearchableFilterSelect } from '@/components/searchable-filter-select';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const SHOW_SEARCH_THRESHOLD = 5;
 
@@ -20,8 +27,8 @@ const STATUS_OPTIONS: { value: TaskStatus | 'all' | 'actionable'; label: string 
   { value: 'actionable', label: 'Por inspeccionar' },
   { value: 'all', label: 'Todas' },
   { value: TaskStatus.OVERDUE, label: TASK_STATUS_LABELS.OVERDUE },
-  { value: TaskStatus.PENDING, label: TASK_STATUS_LABELS.PENDING },
   { value: TaskStatus.UPCOMING, label: TASK_STATUS_LABELS.UPCOMING },
+  { value: TaskStatus.PENDING, label: TASK_STATUS_LABELS.PENDING },
 ];
 
 interface PlanFiltersProps {
@@ -55,55 +62,136 @@ export const PlanFilters = React.memo(function PlanFilters({
   onPriorityChange,
   onEnterSelectionMode,
 }: PlanFiltersProps) {
+  const showSearch = totalTaskCount >= SHOW_SEARCH_THRESHOLD;
+
+  const activeFilters: { label: string; onClear: () => void }[] = [];
+  if (statusFilter !== 'actionable') {
+    const opt = STATUS_OPTIONS.find((o) => o.value === statusFilter);
+    activeFilters.push({
+      label: `Estado: ${opt?.label ?? statusFilter}`,
+      onClear: () => onStatusFilterChange('actionable'),
+    });
+  }
+  if (priority !== 'all') {
+    const opt = PRIORITY_OPTIONS.find((o) => o.value === priority);
+    activeFilters.push({
+      label: `Prioridad: ${opt?.label ?? priority}`,
+      onClear: () => onPriorityChange('all'),
+    });
+  }
+  if (categoryFilter !== 'all') {
+    const opt = categoryOptions.find((o) => o.value === categoryFilter);
+    activeFilters.push({
+      label: `Categoría: ${opt?.label ?? categoryFilter}`,
+      onClear: () => onCategoryFilterChange('all'),
+    });
+  }
+
+  const clearAll = () => {
+    onStatusFilterChange('actionable');
+    onPriorityChange('all');
+    onCategoryFilterChange('all');
+    onSearchChange('');
+  };
+
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      {categoryOptions.length > 1 && (
-        <SearchableFilterSelect
-          value={categoryFilter}
-          onChange={onCategoryFilterChange}
-          options={categoryOptions}
-          placeholder="Categoría"
-        />
-      )}
-      {totalTaskCount >= SHOW_SEARCH_THRESHOLD && (
-        <SearchInput value={search} onChange={onSearchChange} placeholder="Buscar tarea..." />
-      )}
-      <div className="flex flex-wrap gap-1">
-        {STATUS_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => onStatusFilterChange(opt.value)}
-            className={cn(
-              'rounded-full px-3 py-1 text-xs font-medium transition-colors',
-              statusFilter === opt.value
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground hover:bg-muted/80',
-            )}
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        {showSearch && (
+          <SearchInput
+            value={search}
+            onChange={onSearchChange}
+            placeholder="Buscar tarea..."
+            className="w-full sm:w-auto sm:min-w-[280px] sm:flex-1"
+          />
+        )}
+
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal className="text-muted-foreground hidden h-4 w-4 sm:block" />
+
+          <Select
+            value={statusFilter}
+            onValueChange={(v) => onStatusFilterChange(v as TaskStatus | 'all' | 'actionable')}
           >
-            {opt.label}
-          </button>
-        ))}
-        <span className="text-border mx-1">|</span>
-        {PRIORITY_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => onPriorityChange(opt.value)}
-            className={cn(
-              'rounded-full px-3 py-1 text-xs font-medium transition-colors',
-              priority === opt.value
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground hover:bg-muted/80',
-            )}
+            <SelectTrigger
+              className="h-9 w-auto min-w-[150px] gap-1.5 text-sm"
+              aria-label="Filtrar por estado"
+            >
+              <SelectValue placeholder="Estado" />
+            </SelectTrigger>
+            <SelectContent>
+              {STATUS_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={priority}
+            onValueChange={(v) => onPriorityChange(v as TaskPriority | 'all')}
           >
-            {opt.label}
-          </button>
-        ))}
+            <SelectTrigger
+              className="h-9 w-auto min-w-[120px] gap-1.5 text-sm"
+              aria-label="Filtrar por prioridad"
+            >
+              <SelectValue placeholder="Prioridad" />
+            </SelectTrigger>
+            <SelectContent>
+              {PRIORITY_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.value === 'all' ? 'Toda prioridad' : opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {categoryOptions.length > 1 && (
+            <SearchableFilterSelect
+              value={categoryFilter}
+              onChange={onCategoryFilterChange}
+              options={categoryOptions}
+              placeholder="Categoría"
+            />
+          )}
+        </div>
+
+        {completableTaskCount > 1 && !selectionMode && (
+          <Button size="sm" variant="outline" onClick={onEnterSelectionMode} className="sm:ml-auto">
+            <CheckCircle className="mr-1.5 h-3.5 w-3.5" />
+            Completar varias
+          </Button>
+        )}
       </div>
-      {completableTaskCount > 1 && !selectionMode && (
-        <Button size="sm" variant="outline" onClick={onEnterSelectionMode}>
-          <CheckCircle className="mr-1.5 h-3.5 w-3.5" />
-          Completar varias
-        </Button>
+
+      {activeFilters.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          {activeFilters.map((f) => (
+            <Badge
+              key={f.label}
+              variant="secondary"
+              className="gap-1 py-1 pr-1.5 pl-2.5 font-normal"
+            >
+              {f.label}
+              <button
+                onClick={f.onClear}
+                className="text-muted-foreground hover:text-foreground rounded-full p-0.5 transition-colors"
+                aria-label={`Quitar filtro: ${f.label}`}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearAll}
+            className="text-muted-foreground h-auto px-2 py-1 text-xs"
+          >
+            Limpiar todo
+          </Button>
+        </div>
       )}
     </div>
   );

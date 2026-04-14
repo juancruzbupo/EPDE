@@ -2,20 +2,26 @@
 
 import type { UserStatus } from '@epde/shared';
 import { CLIENT_STATUS_VARIANT, formatRelativeDate, USER_STATUS_LABELS } from '@epde/shared';
-import { Plus } from 'lucide-react';
+import { Plus, SlidersHorizontal, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { DataTable } from '@/components/data-table/data-table';
 import { ErrorState } from '@/components/error-state';
-import { FilterSelect } from '@/components/filter-select';
 import { ClientsTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
 import { SearchInput } from '@/components/search-input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PageTransition } from '@/components/ui/page-transition';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useClients, useDeleteClient, useReinviteClient } from '@/hooks/use-clients';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useUrlFilters } from '@/hooks/use-url-filters';
@@ -35,28 +41,23 @@ function ClientMobileCard({
   return (
     <button
       onClick={onClick}
-      className="bg-card hover:bg-muted/40 w-full rounded-lg border p-3 text-left transition-all hover:shadow-sm"
+      className="bg-card hover:bg-muted/40 hover:border-border/80 w-full space-y-1 rounded-lg border p-3 text-left shadow-xs transition-all active:opacity-60"
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium">{client.name}</p>
-          <p className="text-muted-foreground truncate text-xs">
-            {client.email}
-            {propCount != null && ` · ${propCount} prop.`}
-          </p>
-        </div>
+      <p className="text-sm leading-snug font-medium">
+        {client.name}{' '}
         <Badge
           variant={CLIENT_STATUS_VARIANT[client.status] ?? 'secondary'}
-          className="shrink-0 text-xs"
+          className="relative top-[-1px] ml-0.5 inline-flex text-xs"
         >
           {USER_STATUS_LABELS[client.status] ?? client.status}
         </Badge>
-      </div>
-      {client.lastLoginAt && (
-        <p className="text-muted-foreground mt-1 text-xs">
-          Último acceso: {formatRelativeDate(new Date(client.lastLoginAt))}
-        </p>
-      )}
+      </p>
+      <p className="text-muted-foreground truncate text-xs leading-relaxed">
+        {client.email}
+        {propCount != null && ` · ${propCount} prop.`}
+        {client.lastLoginAt &&
+          ` · Último acceso: ${formatRelativeDate(new Date(client.lastLoginAt))}`}
+      </p>
     </button>
   );
 }
@@ -113,18 +114,60 @@ export default function ClientsPage() {
         }
       />
 
-      <div data-tour="clients-list" className="mb-4 flex flex-wrap gap-3">
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Buscar por nombre o email..."
-        />
-        <FilterSelect
-          value={status}
-          onChange={setStatus}
-          options={statusOptions}
-          placeholder="Estado"
-        />
+      <div data-tour="clients-list" className="mb-4 space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Buscar por nombre o email..."
+            className="w-full sm:w-auto sm:min-w-[320px] sm:flex-1"
+          />
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="text-muted-foreground hidden h-4 w-4 sm:block" />
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger
+                className="h-9 w-auto min-w-[140px] gap-1.5 text-sm"
+                aria-label="Filtrar por estado"
+              >
+                <SelectValue placeholder="Estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los estados</SelectItem>
+                {statusOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {status !== 'all' && (
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="secondary" className="gap-1 py-1 pr-1.5 pl-2.5 font-normal">
+              Estado: {USER_STATUS_LABELS[status as UserStatus] ?? status}
+              <button
+                onClick={() => setStatus('all')}
+                className="text-muted-foreground hover:text-foreground rounded-full p-0.5 transition-colors"
+                aria-label="Quitar filtro de estado"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setStatus('all');
+                setSearch('');
+              }}
+              className="text-muted-foreground h-auto px-2 py-1 text-xs"
+            >
+              Limpiar todo
+            </Button>
+          </div>
+        )}
       </div>
 
       {isError && (

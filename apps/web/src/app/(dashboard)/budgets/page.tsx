@@ -53,18 +53,18 @@ function BudgetMobileCard({
   return (
     <button
       onClick={onClick}
-      className="bg-card hover:bg-muted/40 w-full rounded-lg border p-3 text-left transition-all hover:shadow-sm"
+      className="bg-card hover:bg-muted/40 hover:border-border/80 w-full space-y-1 rounded-lg border p-3 text-left shadow-xs transition-all active:opacity-60"
     >
-      <div className="flex items-start justify-between gap-2">
-        <p className="min-w-0 flex-1 text-sm font-medium">{budget.title}</p>
+      <p className="text-sm leading-snug font-medium">
+        {budget.title}{' '}
         <Badge
           variant={BUDGET_STATUS_VARIANT[budget.status] ?? 'secondary'}
-          className="shrink-0 text-xs"
+          className="relative top-[-1px] ml-0.5 inline-flex text-xs"
         >
           {BUDGET_STATUS_LABELS[budget.status] ?? budget.status}
         </Badge>
-      </div>
-      <p className="text-muted-foreground mt-0.5 text-xs">
+      </p>
+      <p className="text-muted-foreground text-xs leading-relaxed">
         {budget.property.address}
         {amount && ` · ${amount}`}
         {' · '}
