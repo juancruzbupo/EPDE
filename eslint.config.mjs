@@ -4,11 +4,13 @@ import tsParser from '@typescript-eslint/parser';
 import prettierConfig from 'eslint-config-prettier';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 
+import mobileQueryRequiresStaleTime from './eslint-rules/mobile-query-requires-stale-time.mjs';
 import noTxWithoutSoftDeleteFilter from './eslint-rules/no-tx-without-soft-delete-filter.mjs';
 
 const localPlugin = {
   rules: {
     'no-tx-without-soft-delete-filter': noTxWithoutSoftDeleteFilter,
+    'mobile-query-requires-stale-time': mobileQueryRequiresStaleTime,
   },
 };
 
@@ -74,6 +76,20 @@ export default [
     },
     rules: {
       'local/no-tx-without-soft-delete-filter': 'error',
+    },
+  },
+  // ── Mobile query staleTime guardrail ─────────────────────────────────────
+  // Every useQuery / useInfiniteQuery in mobile hooks must set an explicit
+  // staleTime (preferably a STALE_TIME.X tier). See SIEMPRE #100 and the
+  // rule file header.
+  {
+    files: ['apps/mobile/src/hooks/**/*.ts', 'apps/mobile/src/hooks/**/*.tsx'],
+    ignores: ['apps/mobile/src/hooks/**/__tests__/**', 'apps/mobile/src/hooks/**/*.test.ts'],
+    plugins: {
+      local: localPlugin,
+    },
+    rules: {
+      'local/mobile-query-requires-stale-time': 'error',
     },
   },
   // ── Module Boundary Rules (API) ───────────────────────────────────────────
