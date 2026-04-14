@@ -6,6 +6,7 @@ import { RedisService } from '../redis/redis.service';
 import { DashboardRepository } from './dashboard.repository';
 
 const ANALYTICS_TTL = 300; // 5 minutes
+const RECENT_ACTIVITY_TTL = 60; // 1 minute — fresh enough for an activity feed, cheap to serve
 
 @Injectable()
 export class DashboardService {
@@ -37,8 +38,18 @@ export class DashboardService {
     return result;
   }
 
-  /** Recent activity feed (last 10 items). NOT cached — real-time data. */
+  /** Recent activity feed (last 10 items). Cached ${RECENT_ACTIVITY_TTL}s — 5 aggregation
+   *  queries per admin page load get collapsed into one per minute. Staleness up to 60s is
+   *  acceptable for an activity feed. */
   async getRecentActivity() {
+    const cacheKey = 'dashboard:admin:recent-activity';
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) return JSON.parse(cached);
+    } catch {
+      /* Redis unavailable */
+    }
+
     const { recentClients, recentProperties, recentTasks, recentBudgets, recentServices } =
       await this.dashboardRepository.getRecentActivity();
 
@@ -80,7 +91,17 @@ export class DashboardService {
       })),
     ];
 
-    return activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 10);
+    const result = activities
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+      .slice(0, 10);
+
+    try {
+      await this.redis.setex(cacheKey, RECENT_ACTIVITY_TTL, JSON.stringify(result));
+    } catch {
+      /* Redis unavailable */
+    }
+
+    return result;
   }
 
   /** Client stats (properties, tasks, budgets, services). Cached ${ANALYTICS_TTL}s per user. */
