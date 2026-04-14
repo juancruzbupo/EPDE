@@ -5,11 +5,13 @@ import prettierConfig from 'eslint-config-prettier';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 
 import mobileQueryRequiresStaleTime from './eslint-rules/mobile-query-requires-stale-time.mjs';
+import noSoftDeletableIncludeWithoutFilter from './eslint-rules/no-soft-deletable-include-without-filter.mjs';
 import noTxWithoutSoftDeleteFilter from './eslint-rules/no-tx-without-soft-delete-filter.mjs';
 
 const localPlugin = {
   rules: {
     'no-tx-without-soft-delete-filter': noTxWithoutSoftDeleteFilter,
+    'no-soft-deletable-include-without-filter': noSoftDeletableIncludeWithoutFilter,
     'mobile-query-requires-stale-time': mobileQueryRequiresStaleTime,
   },
 };
@@ -76,6 +78,20 @@ export default [
     },
     rules: {
       'local/no-tx-without-soft-delete-filter': 'error',
+    },
+  },
+  // ── Prisma nested include soft-delete guardrail (API only) ───────────────
+  // Soft-deletable relations loaded via `include: { X: true }` or without a
+  // `where.deletedAt` filter leak soft-deleted rows. See
+  // apps/api/src/prisma/soft-delete-include.ts for ACTIVE_FILTER usage.
+  {
+    files: ['apps/api/src/**/*.ts'],
+    ignores: ['apps/api/src/**/*.spec.ts'],
+    plugins: {
+      local: localPlugin,
+    },
+    rules: {
+      'local/no-soft-deletable-include-without-filter': 'warn',
     },
   },
   // ── Mobile query staleTime guardrail ─────────────────────────────────────
