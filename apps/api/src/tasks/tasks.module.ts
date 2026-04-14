@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { AuthModule } from '../auth/auth.module';
 import { CategoryTemplatesModule } from '../category-templates/category-templates.module';
+import { DashboardModule } from '../dashboard/dashboard.module';
 import { PlanDataModule } from '../maintenance-plans/plan-data.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { TaskAuditLogRepository } from './task-audit-log.repository';
@@ -28,7 +29,13 @@ import { TasksRepository } from './tasks.repository';
  * from BudgetsModule.
  */
 @Module({
-  imports: [PlanDataModule, CategoryTemplatesModule, NotificationsModule, AuthModule],
+  imports: [
+    PlanDataModule,
+    CategoryTemplatesModule,
+    NotificationsModule,
+    AuthModule,
+    DashboardModule,
+  ],
   providers: [
     TasksRepository,
     TaskLogsRepository,

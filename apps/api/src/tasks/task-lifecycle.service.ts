@@ -32,6 +32,7 @@ import {
   TaskAccessDeniedError,
   TaskNotCompletableError,
 } from '../common/exceptions/domain.exceptions';
+import { HealthIndexRepository } from '../dashboard/health-index.repository';
 import { MaintenancePlansRepository } from '../maintenance-plans/maintenance-plans.repository';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -55,6 +56,7 @@ export class TaskLifecycleService {
     private readonly prisma: PrismaService,
     private readonly notificationsHandler: NotificationsHandlerService,
     private readonly milestoneService: MilestoneService,
+    private readonly healthIndexRepository: HealthIndexRepository,
   ) {}
 
   /**
@@ -157,6 +159,11 @@ export class TaskLifecycleService {
       await this.auditLogRepository.createAuditLog(taskId, updatedBy, 'UPDATE', before, updated);
     }
 
+    // Any mutation that changes nextDueDate / priority / status can move the
+    // compliance dimension; invalidate the ISV cache so the next read reflects
+    // reality instead of serving the 6h-TTL snapshot.
+    void this.healthIndexRepository.invalidateHealthCaches();
+
     return updated;
   }
 
@@ -170,6 +177,8 @@ export class TaskLifecycleService {
     }
 
     await this.tasksRepository.softDelete(taskId);
+    // Removing a task changes the compliance denominator and the coverage set.
+    void this.healthIndexRepository.invalidateHealthCaches();
   }
 
   async reorderTasks(planId: string, dto: ReorderTasksInput) {
@@ -250,6 +259,11 @@ export class TaskLifecycleService {
       void this.milestoneService.checkAndAward(userId, { problemDetected }).catch((err) => {
         this.logger.error(`Milestone award failed for user ${userId}: ${(err as Error).message}`);
       });
+
+      // New TaskLog → condition/investment/trend dimensions change. Bust the ISV
+      // caches so the user's next read reflects what they just did (instead of
+      // waiting up to 6h for the TTL to expire).
+      void this.healthIndexRepository.invalidateHealthCaches();
 
       return { ...result, problemDetected };
     } catch (error) {

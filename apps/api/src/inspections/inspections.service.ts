@@ -23,6 +23,7 @@ import {
 } from '@prisma/client';
 
 import { CategoryTemplatesRepository } from '../category-templates/category-templates.repository';
+import { HealthIndexRepository } from '../dashboard/health-index.repository';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { PropertiesRepository } from '../properties/properties.repository';
@@ -58,6 +59,7 @@ export class InspectionsService {
     private readonly categoryTemplatesRepository: CategoryTemplatesRepository,
     private readonly propertiesRepository: PropertiesRepository,
     private readonly notificationsHandler: NotificationsHandlerService,
+    private readonly healthIndexRepository: HealthIndexRepository,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -478,6 +480,11 @@ export class InspectionsService {
         propertyAddress: checklist.property.address,
       });
     }
+
+    // Bust the ISV cache. A property that had been visited before plan generation
+    // would otherwise keep its 'Sin datos' EMPTY_RESULT cached for up to 6h — the
+    // owner would see the fresh plan in the UI but a stale zero score.
+    void this.healthIndexRepository.invalidateHealthCaches();
 
     return result;
   }

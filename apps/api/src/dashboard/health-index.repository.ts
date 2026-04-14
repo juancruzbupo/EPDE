@@ -70,6 +70,30 @@ export class HealthIndexRepository {
   }
 
   /**
+   * Invalidate every ISV-related cache entry. Because our cache keys are hashed
+   * over a set of planIds (md5 of sorted ids), a single mutation can be part of
+   * many combined keys — we can't cheaply pinpoint which. The safe move is to
+   * nuke every `health:*` + `streak:*` entry and let the next read recompute.
+   * Cost: first read after any task mutation misses Redis and hits Postgres,
+   * which is fast (2–3 bounded queries) and correct.
+   *
+   * Fire-and-forget — never throws, never blocks.
+   */
+  async invalidateHealthCaches(): Promise<void> {
+    if (!this.redisService) return;
+    try {
+      await Promise.all([
+        this.redisService.delByPattern('health:*'),
+        this.redisService.delByPattern('streak:*'),
+      ]);
+    } catch (err) {
+      this.logger.warn(
+        `Failed to invalidate health caches: ${(err as Error).message}. Stale values may be served up to ${HealthIndexRepository.CACHE_TTL}s.`,
+      );
+    }
+  }
+
+  /**
    * Aggregated health index for a **set** of maintenance plans, returned as a single score.
    * Typical callers: property detail (one planId), client dashboard/analytics (all plans of a user).
    *
@@ -232,9 +256,13 @@ export class HealthIndexRepository {
 
     const now = new Date();
     const twelveMonthsAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+    const sixMonthsAgo = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000);
+    const threeMonthsAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-    // 3 queries total (not 3 x N)
-    const [allTasks, allRecentLogs] = await Promise.all([
+    // 3 queries total (not 3 x N). olderLogs is fetched so the trend dimension can
+    // compare recent vs prior condition windows — without it computeHealthIndex
+    // defaults trend to 50 (the 'estable' label) for every plan in the batch.
+    const [allTasks, allRecentLogs, allOlderLogs] = await Promise.all([
       this.prisma.task.findMany({
         where: { maintenancePlanId: { in: planIds }, deletedAt: null },
         select: {
@@ -252,7 +280,19 @@ export class HealthIndexRepository {
         select: {
           conditionFound: true,
           actionTaken: true,
+          completedAt: true,
           task: { select: { maintenancePlanId: true, sector: true } },
+        },
+      }),
+      this.prisma.taskLog.findMany({
+        where: {
+          task: { maintenancePlanId: { in: planIds } },
+          completedAt: { gte: sixMonthsAgo, lt: threeMonthsAgo },
+        },
+        select: {
+          conditionFound: true,
+          actionTaken: true,
+          task: { select: { maintenancePlanId: true } },
         },
       }),
     ]);
@@ -271,18 +311,32 @@ export class HealthIndexRepository {
       arr.push(l);
       logsByPlan.set(pid, arr);
     }
+    const olderLogsByPlan = new Map<string, typeof allOlderLogs>();
+    for (const l of allOlderLogs) {
+      const pid = l.task.maintenancePlanId;
+      const arr = olderLogsByPlan.get(pid) ?? [];
+      arr.push(l);
+      olderLogsByPlan.set(pid, arr);
+    }
 
     for (const planId of planIds) {
       const tasks = tasksByPlan.get(planId) ?? [];
       const logs = logsByPlan.get(planId) ?? [];
+      const older = olderLogsByPlan.get(planId) ?? [];
 
       const healthIndex = computeHealthIndex(
         tasks,
         logs.map((l) => ({
           conditionFound: l.conditionFound,
           actionTaken: l.actionTaken,
+          completedAt: l.completedAt,
           taskSector: l.task.sector,
         })),
+        older.map((l) => ({
+          conditionFound: l.conditionFound,
+          actionTaken: l.actionTaken,
+        })),
+        threeMonthsAgo,
       );
 
       result.set(planId, healthIndex);

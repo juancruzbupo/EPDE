@@ -130,6 +130,29 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     await this.client.del(this.prefixed(key));
   }
 
+  /**
+   * Delete every key matching a glob pattern. Uses SCAN + UNLINK in batches so
+   * it never blocks the server (KEYS would stall Redis for the duration of the
+   * match). The pattern is passed as-is after prefixing, so callers pass e.g.
+   * 'health:*' and the actual scan happens on 'epde:health:*'.
+   *
+   * Returns the number of keys removed. Intended for cache-busting on mutations.
+   */
+  async delByPattern(pattern: string): Promise<number> {
+    const fullPattern = this.prefixed(pattern);
+    let deleted = 0;
+    let cursor = '0';
+    do {
+      const [nextCursor, keys] = await this.client.scan(cursor, 'MATCH', fullPattern, 'COUNT', 500);
+      cursor = nextCursor;
+      if (keys.length > 0) {
+        // UNLINK is non-blocking; falls back to DEL on older Redis but still safe.
+        deleted += await this.client.unlink(...keys);
+      }
+    } while (cursor !== '0');
+    return deleted;
+  }
+
   async exists(key: string): Promise<boolean> {
     const result = await this.client.exists(this.prefixed(key));
     return result === 1;
