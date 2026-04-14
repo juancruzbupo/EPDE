@@ -9,7 +9,12 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 
 import { DashboardRepository } from '../dashboard/dashboard.repository';
 import { ISVSnapshotRepository } from '../dashboard/isv-snapshot.repository';
+import { RedisService } from '../redis/redis.service';
 import { PropertiesRepository } from './properties.repository';
+
+/** Short TTL for the plan report task list. Tolerates up to 60s of staleness
+ *  in exchange for collapsing repeated report fetches (list views, refresh storms). */
+const REPORT_TASKS_TTL = 60;
 
 @Injectable()
 export class PropertiesService {
@@ -17,7 +22,28 @@ export class PropertiesService {
     private readonly propertiesRepository: PropertiesRepository,
     private readonly dashboardRepository: DashboardRepository,
     private readonly isvSnapshotRepository: ISVSnapshotRepository,
+    private readonly redis: RedisService,
   ) {}
+
+  private async getCachedReportTasks(planId: string) {
+    const cacheKey = `report-tasks:${planId}`;
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached)
+        return JSON.parse(cached) as Awaited<
+          ReturnType<typeof this.propertiesRepository.getReportTasks>
+        >;
+    } catch {
+      // Redis unavailable — fall through to DB
+    }
+    const fresh = await this.propertiesRepository.getReportTasks(planId);
+    try {
+      await this.redis.setex(cacheKey, REPORT_TASKS_TTL, JSON.stringify(fresh));
+    } catch {
+      // Cache write failed — still return data
+    }
+    return fresh;
+  }
 
   async listProperties(filters: PropertyFiltersInput, currentUser: ServiceUser) {
     const userId = currentUser.role === UserRole.CLIENT ? currentUser.id : filters.userId;
@@ -221,7 +247,7 @@ export class PropertiesService {
         this.dashboardRepository.getPropertyHealthIndex([planId]),
         this.dashboardRepository.getClientSectorBreakdown([planId]),
         this.dashboardRepository.getClientCategoryBreakdown([planId]),
-        this.propertiesRepository.getReportTasks(planId),
+        this.getCachedReportTasks(planId),
         this.propertiesRepository.getRecentTaskLogs(planId),
       ]);
 
