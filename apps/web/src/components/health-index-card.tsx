@@ -17,7 +17,7 @@ const DIMENSION_LABELS = {
   },
   condition: {
     name: '¿En qué estado está?',
-    hint: 'El estado que reportaste en las últimas inspecciones',
+    hint: 'El estado registrado en las últimas inspecciones (incluye la inspección inicial de EPDE)',
   },
   coverage: {
     name: '¿Cuánto revisamos?',
@@ -25,7 +25,7 @@ const DIMENSION_LABELS = {
   },
   investment: {
     name: '¿Prevenís o reparás?',
-    hint: 'Si gastás más en prevención o en reparaciones de emergencia',
+    hint: 'Proporción de acciones preventivas vs correctivas. No mide el costo, solo el tipo de acción.',
   },
   trend: {
     name: '¿Mejora o empeora?',

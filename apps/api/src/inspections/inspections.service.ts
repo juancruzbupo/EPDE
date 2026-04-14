@@ -430,6 +430,10 @@ export class InspectionsService {
                 completedBy: checklist.inspectedBy,
                 conditionFound,
                 result,
+                // executor intentionally stays EPDE_PROFESSIONAL even though completedBy
+                // is the inspector: this log represents the architect's ocular inspection,
+                // not an owner action. If we ever add a 'mis acciones como propietario'
+                // filter, baseline logs should NOT appear — they are EPDE's work.
                 executor: 'EPDE_PROFESSIONAL',
                 actionTaken: 'INSPECTION_ONLY',
                 notes: item.finding,

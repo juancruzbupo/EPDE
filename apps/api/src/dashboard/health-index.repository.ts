@@ -164,6 +164,25 @@ export class HealthIndexRepository {
       }),
     ]);
 
+    // Hitting the limits means the ISV was computed over a truncated window,
+    // which can undershoot condition / investment. Surface the truncation so an
+    // operator can decide whether to bump the limit for very active properties.
+    if (tasks.length === HealthIndexRepository.HEALTH_INDEX_LIMITS.TASKS) {
+      this.logger.warn(
+        `Health index task fetch hit TASKS limit (${HealthIndexRepository.HEALTH_INDEX_LIMITS.TASKS}) for planIds=${planIds.join(',')}. ISV may be computed over a truncated task set.`,
+      );
+    }
+    if (recentLogs.length === HealthIndexRepository.HEALTH_INDEX_LIMITS.RECENT_LOGS) {
+      this.logger.warn(
+        `Health index recent-logs fetch hit RECENT_LOGS limit (${HealthIndexRepository.HEALTH_INDEX_LIMITS.RECENT_LOGS}) for planIds=${planIds.join(',')}. ISV may under-sample condition/investment.`,
+      );
+    }
+    if (olderLogs.length === HealthIndexRepository.HEALTH_INDEX_LIMITS.OLDER_LOGS) {
+      this.logger.warn(
+        `Health index older-logs fetch hit OLDER_LOGS limit (${HealthIndexRepository.HEALTH_INDEX_LIMITS.OLDER_LOGS}) for planIds=${planIds.join(',')}. Trend comparison may be biased.`,
+      );
+    }
+
     const result = computeHealthIndex(
       tasks,
       recentLogs.map((l) => ({
