@@ -1,14 +1,21 @@
 import { PLAN_STATUS_LABELS, PlanStatus } from '@epde/shared';
-import { Archive, LayoutTemplate, Play, Plus } from 'lucide-react';
+import { Archive, LayoutTemplate, MoreVertical, Play, Plus } from 'lucide-react';
 import React from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface PlanStatusBarProps {
   planName: string;
   planStatus: PlanStatus;
+  hasTasks: boolean;
   onActivate: () => void;
   onArchive: () => void;
   onApplyTemplate: () => void;
@@ -18,6 +25,7 @@ interface PlanStatusBarProps {
 export const PlanStatusBar = React.memo(function PlanStatusBar({
   planName,
   planStatus,
+  hasTasks,
   onActivate,
   onArchive,
   onApplyTemplate,
@@ -44,14 +52,25 @@ export const PlanStatusBar = React.memo(function PlanStatusBar({
         </div>
       </div>
       <div className="flex gap-2">
-        <Button size="sm" variant="outline" onClick={onApplyTemplate}>
-          <LayoutTemplate className="mr-2 h-4 w-4" />
-          Aplicar Template
-        </Button>
         <Button size="sm" onClick={onAddTask}>
           <Plus className="mr-2 h-4 w-4" />
           Agregar Tarea
         </Button>
+        {hasTasks && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" variant="outline" aria-label="Más acciones del plan">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={onApplyTemplate}>
+                <LayoutTemplate className="mr-2 h-4 w-4" />
+                Agregar desde plantilla
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </CardHeader>
   );

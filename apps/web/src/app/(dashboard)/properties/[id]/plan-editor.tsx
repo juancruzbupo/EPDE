@@ -298,6 +298,7 @@ export function PlanEditor({ propertyId, planId, activeSectors }: PlanEditorProp
       <PlanStatusBar
         planName={plan.name}
         planStatus={plan.status}
+        hasTasks={tasks.length > 0}
         onActivate={() => dispatch({ type: 'OPEN_VALIDATION' })}
         onArchive={() => dispatch({ type: 'OPEN_STATUS', transition: PlanStatus.ARCHIVED })}
         onApplyTemplate={() => dispatch({ type: 'OPEN_TEMPLATE' })}

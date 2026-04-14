@@ -122,6 +122,13 @@ export class MaintenancePlansController {
     return { data, message: 'Tarea agregada' };
   }
 
+  /**
+   * Incremental bulk-add of tasks from a CategoryTemplate to an existing plan.
+   * For INITIAL plan creation, prefer the inspection-driven flow
+   * (POST /inspections/:id/generate-plan) — it is condition-aware. This endpoint
+   * is for adding a whole category to a plan that already exists (e.g. owner
+   * adds a new sector like pool or boiler after the plan was first built).
+   */
   @Post(':id/tasks/bulk')
   @Roles(UserRole.ADMIN)
   @Throttle({ medium: { limit: 5, ttl: 60_000 } })
