@@ -123,6 +123,90 @@ describe('BaseRepository', () => {
       const call = mockRegularModel.findUnique.mock.calls[0][0] as Record<string, unknown>;
       expect(call).not.toHaveProperty('include');
     });
+
+    // -------------------------------------------------------------------------
+    // Caching contract — see findById JSDoc. Locks down the documented behavior
+    // so a refactor to the RequestCache path doesn't silently change shape
+    // semantics (e.g. starting to cache `include` results would leak relations
+    // into base-shape callers).
+    // -------------------------------------------------------------------------
+    describe('caching', () => {
+      function makeRepoWithCache(hasSoftDelete = false) {
+        const cache = new Map<string, unknown>();
+        const requestCache = {
+          get: jest.fn((model: string, id: string) => cache.get(`${model}:${id}`)),
+          set: jest.fn((model: string, id: string, value: unknown) =>
+            cache.set(`${model}:${id}`, value),
+          ),
+          invalidate: jest.fn((model: string, id: string) => cache.delete(`${model}:${id}`)),
+        };
+        const repo = new TestRepository(prisma, hasSoftDelete);
+        // Inject via the @Optional() @Inject() slot directly.
+        (repo as unknown as { requestCache: typeof requestCache }).requestCache = requestCache;
+        return { repo, requestCache, cache };
+      }
+
+      it('caches the base shape on the first call and returns it on the second', async () => {
+        const { repo, requestCache } = makeRepoWithCache();
+        const record = { id: 'record-1' };
+        mockRegularModel.findUnique.mockResolvedValue(record);
+
+        const first = await repo.findById('record-1');
+        const second = await repo.findById('record-1');
+
+        expect(first).toBe(record);
+        expect(second).toBe(record);
+        expect(mockRegularModel.findUnique).toHaveBeenCalledTimes(1);
+        expect(requestCache.set).toHaveBeenCalledWith('user', 'record-1', record);
+      });
+
+      it('does NOT read from cache when include is provided', async () => {
+        const { repo, requestCache, cache } = makeRepoWithCache();
+        cache.set('user:record-1', { id: 'record-1' });
+        const withRelation = { id: 'record-1', profile: { id: 'p1' } };
+        mockRegularModel.findUnique.mockResolvedValue(withRelation);
+
+        const result = await repo.findById('record-1', { profile: true });
+
+        expect(result).toBe(withRelation);
+        expect(mockRegularModel.findUnique).toHaveBeenCalledWith({
+          where: { id: 'record-1' },
+          include: { profile: true },
+        });
+        expect(requestCache.get).not.toHaveBeenCalled();
+      });
+
+      it('does NOT write to cache when include is provided', async () => {
+        const { repo, requestCache } = makeRepoWithCache();
+        const withRelation = { id: 'record-1', profile: { id: 'p1' } };
+        mockRegularModel.findUnique.mockResolvedValue(withRelation);
+
+        await repo.findById('record-1', { profile: true });
+
+        expect(requestCache.set).not.toHaveBeenCalled();
+      });
+
+      it('preserves the base-shape cache across an interleaved include call', async () => {
+        // findById(id) caches base shape → findById(id, include) bypasses cache
+        // and fetches fresh → findById(id) still hits the cached base shape.
+        // Locks the contract documented in the findById JSDoc.
+        const { repo } = makeRepoWithCache();
+        const baseRecord = { id: 'record-1' };
+        const withRelation = { id: 'record-1', profile: { id: 'p1' } };
+        mockRegularModel.findUnique
+          .mockResolvedValueOnce(baseRecord)
+          .mockResolvedValueOnce(withRelation);
+
+        const first = await repo.findById('record-1');
+        const second = await repo.findById('record-1', { profile: true });
+        const third = await repo.findById('record-1');
+
+        expect(first).toBe(baseRecord);
+        expect(second).toBe(withRelation);
+        expect(third).toBe(baseRecord); // cache hit, unchanged by include call
+        expect(mockRegularModel.findUnique).toHaveBeenCalledTimes(2);
+      });
+    });
   });
 
   // ---------------------------------------------------------------------------

@@ -101,14 +101,32 @@ export abstract class BaseRepository<
 
   /**
    * Finds a record by primary key.
+   *
    * ⚠️ Owner-agnostic by design — does NOT filter by userId or any ownership field.
    * For CLIENT-accessible endpoints, always verify ownership in the service layer:
    *   - Listados: add `where.property = { userId: user.id }` before calling findMany
    *   - getById: check `record.userId === user.id` and throw ForbiddenException if not
    *   - Use findByIdSelect() for type-safe ownership field access
+   *
+   * ## Caching contract
+   * Only the `findById(id)` form (no `include`) participates in the per-request
+   * cache:
+   *   - `findById(id)` checks the cache first; on miss, loads from DB and stores
+   *     the **base `T` shape** in the cache.
+   *   - `findById(id, include)` ALWAYS goes to DB. It neither reads nor writes
+   *     the cache — because the cached base shape would be indistinguishable
+   *     from a full include, and writing the included shape back would then
+   *     leak relations into subsequent `findById(id)` callers who expected
+   *     only the base shape.
+   *
+   * That means a call sequence of `findById(id)` → `findById(id, include)`
+   * issues two DB queries, and a subsequent `findById(id)` returns the
+   * originally cached base shape (still correct — just without relations).
+   * Callers that need relations must always pass `include`; cache hits for
+   * these callers are intentionally not provided.
    */
   async findById(id: string, include?: Record<string, unknown>): Promise<T | null> {
-    // Only cache simple lookups (no include) to avoid stale partial data
+    // Only cache simple lookups (no include) to avoid stale partial data.
     if (!include && this.requestCache) {
       const cached = this.requestCache.get<T>(this.modelName, id);
       if (cached !== undefined) return cached;
