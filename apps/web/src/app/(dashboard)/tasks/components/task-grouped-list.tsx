@@ -21,12 +21,14 @@ function StatusSection({
   defaultOpen,
   onTaskClick,
   onTaskComplete,
+  onTaskPostpone,
 }: {
   status: TaskStatus;
   tasks: TaskListItem[];
   defaultOpen: boolean;
   onTaskClick: (task: TaskListItem) => void;
   onTaskComplete?: (task: TaskListItem) => void;
+  onTaskPostpone?: (task: TaskListItem) => void;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
@@ -62,6 +64,7 @@ function StatusSection({
               task={task}
               onClick={() => onTaskClick(task)}
               onComplete={onTaskComplete}
+              onPostpone={onTaskPostpone}
             />
           ))}
           {hasMore && (
@@ -96,6 +99,7 @@ export interface TaskGroupedListProps {
   hasActiveFilters: boolean;
   onTaskClick: (task: TaskListItem) => void;
   onTaskComplete?: (task: TaskListItem) => void;
+  onTaskPostpone?: (task: TaskListItem) => void;
 }
 
 export const TaskGroupedList = React.memo(function TaskGroupedList({
@@ -108,6 +112,7 @@ export const TaskGroupedList = React.memo(function TaskGroupedList({
   hasActiveFilters,
   onTaskClick,
   onTaskComplete,
+  onTaskPostpone,
 }: TaskGroupedListProps) {
   if (isLoading) {
     return (
@@ -171,6 +176,7 @@ export const TaskGroupedList = React.memo(function TaskGroupedList({
           defaultOpen
           onTaskClick={onTaskClick}
           onTaskComplete={onTaskComplete}
+          onTaskPostpone={onTaskPostpone}
         />
       ))}
     </div>

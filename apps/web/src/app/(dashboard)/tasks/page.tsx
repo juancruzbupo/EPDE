@@ -11,7 +11,7 @@ import { PageHeader } from '@/components/page-header';
 import { PageTransition } from '@/components/ui/page-transition';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useAllTasks } from '@/hooks/use-plans';
-import { useTaskDetail } from '@/hooks/use-task-operations';
+import { useTaskDetail, useUpdateTask } from '@/hooks/use-task-operations';
 import { TASK_STATUS_ORDER } from '@/lib/style-maps';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -157,6 +157,21 @@ export default function TasksPage() {
     }, 300);
   }, []);
 
+  const updateTask = useUpdateTask();
+  const handleTaskPostpone = useCallback(
+    (task: TaskListItem) => {
+      const base = task.nextDueDate ? new Date(task.nextDueDate) : new Date();
+      const reference = base < new Date() ? new Date() : base;
+      const postponed = new Date(reference.getTime() + 7 * 24 * 60 * 60_000);
+      updateTask.mutate({
+        planId: task.maintenancePlan.id,
+        taskId: task.id,
+        nextDueDate: postponed.toISOString(),
+      });
+    },
+    [updateTask],
+  );
+
   const toggleStatus = useCallback((status: TaskStatus) => {
     setActiveStatus((prev) => (prev === status ? null : status));
   }, []);
@@ -207,6 +222,7 @@ export default function TasksPage() {
         hasActiveFilters={hasActiveFilters}
         onTaskClick={handleTaskClick}
         onTaskComplete={handleTaskComplete}
+        onTaskPostpone={handleTaskPostpone}
       />
 
       {/* Task detail sheet — loads full task detail on demand */}

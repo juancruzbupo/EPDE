@@ -8,7 +8,7 @@ import {
   TaskPriority,
   TaskStatus,
 } from '@epde/shared';
-import { CheckCircle } from 'lucide-react';
+import { CalendarClock, CheckCircle } from 'lucide-react';
 import React from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -19,11 +19,17 @@ export interface TaskRowProps {
   task: TaskListItem;
   onClick: () => void;
   onComplete?: (task: TaskListItem) => void;
+  onPostpone?: (task: TaskListItem) => void;
 }
 
 const COMPLETABLE: TaskStatus[] = [TaskStatus.PENDING, TaskStatus.UPCOMING, TaskStatus.OVERDUE];
 
-export const TaskRow = React.memo(function TaskRow({ task, onClick, onComplete }: TaskRowProps) {
+export const TaskRow = React.memo(function TaskRow({
+  task,
+  onClick,
+  onComplete,
+  onPostpone,
+}: TaskRowProps) {
   const isOverdue = task.nextDueDate ? new Date(task.nextDueDate) < new Date() : false;
   const canComplete = COMPLETABLE.includes(task.status);
 
@@ -75,20 +81,37 @@ export const TaskRow = React.memo(function TaskRow({ task, onClick, onComplete }
         </p>
       </div>
 
-      {canComplete && onComplete && (
-        <Button
-          size="sm"
-          variant="outline"
-          className="w-full shrink-0 sm:w-auto"
-          onClick={(e) => {
-            e.stopPropagation();
-            onComplete(task);
-          }}
-        >
-          <CheckCircle className="mr-1.5 h-3.5 w-3.5" />
-          Registrar inspección
-        </Button>
-      )}
+      <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center">
+        {isOverdue && onPostpone && (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="w-full text-xs sm:w-auto"
+            onClick={(e) => {
+              e.stopPropagation();
+              onPostpone(task);
+            }}
+            title="Posponer 7 días"
+          >
+            <CalendarClock className="mr-1.5 h-3.5 w-3.5" />
+            Posponer
+          </Button>
+        )}
+        {canComplete && onComplete && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={(e) => {
+              e.stopPropagation();
+              onComplete(task);
+            }}
+          >
+            <CheckCircle className="mr-1.5 h-3.5 w-3.5" />
+            Registrar inspección
+          </Button>
+        )}
+      </div>
     </div>
   );
 });
