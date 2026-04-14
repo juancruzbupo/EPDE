@@ -12,6 +12,24 @@ import { DistributedLockService } from '../redis/distributed-lock.service';
 /**
  * Monthly cron job that captures ISV snapshots for all properties
  * and triggers alerts when scores drop significantly.
+ *
+ * ## Legacy `trend` values in historical snapshots
+ * Snapshots created before commit `43f624b` (batch trend fix) stored
+ * `trend = 50` because `getPropertyHealthIndexBatch` didn't fetch
+ * `olderLogs` and `computeHealthIndex` fell back to the neutral value.
+ * From that commit onwards the value is computed correctly.
+ *
+ * No code currently reads historical `trend`:
+ *   - `ISVSnapshotRepository.findLatestForProperties` selects only
+ *     `{ propertyId, score, label }`.
+ *   - `health-index-card.tsx` renders history using `s.score` only.
+ *
+ * Because the field is dormant, no backfill is performed. If a future
+ * feature starts consuming historical `trend`, a time-machine backfill
+ * is required: reconstruct state-at-time-X (task status + log filters by
+ * snapshotDate), not the current plan state — otherwise trends for old
+ * months would reflect today's activity, not the activity that produced
+ * them.
  */
 @Injectable()
 export class ISVSnapshotService {

@@ -40,6 +40,20 @@ Los primeros tres jobs diarios están escalonados por diseño:
 | isv-monthly-snapshot    | `upsert` por `(propertyId, year, month)` — idempotente                   |
 | anniversary-check       | Filtra por `activatedAt` exacto ±1 día — baja colisión                   |
 
+## Notification Handlers (NotificationsHandlerService)
+
+Cada handler es fire-and-forget (invocado con `void`), envuelto en `withDLQ` para persistir fallos en `FailedNotification`.
+
+| Handler                     | Disparador                                                     | Destinatarios               | Payload clave                                                      |
+| --------------------------- | -------------------------------------------------------------- | --------------------------- | ------------------------------------------------------------------ |
+| `handleProblemDetected`     | `completeTask` con `conditionFound` POOR o CRITICAL            | Admin + dueño               | `taskName`, `propertyAddress`, `propertyId`, `conditionLabel`      |
+| `handlePlanGenerated`       | `generatePlanFromInspection` post-commit                       | Dueño de la propiedad       | `propertyId`, `planId`, `taskCount`, `address`                     |
+| `handleISVAlert`            | Cron `isv-monthly-snapshot` cuando score cae ≥15 pts vs previo | Dueño de la propiedad       | `propertyId`, `userId`, `address`, `previousScore`, `currentScore` |
+| `handleTaskReminders`       | Cron `task-upcoming-reminders` (dedup por día)                 | Clientes dueños de tareas   | `userId`, `tasks[]` (batch)                                        |
+| `handleBudgetStatusChanged` | Cambio de estado del BudgetRequest (incl. EXPIRED)             | Admin + cliente solicitante | `budgetId`, `status`, `requesterId`, `propertyId`                  |
+
+**Regla**: Si un handler se invoca desde dentro de una transacción Prisma, dispararlo SOLO post-commit (después del `$transaction(...)`) — de lo contrario, un rollback deja notificaciones huérfanas.
+
 ## Dead-Letter Queue (FailedNotification)
 
 `NotificationsHandlerService` usa `withDLQ` para envolver cada handler de side-effects. Si un handler falla, el error se registra en la tabla `FailedNotification` con el nombre del handler y el payload serializado.

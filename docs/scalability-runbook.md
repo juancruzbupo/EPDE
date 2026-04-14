@@ -169,3 +169,19 @@ DATABASE_URL="postgresql://user:pass@ep-xxx-pooler.neon.tech/neondb?schema=publi
 - [ ] Review email queue depth trends (BullMQ dashboard)
 - [ ] Check if any `findMany` queries lack `take` limits (grep codebase)
 - [ ] Verify health index cache hit rate (Redis key count for `health:*`)
+- [ ] Monitor `health:*` + `streak:*` key churn — `invalidateHealthCaches()` corre en cada mutación de task (`complete`/`update`/`remove`) y en `generatePlanFromInspection`. Si hit rate cae bruscamente, revisar si una mutación se está disparando en loop
+
+## Health index cache invalidation
+
+**Keys:** `health:*` (por propiedad/plan) + `streak:*` (rachas de cumplimiento). TTL 6h.
+
+**Invalidación:** `HealthIndexRepository.invalidateHealthCaches()` usa `RedisService.delByPattern()`, que ejecuta `SCAN MATCH <prefix>:<pattern> COUNT 500` + `UNLINK` (no-blocking) en batches. Escala a decenas de miles de keys sin bloquear el event loop.
+
+**Callers autorizados (obligatorios):**
+
+- `TaskLifecycleService.completeTask / updateTask / removeTask` — cambian compliance/condition/investment/trend
+- `InspectionsService.generatePlanFromInspection` — siembra plan + TaskLogs baseline
+
+**Failure mode:** Si Redis está caído, `invalidateHealthCaches()` loguea warn y sigue (fail-open). El usuario puede ver ISV stale hasta que el TTL expira o Redis vuelve. No reintentamos porque no vale bloquear el request.
+
+**Límite `HEALTH_INDEX_LIMITS`:** Emitimos warn al truncar tasks/recentLogs/olderLogs. Si aparece en logs, revisar el plan: >1000 tareas o >10k logs indica uso atípico.

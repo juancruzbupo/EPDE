@@ -15,6 +15,8 @@ Múltiples acciones del dominio (crear presupuesto, completar tarea, actualizar 
 - El handler orquesta: DB notification + BullMQ email queue + push notification
 - Cada método del handler tiene su propio try/catch — errores de notificación nunca fallan la operación principal
 - BullMQ procesa emails y push async con retry + exponential backoff
+- Cada handler está envuelto en `withDLQ(handlerName, payload, fn)`: si todos los intentos fallan, el payload se persiste en `FailedNotification` y `NotificationRetryService` (cron horario) reintenta con backoff 1h→2h→4h hasta 3 veces
+- Catálogo completo de handlers en [docs/scheduler-registry.md](../scheduler-registry.md#notification-handlers-notificationshandlerservice) — agregar una fila cuando se crea un handler nuevo
 
 ## Consecuencias
 

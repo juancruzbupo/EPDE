@@ -271,7 +271,8 @@ CategoryTemplate ─1:N─ TaskTemplate
 | updatedAt          | DateTime   |                                   |
 
 **Relaciones:** `property`, `tasks`
-**Flujo:** El plan se genera desde una inspección completada via `POST /inspections/:id/generate-plan`.
+**Flujo:** El plan se genera desde una inspección completada via `POST /inspections/:id/generate-plan`. La transacción crea plan + tasks + baseline TaskLogs + marca checklist COMPLETED, con timeout de 30s (P2028 → `InternalServerErrorException`).
+**Back-reference:** Cuando el `InspectionChecklist` origen se soft-deletea, `sourceInspectionId` se nulla en este plan (ver InspectionChecklist).
 
 ### Category
 
@@ -465,23 +466,28 @@ Snapshot mensual del Índice de Salud de la Vivienda (ISV). Generado por cron jo
 **Indices:** `propertyId`, `@@unique([propertyId, snapshotDate])`
 **Cascade:** onDelete de Property elimina sus ISVSnapshots
 **ISV Label:** score ≥80 "Excelente", ≥60 "Bueno", ≥40 "Regular", ≥20 "Necesita atención", <20 "Crítico"
+**Legacy `trend`:** Snapshots creados antes del commit `43f624b` tienen `trend=50` porque el batch no computaba tendencia correctamente. Hoy ningún consumidor lee trend histórico (`findLatestForProperties` solo selecciona `score`/`label`). Si una feature futura lo consume, requiere backfill time-machine (reconstruir estado a la fecha del snapshot).
 
 ### InspectionChecklist
 
 Checklist de inspección visual de una propiedad. Genera los items desde TaskTemplates filtrados por los sectores activos de la propiedad.
 
-| Campo       | Tipo         | Notas                                 |
-| ----------- | ------------ | ------------------------------------- |
-| id          | UUID         | PK                                    |
-| propertyId  | String       | FK → Property                         |
-| inspectedBy | String       | FK → User (inspector/arquitecta)      |
-| inspectedAt | DateTime     | Fecha de la inspección (default: now) |
-| notes       | String(2000) | Notas generales                       |
-| deletedAt   | DateTime?    | Soft delete                           |
+| Campo       | Tipo                      | Notas                                          |
+| ----------- | ------------------------- | ---------------------------------------------- |
+| id          | UUID                      | PK                                             |
+| propertyId  | String                    | FK → Property                                  |
+| inspectedBy | String                    | FK → User (inspector/arquitecta)               |
+| inspectedAt | DateTime                  | Fecha de la inspección (default: now)          |
+| notes       | String(2000)              | Notas generales                                |
+| status      | InspectionChecklistStatus | Default: DRAFT. COMPLETED tras generar plan    |
+| completedAt | DateTime?                 | Set al pasar a COMPLETED (post plan-generated) |
+| deletedAt   | DateTime?                 | Soft delete                                    |
 
-**Indices:** `[propertyId, inspectedAt DESC]`
-**Soft delete:** Si — via Prisma extension
+**Indices:** `[propertyId, inspectedAt DESC]`, `[propertyId, status]` (busca drafts activos)
+**Soft delete:** Si — via Prisma extension. Al soft-deletear, se nulla `MaintenancePlan.sourceInspectionId` para evitar FK huérfanas.
 **Relaciones:** `property`, `inspector`, `items[]`
+
+**Lock post-generación:** Un checklist en estado `COMPLETED` no se puede editar. La transición DRAFT→COMPLETED se dispara al generar el plan. El guard `findActiveDraftByProperty` previene dos drafts concurrentes por propiedad (devuelve `ConflictException`).
 
 ### InspectionItem
 
