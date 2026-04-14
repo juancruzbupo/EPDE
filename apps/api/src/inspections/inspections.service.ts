@@ -10,6 +10,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
@@ -235,202 +236,235 @@ export class InspectionsService {
       templateIds.length > 0
         ? await this.taskTemplatesRepository.findByIdsWithCategory(templateIds)
         : [];
+
+    // If some templates were deleted between inspection creation and generate-plan,
+    // the lookup returns fewer rows than requested. The affected items still
+    // generate tasks, but they fall back to the 'Observaciones' custom-item branch
+    // below. Surface the mismatch so an operator can trace missing items rather
+    // than wonder why the plan has an unexpected category for some entries.
+    if (templateIds.length !== taskTemplates.length) {
+      const found = new Set(taskTemplates.map((t) => t.id));
+      const missing = templateIds.filter((id) => !found.has(id));
+      this.logger.warn(
+        `generatePlanFromInspection: ${missing.length} taskTemplate(s) referenced by checklist ${checklistId} are no longer available: ${missing.join(', ')}. Affected items will be generated under 'Observaciones'.`,
+      );
+    }
+
     const templateMap = new Map(taskTemplates.map((t) => [t.id, t]));
 
-    const result = await this.prisma.$transaction(
-      async (tx) => {
-        // Find-or-create categories
-        const categoryMap = new Map<string, string>(); // categoryTemplateId → categoryId
-        for (const tpl of taskTemplates) {
-          if (categoryMap.has(tpl.categoryId)) continue;
-          let category = await tx.category.findFirst({
-            where: { categoryTemplateId: tpl.categoryId, deletedAt: null },
-          });
-          if (!category) {
-            category = await tx.category.create({
+    // 30s upper bound for the transaction. Worst-case shape: ~150 items × (category
+    // find/create + task.create + inspectionItem.update + taskLog.create) = ~600 writes
+    // plus category resolution. 15s was the old limit; raising it here avoids early
+    // timeouts on large inspections while the catch below turns the Prisma P2028
+    // timeout code into a friendly message for the admin instead of a bare 500.
+    let result;
+    try {
+      result = await this.prisma.$transaction(
+        async (tx) => {
+          // Find-or-create categories
+          const categoryMap = new Map<string, string>(); // categoryTemplateId → categoryId
+          for (const tpl of taskTemplates) {
+            if (categoryMap.has(tpl.categoryId)) continue;
+            let category = await tx.category.findFirst({
+              where: { categoryTemplateId: tpl.categoryId, deletedAt: null },
+            });
+            if (!category) {
+              category = await tx.category.create({
+                data: {
+                  name: tpl.category.name,
+                  icon: tpl.category.icon,
+                  description: tpl.category.description,
+                  categoryTemplateId: tpl.categoryId,
+                },
+              });
+            }
+            categoryMap.set(tpl.categoryId, category.id);
+          }
+
+          // Create a fallback "Observaciones" category for custom items
+          let observacionesCategoryId: string | null = null;
+
+          // Create the plan. If a concurrent request beat us to it, Postgres will
+          // raise a unique-violation on MaintenancePlan.propertyId — rethrow as a
+          // ConflictException with the same message the fast-path check uses, so
+          // the client sees a consistent error either way.
+          let plan: { id: string };
+          try {
+            plan = await tx.maintenancePlan.create({
               data: {
-                name: tpl.category.name,
-                icon: tpl.category.icon,
-                description: tpl.category.description,
-                categoryTemplateId: tpl.categoryId,
+                propertyId: checklist.propertyId,
+                name: planName,
+                status: 'DRAFT',
+                sourceInspectionId: checklistId,
+                createdBy,
+              },
+            });
+          } catch (err) {
+            if (
+              err instanceof Prisma.PrismaClientKnownRequestError &&
+              err.code === 'P2002' &&
+              Array.isArray(err.meta?.target) &&
+              (err.meta.target as string[]).includes('propertyId')
+            ) {
+              throw new ConflictException('Esta propiedad ya tiene un plan de mantenimiento');
+            }
+            throw err;
+          }
+
+          // Create tasks from items and link them back
+          for (let i = 0; i < checklist.items.length; i++) {
+            const item = checklist.items[i]!;
+            const tpl = item.taskTemplateId ? templateMap.get(item.taskTemplateId) : null;
+
+            // Determine category
+            let categoryId: string;
+            if (tpl) {
+              categoryId = categoryMap.get(tpl.categoryId)!;
+            } else {
+              // Custom item — use "Observaciones" category
+              if (!observacionesCategoryId) {
+                let obs = await tx.category.findFirst({
+                  where: { name: 'Observaciones', deletedAt: null },
+                });
+                if (!obs) {
+                  obs = await tx.category.create({
+                    data: {
+                      name: 'Observaciones',
+                      icon: '📋',
+                      description: 'Items de inspección personalizados',
+                    },
+                  });
+                }
+                observacionesCategoryId = obs.id;
+              }
+              categoryId = observacionesCategoryId;
+            }
+
+            // Priority adjustment based on inspection status
+            let priority = tpl?.priority ?? TaskPriority.MEDIUM;
+            let professionalRequirement = tpl?.professionalRequirement ?? 'OWNER_CAN_DO';
+
+            if (item.status === 'NEEDS_ATTENTION') {
+              const priorities = [
+                TaskPriority.LOW,
+                TaskPriority.MEDIUM,
+                TaskPriority.HIGH,
+                TaskPriority.URGENT,
+              ];
+              const currentIdx = priorities.indexOf(priority as TaskPriority);
+              const highIdx = priorities.indexOf(TaskPriority.HIGH);
+              if (currentIdx < highIdx) priority = TaskPriority.HIGH;
+            } else if (item.status === 'NEEDS_PROFESSIONAL') {
+              priority = TaskPriority.URGENT;
+              professionalRequirement = 'PROFESSIONAL_REQUIRED';
+            }
+
+            const recurrenceType = tpl?.recurrenceType ?? 'ANNUAL';
+            const recurrenceMonths =
+              tpl?.recurrenceMonths ?? recurrenceTypeToMonths(recurrenceType) ?? 12;
+
+            const riskScore = computeRiskScore(priority, item.status, item.sector);
+
+            // Derive the first-cycle due date from the final priority + recurrence so that
+            // the task lands in the correct stat card (Vencida / Próxima / Pendiente) and
+            // the ISV compliance dimension has a valid reference date from day one.
+            // ON_DETECTION tasks intentionally keep nextDueDate = null.
+            const nextDueDate = suggestDueDate(priority, recurrenceType, recurrenceMonths);
+
+            const task = await tx.task.create({
+              data: {
+                maintenancePlanId: plan.id,
+                categoryId,
+                sector: item.sector,
+                name: item.name,
+                description: tpl?.technicalDescription ?? item.description,
+                priority,
+                professionalRequirement,
+                taskType: tpl?.taskType ?? 'INSPECTION',
+                recurrenceType,
+                recurrenceMonths,
+                nextDueDate,
+                estimatedDurationMinutes: tpl?.estimatedDurationMinutes,
+                inspectionFinding: item.finding,
+                inspectionPhotoUrl: item.photoUrl,
+                riskScore,
+                order: i,
+                status: TaskStatus.PENDING,
+                createdBy,
+              },
+            });
+
+            // Link the inspection item to the created task
+            await tx.inspectionItem.update({
+              where: { id: item.id },
+              data: { taskId: task.id },
+            });
+
+            // Create baseline TaskLog from inspection — feeds ISV from day 1.
+            // PENDING items are rejected earlier in this method, so `item.status` here
+            // is always one of the three evaluated statuses; the fallback is a defensive
+            // belt-and-suspenders with a warning log so an unexpected value is not silent.
+            let conditionFound: ConditionFound;
+            let result: TaskResult;
+            if (item.status in ITEM_STATUS_TO_CONDITION) {
+              const evaluated = item.status as EvaluatedInspectionItemStatus;
+              conditionFound = ITEM_STATUS_TO_CONDITION[evaluated];
+              result = ITEM_STATUS_TO_RESULT[evaluated];
+            } else {
+              this.logger.warn(
+                `Unexpected inspection item status "${item.status}" for item ${item.id}; defaulting condition=GOOD, result=OK`,
+              );
+              conditionFound = 'GOOD';
+              result = 'OK';
+            }
+
+            await tx.taskLog.create({
+              data: {
+                taskId: task.id,
+                completedAt: checklist.inspectedAt,
+                // Baseline log represents the ocular inspection — attribute it to the
+                // inspector who actually evaluated the item, not the admin who clicked
+                // 'Generar Plan' (the latter is `createdBy` on the plan / task rows).
+                completedBy: checklist.inspectedBy,
+                conditionFound,
+                result,
+                executor: 'EPDE_PROFESSIONAL',
+                actionTaken: 'INSPECTION_ONLY',
+                notes: item.finding,
+                photoUrl: item.photoUrl,
               },
             });
           }
-          categoryMap.set(tpl.categoryId, category.id);
-        }
 
-        // Create a fallback "Observaciones" category for custom items
-        let observacionesCategoryId: string | null = null;
-
-        // Create the plan. If a concurrent request beat us to it, Postgres will
-        // raise a unique-violation on MaintenancePlan.propertyId — rethrow as a
-        // ConflictException with the same message the fast-path check uses, so
-        // the client sees a consistent error either way.
-        let plan: { id: string };
-        try {
-          plan = await tx.maintenancePlan.create({
-            data: {
-              propertyId: checklist.propertyId,
-              name: planName,
-              status: 'DRAFT',
-              sourceInspectionId: checklistId,
-              createdBy,
-            },
-          });
-        } catch (err) {
-          if (
-            err instanceof Prisma.PrismaClientKnownRequestError &&
-            err.code === 'P2002' &&
-            Array.isArray(err.meta?.target) &&
-            (err.meta.target as string[]).includes('propertyId')
-          ) {
-            throw new ConflictException('Esta propiedad ya tiene un plan de mantenimiento');
-          }
-          throw err;
-        }
-
-        // Create tasks from items and link them back
-        for (let i = 0; i < checklist.items.length; i++) {
-          const item = checklist.items[i]!;
-          const tpl = item.taskTemplateId ? templateMap.get(item.taskTemplateId) : null;
-
-          // Determine category
-          let categoryId: string;
-          if (tpl) {
-            categoryId = categoryMap.get(tpl.categoryId)!;
-          } else {
-            // Custom item — use "Observaciones" category
-            if (!observacionesCategoryId) {
-              let obs = await tx.category.findFirst({
-                where: { name: 'Observaciones', deletedAt: null },
-              });
-              if (!obs) {
-                obs = await tx.category.create({
-                  data: {
-                    name: 'Observaciones',
-                    icon: '📋',
-                    description: 'Items de inspección personalizados',
-                  },
-                });
-              }
-              observacionesCategoryId = obs.id;
-            }
-            categoryId = observacionesCategoryId;
-          }
-
-          // Priority adjustment based on inspection status
-          let priority = tpl?.priority ?? TaskPriority.MEDIUM;
-          let professionalRequirement = tpl?.professionalRequirement ?? 'OWNER_CAN_DO';
-
-          if (item.status === 'NEEDS_ATTENTION') {
-            const priorities = [
-              TaskPriority.LOW,
-              TaskPriority.MEDIUM,
-              TaskPriority.HIGH,
-              TaskPriority.URGENT,
-            ];
-            const currentIdx = priorities.indexOf(priority as TaskPriority);
-            const highIdx = priorities.indexOf(TaskPriority.HIGH);
-            if (currentIdx < highIdx) priority = TaskPriority.HIGH;
-          } else if (item.status === 'NEEDS_PROFESSIONAL') {
-            priority = TaskPriority.URGENT;
-            professionalRequirement = 'PROFESSIONAL_REQUIRED';
-          }
-
-          const recurrenceType = tpl?.recurrenceType ?? 'ANNUAL';
-          const recurrenceMonths =
-            tpl?.recurrenceMonths ?? recurrenceTypeToMonths(recurrenceType) ?? 12;
-
-          const riskScore = computeRiskScore(priority, item.status, item.sector);
-
-          // Derive the first-cycle due date from the final priority + recurrence so that
-          // the task lands in the correct stat card (Vencida / Próxima / Pendiente) and
-          // the ISV compliance dimension has a valid reference date from day one.
-          // ON_DETECTION tasks intentionally keep nextDueDate = null.
-          const nextDueDate = suggestDueDate(priority, recurrenceType, recurrenceMonths);
-
-          const task = await tx.task.create({
-            data: {
-              maintenancePlanId: plan.id,
-              categoryId,
-              sector: item.sector,
-              name: item.name,
-              description: tpl?.technicalDescription ?? item.description,
-              priority,
-              professionalRequirement,
-              taskType: tpl?.taskType ?? 'INSPECTION',
-              recurrenceType,
-              recurrenceMonths,
-              nextDueDate,
-              estimatedDurationMinutes: tpl?.estimatedDurationMinutes,
-              inspectionFinding: item.finding,
-              inspectionPhotoUrl: item.photoUrl,
-              riskScore,
-              order: i,
-              status: TaskStatus.PENDING,
-              createdBy,
-            },
+          // Lock the checklist: once a plan exists for it, editing items would
+          // silently drift from the generated tasks. The write below is what the
+          // later verifyChecklistAccessAndEditable / verifyItemAccessAndEditable
+          // guards key off, and it stays in the same transaction as the plan/task
+          // creation so an aborted run never leaves a half-locked checklist.
+          await tx.inspectionChecklist.update({
+            where: { id: checklistId },
+            data: { status: 'COMPLETED', completedAt: new Date() },
           });
 
-          // Link the inspection item to the created task
-          await tx.inspectionItem.update({
-            where: { id: item.id },
-            data: { taskId: task.id },
+          return tx.maintenancePlan.findUnique({
+            where: { id: plan.id },
+            include: { tasks: { orderBy: { order: 'asc' } } },
           });
-
-          // Create baseline TaskLog from inspection — feeds ISV from day 1.
-          // PENDING items are rejected earlier in this method, so `item.status` here
-          // is always one of the three evaluated statuses; the fallback is a defensive
-          // belt-and-suspenders with a warning log so an unexpected value is not silent.
-          let conditionFound: ConditionFound;
-          let result: TaskResult;
-          if (item.status in ITEM_STATUS_TO_CONDITION) {
-            const evaluated = item.status as EvaluatedInspectionItemStatus;
-            conditionFound = ITEM_STATUS_TO_CONDITION[evaluated];
-            result = ITEM_STATUS_TO_RESULT[evaluated];
-          } else {
-            this.logger.warn(
-              `Unexpected inspection item status "${item.status}" for item ${item.id}; defaulting condition=GOOD, result=OK`,
-            );
-            conditionFound = 'GOOD';
-            result = 'OK';
-          }
-
-          await tx.taskLog.create({
-            data: {
-              taskId: task.id,
-              completedAt: checklist.inspectedAt,
-              // Baseline log represents the ocular inspection — attribute it to the
-              // inspector who actually evaluated the item, not the admin who clicked
-              // 'Generar Plan' (the latter is `createdBy` on the plan / task rows).
-              completedBy: checklist.inspectedBy,
-              conditionFound,
-              result,
-              executor: 'EPDE_PROFESSIONAL',
-              actionTaken: 'INSPECTION_ONLY',
-              notes: item.finding,
-              photoUrl: item.photoUrl,
-            },
-          });
-        }
-
-        // Lock the checklist: once a plan exists for it, editing items would
-        // silently drift from the generated tasks. The write below is what the
-        // later verifyChecklistAccessAndEditable / verifyItemAccessAndEditable
-        // guards key off, and it stays in the same transaction as the plan/task
-        // creation so an aborted run never leaves a half-locked checklist.
-        await tx.inspectionChecklist.update({
-          where: { id: checklistId },
-          data: { status: 'COMPLETED', completedAt: new Date() },
-        });
-
-        return tx.maintenancePlan.findUnique({
-          where: { id: plan.id },
-          include: { tasks: { orderBy: { order: 'asc' } } },
-        });
-      },
-      { timeout: 15_000 },
-    );
+        },
+        { timeout: 30_000 },
+      );
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2028') {
+        this.logger.error(
+          `Plan generation transaction timed out for checklist ${checklistId}`,
+          err.stack,
+        );
+        throw new InternalServerErrorException(
+          'La generación del plan tardó demasiado. Reintentá; si el problema persiste, avisanos por los canales de soporte.',
+        );
+      }
+      throw err;
+    }
 
     // Post-commit: notify the property owner their plan is ready. Fire-and-forget
     // (void + handler has its own DLQ), so a notification failure never rolls the
