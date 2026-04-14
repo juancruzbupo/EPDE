@@ -43,6 +43,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           id="theme-init"
           strategy="beforeInteractive"
         >{`(function(){try{var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.classList.add('dark')}catch(e){}})()`}</Script>
+        <Script
+          id="font-scale-init"
+          strategy="beforeInteractive"
+        >{`(function(){try{var s=localStorage.getItem('epde-font-scale');var m={sm:0.9,base:1,lg:1.15,xl:1.3};var v=m[s]||1;document.documentElement.style.setProperty('--font-scale',String(v))}catch(e){}})()`}</Script>
       </head>
       <body className={`${dmSans.variable} ${dmSerifDisplay.variable}`} suppressHydrationWarning>
         <Suspense>

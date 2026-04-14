@@ -1,7 +1,7 @@
 'use client';
 
 import { UserRole } from '@epde/shared';
-import { HelpCircle, Monitor, Moon, Sun } from 'lucide-react';
+import { HelpCircle, Monitor, Moon, Sun, Type } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -12,6 +12,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageTransition } from '@/components/ui/page-transition';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuthStore } from '@/stores/auth-store';
+import {
+  FONT_SCALE_LABELS,
+  type FontScale,
+  useUiPreferencesStore,
+} from '@/stores/ui-preferences-store';
 
 import { ChangePasswordForm } from './change-password-form';
 import { MilestonesSection } from './milestones-section';
@@ -109,6 +114,7 @@ export default function ProfilePage() {
       </Card>
 
       <AppearanceCard />
+      <TextSizeCard />
 
       <ProfileForm user={user} onSuccess={checkAuth} />
       <MilestonesSection />
@@ -161,6 +167,67 @@ function AppearanceCard() {
             >
               <opt.icon className="h-5 w-5" />
               <span className="type-label-sm">{opt.label}</span>
+            </button>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+const FONT_SCALE_OPTIONS: FontScale[] = ['sm', 'base', 'lg', 'xl'];
+
+function TextSizeCard() {
+  const fontScale = useUiPreferencesStore((s) => s.fontScale);
+  const setFontScale = useUiPreferencesStore((s) => s.setFontScale);
+
+  return (
+    <Card className="mb-6">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Type className="h-4 w-4" aria-hidden="true" />
+          Tamaño de texto
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-muted-foreground type-body-sm">
+          Ajustá el tamaño de todo el texto de la app. Útil si preferís leer más cómodo.
+        </p>
+        <div
+          role="radiogroup"
+          aria-label="Tamaño de texto"
+          className="grid grid-cols-2 gap-2 sm:grid-cols-4"
+        >
+          {FONT_SCALE_OPTIONS.map((opt) => (
+            <button
+              key={opt}
+              type="button"
+              role="radio"
+              aria-checked={fontScale === opt}
+              onClick={() => setFontScale(opt)}
+              className={`flex flex-col items-center gap-1.5 rounded-lg border p-3 transition-all ${
+                fontScale === opt
+                  ? 'border-primary bg-primary/5 text-foreground'
+                  : 'border-border text-muted-foreground hover:bg-muted/40'
+              }`}
+            >
+              <span
+                aria-hidden="true"
+                className="font-semibold"
+                style={{
+                  fontSize:
+                    opt === 'sm'
+                      ? '0.8rem'
+                      : opt === 'base'
+                        ? '1rem'
+                        : opt === 'lg'
+                          ? '1.15rem'
+                          : '1.3rem',
+                }}
+              >
+                Aa
+              </span>
+              <span className="type-label-sm">{FONT_SCALE_LABELS[opt]}</span>
             </button>
           ))}
         </div>

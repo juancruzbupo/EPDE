@@ -236,8 +236,16 @@ body {
 }
 
 @layer base {
+  :root {
+    /* User-adjustable typography scale. Overridden by the font-scale-init inline script
+       and the ui-preferences-store. Values: sm=0.9 · base=1 · lg=1.15 · xl=1.3. */
+    --font-scale: 1;
+  }
   html {
     scroll-behavior: smooth;
+    /* Root font-size drives Tailwind's rem-based utilities (text-xs, text-sm, …)
+       so every piece of typography scales with the user's chosen size. */
+    font-size: calc(16px * var(--font-scale));
   }
   * {
     @apply border-border outline-ring/50;
@@ -257,71 +265,74 @@ body {
 }
 
 @layer utilities {
+  /* Typography utilities use rem so they scale with the root font-size driven by
+     --font-scale (see :root in @layer base). Keep numeric values anchored to a
+     16px base: px = rem × 16. */
   .type-display-lg {
     font-family: var(--font-heading);
-    font-size: 28px;
-    line-height: 34px;
+    font-size: 1.75rem; /* 28px */
+    line-height: 2.125rem; /* 34px */
     font-weight: 400;
   }
   .type-display-sm {
     font-family: var(--font-heading);
-    font-size: 22px;
-    line-height: 28px;
+    font-size: 1.375rem; /* 22px */
+    line-height: 1.75rem; /* 28px */
     font-weight: 400;
   }
   .type-title-lg {
-    font-size: 18px;
-    line-height: 24px;
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.5rem; /* 24px */
     font-weight: 700;
   }
   .type-title-md {
-    font-size: 16px;
-    line-height: 22px;
+    font-size: 1rem; /* 16px */
+    line-height: 1.375rem; /* 22px */
     font-weight: 700;
   }
   .type-title-sm {
-    font-size: 14px;
-    line-height: 20px;
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.25rem; /* 20px */
     font-weight: 700;
   }
   .type-body-lg {
-    font-size: 16px;
-    line-height: 22px;
+    font-size: 1rem; /* 16px */
+    line-height: 1.375rem; /* 22px */
     font-weight: 400;
   }
   .type-body-md {
-    font-size: 14px;
-    line-height: 20px;
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.25rem; /* 20px */
     font-weight: 400;
   }
   .type-body-sm {
-    font-size: 12px;
-    line-height: 16px;
+    font-size: 0.75rem; /* 12px */
+    line-height: 1rem; /* 16px */
     font-weight: 400;
   }
   .type-label-lg {
-    font-size: 14px;
-    line-height: 20px;
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.25rem; /* 20px */
     font-weight: 500;
   }
   .type-label-md {
-    font-size: 12px;
-    line-height: 16px;
+    font-size: 0.75rem; /* 12px */
+    line-height: 1rem; /* 16px */
     font-weight: 500;
   }
   .type-label-sm {
-    font-size: 11px;
-    line-height: 14px;
+    font-size: 0.6875rem; /* 11px */
+    line-height: 0.875rem; /* 14px */
     font-weight: 500;
   }
   .type-number-lg {
-    font-size: 24px;
-    line-height: 30px;
+    font-size: 1.5rem; /* 24px */
+    line-height: 1.875rem; /* 30px */
     font-weight: 700;
   }
   .type-number-md {
-    font-size: 18px;
-    line-height: 24px;
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.5rem; /* 24px */
     font-weight: 700;
   }
 }
