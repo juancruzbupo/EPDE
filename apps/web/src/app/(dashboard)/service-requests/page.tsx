@@ -150,6 +150,21 @@ function ServiceRequestsPageContent() {
       <PageHeader
         title="Solicitudes de Servicio"
         description="Gestión de solicitudes de servicio"
+        help={{
+          term: 'Solicitud de Servicio',
+          body: (
+            <>
+              <p>
+                Reportás un problema para que EPDE lo evalúe y te diga qué hacer. Ejemplo: &quot;Hay
+                humedad en la pared, no sé qué es&quot;.
+              </p>
+              <p className="mt-1">
+                Si ya sabés qué reparación necesitás y solo querés un precio, usá{' '}
+                <strong>Presupuesto</strong> en su lugar.
+              </p>
+            </>
+          ),
+        }}
         action={
           user?.role === UserRole.CLIENT ? (
             <Button data-tour="services-action" onClick={() => setCreateOpen(true)} size="sm">

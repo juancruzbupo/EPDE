@@ -154,6 +154,16 @@ function MaintenancePlansPageContent() {
       <PageHeader
         title="Planes de Mantenimiento"
         description="Todos los planes de mantenimiento de tus propiedades."
+        help={{
+          term: 'Plan de Mantenimiento',
+          body: (
+            <p>
+              La lista de tareas programadas para cuidar tu casa, con fechas y prioridades. La
+              arquitecta lo genera después de la inspección inicial. Cada propiedad tiene un plan
+              propio.
+            </p>
+          ),
+        }}
       />
 
       <div className="mb-4">

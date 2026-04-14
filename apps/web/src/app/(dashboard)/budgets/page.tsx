@@ -134,6 +134,21 @@ function BudgetsPageContent() {
       <PageHeader
         title="Presupuestos"
         description="Gestión de presupuestos"
+        help={{
+          term: 'Presupuesto',
+          body: (
+            <>
+              <p>
+                Pedís un precio para una reparación específica que <strong>ya sabés</strong> que
+                necesitás. Ejemplo: &quot;Las canaletas están rotas, ¿cuánto sale repararlas?&quot;
+              </p>
+              <p className="mt-1">
+                Si tenés un problema pero no sabés qué hacer, usá{' '}
+                <strong>Solicitud de Servicio</strong> en su lugar.
+              </p>
+            </>
+          ),
+        }}
         action={
           user?.role === UserRole.CLIENT ? (
             <Button data-tour="budgets-action" onClick={() => setCreateOpen(true)} size="sm">
