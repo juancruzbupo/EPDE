@@ -314,6 +314,29 @@ async function main() {
     console.log('Demo data already exists, skipping');
   }
 
+  // Idempotent fixture used by the inspection→plan E2E spec. Runs on every seed
+  // pass so it survives re-runs and stays in a pristine no-plan state. If the
+  // previous run generated a plan from it, the cascade on Property delete takes
+  // the checklist/plan/tasks with it.
+  const e2eLaura = await prisma.user.findUnique({ where: { email: 'laura.fernandez@demo.com' } });
+  const e2eAdmin = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
+  if (e2eLaura && e2eAdmin) {
+    const E2E_ADDRESS = 'Propiedad E2E sin plan';
+    await prisma.property.deleteMany({ where: { userId: e2eLaura.id, address: E2E_ADDRESS } });
+    await prisma.property.create({
+      data: {
+        userId: e2eLaura.id,
+        address: E2E_ADDRESS,
+        city: 'CABA',
+        type: 'APARTMENT',
+        yearBuilt: 2020,
+        squareMeters: 80,
+        createdBy: e2eAdmin.id,
+      },
+    });
+    console.log(`E2E fixture: recreated property "${E2E_ADDRESS}" (no plan, no inspection)`);
+  }
+
   console.log('Seeding complete!');
 }
 
