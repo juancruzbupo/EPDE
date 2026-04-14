@@ -4,6 +4,14 @@ import tsParser from '@typescript-eslint/parser';
 import prettierConfig from 'eslint-config-prettier';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 
+import noTxWithoutSoftDeleteFilter from './eslint-rules/no-tx-without-soft-delete-filter.mjs';
+
+const localPlugin = {
+  rules: {
+    'no-tx-without-soft-delete-filter': noTxWithoutSoftDeleteFilter,
+  },
+};
+
 export default [
   js.configs.recommended,
   {
@@ -51,6 +59,21 @@ export default [
     files: ['packages/shared/**/*.ts'],
     rules: {
       'no-redeclare': 'off',
+    },
+  },
+  // ── Prisma $transaction soft-delete guardrail (API only) ─────────────────
+  // The Prisma soft-delete extension does NOT apply inside $transaction.
+  // Reads/updates on soft-deletable models must set `deletedAt: null` in where,
+  // or `deletedAt: <date>` in data for cascade soft-deletes. See the rule file
+  // header and apps/api/src/prisma/prisma.service.ts for the underlying trap.
+  {
+    files: ['apps/api/src/**/*.ts'],
+    ignores: ['apps/api/src/**/*.spec.ts'],
+    plugins: {
+      local: localPlugin,
+    },
+    rules: {
+      'local/no-tx-without-soft-delete-filter': 'error',
     },
   },
   // ── Module Boundary Rules (API) ───────────────────────────────────────────

@@ -184,6 +184,7 @@ export class ServiceRequestsRepository extends BaseRepository<ServiceRequest, 's
           });
         }
 
+        // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- serviceRequest was just created in this transaction; soft-delete state is irrelevant.
         return tx.serviceRequest.findUnique({
           where: { id: serviceRequest.id },
           include: SERVICE_REQUEST_DETAIL_INCLUDE,

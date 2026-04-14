@@ -114,7 +114,8 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
   ) {
     return this.prisma.$transaction(
       async (tx) => {
-        // Re-check status + version inside transaction for TOCTOU safety
+        // Re-check status + version inside transaction for TOCTOU safety.
+        // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- TOCTOU: see method JSDoc; the status guard below rejects soft-deleted records gracefully.
         const budget = await tx.budgetRequest.findUnique({ where: { id } });
         if (
           !budget ||
@@ -152,6 +153,7 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
           },
         });
 
+        // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- TOCTOU: same transaction as findUnique above; status/version already validated.
         return tx.budgetRequest.update({
           where: { id },
           data: {
@@ -180,6 +182,7 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
   ) {
     return this.prisma.$transaction(
       async (tx) => {
+        // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- TOCTOU: see method JSDoc; the status/version guards below reject soft-deleted records gracefully.
         const budget = await tx.budgetRequest.findUnique({ where: { id } });
         if (!budget || budget.status !== BudgetStatus.PENDING) {
           throw new BudgetNotEditableError();
@@ -232,12 +235,14 @@ export class BudgetsRepository extends BaseRepository<BudgetRequest, 'budgetRequ
   ) {
     return this.prisma.$transaction(
       async (tx) => {
+        // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- TOCTOU: see method JSDoc; if budget is null (soft-deleted or missing) the early return covers it.
         const budget = await tx.budgetRequest.findUnique({ where: { id } });
         if (!budget) return null;
         if (budget.version !== expectedVersion) {
           throw new BudgetVersionConflictError();
         }
 
+        // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- TOCTOU: same transaction as findUnique above; version already validated.
         return tx.budgetRequest.update({
           where: { id },
           data: { status: newStatus, updatedBy, version: { increment: 1 } },

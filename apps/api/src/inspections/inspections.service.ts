@@ -398,7 +398,8 @@ export class InspectionsService {
               },
             });
 
-            // Link the inspection item to the created task
+            // Link the inspection item to the created task.
+            // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- item comes from findByIdWithActiveItems, which already filters deletedAt: null on both the checklist and its items.
             await tx.inspectionItem.update({
               where: { id: item.id },
               data: { taskId: task.id },
@@ -449,11 +450,13 @@ export class InspectionsService {
           // later verifyChecklistAccessAndEditable / verifyItemAccessAndEditable
           // guards key off, and it stays in the same transaction as the plan/task
           // creation so an aborted run never leaves a half-locked checklist.
+          // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- checklist was validated by findByIdWithActiveItems at the top of this method; id is live.
           await tx.inspectionChecklist.update({
             where: { id: checklistId },
             data: { status: 'COMPLETED', completedAt: new Date() },
           });
 
+          // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- plan was just created in this transaction; soft-delete state is irrelevant.
           return tx.maintenancePlan.findUnique({
             where: { id: plan.id },
             include: { tasks: { orderBy: { order: 'asc' } } },

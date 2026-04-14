@@ -127,6 +127,7 @@ export class TasksRepository extends BaseRepository<Task, 'task'> {
           include: { user: { select: { id: true, name: true } } },
         });
 
+        // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- taskId is pre-validated by TaskLifecycleService.verifyTaskAccess (findById on the soft-delete extension) before this method is called.
         const updatedTask = await tx.task.update({
           where: { id: taskId },
           data: { status: TaskStatus.PENDING, nextDueDate: newDueDate },
