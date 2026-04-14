@@ -20,11 +20,13 @@ function StatusSection({
   tasks,
   defaultOpen,
   onTaskClick,
+  onTaskComplete,
 }: {
   status: TaskStatus;
   tasks: TaskListItem[];
   defaultOpen: boolean;
   onTaskClick: (task: TaskListItem) => void;
+  onTaskComplete?: (task: TaskListItem) => void;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
@@ -55,7 +57,12 @@ function StatusSection({
       {open && (
         <div className="space-y-1.5 pl-6">
           {visibleTasks.map((task) => (
-            <TaskRow key={task.id} task={task} onClick={() => onTaskClick(task)} />
+            <TaskRow
+              key={task.id}
+              task={task}
+              onClick={() => onTaskClick(task)}
+              onComplete={onTaskComplete}
+            />
           ))}
           {hasMore && (
             <button
@@ -88,6 +95,7 @@ export interface TaskGroupedListProps {
   displayStatuses: TaskStatus[];
   hasActiveFilters: boolean;
   onTaskClick: (task: TaskListItem) => void;
+  onTaskComplete?: (task: TaskListItem) => void;
 }
 
 export const TaskGroupedList = React.memo(function TaskGroupedList({
@@ -99,6 +107,7 @@ export const TaskGroupedList = React.memo(function TaskGroupedList({
   displayStatuses,
   hasActiveFilters,
   onTaskClick,
+  onTaskComplete,
 }: TaskGroupedListProps) {
   if (isLoading) {
     return (
@@ -161,6 +170,7 @@ export const TaskGroupedList = React.memo(function TaskGroupedList({
           tasks={grouped.get(status) ?? []}
           defaultOpen
           onTaskClick={onTaskClick}
+          onTaskComplete={onTaskComplete}
         />
       ))}
     </div>

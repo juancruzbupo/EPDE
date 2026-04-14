@@ -6,45 +6,90 @@ import {
   TASK_PRIORITY_HINTS,
   TASK_PRIORITY_LABELS,
   TaskPriority,
+  TaskStatus,
 } from '@epde/shared';
+import { CheckCircle } from 'lucide-react';
 import React from 'react';
 
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export interface TaskRowProps {
   task: TaskListItem;
   onClick: () => void;
+  onComplete?: (task: TaskListItem) => void;
 }
 
-export const TaskRow = React.memo(function TaskRow({ task, onClick }: TaskRowProps) {
+const COMPLETABLE: TaskStatus[] = [TaskStatus.PENDING, TaskStatus.UPCOMING, TaskStatus.OVERDUE];
+
+export const TaskRow = React.memo(function TaskRow({ task, onClick, onComplete }: TaskRowProps) {
+  const isOverdue = task.nextDueDate ? new Date(task.nextDueDate) < new Date() : false;
+  const canComplete = COMPLETABLE.includes(task.status);
+
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
-      className="bg-card hover:bg-muted/40 w-full rounded-lg border p-3 text-left transition-all active:opacity-60"
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      className={`bg-card hover:bg-muted/40 hover:border-border/80 flex w-full cursor-pointer flex-col items-stretch gap-3 rounded-lg border p-3 text-left shadow-xs transition-all active:opacity-60 sm:flex-row sm:items-center sm:gap-4 ${
+        isOverdue ? 'border-l-destructive border-l-4' : ''
+      }`}
     >
-      <div className="mb-1 flex items-start justify-between gap-2">
-        <span className="type-title-sm leading-tight">{task.name}</span>
-        <Badge
-          variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'}
-          className="text-xs"
-          title={TASK_PRIORITY_HINTS[task.priority]}
-        >
-          {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
-        </Badge>
+      <div className="min-w-0 flex-1 space-y-1">
+        {/* Title + priority badge — inline so badge stays with last word */}
+        <p className="type-title-sm leading-snug">
+          {task.name}{' '}
+          <Badge
+            variant={PRIORITY_VARIANT[task.priority] ?? 'secondary'}
+            className="relative top-[-1px] ml-0.5 inline-flex text-xs"
+            title={TASK_PRIORITY_HINTS[task.priority]}
+          >
+            {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
+          </Badge>
+        </p>
+
+        {/* Metadata — plain text flow */}
+        <p className="text-muted-foreground type-body-sm leading-relaxed">
+          {task.category.name}
+          {task.sector && ` · ${PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}`}
+          {' · '}
+          {task.maintenancePlan.property.address}
+          {task.nextDueDate && (
+            <>
+              {' · '}
+              <span className={isOverdue ? 'text-destructive font-medium' : ''}>
+                {formatRelativeDate(new Date(task.nextDueDate))}
+              </span>
+            </>
+          )}
+          {(task.priority === TaskPriority.HIGH || task.priority === TaskPriority.URGENT) && (
+            <span className="italic"> · {TASK_PRIORITY_HINTS[task.priority]}</span>
+          )}
+        </p>
       </div>
 
-      <p className="text-muted-foreground type-body-sm mt-0.5 leading-relaxed">
-        {task.category.name}
-        {task.sector && ` · ${PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}`}
-        {' · '}
-        {task.maintenancePlan.property.address}
-        {task.nextDueDate && ` · ${formatRelativeDate(new Date(task.nextDueDate))}`}
-        {(task.priority === TaskPriority.HIGH || task.priority === TaskPriority.URGENT) && (
-          <span className="italic"> · {TASK_PRIORITY_HINTS[task.priority]}</span>
-        )}
-      </p>
-    </button>
+      {canComplete && onComplete && (
+        <Button
+          size="sm"
+          variant="outline"
+          className="w-full shrink-0 sm:w-auto"
+          onClick={(e) => {
+            e.stopPropagation();
+            onComplete(task);
+          }}
+        >
+          <CheckCircle className="mr-1.5 h-3.5 w-3.5" />
+          Registrar inspección
+        </Button>
+      )}
+    </div>
   );
 });
 

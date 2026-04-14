@@ -71,10 +71,11 @@ export default function TasksPage() {
   }, [searchParams, tasks]);
 
   // Fetch full task detail when a task is selected
-  const { data: taskDetail } = useTaskDetail(
-    selectedTask?.maintenancePlan.id ?? '',
-    selectedTask?.id ?? '',
-  );
+  const {
+    data: taskDetail,
+    isError: isTaskDetailError,
+    refetch: refetchTaskDetail,
+  } = useTaskDetail(selectedTask?.maintenancePlan.id ?? '', selectedTask?.id ?? '');
 
   const propertyOptions = useMemo(() => {
     if (!tasks) return [];
@@ -144,6 +145,17 @@ export default function TasksPage() {
     setSelectedTask(task);
   }, []);
 
+  const handleTaskComplete = useCallback((task: TaskListItem) => {
+    setSelectedTask(task);
+    // Defer so the detail sheet mounts first, then the complete modal opens on top.
+    setTimeout(() => {
+      setCompletingTask({
+        ...task,
+        maintenancePlanId: task.maintenancePlan.id,
+      } as unknown as TaskPublic);
+    }, 300);
+  }, []);
+
   const toggleStatus = useCallback((status: TaskStatus) => {
     setActiveStatus((prev) => (prev === status ? null : status));
   }, []);
@@ -190,6 +202,7 @@ export default function TasksPage() {
         displayStatuses={displayStatuses}
         hasActiveFilters={hasActiveFilters}
         onTaskClick={handleTaskClick}
+        onTaskComplete={handleTaskComplete}
       />
 
       {/* Task detail sheet — loads full task detail on demand */}
@@ -200,6 +213,8 @@ export default function TasksPage() {
         }}
         task={taskDetail ?? null}
         planId={selectedTask?.maintenancePlan.id ?? ''}
+        isError={isTaskDetailError}
+        onRetry={() => void refetchTaskDetail()}
         onComplete={(task) => {
           setCompletingTask(task);
         }}

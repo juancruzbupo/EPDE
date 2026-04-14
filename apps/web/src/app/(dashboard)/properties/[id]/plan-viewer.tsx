@@ -1,5 +1,6 @@
 'use client';
 
+import type { PropertySector } from '@epde/shared';
 import {
   formatRelativeDate,
   PLAN_STATUS_LABELS,
@@ -16,7 +17,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { ErrorState } from '@/components/error-state';
 import { PlanViewerTour } from '@/components/onboarding-tour';
-import { SearchInput } from '@/components/search-input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,16 +29,10 @@ import { cn } from '@/lib/utils';
 
 import { CreateServiceDialog } from '../../service-requests/create-service-dialog';
 import { CompleteTaskDialog } from './complete-task-dialog';
+import { PlanFilters } from './plan-filters';
 import { TaskDetailSheet } from './task-detail-sheet';
 
 const SHOW_SEARCH_THRESHOLD = 5;
-
-const PRIORITY_OPTIONS: { value: TaskPriority | 'all'; label: string }[] = [
-  { value: 'all', label: 'Todas' },
-  { value: TaskPriority.HIGH, label: 'Alta' },
-  { value: TaskPriority.MEDIUM, label: 'Media' },
-  { value: TaskPriority.LOW, label: 'Baja' },
-];
 
 interface PlanViewerProps {
   planId: string;
@@ -125,42 +119,44 @@ function CategorySection({
                     onTaskClick(task);
                   }
                 }}
-                className={`bg-card hover:bg-muted/40 w-full cursor-pointer space-y-1.5 rounded-lg border p-3 text-left transition-all active:opacity-60 ${
+                className={`bg-card hover:bg-muted/40 hover:border-border/80 flex w-full cursor-pointer flex-col items-stretch gap-3 rounded-lg border p-3 text-left shadow-xs transition-all active:opacity-60 sm:flex-row sm:items-center sm:gap-4 ${
                   isOverdue ? 'border-l-destructive border-l-4' : ''
                 }`}
               >
-                {/* Title + status badge — inline so badge stays with last word */}
-                <p className="text-sm leading-snug font-medium">
-                  {task.name}{' '}
-                  <Badge
-                    variant={TASK_STATUS_VARIANT[task.status] ?? 'secondary'}
-                    className="relative top-[-1px] ml-0.5 inline-flex text-xs"
-                  >
-                    {TASK_STATUS_LABELS[task.status] ?? task.status}
-                  </Badge>
-                </p>
+                <div className="min-w-0 flex-1 space-y-1">
+                  {/* Title + status badge — inline so badge stays with last word */}
+                  <p className="text-sm leading-snug font-medium">
+                    {task.name}{' '}
+                    <Badge
+                      variant={TASK_STATUS_VARIANT[task.status] ?? 'secondary'}
+                      className="relative top-[-1px] ml-0.5 inline-flex text-xs"
+                    >
+                      {TASK_STATUS_LABELS[task.status] ?? task.status}
+                    </Badge>
+                  </p>
 
-                {/* Metadata — plain text flow */}
-                <p className="text-muted-foreground text-xs leading-relaxed">
-                  {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
-                  {task.sector && ` · ${PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}`}
-                  {` · ${RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}`}
-                  {task.nextDueDate && (
-                    <>
-                      {' · '}
-                      <span className={isOverdue ? 'text-destructive font-medium' : ''}>
-                        {formatRelativeDate(new Date(task.nextDueDate))}
-                      </span>
-                    </>
-                  )}
-                </p>
+                  {/* Metadata — plain text flow */}
+                  <p className="text-muted-foreground text-xs leading-relaxed">
+                    {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
+                    {task.sector && ` · ${PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}`}
+                    {` · ${RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}`}
+                    {task.nextDueDate && (
+                      <>
+                        {' · '}
+                        <span className={isOverdue ? 'text-destructive font-medium' : ''}>
+                          {formatRelativeDate(new Date(task.nextDueDate))}
+                        </span>
+                      </>
+                    )}
+                  </p>
+                </div>
 
-                {/* Action button — full width on mobile */}
+                {/* Action button — right-aligned on desktop, full width on mobile */}
                 {canComplete(task.status) && (
                   <Button
                     size="sm"
                     variant="outline"
-                    className="w-full sm:w-auto"
+                    className="w-full shrink-0 sm:w-auto"
                     onClick={(e) => {
                       e.stopPropagation();
                       onComplete(task);
@@ -203,6 +199,7 @@ export function PlanViewer({ planId, propertyId, highlightTaskId }: PlanViewerPr
   } | null>(null);
   const [search, setSearch] = useState('');
   const [priority, setPriority] = useState<TaskPriority | 'all'>('all');
+  const [sectorFilter, setSectorFilter] = useState<PropertySector | 'all'>('all');
   const debouncedSearch = useDebounce(search);
 
   const tasks = plan?.tasks ?? [];
@@ -212,6 +209,9 @@ export function PlanViewer({ planId, propertyId, highlightTaskId }: PlanViewerPr
     if (priority !== 'all') {
       result = result.filter((t) => t.priority === priority);
     }
+    if (sectorFilter !== 'all') {
+      result = result.filter((t) => t.sector === sectorFilter);
+    }
     if (debouncedSearch) {
       const q = debouncedSearch.toLowerCase();
       result = result.filter(
@@ -219,7 +219,7 @@ export function PlanViewer({ planId, propertyId, highlightTaskId }: PlanViewerPr
       );
     }
     return result;
-  }, [tasks, priority, debouncedSearch]);
+  }, [tasks, priority, sectorFilter, debouncedSearch]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, { name: string; tasks: TaskPublic[] }>();
@@ -291,32 +291,15 @@ export function PlanViewer({ planId, propertyId, highlightTaskId }: PlanViewerPr
                 <StatusSummary tasks={tasks} />
               </div>
 
-              <div className="flex flex-wrap items-center gap-3">
-                {tasks.length >= SHOW_SEARCH_THRESHOLD && (
-                  <SearchInput
-                    value={search}
-                    onChange={setSearch}
-                    placeholder="Buscar tarea o categoría..."
-                  />
-                )}
-                <div className="flex gap-1">
-                  {PRIORITY_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => setPriority(opt.value)}
-                      aria-pressed={priority === opt.value}
-                      className={cn(
-                        'min-h-[44px] rounded-full px-3 py-1 text-xs font-medium transition-colors',
-                        priority === opt.value
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted text-foreground hover:bg-muted/80',
-                      )}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <PlanFilters
+                search={search}
+                onSearchChange={setSearch}
+                showSearch={tasks.length >= SHOW_SEARCH_THRESHOLD}
+                priority={priority}
+                onPriorityChange={setPriority}
+                sectorFilter={sectorFilter}
+                onSectorChange={setSectorFilter}
+              />
 
               {filtered.length === 0 ? (
                 <p className="text-muted-foreground py-4 text-center text-sm">

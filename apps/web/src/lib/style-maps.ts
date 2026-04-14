@@ -30,12 +30,13 @@ export const PROFESSIONAL_REQ_COLORS: Record<ProfessionalRequirement, string> = 
 
 // ─── Task status display maps (shared across tasks page, plan-viewer, plan-editor) ───
 
-/** Display order: actionable items first. COMPLETED excluded — tasks never stay in that status
- * (they recycle back to PENDING after completion; completion is tracked via TaskLog). */
+/** Display order by urgency: overdue → upcoming (≤30 días) → pending (>30 días). COMPLETED excluded —
+ * tasks never stay in that status (they recycle back to PENDING after completion; completion is
+ * tracked via TaskLog). */
 export const TASK_STATUS_ORDER: TaskStatus[] = [
   TaskStatus.OVERDUE,
-  TaskStatus.PENDING,
   TaskStatus.UPCOMING,
+  TaskStatus.PENDING,
 ];
 
 export const TASK_STATUS_ICONS: Record<TaskStatus, LucideIcon> = {

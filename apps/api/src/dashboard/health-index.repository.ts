@@ -45,7 +45,14 @@ export class HealthIndexRepository {
       investment: z.number(),
       trend: z.number(),
     }),
-    sectorScores: z.array(z.object({ sector: z.string(), score: z.number(), overdue: z.number() })),
+    sectorScores: z.array(
+      z.object({
+        sector: z.string(),
+        score: z.number(),
+        overdue: z.number(),
+        total: z.number(),
+      }),
+    ),
   });
 
   constructor(
@@ -172,7 +179,7 @@ export class HealthIndexRepository {
           investment: number;
           trend: number;
         };
-        sectorScores: { sector: string; score: number; overdue: number }[];
+        sectorScores: { sector: string; score: number; overdue: number; total: number }[];
       }
     >
   > {
@@ -186,7 +193,7 @@ export class HealthIndexRepository {
         investment: number;
         trend: number;
       };
-      sectorScores: { sector: string; score: number; overdue: number }[];
+      sectorScores: { sector: string; score: number; overdue: number; total: number }[];
     };
     const result = new Map<string, HealthResult>();
     if (planIds.length === 0) return result;

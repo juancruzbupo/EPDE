@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
+import { ErrorState } from '@/components/error-state';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -35,6 +36,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { TaskDetailPublic, TaskPublic } from '@/lib/api/maintenance-plans';
 import { PROFESSIONAL_REQ_COLORS, TASK_TYPE_COLORS } from '@/lib/style-maps';
@@ -47,6 +49,8 @@ interface TaskDetailSheetProps {
   onOpenChange: (open: boolean) => void;
   task: (TaskPublic | TaskDetailPublic) | null;
   planId: string;
+  isError?: boolean;
+  onRetry?: () => void;
   onComplete?: (task: TaskPublic) => void;
   onRequestService?: (task: TaskPublic) => void;
 }
@@ -56,12 +60,49 @@ export function TaskDetailSheet({
   onOpenChange,
   task,
   planId,
+  isError,
+  onRetry,
   onComplete,
   onRequestService,
 }: TaskDetailSheetProps) {
   const [techDescOpen, setTechDescOpen] = useState(false);
 
-  if (!task) return null;
+  if (!task) {
+    if (!open) return null;
+    return (
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent className="flex w-full flex-col sm:max-w-lg">
+          <SheetHeader className="px-4 pb-4 sm:px-6">
+            <SheetTitle className="text-lg leading-tight">
+              {isError ? 'No se pudo cargar la tarea' : 'Cargando tarea...'}
+            </SheetTitle>
+            <SheetDescription className="sr-only">Detalle de tarea</SheetDescription>
+          </SheetHeader>
+          <Separator />
+          <div className="flex-1 overflow-y-auto px-4 pb-4 sm:px-6 sm:pb-6">
+            {isError ? (
+              <ErrorState
+                message="No se pudo cargar el detalle de la tarea"
+                onRetry={onRetry}
+                className="justify-center py-16"
+              />
+            ) : (
+              <div className="space-y-4 py-4">
+                <div className="flex flex-wrap gap-2">
+                  <Skeleton className="h-5 w-20" />
+                  <Skeleton className="h-5 w-28" />
+                  <Skeleton className="h-5 w-16" />
+                </div>
+                <Skeleton className="h-24 w-full rounded-lg" />
+                <Skeleton className="h-16 w-full rounded-lg" />
+                <Skeleton className="h-32 w-full rounded-lg" />
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
 
   const taskLogs = 'taskLogs' in task ? task.taskLogs : undefined;
   const lastLog = taskLogs?.[0];
