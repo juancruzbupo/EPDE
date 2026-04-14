@@ -40,6 +40,11 @@
       "types": "./dist/seed/index.d.ts",
       "import": "./dist/seed/index.js",
       "require": "./dist/seed/index.cjs"
+    },
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "import": "./dist/testing/index.js",
+      "require": "./dist/testing/index.cjs"
     }
   },
   "peerDependencies": {

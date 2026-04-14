@@ -6,6 +6,7 @@ export default defineConfig({
   entry: {
     index: 'src/index.ts',
     'seed/index': 'src/seed/template-data.ts',
+    'testing/index': 'src/testing/index.ts',
   },
   format: ['esm', 'cjs'],
   dts: true,
