@@ -1,6 +1,7 @@
 import type { TaskPriority, TaskStatus } from '@epde/shared';
 import {
   formatRelativeDate,
+  getRiskLevel,
   ProfessionalRequirement,
   PROPERTY_SECTOR_LABELS,
   TASK_PRIORITY_LABELS,
@@ -92,26 +93,22 @@ const TaskCard = memo(function TaskCard({ task }: { task: TaskListItem }) {
           {task.category.name}
           {task.sector && ` · ${PROPERTY_SECTOR_LABELS[task.sector] ?? task.sector}`}
         </Text>
-        {task.riskScore > 0 && (
-          <View className="flex-row items-center gap-1">
-            <Text
-              style={TYPE.labelSm}
-              className={
-                task.riskScore >= 12
-                  ? 'text-destructive'
-                  : task.riskScore >= 6
-                    ? 'text-warning'
-                    : 'text-muted-foreground'
-              }
-            >
-              Riesgo: {task.riskScore}
-            </Text>
-            <HelpHint term="Índice de riesgo">
-              Número que indica urgencia. Más alto = atender primero. Los problemas estructurales
-              (techo, cimientos) puntúan más alto porque escalan rápido si no se atienden.
-            </HelpHint>
-          </View>
-        )}
+        {task.riskScore > 0 &&
+          (() => {
+            const risk = getRiskLevel(task.riskScore);
+            return (
+              <View className="flex-row items-center gap-1">
+                <Text style={TYPE.labelSm} className={risk.colorClass}>
+                  Riesgo: {task.riskScore} · {risk.label}
+                </Text>
+                <HelpHint term="Índice de riesgo">
+                  Número que indica urgencia. Más alto = atender primero. Los problemas
+                  estructurales (techo, cimientos) puntúan más alto porque escalan rápido si no se
+                  atienden.
+                </HelpHint>
+              </View>
+            );
+          })()}
       </View>
       {task.professionalRequirement !== ProfessionalRequirement.OWNER_CAN_DO && (
         <Text style={TYPE.labelSm} className="text-warning mt-0.5">

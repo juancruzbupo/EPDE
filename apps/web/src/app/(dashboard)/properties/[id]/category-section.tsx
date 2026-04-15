@@ -1,4 +1,5 @@
 import {
+  getRiskLevel,
   PRIORITY_VARIANT,
   RECURRENCE_TYPE_LABELS,
   TASK_PRIORITY_LABELS,
@@ -107,17 +108,21 @@ export const CategorySection = memo(function CategorySection({
                   >
                     {TASK_PRIORITY_LABELS[task.priority] ?? task.priority}
                   </Badge>
-                  {task.riskScore > 0 && (
-                    <>
-                      <span className="text-muted-foreground/40">·</span>
-                      <span
-                        className={`text-xs font-medium ${task.riskScore >= 12 ? 'text-destructive' : task.riskScore >= 6 ? 'text-warning' : 'text-muted-foreground'}`}
-                        title="Índice de riesgo"
-                      >
-                        Riesgo: {task.riskScore}
-                      </span>
-                    </>
-                  )}
+                  {task.riskScore > 0 &&
+                    (() => {
+                      const risk = getRiskLevel(task.riskScore);
+                      return (
+                        <>
+                          <span className="text-muted-foreground/40">·</span>
+                          <span
+                            className={`text-xs font-medium ${risk.colorClass}`}
+                            title={`Índice de riesgo · ${risk.label}`}
+                          >
+                            Riesgo: {task.riskScore} · {risk.label}
+                          </span>
+                        </>
+                      );
+                    })()}
                   <span className="text-muted-foreground/40">·</span>
                   <span>{RECURRENCE_TYPE_LABELS[task.recurrenceType] ?? task.recurrenceType}</span>
                   <span className="text-muted-foreground/40">·</span>

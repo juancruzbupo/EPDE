@@ -1,6 +1,7 @@
 import type { TaskPublic } from '@epde/shared';
 import {
   formatRelativeDate,
+  getRiskLevel,
   PROPERTY_SECTOR_LABELS,
   RECURRENCE_TYPE_LABELS,
   TaskStatus,
@@ -8,6 +9,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 
+import { HelpHint } from '@/components/help-hint';
 import { PriorityBadge, TaskStatusBadge } from '@/components/status-badge';
 import { TYPE } from '@/lib/fonts';
 
@@ -47,21 +49,26 @@ export function PropertyTaskCard({ task, planId }: PropertyTaskCardProps) {
       </View>
       <View className="ml-4 flex-row flex-wrap items-center gap-x-2 gap-y-0.5">
         <TaskStatusBadge status={task.status} />
-        {task.riskScore > 0 && (
-          <Text
-            style={TYPE.labelMd}
-            className={
-              task.riskScore >= 12
-                ? 'text-destructive'
-                : task.riskScore >= 6
-                  ? 'text-warning'
-                  : 'text-muted-foreground'
-            }
-            accessibilityLabel={`Riesgo: ${task.riskScore}`}
-          >
-            Riesgo: {task.riskScore}
-          </Text>
-        )}
+        {task.riskScore > 0 &&
+          (() => {
+            const risk = getRiskLevel(task.riskScore);
+            return (
+              <View className="flex-row items-center gap-1">
+                <Text
+                  style={TYPE.labelMd}
+                  className={risk.colorClass}
+                  accessibilityLabel={`Riesgo: ${task.riskScore}, ${risk.label}`}
+                >
+                  Riesgo: {task.riskScore} · {risk.label}
+                </Text>
+                <HelpHint term="Índice de riesgo">
+                  Número que indica urgencia. Más alto = atender primero. Los problemas
+                  estructurales (techo, cimientos) puntúan más alto porque escalan rápido si no se
+                  atienden.
+                </HelpHint>
+              </View>
+            );
+          })()}
         {task.sector && (
           <Text
             style={TYPE.labelMd}

@@ -42,3 +42,31 @@ export function computeRiskScore(
 
   return Math.round(priorityW * severityW * sectorW);
 }
+
+/**
+ * Categorizes a numeric riskScore into a human-readable level for UI hints
+ * + the matching Tailwind text color class. Centralized so web and mobile
+ * stay in sync — adjust thresholds here once and every surface follows.
+ *
+ * Thresholds:
+ * - score >= 12 → high (red, "Atender ya")
+ * - score >=  6 → medium (warning yellow, "Importante")
+ * - score >   0 → low (muted, "Cuando puedas")
+ * - score === 0 → none (no badge — caller should hide)
+ */
+export type RiskLevel = 'high' | 'medium' | 'low' | 'none';
+
+export interface RiskInfo {
+  level: RiskLevel;
+  /** Tailwind text color class shared by web (Tailwind) and mobile (NativeWind). */
+  colorClass: string;
+  /** Short Spanish hint shown next to the number. */
+  label: string;
+}
+
+export function getRiskLevel(score: number): RiskInfo {
+  if (score <= 0) return { level: 'none', colorClass: 'text-muted-foreground', label: '' };
+  if (score >= 12) return { level: 'high', colorClass: 'text-destructive', label: 'Atender ya' };
+  if (score >= 6) return { level: 'medium', colorClass: 'text-warning', label: 'Importante' };
+  return { level: 'low', colorClass: 'text-muted-foreground', label: 'Cuando puedas' };
+}

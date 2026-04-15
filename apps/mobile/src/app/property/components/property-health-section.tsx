@@ -9,6 +9,7 @@ import React from 'react';
 import { Linking, Pressable, Text, View } from 'react-native';
 
 import { CollapsibleSection } from '@/components/collapsible-section';
+import { HelpHint } from '@/components/help-hint';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { getMobileImpactMessage } from '@/lib/impact-message';
@@ -74,6 +75,17 @@ export const PropertyHealthSection = React.memo(function PropertyHealthSection({
   return (
     <CollapsibleSection title={`Salud (ISV: ${healthIndex.score}/100)`} defaultOpen>
       <View className="gap-3">
+        <View className="flex-row items-center gap-1">
+          <Text style={TYPE.bodySm} className="text-muted-foreground">
+            ¿Qué es esto?
+          </Text>
+          <HelpHint term="Índice de Salud de la Vivienda (ISV)">
+            Un número de 0 a 100 que resume cuánto cuidado necesita tu vivienda. Arriba de 60 está
+            bien mantenida; debajo de 60 las reparaciones futuras van a ser más caras. Se calcula
+            con 5 dimensiones: si estás al día con las tareas, en qué condición están las cosas,
+            cuánto revisamos, si prevenís o reparás, y si mejora o empeora con el tiempo.
+          </HelpHint>
+        </View>
         <View className="flex-row items-center justify-between">
           <Text style={TYPE.numberLg} className={scoreColorClass(healthIndex.score)}>
             {healthIndex.score}

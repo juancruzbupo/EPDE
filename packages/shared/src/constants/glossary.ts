@@ -67,6 +67,17 @@ export const GLOSSARY: readonly GlossaryEntry[] = [
       'Indica si una tarea la podés hacer vos o si necesitás contratar a un especialista (plomero, electricista, etc.).',
   },
   {
+    term: 'Profesional matriculado',
+    aka: 'Especialista certificado',
+    definition:
+      'Un técnico inscripto en el colegio profesional de su rubro (gasista, electricista, plomero matriculado). Es obligatorio para trabajos donde la firma garantiza seguridad — por ejemplo, una habilitación de gas o una instalación eléctrica nueva.',
+  },
+  {
+    term: 'Estado de tarea',
+    definition:
+      'Dónde está cada tarea de tu plan: Próxima (todavía no es momento), Pendiente (ya toca hacerla), Vencida (pasó la fecha) o Completada (registrada con o sin foto).',
+  },
+  {
     term: 'Categoría',
     aka: 'Tipo de trabajo',
     definition:
