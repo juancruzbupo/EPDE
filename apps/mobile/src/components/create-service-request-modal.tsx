@@ -293,9 +293,19 @@ export function CreateServiceRequestModal({
         </View>
 
         <Animated.ScrollView style={contentStyle} contentContainerStyle={{ padding: 16 }}>
-          <Text style={TYPE.bodySm} className="text-muted-foreground mb-4">
-            Describí el problema. El equipo de EPDE evaluará tu solicitud.
-          </Text>
+          <View className="border-primary/30 bg-primary/5 mb-4 rounded-xl border p-3">
+            <Text style={TYPE.labelLg} className="text-foreground mb-1">
+              💡 ¿Cuándo conviene una solicitud de servicio?
+            </Text>
+            <Text style={TYPE.bodySm} className="text-foreground">
+              Cuando ves algo y no estás seguro de qué es. Ej: "apareció humedad en la pared, no sé
+              si es filtración o condensación". EPDE evalúa el caso y, si hace falta, te manda una
+              cotización.
+            </Text>
+            <Text style={TYPE.bodySm} className="text-muted-foreground mt-2">
+              Si ya sabés exactamente qué reparar, pedí un presupuesto directo.
+            </Text>
+          </View>
 
           <PropertyTaskSelector
             properties={properties}

@@ -158,6 +158,19 @@ export function CreateBudgetModal({
         </View>
 
         <Animated.ScrollView style={contentStyle} contentContainerStyle={{ padding: 16 }}>
+          <View className="border-primary/30 bg-primary/5 mb-4 rounded-xl border p-3">
+            <Text style={TYPE.labelLg} className="text-foreground mb-1">
+              💡 ¿Para qué sirve un presupuesto?
+            </Text>
+            <Text style={TYPE.bodySm} className="text-foreground">
+              Pedís un precio para una reparación que ya sabés que necesitás. Ej: "las canaletas
+              están rotas, ¿cuánto sale repararlas?". EPDE responde la cotización en 24-48 h.
+            </Text>
+            <Text style={TYPE.bodySm} className="text-muted-foreground mt-2">
+              Si todavía no sabés qué causa el problema, mejor abrí una solicitud de servicio.
+            </Text>
+          </View>
+
           <Text style={TYPE.labelLg} className="text-foreground mb-2">
             Propiedad
           </Text>

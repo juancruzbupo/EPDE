@@ -2,9 +2,11 @@
 
 import { type CreateBudgetRequestInput, createBudgetRequestSchema } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Lightbulb } from 'lucide-react';
 import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -101,6 +103,18 @@ export function CreateBudgetDialog({
           <DialogTitle>Solicitar Presupuesto</DialogTitle>
           <DialogDescription>Completá los datos para solicitar un presupuesto.</DialogDescription>
         </DialogHeader>
+        <Alert variant="default" className="border-primary/30 bg-primary/5">
+          <Lightbulb aria-hidden="true" />
+          <AlertTitle>¿Para qué sirve un presupuesto?</AlertTitle>
+          <AlertDescription>
+            Pedís un precio para una reparación que <strong>ya sabés que necesitás</strong>. Ej:
+            &laquo;las canaletas están rotas, ¿cuánto sale repararlas?&raquo;. EPDE responde con la
+            cotización en 24-48 h.
+            <br />
+            Si todavía no estás seguro de qué pasa (ej. ves humedad y no sabés la causa), usá una{' '}
+            <strong>solicitud de servicio</strong>.
+          </AlertDescription>
+        </Alert>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="propertyId">

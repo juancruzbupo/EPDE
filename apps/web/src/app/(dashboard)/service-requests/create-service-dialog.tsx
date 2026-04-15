@@ -8,11 +8,12 @@ import {
   ServiceUrgency,
 } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Upload, X } from 'lucide-react';
+import { Lightbulb, Upload, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -214,6 +215,18 @@ export function CreateServiceDialog({
             solicitud.
           </DialogDescription>
         </DialogHeader>
+        <Alert variant="default" className="border-primary/30 bg-primary/5">
+          <Lightbulb aria-hidden="true" />
+          <AlertTitle>¿Cuándo conviene una solicitud de servicio?</AlertTitle>
+          <AlertDescription>
+            Cuando ves algo y <strong>no estás seguro de qué es</strong> ni de qué hacer. Ej:
+            &laquo;apareció humedad en la pared, no sé si es filtración o condensación&raquo;. EPDE
+            evalúa el caso y, si hace falta, te manda una cotización.
+            <br />
+            Si ya sabés exactamente qué necesitás reparar, pedí un <strong>presupuesto</strong>{' '}
+            directo.
+          </AlertDescription>
+        </Alert>
         <form onSubmit={handleSubmit(onSubmit)} className="min-w-0 space-y-4">
           <div className="space-y-2">
             <Label htmlFor="propertyId">
