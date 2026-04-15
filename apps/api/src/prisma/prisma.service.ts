@@ -127,6 +127,55 @@ function softDeleteHandlers() {
   };
 }
 
+/**
+ * Models that opt into the soft-delete pattern. The Prisma extension
+ * (`buildSoftDeleteExtension` above) injects `deletedAt: null` into every
+ * findMany/findFirst/findUnique read for these models, and `softDeleteRecord`
+ * sets `deletedAt: <now>` instead of issuing a DELETE.
+ *
+ * ## Criteria for adding a model here
+ *
+ * Add a model to this list ONLY if all three apply:
+ *
+ *   1. **Audit relevance** — there is a legal, commercial, or operational
+ *      reason history must remain queryable. Audit logs do NOT belong here
+ *      — they're append-only by construction (no soft-delete needed).
+ *   2. **Recoverability is useful** — there is a realistic "undo delete"
+ *      flow someone might invoke (admin restores a client; user un-archives
+ *      a property). If the only outcome of "delete" is permanent removal,
+ *      hard-delete is fine.
+ *   3. **NOT a state machine** — the model's lifecycle is not modeled by a
+ *      status enum. If status transitions cover the "removed but visible"
+ *      case (e.g. `PlanStatus.ARCHIVED`, `BudgetStatus.REJECTED`), use the
+ *      state machine — adding soft-delete on top creates two ways to mean
+ *      "gone" and they will drift.
+ *
+ * ## Models that intentionally opt out
+ *
+ * - **MaintenancePlan** — uses `PlanStatus { DRAFT, ACTIVE, ARCHIVED }`. Plans
+ *   live in cycles, are never "deleted" — they're activated, archived, and
+ *   eventually superseded. See ADR-011.
+ * - **Referral** — append-only audit history; conversion is a one-way
+ *   transition (PENDING → CONVERTED). See ADR-010.
+ * - **TaskLog / TaskNote / BudgetAuditLog / ServiceRequestAuditLog /
+ *   Milestone / FailedNotification / PushTokens** — append-only or write-once
+ *   tables. Soft-delete adds an unused `deletedAt` column.
+ * - **Notification** — read state is mutated, but rows are hard-deleted on
+ *   user clear-all. No history value past inbox eviction.
+ *
+ * ## When you change this list
+ *
+ * Update **all** of these together:
+ *   1. This array (runtime extension behavior)
+ *   2. `SOFT_DELETABLE_MODELS` in `eslint-rules/no-tx-without-soft-delete-filter.mjs`
+ *      (lint-time enforcement; can't import this constant)
+ *   3. `SOFT_DELETABLE_MODELS` in
+ *      `eslint-rules/no-soft-deletable-include-without-filter.mjs`
+ *   4. The Prisma model: add `deletedAt DateTime?` and `@@index([deletedAt])`
+ *
+ * The drift test `soft-deletable-models-sync.test.ts` in `@epde/shared`
+ * will fail CI if (1) and (2)/(3) get out of sync.
+ */
 export const SOFT_DELETABLE_MODELS = [
   'user',
   'property',
