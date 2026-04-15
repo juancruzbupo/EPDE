@@ -15,7 +15,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { getAllTasks, getPlan, getPlans, updatePlan } from '@/lib/api/maintenance-plans';
 import { haptics } from '@/lib/haptics';
-import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
+import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 import { toast } from '@/lib/toast';
 
 export function usePlans() {
@@ -56,7 +56,7 @@ export function useUpdatePlan() {
       haptics.success();
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
-      invalidateClientDashboard(queryClient);
+      invalidateDashboard(queryClient);
       toast.success('Plan actualizado');
     },
     onError: (err) => {

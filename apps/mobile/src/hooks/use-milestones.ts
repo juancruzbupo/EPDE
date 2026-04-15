@@ -13,7 +13,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { activateStreakFreeze, getMilestones } from '@/lib/api/auth-features';
 import { haptics } from '@/lib/haptics';
-import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
+import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 import { toast } from '@/lib/toast';
 
 export function useMilestones() {
@@ -32,7 +32,7 @@ export function useStreakFreeze() {
     onSuccess: () => {
       haptics.success();
       toast.success('❄️ Freeze activado — tu racha está protegida este mes.', 4500);
-      invalidateClientDashboard(queryClient);
+      invalidateDashboard(queryClient);
     },
     onError: (err) => {
       haptics.error();

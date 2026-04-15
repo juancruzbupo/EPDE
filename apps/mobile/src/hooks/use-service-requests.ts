@@ -26,7 +26,7 @@ import {
   updateServiceStatus,
 } from '@/lib/api/service-requests';
 import { haptics } from '@/lib/haptics';
-import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
+import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 import { toast } from '@/lib/toast';
 
 /** Mobile is CLIENT-only — filters default to {} (no admin filtering needed). Web requires filters explicitly. */
@@ -61,7 +61,7 @@ export function useCreateServiceRequest() {
       haptics.success();
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
-      invalidateClientDashboard(queryClient);
+      invalidateDashboard(queryClient);
       toast.success('Solicitud creada. Podés seguir el estado en la sección de servicios.');
     },
     onError: (err) => {
@@ -130,7 +130,7 @@ export function useUpdateServiceStatus() {
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.serviceRequests] });
-      invalidateClientDashboard(queryClient);
+      invalidateDashboard(queryClient);
     },
   });
 }

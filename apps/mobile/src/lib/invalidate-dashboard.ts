@@ -2,13 +2,20 @@ import { QUERY_KEYS } from '@epde/shared';
 import type { QueryClient } from '@tanstack/react-query';
 
 /**
- * Invalidate client-only dashboard keys (stats + upcoming tasks + analytics).
+ * Invalidate every dashboard query key the mobile app uses.
  *
- * Mobile is client-only, so only CLIENT dashboard queries exist here.
- * Web's `invalidateDashboard()` invalidates both admin + client keys
- * because the web app serves both roles from a single dashboard.
+ * Mobile is client-only — the admin dashboard surfaces (`dashboardStats`,
+ * `dashboardActivity`, `dashboardAnalytics`) only exist in web. The
+ * naming matches `apps/web/src/lib/invalidate-dashboard.ts` on purpose so
+ * consumers read identically across platforms; the difference is in the
+ * implementation, not the call site.
+ *
+ * Parity contract (enforced by `invalidate-dashboard-parity.test.ts` in
+ * shared): both helpers MUST invalidate the three client dashboard keys
+ * (`dashboardClientStats`, `dashboardClientUpcoming`,
+ * `dashboardClientAnalytics`). Web additionally invalidates the admin keys.
  */
-export function invalidateClientDashboard(qc: QueryClient): void {
+export function invalidateDashboard(qc: QueryClient): void {
   qc.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientStats] });
   qc.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientUpcoming] });
   qc.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardClientAnalytics] });

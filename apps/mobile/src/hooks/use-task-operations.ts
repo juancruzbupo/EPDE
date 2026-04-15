@@ -22,7 +22,7 @@ import {
 } from '@/lib/api/maintenance-plans';
 import { confettiEvent } from '@/lib/confetti-event';
 import { haptics } from '@/lib/haptics';
-import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
+import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 import { toast } from '@/lib/toast';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -117,7 +117,7 @@ export function useCompleteTask(options?: {
     onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
-      invalidateClientDashboard(queryClient);
+      invalidateDashboard(queryClient);
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.taskLogs, variables.planId, variables.taskId],
       });

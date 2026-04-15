@@ -33,7 +33,7 @@ import {
   updateBudgetStatus,
 } from '@/lib/api/budgets';
 import { haptics } from '@/lib/haptics';
-import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
+import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 import { toast } from '@/lib/toast';
 
 /** Mobile is CLIENT-only — filters default to {} (no admin filtering needed). Web requires filters explicitly. */
@@ -66,7 +66,7 @@ export function useCreateBudgetRequest() {
     onSuccess: () => {
       haptics.success();
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
-      invalidateClientDashboard(queryClient);
+      invalidateDashboard(queryClient);
       toast.success('Presupuesto creado correctamente');
     },
     onError: (err) => {
@@ -103,7 +103,7 @@ export function useRespondToBudget() {
     onSuccess: () => {
       haptics.success();
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
-      invalidateClientDashboard(queryClient);
+      invalidateDashboard(queryClient);
       toast.success('Cotización enviada');
     },
     onError: (err) => {
@@ -162,7 +162,7 @@ export function useUpdateBudgetStatus() {
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.budgets] });
-      invalidateClientDashboard(queryClient);
+      invalidateDashboard(queryClient);
     },
   });
 }
