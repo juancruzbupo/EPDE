@@ -276,23 +276,26 @@ Derivado de TaskLog + ServiceRequest existentes. No requiere entidades adicional
 
 ### Planes de Mantenimiento
 
-| Metodo | Ruta                                            | Auth | Rol   | Descripcion             |
-| ------ | ----------------------------------------------- | ---- | ----- | ----------------------- |
-| GET    | `/maintenance-plans`                            | Si   | Ambos | Listar planes           |
-| GET    | `/maintenance-plans/tasks`                      | Si   | Ambos | Listar todas las tareas |
-| GET    | `/maintenance-plans/:id`                        | Si   | Ambos | Obtener plan por ID     |
-| PATCH  | `/maintenance-plans/:id`                        | Si   | ADMIN | Actualizar plan         |
-| POST   | `/maintenance-plans/:id/tasks`                  | Si   | ADMIN | Crear tarea             |
-| GET    | `/maintenance-plans/:id/tasks/:taskId`          | Si   | Ambos | Detalle de tarea        |
-| PATCH  | `/maintenance-plans/:id/tasks/:taskId`          | Si   | ADMIN | Actualizar tarea        |
-| DELETE | `/maintenance-plans/:id/tasks/:taskId`          | Si   | ADMIN | Eliminar tarea          |
-| POST   | `/maintenance-plans/:id/tasks/:taskId/complete` | Si   | Ambos | Completar tarea         |
-| GET    | `/maintenance-plans/:id/tasks/:taskId/logs`     | Si   | Ambos | Historial de tarea      |
-| GET    | `/maintenance-plans/:id/tasks/:taskId/notes`    | Si   | Ambos | Notas de tarea          |
-| POST   | `/maintenance-plans/:id/tasks/:taskId/notes`    | Si   | Ambos | Agregar nota            |
-| PATCH  | `/maintenance-plans/:id/tasks/reorder`          | Si   | ADMIN | Reordenar tareas        |
+| Metodo | Ruta                                            | Auth | Rol   | Descripcion                     |
+| ------ | ----------------------------------------------- | ---- | ----- | ------------------------------- |
+| GET    | `/maintenance-plans`                            | Si   | Ambos | Listar planes                   |
+| GET    | `/maintenance-plans/tasks`                      | Si   | Ambos | Listar todas las tareas         |
+| GET    | `/maintenance-plans/:id`                        | Si   | Ambos | Obtener plan por ID             |
+| PATCH  | `/maintenance-plans/:id`                        | Si   | ADMIN | Actualizar plan                 |
+| POST   | `/maintenance-plans/:id/tasks`                  | Si   | ADMIN | Crear tarea                     |
+| POST   | `/maintenance-plans/:id/tasks/bulk`             | Si   | ADMIN | Aplicar CategoryTemplate (bulk) |
+| GET    | `/maintenance-plans/:id/tasks/:taskId`          | Si   | Ambos | Detalle de tarea                |
+| PATCH  | `/maintenance-plans/:id/tasks/:taskId`          | Si   | ADMIN | Actualizar tarea                |
+| DELETE | `/maintenance-plans/:id/tasks/:taskId`          | Si   | ADMIN | Eliminar tarea                  |
+| POST   | `/maintenance-plans/:id/tasks/:taskId/complete` | Si   | Ambos | Completar tarea                 |
+| GET    | `/maintenance-plans/:id/tasks/:taskId/logs`     | Si   | Ambos | Historial de tarea              |
+| GET    | `/maintenance-plans/:id/tasks/:taskId/notes`    | Si   | Ambos | Notas de tarea                  |
+| POST   | `/maintenance-plans/:id/tasks/:taskId/notes`    | Si   | Ambos | Agregar nota                    |
+| PATCH  | `/maintenance-plans/:id/tasks/reorder`          | Si   | ADMIN | Reordenar tareas                |
 
-**Nota:** Los planes se crean automaticamente al crear una propiedad (no hay endpoint `POST /maintenance-plans` independiente).
+**Nota:** Los planes se crean exclusivamente desde una inspección ocular completada via `POST /inspections/:checklistId/generate-plan`. No existe endpoint `POST /maintenance-plans` directo — toda creación de plan pasa por el flujo de inspección (gate enforced a nivel API + unique constraint en `MaintenancePlan.propertyId`).
+
+**POST /maintenance-plans/:id/tasks/bulk** — Body: `{ categoryTemplateId: UUID }`. Response: `{ created: number, skipped: number, skippedNames: string[] }`. Salta tareas cuyo nombre ya existe en el plan (case-insensitive). Uso: agregar una categoría entera a un plan existente (ej. sector nuevo como pool); NO es una vía de creación de plan.
 
 **GET /maintenance-plans/tasks** — Query params:
 

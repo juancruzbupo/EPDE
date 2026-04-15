@@ -65,15 +65,21 @@ Cuando se crea una propiedad, el sistema crea automáticamente un plan de manten
 
 ### Opción B: Carga masiva desde plantilla
 
-**Endpoint:** `POST /api/v1/maintenance-plans/{planId}/bulk-add-tasks`
+> **Scope**: agrega tareas a un plan que **ya existe** (ej. el cliente sumó un sector nuevo post-inspección). NO es un flujo de creación de plan — la creación va siempre por inspección ocular (`POST /inspections/:checklistId/generate-plan`).
+
+**Endpoint:** `POST /api/v1/maintenance-plans/{planId}/tasks/bulk`
 
 **Datos de entrada:** `{ categoryTemplateId: UUID }`
+
+**Respuesta:** `{ created: number, skipped: number, skippedNames: string[] }`
 
 **Lo que pasa internamente (transacción atómica):**
 
 1. Se busca la plantilla de categoría con todas sus tareas-plantilla
-2. Se busca o crea la categoría vinculada
-3. Se crean N tareas desde las plantillas, cada una con `status: PENDING`
+2. Se busca o crea la categoría vinculada al `categoryTemplateId`
+3. Se filtran las tareas-plantilla cuyo nombre ya existe en el plan (case-insensitive match sobre todo el plan, no solo la categoría)
+4. Se crean solo las nuevas con `status: PENDING` y `sector: tpl.defaultSector ?? undefined`
+5. Se devuelven los counts + nombres omitidos para que la UI los muestre en el toast
 
 ---
 
