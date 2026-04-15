@@ -1,6 +1,7 @@
 import { UserRole } from '@epde/shared';
 import {
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -33,6 +34,21 @@ import { ReferralsService } from './referrals.service';
 @UseGuards(StrictBlacklistGuard)
 export class AdminReferralsController {
   constructor(private readonly referralsService: ReferralsService) {}
+
+  /**
+   * Read-only — returns the full referral state for any user. Used by the
+   * admin client-detail page to show pending referrals + stats so the
+   * operator knows which ones to convert. Mirrors `GET /users/me/referrals`
+   * but keyed by an arbitrary userId (admin-only).
+   */
+  @Get('users/:userId')
+  @Roles(UserRole.ADMIN)
+  @StrictAuth()
+  @Throttle({ medium: { limit: 60, ttl: 60_000 } })
+  async getUserReferrals(@Param('userId', new ParseUUIDPipe()) userId: string) {
+    const data = await this.referralsService.getReferralStateForUser(userId);
+    return { data };
+  }
 
   /**
    * Marks a Referral as CONVERTED — bumps the referrer's convertedCount,

@@ -15,6 +15,7 @@ import { useClient, useDeleteClient, useUpdateClient } from '@/hooks/use-clients
 import { ClientBudgetsSection } from './components/client-budgets-section';
 import { ClientInfoCard } from './components/client-info-card';
 import { ClientPropertiesSection } from './components/client-properties-section';
+import { ClientReferralsSection } from './components/client-referrals-section';
 import { ClientServiceRequestsSection } from './components/client-service-requests-section';
 import { SubscriptionCard } from './components/subscription-card';
 
@@ -83,6 +84,8 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
       />
 
       <SubscriptionCard client={client} clientId={client.id} />
+
+      <ClientReferralsSection clientId={client.id} clientName={client.name} />
 
       <ClientPropertiesSection clientId={client.id} />
 

@@ -12,4 +12,9 @@ export type {
 } from '@epde/shared';
 
 const queries = createReferralQueries(apiClient);
-export const { getMyReferrals, markReferralConverted, recomputeReferrerState } = queries;
+export const {
+  getMyReferrals,
+  getReferralsForUser,
+  markReferralConverted,
+  recomputeReferrerState,
+} = queries;

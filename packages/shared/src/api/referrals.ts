@@ -24,6 +24,19 @@ export function createReferralQueries(apiClient: AxiosInstance) {
       return data;
     },
 
+    /**
+     * Admin-only — same payload shape as `getMyReferrals` but keyed by an
+     * arbitrary userId. Powers the referrals section on the admin
+     * client-detail page (which referrals are pending, stats, milestones).
+     */
+    async getReferralsForUser(
+      userId: string,
+      signal?: AbortSignal,
+    ): Promise<ApiResponse<ReferralStatePublic>> {
+      const { data } = await apiClient.get(`/admin/referrals/users/${userId}`, { signal });
+      return data;
+    },
+
     /** Admin-only — marks a referral as converted and fires reward recalculation. */
     async markReferralConverted(referralId: string): Promise<ApiResponse<null>> {
       const { data } = await apiClient.post(`/admin/referrals/${referralId}/convert`);
