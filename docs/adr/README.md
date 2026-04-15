@@ -17,3 +17,6 @@ Decisiones arquitectónicas clave del proyecto EPDE. Cada ADR documenta una deci
 | [011](011-base-repository-scope.md)              | Scope de BaseRepository — 3 criterios para extender, 4 para no             | Aceptada |
 | [012](012-architectural-remediation-closeout.md) | Closeout del plan de remediación arquitectónica (ARCH-1 a ARCH-8)          | Aceptada |
 | [013](013-module-import-policy.md)               | Política de imports entre módulos + acyclicity test                        | Aceptada |
+| [014](014-dark-mode-adoption.md)                 | Dark mode: status, convención, acceptance criteria                         | Aceptada |
+| [015](015-mobile-admin-readiness.md)             | Mobile admin: trigger + checklist preventivo                               | Aceptada |
+| [016](016-loading-state-divergence.md)           | Loading: web Skeleton vs mobile ActivityIndicator (divergence by design)   | Aceptada |
