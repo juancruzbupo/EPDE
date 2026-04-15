@@ -39,6 +39,7 @@
 
 23. [Índice de Salud de la Vivienda (ISV)](#23-índice-de-salud-de-la-vivienda-isv)
 24. [Catálogo completo de plantillas de tareas](#24-catálogo-completo-de-plantillas-de-tareas)
+25. [Programa de recomendación (Trae un amigo)](#25-programa-de-recomendación-trae-un-amigo)
 
 ---
 
@@ -1465,6 +1466,69 @@ El ISV es un puntaje de **0 a 100** que mide la salud general de la vivienda. Se
 | 22  | Documentación y Normativa   | 📋    |   5    | Todas (oblea gas, seguro, planos)         |
 
 > Las categorías nuevas son condicionales — se agregan al plan solo si la vivienda tiene el equipamiento correspondiente.
+
+---
+
+## 25. Programa de recomendación (Trae un amigo)
+
+Cada cliente tiene un código único (formato `PREFIJO-XYZ`, ej. `JUAN-A7K`) que comparte con familiares y amigos. Cuando un referido contrata su diagnóstico citando el código, el cliente recibe meses gratis de suscripción según una escala de hitos.
+
+> **Importante:** mientras no exista un sistema de pagos online, las conversiones se confirman manualmente desde la ficha del cliente. Ver ADR-010 para el rationale.
+
+### Cómo se genera el código
+
+- Se asigna automáticamente cuando el admin invita a un cliente nuevo (`POST /clients`).
+- Para clientes pre-existentes, ya fue backfileado en el seed.
+- Los clientes ven su código en la web (`/profile`) y en la app móvil (tab Perfil).
+
+### Registro de un referido
+
+Cuando un cliente nuevo se da de alta citando un código:
+
+1. Al crear el cliente desde **Clientes → Invitar cliente**, completar el campo **"Código de recomendación"** con el código que mencionó.
+2. El sistema valida el código (descarta si no existe, si pertenece al mismo cliente, o si está soft-deleted).
+3. Se crea una `Referral` en estado **PENDING** y se incrementa `referralCount` del referrer.
+4. **Nada más sucede automáticamente** — el reward se otorga recién cuando el admin marca el pago como confirmado.
+
+### Marcar una recomendación como pagada
+
+1. Ir a **Clientes → [cliente referrer] → tarjeta "Recomendaciones"**.
+2. Aparece la lista de recomendaciones pendientes con la fecha de registro.
+3. Clic en **"Marcar como pagada"** del referido correspondiente → confirmar en el diálogo.
+4. El sistema:
+   - Cambia la `Referral` a **CONVERTED**.
+   - Suma 1 a `convertedCount` del referrer.
+   - Calcula el reward absoluto correspondiente al nuevo `convertedCount` (escala de hitos abajo).
+   - Extiende `subscriptionExpiresAt` por el delta de meses (no duplica lo ya otorgado).
+   - Envía email celebrando el hito al referrer + notificación in-app.
+   - Si cruza al hito 10, envía además email al admin (configurable vía `ADMIN_NOTIFICATION_EMAIL`).
+
+> **La acción es irreversible** — extender suscripción + email salieron. Si te equivocaste de referido, contactar al equipo técnico.
+
+### Escala de hitos y rewards
+
+| Conversiones | Reward acumulado                             |
+| :----------: | -------------------------------------------- |
+|      1       | 1 mes gratis                                 |
+|      2       | 2 meses gratis                               |
+|      3       | 3 meses gratis                               |
+|      5       | 6 meses gratis + diagnóstico anual gratis    |
+|      10      | 12 meses gratis + diagnóstico bianual gratis |
+
+Los hitos son **acumulativos absolutos**: alcanzar el hito 5 NO suma 6 meses sobre lo anterior, sino que la suma total queda en 6. El sistema otorga solo el delta vs. lo ya entregado.
+
+### Recalcular estado (drift recovery)
+
+Si los contadores se ven desincronizados (ej. por un bug de migración), usar el botón **"Recalcular estado"** en la misma tarjeta:
+
+- Reconstruye `convertedCount` desde la tabla `Referral` real.
+- Reaplica el reward correspondiente.
+- **No envía emails** — es reconciliación, no celebración.
+- Es seguro re-llamarlo cuantas veces se quiera (idempotente).
+
+### Caveat: clientes soft-deleted
+
+Si un cliente se da de baja (soft-delete), las recomendaciones que hizo o recibió quedan como histórico — ya no se otorgan nuevos rewards (el referrer eliminado no existe a efectos del programa).
 
 ---
 

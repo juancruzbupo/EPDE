@@ -19,6 +19,8 @@ import type {
   BudgetRequestPublic,
   PlanPublic,
   PropertyPublic,
+  ReferralHistoryItem,
+  ReferralStatePublic,
   TaskDetailPublic,
   TaskLogPublic,
   TaskPublic,
@@ -148,4 +150,45 @@ export function makeBudgetRequest(
     updatedAt: BASE_DATE,
     ...overrides,
   } as BudgetRequestPublic;
+}
+
+export function makeReferral(overrides: Partial<ReferralHistoryItem> = {}): ReferralHistoryItem {
+  return {
+    id: 'referral-1',
+    referredName: null,
+    status: 'PENDING',
+    createdAt: BASE_DATE,
+    convertedAt: null,
+    ...overrides,
+  } as ReferralHistoryItem;
+}
+
+export function makeReferralState(
+  overrides: Partial<ReferralStatePublic> = {},
+): ReferralStatePublic {
+  return {
+    referralCode: 'TEST-A7K',
+    referralUrl: 'https://epde.com.ar/?ref=TEST-A7K',
+    stats: {
+      totalReferrals: 0,
+      convertedCount: 0,
+      currentMilestone: 0,
+      nextMilestone: 1,
+      creditsEarned: { months: 0, annualDiagnosis: 0, biannualDiagnosis: 0 },
+    },
+    milestones: [
+      { target: 1, reward: '1 mes gratis', reached: false, reachedAt: null },
+      { target: 2, reward: '2 meses gratis', reached: false, reachedAt: null },
+      { target: 3, reward: '3 meses gratis', reached: false, reachedAt: null },
+      { target: 5, reward: '6 meses gratis + diagnóstico anual', reached: false, reachedAt: null },
+      {
+        target: 10,
+        reward: '12 meses gratis + diagnóstico bianual',
+        reached: false,
+        reachedAt: null,
+      },
+    ],
+    referralHistory: [],
+    ...overrides,
+  } as ReferralStatePublic;
 }
