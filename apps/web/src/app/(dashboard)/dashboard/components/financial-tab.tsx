@@ -8,6 +8,7 @@ import { ChartCard } from '@/components/charts/chart-card';
 import { SectionErrorBoundary } from '@/components/section-error-boundary';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
+import { ROUTES } from '@/lib/routes';
 
 const BudgetPipelineChart = dynamic(
   () => import('@/components/charts/budget-pipeline-chart').then((m) => m.BudgetPipelineChart),
@@ -44,7 +45,7 @@ export const FinancialTab = React.memo(function FinancialTab({
           isEmpty={!analytics?.budgetPipeline.length}
           emptyIcon={<FileText className="h-8 w-8" />}
           height={280}
-          href="/budgets"
+          href={ROUTES.budgets}
         >
           {analytics && <BudgetPipelineChart data={analytics.budgetPipeline} />}
         </ChartCard>

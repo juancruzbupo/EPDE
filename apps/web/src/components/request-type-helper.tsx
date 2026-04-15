@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { ROUTES } from '@/lib/routes';
 
 export function ServiceRequestInlineHelper() {
   return (
@@ -74,7 +75,7 @@ export function RequestTypeHelper() {
                 instalación eléctrica.
               </p>
               <Button asChild size="sm" variant="outline" className="w-full">
-                <Link href="/service-requests?action=create">Crear solicitud de servicio</Link>
+                <Link href={ROUTES.newServiceRequest}>Crear solicitud de servicio</Link>
               </Button>
             </CardContent>
           </Card>
@@ -94,7 +95,7 @@ export function RequestTypeHelper() {
                 relevamiento.
               </p>
               <Button asChild size="sm" className="w-full">
-                <Link href="/budgets?action=create">Solicitar presupuesto</Link>
+                <Link href={ROUTES.newBudget}>Solicitar presupuesto</Link>
               </Button>
             </CardContent>
           </Card>

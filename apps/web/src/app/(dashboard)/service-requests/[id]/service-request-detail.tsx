@@ -38,6 +38,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useServiceRequest, useUpdateServiceStatus } from '@/hooks/use-service-requests';
+import { ROUTES } from '@/lib/routes';
 
 import { CreateBudgetDialog } from '../../budgets/create-budget-dialog';
 import { EditServiceRequestDialog } from './edit-service-request-dialog';
@@ -111,7 +112,7 @@ export function ServiceRequestDetail({
   return (
     <div>
       <Link
-        href="/service-requests"
+        href={ROUTES.serviceRequests}
         className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors"
       >
         <ArrowLeft className="h-3.5 w-3.5" />

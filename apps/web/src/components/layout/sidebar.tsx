@@ -20,29 +20,30 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 
 const adminNavItems = [
-  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Clientes', href: '/clients', icon: Users },
-  { label: 'Propiedades', href: '/properties', icon: Home },
-  { label: 'Tareas', href: '/tasks', icon: CheckSquare },
-  { label: 'Presupuestos', href: '/budgets', icon: FileText },
-  { label: 'Servicios', href: '/service-requests', icon: Wrench },
-  { label: 'Categorías', href: '/categories', icon: Tags },
-  { label: 'Plantillas', href: '/templates', icon: LayoutTemplate },
-  { label: 'Landing', href: '/landing-settings', icon: FileEdit },
+  { label: 'Dashboard', href: ROUTES.dashboard, icon: LayoutDashboard },
+  { label: 'Clientes', href: ROUTES.clients, icon: Users },
+  { label: 'Propiedades', href: ROUTES.properties, icon: Home },
+  { label: 'Tareas', href: ROUTES.tasks, icon: CheckSquare },
+  { label: 'Presupuestos', href: ROUTES.budgets, icon: FileText },
+  { label: 'Servicios', href: ROUTES.serviceRequests, icon: Wrench },
+  { label: 'Categorías', href: ROUTES.categories, icon: Tags },
+  { label: 'Plantillas', href: ROUTES.templates, icon: LayoutTemplate },
+  { label: 'Landing', href: ROUTES.landingSettings, icon: FileEdit },
 ];
 
 /** Client order: Tareas promoted to #2 (most used action).
  * Notificaciones omitted — accessible via bell icon in header. */
 const clientNavItems = [
-  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Tareas', href: '/tasks', icon: CheckSquare },
-  { label: 'Propiedades', href: '/properties', icon: Home },
-  { label: 'Presupuestos', href: '/budgets', icon: FileText },
-  { label: 'Servicios', href: '/service-requests', icon: Wrench },
+  { label: 'Dashboard', href: ROUTES.dashboard, icon: LayoutDashboard },
+  { label: 'Tareas', href: ROUTES.tasks, icon: CheckSquare },
+  { label: 'Propiedades', href: ROUTES.properties, icon: Home },
+  { label: 'Presupuestos', href: ROUTES.budgets, icon: FileText },
+  { label: 'Servicios', href: ROUTES.serviceRequests, icon: Wrench },
 ];
 
 export function Sidebar({
@@ -133,13 +134,13 @@ export function Sidebar({
       {/* Footer — help + user info */}
       <div className="border-border space-y-1 border-t px-2 py-2">
         <Link
-          href="/guide"
+          href={ROUTES.guide}
           aria-label="Guía de uso"
           title={collapsed ? 'Guía de uso' : undefined}
           className={cn(
             'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground flex items-center rounded-md text-sm font-medium transition-all duration-300 motion-reduce:transition-none',
             collapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2',
-            pathname === '/guide' && 'bg-sidebar-accent text-sidebar-accent-foreground',
+            pathname === ROUTES.guide && 'bg-sidebar-accent text-sidebar-accent-foreground',
           )}
         >
           <HelpCircle className="h-4 w-4 shrink-0" />
@@ -162,7 +163,7 @@ export function Sidebar({
         {/* User info — visible when expanded */}
         {!collapsed && user && (
           <Link
-            href="/profile"
+            href={ROUTES.profile}
             className="text-sidebar-foreground/70 hover:bg-sidebar-accent/50 flex items-center gap-3 rounded-md px-3 py-2 transition-colors"
           >
             <div className="bg-sidebar-accent flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-medium">

@@ -32,6 +32,7 @@ import { useBudgets } from '@/hooks/use-budgets';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useUrlFilters } from '@/hooks/use-url-filters';
 import type { BudgetRequestPublic } from '@/lib/api/budgets';
+import { ROUTES } from '@/lib/routes';
 import { useAuthStore } from '@/stores/auth-store';
 
 import { budgetColumns } from './columns';
@@ -284,7 +285,7 @@ function BudgetsPageContent() {
               <BudgetMobileCard
                 key={b.id}
                 budget={b}
-                onClick={() => router.push(`/budgets/${b.id}`)}
+                onClick={() => router.push(ROUTES.budget(b.id))}
               />
             ))}
           </div>
@@ -302,7 +303,7 @@ function BudgetsPageContent() {
           total={total}
           emptyMessage="Todavía no tenés presupuestos. Cuando necesites una reparación, pedí una cotización desde el botón 'Solicitar Presupuesto'."
           hasActiveFilters={debouncedSearch !== '' || status !== 'all' || propertyFilter !== 'all'}
-          onRowClick={(row: BudgetRequestPublic) => router.push(`/budgets/${row.id}`)}
+          onRowClick={(row: BudgetRequestPublic) => router.push(ROUTES.budget(row.id))}
         />
       </div>
 

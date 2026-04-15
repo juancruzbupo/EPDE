@@ -6,6 +6,7 @@ import React from 'react';
 import { ChartCard } from '@/components/charts/chart-card';
 import { SectionErrorBoundary } from '@/components/section-error-boundary';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
+import { ROUTES } from '@/lib/routes';
 
 const CompletionTrendChart = dynamic(
   () => import('@/components/charts/completion-trend-chart').then((m) => m.CompletionTrendChart),
@@ -55,7 +56,7 @@ export const OperationalTab = React.memo(function OperationalTab({
             isEmpty={!analytics?.completionTrend.length}
             emptyIcon={<TrendingUp className="h-8 w-8" />}
             height={280}
-            href="/tasks"
+            href={ROUTES.tasks}
           >
             {analytics && <CompletionTrendChart data={analytics.completionTrend} />}
           </ChartCard>
@@ -83,7 +84,7 @@ export const OperationalTab = React.memo(function OperationalTab({
           isEmpty={!analytics?.problematicCategories.length}
           emptyIcon={<BarChart3 className="h-8 w-8" />}
           height={280}
-          href="/categories"
+          href={ROUTES.categories}
         >
           {analytics && <ProblematicCategoriesChart data={analytics.problematicCategories} />}
         </ChartCard>

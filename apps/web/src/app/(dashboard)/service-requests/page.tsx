@@ -34,6 +34,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useServiceRequests } from '@/hooks/use-service-requests';
 import { useUrlFilters } from '@/hooks/use-url-filters';
 import type { ServiceRequestPublic } from '@/lib/api/service-requests';
+import { ROUTES } from '@/lib/routes';
 import { useAuthStore } from '@/stores/auth-store';
 
 import { serviceRequestColumns } from './columns';
@@ -325,7 +326,7 @@ function ServiceRequestsPageContent() {
               <ServiceMobileCard
                 key={r.id}
                 request={r}
-                onClick={() => router.push(`/service-requests/${r.id}`)}
+                onClick={() => router.push(ROUTES.serviceRequest(r.id))}
               />
             ))}
           </div>
@@ -348,7 +349,7 @@ function ServiceRequestsPageContent() {
             urgency !== 'all' ||
             propertyFilter !== 'all'
           }
-          onRowClick={(row) => router.push(`/service-requests/${row.id}`)}
+          onRowClick={(row) => router.push(ROUTES.serviceRequest(row.id))}
         />
       </div>
 

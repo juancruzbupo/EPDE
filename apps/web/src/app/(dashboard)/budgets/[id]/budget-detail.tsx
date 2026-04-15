@@ -40,6 +40,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useBudget, useUpdateBudgetStatus } from '@/hooks/use-budgets';
+import { ROUTES } from '@/lib/routes';
 
 import { BudgetAttachments } from './budget-attachments';
 import { BudgetComments } from './budget-comments';
@@ -116,7 +117,7 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
   return (
     <div className="space-y-6">
       <Link
-        href="/budgets"
+        href={ROUTES.budgets}
         className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors"
       >
         <ArrowLeft className="h-3.5 w-3.5" />

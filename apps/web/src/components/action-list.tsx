@@ -15,6 +15,7 @@ import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { STAGGER_CONTAINER, STAGGER_ITEM, useMotionPreference } from '@/lib/motion';
+import { ROUTES } from '@/lib/routes';
 
 interface ActionListProps {
   tasks: UpcomingTask[];
@@ -158,7 +159,7 @@ export function ActionList({ tasks, nextUpcoming }: ActionListProps) {
               </ul>
               {overdueTasks.length > 5 && (
                 <Link
-                  href="/tasks"
+                  href={ROUTES.tasks}
                   className="text-destructive hover:text-destructive/80 mt-3 block text-center text-sm font-medium"
                 >
                   Ver las {overdueTasks.length} tareas vencidas →

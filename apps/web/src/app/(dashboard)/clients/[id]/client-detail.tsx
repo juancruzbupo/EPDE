@@ -11,6 +11,7 @@ import { ErrorState } from '@/components/error-state';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { useClient, useDeleteClient, useUpdateClient } from '@/hooks/use-clients';
+import { ROUTES } from '@/lib/routes';
 
 import { ClientBudgetsSection } from './components/client-budgets-section';
 import { ClientInfoCard } from './components/client-info-card';
@@ -61,7 +62,7 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
         action={
           <div className="flex gap-2">
             <Button variant="outline" asChild>
-              <Link href="/clients">
+              <Link href={ROUTES.clients}>
                 <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
                 Volver
               </Link>
@@ -100,7 +101,7 @@ export function ClientDetail({ id, initialData }: ClientDetailProps) {
         description="¿Estás seguro? Esta acción no se puede deshacer."
         onConfirm={() =>
           deleteClient.mutate(id, {
-            onSuccess: () => router.push('/clients'),
+            onSuccess: () => router.push(ROUTES.clients),
           })
         }
         isLoading={deleteClient.isPending}

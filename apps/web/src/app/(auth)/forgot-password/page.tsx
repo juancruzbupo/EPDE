@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { forgotPassword } from '@/lib/auth';
+import { ROUTES } from '@/lib/routes';
 
 export default function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +54,7 @@ export default function ForgotPasswordPage() {
             <p className="text-muted-foreground type-body-sm">
               Si el email está registrado, recibirás instrucciones para restablecer tu contraseña.
             </p>
-            <Link href="/login" className="text-primary type-body-sm hover:underline">
+            <Link href={ROUTES.login} className="text-primary type-body-sm hover:underline">
               Volver al inicio de sesión
             </Link>
           </div>
@@ -86,7 +87,7 @@ export default function ForgotPasswordPage() {
             </Button>
 
             <p className="text-center">
-              <Link href="/login" className="text-primary type-body-sm hover:underline">
+              <Link href={ROUTES.login} className="text-primary type-body-sm hover:underline">
                 Volver al inicio de sesión
               </Link>
             </p>

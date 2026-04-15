@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { resetPassword } from '@/lib/auth';
+import { ROUTES } from '@/lib/routes';
 
 /** Extends shared password rules with client-side confirmPassword refinement. */
 const schema = resetPasswordSchema
@@ -50,7 +51,7 @@ function ResetPasswordForm() {
     try {
       await resetPassword(token, data.newPassword);
       toast.success('Contraseña actualizada exitosamente');
-      router.push('/login');
+      router.push(ROUTES.login);
     } catch {
       setError('Token inválido o expirado.');
     } finally {

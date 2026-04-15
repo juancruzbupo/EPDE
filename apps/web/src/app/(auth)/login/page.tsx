@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ROUTES } from '@/lib/routes';
 import { useAuthStore } from '@/stores/auth-store';
 
 export default function LoginPage() {
@@ -105,7 +106,10 @@ export default function LoginPage() {
           </div>
 
           <div className="flex justify-end">
-            <Link href="/forgot-password" className="text-primary type-body-sm hover:underline">
+            <Link
+              href={ROUTES.forgotPassword}
+              className="text-primary type-body-sm hover:underline"
+            >
               ¿Olvidaste tu contraseña?
             </Link>
           </div>

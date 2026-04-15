@@ -23,6 +23,7 @@ import { PageTransition } from '@/components/ui/page-transition';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks/use-debounce';
 import { usePlans } from '@/hooks/use-plans';
+import { ROUTES } from '@/lib/routes';
 
 /** Display order: actionable first, archived last. */
 const STATUS_ORDER: PlanStatus[] = [PlanStatus.ACTIVE, PlanStatus.DRAFT, PlanStatus.ARCHIVED];
@@ -147,7 +148,7 @@ function MaintenancePlansPageContent() {
   }, [filtered]);
 
   const handlePlanClick = (plan: PlanListItem) => {
-    router.push(`/properties/${plan.property.id}?tab=plan`);
+    router.push(ROUTES.property(plan.property.id, { tab: 'plan' }));
   };
 
   return (

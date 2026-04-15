@@ -15,6 +15,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProperty, usePropertyProblems } from '@/hooks/use-properties';
+import { ROUTES } from '@/lib/routes';
 
 import { EditPropertyDialog } from './edit-property-dialog';
 import { InspectionTab } from './inspection-tab';
@@ -69,7 +70,7 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
     <div className="space-y-6">
       <div className="no-print space-y-1">
         <Link
-          href="/properties"
+          href={ROUTES.properties}
           className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors"
         >
           <ArrowLeft className="h-3.5 w-3.5" />

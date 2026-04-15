@@ -1,5 +1,6 @@
 import { Phone } from 'lucide-react';
 
+import { ROUTES } from '@/lib/routes';
 import type { LandingGeneral } from '@/types/landing-settings';
 
 import { PHONE_DISPLAY, PHONE_NUMBER } from '../landing-data';
@@ -59,7 +60,7 @@ export function Footer({ general }: FooterProps) {
                 Diagnóstico profesional y mantenimiento preventivo de viviendas.
               </p>
               <a
-                href="/login"
+                href={ROUTES.login}
                 className="text-muted-foreground hover:text-foreground mt-1 inline-block text-sm underline underline-offset-2 transition-colors"
               >
                 Ya soy cliente

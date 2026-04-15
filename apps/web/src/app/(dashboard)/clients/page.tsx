@@ -26,6 +26,7 @@ import { useClients, useDeleteClient, useReinviteClient } from '@/hooks/use-clie
 import { useDebounce } from '@/hooks/use-debounce';
 import { useUrlFilters } from '@/hooks/use-url-filters';
 import type { ClientPublic } from '@/lib/api/clients';
+import { ROUTES } from '@/lib/routes';
 
 import { clientColumns } from './columns';
 import { InviteClientDialog } from './invite-client-dialog';
@@ -196,7 +197,7 @@ export default function ClientsPage() {
               <ClientMobileCard
                 key={c.id}
                 client={c as ClientPublic & { _count?: { properties: number } }}
-                onClick={() => router.push(`/clients/${c.id}`)}
+                onClick={() => router.push(ROUTES.client(c.id))}
               />
             ))}
           </div>
@@ -214,7 +215,7 @@ export default function ClientsPage() {
           onLoadMore={() => fetchNextPage()}
           total={total}
           emptyMessage="No se encontraron clientes"
-          onRowClick={(row) => router.push(`/clients/${row.id}`)}
+          onRowClick={(row) => router.push(ROUTES.client(row.id))}
         />
       </div>
 

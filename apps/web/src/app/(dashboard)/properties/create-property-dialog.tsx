@@ -38,6 +38,7 @@ import {
 } from '@/components/ui/select';
 import { useClientSearch } from '@/hooks/use-clients';
 import { useCreateProperty } from '@/hooks/use-properties';
+import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 
 import { InviteClientDialog } from '../clients/invite-client-dialog';
@@ -89,7 +90,7 @@ export function CreatePropertyDialog({ open, onOpenChange }: CreatePropertyDialo
           onOpenChange(false);
           const propertyId = response.data?.id;
           if (propertyId) {
-            router.push(`/properties/${propertyId}`);
+            router.push(ROUTES.property(propertyId));
           }
         },
       },

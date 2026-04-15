@@ -34,6 +34,7 @@ import { useProperties } from '@/hooks/use-properties';
 import { useUrlFilters } from '@/hooks/use-url-filters';
 import type { PropertyPublic } from '@/lib/api/properties';
 import { getProperty } from '@/lib/api/properties';
+import { ROUTES } from '@/lib/routes';
 import { useAuthStore } from '@/stores/auth-store';
 
 import { propertyColumns } from './columns';
@@ -346,7 +347,7 @@ export default function PropertiesPage() {
               <PropertyMobileCard
                 key={p.id}
                 property={p}
-                onClick={() => router.push(`/properties/${p.id}`)}
+                onClick={() => router.push(ROUTES.property(p.id))}
               />
             ))}
           </div>
@@ -361,7 +362,7 @@ export default function PropertiesPage() {
           onLoadMore={() => fetchNextPage()}
           total={total}
           emptyMessage="No se encontraron propiedades"
-          onRowClick={(row) => router.push(`/properties/${row.id}`)}
+          onRowClick={(row) => router.push(ROUTES.property(row.id))}
           onRowHover={handleRowHover}
         />
       </div>

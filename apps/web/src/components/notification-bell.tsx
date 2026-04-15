@@ -5,6 +5,7 @@ import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { useUnreadCount } from '@/hooks/use-notifications';
+import { ROUTES } from '@/lib/routes';
 
 export function NotificationBell() {
   const { data: count } = useUnreadCount();
@@ -12,7 +13,7 @@ export function NotificationBell() {
   return (
     <Button variant="ghost" size="icon" className="relative" asChild>
       <Link
-        href="/notifications"
+        href={ROUTES.notifications}
         aria-label={count ? `${count} notificaciones sin leer` : 'Notificaciones'}
       >
         <Bell className="h-4 w-4" />

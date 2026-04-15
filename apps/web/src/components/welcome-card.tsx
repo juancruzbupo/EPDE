@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMotionPreference } from '@/lib/motion';
+import { ROUTES } from '@/lib/routes';
 
 interface WelcomeCardProps {
   userName: string;
@@ -76,7 +77,7 @@ export function WelcomeCard({
         <div className="flex flex-wrap gap-2">
           {hasProperties ? (
             <Button asChild size="sm">
-              <Link href="/properties">
+              <Link href={ROUTES.properties}>
                 <Home className="mr-2 h-4 w-4" />
                 Ver mi propiedad
               </Link>
@@ -91,14 +92,14 @@ export function WelcomeCard({
           )}
           {hasActivePlan && (
             <Button asChild size="sm" variant="outline">
-              <Link href="/tasks">
+              <Link href={ROUTES.tasks}>
                 <ListChecks className="mr-2 h-4 w-4" />
                 Ver tareas
               </Link>
             </Button>
           )}
           <Button asChild size="sm" variant="outline">
-            <Link href="/guide">
+            <Link href={ROUTES.guide}>
               <HelpCircle className="mr-2 h-4 w-4" />
               Guía de uso
             </Link>

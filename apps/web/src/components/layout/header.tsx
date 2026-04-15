@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { ROUTES } from '@/lib/routes';
 import { useAuthStore } from '@/stores/auth-store';
 
 import { Sidebar } from './sidebar';
@@ -74,7 +75,7 @@ export function Header() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem asChild>
-              <Link href="/profile" className="flex items-center gap-2">
+              <Link href={ROUTES.profile} className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 Mi perfil
               </Link>

@@ -9,6 +9,7 @@ import { SectionErrorBoundary } from '@/components/section-error-boundary';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
+import { ROUTES } from '@/lib/routes';
 
 const CategoryCostsChart = dynamic(
   () => import('@/components/charts/category-costs-chart').then((m) => m.CategoryCostsChart),
@@ -45,7 +46,7 @@ export const TrendsTab = React.memo(function TrendsTab({
           isEmpty={!analytics?.categoryCosts.some((c) => Object.keys(c.categories).length > 0)}
           emptyIcon={<DollarSign className="h-8 w-8" />}
           height={300}
-          href="/tasks"
+          href={ROUTES.tasks}
         >
           {analytics && <CategoryCostsChart data={analytics.categoryCosts} />}
         </ChartCard>

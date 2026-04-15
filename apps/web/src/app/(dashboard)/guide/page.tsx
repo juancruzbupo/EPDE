@@ -24,6 +24,7 @@ import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { PageTransition } from '@/components/ui/page-transition';
+import { ROUTES } from '@/lib/routes';
 
 function Section({
   icon: Icon,
@@ -137,7 +138,7 @@ export default function GuiaPage() {
             </li>
           </ul>
           <p>
-            <QuickLink href="/tasks" label="Ir a Tareas" />
+            <QuickLink href={ROUTES.tasks} label="Ir a Tareas" />
           </p>
         </Section>
 
@@ -182,7 +183,7 @@ export default function GuiaPage() {
             </li>
           </ul>
           <p>
-            <QuickLink href="/properties" label="Ir a Propiedades" />
+            <QuickLink href={ROUTES.properties} label="Ir a Propiedades" />
           </p>
         </Section>
 
@@ -197,7 +198,7 @@ export default function GuiaPage() {
           </ol>
           <p>Podés dejar comentarios en cualquier momento si tenés dudas sobre la cotización.</p>
           <p>
-            <QuickLink href="/budgets" label="Ir a Presupuestos" />
+            <QuickLink href={ROUTES.budgets} label="Ir a Presupuestos" />
           </p>
         </Section>
 
@@ -213,7 +214,7 @@ export default function GuiaPage() {
             cuando reportás un problema.
           </p>
           <p>
-            <QuickLink href="/service-requests" label="Ir a Servicios" />
+            <QuickLink href={ROUTES.serviceRequests} label="Ir a Servicios" />
           </p>
         </Section>
 
@@ -232,7 +233,7 @@ export default function GuiaPage() {
             </li>
           </ul>
           <p>
-            <QuickLink href="/maintenance-plans" label="Ir a Planes" />
+            <QuickLink href={ROUTES.maintenancePlans} label="Ir a Planes" />
           </p>
         </Section>
 
@@ -268,7 +269,7 @@ export default function GuiaPage() {
         <Section icon={FileText} title="¿Necesitás más ayuda?">
           <p>
             Si tenés dudas, podés repetir el tour guiado desde tu{' '}
-            <QuickLink href="/profile" label="perfil" /> o contactarnos por WhatsApp.
+            <QuickLink href={ROUTES.profile} label="perfil" /> o contactarnos por WhatsApp.
           </p>
         </Section>
 
