@@ -5,13 +5,15 @@ import { UserLookupRepository } from '../common/repositories/user-lookup.reposit
 import { EmailModule } from '../email/email.module';
 import { FailedNotificationRepository } from './failed-notification.repository';
 import { HandlerContext } from './handler-context.service';
-import { AccountHandlers } from './handlers/account-handlers';
-import { BudgetHandlers } from './handlers/budget-handlers';
-import { PropertyHealthHandlers } from './handlers/property-health-handlers';
-import { ReferralHandlers } from './handlers/referral-handlers';
-import { ServiceRequestHandlers } from './handlers/service-request-handlers';
-import { SubscriptionHandlers } from './handlers/subscription-handlers';
-import { TaskHandlers } from './handlers/task-handlers';
+import {
+  AccountHandlers,
+  BudgetHandlers,
+  PropertyHealthHandlers,
+  ReferralHandlers,
+  ServiceRequestHandlers,
+  SubscriptionHandlers,
+  TaskHandlers,
+} from './handlers';
 import { NotificationQueueProcessor } from './notification-queue.processor';
 import { NotificationQueueService } from './notification-queue.service';
 import { NOTIFICATION_QUEUE } from './notification-queue.types';

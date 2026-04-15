@@ -2,13 +2,15 @@ import { BudgetStatus, ServiceStatus, type ServiceUrgency } from '@epde/shared';
 import { Injectable } from '@nestjs/common';
 
 import { HandlerContext } from './handler-context.service';
-import { AccountHandlers } from './handlers/account-handlers';
-import { BudgetHandlers } from './handlers/budget-handlers';
-import { PropertyHealthHandlers } from './handlers/property-health-handlers';
-import { ReferralHandlers } from './handlers/referral-handlers';
-import { ServiceRequestHandlers } from './handlers/service-request-handlers';
-import { SubscriptionHandlers } from './handlers/subscription-handlers';
-import { TaskHandlers } from './handlers/task-handlers';
+import {
+  AccountHandlers,
+  BudgetHandlers,
+  PropertyHealthHandlers,
+  ReferralHandlers,
+  ServiceRequestHandlers,
+  SubscriptionHandlers,
+  TaskHandlers,
+} from './handlers';
 
 /**
  * Facade for domain side-effects (notifications, emails, push). This file is
