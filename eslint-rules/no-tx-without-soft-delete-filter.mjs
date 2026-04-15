@@ -10,6 +10,14 @@
  * soft-deleted rows. See apps/api/src/prisma/prisma.service.ts for the
  * underlying limitation and ai-development-guide.md for the SIEMPRE rule.
  *
+ * Tracks both forms of the transaction boundary:
+ *   - `prisma.$transaction(...)` (raw Prisma client, used inside BaseRepository).
+ *   - `<repo>.withTransaction(...)` (the service-facing wrapper defined in
+ *     BaseRepository that delegates to `$transaction`). Services don't call
+ *     `$transaction` directly (SIEMPRE #4), so tracking only the raw form
+ *     would miss every service-initiated transaction after the repository
+ *     boundary was enforced.
+ *
  * Keep the soft-deletable model list in sync with SOFT_DELETABLE_MODELS in
  * apps/api/src/prisma/prisma.service.ts. The list below is intentionally
  * duplicated rather than imported — this rule runs in the lint phase where
@@ -122,7 +130,7 @@ export default {
         if (
           callee.type === 'MemberExpression' &&
           callee.property.type === 'Identifier' &&
-          callee.property.name === '$transaction'
+          (callee.property.name === '$transaction' || callee.property.name === 'withTransaction')
         ) {
           txDepth++;
           return;
@@ -166,7 +174,7 @@ export default {
         if (
           callee.type === 'MemberExpression' &&
           callee.property.type === 'Identifier' &&
-          callee.property.name === '$transaction'
+          (callee.property.name === '$transaction' || callee.property.name === 'withTransaction')
         ) {
           txDepth--;
         }

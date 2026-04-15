@@ -1,6 +1,6 @@
 import { PAGINATION_DEFAULT_TAKE, PAGINATION_MAX_TAKE } from '@epde/shared';
 import { Inject, Optional } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 
 import { PrismaService, SoftDeletableModel } from '../../prisma/prisma.service';
 import { RequestCacheService } from '../request-cache/request-cache.service';
@@ -230,5 +230,23 @@ export abstract class BaseRepository<
    */
   async count(where?: Record<string, unknown>): Promise<number> {
     return this.model.count({ ...(where && { where }) });
+  }
+
+  /**
+   * Runs the given callback inside a Prisma interactive transaction. The
+   * transaction boundary lives in the repository layer so services never
+   * reach for `this.prisma.$transaction` directly (SIEMPRE #4).
+   *
+   * ⚠️ Inside the callback, the provided `tx` client does NOT apply the
+   * soft-delete extension (see SIEMPRE #96). Queries on soft-deletable
+   * models MUST include `deletedAt: null` in their `where` explicitly —
+   * enforced by the `local/no-tx-without-soft-delete-filter` ESLint rule.
+   *
+   * Cross-repo transactions: pick the "lead" repo and call its
+   * withTransaction. Inside the callback, operate on any model via the
+   * `tx` client — the atomicity is for the whole block.
+   */
+  async withTransaction<R>(fn: (tx: Prisma.TransactionClient) => Promise<R>): Promise<R> {
+    return this.prisma.$transaction(fn);
   }
 }

@@ -2,7 +2,7 @@ import { generateReferralCode, type ReferralStatePublic } from '@epde/shared';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { UsersRepository } from '../users/users.repository';
 import {
   computeReward,
   computeRewardDelta,
@@ -27,8 +27,8 @@ export class ReferralsService {
   private readonly logger = new Logger(ReferralsService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
     private readonly repo: ReferralsRepository,
+    private readonly usersRepo: UsersRepository,
     private readonly notificationsHandler: NotificationsHandlerService,
   ) {}
 
@@ -46,10 +46,7 @@ export class ReferralsService {
     for (let attempt = 0; attempt < GENERATE_CODE_MAX_ATTEMPTS; attempt++) {
       const code = generateReferralCode(name);
       try {
-        await this.prisma.user.update({
-          where: { id: userId },
-          data: { referralCode: code },
-        });
+        await this.usersRepo.setReferralCode(userId, code);
         return code;
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
@@ -73,10 +70,7 @@ export class ReferralsService {
    */
   async registerReferral(newUserId: string, newUserEmail: string, rawCode: string): Promise<void> {
     const code = rawCode.trim().toUpperCase();
-    const referrer = await this.prisma.user.findUnique({
-      where: { referralCode: code },
-      select: { id: true, deletedAt: true },
-    });
+    const referrer = await this.usersRepo.findByReferralCode(code);
     if (!referrer || referrer.deletedAt) {
       this.logger.warn(
         `Referral code "${code}" used by user ${newUserId} is unknown or deleted — ignoring.`,
@@ -88,26 +82,26 @@ export class ReferralsService {
       return;
     }
 
-    await this.prisma.$transaction([
-      this.prisma.referral.create({
+    await this.repo.withTransaction(async (tx) => {
+      await tx.referral.create({
         data: {
           referrerId: referrer.id,
           referredUserId: newUserId,
           referredEmail: newUserEmail,
           status: 'PENDING',
         },
-      }),
-      // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- update-by-id on the new user record, created in the same signup flow.
-      this.prisma.user.update({
+      });
+
+      await tx.user.update({
         where: { id: newUserId },
         data: { referredByCode: code },
-      }),
-      // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- update-by-id on the referrer record validated above; soft-delete state already confirmed.
-      this.prisma.user.update({
+      });
+
+      await tx.user.update({
         where: { id: referrer.id },
         data: { referralCount: { increment: 1 } },
-      }),
-    ]);
+      });
+    });
   }
 
   // ─── Admin-facing lookup ─────────────────────────────────────────────────
@@ -159,7 +153,7 @@ export class ReferralsService {
       return { converted: false };
     }
 
-    const result = await this.prisma.$transaction(async (tx) => {
+    const result = await this.repo.withTransaction(async (tx) => {
       // Mark the referral CONVERTED first; we use this as the atomic
       // idempotency guard — if two admins click at the same time, the
       // second one's findPending below returns null.
@@ -210,7 +204,6 @@ export class ReferralsService {
       const newExpiry =
         delta.months > 0 ? addMonths(baseline, delta.months) : referrer.subscriptionExpiresAt;
 
-      // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- update-by-id on referrer we just validated above with deletedAt: null.
       await tx.user.update({
         where: { id: pending.referrerId },
         data: {
@@ -242,10 +235,7 @@ export class ReferralsService {
       result.delta.annualDiagnosis > 0 ||
       result.delta.biannualDiagnosis > 0;
     if (hasDelta) {
-      const referrer = await this.prisma.user.findUnique({
-        where: { id: result.referrerId, deletedAt: null },
-        select: { email: true, name: true },
-      });
+      const referrer = await this.usersRepo.findForReferralNotification(result.referrerId);
       if (referrer) {
         const { nextMilestone } = getMilestoneProgress(result.milestone);
         void this.notificationsHandler.handleReferralMilestoneReached({
@@ -301,10 +291,7 @@ export class ReferralsService {
   async recomputeReferrerState(
     referrerId: string,
   ): Promise<{ previousConvertedCount: number; newConvertedCount: number }> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: referrerId, deletedAt: null },
-      select: { convertedCount: true },
-    });
+    const user = await this.usersRepo.findReferralCounter(referrerId);
     if (!user) throw new NotFoundException('Usuario no encontrado');
 
     const trueCount = await this.repo.countConvertedForReferrer(referrerId);
@@ -314,14 +301,11 @@ export class ReferralsService {
 
     const reward = computeReward(trueCount);
 
-    await this.prisma.user.update({
-      where: { id: referrerId },
-      data: {
-        convertedCount: trueCount,
-        referralCreditMonths: reward.months,
-        referralCreditAnnualDiagnosis: reward.annualDiagnosis,
-        referralCreditBiannualDiagnosis: reward.biannualDiagnosis,
-      },
+    await this.usersRepo.applyReferralCounters(referrerId, {
+      convertedCount: trueCount,
+      referralCreditMonths: reward.months,
+      referralCreditAnnualDiagnosis: reward.annualDiagnosis,
+      referralCreditBiannualDiagnosis: reward.biannualDiagnosis,
     });
 
     return { previousConvertedCount: user.convertedCount, newConvertedCount: trueCount };
@@ -330,17 +314,7 @@ export class ReferralsService {
   // ─── Read API (GET /users/me/referrals) ──────────────────────────────────
 
   async getReferralStateForUser(userId: string): Promise<ReferralStatePublic> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId, deletedAt: null },
-      select: {
-        referralCode: true,
-        referralCount: true,
-        convertedCount: true,
-        referralCreditMonths: true,
-        referralCreditAnnualDiagnosis: true,
-        referralCreditBiannualDiagnosis: true,
-      },
-    });
+    const user = await this.usersRepo.findReferralState(userId);
     if (!user || !user.referralCode) {
       throw new NotFoundException('Código de recomendación no disponible');
     }

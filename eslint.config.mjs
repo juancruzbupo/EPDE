@@ -67,33 +67,22 @@ export default [
       'no-redeclare': 'off',
     },
   },
-  // ── Prisma $transaction soft-delete guardrail (API only) ─────────────────
-  // The Prisma soft-delete extension does NOT apply inside $transaction.
-  // Reads/updates on soft-deletable models must set `deletedAt: null` in where,
-  // or `deletedAt: <date>` in data for cascade soft-deletes. See the rule file
-  // header and apps/api/src/prisma/prisma.service.ts for the underlying trap.
+  // NOTE: API-scoped local rules (no-tx-without-soft-delete-filter,
+  // no-soft-deletable-include-without-filter, no-prisma-in-service) are
+  // *activated* from apps/api/eslint.config.mjs with a `src/**/*.ts` glob so
+  // they fire consistently whether ESLint is run from the monorepo root or
+  // from the apps/api directory. Defining them here with `apps/api/src/**`
+  // works from root but the glob breaks when the config is spread into
+  // apps/api/eslint.config.mjs (relative path mismatch).
+  //
+  // We still *register* the `local` plugin at root for the same files so
+  // `eslint-disable-next-line local/<rule>` directives resolve during lint
+  // runs that only see the root config (e.g. husky/lint-staged, which runs
+  // from the repo root with file paths relative to root).
   {
     files: ['apps/api/src/**/*.ts'],
-    ignores: ['apps/api/src/**/*.spec.ts'],
     plugins: {
       local: localPlugin,
-    },
-    rules: {
-      'local/no-tx-without-soft-delete-filter': 'error',
-    },
-  },
-  // ── Prisma nested include soft-delete guardrail (API only) ───────────────
-  // Soft-deletable relations loaded via `include: { X: true }` or without a
-  // `where.deletedAt` filter leak soft-deleted rows. See
-  // apps/api/src/prisma/soft-delete-include.ts for ACTIVE_FILTER usage.
-  {
-    files: ['apps/api/src/**/*.ts'],
-    ignores: ['apps/api/src/**/*.spec.ts'],
-    plugins: {
-      local: localPlugin,
-    },
-    rules: {
-      'local/no-soft-deletable-include-without-filter': 'warn',
     },
   },
   // ── Mobile query staleTime guardrail ─────────────────────────────────────

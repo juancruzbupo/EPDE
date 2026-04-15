@@ -45,6 +45,37 @@ export default [
     },
   },
   {
+    // Prisma $transaction soft-delete guardrail. The soft-delete extension
+    // does NOT apply inside $transaction / withTransaction callbacks — reads
+    // and updates on soft-deletable models must set `deletedAt: null` in
+    // where explicitly, or `deletedAt: <date>` in data for cascade soft-
+    // deletes. See the rule header and src/prisma/prisma.service.ts for the
+    // underlying Prisma limitation.
+    files: ['src/**/*.ts'],
+    ignores: ['src/**/*.spec.ts'],
+    plugins: {
+      local: localPlugin,
+    },
+    rules: {
+      'local/no-tx-without-soft-delete-filter': 'error',
+    },
+  },
+  {
+    // Nested include soft-delete guardrail. Relations loaded via
+    // `include: { X: true }` (or without a `where.deletedAt` filter) leak
+    // soft-deleted rows because the extension only intercepts root
+    // operations. See src/prisma/soft-delete-include.ts for the
+    // ACTIVE_FILTER helper.
+    files: ['src/**/*.ts'],
+    ignores: ['src/**/*.spec.ts'],
+    plugins: {
+      local: localPlugin,
+    },
+    rules: {
+      'local/no-soft-deletable-include-without-filter': 'warn',
+    },
+  },
+  {
     ignores: ['dist/', 'prisma/', 'test/', 'jest-e2e.config.ts', 'jest.config.js', 'prisma.config.ts'],
   },
 ];

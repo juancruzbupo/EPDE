@@ -2,32 +2,36 @@ import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { UsersRepository } from '../users/users.repository';
 import { ReferralsRepository } from './referrals.repository';
 import { ReferralsService } from './referrals.service';
 
-/** Minimal prisma surface the service touches — typed `any` at the mock seam. */
-type MockPrisma = {
-  user: { findUnique: jest.Mock; update: jest.Mock };
+/** Minimal `tx` shape the service touches inside withTransaction callbacks. */
+type MockTx = {
   referral: {
     create: jest.Mock;
-    findFirst: jest.Mock;
     findUnique: jest.Mock;
     update: jest.Mock;
-    count: jest.Mock;
-    findMany: jest.Mock;
   };
-  $transaction: jest.Mock;
+  user: { findUnique: jest.Mock; update: jest.Mock };
 };
 
 describe('ReferralsService', () => {
   let service: ReferralsService;
-  let prisma: MockPrisma;
   let repo: {
     findPendingByReferredUser: jest.Mock;
     countConvertedForReferrer: jest.Mock;
     findHistoryForReferrer: jest.Mock;
     findById: jest.Mock;
+    withTransaction: jest.Mock;
+  };
+  let usersRepo: {
+    setReferralCode: jest.Mock;
+    findByReferralCode: jest.Mock;
+    findForReferralNotification: jest.Mock;
+    findReferralCounter: jest.Mock;
+    applyReferralCounters: jest.Mock;
+    findReferralState: jest.Mock;
   };
   let notificationsHandler: {
     handleReferralMilestoneReached: jest.Mock;
@@ -35,24 +39,21 @@ describe('ReferralsService', () => {
   };
 
   beforeEach(async () => {
-    prisma = {
-      user: { findUnique: jest.fn(), update: jest.fn() },
-      referral: {
-        create: jest.fn(),
-        findFirst: jest.fn(),
-        findUnique: jest.fn(),
-        update: jest.fn(),
-        count: jest.fn(),
-        findMany: jest.fn(),
-      },
-      $transaction: jest.fn(),
-    };
-
     repo = {
       findPendingByReferredUser: jest.fn(),
       countConvertedForReferrer: jest.fn(),
       findHistoryForReferrer: jest.fn(),
       findById: jest.fn(),
+      withTransaction: jest.fn(),
+    };
+
+    usersRepo = {
+      setReferralCode: jest.fn(),
+      findByReferralCode: jest.fn(),
+      findForReferralNotification: jest.fn(),
+      findReferralCounter: jest.fn(),
+      applyReferralCounters: jest.fn(),
+      findReferralState: jest.fn(),
     };
 
     notificationsHandler = {
@@ -63,8 +64,8 @@ describe('ReferralsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ReferralsService,
-        { provide: PrismaService, useValue: prisma },
         { provide: ReferralsRepository, useValue: repo },
+        { provide: UsersRepository, useValue: usersRepo },
         { provide: NotificationsHandlerService, useValue: notificationsHandler },
       ],
     }).compile();
@@ -76,36 +77,33 @@ describe('ReferralsService', () => {
 
   describe('assignReferralCodeTo', () => {
     it('sets a unique code on first attempt', async () => {
-      prisma.user.update.mockResolvedValue({});
+      usersRepo.setReferralCode.mockResolvedValue(undefined);
       const code = await service.assignReferralCodeTo('u1', 'Maria');
       expect(code).toMatch(/^MARIA-[A-HJ-NP-Z2-9]{3}$/);
-      expect(prisma.user.update).toHaveBeenCalledWith({
-        where: { id: 'u1' },
-        data: { referralCode: code },
-      });
+      expect(usersRepo.setReferralCode).toHaveBeenCalledWith('u1', code);
     });
 
     it('retries on unique-constraint collision', async () => {
-      prisma.user.update
+      usersRepo.setReferralCode
         .mockRejectedValueOnce(new Error('Unique constraint failed'))
-        .mockResolvedValueOnce({});
+        .mockResolvedValueOnce(undefined);
       const code = await service.assignReferralCodeTo('u1', 'Maria');
       expect(code).toMatch(/^MARIA-/);
-      expect(prisma.user.update).toHaveBeenCalledTimes(2);
+      expect(usersRepo.setReferralCode).toHaveBeenCalledTimes(2);
     });
 
     it('throws after 5 collisions', async () => {
-      prisma.user.update.mockRejectedValue(new Error('Unique constraint failed'));
+      usersRepo.setReferralCode.mockRejectedValue(new Error('Unique constraint failed'));
       await expect(service.assignReferralCodeTo('u1', 'Maria')).rejects.toThrow(
         /Failed to generate/,
       );
-      expect(prisma.user.update).toHaveBeenCalledTimes(5);
+      expect(usersRepo.setReferralCode).toHaveBeenCalledTimes(5);
     });
 
     it('rethrows non-collision errors immediately', async () => {
-      prisma.user.update.mockRejectedValue(new Error('DB down'));
+      usersRepo.setReferralCode.mockRejectedValue(new Error('DB down'));
       await expect(service.assignReferralCodeTo('u1', 'Maria')).rejects.toThrow('DB down');
-      expect(prisma.user.update).toHaveBeenCalledTimes(1);
+      expect(usersRepo.setReferralCode).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -113,46 +111,51 @@ describe('ReferralsService', () => {
 
   describe('registerReferral', () => {
     it('creates a PENDING referral for a valid code', async () => {
-      prisma.user.findUnique.mockResolvedValue({ id: 'referrer-1', deletedAt: null });
-      prisma.$transaction.mockResolvedValue([]);
+      usersRepo.findByReferralCode.mockResolvedValue({ id: 'referrer-1', deletedAt: null });
+      const tx = makeTxForRegister();
+      repo.withTransaction.mockImplementation(async (cb) => cb(tx));
+
       await service.registerReferral('newbie', 'newbie@epde.com', 'MARIA-K3P');
-      expect(prisma.user.findUnique).toHaveBeenCalledWith({
-        where: { referralCode: 'MARIA-K3P' },
-        select: { id: true, deletedAt: true },
+
+      expect(usersRepo.findByReferralCode).toHaveBeenCalledWith('MARIA-K3P');
+      expect(repo.withTransaction).toHaveBeenCalledTimes(1);
+      expect(tx.referral.create).toHaveBeenCalledWith({
+        data: {
+          referrerId: 'referrer-1',
+          referredUserId: 'newbie',
+          referredEmail: 'newbie@epde.com',
+          status: 'PENDING',
+        },
       });
-      expect(prisma.$transaction).toHaveBeenCalledTimes(1);
     });
 
     it('normalizes the code to uppercase before lookup', async () => {
-      prisma.user.findUnique.mockResolvedValue(null);
+      usersRepo.findByReferralCode.mockResolvedValue(null);
       await service.registerReferral('newbie', 'newbie@epde.com', '  maria-k3p  ');
-      expect(prisma.user.findUnique).toHaveBeenCalledWith({
-        where: { referralCode: 'MARIA-K3P' },
-        select: { id: true, deletedAt: true },
-      });
+      expect(usersRepo.findByReferralCode).toHaveBeenCalledWith('MARIA-K3P');
     });
 
     it('is a no-op when code is unknown (does NOT throw)', async () => {
-      prisma.user.findUnique.mockResolvedValue(null);
+      usersRepo.findByReferralCode.mockResolvedValue(null);
       await expect(
         service.registerReferral('newbie', 'newbie@epde.com', 'BOGUS-XYZ'),
       ).resolves.toBeUndefined();
-      expect(prisma.$transaction).not.toHaveBeenCalled();
+      expect(repo.withTransaction).not.toHaveBeenCalled();
     });
 
     it('is a no-op when referrer is soft-deleted', async () => {
-      prisma.user.findUnique.mockResolvedValue({
+      usersRepo.findByReferralCode.mockResolvedValue({
         id: 'referrer-1',
         deletedAt: new Date(),
       });
       await service.registerReferral('newbie', 'newbie@epde.com', 'MARIA-K3P');
-      expect(prisma.$transaction).not.toHaveBeenCalled();
+      expect(repo.withTransaction).not.toHaveBeenCalled();
     });
 
     it('rejects self-referral', async () => {
-      prisma.user.findUnique.mockResolvedValue({ id: 'newbie', deletedAt: null });
+      usersRepo.findByReferralCode.mockResolvedValue({ id: 'newbie', deletedAt: null });
       await service.registerReferral('newbie', 'newbie@epde.com', 'MARIA-K3P');
-      expect(prisma.$transaction).not.toHaveBeenCalled();
+      expect(repo.withTransaction).not.toHaveBeenCalled();
     });
   });
 
@@ -163,7 +166,7 @@ describe('ReferralsService', () => {
       repo.findPendingByReferredUser.mockResolvedValue(null);
       const result = await service.convertReferral('u1');
       expect(result).toEqual({ converted: false });
-      expect(prisma.$transaction).not.toHaveBeenCalled();
+      expect(repo.withTransaction).not.toHaveBeenCalled();
     });
 
     it('applies milestone 1 on the first conversion (1 month credit)', async () => {
@@ -181,7 +184,7 @@ describe('ReferralsService', () => {
           subscriptionExpiresAt: new Date('2026-06-01'),
         },
       });
-      prisma.$transaction.mockImplementation(async (cb) => cb(tx));
+      repo.withTransaction.mockImplementation(async (cb) => cb(tx));
 
       const result = await service.convertReferral('u1');
 
@@ -219,7 +222,7 @@ describe('ReferralsService', () => {
           subscriptionExpiresAt: new Date('2026-06-01'),
         },
       });
-      prisma.$transaction.mockImplementation(async (cb) => cb(tx));
+      repo.withTransaction.mockImplementation(async (cb) => cb(tx));
 
       const result = await service.convertReferral('u1');
 
@@ -246,7 +249,7 @@ describe('ReferralsService', () => {
           subscriptionExpiresAt: new Date('2026-06-01'),
         },
       });
-      prisma.$transaction.mockImplementation(async (cb) => cb(tx));
+      repo.withTransaction.mockImplementation(async (cb) => cb(tx));
 
       const result = await service.convertReferral('u1');
 
@@ -254,12 +257,11 @@ describe('ReferralsService', () => {
         converted: true,
         delta: { months: 0, annualDiagnosis: 0, biannualDiagnosis: 0 },
       });
-      // convertedCount bumped to 4, but credit fields stay flat.
       expect(tx.user.update).toHaveBeenCalledWith({
         where: { id: 'referrer-1' },
         data: expect.objectContaining({
           convertedCount: 4,
-          referralCreditMonths: 3, // same as before
+          referralCreditMonths: 3,
         }),
       });
     });
@@ -279,7 +281,7 @@ describe('ReferralsService', () => {
           subscriptionExpiresAt: new Date('2026-06-01'),
         },
       });
-      prisma.$transaction.mockImplementation(async (cb) => cb(tx));
+      repo.withTransaction.mockImplementation(async (cb) => cb(tx));
 
       const result = await service.convertReferral('u1');
 
@@ -313,7 +315,7 @@ describe('ReferralsService', () => {
           subscriptionExpiresAt: new Date('2027-06-01'),
         },
       });
-      prisma.$transaction.mockImplementation(async (cb) => cb(tx));
+      repo.withTransaction.mockImplementation(async (cb) => cb(tx));
 
       const result = await service.convertReferral('u1');
 
@@ -339,7 +341,7 @@ describe('ReferralsService', () => {
           subscriptionExpiresAt: initial,
         },
       });
-      prisma.$transaction.mockImplementation(async (cb) => cb(tx));
+      repo.withTransaction.mockImplementation(async (cb) => cb(tx));
 
       await service.convertReferral('u1');
 
@@ -363,7 +365,7 @@ describe('ReferralsService', () => {
           subscriptionExpiresAt: null,
         },
       });
-      prisma.$transaction.mockImplementation(async (cb) => cb(tx));
+      repo.withTransaction.mockImplementation(async (cb) => cb(tx));
 
       const before = Date.now();
       await service.convertReferral('u1');
@@ -377,17 +379,15 @@ describe('ReferralsService', () => {
         id: 'ref-1',
         referrerId: 'referrer-1',
       });
-      // First call path wins: referral.findUnique inside tx returns already-converted.
-      const tx = {
+      const tx: MockTx = {
         referral: {
+          create: jest.fn(),
           findUnique: jest.fn().mockResolvedValue({ status: 'CONVERTED' }),
           update: jest.fn(),
         },
         user: { findUnique: jest.fn(), update: jest.fn() },
       };
-      prisma.$transaction.mockImplementation(async (cb) =>
-        cb(tx as unknown as Parameters<typeof cb>[0]),
-      );
+      repo.withTransaction.mockImplementation(async (cb) => cb(tx));
 
       const result = await service.convertReferral('u1');
 
@@ -401,8 +401,9 @@ describe('ReferralsService', () => {
         id: 'ref-1',
         referrerId: 'deleted-referrer',
       });
-      const tx = {
+      const tx: MockTx = {
         referral: {
+          create: jest.fn(),
           findUnique: jest.fn().mockResolvedValue({ status: 'PENDING' }),
           update: jest.fn().mockResolvedValue({}),
         },
@@ -411,15 +412,13 @@ describe('ReferralsService', () => {
           update: jest.fn(),
         },
       };
-      prisma.$transaction.mockImplementation(async (cb) =>
-        cb(tx as unknown as Parameters<typeof cb>[0]),
-      );
+      repo.withTransaction.mockImplementation(async (cb) => cb(tx));
 
       const result = await service.convertReferral('u1');
 
       expect(result).toEqual({ converted: false });
-      expect(tx.referral.update).toHaveBeenCalled(); // referral IS marked converted
-      expect(tx.user.update).not.toHaveBeenCalled(); // but no reward propagates
+      expect(tx.referral.update).toHaveBeenCalled();
+      expect(tx.user.update).not.toHaveBeenCalled();
     });
 
     // ─── Post-transaction notifications ──────────────────────────────────
@@ -439,8 +438,8 @@ describe('ReferralsService', () => {
           subscriptionExpiresAt: new Date('2026-06-01'),
         },
       });
-      prisma.$transaction.mockImplementation(async (cb) => cb(tx));
-      prisma.user.findUnique.mockResolvedValue({
+      repo.withTransaction.mockImplementation(async (cb) => cb(tx));
+      usersRepo.findForReferralNotification.mockResolvedValue({
         email: 'referrer@epde.com',
         name: 'Maria Pérez',
       });
@@ -475,8 +474,8 @@ describe('ReferralsService', () => {
           subscriptionExpiresAt: new Date('2026-06-01'),
         },
       });
-      prisma.$transaction.mockImplementation(async (cb) => cb(tx));
-      prisma.user.findUnique.mockResolvedValue({
+      repo.withTransaction.mockImplementation(async (cb) => cb(tx));
+      usersRepo.findForReferralNotification.mockResolvedValue({
         email: 'referrer@epde.com',
         name: 'Maria',
       });
@@ -506,8 +505,8 @@ describe('ReferralsService', () => {
             subscriptionExpiresAt: new Date('2026-06-01'),
           },
         });
-        prisma.$transaction.mockImplementation(async (cb) => cb(tx));
-        prisma.user.findUnique.mockResolvedValue({
+        repo.withTransaction.mockImplementation(async (cb) => cb(tx));
+        usersRepo.findForReferralNotification.mockResolvedValue({
           email: 'power-referrer@epde.com',
           name: 'Juan Carlos',
         });
@@ -547,8 +546,8 @@ describe('ReferralsService', () => {
             subscriptionExpiresAt: new Date('2026-06-01'),
           },
         });
-        prisma.$transaction.mockImplementation(async (cb) => cb(tx));
-        prisma.user.findUnique.mockResolvedValue({
+        repo.withTransaction.mockImplementation(async (cb) => cb(tx));
+        usersRepo.findForReferralNotification.mockResolvedValue({
           email: 'power-referrer@epde.com',
           name: 'Juan',
         });
@@ -566,35 +565,35 @@ describe('ReferralsService', () => {
 
   describe('recomputeReferrerState', () => {
     it('no-op when counter already matches the Referral table', async () => {
-      prisma.user.findUnique.mockResolvedValue({ convertedCount: 3 });
+      usersRepo.findReferralCounter.mockResolvedValue({ convertedCount: 3 });
       repo.countConvertedForReferrer.mockResolvedValue(3);
 
       const result = await service.recomputeReferrerState('referrer-1');
 
       expect(result).toEqual({ previousConvertedCount: 3, newConvertedCount: 3 });
-      expect(prisma.user.update).not.toHaveBeenCalled();
+      expect(usersRepo.applyReferralCounters).not.toHaveBeenCalled();
     });
 
     it('overwrites desync with the true count from the Referral table', async () => {
-      prisma.user.findUnique.mockResolvedValue({ convertedCount: 2 });
+      usersRepo.findReferralCounter.mockResolvedValue({ convertedCount: 2 });
       repo.countConvertedForReferrer.mockResolvedValue(5);
-      prisma.user.update.mockResolvedValue({});
+      usersRepo.applyReferralCounters.mockResolvedValue(undefined);
 
       const result = await service.recomputeReferrerState('referrer-1');
 
       expect(result).toEqual({ previousConvertedCount: 2, newConvertedCount: 5 });
-      expect(prisma.user.update).toHaveBeenCalledWith({
-        where: { id: 'referrer-1' },
-        data: expect.objectContaining({
+      expect(usersRepo.applyReferralCounters).toHaveBeenCalledWith(
+        'referrer-1',
+        expect.objectContaining({
           convertedCount: 5,
           referralCreditMonths: 6, // milestone 5
           referralCreditAnnualDiagnosis: 1,
         }),
-      });
+      );
     });
 
     it('throws NotFoundException when user is missing or soft-deleted', async () => {
-      prisma.user.findUnique.mockResolvedValue(null);
+      usersRepo.findReferralCounter.mockResolvedValue(null);
       await expect(service.recomputeReferrerState('ghost')).rejects.toThrow(NotFoundException);
     });
   });
@@ -603,7 +602,7 @@ describe('ReferralsService', () => {
 
   describe('getReferralStateForUser', () => {
     it('builds the full state payload', async () => {
-      prisma.user.findUnique.mockResolvedValue({
+      usersRepo.findReferralState.mockResolvedValue({
         referralCode: 'MARIA-K3P',
         referralCount: 4,
         convertedCount: 2,
@@ -653,11 +652,26 @@ describe('ReferralsService', () => {
     });
 
     it('throws NotFoundException when user is missing or has no referralCode', async () => {
-      prisma.user.findUnique.mockResolvedValue(null);
+      usersRepo.findReferralState.mockResolvedValue(null);
       await expect(service.getReferralStateForUser('ghost')).rejects.toThrow(NotFoundException);
     });
   });
 });
+
+/** Minimal stand-in for the register flow's tx. */
+function makeTxForRegister(): MockTx {
+  return {
+    referral: {
+      create: jest.fn().mockResolvedValue({}),
+      findUnique: jest.fn(),
+      update: jest.fn(),
+    },
+    user: {
+      findUnique: jest.fn(),
+      update: jest.fn().mockResolvedValue({}),
+    },
+  };
+}
 
 /**
  * Helper that builds a `tx` stand-in with the canonical transaction-body
@@ -673,9 +687,10 @@ function mockTransactionCtx(options: {
     referralCreditBiannualDiagnosis: number;
     subscriptionExpiresAt: Date | null;
   } | null;
-}) {
+}): MockTx {
   return {
     referral: {
+      create: jest.fn(),
       findUnique: jest.fn().mockResolvedValue({ status: options.referralStatus }),
       update: jest.fn().mockResolvedValue({}),
     },

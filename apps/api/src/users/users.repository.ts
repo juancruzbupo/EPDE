@@ -59,4 +59,95 @@ export class UsersRepository extends BaseRepository<User, 'user'> {
       take: 10_000,
     });
   }
+
+  // ─── Referral program helpers ─────────────────────────────────────────────
+  // Narrow reads/writes used by ReferralsService. Living here (and not in
+  // ReferralsRepository) because the underlying entity is User — keeping
+  // the data-access colocated with its model.
+
+  /** Assigns or replaces a user's referral code. Throws on unique collision. */
+  async setReferralCode(userId: string, code: string): Promise<void> {
+    await this.writeModel.update({ where: { id: userId }, data: { referralCode: code } });
+  }
+
+  /**
+   * Looks up the referrer that owns a given code. Returns id + deletedAt
+   * so the caller can skip soft-deleted referrers silently (registration
+   * must never fail on a bad code).
+   */
+  async findByReferralCode(code: string): Promise<{ id: string; deletedAt: Date | null } | null> {
+    return this.writeModel.findUnique({
+      where: { referralCode: code },
+      select: { id: true, deletedAt: true },
+    });
+  }
+
+  /**
+   * Minimal projection used post-conversion to enqueue the milestone
+   * email + in-app notification. Filters soft-deleted — a client who
+   * disabled their account after a pending referral shouldn't receive
+   * a "¡felicitaciones!" email.
+   */
+  async findForReferralNotification(userId: string): Promise<Pick<User, 'email' | 'name'> | null> {
+    return this.model.findUnique({
+      where: { id: userId, deletedAt: null },
+      select: { email: true, name: true },
+    });
+  }
+
+  /** Read-only projection used by drift recovery to compare truth vs counter. */
+  async findReferralCounter(userId: string): Promise<Pick<User, 'convertedCount'> | null> {
+    return this.model.findUnique({
+      where: { id: userId, deletedAt: null },
+      select: { convertedCount: true },
+    });
+  }
+
+  /**
+   * Writes the absolute reward snapshot back to the user. Used by drift
+   * recovery (no subscription extension). Conversion-flow writes happen
+   * inside the `withTransaction` callback in ReferralsService because
+   * they need to coexist with the subscription extension.
+   */
+  async applyReferralCounters(
+    userId: string,
+    data: {
+      convertedCount: number;
+      referralCreditMonths: number;
+      referralCreditAnnualDiagnosis: number;
+      referralCreditBiannualDiagnosis: number;
+    },
+  ): Promise<void> {
+    await this.writeModel.update({ where: { id: userId }, data });
+  }
+
+  /**
+   * Full state projection used by the public referral read endpoint
+   * (GET /users/me/referrals and admin GET /admin/referrals/users/:id).
+   * Keep the select list narrow to avoid leaking unrelated User fields
+   * through the public contract.
+   */
+  async findReferralState(
+    userId: string,
+  ): Promise<Pick<
+    User,
+    | 'referralCode'
+    | 'referralCount'
+    | 'convertedCount'
+    | 'referralCreditMonths'
+    | 'referralCreditAnnualDiagnosis'
+    | 'referralCreditBiannualDiagnosis'
+  > | null> {
+    return this.model.findUnique({
+      where: { id: userId, deletedAt: null },
+      select: {
+        referralCode: true,
+        referralCount: true,
+        convertedCount: true,
+        referralCreditMonths: true,
+        referralCreditAnnualDiagnosis: true,
+        referralCreditBiannualDiagnosis: true,
+      },
+    });
+  }
 }
