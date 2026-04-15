@@ -1,0 +1,165 @@
+/**
+ * Mobile task mutations (write side). Web equivalent:
+ * apps/web/src/hooks/use-task-operations-mutations.ts
+ *
+ * Mobile only exposes mutations available to all users (complete-task, add-note).
+ * Admin-only operations (create/edit/delete task, reorder, bulk-add) are web-only.
+ */
+import type { CompleteTaskInput, TaskNotePublic } from '@epde/shared';
+import { COMPLETION_MESSAGES, getErrorMessage, PREVENTION_SAVINGS, QUERY_KEYS } from '@epde/shared';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Alert } from 'react-native';
+
+import { addTaskNote, completeTask } from '@/lib/api/maintenance-plans';
+import { confettiEvent } from '@/lib/confetti-event';
+import { haptics } from '@/lib/haptics';
+import { invalidateDashboard } from '@/lib/invalidate-dashboard';
+import { toast } from '@/lib/toast';
+import { useAuthStore } from '@/stores/auth-store';
+
+/** Completes a task and shows rescheduling feedback.
+ *  No optimistic status change — the server resets status to PENDING with a new nextDueDate
+ *  (preventive maintenance model: tasks are cyclic, completion = reschedule). */
+export function useCompleteTask(options?: {
+  onProblemDetected?: (info: { taskId: string; taskName: string }) => void;
+}) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      planId,
+      taskId,
+      ...dto
+    }: {
+      planId: string;
+      taskId: string;
+      taskName?: string;
+    } & CompleteTaskInput) => completeTask(planId, taskId, dto),
+
+    onSuccess: (response, variables) => {
+      haptics.success();
+      confettiEvent.fire();
+      const msg = COMPLETION_MESSAGES[Math.floor(Math.random() * COMPLETION_MESSAGES.length)];
+      const nextDueDate = response.data?.task?.nextDueDate;
+      if (nextDueDate) {
+        const formatted = new Date(nextDueDate).toLocaleDateString('es-AR', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        });
+        toast.success(`${msg} Próxima: ${formatted}`, 4500);
+      } else {
+        toast.success(msg);
+      }
+
+      // F6: "Evitaste un problema" — savings info is deliberately blocking so
+      // the user sees the prevention value before the problem dialog opens.
+      if (response.data?.problemDetected) {
+        const categoryName = response.data.task?.category?.name;
+        const savings = categoryName ? PREVENTION_SAVINGS[categoryName] : undefined;
+        if (savings) {
+          setTimeout(() => {
+            Alert.alert(
+              'Detectaste un problema a tiempo',
+              `Sin prevención, esto podría costarte ${savings}.`,
+            );
+          }, 2000);
+        }
+
+        options?.onProblemDetected?.({
+          taskId: variables.taskId,
+          taskName: variables.taskName ?? response.data.task?.name ?? 'Tarea',
+        });
+      }
+    },
+
+    onError: (err) => {
+      haptics.error();
+      toast.error(getErrorMessage(err, 'Error al completar tarea'));
+    },
+
+    onSettled: (_data, _error, variables) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.properties] });
+      invalidateDashboard(queryClient);
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.taskLogs, variables.planId, variables.taskId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.taskDetail, variables.planId, variables.taskId],
+      });
+    },
+  });
+}
+
+/** Adds a note to a task. Does NOT invalidate dashboard — notes don't feed any
+ *  client stat. */
+export function useAddTaskNote() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      planId,
+      taskId,
+      content,
+    }: {
+      planId: string;
+      taskId: string;
+      content: string;
+    }) => addTaskNote(planId, taskId, { content }),
+
+    onMutate: async (variables) => {
+      const user = useAuthStore.getState().user;
+
+      await queryClient.cancelQueries({
+        queryKey: [QUERY_KEYS.taskNotes, variables.planId, variables.taskId],
+      });
+
+      const previousNotes = queryClient.getQueryData<TaskNotePublic[]>([
+        QUERY_KEYS.taskNotes,
+        variables.planId,
+        variables.taskId,
+      ]);
+
+      queryClient.setQueryData<TaskNotePublic[]>(
+        [QUERY_KEYS.taskNotes, variables.planId, variables.taskId],
+        (old) => [
+          {
+            id: `temp-${Date.now()}`,
+            taskId: variables.taskId,
+            content: variables.content,
+            createdAt: new Date().toISOString(),
+            author: { id: user?.id ?? '', name: user?.name ?? '' },
+          },
+          ...(old ?? []),
+        ],
+      );
+
+      return { previousNotes };
+    },
+
+    onSuccess: () => {
+      haptics.success();
+    },
+
+    onError: (_err, variables, context) => {
+      haptics.error();
+      if (context?.previousNotes) {
+        queryClient.setQueryData(
+          [QUERY_KEYS.taskNotes, variables.planId, variables.taskId],
+          context.previousNotes,
+        );
+      }
+      toast.error(getErrorMessage(_err, 'Error al agregar nota'));
+    },
+
+    onSettled: (_data, _error, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.taskNotes, variables.planId, variables.taskId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.taskDetail, variables.planId, variables.taskId],
+      });
+    },
+  });
+}
