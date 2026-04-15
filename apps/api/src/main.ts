@@ -76,6 +76,15 @@ async function bootstrap() {
   app.enableCors({
     origin: corsOrigins,
     credentials: true,
+    // Explicit allowlist instead of reflecting any header — prevents an
+    // attacker-controlled origin from probing custom headers via preflight.
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Request-ID'],
+    // Restrict to methods we actually expose. Block PUT, OPTIONS-as-method,
+    // CONNECT, etc. that aren't part of the api surface.
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    // Cache preflight for 24h — without this, every cross-origin mutation
+    // pays a roundtrip on each call.
+    maxAge: 86_400,
   });
 
   if (nodeEnv === 'development') {
