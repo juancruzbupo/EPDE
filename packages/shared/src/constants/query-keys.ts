@@ -47,4 +47,6 @@ export const QUERY_KEYS = {
   landingSettings: 'landing-settings',
   // User features
   milestones: 'milestones',
+  // Referral program
+  referrals: 'referrals',
 } as const;

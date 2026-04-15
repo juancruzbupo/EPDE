@@ -23,6 +23,7 @@ import {
 import { ChangePasswordForm } from './change-password-form';
 import { MilestonesSection } from './milestones-section';
 import { ProfileForm } from './profile-form';
+import { ReferralsSection } from './referrals-section';
 import { SubscriptionInfo } from './subscription-info';
 
 const ROLE_LABELS: Record<UserRole, string> = {
@@ -121,6 +122,7 @@ export default function ProfilePage() {
       <NotificationsCard />
 
       <ProfileForm user={user} onSuccess={checkAuth} />
+      {user.role === UserRole.CLIENT && <ReferralsSection />}
       <MilestonesCardGuarded />
       <ChangePasswordForm />
     </PageTransition>

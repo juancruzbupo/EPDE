@@ -356,7 +356,12 @@ export class ReferralsService {
 
     return {
       referralCode: user.referralCode,
-      referralUrl: `${webBase}/registro?ref=${encodeURIComponent(user.referralCode)}`,
+      // Public landing page with a `ref` query param. There is no public
+      // self-signup today — referred users arrive at the landing, contact
+      // via WhatsApp citing the code, and the admin enters the code when
+      // inviting them. The query param is there for future analytics /
+      // autofill once self-signup exists.
+      referralUrl: `${webBase}/?ref=${encodeURIComponent(user.referralCode)}`,
       stats: {
         totalReferrals: user.referralCount,
         convertedCount: user.convertedCount,

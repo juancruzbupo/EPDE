@@ -360,7 +360,7 @@ export class EmailService {
         ${bodyIntro}
         <p><strong>Crédito actual:</strong> ${escapeHtml(creditLine)}.</p>
         ${nextLine}
-        ${this.ctaButton(`${this.frontendUrl}/perfil#recomendaciones`, 'Ver mis recomendaciones')}
+        ${this.ctaButton(`${this.frontendUrl}/profile#recomendaciones`, 'Ver mis recomendaciones')}
         <p style="margin-top: 24px; color: #666;">Arq. Noelia E. Yuskowich — EPDE</p>
       `),
     });
