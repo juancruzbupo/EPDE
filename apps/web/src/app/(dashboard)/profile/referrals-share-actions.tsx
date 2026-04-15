@@ -1,5 +1,6 @@
 'use client';
 
+import { buildReferralShareMessage } from '@epde/shared';
 import { Check, Copy, Link as LinkIcon, MessageCircle } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -38,10 +39,7 @@ export function ReferralsShareActions({ referralCode, referralUrl }: ReferralsSh
     }
   }
 
-  const whatsappMessage = encodeURIComponent(
-    `Hola! Te recomiendo EPDE, un servicio de diagnóstico preventivo para tu casa. ` +
-      `Si te sumás con mi código ${referralCode} tenés 10% de descuento. Mirá: ${referralUrl}`,
-  );
+  const whatsappMessage = encodeURIComponent(buildReferralShareMessage(referralCode, referralUrl));
 
   return (
     <div className="flex flex-wrap gap-2">

@@ -1,3 +1,4 @@
+import { buildReferralShareMessage } from '@epde/shared';
 import { ActivityIndicator, Pressable, Share, Text, View } from 'react-native';
 
 import { useReferrals } from '@/hooks/use-referrals';
@@ -47,10 +48,7 @@ export function ReferralsCard() {
 
   async function handleShare() {
     try {
-      const message =
-        `Te recomiendo EPDE, un servicio de diagnóstico preventivo para tu casa. ` +
-        `Si te sumás con mi código ${referralCode} tenés 10% de descuento. ${referralUrl}`;
-      await Share.share({ message });
+      await Share.share({ message: buildReferralShareMessage(referralCode, referralUrl) });
       haptics.success();
     } catch {
       toast.error('No pudimos abrir el menú de compartir.');

@@ -3,6 +3,7 @@ export * from './dates';
 export * from './due-date';
 export * from './errors';
 export * from './referral-code';
+export * from './referral-share';
 export * from './refresh-interceptor';
 export * from './risk-score';
 export * from './upload';
