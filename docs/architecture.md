@@ -526,7 +526,7 @@ Modulo global `RedisModule` (`redis/redis.module.ts`) con dos servicios:
 
 **Componentes de notification queue:**
 
-- `NotificationsHandlerService`: handler de dominio inyectado en BudgetsService y ServiceRequestsService. Decide que notificar y quienes son los destinatarios, luego delega a `NotificationQueueService` y `EmailQueueService`
+- `NotificationsHandlerService`: facade (~244 LOC) inyectado por los domain services. Decide qué notificar y quiénes son los destinatarios; delega a una clase por bounded context en `notifications/handlers/{budget, service-request, task, referral, subscription, account, property-health}-handlers.ts`. La infra compartida (`withDLQ`, AsyncLocalStorage retry context, `sendPush`) vive en `notifications/handler-context.service.ts`. Agregar un nuevo side-effect es un edit al handler del contexto correcto + un delegator en el facade — ver ADR-012.
 - `NotificationQueueService`: encola notificaciones in-app (`enqueue` para una, `enqueueBatch` para varias)
 - `NotificationQueueProcessor` (`@Processor`): worker que consume y persiste via `NotificationsService.createNotification()`
 - Configuracion en `NotificationsModule`: `BullModule.registerQueue('notification')` con retry policy

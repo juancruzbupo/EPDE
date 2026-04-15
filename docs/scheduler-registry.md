@@ -44,6 +44,18 @@ Los primeros tres jobs diarios están escalonados por diseño:
 
 Cada handler es fire-and-forget (invocado con `void`), envuelto en `withDLQ` para persistir fallos en `FailedNotification`.
 
+**Estructura post-ARCH-4 (ver ADR-012)**: `NotificationsHandlerService` es un facade de ~244 LOC que delega por bounded context a:
+
+- `notifications/handlers/budget-handlers.ts` — `handleBudgetCreated` / `Quoted` / `StatusChanged` / `CommentAdded`
+- `notifications/handlers/service-request-handlers.ts` — `handleServiceCreated` / `StatusChanged` / `CommentAdded`
+- `notifications/handlers/task-handlers.ts` — `handlePlanGenerated` / `TaskReminders` / `ProblemDetected`
+- `notifications/handlers/referral-handlers.ts` — `handleReferralMilestoneReached` / `MaxReached`
+- `notifications/handlers/subscription-handlers.ts` — `handleSubscriptionChanged` / `Reminder`
+- `notifications/handlers/account-handlers.ts` — `handleClientInvited`
+- `notifications/handlers/property-health-handlers.ts` — `handleISVAlert`
+
+La infraestructura compartida (`withDLQ`, AsyncLocalStorage retry context, `sendPush`) vive en `notifications/handler-context.service.ts`. Los domain services siguen inyectando el facade — solo cambia dónde vive el método llamado.
+
 | Handler                          | Disparador                                                                       | Destinatarios                          | Payload clave                                                                                                                                                                             |
 | -------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `handleProblemDetected`          | `completeTask` con `conditionFound` POOR o CRITICAL                              | Admin + dueño                          | `taskName`, `propertyAddress`, `propertyId`, `conditionLabel`                                                                                                                             |

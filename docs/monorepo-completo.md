@@ -66,7 +66,11 @@ tasks/                 # TaskLifecycleService + TaskNotesService (extraido de ma
 categories/            # Categorias de mantenimiento
 budgets/               # Presupuestos + respond + status changes
 service-requests/      # Solicitudes + status changes (linear state machine)
-notifications/         # In-app + email + push (BullMQ queues)
+notifications/         # In-app + email + push (BullMQ queues).
+                       #   - notifications-handler.service.ts (facade, ~244 LOC) delega a
+                       #   - handlers/{budget,service-request,task,referral,subscription,account,property-health}-handlers.ts
+                       #   - handler-context.service.ts (DLQ + retry AsyncLocalStorage + sendPush, deps compartidas)
+                       #   Agregar un side-effect = editar el handler del bounded context que corresponde, no el facade. Ver ADR-012
 dashboard/             # Estadisticas agregadas multi-modelo + ISVSnapshot
 inspections/           # Inspecciones de propiedades (CRUD + soft-delete)
 upload/                # Multipart a Cloudflare R2
@@ -103,8 +107,9 @@ components/
   data-table/          # DataTable wrapper (TanStack Table)
   layout/              # Header, Sidebar
   landing/             # Landing page (composicion + 11 secciones)
-hooks/                 # React Query hooks por entidad
-lib/api/               # Funciones API por entidad
+hooks/                 # React Query hooks por entidad. use-X.ts combinado o use-X-queries.ts + use-X-mutations.ts + use-X.ts (barrel) cuando > 150 LOC — enforzado por ESLint max-lines
+lib/api/               # Funciones API por entidad (wrappers del factory compartido)
+lib/routes.ts          # ROUTES central — SSoT de paths web. Dynamic routes son factories tipadas (ROUTES.budget(id), ROUTES.property(id, { tab }))
 stores/                # Zustand auth store
 ```
 
