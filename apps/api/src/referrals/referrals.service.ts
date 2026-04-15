@@ -92,11 +92,13 @@ export class ReferralsService {
         },
       });
 
+      // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- update-by-id on the new user record, created in the same signup flow.
       await tx.user.update({
         where: { id: newUserId },
         data: { referredByCode: code },
       });
 
+      // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- update-by-id on the referrer record validated above; soft-delete state already confirmed.
       await tx.user.update({
         where: { id: referrer.id },
         data: { referralCount: { increment: 1 } },
@@ -204,6 +206,7 @@ export class ReferralsService {
       const newExpiry =
         delta.months > 0 ? addMonths(baseline, delta.months) : referrer.subscriptionExpiresAt;
 
+      // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- update-by-id on referrer we just validated above with deletedAt: null.
       await tx.user.update({
         where: { id: pending.referrerId },
         data: {

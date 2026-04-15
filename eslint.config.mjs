@@ -69,22 +69,36 @@ export default [
       'no-redeclare': 'off',
     },
   },
-  // NOTE: API-scoped local rules (no-tx-without-soft-delete-filter,
-  // no-soft-deletable-include-without-filter, no-prisma-in-service) are
-  // *activated* from apps/api/eslint.config.mjs with a `src/**/*.ts` glob so
-  // they fire consistently whether ESLint is run from the monorepo root or
-  // from the apps/api directory. Defining them here with `apps/api/src/**`
-  // works from root but the glob breaks when the config is spread into
-  // apps/api/eslint.config.mjs (relative path mismatch).
+  // API-scoped local rules are activated in BOTH this file and
+  // apps/api/eslint.config.mjs. Why the duplication: running `pnpm eslint`
+  // from root (CI, husky/lint-staged) resolves files relative to root, so
+  // the root glob `apps/api/src/**` matches; running from apps/api the
+  // root-spread glob points at the wrong base so the api-local activation
+  // is the one that fires. Both activate the same rules on the same files.
   //
-  // We still *register* the `local` plugin at root for the same files so
-  // `eslint-disable-next-line local/<rule>` directives resolve during lint
-  // runs that only see the root config (e.g. husky/lint-staged, which runs
-  // from the repo root with file paths relative to root).
+  // Keeping the root activation live also fixes a subtle husky --fix bug:
+  // without it, lint-staged saw the rule as registered-but-inactive and
+  // auto-stripped `eslint-disable-next-line local/<rule>` comments as
+  // "unused directive".
   {
     files: ['apps/api/src/**/*.ts'],
+    ignores: ['apps/api/src/**/*.spec.ts'],
     plugins: {
       local: localPlugin,
+    },
+    rules: {
+      'local/no-tx-without-soft-delete-filter': 'error',
+      'local/no-soft-deletable-include-without-filter': 'warn',
+    },
+  },
+  {
+    files: ['apps/api/src/**/*.service.ts'],
+    ignores: ['apps/api/src/**/*.spec.ts'],
+    plugins: {
+      local: localPlugin,
+    },
+    rules: {
+      'local/no-prisma-in-service': 'error',
     },
   },
   // ── Risk score centralization (web + mobile UI) ──────────────────────────

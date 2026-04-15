@@ -396,7 +396,7 @@ export class InspectionsService {
             });
 
             // Link the inspection item to the created task.
-
+            // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- item comes from findByIdWithActiveItems, which already filters deletedAt: null on both the checklist and its items.
             await tx.inspectionItem.update({
               where: { id: item.id },
               data: { taskId: task.id },
@@ -448,6 +448,7 @@ export class InspectionsService {
           // guards key off, and it stays in the same transaction as the plan/task
           // creation so an aborted run never leaves a half-locked checklist.
 
+          // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- checklistId came from findByIdWithActiveItems earlier in this method, which already filtered deletedAt: null. The same transaction prevents soft-delete between read and write.
           await tx.inspectionChecklist.update({
             where: { id: checklistId },
             data: { status: 'COMPLETED', completedAt: new Date() },
