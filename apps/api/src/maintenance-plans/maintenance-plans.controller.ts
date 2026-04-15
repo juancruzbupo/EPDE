@@ -138,12 +138,12 @@ export class MaintenancePlansController {
     @Body(new ZodValidationPipe(bulkAddTasksSchema)) body: BulkAddTasksInput,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const count = await this.taskLifecycle.bulkAddFromTemplate(
+    const result = await this.taskLifecycle.bulkAddFromTemplate(
       planId,
       body.categoryTemplateId,
       user.id,
     );
-    return { data: { count }, message: `${count} tareas agregadas` };
+    return { data: result, message: `${result.created} tareas agregadas` };
   }
 
   // Static segment MUST be before :taskId to avoid NestJS matching "reorder" as a UUID

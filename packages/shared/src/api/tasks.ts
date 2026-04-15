@@ -152,7 +152,7 @@ export function createTaskQueries(apiClient: AxiosInstance) {
     async bulkAddTasksFromTemplate(
       planId: string,
       categoryTemplateId: string,
-    ): Promise<ApiResponse<{ count: number }>> {
+    ): Promise<ApiResponse<{ created: number; skipped: number; skippedNames: string[] }>> {
       const { data } = await apiClient.post(`/maintenance-plans/${planId}/tasks/bulk`, {
         categoryTemplateId,
       });

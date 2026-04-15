@@ -187,11 +187,19 @@ export function useBulkAddTasks() {
     mutationFn: ({ planId, categoryTemplateId }: { planId: string; categoryTemplateId: string }) =>
       bulkAddTasksFromTemplate(planId, categoryTemplateId),
     onSuccess: (response, variables) => {
-      const count = response.data?.count ?? 0;
-      if (count === 0) {
-        toast.info('No se agregaron tareas — ya existían en el plan.');
+      const created = response.data?.created ?? 0;
+      const skipped = response.data?.skipped ?? 0;
+      const skippedNames = response.data?.skippedNames ?? [];
+      const skippedSuffix =
+        skipped > 0
+          ? ` · ${skipped} ya existía${skipped !== 1 ? 'n' : ''} (omitida${skipped !== 1 ? 's' : ''}): ${skippedNames.slice(0, 3).join(', ')}${skippedNames.length > 3 ? '…' : ''}`
+          : '';
+      if (created === 0) {
+        toast.info(`No se agregaron tareas — ya existían en el plan${skippedSuffix}`);
       } else {
-        toast.success(`${count} tarea${count !== 1 ? 's' : ''} agregada${count !== 1 ? 's' : ''}`);
+        toast.success(
+          `${created} tarea${created !== 1 ? 's' : ''} agregada${created !== 1 ? 's' : ''}${skippedSuffix}`,
+        );
       }
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, variables.planId] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.plans, QUERY_KEYS.plansTasks] });

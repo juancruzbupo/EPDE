@@ -281,7 +281,7 @@ export class TaskLifecycleService {
     planId: string,
     categoryTemplateId: string,
     createdBy: string,
-  ): Promise<number> {
+  ): Promise<{ created: number; skipped: number; skippedNames: string[] }> {
     const plan = await this.plansRepository.findById(planId);
     if (!plan) {
       throw new NotFoundException('Plan de mantenimiento no encontrado');
@@ -331,12 +331,16 @@ export class TaskLifecycleService {
         });
         const existingNames = new Set(existingTasks.map((t) => t.name.toLowerCase()));
 
+        const skippedTemplates = categoryTemplate.tasks.filter((tpl) =>
+          existingNames.has(tpl.name.toLowerCase()),
+        );
         const newTemplates = categoryTemplate.tasks.filter(
           (tpl) => !existingNames.has(tpl.name.toLowerCase()),
         );
+        const skippedNames = skippedTemplates.map((tpl) => tpl.name);
 
         if (newTemplates.length === 0) {
-          return 0;
+          return { created: 0, skipped: skippedNames.length, skippedNames };
         }
 
         const taskData = newTemplates.map((tpl, index) => ({
@@ -357,7 +361,7 @@ export class TaskLifecycleService {
         }));
 
         const result = await tx.task.createMany({ data: taskData });
-        return result.count;
+        return { created: result.count, skipped: skippedNames.length, skippedNames };
       },
       { timeout: 10_000 },
     );

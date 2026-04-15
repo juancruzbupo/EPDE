@@ -57,17 +57,17 @@
 
 ### Inspección — Pendientes
 
-**Fase 1 — Quick wins**
+**Fase 1 — Quick wins** (todas implementadas)
 
-1. **Sectores al crear la propiedad** — Agregar checkbox grid de `activeSectors` al `create-property-dialog.tsx`. Actualizar `createPropertySchema`.
-2. **Aplicar múltiples templates a la vez** — Cambiar `template-application-dialog.tsx` de selección única a múltiple (checkboxes). Aplicar todos los seleccionados en secuencia.
-3. **Sector por defecto en templates** — Agregar campo `defaultSector: PropertySector | null` a `TaskTemplate`. Tareas heredan sector al aplicar template.
-4. **Calcular fechas automáticamente** — Helper `suggestDueDate(priority, recurrenceType, recurrenceMonths)` en `@epde/shared`. Pre-fill `nextDueDate` según prioridad.
-5. **Validación antes de activar el plan** — Warnings al activar: sectores sin tareas, >5 tareas vencen el mismo mes, urgentes sin fecha en 7 días, tareas de profesional sin marcar.
+1. ~~**Sectores al crear la propiedad**~~ — DONE. `create-property-dialog.tsx` renderiza checkbox grid de `PROPERTY_SECTOR_LABELS`; `createPropertySchema` acepta `activeSectors`.
+2. ~~**Aplicar múltiples templates a la vez**~~ — DONE. `template-application-dialog.tsx` con checkboxes + "Seleccionar todos"; `handleApplyTemplates` aplica en secuencia vía `useBulkAddTasks`.
+3. ~~**Sector por defecto en templates**~~ — DONE. `TaskTemplate.defaultSector` en schema; `bulkAddFromTemplate` hereda `tpl.defaultSector ?? undefined`.
+4. ~~**Calcular fechas automáticamente**~~ — DONE. `suggestDueDate` en `packages/shared/src/utils/due-date.ts` + tests.
+5. ~~**Validación antes de activar el plan**~~ — DONE. `plan-validation-dialog.tsx` chequea 5 reglas (empty tasks = error; sectores sin tareas, urgentes sin fecha en 7 días, >5 tareas/mes, tareas sin sector = warnings). Cableado al flujo de activación en `plan-editor.tsx`.
 
 **Fase 3 — Detección de duplicados**
 
-9. **Detección de duplicados** — Antes de aplicar un template, verificar si ya existen tareas con el mismo nombre en el plan. Warning con lista y opción "aplicar igual" o "saltar existentes".
+9. ~~**Detección de duplicados**~~ — DONE. `bulkAddFromTemplate` filtra por nombre case-insensitive (whole-plan, no solo categoría) y devuelve `{ created, skipped, skippedNames }`. Toast en `useBulkAddTasks` muestra ambos counts + primeras 3 omitidas. Decisión: NO se implementa "aplicar igual" — crear tareas con nombres duplicados es UX activamente peor que saltarlas silenciosamente.
 
 **Backlog largo plazo**
 
@@ -107,6 +107,8 @@
 ### SchedulerModule adapter layer
 
 **Qué es**: `apps/api/src/scheduler/scheduler.module.ts` importa 9 feature modules (`TasksModule`, `BudgetsModule`, `ServiceRequestsModule`, `NotificationsModule`, `EmailModule`, `DashboardModule`, `PropertiesModule`, `UsersModule`, `AuthModule`). Cada cron nuevo potencialmente agrega otro import. Mitigado hoy por SIEMPRE #94 (ESLint rule que bloquea imports `scheduler/` desde domain modules), pero la dirección `scheduler → domain` es un hot-zone.
+
+**Estado 2026-04-14**: verificado, sigue en 9 imports. Trigger de 12+ aún no alcanzado.
 
 **Por qué está diferido**:
 
