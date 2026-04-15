@@ -1,6 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ReferralsRepository } from './referrals.repository';
 import { ReferralsService } from './referrals.service';
@@ -26,6 +27,11 @@ describe('ReferralsService', () => {
     findPendingByReferredUser: jest.Mock;
     countConvertedForReferrer: jest.Mock;
     findHistoryForReferrer: jest.Mock;
+    findById: jest.Mock;
+  };
+  let notificationsHandler: {
+    handleReferralMilestoneReached: jest.Mock;
+    handleReferralMaxReached: jest.Mock;
   };
 
   beforeEach(async () => {
@@ -46,6 +52,12 @@ describe('ReferralsService', () => {
       findPendingByReferredUser: jest.fn(),
       countConvertedForReferrer: jest.fn(),
       findHistoryForReferrer: jest.fn(),
+      findById: jest.fn(),
+    };
+
+    notificationsHandler = {
+      handleReferralMilestoneReached: jest.fn().mockResolvedValue(undefined),
+      handleReferralMaxReached: jest.fn().mockResolvedValue(undefined),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -53,6 +65,7 @@ describe('ReferralsService', () => {
         ReferralsService,
         { provide: PrismaService, useValue: prisma },
         { provide: ReferralsRepository, useValue: repo },
+        { provide: NotificationsHandlerService, useValue: notificationsHandler },
       ],
     }).compile();
 
@@ -407,6 +420,145 @@ describe('ReferralsService', () => {
       expect(result).toEqual({ converted: false });
       expect(tx.referral.update).toHaveBeenCalled(); // referral IS marked converted
       expect(tx.user.update).not.toHaveBeenCalled(); // but no reward propagates
+    });
+
+    // ─── Post-transaction notifications ──────────────────────────────────
+
+    it('fires handleReferralMilestoneReached with the right payload after a milestone jump', async () => {
+      repo.findPendingByReferredUser.mockResolvedValue({
+        id: 'ref-1',
+        referrerId: 'referrer-1',
+      });
+      const tx = mockTransactionCtx({
+        referralStatus: 'PENDING',
+        referrer: {
+          convertedCount: 2,
+          referralCreditMonths: 2,
+          referralCreditAnnualDiagnosis: 0,
+          referralCreditBiannualDiagnosis: 0,
+          subscriptionExpiresAt: new Date('2026-06-01'),
+        },
+      });
+      prisma.$transaction.mockImplementation(async (cb) => cb(tx));
+      prisma.user.findUnique.mockResolvedValue({
+        email: 'referrer@epde.com',
+        name: 'Maria Pérez',
+      });
+
+      await service.convertReferral('u1');
+
+      expect(notificationsHandler.handleReferralMilestoneReached).toHaveBeenCalledWith({
+        userId: 'referrer-1',
+        userEmail: 'referrer@epde.com',
+        userName: 'Maria Pérez',
+        milestone: 3,
+        creditMonths: 3,
+        nextMilestone: 5,
+        hasAnnualDiagnosis: true,
+        hasBiannualDiagnosis: false,
+      });
+      expect(notificationsHandler.handleReferralMaxReached).not.toHaveBeenCalled();
+    });
+
+    it('does NOT fire any handler when the conversion does not cross a milestone (3 → 4)', async () => {
+      repo.findPendingByReferredUser.mockResolvedValue({
+        id: 'ref-4',
+        referrerId: 'referrer-1',
+      });
+      const tx = mockTransactionCtx({
+        referralStatus: 'PENDING',
+        referrer: {
+          convertedCount: 3,
+          referralCreditMonths: 3,
+          referralCreditAnnualDiagnosis: 1,
+          referralCreditBiannualDiagnosis: 0,
+          subscriptionExpiresAt: new Date('2026-06-01'),
+        },
+      });
+      prisma.$transaction.mockImplementation(async (cb) => cb(tx));
+      prisma.user.findUnique.mockResolvedValue({
+        email: 'referrer@epde.com',
+        name: 'Maria',
+      });
+
+      await service.convertReferral('u1');
+
+      expect(notificationsHandler.handleReferralMilestoneReached).not.toHaveBeenCalled();
+      expect(notificationsHandler.handleReferralMaxReached).not.toHaveBeenCalled();
+    });
+
+    it('fires handleReferralMaxReached on the 10th conversion when ADMIN_NOTIFICATION_EMAIL is set', async () => {
+      const previousEnv = process.env.ADMIN_NOTIFICATION_EMAIL;
+      process.env.ADMIN_NOTIFICATION_EMAIL = 'admin@epde.com';
+
+      try {
+        repo.findPendingByReferredUser.mockResolvedValue({
+          id: 'ref-10',
+          referrerId: 'referrer-1',
+        });
+        const tx = mockTransactionCtx({
+          referralStatus: 'PENDING',
+          referrer: {
+            convertedCount: 9,
+            referralCreditMonths: 6,
+            referralCreditAnnualDiagnosis: 1,
+            referralCreditBiannualDiagnosis: 0,
+            subscriptionExpiresAt: new Date('2026-06-01'),
+          },
+        });
+        prisma.$transaction.mockImplementation(async (cb) => cb(tx));
+        prisma.user.findUnique.mockResolvedValue({
+          email: 'power-referrer@epde.com',
+          name: 'Juan Carlos',
+        });
+
+        await service.convertReferral('u1');
+
+        expect(notificationsHandler.handleReferralMilestoneReached).toHaveBeenCalledWith(
+          expect.objectContaining({ milestone: 10, hasBiannualDiagnosis: true }),
+        );
+        expect(notificationsHandler.handleReferralMaxReached).toHaveBeenCalledWith({
+          adminEmail: 'admin@epde.com',
+          clientId: 'referrer-1',
+          clientName: 'Juan Carlos',
+          clientEmail: 'power-referrer@epde.com',
+        });
+      } finally {
+        process.env.ADMIN_NOTIFICATION_EMAIL = previousEnv;
+      }
+    });
+
+    it('skips the admin alert (with warn log) when ADMIN_NOTIFICATION_EMAIL is not set', async () => {
+      const previousEnv = process.env.ADMIN_NOTIFICATION_EMAIL;
+      delete process.env.ADMIN_NOTIFICATION_EMAIL;
+
+      try {
+        repo.findPendingByReferredUser.mockResolvedValue({
+          id: 'ref-10',
+          referrerId: 'referrer-1',
+        });
+        const tx = mockTransactionCtx({
+          referralStatus: 'PENDING',
+          referrer: {
+            convertedCount: 9,
+            referralCreditMonths: 6,
+            referralCreditAnnualDiagnosis: 1,
+            referralCreditBiannualDiagnosis: 0,
+            subscriptionExpiresAt: new Date('2026-06-01'),
+          },
+        });
+        prisma.$transaction.mockImplementation(async (cb) => cb(tx));
+        prisma.user.findUnique.mockResolvedValue({
+          email: 'power-referrer@epde.com',
+          name: 'Juan',
+        });
+
+        await service.convertReferral('u1');
+
+        expect(notificationsHandler.handleReferralMaxReached).not.toHaveBeenCalled();
+      } finally {
+        if (previousEnv !== undefined) process.env.ADMIN_NOTIFICATION_EMAIL = previousEnv;
+      }
     });
   });
 

@@ -47,7 +47,24 @@ export type EmailJobData =
       nextTaskName: string | null;
       nextTaskDate: string | null;
     }
-  | { type: 'anniversary'; to: string; name: string; taskCount: number };
+  | { type: 'anniversary'; to: string; name: string; taskCount: number }
+  | {
+      type: 'referralMilestone';
+      to: string;
+      name: string;
+      milestone: number;
+      creditMonths: number;
+      nextMilestone: number | null;
+      hasAnnualDiagnosis: boolean;
+      hasBiannualDiagnosis: boolean;
+    }
+  | {
+      type: 'referralMaxAdmin';
+      to: string;
+      clientName: string;
+      clientEmail: string;
+      clientId: string;
+    };
 
 @Processor(EMAIL_QUEUE, {
   concurrency: 5, // Reduced from 10 — SendGrid rate limit ~600 req/min; weekly-summary + anniversary can overlap on Mondays
@@ -110,6 +127,12 @@ export class EmailQueueProcessor extends WorkerHost {
           break;
         case 'anniversary':
           await this.emailService.sendAnniversaryEmail(job.data);
+          break;
+        case 'referralMilestone':
+          await this.emailService.sendReferralMilestoneEmail(job.data);
+          break;
+        case 'referralMaxAdmin':
+          await this.emailService.sendReferralMaxAdminEmail(job.data);
           break;
       }
     } catch (error) {

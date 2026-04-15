@@ -1,6 +1,7 @@
 import { generateReferralCode, type ReferralStatePublic } from '@epde/shared';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 
+import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   computeReward,
@@ -28,6 +29,7 @@ export class ReferralsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly repo: ReferralsRepository,
+    private readonly notificationsHandler: NotificationsHandlerService,
   ) {}
 
   // ─── Code generation ─────────────────────────────────────────────────────
@@ -225,11 +227,65 @@ export class ReferralsService {
         referrerId: pending.referrerId,
         milestone: currentMilestone,
         delta,
+        newReward,
       };
     });
 
     if (!result) return { converted: false };
-    return { converted: true, ...result };
+
+    // Post-transaction side effects: fire notification handlers if this
+    // conversion actually moved the needle (delta > 0). Fire-and-forget
+    // with DLQ inside the handler; never block or fail the mutation on a
+    // notification problem.
+    const hasDelta =
+      result.delta.months > 0 ||
+      result.delta.annualDiagnosis > 0 ||
+      result.delta.biannualDiagnosis > 0;
+    if (hasDelta) {
+      const referrer = await this.prisma.user.findUnique({
+        where: { id: result.referrerId, deletedAt: null },
+        select: { email: true, name: true },
+      });
+      if (referrer) {
+        const { nextMilestone } = getMilestoneProgress(result.milestone);
+        void this.notificationsHandler.handleReferralMilestoneReached({
+          userId: result.referrerId,
+          userEmail: referrer.email,
+          userName: referrer.name,
+          milestone: result.milestone,
+          creditMonths: result.newReward.months,
+          nextMilestone,
+          hasAnnualDiagnosis: result.newReward.annualDiagnosis > 0,
+          hasBiannualDiagnosis: result.newReward.biannualDiagnosis > 0,
+        });
+
+        // Admin alert — only when this conversion crosses INTO milestone 10
+        // (previous was < 10, now === 10). biannualDiagnosis delta is the
+        // single-bit marker for that transition.
+        if (result.delta.biannualDiagnosis > 0) {
+          const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
+          if (adminEmail) {
+            void this.notificationsHandler.handleReferralMaxReached({
+              adminEmail,
+              clientId: result.referrerId,
+              clientName: referrer.name,
+              clientEmail: referrer.email,
+            });
+          } else {
+            this.logger.warn(
+              `Client ${result.referrerId} hit 10 conversions but ADMIN_NOTIFICATION_EMAIL is not set — admin alert skipped.`,
+            );
+          }
+        }
+      }
+    }
+
+    return {
+      converted: true,
+      referrerId: result.referrerId,
+      milestone: result.milestone,
+      delta: result.delta,
+    };
   }
 
   // ─── Drift recovery (admin) ──────────────────────────────────────────────

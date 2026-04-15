@@ -311,6 +311,89 @@ export class EmailService {
     this.logger.log(`Email semanal enviado a ${maskEmail(data.to)}`);
   }
 
+  /**
+   * Referral milestone email. Sent to the referrer when their convertedCount
+   * crosses 1, 2, 3, 5 or 10. Single template with conditional copy —
+   * milestone 10 swaps to the "embajador" tone and Noelia gets a separate
+   * admin alert (sendReferralMaxAdminEmail).
+   */
+  async sendReferralMilestoneEmail(data: {
+    to: string;
+    name: string;
+    milestone: number;
+    creditMonths: number;
+    nextMilestone: number | null;
+    hasAnnualDiagnosis: boolean;
+    hasBiannualDiagnosis: boolean;
+  }): Promise<void> {
+    const firstName = data.name.split(/\s+/)[0] ?? data.name;
+    const isFirst = data.milestone === 1;
+    const isMax = data.milestone === 10;
+
+    const subject = isFirst
+      ? `🎉 ¡Ganaste tu primer mes gratis en EPDE!`
+      : isMax
+        ? `🏆 ¡Lo lograste, ${firstName}! 10 conversiones en EPDE`
+        : `🚀 ¡${firstName}, llegaste a ${data.milestone} conversiones!`;
+
+    const credits: string[] = [`${data.creditMonths} meses de suscripción`];
+    if (data.hasAnnualDiagnosis) credits.push('re-diagnóstico anual');
+    if (data.hasBiannualDiagnosis) credits.push('re-diagnóstico bianual');
+    const creditLine = credits.join(' + ');
+
+    const nextLine = data.nextMilestone
+      ? `<p>Tu próximo hito está en <strong>${data.nextMilestone} conversiones</strong> — seguí compartiendo tu código.</p>`
+      : `<p>Este es el tope del programa. <strong>Me pongo en contacto pronto</strong> para las condiciones especiales de embajador.</p>`;
+
+    const bodyIntro = isFirst
+      ? `<p>¡Felicitaciones, ${escapeHtml(firstName)}! Tu primera recomendación pagó el diagnóstico, así que ya podés disfrutar de tu primer mes extra de suscripción gratis.</p>`
+      : isMax
+        ? `<p>${escapeHtml(firstName)}, llegaste al tope del programa "Trae un amigo" con 10 conversiones. Eso significa <strong>1 año entero gratis</strong> y un re-diagnóstico bianual incluido.</p>`
+        : `<p>${escapeHtml(firstName)}, una nueva persona que recomendaste pagó su diagnóstico. Ya vas por ${data.milestone} conversiones.</p>`;
+
+    await this.resend?.emails.send({
+      from: this.emailFrom,
+      to: data.to,
+      subject,
+      html: this.wrapEmailHtml(`
+        <h3>${escapeHtml(subject.replace(/^\p{Extended_Pictographic}\s*/u, ''))}</h3>
+        ${bodyIntro}
+        <p><strong>Crédito actual:</strong> ${escapeHtml(creditLine)}.</p>
+        ${nextLine}
+        ${this.ctaButton(`${this.frontendUrl}/perfil#recomendaciones`, 'Ver mis recomendaciones')}
+        <p style="margin-top: 24px; color: #666;">Arq. Noelia E. Yuskowich — EPDE</p>
+      `),
+    });
+
+    this.logger.log(`Email hito recomendación ${data.milestone} enviado a ${maskEmail(data.to)}`);
+  }
+
+  /**
+   * Admin alert — fires when any client hits 10 conversions. Noelia wants a
+   * heads-up so she can reach out for custom ambassador conditions.
+   */
+  async sendReferralMaxAdminEmail(data: {
+    to: string;
+    clientName: string;
+    clientEmail: string;
+    clientId: string;
+  }): Promise<void> {
+    await this.resend?.emails.send({
+      from: this.emailFrom,
+      to: data.to,
+      subject: `⚡ Alerta: ${data.clientName} alcanzó 10 conversiones`,
+      html: this.wrapEmailHtml(`
+        <h3>Un cliente llegó al tope del programa de recomendaciones</h3>
+        <p><strong>${escapeHtml(data.clientName)}</strong> (${escapeHtml(data.clientEmail)}) acaba de cruzar las 10 conversiones del programa "Trae un amigo".</p>
+        <p>Ya tiene el máximo crédito asignado (1 año + re-diagnóstico bianual). Cualquier recomendación adicional NO genera más recompensas automáticas.</p>
+        <p><strong>Sugerido</strong>: contactarlo/a para condiciones de embajador.</p>
+        ${this.ctaButton(`${this.frontendUrl}/clients/${data.clientId}`, 'Ver ficha del cliente')}
+      `),
+    });
+
+    this.logger.log(`Email admin alerta max-conversiones enviado a ${maskEmail(data.to)}`);
+  }
+
   async sendAnniversaryEmail(data: { to: string; name: string; taskCount: number }): Promise<void> {
     await this.resend?.emails.send({
       from: this.emailFrom,

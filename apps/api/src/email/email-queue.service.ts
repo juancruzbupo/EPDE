@@ -162,4 +162,50 @@ export class EmailQueueService {
     );
     this.logger.log(`Enqueued anniversary email for ${maskEmail(opts.to)}`);
   }
+
+  async enqueueReferralMilestone(opts: {
+    to: string;
+    name: string;
+    milestone: number;
+    creditMonths: number;
+    nextMilestone: number | null;
+    hasAnnualDiagnosis: boolean;
+    hasBiannualDiagnosis: boolean;
+  }): Promise<void> {
+    await this.emailQueue.add(
+      'referralMilestone',
+      { type: 'referralMilestone' as const, ...opts },
+      {
+        // Dedupe per user + milestone — if the handler fires twice for the
+        // same conversion (network retry, manual reprocess), BullMQ
+        // collapses it so the user only sees one email per milestone.
+        jobId: `referralMilestone:${opts.to}:${opts.milestone}`,
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 2000 },
+      },
+    );
+    this.logger.log(
+      `Enqueued referral milestone ${opts.milestone} email for ${maskEmail(opts.to)}`,
+    );
+  }
+
+  async enqueueReferralMaxAdmin(opts: {
+    to: string;
+    clientName: string;
+    clientEmail: string;
+    clientId: string;
+  }): Promise<void> {
+    await this.emailQueue.add(
+      'referralMaxAdmin',
+      { type: 'referralMaxAdmin' as const, ...opts },
+      {
+        // One alert per client ever — Noelia sees it the moment a client
+        // crosses 10 conversions, not on every subsequent conversion.
+        jobId: `referralMaxAdmin:${opts.clientId}`,
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 2000 },
+      },
+    );
+    this.logger.log(`Enqueued admin max-referrals alert for ${maskEmail(opts.to)}`);
+  }
 }

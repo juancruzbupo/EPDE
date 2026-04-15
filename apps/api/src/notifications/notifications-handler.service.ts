@@ -283,6 +283,78 @@ export class NotificationsHandlerService {
     });
   }
 
+  /**
+   * Fires after ReferralsService.convertReferral crosses a new milestone
+   * (the reward delta is > 0). Emails the referrer with celebration copy.
+   * The BullMQ jobId is milestone-scoped so re-calls for the same
+   * milestone collapse to a single send.
+   */
+  async handleReferralMilestoneReached(payload: {
+    userId: string;
+    userEmail: string;
+    userName: string;
+    milestone: number;
+    creditMonths: number;
+    nextMilestone: number | null;
+    hasAnnualDiagnosis: boolean;
+    hasBiannualDiagnosis: boolean;
+  }): Promise<void> {
+    return this.withDLQ(
+      'handleReferralMilestoneReached',
+      payload as Record<string, unknown>,
+      async () => {
+        await Promise.all([
+          this.emailQueueService.enqueueReferralMilestone({
+            to: payload.userEmail,
+            name: payload.userName,
+            milestone: payload.milestone,
+            creditMonths: payload.creditMonths,
+            nextMilestone: payload.nextMilestone,
+            hasAnnualDiagnosis: payload.hasAnnualDiagnosis,
+            hasBiannualDiagnosis: payload.hasBiannualDiagnosis,
+          }),
+          // Also surface the milestone in-app so the user sees it next
+          // time they open the dashboard, not just in their inbox.
+          this.notificationQueueService.enqueue({
+            userId: payload.userId,
+            type: 'SYSTEM',
+            title: `¡Llegaste a ${payload.milestone} recomendaciones!`,
+            message:
+              payload.milestone === 10
+                ? 'Llegaste al tope del programa. Te contactamos pronto.'
+                : `Ya tenés ${payload.creditMonths} meses de crédito en tu suscripción.`,
+            data: { milestone: String(payload.milestone) },
+          }),
+        ]);
+      },
+    );
+  }
+
+  /**
+   * Fires exactly once when any client hits 10 conversions — alerts the
+   * admin (Noelia) so she can reach out with ambassador conditions.
+   * BullMQ jobId is keyed by clientId so repeated firings are collapsed.
+   */
+  async handleReferralMaxReached(payload: {
+    adminEmail: string;
+    clientId: string;
+    clientName: string;
+    clientEmail: string;
+  }): Promise<void> {
+    return this.withDLQ(
+      'handleReferralMaxReached',
+      payload as Record<string, unknown>,
+      async () => {
+        await this.emailQueueService.enqueueReferralMaxAdmin({
+          to: payload.adminEmail,
+          clientName: payload.clientName,
+          clientEmail: payload.clientEmail,
+          clientId: payload.clientId,
+        });
+      },
+    );
+  }
+
   /** Fires after an inspection checklist is converted into a maintenance plan.
    *  Sends an in-app SYSTEM notification to the property owner so they learn the plan
    *  is ready without having to check the app. Intentionally in-app only — the plan
