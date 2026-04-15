@@ -1,387 +1,139 @@
 import { BudgetStatus, ServiceStatus, type ServiceUrgency } from '@epde/shared';
-import { Injectable, Logger } from '@nestjs/common';
-import { AsyncLocalStorage } from 'async_hooks';
+import { Injectable } from '@nestjs/common';
 
-import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
-import { EmailQueueService } from '../email/email-queue.service';
-import { FailedNotificationRepository } from './failed-notification.repository';
-import { NotificationQueueService } from './notification-queue.service';
-import { NotificationsService } from './notifications.service';
-import { PushService } from './push.service';
+import { HandlerContext } from './handler-context.service';
+import { AccountHandlers } from './handlers/account-handlers';
+import { BudgetHandlers } from './handlers/budget-handlers';
+import { PropertyHealthHandlers } from './handlers/property-health-handlers';
+import { ReferralHandlers } from './handlers/referral-handlers';
+import { ServiceRequestHandlers } from './handlers/service-request-handlers';
+import { SubscriptionHandlers } from './handlers/subscription-handlers';
+import { TaskHandlers } from './handlers/task-handlers';
 
 /**
- * Centralized extension point for domain side-effects (notifications, emails, etc.).
+ * Facade for domain side-effects (notifications, emails, push). This file is
+ * the public seam: domain services inject `NotificationsHandlerService` and
+ * call a method on it. Each method delegates to a per-domain handler class
+ * under `./handlers/*` so this file stays a flat dispatch table — adding a
+ * new side-effect inside a domain touches its handler file, not this one.
  *
- * This service acts as a **type-safe event bus**: domain services call handler methods
- * instead of emitting string-keyed events, preserving compile-time safety and IDE
- * traceability. See {@link docs/adr/006-notification-handler-vs-events.md} for the
- * architectural decision record explaining why this pattern was chosen over
- * `EventEmitter2` or a custom RxJS event bus.
+ * See {@link docs/adr/006-notification-handler-vs-events.md} for why this
+ * is a typed facade instead of an EventEmitter / RxJS bus.
  *
  * ## Architecture rule
- * Domain services (BudgetsService, ServiceRequestsService, etc.) MUST inject THIS service
- * instead of NotificationQueueService or EmailQueueService directly.
- * Adding a new side-effect = add a method here — domain services never change.
+ * Domain services MUST inject THIS service instead of NotificationQueueService
+ * or EmailQueueService directly. The facade gives them a type-safe, IDE-
+ * traceable surface without coupling them to the underlying transport.
  *
  * ## Usage pattern (fire-and-forget)
  * ```typescript
- * void this.notificationsHandler.handleBudgetCreated({ budgetId, title, requesterId, propertyId });
+ * void this.notificationsHandler.handleBudgetCreated({ budgetId, title, requesterId });
  * ```
- * Each method catches its own errors and logs them, so callers never need try/catch.
- *
- * ## Dead-letter queue (DLQ)
- * Every void handler is wrapped with `withDLQ`. On failure the error is logged and the
- * call details are persisted to `FailedNotification` for hourly retry by
- * `NotificationRetryService` (up to {@link FAILED_NOTIFICATION_MAX_RETRIES} attempts).
- * `AsyncLocalStorage` prevents retry calls from creating additional DLQ entries on failure.
+ * Every handler goes through `HandlerContext.withDLQ` — callers never need
+ * try/catch; failures are logged and persisted to `FailedNotification` for
+ * hourly retry by `NotificationRetryService`.
  *
  * ## Adding a new side-effect
- * 1. Add a `handleXxxYyy(payload: { ... }): Promise<void>` method here.
- * 2. Inject `NotificationsHandlerService` in the target domain service.
- * 3. Call `void this.notificationsHandler.handleXxxYyy(...)` after the DB write.
+ * 1. Add `onXxxYyy(payload)` to the relevant handler class under `./handlers/`.
+ *    If no existing class fits the bounded context, create a new one and
+ *    register it in `NotificationsModule`.
+ * 2. Add the matching `handleXxxYyy` delegator method here.
+ * 3. Inject `NotificationsHandlerService` in the target domain service and
+ *    call `void this.notificationsHandler.handleXxxYyy(...)` after the DB write.
  */
 @Injectable()
 export class NotificationsHandlerService {
-  private readonly logger = new Logger(NotificationsHandlerService.name);
-
-  /**
-   * AsyncLocalStorage flag: true when the call is coming from NotificationRetryService.
-   * Prevents retry calls from writing new DLQ entries on failure (which would create infinite chains).
-   */
-  private readonly retryContext = new AsyncLocalStorage<boolean>();
-
   constructor(
-    private readonly notificationQueueService: NotificationQueueService,
-    private readonly notificationsService: NotificationsService,
-    private readonly usersRepository: UserLookupRepository,
-    private readonly emailQueueService: EmailQueueService,
-    private readonly pushService: PushService,
-    private readonly failedNotificationRepository: FailedNotificationRepository,
+    private readonly ctx: HandlerContext,
+    private readonly budget: BudgetHandlers,
+    private readonly service: ServiceRequestHandlers,
+    private readonly task: TaskHandlers,
+    private readonly referral: ReferralHandlers,
+    private readonly subscription: SubscriptionHandlers,
+    private readonly account: AccountHandlers,
+    private readonly propertyHealth: PropertyHealthHandlers,
   ) {}
 
-  /**
-   * Wraps a handler function with error catching + DLQ write.
-   * - Normal call: catches error, logs it, writes to FailedNotification, does NOT re-throw.
-   * - Retry call (via retryDispatch): catches error, logs it, re-throws WITHOUT writing to DLQ.
-   *   The retry service is responsible for incrementing retryCount on the original record.
-   */
-  private async withDLQ(
-    handler: string,
-    payload: Record<string, unknown>,
-    fn: () => Promise<void>,
-  ): Promise<void> {
-    try {
-      await fn();
-    } catch (error) {
-      this.logger.error(`Error in ${handler}: ${(error as Error).message}`, (error as Error).stack);
-      const isRetrying = this.retryContext.getStore() ?? false;
-      if (isRetrying) {
-        throw error;
-      }
-      await this.failedNotificationRepository
-        .create({ handler, payload, lastError: (error as Error).message })
-        .catch((dlqErr) => {
-          this.logger.error(`DLQ write failed for ${handler}: ${(dlqErr as Error).message}`);
-        });
-    }
-  }
+  // ─── Budget ──────────────────────────────────────────────────────────────
 
-  /**
-   * Called exclusively by NotificationRetryService.
-   * Runs the handler in retry context — on failure it re-throws (no new DLQ entry).
-   * The retry service handles retryCount increment and backoff on the original record.
-   */
-  async retryDispatch(handler: string, payload: Record<string, unknown>): Promise<void> {
-    return this.retryContext.run(true, async () => {
-      const method = (this as unknown as Record<string, unknown>)[handler];
-      if (typeof method !== 'function') {
-        throw new Error(`Unknown handler: ${handler}`);
-      }
-      await (method as (p: Record<string, unknown>) => Promise<void>).call(this, payload);
-    });
-  }
-
-  /** Send push notification to specific users (fire-and-forget, catches errors). */
-  private sendPush(userIds: string[], title: string, body: string, data?: Record<string, string>) {
-    void this.pushService.sendToUsers(userIds, { title, body, data }).catch((err) => {
-      this.logger.error(`Push notification failed: ${err}`);
-    });
-  }
-
-  async handleBudgetCreated(payload: {
+  handleBudgetCreated(payload: {
     budgetId: string;
     title: string;
     requesterId: string;
   }): Promise<void> {
-    return this.withDLQ('handleBudgetCreated', payload as Record<string, unknown>, async () => {
-      const adminIds = await this.usersRepository.findAdminIds();
-
-      await this.notificationQueueService.enqueueBatch(
-        adminIds.map((adminId) => ({
-          userId: adminId,
-          type: 'BUDGET_UPDATE' as const,
-          title: 'Nuevo presupuesto solicitado',
-          message: `Se solicitó un presupuesto: "${payload.title}"`,
-          data: { budgetId: payload.budgetId },
-        })),
-      );
-    });
+    return this.budget.onBudgetCreated(payload);
   }
 
-  async handleBudgetQuoted(payload: {
+  handleBudgetQuoted(payload: {
     budgetId: string;
     title: string;
     requesterId: string;
     totalAmount: number;
   }): Promise<void> {
-    return this.withDLQ('handleBudgetQuoted', payload as Record<string, unknown>, async () => {
-      const notifTitle = 'Presupuesto cotizado';
-      const notifMsg = `Tu presupuesto "${payload.title}" fue cotizado por $${payload.totalAmount.toLocaleString('es-AR')}`;
-
-      await this.notificationQueueService.enqueue({
-        userId: payload.requesterId,
-        type: 'BUDGET_UPDATE',
-        title: notifTitle,
-        message: notifMsg,
-        data: { budgetId: payload.budgetId },
-      });
-
-      this.sendPush([payload.requesterId], notifTitle, notifMsg, {
-        budgetId: payload.budgetId,
-      });
-
-      const requester = await this.usersRepository.findEmailInfo(payload.requesterId);
-      if (requester) {
-        await this.emailQueueService.enqueueBudgetQuoted(
-          requester.email,
-          requester.name,
-          payload.title,
-          payload.totalAmount,
-          payload.budgetId,
-        );
-      }
-    });
+    return this.budget.onBudgetQuoted(payload);
   }
 
-  async handleBudgetStatusChanged(payload: {
+  handleBudgetStatusChanged(payload: {
     budgetId: string;
     title: string;
     oldStatus: BudgetStatus;
     newStatus: BudgetStatus;
     requesterId: string;
   }): Promise<void> {
-    return this.withDLQ(
-      'handleBudgetStatusChanged',
-      payload as Record<string, unknown>,
-      async () => {
-        const statusMessages: Partial<Record<BudgetStatus, string>> = {
-          APPROVED: 'fue aprobado',
-          REJECTED: 'fue rechazado',
-          IN_PROGRESS: 'está en progreso',
-          COMPLETED: 'fue completado',
-        };
-
-        const message = statusMessages[payload.newStatus] ?? 'cambió de estado';
-
-        if (
-          payload.newStatus === BudgetStatus.APPROVED ||
-          payload.newStatus === BudgetStatus.REJECTED
-        ) {
-          const adminIds = await this.usersRepository.findAdminIds();
-          await this.notificationQueueService.enqueueBatch(
-            adminIds.map((adminId) => ({
-              userId: adminId,
-              type: 'BUDGET_UPDATE' as const,
-              title: 'Actualización de presupuesto',
-              message: `El presupuesto "${payload.title}" ${message}`,
-              data: { budgetId: payload.budgetId },
-            })),
-          );
-        } else {
-          await this.notificationQueueService.enqueue({
-            userId: payload.requesterId,
-            type: 'BUDGET_UPDATE',
-            title: 'Actualización de presupuesto',
-            message: `Tu presupuesto "${payload.title}" ${message}`,
-            data: { budgetId: payload.budgetId },
-          });
-
-          const requester = await this.usersRepository.findEmailInfo(payload.requesterId);
-          if (requester) {
-            await this.emailQueueService.enqueueBudgetStatus(
-              requester.email,
-              requester.name,
-              payload.title,
-              payload.newStatus,
-              payload.budgetId,
-            );
-          }
-        }
-      },
-    );
+    return this.budget.onBudgetStatusChanged(payload);
   }
 
-  async handleServiceCreated(payload: {
+  handleBudgetCommentAdded(payload: {
+    budgetId: string;
+    title: string;
+    commentAuthorId: string;
+    requesterId: string;
+  }): Promise<void> {
+    return this.budget.onBudgetCommentAdded(payload);
+  }
+
+  // ─── Service Request ────────────────────────────────────────────────────
+
+  handleServiceCreated(payload: {
     serviceRequestId: string;
     title: string;
     requesterId: string;
     urgency: ServiceUrgency;
   }): Promise<void> {
-    return this.withDLQ('handleServiceCreated', payload as Record<string, unknown>, async () => {
-      const adminIds = await this.usersRepository.findAdminIds();
-
-      await this.notificationQueueService.enqueueBatch(
-        adminIds.map((adminId) => ({
-          userId: adminId,
-          type: 'SERVICE_UPDATE' as const,
-          title: 'Nueva solicitud de servicio',
-          message: `Se creó una solicitud: "${payload.title}" (${payload.urgency})`,
-          data: { serviceRequestId: payload.serviceRequestId },
-        })),
-      );
-    });
+    return this.service.onServiceCreated(payload);
   }
 
-  async handleServiceStatusChanged(payload: {
+  handleServiceStatusChanged(payload: {
     serviceRequestId: string;
     title: string;
     oldStatus: ServiceStatus;
     newStatus: ServiceStatus;
     requesterId: string;
   }): Promise<void> {
-    return this.withDLQ(
-      'handleServiceStatusChanged',
-      payload as Record<string, unknown>,
-      async () => {
-        const statusMessages: Partial<Record<ServiceStatus, string>> = {
-          IN_REVIEW: 'está en revisión',
-          IN_PROGRESS: 'está en progreso',
-          RESOLVED: 'fue resuelta',
-          CLOSED: 'fue cerrada',
-        };
-
-        const message = statusMessages[payload.newStatus] ?? 'cambió de estado';
-
-        await this.notificationQueueService.enqueue({
-          userId: payload.requesterId,
-          type: 'SERVICE_UPDATE',
-          title: 'Actualización de servicio',
-          message: `Tu solicitud "${payload.title}" ${message}`,
-          data: { serviceRequestId: payload.serviceRequestId },
-        });
-      },
-    );
+    return this.service.onServiceStatusChanged(payload);
   }
 
-  async handleClientInvited(payload: {
-    email: string;
-    name: string;
-    token: string;
+  handleServiceCommentAdded(payload: {
+    serviceRequestId: string;
+    title: string;
+    commentAuthorId: string;
+    requesterId: string;
   }): Promise<void> {
-    return this.withDLQ('handleClientInvited', payload as Record<string, unknown>, async () => {
-      await this.emailQueueService.enqueueInvite(payload.email, payload.name, payload.token);
-    });
+    return this.service.onServiceCommentAdded(payload);
   }
 
-  /**
-   * Fires after ReferralsService.convertReferral crosses a new milestone
-   * (the reward delta is > 0). Emails the referrer with celebration copy.
-   * The BullMQ jobId is milestone-scoped so re-calls for the same
-   * milestone collapse to a single send.
-   */
-  async handleReferralMilestoneReached(payload: {
-    userId: string;
-    userEmail: string;
-    userName: string;
-    milestone: number;
-    creditMonths: number;
-    nextMilestone: number | null;
-    hasAnnualDiagnosis: boolean;
-    hasBiannualDiagnosis: boolean;
-  }): Promise<void> {
-    return this.withDLQ(
-      'handleReferralMilestoneReached',
-      payload as Record<string, unknown>,
-      async () => {
-        await Promise.all([
-          this.emailQueueService.enqueueReferralMilestone({
-            to: payload.userEmail,
-            name: payload.userName,
-            milestone: payload.milestone,
-            creditMonths: payload.creditMonths,
-            nextMilestone: payload.nextMilestone,
-            hasAnnualDiagnosis: payload.hasAnnualDiagnosis,
-            hasBiannualDiagnosis: payload.hasBiannualDiagnosis,
-          }),
-          // Also surface the milestone in-app so the user sees it next
-          // time they open the dashboard, not just in their inbox.
-          this.notificationQueueService.enqueue({
-            userId: payload.userId,
-            type: 'SYSTEM',
-            title: `¡Llegaste a ${payload.milestone} recomendaciones!`,
-            message:
-              payload.milestone === 10
-                ? 'Llegaste al tope del programa. Te contactamos pronto.'
-                : `Ya tenés ${payload.creditMonths} meses de crédito en tu suscripción.`,
-            data: { milestone: String(payload.milestone) },
-          }),
-        ]);
-      },
-    );
-  }
+  // ─── Task / Plan ─────────────────────────────────────────────────────────
 
-  /**
-   * Fires exactly once when any client hits 10 conversions — alerts the
-   * admin (Noelia) so she can reach out with ambassador conditions.
-   * BullMQ jobId is keyed by clientId so repeated firings are collapsed.
-   */
-  async handleReferralMaxReached(payload: {
-    adminEmail: string;
-    clientId: string;
-    clientName: string;
-    clientEmail: string;
-  }): Promise<void> {
-    return this.withDLQ(
-      'handleReferralMaxReached',
-      payload as Record<string, unknown>,
-      async () => {
-        await this.emailQueueService.enqueueReferralMaxAdmin({
-          to: payload.adminEmail,
-          clientName: payload.clientName,
-          clientEmail: payload.clientEmail,
-          clientId: payload.clientId,
-        });
-      },
-    );
-  }
-
-  /** Fires after an inspection checklist is converted into a maintenance plan.
-   *  Sends an in-app SYSTEM notification to the property owner so they learn the plan
-   *  is ready without having to check the app. Intentionally in-app only — the plan
-   *  ready flow surfaces on the dashboard too, no need to add email noise. */
-  async handlePlanGenerated(payload: {
+  handlePlanGenerated(payload: {
     userId: string;
     planId: string;
     propertyId: string;
     propertyAddress: string;
   }): Promise<void> {
-    return this.withDLQ('handlePlanGenerated', payload as Record<string, unknown>, async () => {
-      await this.notificationQueueService.enqueue({
-        userId: payload.userId,
-        type: 'SYSTEM',
-        title: 'Tu plan de mantenimiento está listo',
-        message: `Ya podés ver el plan generado para ${payload.propertyAddress}.`,
-        data: { planId: payload.planId, propertyId: payload.propertyId },
-      });
-    });
+    return this.task.onPlanGenerated(payload);
   }
 
-  /**
-   * Bulk task reminder handler — used by TaskReminderService (scheduler).
-   * Uses direct DB writes (NotificationsService) instead of BullMQ queue
-   * for efficiency when processing hundreds of reminders at once.
-   */
-  async handleTaskReminders(payload: {
+  handleTaskReminders(payload: {
     notifications: Array<{
       userId: string;
       type: 'TASK_REMINDER';
@@ -400,229 +152,93 @@ export class NotificationsHandlerService {
       isOverdue: boolean;
     }>;
   }): Promise<{ notificationCount: number; failedEmails: number }> {
-    try {
-      const [notificationCount, emailResults] = await Promise.all([
-        this.notificationsService.createNotifications(payload.notifications),
-        Promise.allSettled(
-          payload.emails.map((e) => this.emailQueueService.enqueueTaskReminder(e)),
-        ),
-      ]);
-      const failedEmails = emailResults.filter((r) => r.status === 'rejected').length;
-      if (failedEmails > 0) {
-        this.logger.error(
-          `${failedEmails}/${emailResults.length} reminder email(s) failed to enqueue`,
-        );
-      }
-      return { notificationCount, failedEmails };
-    } catch (error) {
-      this.logger.error(
-        `Error handling task reminders: ${(error as Error).message}`,
-        (error as Error).stack,
-      );
-      return { notificationCount: 0, failedEmails: payload.emails.length };
-    }
+    return this.task.onTaskReminders(payload);
   }
 
-  /** Notify the other party when a comment is added to a budget. */
-  async handleBudgetCommentAdded(payload: {
-    budgetId: string;
-    title: string;
-    commentAuthorId: string;
-    requesterId: string;
+  handleProblemDetected(payload: {
+    taskName: string;
+    propertyAddress: string;
+    propertyId: string;
+    conditionLabel: string;
   }): Promise<void> {
-    return this.withDLQ(
-      'handleBudgetCommentAdded',
-      payload as Record<string, unknown>,
-      async () => {
-        const adminIds = await this.usersRepository.findAdminIds();
-        const isAdminComment = adminIds.includes(payload.commentAuthorId);
-        const author = await this.usersRepository.findEmailInfo(payload.commentAuthorId);
-        const authorName = author?.name ?? 'Un usuario';
-
-        const recipients = isAdminComment ? [payload.requesterId] : adminIds;
-
-        const notifTitle = 'Nuevo comentario en presupuesto';
-        const notifMsg = `${authorName} comentó en "${payload.title}"`;
-
-        await this.notificationQueueService.enqueueBatch(
-          recipients.map((userId) => ({
-            userId,
-            type: 'BUDGET_UPDATE' as const,
-            title: notifTitle,
-            message: notifMsg,
-            data: { budgetId: payload.budgetId },
-          })),
-        );
-
-        this.sendPush(recipients, notifTitle, notifMsg, { budgetId: payload.budgetId });
-      },
-    );
+    return this.task.onProblemDetected(payload);
   }
 
-  /** Notify the other party when a comment is added to a service request. */
-  async handleServiceCommentAdded(payload: {
-    serviceRequestId: string;
-    title: string;
-    commentAuthorId: string;
-    requesterId: string;
+  // ─── Referral ────────────────────────────────────────────────────────────
+
+  handleReferralMilestoneReached(payload: {
+    userId: string;
+    userEmail: string;
+    userName: string;
+    milestone: number;
+    creditMonths: number;
+    nextMilestone: number | null;
+    hasAnnualDiagnosis: boolean;
+    hasBiannualDiagnosis: boolean;
   }): Promise<void> {
-    return this.withDLQ(
-      'handleServiceCommentAdded',
-      payload as Record<string, unknown>,
-      async () => {
-        const adminIds = await this.usersRepository.findAdminIds();
-        const isAdminComment = adminIds.includes(payload.commentAuthorId);
-        const author = await this.usersRepository.findEmailInfo(payload.commentAuthorId);
-        const authorName = author?.name ?? 'Un usuario';
-
-        const recipients = isAdminComment ? [payload.requesterId] : adminIds;
-
-        const notifTitle = 'Nuevo comentario en solicitud';
-        const notifMsg = `${authorName} comentó en "${payload.title}"`;
-
-        await this.notificationQueueService.enqueueBatch(
-          recipients.map((userId) => ({
-            userId,
-            type: 'SERVICE_UPDATE' as const,
-            title: notifTitle,
-            message: notifMsg,
-            data: { serviceRequestId: payload.serviceRequestId },
-          })),
-        );
-
-        this.sendPush(recipients, notifTitle, notifMsg, {
-          serviceRequestId: payload.serviceRequestId,
-        });
-      },
-    );
+    return this.referral.onMilestoneReached(payload);
   }
 
-  /** Alert user when their property ISV drops significantly. */
-  async handleISVAlert(payload: {
+  handleReferralMaxReached(payload: {
+    adminEmail: string;
+    clientId: string;
+    clientName: string;
+    clientEmail: string;
+  }): Promise<void> {
+    return this.referral.onMaxReached(payload);
+  }
+
+  // ─── Subscription ────────────────────────────────────────────────────────
+
+  handleSubscriptionChanged(payload: {
+    userId: string;
+    userName: string;
+    action: 'extended' | 'suspended' | 'unlimited';
+    newExpiresAt: Date | null;
+  }): Promise<void> {
+    return this.subscription.onSubscriptionChanged(payload);
+  }
+
+  handleSubscriptionReminder(payload: {
+    userId: string;
+    userName: string;
+    daysLeft: number;
+    expiresAt: Date;
+  }): Promise<void> {
+    return this.subscription.onSubscriptionReminder(payload);
+  }
+
+  // ─── Account ─────────────────────────────────────────────────────────────
+
+  handleClientInvited(payload: { email: string; name: string; token: string }): Promise<void> {
+    return this.account.onClientInvited(payload);
+  }
+
+  // ─── Property health ─────────────────────────────────────────────────────
+
+  handleISVAlert(payload: {
     propertyId: string;
     userId: string;
     address: string;
     previousScore: number;
     currentScore: number;
   }): Promise<void> {
-    return this.withDLQ('handleISVAlert', payload as Record<string, unknown>, async () => {
-      const drop = payload.previousScore - payload.currentScore;
-      await this.notificationQueueService.enqueue({
-        userId: payload.userId,
-        type: 'SYSTEM',
-        title: 'Salud de tu propiedad bajó',
-        message: `El índice de salud de ${payload.address} bajó ${drop} puntos (de ${payload.previousScore} a ${payload.currentScore}). Revisá las tareas pendientes.`,
-        data: { propertyId: payload.propertyId },
-      });
+    return this.propertyHealth.onISVAlert(payload);
+  }
 
-      this.sendPush(
-        [payload.userId],
-        'Salud de tu propiedad bajó',
-        `ISV de ${payload.address}: ${payload.currentScore}/100`,
-        { propertyId: payload.propertyId },
-      );
+  /**
+   * Called exclusively by NotificationRetryService. Runs the named handler
+   * under the retry flag (see HandlerContext.runInRetry) — on failure the
+   * error re-throws instead of creating a new DLQ row. The retry service
+   * manages the retryCount / backoff on the original FailedNotification row.
+   */
+  async retryDispatch(handler: string, payload: Record<string, unknown>): Promise<void> {
+    return this.ctx.runInRetry(async () => {
+      const method = (this as unknown as Record<string, unknown>)[handler];
+      if (typeof method !== 'function') {
+        throw new Error(`Unknown handler: ${handler}`);
+      }
+      await (method as (p: Record<string, unknown>) => Promise<void>).call(this, payload);
     });
-  }
-
-  /** Notify admins when a task completion reveals a POOR/CRITICAL condition. */
-  async handleProblemDetected(payload: {
-    taskName: string;
-    propertyAddress: string;
-    propertyId: string;
-    conditionLabel: string;
-  }): Promise<void> {
-    return this.withDLQ('handleProblemDetected', payload as Record<string, unknown>, async () => {
-      const adminIds = await this.usersRepository.findAdminIds();
-      if (adminIds.length === 0) return;
-
-      const title = `Problema detectado: ${payload.taskName}`;
-      const message = `Se detectó un problema (${payload.conditionLabel}) en ${payload.propertyAddress}. Considerá generar un presupuesto o servicio.`;
-
-      await this.notificationQueueService.enqueueBatch(
-        adminIds.map((userId) => ({
-          userId,
-          type: 'SYSTEM' as const,
-          title,
-          message,
-          data: { propertyId: payload.propertyId },
-        })),
-      );
-
-      this.sendPush(adminIds, title, message, { propertyId: payload.propertyId });
-    });
-  }
-
-  async handleSubscriptionChanged(payload: {
-    userId: string;
-    userName: string;
-    action: 'extended' | 'suspended' | 'unlimited';
-    newExpiresAt: Date | null;
-  }): Promise<void> {
-    return this.withDLQ(
-      'handleSubscriptionChanged',
-      payload as unknown as Record<string, unknown>,
-      async () => {
-        let title: string;
-        let message: string;
-
-        switch (payload.action) {
-          case 'extended': {
-            const dateStr = payload.newExpiresAt
-              ? new Date(payload.newExpiresAt).toLocaleDateString('es-AR', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })
-              : '';
-            title = 'Tu suscripción fue extendida';
-            message = `${payload.userName}, tu acceso a EPDE fue extendido hasta el ${dateStr}.`;
-            break;
-          }
-          case 'suspended':
-            title = 'Tu suscripción fue suspendida';
-            message = `${payload.userName}, tu acceso a EPDE fue suspendido. Contactá al administrador para más información.`;
-            break;
-          case 'unlimited':
-            title = 'Tu suscripción fue actualizada';
-            message = `${payload.userName}, tu acceso a EPDE ahora es ilimitado.`;
-            break;
-        }
-
-        await this.notificationsService.createNotification({
-          userId: payload.userId,
-          type: 'SYSTEM',
-          title,
-          message,
-        });
-
-        this.sendPush([payload.userId], title, message);
-      },
-    );
-  }
-
-  async handleSubscriptionReminder(payload: {
-    userId: string;
-    userName: string;
-    daysLeft: number;
-    expiresAt: Date;
-  }): Promise<void> {
-    return this.withDLQ(
-      'handleSubscriptionReminder',
-      payload as unknown as Record<string, unknown>,
-      async () => {
-        const daysText = payload.daysLeft === 1 ? 'mañana' : `en ${payload.daysLeft} días`;
-        const title = 'Tu suscripción está por vencer';
-        const message = `${payload.userName}, tu acceso a EPDE vence ${daysText}. Contactá al administrador para renovar.`;
-
-        await this.notificationsService.createNotification({
-          userId: payload.userId,
-          type: 'SYSTEM',
-          title,
-          message,
-        });
-
-        this.sendPush([payload.userId], title, message);
-      },
-    );
   }
 }

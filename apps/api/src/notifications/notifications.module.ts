@@ -4,6 +4,14 @@ import { Module } from '@nestjs/common';
 import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
 import { EmailModule } from '../email/email.module';
 import { FailedNotificationRepository } from './failed-notification.repository';
+import { HandlerContext } from './handler-context.service';
+import { AccountHandlers } from './handlers/account-handlers';
+import { BudgetHandlers } from './handlers/budget-handlers';
+import { PropertyHealthHandlers } from './handlers/property-health-handlers';
+import { ReferralHandlers } from './handlers/referral-handlers';
+import { ServiceRequestHandlers } from './handlers/service-request-handlers';
+import { SubscriptionHandlers } from './handlers/subscription-handlers';
+import { TaskHandlers } from './handlers/task-handlers';
 import { NotificationQueueProcessor } from './notification-queue.processor';
 import { NotificationQueueService } from './notification-queue.service';
 import { NOTIFICATION_QUEUE } from './notification-queue.types';
@@ -38,6 +46,17 @@ import { PushTokensRepository } from './push-tokens.repository';
     PushService,
     PushTokensRepository,
     FailedNotificationRepository,
+    // Per-bounded-context handlers that the facade delegates to. Each one is
+    // an @Injectable() with the same HandlerContext dependency so the core
+    // DLQ / retry / sendPush wiring stays DRY.
+    HandlerContext,
+    BudgetHandlers,
+    ServiceRequestHandlers,
+    TaskHandlers,
+    ReferralHandlers,
+    SubscriptionHandlers,
+    AccountHandlers,
+    PropertyHealthHandlers,
   ],
   exports: [
     NotificationsService,

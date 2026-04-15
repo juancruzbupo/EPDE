@@ -2,6 +2,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
 import { EmailQueueService } from '../email/email-queue.service';
+import { FailedNotificationRepository } from './failed-notification.repository';
+import { HandlerContext } from './handler-context.service';
+import { AccountHandlers } from './handlers/account-handlers';
+import { BudgetHandlers } from './handlers/budget-handlers';
+import { PropertyHealthHandlers } from './handlers/property-health-handlers';
+import { ReferralHandlers } from './handlers/referral-handlers';
+import { ServiceRequestHandlers } from './handlers/service-request-handlers';
+import { SubscriptionHandlers } from './handlers/subscription-handlers';
+import { TaskHandlers } from './handlers/task-handlers';
 import { NotificationQueueService } from './notification-queue.service';
 import { NotificationsService } from './notifications.service';
 import { NotificationsHandlerService } from './notifications-handler.service';
@@ -34,18 +43,34 @@ const mockPushService = {
   sendToUsers: jest.fn().mockResolvedValue(undefined),
 };
 
+const mockFailedNotificationRepository = {
+  create: jest.fn().mockResolvedValue({ id: 'fn-1' }),
+};
+
 describe('NotificationsHandlerService', () => {
   let service: NotificationsHandlerService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        // Facade + handler chain wired as real providers so the AsyncLocalStorage
+        // retry context + DLQ wrapper are exercised end-to-end. Only the leaf
+        // transports (queue, push, email, DB) are mocked.
         NotificationsHandlerService,
+        HandlerContext,
+        BudgetHandlers,
+        ServiceRequestHandlers,
+        TaskHandlers,
+        ReferralHandlers,
+        SubscriptionHandlers,
+        AccountHandlers,
+        PropertyHealthHandlers,
         { provide: NotificationQueueService, useValue: mockNotificationQueue },
         { provide: NotificationsService, useValue: mockNotificationsService },
         { provide: UserLookupRepository, useValue: mockUserLookup },
         { provide: EmailQueueService, useValue: mockEmailQueue },
         { provide: PushService, useValue: mockPushService },
+        { provide: FailedNotificationRepository, useValue: mockFailedNotificationRepository },
       ],
     }).compile();
 
