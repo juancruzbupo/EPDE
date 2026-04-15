@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 
 import { AnimatedListItem } from '@/components/animated-list-item';
+import { ContextualEmptyState } from '@/components/contextual-empty-state';
 import { CreateBudgetModal } from '@/components/create-budget-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
@@ -315,14 +316,22 @@ export default function BudgetsScreen() {
         }
         ListEmptyComponent={
           !isLoading ? (
-            <EmptyState
-              title="Sin presupuestos"
-              message={
-                hasActiveFilters
-                  ? 'No se encontraron presupuestos con esos filtros.'
-                  : 'Creá tu primer presupuesto para solicitar una cotización.'
-              }
-            />
+            hasActiveFilters ? (
+              <EmptyState
+                title="Sin resultados"
+                message="No se encontraron presupuestos con esos filtros."
+              />
+            ) : (
+              <ContextualEmptyState
+                icon="💰"
+                title="Sin presupuestos todavía"
+                message="Pedí una cotización para una reparación que ya sabés que necesitás. Ej: «las canaletas están rotas, ¿cuánto sale repararlas?»."
+                action={{
+                  label: 'Pedir presupuesto',
+                  onPress: () => setCreateModalVisible(true),
+                }}
+              />
+            )
           ) : null
         }
       />

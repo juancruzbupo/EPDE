@@ -7,6 +7,7 @@ import {
   TASK_PRIORITY_LABELS,
   TASK_STATUS_LABELS,
   TaskStatus as TS,
+  WHATSAPP_CONTACT_NUMBER,
 } from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { memo, useCallback, useMemo, useState } from 'react';
@@ -480,8 +481,12 @@ export default function TasksScreen() {
             ) : (
               <ContextualEmptyState
                 icon="✅"
-                title="Sin tareas"
+                title="Sin tareas todavía"
                 message="Las tareas aparecen cuando tu plan de mantenimiento esté activo. La arquitecta lo genera después de inspeccionar tu casa."
+                action={{
+                  label: 'Hablar por WhatsApp',
+                  url: `https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=${encodeURIComponent('Hola! Quiero coordinar la inspección inicial para activar mi plan.')}`,
+                }}
               />
             )
           ) : null

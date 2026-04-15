@@ -1,4 +1,4 @@
-import { PLAN_STATUS_LABELS, PlanStatus } from '@epde/shared';
+import { PLAN_STATUS_LABELS, PlanStatus, WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { memo, useCallback, useMemo, useState } from 'react';
 import {
@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 
 import { AnimatedListItem } from '@/components/animated-list-item';
+import { ContextualEmptyState } from '@/components/contextual-empty-state';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { PlanStatusBadge } from '@/components/status-badge';
@@ -162,9 +163,14 @@ export default function MaintenancePlansScreen() {
               message="No se encontraron planes con esa búsqueda."
             />
           ) : (
-            <EmptyState
-              title="Sin planes"
-              message="Los planes de mantenimiento se crean al agregar una propiedad."
+            <ContextualEmptyState
+              icon="🏠"
+              title="Todavía no tenés un plan activo"
+              message="Tu plan de mantenimiento se crea después de la inspección inicial. Si querés coordinar la inspección, escribinos por WhatsApp."
+              action={{
+                label: 'Hablar por WhatsApp',
+                url: `https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=${encodeURIComponent('Hola! Quiero coordinar la inspección inicial para tener mi plan de mantenimiento.')}`,
+              }}
             />
           )
         ) : null

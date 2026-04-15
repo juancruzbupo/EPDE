@@ -6,11 +6,13 @@ import {
   PLAN_STATUS_LABELS,
   PLAN_STATUS_VARIANT,
   PlanStatus,
+  WHATSAPP_CONTACT_NUMBER,
 } from '@epde/shared';
 import { ChevronDown, ChevronRight, ClipboardList, Home, MapPin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 
+import { ContextualEmptyState } from '@/components/contextual-empty-state';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { PlansListTour } from '@/components/onboarding-tour';
@@ -187,11 +189,28 @@ function MaintenancePlansPageContent() {
           className="justify-center py-24"
         />
       ) : !plans || filtered.length === 0 ? (
-        <EmptyState
-          icon={Home}
-          title="Sin planes"
-          message="No hay planes de mantenimiento registrados todavía."
-        />
+        debouncedSearch ? (
+          <EmptyState
+            icon={Home}
+            title="Sin resultados"
+            message="No se encontraron planes con esa búsqueda."
+          />
+        ) : (
+          <ContextualEmptyState
+            icon={Home}
+            title="Todavía no tenés un plan activo"
+            message="Tu plan de mantenimiento se crea después de la inspección inicial. Si querés coordinar la inspección, escribinos por WhatsApp."
+            action={{
+              label: 'Hablar por WhatsApp',
+              onClick: () =>
+                window.open(
+                  `https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=${encodeURIComponent('Hola! Quiero coordinar la inspección inicial para tener mi plan de mantenimiento.')}`,
+                  '_blank',
+                  'noopener,noreferrer',
+                ),
+            }}
+          />
+        )
       ) : (
         <div data-tour="plans-list" className="space-y-4">
           <p className="text-muted-foreground type-body-md">

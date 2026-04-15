@@ -20,6 +20,7 @@ import {
 } from 'react-native';
 
 import { AnimatedListItem } from '@/components/animated-list-item';
+import { ContextualEmptyState } from '@/components/contextual-empty-state';
 import { CreateServiceRequestModal } from '@/components/create-service-request-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
@@ -358,14 +359,22 @@ export default function ServiceRequestsScreen() {
         }
         ListEmptyComponent={
           !isLoading ? (
-            <EmptyState
-              title="Sin solicitudes"
-              message={
-                hasActiveFilters
-                  ? 'No se encontraron solicitudes con esos filtros.'
-                  : 'Crea una solicitud para reportar un problema o pedir asistencia.'
-              }
-            />
+            hasActiveFilters ? (
+              <EmptyState
+                title="Sin resultados"
+                message="No se encontraron solicitudes con esos filtros."
+              />
+            ) : (
+              <ContextualEmptyState
+                icon="🔧"
+                title="Sin solicitudes todavía"
+                message="Si ves algo raro en tu casa y no sabés qué hacer, abrí una solicitud para que EPDE lo evalúe. Ej: «apareció humedad en la pared»."
+                action={{
+                  label: 'Crear solicitud',
+                  onPress: () => setCreateModalVisible(true),
+                }}
+              />
+            )
           ) : null
         }
       />
