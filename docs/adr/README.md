@@ -16,3 +16,4 @@ Decisiones arquitectónicas clave del proyecto EPDE. Cada ADR documenta una deci
 | [010](010-referral-program.md)                   | Programa de recomendación — MVP con conversión manual + reward acumulativo | Aceptada |
 | [011](011-base-repository-scope.md)              | Scope de BaseRepository — 3 criterios para extender, 4 para no             | Aceptada |
 | [012](012-architectural-remediation-closeout.md) | Closeout del plan de remediación arquitectónica (ARCH-1 a ARCH-8)          | Aceptada |
+| [013](013-module-import-policy.md)               | Política de imports entre módulos + acyclicity test                        | Aceptada |
