@@ -157,7 +157,7 @@ import { TYPE } from '@/lib/fonts';
 | `titleSm`   | DMSans_700Bold            | 14px | 20px        |
 | `bodyLg`    | DMSans_400Regular         | 16px | 22px        |
 | `bodyMd`    | DMSans_400Regular         | 14px | 20px        |
-| `bodySm`    | DMSans_400Regular         | 12px | 16px        |
+| `bodySm`    | DMSans_400Regular         | 13px | 18px        |
 | `labelLg`   | DMSans_500Medium          | 14px | 20px        |
 | `labelMd`   | DMSans_500Medium          | 13px | 18px        |
 | `labelSm`   | DMSans_500Medium          | 12px | 16px        |
