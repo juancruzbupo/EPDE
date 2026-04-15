@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { Alert, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { GlossaryModal } from '@/components/glossary-modal';
+import { resetMobileOnboarding } from '@/components/onboarding-carousel';
 import { AppearanceSelector } from '@/components/profile/appearance-selector';
 import { PasswordChangeForm } from '@/components/profile/password-change-form';
 import { ReferralsCard } from '@/components/profile/referrals-card';
@@ -214,6 +215,26 @@ export default function ProfileScreen() {
         </Text>
       </Pressable>
       <GlossaryModal visible={glossaryOpen} onClose={() => setGlossaryOpen(false)} />
+
+      {/* Replay onboarding */}
+      <Pressable
+        onPress={async () => {
+          await resetMobileOnboarding();
+          haptics.success();
+          Alert.alert(
+            'Listo',
+            'La próxima vez que abras la pestaña Inicio vas a volver a ver el tutorial.',
+          );
+        }}
+        className="border-border mb-3 items-center rounded-xl border py-3"
+        accessibilityLabel="Volver a ver el tutorial"
+        accessibilityRole="button"
+        style={{ minHeight: 44 }}
+      >
+        <Text style={TYPE.labelLg} className="text-foreground">
+          👋 Ver tutorial de nuevo
+        </Text>
+      </Pressable>
 
       {/* Logout button */}
       <Pressable
