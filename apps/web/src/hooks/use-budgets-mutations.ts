@@ -19,6 +19,27 @@ import {
 } from '@/lib/api/budgets';
 import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 
+/**
+ * Picks a status-aware confirmation message instead of a generic
+ * "Estado actualizado". Older / non-technical users benefit from being
+ * told what to expect after each transition (especially APPROVED, where
+ * the next step is async work by the EPDE team).
+ */
+function getStatusChangeMessage(status: BudgetStatus): string {
+  switch (status) {
+    case 'APPROVED':
+      return '¡Aprobado! El trabajo va a comenzar pronto. Te avisamos cuando avance.';
+    case 'REJECTED':
+      return 'Presupuesto rechazado. Si querés, podés comentar el motivo en el detalle.';
+    case 'IN_PROGRESS':
+      return 'Trabajo en curso. Te avisamos cuando esté terminado.';
+    case 'COMPLETED':
+      return 'Trabajo completado. Revisá el detalle y dejá un comentario si te quedó alguna duda.';
+    default:
+      return 'Estado actualizado';
+  }
+}
+
 export function useCreateBudgetRequest() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -81,7 +102,7 @@ export function useUpdateBudgetStatus() {
       );
       return { previous };
     },
-    onSuccess: () => toast.success('Estado actualizado'),
+    onSuccess: (_data, variables) => toast.success(getStatusChangeMessage(variables.status)),
     onError: (err, variables, context) => {
       if (context?.previous) {
         queryClient.setQueryData([QUERY_KEYS.budgets, variables.id], context.previous);

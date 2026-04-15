@@ -189,6 +189,27 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
         </div>
       )}
 
+      {isClient && budget.status === BudgetStatus.APPROVED && (
+        <div className="border-success/30 bg-success/10 text-foreground rounded-lg border p-3 text-sm">
+          <p className="font-medium">¿Qué pasa ahora?</p>
+          <p className="text-muted-foreground mt-1">
+            EPDE va a coordinar el inicio del trabajo. Te avisamos por email y notificación cuando
+            esté en curso. Si te queda alguna duda mientras tanto, podés escribirla en los
+            comentarios.
+          </p>
+        </div>
+      )}
+
+      {isClient && budget.status === BudgetStatus.IN_PROGRESS && (
+        <div className="border-primary/30 bg-primary/10 text-foreground rounded-lg border p-3 text-sm">
+          <p className="font-medium">Trabajo en curso</p>
+          <p className="text-muted-foreground mt-1">
+            El equipo está ejecutando el trabajo. Cuando termine vas a recibir una notificación y
+            vas a poder revisar el detalle final acá mismo.
+          </p>
+        </div>
+      )}
+
       {hasResponse && (
         <Card>
           <CardHeader>

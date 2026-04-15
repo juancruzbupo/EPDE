@@ -114,6 +114,21 @@ export function useRespondToBudget() {
   });
 }
 
+function getBudgetStatusChangeMessage(status: BudgetStatus): string {
+  switch (status) {
+    case 'APPROVED':
+      return '¡Aprobado! El trabajo va a comenzar pronto. Te avisamos cuando avance.';
+    case 'REJECTED':
+      return 'Presupuesto rechazado. Si querés, comentá el motivo en el detalle.';
+    case 'IN_PROGRESS':
+      return 'Trabajo en curso. Te avisamos cuando esté terminado.';
+    case 'COMPLETED':
+      return 'Trabajo completado. Revisá el detalle.';
+    default:
+      return 'Estado actualizado';
+  }
+}
+
 export function useUpdateBudgetStatus() {
   const queryClient = useQueryClient();
 
@@ -121,8 +136,9 @@ export function useUpdateBudgetStatus() {
     mutationFn: ({ id, status }: { id: string; status: BudgetStatus }) =>
       updateBudgetStatus(id, status),
 
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       haptics.success();
+      toast.success(getBudgetStatusChangeMessage(variables.status));
     },
 
     onMutate: async (variables) => {

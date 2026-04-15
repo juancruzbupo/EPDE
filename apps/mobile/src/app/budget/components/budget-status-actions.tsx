@@ -39,6 +39,32 @@ export const BudgetStatusActions = React.memo(function BudgetStatusActions({
         </View>
       )}
 
+      {/* Client: After approval */}
+      {isClient && status === BudgetStatus.APPROVED && (
+        <View className="border-success/30 bg-success/10 mb-4 rounded-xl border p-3">
+          <Text style={TYPE.labelLg} className="text-foreground mb-1">
+            ¿Qué pasa ahora?
+          </Text>
+          <Text style={TYPE.bodySm} className="text-muted-foreground">
+            EPDE va a coordinar el inicio del trabajo. Te avisamos por notificación cuando esté en
+            curso. Si te queda alguna duda, escribila en los comentarios más abajo.
+          </Text>
+        </View>
+      )}
+
+      {/* Client: Work in progress */}
+      {isClient && status === BudgetStatus.IN_PROGRESS && (
+        <View className="border-primary/30 bg-primary/10 mb-4 rounded-xl border p-3">
+          <Text style={TYPE.labelLg} className="text-foreground mb-1">
+            Trabajo en curso
+          </Text>
+          <Text style={TYPE.bodySm} className="text-muted-foreground">
+            El equipo está ejecutando el trabajo. Cuando termine vas a recibir una notificación y
+            vas a poder revisar el detalle final acá mismo.
+          </Text>
+        </View>
+      )}
+
       {/* Admin: Cotizar */}
       {isAdmin && status === BudgetStatus.PENDING && (
         <Pressable
