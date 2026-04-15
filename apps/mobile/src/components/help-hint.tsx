@@ -21,7 +21,7 @@ export const HelpHint = memo(function HelpHint({ term, children }: HelpHintProps
     <View>
       <Pressable
         onPress={() => setExpanded((v) => !v)}
-        hitSlop={8}
+        hitSlop={14}
         accessibilityRole="button"
         accessibilityLabel={`Ayuda sobre ${term}`}
         accessibilityHint={expanded ? 'Toca para cerrar' : 'Toca para ver explicación'}
