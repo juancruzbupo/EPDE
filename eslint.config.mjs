@@ -5,6 +5,7 @@ import prettierConfig from 'eslint-config-prettier';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 
 import mobileQueryRequiresStaleTime from './eslint-rules/mobile-query-requires-stale-time.mjs';
+import noInlineRiskThreshold from './eslint-rules/no-inline-risk-threshold.mjs';
 import noPrismaInService from './eslint-rules/no-prisma-in-service.mjs';
 import noSoftDeletableIncludeWithoutFilter from './eslint-rules/no-soft-deletable-include-without-filter.mjs';
 import noTxWithoutSoftDeleteFilter from './eslint-rules/no-tx-without-soft-delete-filter.mjs';
@@ -15,6 +16,7 @@ export const localPlugin = {
     'no-soft-deletable-include-without-filter': noSoftDeletableIncludeWithoutFilter,
     'mobile-query-requires-stale-time': mobileQueryRequiresStaleTime,
     'no-prisma-in-service': noPrismaInService,
+    'no-inline-risk-threshold': noInlineRiskThreshold,
   },
 };
 
@@ -83,6 +85,25 @@ export default [
     files: ['apps/api/src/**/*.ts'],
     plugins: {
       local: localPlugin,
+    },
+  },
+  // ── Risk score centralization (web + mobile UI) ──────────────────────────
+  // `task.riskScore >= 12 | >= 6` comparisons must go through `getRiskLevel`
+  // from @epde/shared so the high/medium/low boundaries + color classes
+  // stay in sync across call sites. See PR-UX-1 for the helper.
+  {
+    files: ['apps/web/src/**/*.{ts,tsx}', 'apps/mobile/src/**/*.{ts,tsx}'],
+    ignores: [
+      'apps/web/src/**/*.test.{ts,tsx}',
+      'apps/web/src/**/*.spec.{ts,tsx}',
+      'apps/mobile/src/**/*.test.{ts,tsx}',
+      'apps/mobile/src/**/*.spec.{ts,tsx}',
+    ],
+    plugins: {
+      local: localPlugin,
+    },
+    rules: {
+      'local/no-inline-risk-threshold': 'error',
     },
   },
   // ── Mobile query staleTime guardrail ─────────────────────────────────────

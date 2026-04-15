@@ -31,6 +31,24 @@ export default [
     },
   },
   {
+    // Web combined hooks must stay under 150 LOC. When a use-X.ts grows past
+    // this it's already the split threshold — promote to
+    // use-X-queries.ts + use-X-mutations.ts + use-X.ts (barrel), following
+    // SIEMPRE #43. Split variants (`-queries.ts` / `-mutations.ts`) are
+    // intentionally ignored so each side can grow naturally.
+    //
+    // `use-task-operations-mutations.ts` at ~270 LOC is accepted as the
+    // canonical example of a split hook doing real work.
+    files: ['src/hooks/use-*.ts'],
+    ignores: ['src/hooks/use-*-queries.ts', 'src/hooks/use-*-mutations.ts'],
+    rules: {
+      'max-lines': [
+        'error',
+        { max: 150, skipBlankLines: true, skipComments: true },
+      ],
+    },
+  },
+  {
     ignores: ['node_modules/', '.next/', 'dist/'],
   },
 ];

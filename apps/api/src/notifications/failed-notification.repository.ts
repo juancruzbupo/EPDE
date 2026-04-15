@@ -6,6 +6,13 @@ import { PrismaService } from '../prisma/prisma.service';
 /** Maximum times a failed notification will be retried before it stays permanently failed. */
 export const FAILED_NOTIFICATION_MAX_RETRIES = 3;
 
+/**
+ * FailedNotificationRepository — append-only DLQ log. Not extending
+ * BaseRepository: no cursor pagination (retry scans `createdAt asc` with a
+ * time-window filter), no soft-delete (rows are either retried to success
+ * or stay permanent), no generic update (only `incrementRetryCount`).
+ * BaseRepository's surface would add nothing. See ADR-011 (append-only).
+ */
 @Injectable()
 export class FailedNotificationRepository {
   constructor(private readonly prisma: PrismaService) {}
