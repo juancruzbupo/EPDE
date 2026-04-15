@@ -4,56 +4,56 @@
  */
 
 export class BudgetNotQuotableError extends Error {
-  readonly name = 'BudgetNotQuotableError';
+  override readonly name = 'BudgetNotQuotableError';
   constructor() {
     super('Solo se puede cotizar un presupuesto pendiente o cotizado');
   }
 }
 
 export class BudgetNotEditableError extends Error {
-  readonly name = 'BudgetNotEditableError';
+  override readonly name = 'BudgetNotEditableError';
   constructor() {
     super('Solo se puede editar un presupuesto pendiente');
   }
 }
 
 export class BudgetVersionConflictError extends Error {
-  readonly name = 'BudgetVersionConflictError';
+  override readonly name = 'BudgetVersionConflictError';
   constructor() {
     super('El presupuesto fue modificado por otro usuario');
   }
 }
 
 export class CategoryHasReferencingTasksError extends Error {
-  readonly name = 'CategoryHasReferencingTasksError';
+  override readonly name = 'CategoryHasReferencingTasksError';
   constructor() {
     super('No se puede eliminar una categoría que tiene tareas asociadas');
   }
 }
 
 export class TaskNotCompletableError extends Error {
-  readonly name = 'TaskNotCompletableError';
+  override readonly name = 'TaskNotCompletableError';
   constructor(currentStatus: string) {
     super(`La tarea no se puede completar (estado actual: ${currentStatus})`);
   }
 }
 
 export class InvalidBudgetTransitionError extends Error {
-  readonly name = 'InvalidBudgetTransitionError';
+  override readonly name = 'InvalidBudgetTransitionError';
   constructor(currentStatus: string) {
     super(`No se puede cambiar el estado desde ${currentStatus}`);
   }
 }
 
 export class UserAlreadyHasPasswordError extends Error {
-  readonly name = 'UserAlreadyHasPasswordError';
+  override readonly name = 'UserAlreadyHasPasswordError';
   constructor() {
     super('El usuario ya tiene contraseña configurada');
   }
 }
 
 export class BudgetAccessDeniedError extends Error {
-  readonly name = 'BudgetAccessDeniedError';
+  override readonly name = 'BudgetAccessDeniedError';
   constructor(reason: 'role' | 'ownership') {
     super(
       reason === 'role'
@@ -64,42 +64,42 @@ export class BudgetAccessDeniedError extends Error {
 }
 
 export class InvalidServiceStatusTransitionError extends Error {
-  readonly name = 'InvalidServiceStatusTransitionError';
+  override readonly name = 'InvalidServiceStatusTransitionError';
   constructor(currentStatus: string, targetStatus: string) {
     super(`No se puede cambiar el estado de ${currentStatus} a ${targetStatus}`);
   }
 }
 
 export class ServiceRequestNotEditableError extends Error {
-  readonly name = 'ServiceRequestNotEditableError';
+  override readonly name = 'ServiceRequestNotEditableError';
   constructor() {
     super('Solo se puede editar una solicitud abierta');
   }
 }
 
 export class PropertyAccessDeniedError extends Error {
-  readonly name = 'PropertyAccessDeniedError';
+  override readonly name = 'PropertyAccessDeniedError';
   constructor() {
     super('No tenés acceso a esta propiedad');
   }
 }
 
 export class PlanAccessDeniedError extends Error {
-  readonly name = 'PlanAccessDeniedError';
+  override readonly name = 'PlanAccessDeniedError';
   constructor() {
     super('No tenés acceso a este plan');
   }
 }
 
 export class TaskAccessDeniedError extends Error {
-  readonly name = 'TaskAccessDeniedError';
+  override readonly name = 'TaskAccessDeniedError';
   constructor() {
     super('No tenés acceso a esta tarea');
   }
 }
 
 export class ServiceRequestAccessDeniedError extends Error {
-  readonly name = 'ServiceRequestAccessDeniedError';
+  override readonly name = 'ServiceRequestAccessDeniedError';
   constructor(reason: 'ownership' | 'role' = 'ownership') {
     super(
       reason === 'ownership'
@@ -110,21 +110,21 @@ export class ServiceRequestAccessDeniedError extends Error {
 }
 
 export class ServiceRequestTerminalError extends Error {
-  readonly name = 'ServiceRequestTerminalError';
+  override readonly name = 'ServiceRequestTerminalError';
   constructor(action: string) {
     super(`No se puede ${action} en una solicitud cerrada o resuelta`);
   }
 }
 
 export class TaskPropertyMismatchError extends Error {
-  readonly name = 'TaskPropertyMismatchError';
+  override readonly name = 'TaskPropertyMismatchError';
   constructor() {
     super('La tarea no pertenece a esta propiedad');
   }
 }
 
 export class DuplicateClientEmailError extends Error {
-  readonly name = 'DuplicateClientEmailError';
+  override readonly name = 'DuplicateClientEmailError';
   constructor() {
     super('Ya existe un usuario con ese email');
   }

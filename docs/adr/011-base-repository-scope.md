@@ -55,9 +55,21 @@ Esta ADR fija el criterio. No cambia código; solo enuncia la regla que los PRs 
  */
 ```
 
+## Política de overrides (agregado 2026-04-15)
+
+Cuando un repositorio que extiende `BaseRepository` necesita modificar el comportamiento de un método base (típico caso: `softDelete` que debe cascadear a sub-entidades en la misma transacción), se aplican dos guardrails:
+
+1. **TypeScript `noImplicitOverride: true`** (configurado en `tsconfig.json` root) — fuerza el keyword `override` sobre cualquier método que redefine uno de la base. Sin el keyword, el compile falla. Esto evita overrides accidentales por nombre colisionado.
+2. **ESLint rule `local/repository-override-must-be-documented`** (scope: `src/**/*.repository.ts` en `apps/api`) — cualquier método con `override` en una clase que extiende `BaseRepository` debe tener un JSDoc block (`/** ... */`) inmediatamente arriba explicando por qué el comportamiento base no alcanza.
+
+Ejemplo canónico: `InspectionChecklistRepository.softDelete` — la extensión de Prisma solo soft-deletea el row principal, pero el dominio exige también soft-deletear los `InspectionItem` hijos y detachar el back-reference `MaintenancePlan.sourceInspectionId`. El override existe y está justificado por JSDoc.
+
+Rationale para el doble guardrail: el `override` keyword por sí solo no explica _por qué_. Un dev que llega y ve `override async findMany(...)` en otro repo sin contexto puede asumir que la intención es cambiar pagination, cuando quizá es un bug. El JSDoc cierra esa ambigüedad.
+
 ## Consecuencias
 
 - **Pro**: un dev nuevo puede predecir en 5 segundos si debe extender. La regla es operable sin leer la implementación de `BaseRepository`.
 - **Pro**: las 4 categorías "no extiende" son estables — cubren el 100% de los casos observados. Si aparece un 5to, actualizar esta ADR.
+- **Pro (2026-04-15)**: overrides legítimos quedan auditables en code review sin fricción — el JSDoc ya se pedía; ahora está enforzado.
 - **Contra**: se acepta que el ratio de adopción nunca va a llegar a 100%. El 46% actual es **~= el 46% correcto** dados los tipos de datos del proyecto (abundancia de audit logs + sub-recursos + analytics).
-- **Contra**: los header comments son un enforcement blando. Un ESLint rule custom "new repository extending nothing must have a block comment mentioning ADR-011" queda fuera de scope por ahora; el code review cubre.
+- **Contra**: los header comments de repos que NO extienden siguen siendo enforcement blando (solo code review, no ESLint).

@@ -82,6 +82,20 @@ export default [
     },
   },
   {
+    // Repository override documentation guardrail. `tsconfig.noImplicitOverride`
+    // already forces the `override` keyword; this rule adds the second layer:
+    // whenever a repository overrides a BaseRepository method, a JSDoc block
+    // must explain why the base behavior is insufficient. See ADR-011.
+    files: ['src/**/*.repository.ts'],
+    ignores: ['src/**/*.spec.ts'],
+    plugins: {
+      local: localPlugin,
+    },
+    rules: {
+      'local/repository-override-must-be-documented': 'error',
+    },
+  },
+  {
     ignores: ['dist/', 'prisma/', 'test/', 'jest-e2e.config.ts', 'jest.config.js', 'prisma.config.ts'],
   },
 ];

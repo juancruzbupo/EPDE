@@ -18,7 +18,7 @@ import type { Request } from 'express';
  */
 @Injectable()
 export class EmailAwareThrottlerGuard extends ThrottlerGuard {
-  protected async getTracker(req: Request): Promise<string> {
+  protected override async getTracker(req: Request): Promise<string> {
     const ip = req.ip ?? 'unknown';
     const rawEmail = (req.body as { email?: unknown })?.email;
     if (typeof rawEmail !== 'string' || rawEmail.length === 0) {

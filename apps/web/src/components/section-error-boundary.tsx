@@ -23,7 +23,7 @@ export class SectionErrorBoundary extends Component<Props, State> {
     return { hasError: true };
   }
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       return (
         <div className="border-border bg-card flex flex-col items-center justify-center rounded-xl border p-8 text-center">
