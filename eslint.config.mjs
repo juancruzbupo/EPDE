@@ -4,6 +4,7 @@ import tsParser from '@typescript-eslint/parser';
 import prettierConfig from 'eslint-config-prettier';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 
+import apiFactoryMustExist from './eslint-rules/api-factory-must-exist.mjs';
 import mobileQueryRequiresStaleTime from './eslint-rules/mobile-query-requires-stale-time.mjs';
 import noInlineRiskThreshold from './eslint-rules/no-inline-risk-threshold.mjs';
 import noPrismaInService from './eslint-rules/no-prisma-in-service.mjs';
@@ -19,6 +20,7 @@ export const localPlugin = {
     'no-prisma-in-service': noPrismaInService,
     'no-inline-risk-threshold': noInlineRiskThreshold,
     'repository-override-must-be-documented': repositoryOverrideMustBeDocumented,
+    'api-factory-must-exist': apiFactoryMustExist,
   },
 };
 
@@ -121,6 +123,20 @@ export default [
     },
     rules: {
       'local/no-inline-risk-threshold': 'error',
+    },
+  },
+  // ── API factory pattern guardrail (web + mobile) ─────────────────────────
+  // Files in apps/*/src/lib/api/ must consume a `createXxxQueries(apiClient)`
+  // factory from @epde/shared, or be in the documented exception list.
+  // See ADR-012 for the factory pattern; eslint-rules/api-factory-must-exist.mjs
+  // for the exception list. Closes audit drift-zone d3.
+  {
+    files: ['apps/web/src/lib/api/**/*.ts', 'apps/mobile/src/lib/api/**/*.ts'],
+    plugins: {
+      local: localPlugin,
+    },
+    rules: {
+      'local/api-factory-must-exist': 'error',
     },
   },
   // ── Mobile query staleTime guardrail ─────────────────────────────────────

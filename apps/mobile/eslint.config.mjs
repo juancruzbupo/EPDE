@@ -1,7 +1,16 @@
-import rootConfig from '../../eslint.config.mjs';
+import rootConfig, { localPlugin } from '../../eslint.config.mjs';
 
 export default [
   ...rootConfig,
+  {
+    // API factory pattern guardrail. Mirrors the activation in the root
+    // eslint.config.mjs (root-relative globs miss when running from this CWD).
+    files: ['src/lib/api/**/*.ts'],
+    plugins: { local: localPlugin },
+    rules: {
+      'local/api-factory-must-exist': 'error',
+    },
+  },
   {
     // Mirror the web hook-size rule: combined `use-X.ts` capped at 150 LOC.
     // When a hook crosses that, promote to `use-X-queries.ts` + `use-X-mutations.ts`
