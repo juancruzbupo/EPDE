@@ -1,4 +1,4 @@
-import rootConfig from '../../eslint.config.mjs';
+import rootConfig, { localPlugin } from '../../eslint.config.mjs';
 
 export default [
   ...rootConfig,
@@ -27,6 +27,21 @@ export default [
           message: 'Services must not inject PrismaService directly. Use a Repository instead. If justified, add an eslint-disable comment with rationale.',
         }],
       }],
+    },
+  },
+  {
+    // Pair of the no-restricted-imports rule above: even if a service manages
+    // to hold a PrismaService reference, calling `this.prisma.*` from a
+    // service bypasses the Repository layer and silently skips soft-delete
+    // filters, nested-include helpers and cursor pagination. See SIEMPRE #4
+    // and the allowlist in eslint-rules/no-prisma-in-service.mjs.
+    files: ['src/**/*.service.ts'],
+    ignores: ['src/**/*.spec.ts'],
+    plugins: {
+      local: localPlugin,
+    },
+    rules: {
+      'local/no-prisma-in-service': 'error',
     },
   },
   {

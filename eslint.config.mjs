@@ -5,14 +5,16 @@ import prettierConfig from 'eslint-config-prettier';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 
 import mobileQueryRequiresStaleTime from './eslint-rules/mobile-query-requires-stale-time.mjs';
+import noPrismaInService from './eslint-rules/no-prisma-in-service.mjs';
 import noSoftDeletableIncludeWithoutFilter from './eslint-rules/no-soft-deletable-include-without-filter.mjs';
 import noTxWithoutSoftDeleteFilter from './eslint-rules/no-tx-without-soft-delete-filter.mjs';
 
-const localPlugin = {
+export const localPlugin = {
   rules: {
     'no-tx-without-soft-delete-filter': noTxWithoutSoftDeleteFilter,
     'no-soft-deletable-include-without-filter': noSoftDeletableIncludeWithoutFilter,
     'mobile-query-requires-stale-time': mobileQueryRequiresStaleTime,
+    'no-prisma-in-service': noPrismaInService,
   },
 };
 
