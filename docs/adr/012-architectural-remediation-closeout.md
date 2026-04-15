@@ -27,11 +27,12 @@ Este ADR **no introduce convenciones nuevas**. Documenta: qué quedó enforzado 
 
 Ubicados en `packages/shared/src/__tests__/`:
 
-| Test                           | Qué compara                                                                                | Qué cacha                                                                                   |
-| ------------------------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
-| `design-tokens-parity.test.ts` | `DESIGN_TOKENS_{LIGHT,DARK}` (shared) vs `:root`/`.dark` de `apps/web/src/app/globals.css` | Drift de valor de cualquier token entre JS y CSS. Cuando se escribió cachó 2 drifts reales. |
-| `typography-parity.test.ts`    | `TYPE` en `apps/mobile/src/lib/fonts.ts` vs tabla en `docs/design-system.md`               | fontSize/lineHeight drift entre código y doc. Cachó 1 drift (bodySm).                       |
-| `query-keys-parity.test.ts`    | `QUERY_KEYS` en shared vs `apps/web/src/` y `apps/mobile/src/`                             | Dead keys + referencias a keys inexistentes. Cachó 1 dead key (taskTemplates).              |
+| Test                           | Qué compara                                                                                | Qué cacha                                                                                                                                                                                     |
+| ------------------------------ | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `design-tokens-parity.test.ts` | `DESIGN_TOKENS_{LIGHT,DARK}` (shared) vs `:root`/`.dark` de `apps/web/src/app/globals.css` | Drift de valor de cualquier token entre JS y CSS. Cuando se escribió cachó 2 drifts reales.                                                                                                   |
+| `typography-parity.test.ts`    | `TYPE` en `apps/mobile/src/lib/fonts.ts` vs tabla en `docs/design-system.md`               | fontSize/lineHeight drift entre código y doc. Cachó 1 drift (bodySm).                                                                                                                         |
+| `query-keys-parity.test.ts`    | `QUERY_KEYS` en shared vs `apps/web/src/` y `apps/mobile/src/`                             | Dead keys + referencias a keys inexistentes. Cachó 1 dead key (taskTemplates).                                                                                                                |
+| `zod-prisma-enum-sync.test.ts` | Enums de `apps/api/prisma/schema.prisma` vs TS enums en `packages/shared/src/types/`       | Drift entre valores de Prisma (autoritativo en DB) y TS enums que alimentan Zod/tipos. Sin esto, agregar un valor en Prisma sin actualizar TS deja Zod rechazando filas válidas, y viceversa. |
 
 ### Refactors estructurales
 

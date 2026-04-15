@@ -6,7 +6,11 @@ import type { BaseEntity } from '../index';
  *
  * Referral is NOT soft-deletable — history is audit-relevant forever.
  */
-export type ReferralStatus = 'PENDING' | 'CONVERTED';
+export const ReferralStatus = {
+  PENDING: 'PENDING',
+  CONVERTED: 'CONVERTED',
+} as const;
+export type ReferralStatus = (typeof ReferralStatus)[keyof typeof ReferralStatus];
 
 export interface Referral extends BaseEntity {
   referrerId: string;
