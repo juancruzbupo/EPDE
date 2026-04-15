@@ -159,8 +159,8 @@ import { TYPE } from '@/lib/fonts';
 | `bodyMd`    | DMSans_400Regular         | 14px | 20px        |
 | `bodySm`    | DMSans_400Regular         | 12px | 16px        |
 | `labelLg`   | DMSans_500Medium          | 14px | 20px        |
-| `labelMd`   | DMSans_500Medium          | 12px | 16px        |
-| `labelSm`   | DMSans_500Medium          | 11px | 14px        |
+| `labelMd`   | DMSans_500Medium          | 13px | 18px        |
+| `labelSm`   | DMSans_500Medium          | 12px | 16px        |
 | `numberLg`  | DMSans_700Bold            | 24px | 30px        |
 | `numberMd`  | DMSans_700Bold            | 18px | 24px        |
 
