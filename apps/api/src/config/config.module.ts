@@ -2,9 +2,33 @@ import { Module } from '@nestjs/common';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { z } from 'zod';
 
+/**
+ * Known-weak JWT secret values that have shipped as placeholders or in
+ * tutorials. Hard-fail startup if the configured secret matches one of these,
+ * regardless of NODE_ENV — even in dev, a placeholder secret means tokens
+ * signed locally would validate against any deploy that copy-pasted the
+ * same value. Add new variants if you discover others in the wild.
+ */
+const KNOWN_WEAK_JWT_SECRETS = new Set([
+  'your-super-secret-jwt-key-change-in-production',
+  'change-me',
+  'changeme',
+  'secret',
+  'jwt-secret',
+  'super-secret',
+  'development',
+  'test-secret',
+]);
+
 const baseSchema = z.object({
   DATABASE_URL: z.string().url(),
-  JWT_SECRET: z.string().min(32),
+  JWT_SECRET: z
+    .string()
+    .min(32)
+    .refine(
+      (val) => !KNOWN_WEAK_JWT_SECRETS.has(val.toLowerCase().trim()),
+      'JWT_SECRET is a known placeholder value. Generate a real secret with `openssl rand -hex 32` and set it in your .env.',
+    ),
   JWT_EXPIRATION: z.string().default('15m'),
   JWT_REFRESH_EXPIRATION: z.string().default('7d'),
   PORT: z.coerce.number().default(3001),
