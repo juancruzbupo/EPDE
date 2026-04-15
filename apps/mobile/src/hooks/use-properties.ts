@@ -6,6 +6,7 @@
  */
 import type { PropertyPublic } from '@epde/shared';
 import { QUERY_KEYS } from '@epde/shared';
+import { STALE_TIME } from '@epde/shared';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 import {
@@ -18,8 +19,6 @@ import {
   getPropertyProblems,
   type PropertyFilters,
 } from '@/lib/api/properties';
-
-import { STALE_TIME } from './query-stale-times';
 
 /** Mobile is CLIENT-only — filters default to {} (no admin filtering needed). Web requires filters explicitly. */
 export function useProperties(filters: Omit<PropertyFilters, 'cursor'> = {}) {

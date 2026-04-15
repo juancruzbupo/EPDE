@@ -9,6 +9,7 @@
  */
 import type { CompleteTaskInput, TaskNotePublic } from '@epde/shared';
 import { COMPLETION_MESSAGES, getErrorMessage, PREVENTION_SAVINGS, QUERY_KEYS } from '@epde/shared';
+import { STALE_TIME } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
 
@@ -24,8 +25,6 @@ import { haptics } from '@/lib/haptics';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
 import { toast } from '@/lib/toast';
 import { useAuthStore } from '@/stores/auth-store';
-
-import { STALE_TIME } from './query-stale-times';
 
 export function useTaskDetail(planId: string, taskId: string) {
   return useQuery({

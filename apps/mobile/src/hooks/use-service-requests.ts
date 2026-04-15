@@ -10,6 +10,7 @@
  */
 import type { ServiceRequestPublic, ServiceStatus, ServiceUrgency } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import { STALE_TIME } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -27,8 +28,6 @@ import {
 import { haptics } from '@/lib/haptics';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
 import { toast } from '@/lib/toast';
-
-import { STALE_TIME } from './query-stale-times';
 
 /** Mobile is CLIENT-only — filters default to {} (no admin filtering needed). Web requires filters explicitly. */
 export function useServiceRequests(filters: Omit<ServiceRequestFilters, 'cursor'> = {}) {

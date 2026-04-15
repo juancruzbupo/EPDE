@@ -1,4 +1,5 @@
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import { STALE_TIME } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -8,8 +9,6 @@ import {
   markReferralConverted,
   recomputeReferrerState,
 } from '@/lib/api/referrals';
-
-import { STALE_TIME } from './query-stale-times';
 
 /**
  * Self-serve referral state for the profile page. Refetches on focus

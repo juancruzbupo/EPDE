@@ -10,14 +10,13 @@
  */
 import type { PlanStatus, TaskStatus } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import { STALE_TIME } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { getAllTasks, getPlan, getPlans, updatePlan } from '@/lib/api/maintenance-plans';
 import { haptics } from '@/lib/haptics';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
 import { toast } from '@/lib/toast';
-
-import { STALE_TIME } from './query-stale-times';
 
 export function usePlans() {
   return useQuery({

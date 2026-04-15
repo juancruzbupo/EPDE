@@ -1,9 +1,8 @@
 import { QUERY_KEYS } from '@epde/shared';
+import { STALE_TIME } from '@epde/shared';
 import { useQuery } from '@tanstack/react-query';
 
 import { getTaskDetail, getTaskLogs, getTaskNotes } from '@/lib/api/maintenance-plans';
-
-import { STALE_TIME } from './query-stale-times';
 
 export function useTaskDetail(planId: string, taskId: string) {
   return useQuery({

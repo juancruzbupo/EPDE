@@ -1,5 +1,6 @@
 import type { PropertyPublic, UpdatePropertyInput } from '@epde/shared';
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import { STALE_TIME } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -17,8 +18,6 @@ import {
   updateProperty,
 } from '@/lib/api/properties';
 import { invalidateDashboard } from '@/lib/invalidate-dashboard';
-
-import { STALE_TIME } from './query-stale-times';
 
 export function useProperties(filters: Omit<PropertyFilters, 'cursor'>) {
   return useInfiniteQuery({

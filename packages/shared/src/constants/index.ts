@@ -8,4 +8,5 @@ export * from './enum-labels';
 export * from './glossary';
 export * from './milestones';
 export * from './query-keys';
+export * from './stale-times';
 export * from './status-hints';

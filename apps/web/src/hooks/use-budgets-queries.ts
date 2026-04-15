@@ -1,5 +1,6 @@
 import type { BudgetRequestPublic } from '@epde/shared';
 import { QUERY_KEYS } from '@epde/shared';
+import { STALE_TIME } from '@epde/shared';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 import {
@@ -9,8 +10,6 @@ import {
   getBudgetComments,
   getBudgets,
 } from '@/lib/api/budgets';
-
-import { STALE_TIME } from './query-stale-times';
 
 export function useBudgets(filters: Omit<BudgetFilters, 'cursor'>) {
   return useInfiniteQuery({

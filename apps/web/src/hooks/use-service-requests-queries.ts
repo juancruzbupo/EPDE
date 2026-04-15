@@ -1,5 +1,6 @@
 import type { ServiceRequestPublic } from '@epde/shared';
 import { QUERY_KEYS } from '@epde/shared';
+import { STALE_TIME } from '@epde/shared';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 import {
@@ -9,8 +10,6 @@ import {
   getServiceRequests,
   type ServiceRequestFilters,
 } from '@/lib/api/service-requests';
-
-import { STALE_TIME } from './query-stale-times';
 
 export function useServiceRequests(filters: Omit<ServiceRequestFilters, 'cursor'>) {
   return useInfiniteQuery({

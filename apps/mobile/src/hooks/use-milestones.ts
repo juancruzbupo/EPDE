@@ -8,14 +8,13 @@
  * If the milestones API response shape changes, update BOTH this file and the web hook.
  */
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import { STALE_TIME } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { activateStreakFreeze, getMilestones } from '@/lib/api/auth-features';
 import { haptics } from '@/lib/haptics';
 import { invalidateClientDashboard } from '@/lib/invalidate-dashboard';
 import { toast } from '@/lib/toast';
-
-import { STALE_TIME } from './query-stale-times';
 
 export function useMilestones() {
   return useQuery({

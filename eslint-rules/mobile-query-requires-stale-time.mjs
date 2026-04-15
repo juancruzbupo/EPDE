@@ -3,11 +3,11 @@
  * `STALE_TIME.X` tier constant) on every `useQuery` / `useInfiniteQuery`
  * call in mobile hooks.
  *
- * Background: `apps/mobile/src/hooks/query-stale-times.ts` exports the
- * canonical tiers (VOLATILE 30s, MEDIUM 1m, SLOW 5m). The global default is
- * 2min — invisible to grep, easy to inherit by accident. Making the tier
- * explicit per hook keeps cache tuning searchable and prevents silent
- * regressions when a new hook is added for a volatile resource.
+ * Background: `@epde/shared` exports the canonical tiers (VOLATILE 30s,
+ * MEDIUM 1m, SLOW 5m) — see `packages/shared/src/constants/stale-times.ts`.
+ * The global default is 2min — invisible to grep, easy to inherit by accident.
+ * Making the tier explicit per hook keeps cache tuning searchable and prevents
+ * silent regressions when a new hook is added for a volatile resource.
  *
  * Exceptions: `refetchInterval` alone is fine for polled queries but the
  * rule still wants a `staleTime` (they compose differently). A caller who
@@ -22,11 +22,11 @@ export default {
     type: 'problem',
     docs: {
       description:
-        'Require explicit `staleTime` on mobile useQuery/useInfiniteQuery calls. Prefer a STALE_TIME.X tier from @/hooks/query-stale-times.',
+        'Require explicit `staleTime` on mobile useQuery/useInfiniteQuery calls. Prefer a STALE_TIME.X tier from @epde/shared.',
     },
     messages: {
       missingStaleTime:
-        '`{{hook}}` is missing an explicit `staleTime`. Pick a tier from @/hooks/query-stale-times (STALE_TIME.VOLATILE, MEDIUM, or SLOW) and set it on this query. See SIEMPRE #100.',
+        '`{{hook}}` is missing an explicit `staleTime`. Pick a tier from @epde/shared (STALE_TIME.VOLATILE, MEDIUM, or SLOW) and set it on this query. See SIEMPRE #100.',
     },
     schema: [],
   },

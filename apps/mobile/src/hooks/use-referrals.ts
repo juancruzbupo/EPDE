@@ -1,9 +1,8 @@
 import { QUERY_KEYS } from '@epde/shared';
+import { STALE_TIME } from '@epde/shared';
 import { useQuery } from '@tanstack/react-query';
 
 import { getMyReferrals } from '@/lib/api/referrals';
-
-import { STALE_TIME } from './query-stale-times';
 
 /**
  * Self-serve referral state for the mobile profile tab. Web equivalent:

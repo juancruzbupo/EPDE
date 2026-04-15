@@ -8,6 +8,7 @@
  * If the dashboard API response shape changes, update BOTH this file and the web hook.
  */
 import { QUERY_KEYS } from '@epde/shared';
+import { STALE_TIME } from '@epde/shared';
 import { useQuery } from '@tanstack/react-query';
 
 import {
@@ -15,8 +16,6 @@ import {
   getClientDashboardStats,
   getClientUpcomingTasks,
 } from '@/lib/api/dashboard';
-
-import { STALE_TIME } from './query-stale-times';
 
 export function useClientDashboardStats() {
   return useQuery({

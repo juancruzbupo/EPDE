@@ -8,6 +8,7 @@
  * If the notification API response shape changes, update BOTH this file and the web hook.
  */
 import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import { STALE_TIME } from '@epde/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -18,8 +19,6 @@ import {
 } from '@/lib/api/notifications';
 import { haptics } from '@/lib/haptics';
 import { toast } from '@/lib/toast';
-
-import { STALE_TIME } from './query-stale-times';
 
 export function useNotifications() {
   return useInfiniteQuery({
