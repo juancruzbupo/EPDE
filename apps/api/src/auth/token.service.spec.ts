@@ -164,6 +164,25 @@ describe('TokenService', () => {
 
       expect(mockRedisService.del).toHaveBeenCalledWith('rt:family-abc');
     });
+
+    it('should retry on transient redis failure (succeeds on retry 2)', async () => {
+      mockRedisService.del
+        .mockRejectedValueOnce(new Error('ECONNRESET'))
+        .mockResolvedValueOnce(undefined);
+
+      await service.revokeFamily('family-abc');
+
+      expect(mockRedisService.del).toHaveBeenCalledTimes(2);
+    });
+
+    it('should throw ServiceUnavailableException after 3 failed attempts (fail-closed)', async () => {
+      mockRedisService.del.mockRejectedValue(new Error('Redis down'));
+
+      await expect(service.revokeFamily('family-abc')).rejects.toThrow(
+        ServiceUnavailableException,
+      );
+      expect(mockRedisService.del).toHaveBeenCalledTimes(3);
+    });
   });
 
   describe('blacklistAccessToken', () => {

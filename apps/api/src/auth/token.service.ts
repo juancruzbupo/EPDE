@@ -192,9 +192,34 @@ export class TokenService {
 
   /**
    * Revoke an entire token family (used on token reuse detection or logout).
+   *
+   * Wraps `redis.del` in 3 retries with exponential backoff (100ms, 200ms,
+   * 400ms) and throws if Redis remains unavailable. Caller MUST treat a
+   * thrown exception as a critical security event — if revocation fails
+   * during a token reuse attack, the attacker retains valid refresh tokens
+   * until they expire (default 7d).
+   *
+   * The retry mirrors the rotation eval retry above so a transient Redis
+   * blip doesn't leave a family in an unrevoked state.
    */
   async revokeFamily(family: string): Promise<void> {
-    await this.redisService.del(`rt:${family}`);
+    let lastError: Error | undefined;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        await this.redisService.del(`rt:${family}`);
+        return;
+      } catch (error) {
+        lastError = error as Error;
+        if (attempt < 2) {
+          await new Promise((r) => setTimeout(r, 100 * Math.pow(2, attempt)));
+        }
+      }
+    }
+    this.logger.error(
+      `CRITICAL: failed to revoke token family ${family} after 3 attempts — Redis unreachable. Refresh tokens for this family remain valid until expiry. Last error: ${lastError?.message}`,
+      lastError?.stack,
+    );
+    throw new ServiceUnavailableException('Failed to revoke session — please try again');
   }
 
   /**
