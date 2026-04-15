@@ -108,6 +108,27 @@ export class ReferralsService {
     ]);
   }
 
+  // ─── Admin-facing lookup ─────────────────────────────────────────────────
+
+  /**
+   * Convenience wrapper: admin endpoint identifies referrals by their own
+   * id (intuitive in the "pending referrals" list view) but the service
+   * keys conversion off `referredUserId`. Dereference here so the
+   * admin-facing URL stays referral-id-based.
+   */
+  async markConvertedById(referralId: string) {
+    const referral = await this.repo.findById(referralId);
+    if (!referral) {
+      throw new NotFoundException('Recomendación no encontrada');
+    }
+    if (!referral.referredUserId) {
+      throw new NotFoundException(
+        'La recomendación no está vinculada a un usuario registrado todavía',
+      );
+    }
+    return this.convertReferral(referral.referredUserId);
+  }
+
   // ─── Conversion (manual admin trigger for MVP) ───────────────────────────
 
   /**

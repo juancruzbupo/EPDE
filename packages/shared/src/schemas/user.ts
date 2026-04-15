@@ -16,6 +16,14 @@ export const createClientSchema = z.object({
     .min(2, 'El nombre debe tener al menos 2 caracteres')
     .max(200, 'El nombre no puede superar 200 caracteres'),
   phone: z.string().trim().max(30, 'El teléfono no puede superar 30 caracteres').optional(),
+  /// Optional referral code from the program "Trae un amigo" — see ADR-010.
+  /// Normalized server-side. Unknown / self-codes are silently ignored
+  /// (never block client creation).
+  referralCode: z
+    .string()
+    .trim()
+    .max(20, 'El código de recomendación no puede superar 20 caracteres')
+    .optional(),
 });
 
 export type CreateClientInput = z.infer<typeof createClientSchema>;

@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
+import { ReferralsService } from '../referrals/referrals.service';
 import { ClientsRepository } from './clients.repository';
 import { ClientsService } from './clients.service';
 describe('ClientsService', () => {
@@ -22,6 +23,10 @@ describe('ClientsService', () => {
   };
   let jwtService: {
     sign: jest.Mock;
+  };
+  let referralsService: {
+    assignReferralCodeTo: jest.Mock;
+    registerReferral: jest.Mock;
   };
 
   beforeEach(async () => {
@@ -43,12 +48,18 @@ describe('ClientsService', () => {
       sign: jest.fn(),
     };
 
+    referralsService = {
+      assignReferralCodeTo: jest.fn().mockResolvedValue('TEST-XYZ'),
+      registerReferral: jest.fn().mockResolvedValue(undefined),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ClientsService,
         { provide: ClientsRepository, useValue: clientsRepository },
         { provide: NotificationsHandlerService, useValue: notificationsHandler },
         { provide: JwtService, useValue: jwtService },
+        { provide: ReferralsService, useValue: referralsService },
       ],
     }).compile();
 

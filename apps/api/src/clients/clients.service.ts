@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 
 import { DuplicateClientEmailError } from '../common/exceptions/domain.exceptions';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
+import { ReferralsService } from '../referrals/referrals.service';
 import { ClientsRepository } from './clients.repository';
 
 @Injectable()
@@ -13,6 +14,7 @@ export class ClientsService {
     private readonly clientsRepository: ClientsRepository,
     private readonly notificationsHandler: NotificationsHandlerService,
     private readonly jwtService: JwtService,
+    private readonly referralsService: ReferralsService,
   ) {}
 
   async listClients(filters: ClientFiltersInput) {
@@ -67,6 +69,19 @@ export class ClientsService {
         role: UserRole.CLIENT,
         status: UserStatus.INVITED,
       });
+    }
+
+    // Referral program — every new client gets their own code, and if the
+    // admin entered a referral code from another client, we register the
+    // pending referral. Both calls are intentionally NOT awaited inside a
+    // single try: if code-assign fails, the client is still created (the
+    // backfill seed will fix it on next deploy); if registerReferral fails,
+    // a logged warning is enough — never block onboarding for a bad code.
+    if (!client.referralCode) {
+      await this.referralsService.assignReferralCodeTo(client.id, client.name);
+    }
+    if (dto.referralCode) {
+      await this.referralsService.registerReferral(client.id, client.email, dto.referralCode);
     }
 
     const token = this.jwtService.sign(
