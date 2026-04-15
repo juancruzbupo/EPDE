@@ -1,5 +1,7 @@
 'use client';
 
+import type { ReactNode } from 'react';
+
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -20,6 +22,8 @@ interface LabelSelectProps {
   errorId?: string;
   /** Optional color dot map — renders a colored circle before each label. */
   colorMap?: Record<string, string>;
+  /** Optional HelpHint (or any node) rendered inline next to the label. */
+  help?: ReactNode;
 }
 
 /**
@@ -28,6 +32,10 @@ interface LabelSelectProps {
  *
  * The component is controlled — parent owns the value. No react-hook-form
  * coupling so it can be used with plain useState or with Controller.
+ *
+ * Passing a `help` node (typically a `<HelpHint>`) renders it inline with the
+ * label so older / non-technical users can tap the "?" for an explanation
+ * without leaving the form.
  */
 export function LabelSelect({
   label,
@@ -38,12 +46,16 @@ export function LabelSelect({
   required,
   errorId,
   colorMap,
+  help,
 }: LabelSelectProps) {
   return (
     <div className="space-y-1.5">
-      <Label>
-        {label} {required && <span className="text-destructive">*</span>}
-      </Label>
+      <div className="flex items-center gap-1.5">
+        <Label>
+          {label} {required && <span className="text-destructive">*</span>}
+        </Label>
+        {help}
+      </div>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger aria-describedby={errorId}>
           <SelectValue placeholder={placeholder} />

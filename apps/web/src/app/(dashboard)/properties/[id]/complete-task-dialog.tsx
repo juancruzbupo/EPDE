@@ -19,6 +19,7 @@ import { Camera, ChevronDown, ClipboardCheck, FileText } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
+import { HelpHint } from '@/components/help-hint';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -159,6 +160,15 @@ export function CompleteTaskDialog({
                     required
                     errorId={errors.conditionFound ? 'conditionFound-error' : undefined}
                     colorMap={CONDITION_BG_VARIANTS}
+                    help={
+                      <HelpHint term="Condición">
+                        <p>
+                          Cómo encontraste la cosa al inspeccionarla: Excelente, Bueno, Aceptable,
+                          Malo o Crítico. EPDE usa este valor para calcular el ISV (salud de la
+                          vivienda).
+                        </p>
+                      </HelpHint>
+                    }
                   />
                   {field.value && (
                     <p className="text-muted-foreground mt-1 text-xs">
@@ -190,6 +200,15 @@ export function CompleteTaskDialog({
                     placeholder="Ejecutor"
                     required
                     errorId={errors.executor ? 'executor-error' : undefined}
+                    help={
+                      <HelpHint term="Ejecutor">
+                        <p>
+                          Quién realizó la tarea: vos mismo, un profesional contratado por tu
+                          cuenta, o EPDE (si coordinamos el trabajo). Se usa para el historial y
+                          para sugerir el tipo de acción por default.
+                        </p>
+                      </HelpHint>
+                    }
                   />
                   {field.value && TASK_EXECUTOR_HINTS[field.value] && (
                     <p className="text-muted-foreground mt-1 text-xs">
@@ -228,6 +247,15 @@ export function CompleteTaskDialog({
                     onChange={field.onChange}
                     placeholder="¿Cómo resultó?"
                     errorId={errors.result ? 'result-error' : undefined}
+                    help={
+                      <HelpHint term="Resultado de tarea">
+                        <p>
+                          Qué conseguiste con la tarea: OK (todo bien), OK con observaciones (anduvo
+                          pero hay algo a vigilar), necesita reparación, o no se pudo hacer. Se
+                          auto-completa según la condición — editá si corresponde.
+                        </p>
+                      </HelpHint>
+                    }
                   />
                 )}
               />
@@ -250,6 +278,15 @@ export function CompleteTaskDialog({
                     onChange={field.onChange}
                     placeholder="¿Qué se hizo?"
                     errorId={errors.actionTaken ? 'actionTaken-error' : undefined}
+                    help={
+                      <HelpHint term="Acción realizada">
+                        <p>
+                          El tipo de trabajo hecho: sólo inspección, limpieza, lubricación,
+                          reparación menor, reemplazo, etc. Se usa para medir prevención vs
+                          reparación en el ISV (dimensión &laquo;¿Prevenís o reparás?&raquo;).
+                        </p>
+                      </HelpHint>
+                    }
                   />
                 )}
               />

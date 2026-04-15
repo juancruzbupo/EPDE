@@ -2,10 +2,11 @@
 
 import type { DetectedProblem } from '@epde/shared';
 import { CONDITION_FOUND_LABELS, type ConditionFound } from '@epde/shared';
-import { AlertTriangle, Heart } from 'lucide-react';
+import { AlertTriangle, Heart, Info } from 'lucide-react';
 import { useState } from 'react';
 
 import { HealthIndexCard } from '@/components/health-index-card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -97,6 +98,18 @@ export function PropertyHealthTab({
 
   return (
     <div className="space-y-6">
+      <Alert variant="default" className="border-primary/30 bg-primary/5">
+        <Info aria-hidden="true" />
+        <AlertTitle>¿Qué estás viendo acá?</AlertTitle>
+        <AlertDescription>
+          El <strong>ISV (Índice de Salud de la Vivienda)</strong> es un número de 0 a 100 que
+          resume cuánto cuidado necesita tu casa. Arriba de 60 = está bien mantenida; abajo de 40 =
+          las reparaciones futuras van a salir más caras. Se calcula con 5 dimensiones: si estás al
+          día con las tareas, en qué condición están las cosas, cuánto revisamos, si prevenís o
+          reparás, y si mejora o empeora con el tiempo.
+        </AlertDescription>
+      </Alert>
+
       <HealthIndexCard index={healthIndex} history={history} address={address} />
 
       {/* Detected problems */}

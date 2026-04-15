@@ -52,6 +52,10 @@ export function AdminDashboard() {
       <AdminDashboardTour />
       <PageHeader title="Dashboard" description="Resumen general de la plataforma" />
 
+      <p className="text-muted-foreground mb-3 text-xs">
+        Panel de administración EPDE — gestión de clientes, propiedades y cotizaciones.
+      </p>
+
       {/* Level 1: Executive summary KPIs */}
       <div data-tour="admin-kpis" className="mb-6">
         {statsLoading ? (

@@ -124,6 +124,10 @@ export function ClientDashboard({ userName }: { userName: string }) {
         description="Resumen de tus propiedades y tareas"
       />
 
+      <p className="text-muted-foreground mb-3 text-xs">
+        Panel de propietario — gestioná tus propiedades, tareas y presupuestos de mantenimiento.
+      </p>
+
       <SubscriptionWarningBanner />
 
       {/* Welcome Card — shown until client has first activity */}
