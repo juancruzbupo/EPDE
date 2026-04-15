@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { Linking, Pressable, Text, View } from 'react-native';
 
 import { TYPE } from '@/lib/fonts';
+import { ROUTES } from '@/lib/routes';
 
 export default function SubscriptionExpiredScreen() {
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function SubscriptionExpiredScreen() {
         accessibilityRole="button"
         accessibilityLabel="Volver al inicio de sesión"
         className="mt-3 w-full items-center py-3"
-        onPress={() => router.replace('/(auth)/login')}
+        onPress={() => router.replace(ROUTES.login as never)}
       >
         <Text style={TYPE.labelMd} className="text-muted-foreground">
           Volver al inicio

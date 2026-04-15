@@ -12,6 +12,7 @@ import { Pressable, Text, View } from 'react-native';
 import { HelpHint } from '@/components/help-hint';
 import { PriorityBadge, TaskStatusBadge } from '@/components/status-badge';
 import { TYPE } from '@/lib/fonts';
+import { ROUTES } from '@/lib/routes';
 
 interface PropertyTaskCardProps {
   task: TaskPublic;
@@ -33,7 +34,7 @@ export function PropertyTaskCard({ task, planId }: PropertyTaskCardProps) {
       accessibilityRole="button"
       accessibilityLabel={`Tarea: ${task.name}`}
       className="border-border bg-card mb-2 rounded-xl border p-3"
-      onPress={() => router.push(`/task/${planId}/${task.id}` as never)}
+      onPress={() => router.push(ROUTES.task(planId, task.id) as never)}
     >
       <View className="mb-1 flex-row items-center gap-2">
         <View className={`h-2.5 w-2.5 rounded-full ${statusDotColor}`} />

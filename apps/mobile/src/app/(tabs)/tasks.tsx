@@ -34,6 +34,7 @@ import type { TaskListItem } from '@/lib/api/maintenance-plans';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
+import { ROUTES } from '@/lib/routes';
 
 const PRIORITY_FILTERS: { key: TaskPriority | undefined; label: string }[] = [
   { key: undefined, label: 'Todas' },
@@ -68,7 +69,7 @@ const TaskCard = memo(function TaskCard({ task }: { task: TaskListItem }) {
       accessibilityRole="button"
       accessibilityLabel={`Tarea: ${task.name}`}
       className="border-border bg-card mb-3 rounded-xl border p-3"
-      onPress={() => router.push(`/task/${task.maintenancePlan.id}/${task.id}` as never)}
+      onPress={() => router.push(ROUTES.task(task.maintenancePlan.id, task.id) as never)}
     >
       <View className="mb-1 flex-row items-start justify-between gap-2">
         <Text

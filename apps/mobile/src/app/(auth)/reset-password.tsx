@@ -17,6 +17,7 @@ import { z } from 'zod';
 import { resetPassword } from '@/lib/auth';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
+import { ROUTES } from '@/lib/routes';
 import { toast } from '@/lib/toast';
 
 const schema = z
@@ -64,7 +65,7 @@ export default function ResetPasswordScreen() {
     try {
       await resetPassword(token, data.newPassword);
       toast.success('Contraseña restablecida. Ya podés ingresar.');
-      router.replace('/(auth)/login');
+      router.replace(ROUTES.login as never);
     } catch {
       setError('Token inválido o expirado.');
     } finally {

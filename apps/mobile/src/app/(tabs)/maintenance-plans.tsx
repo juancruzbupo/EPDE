@@ -21,6 +21,7 @@ import { usePlans } from '@/hooks/use-plans';
 import type { PlanListItem } from '@/lib/api/maintenance-plans';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
+import { ROUTES } from '@/lib/routes';
 
 const PlanCard = memo(function PlanCard({ plan }: { plan: PlanListItem }) {
   const router = useRouter();
@@ -30,7 +31,7 @@ const PlanCard = memo(function PlanCard({ plan }: { plan: PlanListItem }) {
       accessibilityRole="button"
       accessibilityLabel={plan.name}
       className="border-border bg-card mb-3 rounded-xl border p-3"
-      onPress={() => router.push(`/property/${plan.property.id}` as never)}
+      onPress={() => router.push(ROUTES.property(plan.property.id) as never)}
     >
       <View className="mb-1 flex-row items-center justify-between">
         <Text

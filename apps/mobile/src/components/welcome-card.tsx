@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 
 import { TYPE } from '@/lib/fonts';
+import { ROUTES } from '@/lib/routes';
 
 interface WelcomeCardProps {
   userName: string;
@@ -63,7 +64,7 @@ export function WelcomeCard({
           accessibilityRole="button"
           accessibilityLabel="Ver mi propiedad"
           className="bg-primary items-center rounded-lg px-4 py-2.5"
-          onPress={() => router.push('/properties' as never)}
+          onPress={() => router.push(ROUTES.properties as never)}
         >
           <Text style={TYPE.labelMd} className="text-primary-foreground">
             Ver mi propiedad

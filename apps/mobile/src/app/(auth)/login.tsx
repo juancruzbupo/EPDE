@@ -16,6 +16,7 @@ import {
 
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
+import { ROUTES } from '@/lib/routes';
 import { useAuthStore } from '@/stores/auth-store';
 
 export default function LoginScreen() {
@@ -42,7 +43,7 @@ export default function LoginScreen() {
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status;
       if (status === 402) {
-        router.replace('/(auth)/subscription-expired' as never);
+        router.replace(ROUTES.subscriptionExpired as never);
         return;
       }
       setError('Credenciales inválidas. Verificá tu email y contraseña.');
@@ -131,7 +132,7 @@ export default function LoginScreen() {
           <Pressable
             accessibilityRole="link"
             accessibilityLabel="Olvidé mi contraseña"
-            onPress={() => router.push('/(auth)/forgot-password')}
+            onPress={() => router.push(ROUTES.forgotPassword as never)}
             className="mt-2 self-end"
           >
             <Text style={TYPE.labelMd} className="text-primary">

@@ -3,6 +3,7 @@ import { memo } from 'react';
 import { Modal, Pressable, Text, View } from 'react-native';
 
 import { TYPE } from '@/lib/fonts';
+import { ROUTES } from '@/lib/routes';
 
 interface RequestTypeHelperProps {
   visible: boolean;
@@ -47,7 +48,7 @@ export const RequestTypeHelper = memo(function RequestTypeHelper({
           style={{ minHeight: 44 }}
           onPress={() => {
             onClose();
-            router.push('/budget' as never);
+            router.push(ROUTES.budget as never);
           }}
           accessibilityRole="button"
           accessibilityLabel="Solicitar presupuesto"
@@ -68,7 +69,7 @@ export const RequestTypeHelper = memo(function RequestTypeHelper({
           style={{ minHeight: 44 }}
           onPress={() => {
             onClose();
-            router.push('/service-requests' as never);
+            router.push(ROUTES.serviceRequests as never);
           }}
           accessibilityRole="button"
           accessibilityLabel="Crear solicitud de servicio"

@@ -29,6 +29,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
+import { ROUTES } from '@/lib/routes';
 
 const FILTERS = [
   { key: undefined, label: 'Todos' },
@@ -48,7 +49,7 @@ const BudgetCard = memo(function BudgetCard({ budget }: { budget: BudgetRequestP
       accessibilityRole="button"
       accessibilityLabel={`Presupuesto: ${budget.title}`}
       className="border-border bg-card mb-3 rounded-xl border p-3"
-      onPress={() => router.push(`/budget/${budget.id}` as never)}
+      onPress={() => router.push(ROUTES.budgetDetail(budget.id) as never)}
     >
       <View className="mb-1 flex-row items-center justify-between gap-2">
         <Text

@@ -32,6 +32,7 @@ import {
   PERSISTER_MAX_AGE,
   SENSITIVE_PERSIST_DENY,
 } from '@/lib/query-persister';
+import { ROUTES } from '@/lib/routes';
 import { darkTheme, lightTheme } from '@/lib/theme-tokens';
 import { useAuthStore } from '@/stores/auth-store';
 import { useThemeStore } from '@/stores/theme-store';
@@ -51,11 +52,11 @@ function AuthGate() {
     const inAuthGroup = segments[0] === '(auth)';
 
     if (subscriptionExpired && !inAuthGroup) {
-      router.replace('/(auth)/subscription-expired' as never);
+      router.replace(ROUTES.subscriptionExpired as never);
     } else if (!isAuthenticated && !inAuthGroup) {
-      router.replace('/(auth)/login');
+      router.replace(ROUTES.login as never);
     } else if (isAuthenticated && inAuthGroup && !subscriptionExpired) {
-      router.replace('/(tabs)');
+      router.replace(ROUTES.tabs as never);
     }
   }, [isAuthenticated, isLoading, subscriptionExpired, segments, router]);
 
@@ -81,7 +82,7 @@ function AuthGate() {
       const firstSegment = path?.split('/')[0];
       if (firstSegment && !allowedPaths.includes(firstSegment)) {
         console.warn(`Blocked unrecognized deep link path: ${path}`);
-        router.replace('/(tabs)');
+        router.replace(ROUTES.tabs as never);
       }
     };
     const sub = Linking.addEventListener('url', handleDeepLink);

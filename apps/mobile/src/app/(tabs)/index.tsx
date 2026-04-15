@@ -20,6 +20,7 @@ import { useStreakFreeze } from '@/hooks/use-milestones';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
+import { ROUTES } from '@/lib/routes';
 import { useAuthStore } from '@/stores/auth-store';
 
 export default function DashboardScreen() {
@@ -132,12 +133,12 @@ function ClientDashboard() {
 
   const handleServiceRequests = () => {
     haptics.light();
-    router.push('/service-requests' as never);
+    router.push(ROUTES.serviceRequests as never);
   };
 
   const handleBudgets = () => {
     haptics.light();
-    router.push('/budgets' as never);
+    router.push(ROUTES.budgets as never);
   };
 
   if ((statsError || tasksError) && !stats && !tasks) {

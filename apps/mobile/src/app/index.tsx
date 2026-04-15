@@ -1,5 +1,6 @@
 import { Redirect } from 'expo-router';
 
+import { ROUTES } from '@/lib/routes';
 import { useAuthStore } from '@/stores/auth-store';
 
 export default function Index() {
@@ -9,8 +10,8 @@ export default function Index() {
   if (isLoading) return null;
 
   if (isAuthenticated) {
-    return <Redirect href="/(tabs)" />;
+    return <Redirect href={ROUTES.tabs} />;
   }
 
-  return <Redirect href="/(auth)/login" />;
+  return <Redirect href={ROUTES.login} />;
 }

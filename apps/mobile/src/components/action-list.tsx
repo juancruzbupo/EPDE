@@ -7,6 +7,7 @@ import { Pressable, Text, View } from 'react-native';
 import { AnimatedListItem } from '@/components/animated-list-item';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
+import { ROUTES } from '@/lib/routes';
 
 interface MobileActionListProps {
   tasks: UpcomingTask[];
@@ -56,12 +57,12 @@ const ActionTaskCard = memo(function ActionTaskCard({
 
   const handlePress = () => {
     haptics.light();
-    router.push(`/task/${task.maintenancePlanId}/${task.id}` as never);
+    router.push(ROUTES.task(task.maintenancePlanId, task.id) as never);
   };
 
   const handleRegister = () => {
     haptics.medium();
-    router.push(`/task/${task.maintenancePlanId}/${task.id}` as never);
+    router.push(ROUTES.task(task.maintenancePlanId, task.id) as never);
   };
 
   const needsProfessional = task.professionalRequirement !== ProfessionalRequirement.OWNER_CAN_DO;
@@ -148,7 +149,7 @@ const NextInspectionCard = memo(function NextInspectionCard({ task }: { task: Up
       className="border-status-upcoming/20 bg-status-upcoming/5 mb-4 flex-row items-center rounded-xl border p-3"
       onPress={() => {
         haptics.light();
-        router.push(`/task/${task.maintenancePlanId}/${task.id}` as never);
+        router.push(ROUTES.task(task.maintenancePlanId, task.id) as never);
       }}
     >
       <View className="bg-status-upcoming/10 mr-3 h-10 w-10 items-center justify-center rounded-lg">
@@ -226,7 +227,7 @@ export const ActionList = memo(function ActionList({ tasks, nextUpcoming }: Mobi
               accessibilityLabel={`Ver las ${overdue.length} tareas vencidas`}
               onPress={() => {
                 haptics.light();
-                router.push('/tasks' as never);
+                router.push(ROUTES.tasks as never);
               }}
               className="mb-3 items-center py-2"
             >

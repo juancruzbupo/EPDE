@@ -23,6 +23,7 @@ import { useProperties } from '@/hooks/use-properties';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
+import { ROUTES } from '@/lib/routes';
 
 const TYPE_FILTERS: { key: PropertyType | undefined; label: string }[] = [
   { key: undefined, label: 'Todos' },
@@ -56,7 +57,7 @@ const PropertyCard = memo(function PropertyCard({ property }: { property: Proper
       accessibilityRole="button"
       accessibilityLabel={`Propiedad: ${property.address}`}
       className="border-border bg-card mb-3 rounded-xl border p-3"
-      onPress={() => router.push(`/property/${property.id}` as never)}
+      onPress={() => router.push(ROUTES.property(property.id) as never)}
     >
       <View className="mb-1 flex-row items-center justify-between gap-2">
         <Text

@@ -30,6 +30,7 @@ import { useServiceRequests } from '@/hooks/use-service-requests';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
+import { ROUTES } from '@/lib/routes';
 import { defaultScreenOptions } from '@/lib/screen-options';
 
 const STATUS_FILTERS = [
@@ -61,7 +62,7 @@ const ServiceRequestCard = memo(function ServiceRequestCard({
       accessibilityRole="button"
       accessibilityLabel={`Solicitud: ${request.title}`}
       className="border-border bg-card mb-3 rounded-xl border p-4"
-      onPress={() => router.push(`/service-requests/${request.id}` as never)}
+      onPress={() => router.push(ROUTES.serviceRequest(request.id) as never)}
     >
       <View className="mb-1 flex-row items-center justify-between gap-2">
         <Text
