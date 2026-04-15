@@ -19,6 +19,7 @@ import { MetricsInterceptor } from './metrics/metrics.interceptor';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PropertiesModule } from './properties/properties.module';
 import { QuoteTemplatesModule } from './quote-templates/quote-templates.module';
+import { ReferralsModule } from './referrals/referrals.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
 import { ServiceRequestsModule } from './service-requests/service-requests.module';
 import { TaskTemplatesModule } from './task-templates/task-templates.module';
@@ -45,6 +46,7 @@ import { UsersModule } from './users/users.module';
     TaskTemplatesModule,
     QuoteTemplatesModule,
     InspectionsModule,
+    ReferralsModule,
   ],
   controllers: [],
   providers: [
