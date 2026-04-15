@@ -7,6 +7,7 @@ import { Alert, Linking, Pressable, ScrollView, Text, View } from 'react-native'
 import { GlossaryModal } from '@/components/glossary-modal';
 import { AppearanceSelector } from '@/components/profile/appearance-selector';
 import { PasswordChangeForm } from '@/components/profile/password-change-form';
+import { ReferralsCard } from '@/components/profile/referrals-card';
 import { UserInfoCard } from '@/components/profile/user-info-card';
 import * as authApi from '@/lib/auth';
 import { QUERY_CACHE_KEY } from '@/lib/constants';
@@ -147,6 +148,9 @@ export default function ProfileScreen() {
       {user?.role === 'CLIENT' && user.subscriptionExpiresAt && (
         <MobileSubscriptionInfo expiresAt={user.subscriptionExpiresAt} />
       )}
+
+      {/* Referral program — clients only */}
+      {user?.role === 'CLIENT' && <ReferralsCard />}
 
       <PasswordChangeForm
         currentPassword={currentPassword}
