@@ -44,7 +44,9 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
   );
 
   if (isError && !property) {
-    return <ErrorState message="No se pudo cargar la propiedad" onRetry={refetch} />;
+    return (
+      <ErrorState message="No se pudo cargar la propiedad" onRetry={refetch} severity="critical" />
+    );
   }
 
   if (isLoading && !property) {

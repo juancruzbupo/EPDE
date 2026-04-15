@@ -3,24 +3,34 @@ import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
 
+import { useReducedMotion } from '@/lib/animations';
+
 export interface ConfettiBurstRef {
   fire: () => void;
 }
 
 /**
  * Fullscreen confetti overlay. Render once in a screen layout and call `ref.fire()`.
- * pointer-events: none so it doesn't block interaction.
+ * pointer-events: none so it doesn't block interaction. Respects the native
+ * "reduce motion" accessibility flag — `fire()` becomes a no-op when the user
+ * has requested reduced motion in iOS / Android settings.
  */
 export const ConfettiBurst = forwardRef<ConfettiBurstRef>(function ConfettiBurst(_props, ref) {
   const cannonRef = useRef<ConfettiCannon>(null);
   const [show, setShow] = useState(false);
+  const reduced = useReducedMotion();
 
-  useImperativeHandle(ref, () => ({
-    fire: () => {
-      setShow(true);
-      setTimeout(() => setShow(false), 3000);
-    },
-  }));
+  useImperativeHandle(
+    ref,
+    () => ({
+      fire: () => {
+        if (reduced) return;
+        setShow(true);
+        setTimeout(() => setShow(false), 3000);
+      },
+    }),
+    [reduced],
+  );
 
   if (!show) return null;
 

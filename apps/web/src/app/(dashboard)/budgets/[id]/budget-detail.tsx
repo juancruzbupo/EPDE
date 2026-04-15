@@ -94,7 +94,12 @@ export function BudgetDetail({ id, isAdmin, isClient, initialData }: BudgetDetai
 
   if (isError && !budget)
     return (
-      <ErrorState message="No se pudo cargar el presupuesto" onRetry={refetch} className="py-24" />
+      <ErrorState
+        message="No se pudo cargar el presupuesto"
+        onRetry={refetch}
+        severity="critical"
+        className="py-24"
+      />
     );
   if (isLoading && !budget) {
     return (

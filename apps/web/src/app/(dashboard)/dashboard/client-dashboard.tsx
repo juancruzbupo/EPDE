@@ -172,7 +172,11 @@ export function ClientDashboard({ userName }: { userName: string }) {
             </Card>
           </div>
         ) : statsError ? (
-          <ErrorState message="No se pudieron cargar las estadísticas" onRetry={refetchStats} />
+          <ErrorState
+            message="No se pudieron cargar las estadísticas"
+            onRetry={refetchStats}
+            severity="critical"
+          />
         ) : stats ? (
           <HomeStatusCard
             score={score}

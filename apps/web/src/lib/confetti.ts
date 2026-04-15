@@ -4,8 +4,19 @@ import confetti from 'canvas-confetti';
 /**
  * Fire a short confetti burst (0.8s). Used on task completion and milestone unlocks.
  * Safe to call multiple times — each burst is independent.
+ *
+ * No-ops when the user has requested reduced motion via the OS
+ * (prefers-reduced-motion media query). Callers that already gate on a
+ * user-level "motivation" preference still get the OS gate for free.
  */
 export function triggerConfetti() {
+  if (
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  ) {
+    return;
+  }
+
   const end = Date.now() + 800;
   const colors = [
     DESIGN_TOKENS_LIGHT.primary,

@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -18,6 +17,7 @@ import { z } from 'zod';
 import { resetPassword } from '@/lib/auth';
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
+import { toast } from '@/lib/toast';
 
 const schema = z
   .object({
@@ -63,7 +63,7 @@ export default function ResetPasswordScreen() {
     setIsLoading(true);
     try {
       await resetPassword(token, data.newPassword);
-      Alert.alert('Éxito', 'Contraseña restablecida exitosamente');
+      toast.success('Contraseña restablecida. Ya podés ingresar.');
       router.replace('/(auth)/login');
     } catch {
       setError('Token inválido o expirado.');
