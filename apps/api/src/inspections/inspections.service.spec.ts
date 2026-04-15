@@ -3,8 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { CategoryTemplatesRepository } from '../category-templates/category-templates.repository';
 import { HealthIndexRepository } from '../dashboard/health-index.repository';
+import { MaintenancePlansRepository } from '../maintenance-plans/maintenance-plans.repository';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
-import { PrismaService } from '../prisma/prisma.service';
 import { PropertiesRepository } from '../properties/properties.repository';
 import { TaskTemplatesRepository } from '../task-templates/task-templates.repository';
 import { InspectionChecklistRepository } from './inspection-checklist.repository';
@@ -24,6 +24,7 @@ describe('InspectionsService', () => {
     findStatus: jest.fn(),
     updateNotes: jest.fn(),
     softDelete: jest.fn(),
+    withTransaction: jest.fn(),
   };
 
   const itemRepo = {
@@ -64,10 +65,16 @@ describe('InspectionsService', () => {
     inspectionChecklist: { update: jest.fn() },
   };
 
-  const mockPrisma = {
-    maintenancePlan: { findUnique: jest.fn() },
-    $transaction: jest.fn((cb: (tx: typeof mockTx) => Promise<unknown>) => cb(mockTx)),
-  } as unknown as PrismaService;
+  const plansRepo = {
+    existsForProperty: jest.fn().mockResolvedValue(false),
+  };
+
+  // Forward withTransaction calls onto the shared mockTx so existing
+  // assertions on tx.category / tx.maintenancePlan / tx.task / ... keep
+  // working without reshape.
+  checklistRepo.withTransaction.mockImplementation(
+    async (cb: (tx: typeof mockTx) => Promise<unknown>) => cb(mockTx),
+  );
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -82,7 +89,7 @@ describe('InspectionsService', () => {
         { provide: PropertiesRepository, useValue: propertiesRepo },
         { provide: NotificationsHandlerService, useValue: notificationsHandler },
         { provide: HealthIndexRepository, useValue: healthIndexRepo },
-        { provide: PrismaService, useValue: mockPrisma },
+        { provide: MaintenancePlansRepository, useValue: plansRepo },
       ],
     }).compile();
 
@@ -203,7 +210,7 @@ describe('InspectionsService', () => {
     });
 
     beforeEach(() => {
-      (mockPrisma.maintenancePlan.findUnique as jest.Mock).mockResolvedValue(null);
+      plansRepo.existsForProperty.mockResolvedValue(false);
       mockTx.category.findFirst.mockResolvedValue(null);
       mockTx.category.create.mockResolvedValue({ id: 'cat-1' });
       mockTx.maintenancePlan.create.mockResolvedValue({ id: 'plan-1' });
@@ -234,7 +241,7 @@ describe('InspectionsService', () => {
 
     it('throws ConflictException if a plan already exists', async () => {
       checklistRepo.findByIdWithActiveItems.mockResolvedValue(makeChecklist([{ status: 'OK' }]));
-      (mockPrisma.maintenancePlan.findUnique as jest.Mock).mockResolvedValue({ id: 'existing' });
+      plansRepo.existsForProperty.mockResolvedValue(true);
 
       await expect(service.generatePlanFromInspection('c1', 'Plan', 'u1')).rejects.toThrow(
         ConflictException,

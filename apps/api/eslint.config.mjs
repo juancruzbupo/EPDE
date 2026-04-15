@@ -17,9 +17,15 @@ export default [
     },
   },
   {
-    // Enforce repository pattern: services must not import PrismaService directly
+    // Enforce repository pattern: services must not import PrismaService
+    // directly. Allowlist mirrors eslint-rules/no-prisma-in-service.mjs —
+    // both guardrails freeze the same set of exceptions.
     files: ['src/**/*.service.ts'],
-    ignores: ['src/prisma/**', 'src/auth/auth-audit.service.ts'],
+    ignores: [
+      'src/prisma/**',
+      'src/auth/auth-audit.service.ts',
+      'src/metrics/metrics-collector.service.ts',
+    ],
     rules: {
       'no-restricted-imports': ['error', {
         patterns: [{

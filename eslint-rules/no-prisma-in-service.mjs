@@ -35,6 +35,11 @@ const ALLOWLIST = [
     reason:
       'Audit writes are append-only plain inserts with no ownership check and intentionally bypass the repository layer to keep the audit trail independent of domain access control.',
   },
+  {
+    pathSuffix: 'apps/api/src/metrics/metrics-collector.service.ts',
+    reason:
+      'Queries pg_stat_activity (a Postgres system view), not a domain model. No entity, no soft-delete, no pagination — a repository would be an empty shell. See the file header for the full rationale.',
+  },
 ];
 
 function isAllowlisted(filename) {

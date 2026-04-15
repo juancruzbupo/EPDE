@@ -237,6 +237,11 @@ export abstract class BaseRepository<
    * transaction boundary lives in the repository layer so services never
    * reach for `this.prisma.$transaction` directly (SIEMPRE #4).
    *
+   * Accepts the same `{ maxWait, timeout, isolationLevel }` options Prisma's
+   * `$transaction` takes — expose them for long-running writes (e.g. plan
+   * generation from an inspection with 100+ items) that need a higher
+   * timeout than the default 5s.
+   *
    * ⚠️ Inside the callback, the provided `tx` client does NOT apply the
    * soft-delete extension (see SIEMPRE #96). Queries on soft-deletable
    * models MUST include `deletedAt: null` in their `where` explicitly —
@@ -246,7 +251,14 @@ export abstract class BaseRepository<
    * withTransaction. Inside the callback, operate on any model via the
    * `tx` client — the atomicity is for the whole block.
    */
-  async withTransaction<R>(fn: (tx: Prisma.TransactionClient) => Promise<R>): Promise<R> {
-    return this.prisma.$transaction(fn);
+  async withTransaction<R>(
+    fn: (tx: Prisma.TransactionClient) => Promise<R>,
+    options?: {
+      maxWait?: number;
+      timeout?: number;
+      isolationLevel?: Prisma.TransactionIsolationLevel;
+    },
+  ): Promise<R> {
+    return this.prisma.$transaction(fn, options);
   }
 }

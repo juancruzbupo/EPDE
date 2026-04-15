@@ -42,6 +42,20 @@ export class MaintenancePlansRepository extends BaseRepository<MaintenancePlan, 
     });
   }
 
+  /**
+   * Lightweight existence check — returns `true` when the property already
+   * has a plan, `false` otherwise. Used by the inspection → plan generator
+   * to fail fast before doing any expensive template-fetch work. Intentionally
+   * narrower than {@link findByPropertyId} which eagerly loads tasks.
+   */
+  async existsForProperty(propertyId: string): Promise<boolean> {
+    const row = await this.model.findFirst({
+      where: { propertyId },
+      select: { id: true },
+    });
+    return row !== null;
+  }
+
   async findByPropertyId(propertyId: string) {
     return this.model.findFirst({
       where: { propertyId },

@@ -35,7 +35,6 @@ import {
 import { HealthIndexRepository } from '../dashboard/health-index.repository';
 import { MaintenancePlansRepository } from '../maintenance-plans/maintenance-plans.repository';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
-import { PrismaService } from '../prisma/prisma.service';
 import { TaskAuditLogRepository } from './task-audit-log.repository';
 import { TasksRepository } from './tasks.repository';
 
@@ -53,7 +52,6 @@ export class TaskLifecycleService {
     private readonly plansRepository: MaintenancePlansRepository,
     private readonly auditLogRepository: TaskAuditLogRepository,
     private readonly categoryTemplatesRepository: CategoryTemplatesRepository,
-    private readonly prisma: PrismaService,
     private readonly notificationsHandler: NotificationsHandlerService,
     private readonly milestoneService: MilestoneService,
     private readonly healthIndexRepository: HealthIndexRepository,
@@ -300,7 +298,7 @@ export class TaskLifecycleService {
     }
 
     // Wrap category find-or-create + task creation in a transaction
-    return this.prisma.$transaction(
+    return this.tasksRepository.withTransaction(
       async (tx) => {
         let category = await tx.category.findFirst({
           where: { categoryTemplateId, deletedAt: null },

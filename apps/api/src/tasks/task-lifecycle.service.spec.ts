@@ -11,9 +11,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { MilestoneService } from '../auth/milestone.service';
 import { CategoryTemplatesRepository } from '../category-templates/category-templates.repository';
+import { HealthIndexRepository } from '../dashboard/health-index.repository';
 import { MaintenancePlansRepository } from '../maintenance-plans/maintenance-plans.repository';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
-import { PrismaService } from '../prisma/prisma.service';
 import { TaskAuditLogRepository } from './task-audit-log.repository';
 import { TaskLifecycleService } from './task-lifecycle.service';
 import { TasksRepository } from './tasks.repository';
@@ -65,11 +65,8 @@ describe('TaskLifecycleService', () => {
           useValue: { checkAndAward: jest.fn().mockResolvedValue(undefined) },
         },
         {
-          provide: PrismaService,
-          useValue: {
-            $transaction: jest.fn(),
-            task: { createMany: jest.fn() },
-          },
+          provide: HealthIndexRepository,
+          useValue: { invalidateHealthCaches: jest.fn().mockResolvedValue(undefined) },
         },
       ],
     }).compile();

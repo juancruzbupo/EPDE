@@ -24,8 +24,8 @@ import {
 
 import { CategoryTemplatesRepository } from '../category-templates/category-templates.repository';
 import { HealthIndexRepository } from '../dashboard/health-index.repository';
+import { MaintenancePlansRepository } from '../maintenance-plans/maintenance-plans.repository';
 import { NotificationsHandlerService } from '../notifications/notifications-handler.service';
-import { PrismaService } from '../prisma/prisma.service';
 import { PropertiesRepository } from '../properties/properties.repository';
 import { TaskTemplatesRepository } from '../task-templates/task-templates.repository';
 import { InspectionChecklistRepository } from './inspection-checklist.repository';
@@ -62,7 +62,7 @@ export class InspectionsService {
     private readonly propertiesRepository: PropertiesRepository,
     private readonly notificationsHandler: NotificationsHandlerService,
     private readonly healthIndexRepository: HealthIndexRepository,
-    private readonly prisma: PrismaService,
+    private readonly plansRepository: MaintenancePlansRepository,
   ) {}
 
   async create(data: {
@@ -224,10 +224,7 @@ export class InspectionsService {
     // MaintenancePlan.propertyId is the authoritative protection against the
     // two-clicks-at-once race; the catch around tx.maintenancePlan.create below
     // turns the resulting P2002 into the same friendly message.
-    const existingPlan = await this.prisma.maintenancePlan.findUnique({
-      where: { propertyId: checklist.propertyId },
-    });
-    if (existingPlan) {
+    if (await this.plansRepository.existsForProperty(checklist.propertyId)) {
       throw new ConflictException('Esta propiedad ya tiene un plan de mantenimiento');
     }
 
@@ -263,7 +260,7 @@ export class InspectionsService {
     // timeout code into a friendly message for the admin instead of a bare 500.
     let result;
     try {
-      result = await this.prisma.$transaction(
+      result = await this.checklistRepository.withTransaction(
         async (tx) => {
           // Find-or-create categories
           const categoryMap = new Map<string, string>(); // categoryTemplateId → categoryId
@@ -399,7 +396,7 @@ export class InspectionsService {
             });
 
             // Link the inspection item to the created task.
-            // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- item comes from findByIdWithActiveItems, which already filters deletedAt: null on both the checklist and its items.
+
             await tx.inspectionItem.update({
               where: { id: item.id },
               data: { taskId: task.id },
@@ -450,7 +447,7 @@ export class InspectionsService {
           // later verifyChecklistAccessAndEditable / verifyItemAccessAndEditable
           // guards key off, and it stays in the same transaction as the plan/task
           // creation so an aborted run never leaves a half-locked checklist.
-          // eslint-disable-next-line local/no-tx-without-soft-delete-filter -- checklist was validated by findByIdWithActiveItems at the top of this method; id is live.
+
           await tx.inspectionChecklist.update({
             where: { id: checklistId },
             data: { status: 'COMPLETED', completedAt: new Date() },
