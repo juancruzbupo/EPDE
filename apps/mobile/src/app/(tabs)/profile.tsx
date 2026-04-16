@@ -150,6 +150,14 @@ export default function ProfileScreen() {
         <MobileSubscriptionInfo expiresAt={user.subscriptionExpiresAt} />
       )}
 
+      {/* Accesibilidad: tema + tamaño de texto arriba porque son los ajustes
+       *  que más usa el segmento boomer. Antes vivían después de password y
+       *  del referral program, demasiado enterrados para el caso de uso
+       *  principal ("vengo a agrandar el texto"). */}
+      <AppearanceSelector mode={mode} onModeChange={setMode} />
+
+      <FontScaleSelector fontScale={fontScale} onFontScaleChange={setFontScale} />
+
       {/* Referral program — clients only */}
       {user?.role === 'CLIENT' && <ReferralsCard />}
 
@@ -163,10 +171,6 @@ export default function ProfileScreen() {
         onConfirmPasswordChange={setConfirmPassword}
         onSubmit={handleChangePassword}
       />
-
-      <AppearanceSelector mode={mode} onModeChange={setMode} />
-
-      <FontScaleSelector fontScale={fontScale} onFontScaleChange={setFontScale} />
 
       {/* App info */}
       <View className="border-border bg-card mb-6 rounded-xl border p-4">

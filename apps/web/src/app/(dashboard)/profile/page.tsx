@@ -92,6 +92,27 @@ export default function ProfilePage() {
         <SubscriptionInfo expiresAt={user.subscriptionExpiresAt} />
       )}
 
+      {/* Identidad editable — junto a "Información de la cuenta" (arriba) para
+       *  que lectura y edición vivan en el mismo bloque. Antes vivía 6 cards
+       *  más abajo. */}
+      <ProfileForm user={user} onSuccess={checkAuth} />
+
+      {/* Accesibilidad + preferencias — elevadas arriba de engagement porque
+       *  son los ajustes más frecuentes. Dark mode + tamaño de texto atienden
+       *  al segmento con menor agudeza visual. */}
+      <AppearanceCard />
+      <TextSizeCard />
+      <NotificationsCard />
+      <MotivationCard />
+
+      {/* Engagement / growth */}
+      {user.role === UserRole.CLIENT && <ReferralsSection />}
+      <MilestonesCardGuarded />
+
+      {/* Seguridad — poco frecuente, queda al final junto a ayuda. */}
+      <ChangePasswordForm />
+
+      {/* Ayuda — tour al final, no interrumpe el flujo de ajustes. */}
       <Card className="mb-6">
         <CardContent className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
@@ -115,16 +136,6 @@ export default function ProfilePage() {
           </Button>
         </CardContent>
       </Card>
-
-      <AppearanceCard />
-      <TextSizeCard />
-      <MotivationCard />
-      <NotificationsCard />
-
-      <ProfileForm user={user} onSuccess={checkAuth} />
-      {user.role === UserRole.CLIENT && <ReferralsSection />}
-      <MilestonesCardGuarded />
-      <ChangePasswordForm />
     </PageTransition>
   );
 }
