@@ -5,6 +5,7 @@ export * from './condition-variants';
 export * from './design-tokens';
 export * from './engagement';
 export * from './enum-labels';
+export * from './font-scale';
 export * from './glossary';
 export * from './milestones';
 export * from './query-keys';

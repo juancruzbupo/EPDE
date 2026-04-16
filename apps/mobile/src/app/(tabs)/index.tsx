@@ -18,13 +18,14 @@ import {
 } from '@/hooks/use-dashboard';
 import { useStreakFreeze } from '@/hooks/use-milestones';
 import { COLORS } from '@/lib/colors';
-import { TYPE } from '@/lib/fonts';
+import { useType } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { ROUTES } from '@/lib/routes';
 import { useAuthStore } from '@/stores/auth-store';
 
 export default function DashboardScreen() {
   const userRole = useAuthStore((s) => s.user?.role);
+  const TYPE = useType();
 
   if (userRole === UserRole.ADMIN) {
     return (
@@ -59,6 +60,7 @@ export default function DashboardScreen() {
 function ClientDashboard() {
   const [showOnboarding, onboardingDismiss] = useOnboardingState();
   const router = useRouter();
+  const TYPE = useType();
   const user = useAuthStore((s) => s.user);
   const userName = user?.name ?? '';
   const [chartMonths, setChartMonths] = useState<number | undefined>(undefined);

@@ -1,14 +1,18 @@
 'use client';
 
-import type { NotificationType } from '@epde/shared';
+import type { FontScale, NotificationType } from '@epde/shared';
+import { FONT_SCALE_VALUES, isFontScale } from '@epde/shared';
 import { create } from 'zustand';
 
 /**
  * User-adjustable UI preferences persisted to localStorage. Loaded at boot by a
  * beforeInteractive inline script in the root layout to prevent flash.
+ *
+ * FontScale + FONT_SCALE_VALUES + FONT_SCALE_LABELS moved to @epde/shared so
+ * mobile and web share tier values (see packages/shared/src/constants/font-scale.ts).
  */
 
-export type FontScale = 'sm' | 'base' | 'lg' | 'xl';
+export type { FontScale };
 /** rewards = confetti + motivational toasts + milestones/challenges; minimal = data-first, no celebrations. */
 export type MotivationStyle = 'rewards' | 'minimal';
 
@@ -16,19 +20,7 @@ const FONT_SCALE_STORAGE_KEY = 'epde-font-scale';
 const MOTIVATION_STYLE_STORAGE_KEY = 'epde-motivation-style';
 const HIDDEN_NOTIFICATION_TYPES_KEY = 'epde-hidden-notification-types';
 
-export const FONT_SCALE_VALUES: Record<FontScale, number> = {
-  sm: 0.9, // denser — power users / Gen Z
-  base: 1, // default
-  lg: 1.15, // slight boost — helps Gen X presbyopia
-  xl: 1.3, // large — Boomer and Silent Gen friendly
-};
-
-export const FONT_SCALE_LABELS: Record<FontScale, string> = {
-  sm: 'Compacto',
-  base: 'Normal',
-  lg: 'Grande',
-  xl: 'Extra grande',
-};
+export { FONT_SCALE_LABELS, FONT_SCALE_VALUES } from '@epde/shared';
 
 interface UiPreferencesState {
   fontScale: FontScale;
@@ -50,9 +42,7 @@ function loadFontScale(): FontScale {
   if (typeof window === 'undefined') return 'base';
   try {
     const stored = window.localStorage.getItem(FONT_SCALE_STORAGE_KEY);
-    if (stored === 'sm' || stored === 'base' || stored === 'lg' || stored === 'xl') {
-      return stored;
-    }
+    if (isFontScale(stored)) return stored;
   } catch {
     // localStorage unavailable
   }

@@ -1,3 +1,21 @@
+import { FONT_SCALE_VALUES } from '@epde/shared';
+import { useMemo } from 'react';
+
+import { useFontScaleStore } from '@/stores/font-scale-store';
+
+/**
+ * Base typography tokens — unscaled (multiplier = 1).
+ *
+ * Consumers that want to respect the user's font-scale preference should
+ * read `TYPE` via `useType()` (the hook below) rather than import this
+ * object directly. Importing TYPE directly renders at base scale only,
+ * which is the right default for screens that haven't been migrated yet.
+ *
+ * labelMd was bumped from 12→13 for legibility on aging eyes (Apple HIG
+ * suggests 13pt as the floor for reading-grade text). labelSm stays at
+ * 12 because it's reserved for chips/badges where a bump would distort
+ * the round shape.
+ */
 export const TYPE = {
   // Headings (DM Serif Display)
   displayLg: { fontFamily: 'DMSerifDisplay_400Regular', fontSize: 28, lineHeight: 34 },
@@ -11,10 +29,6 @@ export const TYPE = {
   bodyMd: { fontFamily: 'DMSans_400Regular', fontSize: 14, lineHeight: 20 },
   bodySm: { fontFamily: 'DMSans_400Regular', fontSize: 13, lineHeight: 18 },
   // Labels (DM Sans Medium)
-  // labelMd bumped from 12→13 for legibility on aging eyes (Apple HIG suggests
-  // 13pt as the floor for any reading-grade text). labelSm stays at 12 because
-  // it's reserved for chips/badges where a single character bump would
-  // distort the round shape.
   labelLg: { fontFamily: 'DMSans_500Medium', fontSize: 14, lineHeight: 20 },
   labelMd: { fontFamily: 'DMSans_500Medium', fontSize: 13, lineHeight: 18 },
   labelSm: { fontFamily: 'DMSans_500Medium', fontSize: 12, lineHeight: 16 },
@@ -22,3 +36,56 @@ export const TYPE = {
   numberLg: { fontFamily: 'DMSans_700Bold', fontSize: 24, lineHeight: 30 },
   numberMd: { fontFamily: 'DMSans_700Bold', fontSize: 18, lineHeight: 24 },
 } as const;
+
+export type TypeStyle = (typeof TYPE)[keyof typeof TYPE];
+
+/**
+ * Returns `TYPE` with fontSize + lineHeight multiplied by the user's
+ * current font scale (sm/base/lg/xl — see shared FONT_SCALE_VALUES).
+ * Labels (labelSm) still scale — nothing is pinned at a lower size.
+ *
+ * Use this in screens where accessibility matters: dashboards, action
+ * lists, detail views. Profile page uses this for its preview swatch
+ * so users see the effect live.
+ *
+ * Migration pattern:
+ *   import { TYPE } from '@/lib/fonts'  →  const TYPE = useType();
+ * The shape is identical, so existing `style={TYPE.bodyMd}` call sites
+ * work unchanged.
+ */
+export function useType(): typeof TYPE {
+  const scale = useFontScaleStore((s) => s.fontScale);
+  return useMemo(() => {
+    const multiplier = FONT_SCALE_VALUES[scale];
+    if (multiplier === 1) return TYPE;
+    // Use a plain object literal so the return type still satisfies `typeof TYPE`.
+    return Object.fromEntries(
+      Object.entries(TYPE).map(([key, style]) => [
+        key,
+        {
+          ...style,
+          fontSize: Math.round(style.fontSize * multiplier),
+          lineHeight: Math.round(style.lineHeight * multiplier),
+        },
+      ]),
+    ) as typeof TYPE;
+  }, [scale]);
+}
+
+/**
+ * Pure helper — scale a single TYPE style by the current font scale.
+ * Use when you need a one-off scaled value (e.g. for dynamic sizes in
+ * charts) without pulling the whole `useType()` object.
+ */
+export function useScaledStyle<S extends TypeStyle>(style: S): S {
+  const scale = useFontScaleStore((s) => s.fontScale);
+  return useMemo(() => {
+    const multiplier = FONT_SCALE_VALUES[scale];
+    if (multiplier === 1) return style;
+    return {
+      ...style,
+      fontSize: Math.round(style.fontSize * multiplier),
+      lineHeight: Math.round(style.lineHeight * multiplier),
+    };
+  }, [scale, style]);
+}

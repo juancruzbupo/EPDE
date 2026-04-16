@@ -32,7 +32,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useAllTasks } from '@/hooks/use-plans';
 import type { TaskListItem } from '@/lib/api/maintenance-plans';
 import { COLORS } from '@/lib/colors';
-import { TYPE } from '@/lib/fonts';
+import { useType } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { ROUTES } from '@/lib/routes';
 
@@ -63,6 +63,7 @@ const STAT_BG: Record<TaskStatus, string> = {
 
 const TaskCard = memo(function TaskCard({ task }: { task: TaskListItem }) {
   const router = useRouter();
+  const TYPE = useType();
 
   return (
     <Pressable
@@ -144,6 +145,7 @@ const SORT_OPTIONS: { key: SortOption; label: string }[] = [
 const PRIORITY_ORDER: Record<string, number> = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
 
 export default function TasksScreen() {
+  const TYPE = useType();
   const [statusFilter, setStatusFilter] = useState<TaskStatus | undefined>(undefined);
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | undefined>(undefined);
   const [propertyFilter, setPropertyFilter] = useState<string | undefined>(undefined);

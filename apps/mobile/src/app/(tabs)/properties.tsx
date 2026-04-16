@@ -21,7 +21,7 @@ import { PropertyTypeBadge, StatusBadge } from '@/components/status-badge';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useProperties } from '@/hooks/use-properties';
 import { COLORS } from '@/lib/colors';
-import { TYPE } from '@/lib/fonts';
+import { useType } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { ROUTES } from '@/lib/routes';
 
@@ -50,6 +50,7 @@ function getIsvVariant(score: number): BadgeVariant {
 
 const PropertyCard = memo(function PropertyCard({ property }: { property: PropertyPublic }) {
   const router = useRouter();
+  const TYPE = useType();
   const isv = property.latestISV;
 
   return (
@@ -93,6 +94,7 @@ const PropertyCard = memo(function PropertyCard({ property }: { property: Proper
 });
 
 export default function PropertiesScreen() {
+  const TYPE = useType();
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<PropertyType | undefined>(undefined);
   const [planStatusFilter, setPlanStatusFilter] = useState<PlanStatus | undefined>(undefined);

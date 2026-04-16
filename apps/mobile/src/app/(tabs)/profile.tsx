@@ -7,6 +7,7 @@ import { Alert, Linking, Pressable, ScrollView, Text, View } from 'react-native'
 import { GlossaryModal } from '@/components/glossary-modal';
 import { resetMobileOnboarding } from '@/components/onboarding-carousel';
 import { AppearanceSelector } from '@/components/profile/appearance-selector';
+import { FontScaleSelector } from '@/components/profile/font-scale-selector';
 import { PasswordChangeForm } from '@/components/profile/password-change-form';
 import { ReferralsCard } from '@/components/profile/referrals-card';
 import { UserInfoCard } from '@/components/profile/user-info-card';
@@ -16,6 +17,7 @@ import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { queryClient } from '@/lib/query-client';
 import { useAuthStore } from '@/stores/auth-store';
+import { useFontScaleStore } from '@/stores/font-scale-store';
 import { useThemeStore } from '@/stores/theme-store';
 
 export default function ProfileScreen() {
@@ -23,6 +25,8 @@ export default function ProfileScreen() {
   const logout = useAuthStore((s) => s.logout);
   const mode = useThemeStore((s) => s.mode);
   const setMode = useThemeStore((s) => s.setMode);
+  const fontScale = useFontScaleStore((s) => s.fontScale);
+  const setFontScale = useFontScaleStore((s) => s.setFontScale);
 
   const [editingField, setEditingField] = useState<'name' | 'phone' | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -165,6 +169,8 @@ export default function ProfileScreen() {
       />
 
       <AppearanceSelector mode={mode} onModeChange={setMode} />
+
+      <FontScaleSelector fontScale={fontScale} onFontScaleChange={setFontScale} />
 
       {/* App info */}
       <View className="border-border bg-card mb-6 rounded-xl border p-4">
