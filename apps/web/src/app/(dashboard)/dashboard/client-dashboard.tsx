@@ -77,7 +77,13 @@ export function ClientDashboard({ userName }: { userName: string }) {
   const [chartMonths, setChartMonths] = useState(6);
   const streakFreeze = useStreakFreeze();
   const motivationStyle = useUiPreferencesStore((s) => s.motivationStyle);
-  const showRewards = motivationStyle === 'rewards';
+  // `motivationStyle` reads localStorage synchronously at module load, so SSR
+  // sees the default while the client sees the persisted value. Gate any
+  // UI that depends on it behind a `mounted` flag to avoid hydration mismatch
+  // on the conditional rendering of WeeklyChallengeCard below.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const showRewards = mounted && motivationStyle === 'rewards';
 
   // Calculate tip index on client only to avoid hydration mismatch and stale SSR cache
   const [tipIndex, setTipIndex] = useState(0);
