@@ -22,6 +22,7 @@ import { useColorScheme, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { ConfettiBurst, type ConfettiBurstRef } from '@/components/confetti-burst';
+import { ConfirmHost } from '@/components/confirm-host';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { ToastHost } from '@/components/toast-host';
 import { confettiEvent } from '@/lib/confetti-event';
@@ -164,6 +165,7 @@ export default function RootLayout() {
           >
             <AuthGate />
             <ToastHost />
+            <ConfirmHost />
             <StatusBar style={effectiveTheme === 'dark' ? 'light' : 'dark'} />
           </PersistQueryClientProvider>
         </ErrorBoundary>

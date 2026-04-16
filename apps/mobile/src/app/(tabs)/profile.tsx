@@ -12,10 +12,12 @@ import { PasswordChangeForm } from '@/components/profile/password-change-form';
 import { ReferralsCard } from '@/components/profile/referrals-card';
 import { UserInfoCard } from '@/components/profile/user-info-card';
 import * as authApi from '@/lib/auth';
+import { confirm as confirmDialog } from '@/lib/confirm';
 import { QUERY_CACHE_KEY } from '@/lib/constants';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { queryClient } from '@/lib/query-client';
+import { toast } from '@/lib/toast';
 import { useAuthStore } from '@/stores/auth-store';
 import { useFontScaleStore } from '@/stores/font-scale-store';
 import { useThemeStore } from '@/stores/theme-store';
@@ -38,37 +40,31 @@ export default function ProfileScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  const handleLogout = useCallback(() => {
-    Alert.alert('Cerrar Sesión', '¿Estás seguro de que querés cerrar sesión?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Cerrar Sesión',
-        style: 'destructive',
-        onPress: () => logout(),
-      },
-    ]);
+  const handleLogout = useCallback(async () => {
+    const ok = await confirmDialog({
+      title: 'Cerrar sesión',
+      message: '¿Seguro que querés cerrar sesión?',
+      confirmLabel: 'Sí, cerrar sesión',
+      destructive: true,
+    });
+    if (ok) logout();
   }, [logout]);
 
-  const handleClearCache = useCallback(() => {
-    Alert.alert(
-      'Limpiar Caché',
-      'Se eliminarán los datos guardados en la app. La próxima vez que abras una pantalla, se descargarán de nuevo.',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Limpiar',
-          style: 'destructive',
-          onPress: async () => {
-            queryClient.clear();
-            const keys = await AsyncStorage.getAllKeys();
-            const cacheKeys = keys.filter((k) => k.startsWith(QUERY_CACHE_KEY));
-            if (cacheKeys.length > 0) await AsyncStorage.multiRemove(cacheKeys);
-            haptics.success();
-            Alert.alert('Listo', 'Caché limpiado correctamente');
-          },
-        },
-      ],
-    );
+  const handleClearCache = useCallback(async () => {
+    const ok = await confirmDialog({
+      title: 'Limpiar caché',
+      message:
+        'Se eliminarán los datos guardados en la app. La próxima vez que abras una pantalla se descargarán de nuevo.',
+      confirmLabel: 'Limpiar caché',
+      destructive: true,
+    });
+    if (!ok) return;
+    queryClient.clear();
+    const keys = await AsyncStorage.getAllKeys();
+    const cacheKeys = keys.filter((k) => k.startsWith(QUERY_CACHE_KEY));
+    if (cacheKeys.length > 0) await AsyncStorage.multiRemove(cacheKeys);
+    haptics.success();
+    toast.success('Caché limpiado correctamente');
   }, []);
 
   const startEdit = useCallback(

@@ -24,6 +24,7 @@ import { useCreateServiceRequest } from '@/hooks/use-service-requests';
 import { useUploadFile } from '@/hooks/use-upload';
 import { useSlideIn } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
+import { confirm as confirmDialog } from '@/lib/confirm';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 
@@ -220,19 +221,19 @@ export function CreateServiceRequestModal({
 
   const handleClose = () => {
     if (isDirty || photos.length > 0) {
-      Alert.alert('Descartar cambios?', 'Tenés cambios sin guardar.', [
-        { text: 'Seguir editando', style: 'cancel' },
-        {
-          text: 'Descartar',
-          style: 'destructive',
-          onPress: () => {
-            reset();
-            setPhotos([]);
-            setUploadingCount(0);
-            onClose();
-          },
-        },
-      ]);
+      void confirmDialog({
+        title: '¿Descartar cambios?',
+        message: 'Tenés cambios sin guardar. Si salís, se pierden.',
+        confirmLabel: 'Descartar cambios',
+        cancelLabel: 'Seguir editando',
+        destructive: true,
+      }).then((ok) => {
+        if (!ok) return;
+        reset();
+        setPhotos([]);
+        setUploadingCount(0);
+        onClose();
+      });
       return;
     }
     reset();

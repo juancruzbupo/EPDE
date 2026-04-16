@@ -23,6 +23,7 @@ import { useDraft } from '@/hooks/use-draft';
 import { useProperties } from '@/hooks/use-properties';
 import { useSlideIn } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
+import { confirm as confirmDialog } from '@/lib/confirm';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 
@@ -99,20 +100,16 @@ export function CreateBudgetModal({
     );
   };
 
-  const handleClose = () => {
+  const handleClose = async () => {
     if (isDirty) {
-      Alert.alert('Descartar cambios?', 'Tenés cambios sin guardar.', [
-        { text: 'Seguir editando', style: 'cancel' },
-        {
-          text: 'Descartar',
-          style: 'destructive',
-          onPress: () => {
-            reset();
-            onClose();
-          },
-        },
-      ]);
-      return;
+      const ok = await confirmDialog({
+        title: '¿Descartar cambios?',
+        message: 'Tenés cambios sin guardar. Si salís, se pierden.',
+        confirmLabel: 'Descartar cambios',
+        cancelLabel: 'Seguir editando',
+        destructive: true,
+      });
+      if (!ok) return;
     }
     reset();
     onClose();

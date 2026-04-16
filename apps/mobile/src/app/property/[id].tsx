@@ -4,7 +4,6 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   RefreshControl,
   SectionList,
@@ -32,6 +31,7 @@ import {
 } from '@/hooks/use-properties';
 import { useAnimatedEntry } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
+import { confirm as confirmDialog } from '@/lib/confirm';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { defaultScreenOptions } from '@/lib/screen-options';
@@ -272,19 +272,14 @@ export default function PropertyDetailScreen() {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Activar plan"
-                onPress={() => {
+                onPress={async () => {
                   haptics.medium();
-                  Alert.alert(
-                    'Activar Plan',
-                    '\u00bfEst\u00e1s seguro de que quer\u00e9s activar este plan?',
-                    [
-                      { text: 'Cancelar', style: 'cancel' },
-                      {
-                        text: 'Activar',
-                        onPress: () => updatePlan.mutate({ id: planId, status: PlanStatus.ACTIVE }),
-                      },
-                    ],
-                  );
+                  const ok = await confirmDialog({
+                    title: 'Activar plan',
+                    message: '¿Seguro que querés activar este plan?',
+                    confirmLabel: 'Activar plan',
+                  });
+                  if (ok) updatePlan.mutate({ id: planId, status: PlanStatus.ACTIVE });
                 }}
                 disabled={updatePlan.isPending}
                 className="bg-primary mb-3 items-center rounded-xl py-3 active:opacity-80"
@@ -298,21 +293,16 @@ export default function PropertyDetailScreen() {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Archivar plan"
-                onPress={() => {
+                onPress={async () => {
                   haptics.medium();
-                  Alert.alert(
-                    'Archivar Plan',
-                    '\u00bfEst\u00e1s seguro de que quer\u00e9s archivar este plan? Las tareas dejar\u00e1n de generar vencimientos.',
-                    [
-                      { text: 'Cancelar', style: 'cancel' },
-                      {
-                        text: 'Archivar',
-                        style: 'destructive',
-                        onPress: () =>
-                          updatePlan.mutate({ id: planId, status: PlanStatus.ARCHIVED }),
-                      },
-                    ],
-                  );
+                  const ok = await confirmDialog({
+                    title: 'Archivar plan',
+                    message:
+                      '¿Seguro que querés archivar este plan? Las tareas dejarán de generar vencimientos.',
+                    confirmLabel: 'Archivar plan',
+                    destructive: true,
+                  });
+                  if (ok) updatePlan.mutate({ id: planId, status: PlanStatus.ARCHIVED });
                 }}
                 disabled={updatePlan.isPending}
                 className="border-destructive mb-3 items-center rounded-xl border py-3"

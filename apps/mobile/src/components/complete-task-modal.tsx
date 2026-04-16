@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCompleteTask } from '@/hooks/use-task-operations';
 import { useUploadFile } from '@/hooks/use-upload';
 import { useSlideIn } from '@/lib/animations';
+import { confirm as confirmDialog } from '@/lib/confirm';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 
@@ -205,20 +206,16 @@ export function CompleteTaskModal({
     completedAtText.trim().length > 0 ||
     photoUri !== null;
 
-  const handleClose = () => {
+  const handleClose = async () => {
     if (isDirty) {
-      Alert.alert('Descartar cambios?', 'Tenés cambios sin guardar.', [
-        { text: 'Seguir editando', style: 'cancel' },
-        {
-          text: 'Descartar',
-          style: 'destructive',
-          onPress: () => {
-            resetForm();
-            onClose();
-          },
-        },
-      ]);
-      return;
+      const ok = await confirmDialog({
+        title: '¿Descartar cambios?',
+        message: 'Tenés cambios sin guardar. Si salís, se pierden.',
+        confirmLabel: 'Descartar cambios',
+        cancelLabel: 'Seguir editando',
+        destructive: true,
+      });
+      if (!ok) return;
     }
     resetForm();
     onClose();

@@ -21,6 +21,7 @@ import {
 import { useUploadFile } from '@/hooks/use-upload';
 import { useSlideIn } from '@/lib/animations';
 import { COLORS } from '@/lib/colors';
+import { confirm as confirmDialog } from '@/lib/confirm';
 import { haptics } from '@/lib/haptics';
 import { defaultScreenOptions } from '@/lib/screen-options';
 import { useAuthStore } from '@/stores/auth-store';
@@ -54,38 +55,35 @@ export default function BudgetDetailScreen() {
 
   const isTerminal = budget ? isBudgetTerminal(budget.status) : false;
 
-  const handleApprove = useCallback(() => {
+  const handleApprove = useCallback(async () => {
     haptics.medium();
-    Alert.alert('Aprobar Presupuesto', '¿Estás seguro de que querés aprobar este presupuesto?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Aprobar',
-        onPress: () => updateStatus.mutate({ id, status: BudgetStatus.APPROVED }),
-      },
-    ]);
+    const ok = await confirmDialog({
+      title: 'Aprobar presupuesto',
+      message: '¿Seguro que querés aprobar este presupuesto?',
+      confirmLabel: 'Aprobar presupuesto',
+    });
+    if (ok) updateStatus.mutate({ id, status: BudgetStatus.APPROVED });
   }, [id, updateStatus]);
 
-  const handleReject = useCallback(() => {
+  const handleReject = useCallback(async () => {
     haptics.medium();
-    Alert.alert('Rechazar Presupuesto', '¿Estás seguro de que querés rechazar este presupuesto?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Rechazar',
-        style: 'destructive',
-        onPress: () => updateStatus.mutate({ id, status: BudgetStatus.REJECTED }),
-      },
-    ]);
+    const ok = await confirmDialog({
+      title: 'Rechazar presupuesto',
+      message: '¿Seguro que querés rechazar este presupuesto?',
+      confirmLabel: 'Rechazar presupuesto',
+      destructive: true,
+    });
+    if (ok) updateStatus.mutate({ id, status: BudgetStatus.REJECTED });
   }, [id, updateStatus]);
 
-  const handleStartWork = useCallback(() => {
+  const handleStartWork = useCallback(async () => {
     haptics.medium();
-    Alert.alert('Iniciar Trabajo', '¿Estás seguro de que querés iniciar el trabajo?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Iniciar',
-        onPress: () => updateStatus.mutate({ id, status: BudgetStatus.IN_PROGRESS }),
-      },
-    ]);
+    const ok = await confirmDialog({
+      title: 'Iniciar trabajo',
+      message: '¿Seguro que querés marcar este presupuesto como en curso?',
+      confirmLabel: 'Iniciar trabajo',
+    });
+    if (ok) updateStatus.mutate({ id, status: BudgetStatus.IN_PROGRESS });
   }, [id, updateStatus]);
 
   const handleMarkCompleted = useCallback(() => {
