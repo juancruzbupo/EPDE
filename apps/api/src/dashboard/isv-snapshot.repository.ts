@@ -3,6 +3,13 @@ import type { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 
+/**
+ * Monthly ISV snapshot repository — append-only time series keyed by
+ * (propertyId, snapshotDate). `ISVSnapshot` is NOT soft-deletable (it's an
+ * audit-trail row; updates would corrupt the series). Neither soft-delete
+ * nor cursor pagination apply — snapshots are read in date windows, never
+ * by cursor. See ADR-011 (append-only).
+ */
 @Injectable()
 export class ISVSnapshotRepository {
   constructor(private readonly prisma: PrismaService) {}

@@ -3,6 +3,14 @@ import { WeeklyChallenge } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 
+/**
+ * Weekly challenge tracker — append-only rows keyed by (userId, weekStart).
+ * `WeeklyChallenge` is NOT soft-deletable (no `deletedAt` column); rows are
+ * either upserted (progress) or hard-deleted in bulk after retention. Neither
+ * the cursor pagination nor the `softDelete()` helpers of `BaseRepository`
+ * apply here, so the repo works directly with the prisma client.
+ * See ADR-011 (append-only / no-base-model).
+ */
 @Injectable()
 export class WeeklyChallengeRepository {
   constructor(private readonly prisma: PrismaService) {}

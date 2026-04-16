@@ -2,6 +2,13 @@ import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
 
+/**
+ * Cross-model cleanup repository — orchestrates hard-deletes across 9+
+ * tables to purge soft-deleted rows past the retention window. Does NOT
+ * extend `BaseRepository` because the operations span many models, use
+ * raw `deleteMany` with custom `deletedAt` filters, and return aggregated
+ * counts rather than single-entity reads. See ADR-011 (cross-model).
+ */
 interface CleanupResult {
   taskLogs: number;
   taskNotes: number;
