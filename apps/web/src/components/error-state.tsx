@@ -8,7 +8,8 @@ import { cn } from '@/lib/utils';
 
 interface ErrorStateProps {
   message: string;
-  onRetry: () => void;
+  /** Optional — when undefined the "Reintentar" button is hidden. Use omit when there's no actionable retry (permission denied, deleted resource, etc.) */
+  onRetry?: () => void;
   className?: string;
   /**
    * When `critical`, the error card also shows a "Contactar por WhatsApp"
@@ -40,9 +41,11 @@ export function ErrorState({
       <AlertTriangle className="text-destructive h-8 w-8" aria-hidden="true" />
       <p className="text-muted-foreground text-sm">{message}</p>
       <div className="flex flex-wrap items-center justify-center gap-2">
-        <Button variant="outline" size="sm" onClick={() => void onRetry()}>
-          Reintentar
-        </Button>
+        {onRetry && (
+          <Button variant="outline" size="sm" onClick={() => void onRetry()}>
+            Reintentar
+          </Button>
+        )}
         {severity === 'critical' && (
           <Button variant="outline" size="sm" asChild>
             <a
