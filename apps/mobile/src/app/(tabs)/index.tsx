@@ -6,6 +6,7 @@ import { Alert, Linking, Pressable, RefreshControl, ScrollView, Text, View } fro
 import { ActionList } from '@/components/action-list';
 import { AnalyticsSection } from '@/components/analytics-section';
 import { ErrorState } from '@/components/error-state';
+import { FirstTimeBanner } from '@/components/first-time-banner';
 import { HomeStatusCard } from '@/components/home-status-card';
 import { OnboardingCarousel, useOnboardingState } from '@/components/onboarding-carousel';
 import { StatCardSkeleton } from '@/components/skeleton-placeholder';
@@ -220,19 +221,27 @@ function ClientDashboard() {
           </View>
         </View>
       ) : stats && !showWelcome ? (
-        <HomeStatusCard
-          score={stats.healthScore ?? 0}
-          label={stats.healthLabel ?? ''}
-          overdueTasks={stats.overdueTasks}
-          upcomingThisWeek={stats.upcomingThisWeek}
-          urgentTasks={stats.urgentTasks}
-          pendingTasks={stats.pendingTasks}
-          completedThisMonth={stats.completedThisMonth}
-          pendingBudgets={stats.pendingBudgets}
-          isvDelta={stats.isvDelta}
-          streak={stats.streak}
-          perfectWeek={stats.perfectWeek}
-        />
+        <>
+          <FirstTimeBanner
+            id="dashboard-isv-intro"
+            emoji="👋"
+            title="Lo importante arriba"
+            message="El puntaje que ves es el Índice de Salud (ISV) de tus propiedades — del 0 al 100, más alto es mejor. Abajo van las tareas que más urge atender."
+          />
+          <HomeStatusCard
+            score={stats.healthScore ?? 0}
+            label={stats.healthLabel ?? ''}
+            overdueTasks={stats.overdueTasks}
+            upcomingThisWeek={stats.upcomingThisWeek}
+            urgentTasks={stats.urgentTasks}
+            pendingTasks={stats.pendingTasks}
+            completedThisMonth={stats.completedThisMonth}
+            pendingBudgets={stats.pendingBudgets}
+            isvDelta={stats.isvDelta}
+            streak={stats.streak}
+            perfectWeek={stats.perfectWeek}
+          />
+        </>
       ) : null}
 
       {/* Streak & perfect week — prominent section */}

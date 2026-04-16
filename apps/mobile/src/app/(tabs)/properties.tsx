@@ -17,6 +17,7 @@ import { AnimatedListItem } from '@/components/animated-list-item';
 import { ContextualEmptyState } from '@/components/contextual-empty-state';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
+import { FirstTimeBanner } from '@/components/first-time-banner';
 import { PropertyTypeBadge, StatusBadge } from '@/components/status-badge';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useProperties } from '@/hooks/use-properties';
@@ -171,6 +172,13 @@ export default function PropertiesScreen() {
           <Text style={TYPE.displayLg} className="text-foreground mb-3">
             Mis Propiedades
           </Text>
+
+          <FirstTimeBanner
+            id="properties-list-intro"
+            emoji="🏠"
+            title="Tus propiedades, con su estado de salud"
+            message="Cada propiedad tiene un Índice de Salud (ISV) del 0 al 100. Tocá una para ver el detalle, el plan de mantenimiento y las tareas que le tocan."
+          />
 
           {/* Search */}
           <View className="border-border bg-card mb-3 flex-row items-center rounded-lg border px-3">

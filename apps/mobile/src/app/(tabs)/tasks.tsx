@@ -26,6 +26,7 @@ import { AnimatedListItem } from '@/components/animated-list-item';
 import { ContextualEmptyState } from '@/components/contextual-empty-state';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
+import { FirstTimeBanner } from '@/components/first-time-banner';
 import { HelpHint } from '@/components/help-hint';
 import { PriorityBadge, TaskStatusBadge } from '@/components/status-badge';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -266,6 +267,13 @@ export default function TasksScreen() {
             <Text style={TYPE.displayLg} className="text-foreground mb-3">
               Tareas
             </Text>
+
+            <FirstTimeBanner
+              id="tasks-list-intro"
+              emoji="🧰"
+              title="Acá vas a ver todo lo que hay que hacer"
+              message="Las tareas que aparecen son las que la arquitecta detectó durante la inspección. El número al lado es el riesgo: mientras más alto, más urgente atenderlo."
+            />
 
             {/* Stat cards */}
             {tasks && tasks.length > 0 && (
