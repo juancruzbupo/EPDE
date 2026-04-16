@@ -5,8 +5,11 @@ import { DashboardStatsRepository } from './dashboard-stats.repository';
 import { HealthIndexRepository } from './health-index.repository';
 
 /**
- * Facade that delegates to the 3 focused repositories.
- * Kept for backwards compatibility with DashboardService and external consumers.
+ * Facade that delegates to the 3 focused repositories (stats, health-index,
+ * analytics). Kept for backwards compatibility with DashboardService and
+ * external consumers. Intentionally does NOT extend `BaseRepository` — it
+ * wraps no single model, owns no Prisma ops of its own, and exists only as
+ * a dispatcher. See ADR-011 (no-base-model category).
  */
 @Injectable()
 export class DashboardRepository {

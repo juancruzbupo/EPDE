@@ -8,6 +8,7 @@ import apiFactoryMustExist from './eslint-rules/api-factory-must-exist.mjs';
 import mobileQueryRequiresStaleTime from './eslint-rules/mobile-query-requires-stale-time.mjs';
 import noInlineRiskThreshold from './eslint-rules/no-inline-risk-threshold.mjs';
 import noPrismaInService from './eslint-rules/no-prisma-in-service.mjs';
+import noRepositoryWithoutJustification from './eslint-rules/no-repository-without-justification.mjs';
 import noSoftDeletableIncludeWithoutFilter from './eslint-rules/no-soft-deletable-include-without-filter.mjs';
 import noTxWithoutSoftDeleteFilter from './eslint-rules/no-tx-without-soft-delete-filter.mjs';
 import repositoryOverrideMustBeDocumented from './eslint-rules/repository-override-must-be-documented.mjs';
@@ -20,6 +21,7 @@ export const localPlugin = {
     'no-prisma-in-service': noPrismaInService,
     'no-inline-risk-threshold': noInlineRiskThreshold,
     'repository-override-must-be-documented': repositoryOverrideMustBeDocumented,
+    'no-repository-without-justification': noRepositoryWithoutJustification,
     'api-factory-must-exist': apiFactoryMustExist,
   },
 };
@@ -94,6 +96,7 @@ export default [
       'local/no-tx-without-soft-delete-filter': 'error',
       'local/no-soft-deletable-include-without-filter': 'warn',
       'local/repository-override-must-be-documented': 'error',
+      'local/no-repository-without-justification': 'error',
     },
   },
   {

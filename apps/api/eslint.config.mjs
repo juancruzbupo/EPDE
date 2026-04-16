@@ -93,6 +93,7 @@ export default [
     },
     rules: {
       'local/repository-override-must-be-documented': 'error',
+      'local/no-repository-without-justification': 'error',
     },
   },
   {
