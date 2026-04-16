@@ -170,7 +170,11 @@ Servicios de dominio inyectan `NotificationsHandlerService` directamente (fire-a
 
 ### Auth (JWT + Token Rotation)
 
-Login crea family UUID. Refresh tokens llevan family + generation. Reuse detection revoca toda la family. Redis almacena estado de tokens. Web: cookies HttpOnly (SameSite=strict). Mobile: Bearer + SecureStore.
+Login crea family UUID. Refresh tokens llevan family + generation. Reuse detection revoca toda la family. Redis almacena estado de tokens. Web: cookies HttpOnly (SameSite=strict). Mobile: Bearer + SecureStore. `rotateRefreshToken` y `revokeFamily` con 3 reintentos exponenciales (100/200/400ms) — fail-closed con HTTP 503 si Redis no responde. Fail-mode policy completa en ADR-017.
+
+### ESLint rules custom (7)
+
+`local/no-prisma-in-service` (services no inyectan PrismaService directo) · `local/no-tx-without-soft-delete-filter` (transacciones sobre soft-deletable models filtran `deletedAt: null`) · `local/no-soft-deletable-include-without-filter` (nested includes filtran) · `local/mobile-query-requires-stale-time` (mobile useQuery requiere staleTime explícito) · `local/no-inline-risk-threshold` (comparaciones de risk score van por `getRiskLevel()`) · `local/repository-override-must-be-documented` (overrides de BaseRepository requieren JSDoc) · `local/api-factory-must-exist` (`apps/*/src/lib/api/*.ts` consume `createXxxQueries(apiClient)` o está en exception list). Más `max-lines: 150` para hooks. Tabla completa en ADR-012.
 
 ### Error Handling
 

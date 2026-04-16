@@ -123,6 +123,14 @@ Rate limit: 5 requests/minuto en login. 15 requests/minuto en refresh. 3 request
 
 Solo usuarios con status ACTIVE pueden loguearse. Usuarios INACTIVE reciben 401.
 
+**Error responses específicos a auth (además de los standard 400/401/403):**
+
+- `503 Service Unavailable` en `POST /auth/refresh` — token rotation o family revocation falló tras 3 reintentos exponenciales contra Redis. Cliente debe reintentar; si persiste hay un outage de Redis.
+- `401 Unauthorized` con mensaje `"Token reutilizado — sesión revocada"` — detección de reuse attack (Lua script vio generation mismatch). La familia entera quedó revocada; el usuario debe re-loguear.
+- `401 Unauthorized` con mensaje `"Subscription expired"` en refresh — solo CLIENTs con `subscriptionExpiresAt` vencido. Bloquea el refresh para evitar ventana de uso pasado el vencimiento.
+
+Ver `docs/adr/017-security-fail-mode-policy.md` para la matriz completa de comportamiento fail-open vs fail-closed.
+
 ---
 
 ### Clientes (ADMIN only)
