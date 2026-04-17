@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { DashboardRepository } from '../dashboard/dashboard.repository';
 import { ISVSnapshotRepository } from '../dashboard/isv-snapshot.repository';
+import { RedisService } from '../redis/redis.service';
 import { PropertiesRepository } from './properties.repository';
 import { PropertiesService } from './properties.service';
 
@@ -60,6 +61,7 @@ describe('PropertiesService', () => {
         { provide: PropertiesRepository, useValue: mockPropertiesRepository },
         { provide: DashboardRepository, useValue: mockDashboardRepository },
         { provide: ISVSnapshotRepository, useValue: mockISVSnapshotRepository },
+        { provide: RedisService, useValue: { get: jest.fn(), set: jest.fn(), del: jest.fn() } },
       ],
     }).compile();
 

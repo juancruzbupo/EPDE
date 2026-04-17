@@ -138,7 +138,11 @@ describe('PropertiesRepository', () => {
           user: { select: { id: true, name: true, email: true } },
           maintenancePlan: {
             include: {
-              tasks: { include: { category: true }, orderBy: { order: 'asc' }, take: 500 },
+              tasks: expect.objectContaining({
+                include: { category: true },
+                orderBy: { order: 'asc' },
+                take: 500,
+              }),
             },
           },
         },

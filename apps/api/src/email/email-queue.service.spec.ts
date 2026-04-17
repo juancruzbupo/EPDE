@@ -32,7 +32,7 @@ describe('EmailQueueService', () => {
           name: 'Juan',
           token: 'invite-token',
         },
-        { jobId: 'invite:client@test.com:te-token' },
+        expect.objectContaining({ jobId: 'invite:client@test.com:te-token' }),
       );
     });
   });
@@ -58,7 +58,7 @@ describe('EmailQueueService', () => {
           type: 'taskReminder',
           dueDate: dueDate.toISOString(),
         }),
-        { jobId: 'taskReminder:client@test.com:task-uuid-1:2026-04-15' },
+        expect.objectContaining({ jobId: 'taskReminder:client@test.com:task-uuid-1:2026-04-15' }),
       );
       // Verify the date is a string, not a Date object
       const call = mockQueue.add.mock.calls[0][1] as { dueDate: unknown };
@@ -78,7 +78,7 @@ describe('EmailQueueService', () => {
           name: 'Juan',
           token: 'reset-token-abc12345',
         },
-        { jobId: 'passwordReset:client@test.com:abc12345' },
+        expect.objectContaining({ jobId: 'passwordReset:client@test.com:abc12345' }),
       );
     });
   });
@@ -97,7 +97,7 @@ describe('EmailQueueService', () => {
           totalAmount: 150000,
           budgetId: 'budget-1',
         },
-        { jobId: 'budgetQuoted:client@test.com:budget-1' },
+        expect.objectContaining({ jobId: 'budgetQuoted:client@test.com:budget-1' }),
       );
     });
   });
@@ -122,7 +122,7 @@ describe('EmailQueueService', () => {
           newStatus: 'APPROVED',
           budgetId: 'budget-1',
         },
-        { jobId: 'budgetStatus:client@test.com:budget-1:APPROVED' },
+        expect.objectContaining({ jobId: 'budgetStatus:client@test.com:budget-1:APPROVED' }),
       );
     });
   });

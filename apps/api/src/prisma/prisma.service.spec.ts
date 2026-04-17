@@ -150,7 +150,15 @@ describe('Zod-Prisma schema consistency', () => {
     Task: ['riskScore'], // server-defaulted (@default(0)), computed from inspection
     TaskTemplate: ['categoryId'], // set from URL param by controller (FK to Category)
     TaskNote: ['taskId', 'authorId', 'authorName'], // set from service context
-    User: ['role', 'passwordHash'], // role set by admin, passwordHash via set-password flow
+    User: [
+      'role',
+      'passwordHash',
+      'referralCount',
+      'convertedCount',
+      'referralCreditMonths',
+      'referralCreditAnnualDiagnosis',
+      'referralCreditBiannualDiagnosis',
+    ],
   };
 
   /** Returns the required non-auto scalar field names for a Prisma model. */

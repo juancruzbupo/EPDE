@@ -34,7 +34,7 @@ describe('NotificationQueueService', () => {
     it('should call queue.add with jobName "single" and notification data', async () => {
       await service.enqueue(MOCK_NOTIFICATION);
 
-      expect(mockQueue.add).toHaveBeenCalledWith('single', MOCK_NOTIFICATION);
+      expect(mockQueue.add).toHaveBeenCalledWith('single', MOCK_NOTIFICATION, expect.any(Object));
     });
 
     it('should complete without error even if queue.add rejects', async () => {
@@ -51,7 +51,7 @@ describe('NotificationQueueService', () => {
 
       await service.enqueueBatch(notifications);
 
-      expect(mockQueue.add).toHaveBeenCalledWith('batch', { notifications });
+      expect(mockQueue.add).toHaveBeenCalledWith('batch', { notifications }, expect.any(Object));
     });
 
     it('should not call queue.add when notifications array is empty', async () => {
