@@ -164,7 +164,9 @@ import { TYPE } from '@/lib/fonts';
 | `numberLg`  | DMSans_700Bold            | 24px | 30px        |
 | `numberMd`  | DMSans_700Bold            | 18px | 24px        |
 
-**Nota:** En mobile, las clases NativeWind de tamano (`text-xs`, `text-sm`, `text-base`, etc.) se eliminaron porque el `fontSize` viene del TYPE. Solo se mantienen clases de color (`text-foreground`, `text-muted-foreground`, etc.).
+**Nota:** En mobile, las clases NativeWind de tamaño (`text-xs`, `text-sm`, `text-base`, etc.) se eliminaron porque el `fontSize` viene del TYPE. Solo se mantienen clases de color (`text-foreground`, `text-muted-foreground`, etc.).
+
+**Escalado dinámico (mobile):** El usuario puede elegir un multiplicador en Perfil → Tamaño de texto (sm 0.9x / base 1x / lg 1.15x / xl 1.3x). Los valores viven en `@epde/shared/constants/font-scale.ts` (SSoT compartido con web). Para que una screen respete la preferencia, usar `const TYPE = useType()` de `@/lib/fonts` en lugar del import estático. `useType()` devuelve la misma shape de TYPE con fontSize y lineHeight multiplicados. Screens no migrados siguen usando `import { TYPE }` y renderizan a scale base — no rompen, solo no responden al ajuste.
 
 ### Uso en componentes
 
