@@ -4,10 +4,11 @@ import type { BudgetStatus } from '@epde/shared';
 import {
   BUDGET_STATUS_LABELS,
   BUDGET_STATUS_VARIANT,
+  formatARS,
   formatRelativeDate,
   UserRole,
 } from '@epde/shared';
-import { Plus, SlidersHorizontal, X } from 'lucide-react';
+import { Clock, DollarSign, FileCheck, Plus, SlidersHorizontal, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 
@@ -20,6 +21,7 @@ import { SearchInput } from '@/components/search-input';
 import { SearchableFilterSelect } from '@/components/searchable-filter-select';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { PageTransition } from '@/components/ui/page-transition';
 import {
   Select,
@@ -129,6 +131,22 @@ function BudgetsPageContent() {
 
   const total = data?.pages[0]?.total;
 
+  const isAdmin = user?.role === UserRole.ADMIN;
+  const budgetStats = useMemo(() => {
+    if (!isAdmin || allBudgetsRaw.length === 0) return null;
+    let pending = 0;
+    let quoted = 0;
+    let approved = 0;
+    let totalQuoted = 0;
+    for (const b of allBudgetsRaw) {
+      if (b.status === 'PENDING') pending++;
+      else if (b.status === 'QUOTED') quoted++;
+      else if (b.status === 'APPROVED') approved++;
+      if (b.response?.totalAmount) totalQuoted += Number(b.response.totalAmount);
+    }
+    return { pending, quoted, approved, totalQuoted };
+  }, [allBudgetsRaw, isAdmin]);
+
   return (
     <PageTransition>
       <BudgetsListTour />
@@ -163,6 +181,50 @@ function BudgetsPageContent() {
       <div className="mb-3">
         <BudgetInlineHelper />
       </div>
+
+      {budgetStats && (
+        <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Card className={budgetStats.pending > 0 ? 'border-warning/30' : ''}>
+            <CardContent className="flex items-center gap-3 p-4">
+              <Clock className="text-warning h-5 w-5" />
+              <div>
+                <p className="text-2xl font-bold tabular-nums">{budgetStats.pending}</p>
+                <p className="text-muted-foreground text-xs">Pendientes</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex items-center gap-3 p-4">
+              <FileCheck className="text-primary h-5 w-5" />
+              <div>
+                <p className="text-2xl font-bold tabular-nums">{budgetStats.quoted}</p>
+                <p className="text-muted-foreground text-xs">Cotizados</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex items-center gap-3 p-4">
+              <FileCheck className="text-success h-5 w-5" />
+              <div>
+                <p className="text-2xl font-bold tabular-nums">{budgetStats.approved}</p>
+                <p className="text-muted-foreground text-xs">Aprobados</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex items-center gap-3 p-4">
+              <DollarSign className="text-foreground h-5 w-5" />
+              <div>
+                <p className="text-lg font-bold tabular-nums">
+                  {formatARS(budgetStats.totalQuoted)}
+                </p>
+                <p className="text-muted-foreground text-xs">Total cotizado</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       <div className="mb-4 space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <SearchInput

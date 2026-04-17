@@ -9,7 +9,7 @@ import {
   URGENCY_VARIANT,
   UserRole,
 } from '@epde/shared';
-import { Plus, SlidersHorizontal, X } from 'lucide-react';
+import { AlertTriangle, Clock, Inbox, Plus, SlidersHorizontal, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 
@@ -22,6 +22,7 @@ import { SearchInput } from '@/components/search-input';
 import { SearchableFilterSelect } from '@/components/searchable-filter-select';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { PageTransition } from '@/components/ui/page-transition';
 import {
   Select,
@@ -138,12 +139,36 @@ function ServiceRequestsPageContent() {
     return [...seen.entries()].map(([id, address]) => ({ value: id, label: address }));
   }, [allRequestsRaw]);
 
+  const isAdmin = user?.role === UserRole.ADMIN;
+
   const allRequests = useMemo(() => {
-    if (propertyFilter === 'all') return allRequestsRaw;
-    return allRequestsRaw.filter((r) => r.propertyId === propertyFilter);
-  }, [allRequestsRaw, propertyFilter]);
+    let result =
+      propertyFilter === 'all'
+        ? allRequestsRaw
+        : allRequestsRaw.filter((r) => r.propertyId === propertyFilter);
+    if (isAdmin) {
+      const urgencyOrder: Record<string, number> = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
+      result = [...result].sort(
+        (a, b) => (urgencyOrder[a.urgency] ?? 9) - (urgencyOrder[b.urgency] ?? 9),
+      );
+    }
+    return result;
+  }, [allRequestsRaw, propertyFilter, isAdmin]);
 
   const total = data?.pages[0]?.total;
+
+  const srStats = useMemo(() => {
+    if (!isAdmin || allRequestsRaw.length === 0) return null;
+    let open = 0;
+    let urgent = 0;
+    let inProgress = 0;
+    for (const r of allRequestsRaw) {
+      if (r.status === 'OPEN' || r.status === 'IN_REVIEW') open++;
+      if (r.urgency === 'URGENT' || r.urgency === 'HIGH') urgent++;
+      if (r.status === 'IN_PROGRESS') inProgress++;
+    }
+    return { open, urgent, inProgress };
+  }, [allRequestsRaw, isAdmin]);
 
   return (
     <PageTransition>
@@ -179,6 +204,39 @@ function ServiceRequestsPageContent() {
       <div className="mb-3">
         <ServiceRequestInlineHelper />
       </div>
+
+      {srStats && (
+        <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <Card className={srStats.open > 0 ? 'border-warning/30' : ''}>
+            <CardContent className="flex items-center gap-3 p-4">
+              <Inbox className="text-warning h-5 w-5" />
+              <div>
+                <p className="text-2xl font-bold tabular-nums">{srStats.open}</p>
+                <p className="text-muted-foreground text-xs">Abiertas</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className={srStats.urgent > 0 ? 'border-destructive/30' : ''}>
+            <CardContent className="flex items-center gap-3 p-4">
+              <AlertTriangle className="text-destructive h-5 w-5" />
+              <div>
+                <p className="text-2xl font-bold tabular-nums">{srStats.urgent}</p>
+                <p className="text-muted-foreground text-xs">Urgentes / Altas</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex items-center gap-3 p-4">
+              <Clock className="text-primary h-5 w-5" />
+              <div>
+                <p className="text-2xl font-bold tabular-nums">{srStats.inProgress}</p>
+                <p className="text-muted-foreground text-xs">En curso</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       <div data-tour="services-filters" className="mb-4 space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <SearchInput
