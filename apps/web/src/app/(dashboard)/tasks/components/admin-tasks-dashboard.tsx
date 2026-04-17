@@ -2,7 +2,7 @@
 
 import type { TaskListItem } from '@epde/shared';
 import { TaskStatus } from '@epde/shared';
-import { AlertTriangle, CheckCircle2, Clock, TrendingUp } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Clock, MessageCircle, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
 
@@ -29,6 +29,17 @@ interface PropertyGroup {
   total: number;
   completionPct: number;
   worstTask: TaskListItem | null;
+}
+
+function buildWhatsAppUrl(group: PropertyGroup): string {
+  const overdueWord = group.overdue === 1 ? 'tarea pendiente' : 'tareas pendientes';
+  const message = [
+    `Hola! Soy tu asesora de EPDE.`,
+    `Veo que tenés ${group.overdue} ${overdueWord} en ${group.address}.`,
+    `¿Necesitás asesoramiento para realizarlas o hay algo que te esté trabando?`,
+    `Estoy para ayudarte.`,
+  ].join(' ');
+  return `https://wa.me/?text=${encodeURIComponent(message)}`;
 }
 
 export function AdminTasksDashboard({ tasks, isLoading }: AdminTasksDashboardProps) {
@@ -169,15 +180,17 @@ export function AdminTasksDashboard({ tasks, isLoading }: AdminTasksDashboardPro
               {groups
                 .filter((g) => g.overdue > 0)
                 .map((group) => (
-                  <Link
+                  <div
                     key={group.propertyId}
-                    href={ROUTES.property(group.propertyId, { tab: 'plan' })}
-                    className="hover:bg-muted/40 flex flex-col gap-2 rounded-lg border p-3 transition-colors sm:flex-row sm:items-center sm:gap-4"
+                    className="flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-center sm:gap-4"
                   >
-                    <div className="min-w-0 flex-1">
+                    <Link
+                      href={ROUTES.property(group.propertyId, { tab: 'plan' })}
+                      className="hover:text-primary min-w-0 flex-1 transition-colors"
+                    >
                       <p className="text-sm font-medium">{group.address}</p>
                       <p className="text-muted-foreground text-xs">{group.city}</p>
-                    </div>
+                    </Link>
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge variant="destructive">
                         {group.overdue} vencida{group.overdue !== 1 ? 's' : ''}
@@ -188,10 +201,21 @@ export function AdminTasksDashboard({ tasks, isLoading }: AdminTasksDashboardPro
                         </Badge>
                       )}
                       <span className="text-muted-foreground text-xs tabular-nums">
-                        {group.completionPct}% cumplimiento
+                        {group.completionPct}%
                       </span>
+                      <a
+                        href={buildWhatsAppUrl(group)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-[#20BD5A]"
+                        aria-label={`Contactar por WhatsApp sobre ${group.address}`}
+                      >
+                        <MessageCircle className="h-3.5 w-3.5" />
+                        Contactar
+                      </a>
                     </div>
-                  </Link>
+                  </div>
                 ))}
             </div>
           </CardContent>
