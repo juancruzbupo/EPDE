@@ -224,10 +224,13 @@ model Property {
   activeSectors  PropertySector[] @default([EXTERIOR, ROOF, TERRACE, INTERIOR, KITCHEN, BATHROOM, BASEMENT, GARDEN, INSTALLATIONS])
   yearBuilt      Int?
   squareMeters   Float?
-  photoUrl       String?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  deletedAt    DateTime?
+  photoUrl           String?
+  /// Last time the admin contacted the client about this property (via WhatsApp button).
+  /// Used by the admin tasks dashboard to show cooldown and avoid spamming.
+  lastContactedAt    DateTime?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  deletedAt          DateTime?
 
   user            User              @relation(fields: [userId], references: [id], onDelete: Restrict)
   maintenancePlan MaintenancePlan?

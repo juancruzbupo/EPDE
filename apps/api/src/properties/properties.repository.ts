@@ -118,6 +118,13 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
     });
   }
 
+  async markContacted(id: string): Promise<void> {
+    await this.writeModel.update({
+      where: { id },
+      data: { lastContactedAt: new Date() },
+    });
+  }
+
   /**
    * Soft-delete property and cascade to active budgets + service requests.
    * onDelete: Cascade only applies to hard deletes; soft-delete requires explicit cascade.

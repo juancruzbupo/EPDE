@@ -60,3 +60,8 @@ export async function deleteProperty(id: string): Promise<ApiResponse<null>> {
   const { data } = await apiClient.delete(`/properties/${id}`);
   return data;
 }
+
+export async function markPropertyContacted(id: string): Promise<ApiResponse<null>> {
+  const { data } = await apiClient.patch(`/properties/${id}/contact-log`);
+  return data;
+}

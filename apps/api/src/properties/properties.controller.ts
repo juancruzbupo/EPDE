@@ -155,4 +155,12 @@ export class PropertiesController {
     await this.propertiesService.deleteProperty(id, user);
     return { data: null, message: 'Propiedad eliminada' };
   }
+
+  @Patch(':id/contact-log')
+  @Roles(UserRole.ADMIN)
+  @Throttle({ medium: { limit: 10, ttl: 60_000 } })
+  async markContacted(@Param('id', ParseUUIDPipe) id: string) {
+    await this.propertiesService.markContacted(id);
+    return { data: null, message: 'Contacto registrado' };
+  }
 }

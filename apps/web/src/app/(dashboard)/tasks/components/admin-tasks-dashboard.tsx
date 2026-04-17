@@ -2,14 +2,17 @@
 
 import type { TaskListItem } from '@epde/shared';
 import { TaskStatus } from '@epde/shared';
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { AlertTriangle, CheckCircle2, Clock, MessageCircle, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { markPropertyContacted } from '@/lib/api/properties';
 import { ROUTES } from '@/lib/routes';
 
 interface AdminTasksDashboardProps {
@@ -21,15 +24,16 @@ interface PropertyGroup {
   propertyId: string;
   address: string;
   city: string;
-  clientName: string;
   overdue: number;
   urgent: number;
   pending: number;
-  completed: number;
   total: number;
   completionPct: number;
+  lastContactedAt: string | null;
   worstTask: TaskListItem | null;
 }
+
+const COOLDOWN_MS = 7 * 24 * 60 * 60_000;
 
 function buildWhatsAppUrl(group: PropertyGroup): string {
   const overdueWord = group.overdue === 1 ? 'tarea pendiente' : 'tareas pendientes';
@@ -43,6 +47,18 @@ function buildWhatsAppUrl(group: PropertyGroup): string {
 }
 
 export function AdminTasksDashboard({ tasks, isLoading }: AdminTasksDashboardProps) {
+  const [contactUpdates, setContactUpdates] = useState<Record<string, string>>({});
+
+  const handleContact = useCallback(async (group: PropertyGroup) => {
+    window.open(buildWhatsAppUrl(group), '_blank');
+    try {
+      await markPropertyContacted(group.propertyId);
+      setContactUpdates((prev) => ({ ...prev, [group.propertyId]: new Date().toISOString() }));
+    } catch {
+      // Best-effort — WhatsApp already opened, log failure is non-critical
+    }
+  }, []);
+
   const { groups, kpis } = useMemo(() => {
     if (!tasks) return { groups: [], kpis: null };
 
@@ -59,13 +75,12 @@ export function AdminTasksDashboard({ tasks, isLoading }: AdminTasksDashboardPro
           propertyId: prop.id,
           address: prop.address,
           city: prop.city,
-          clientName: '',
           overdue: 0,
           urgent: 0,
           pending: 0,
-          completed: 0,
           total: 0,
           completionPct: 0,
+          lastContactedAt: contactUpdates[prop.id] ?? null,
           worstTask: null,
         };
         map.set(prop.id, group);
@@ -203,17 +218,7 @@ export function AdminTasksDashboard({ tasks, isLoading }: AdminTasksDashboardPro
                       <span className="text-muted-foreground text-xs tabular-nums">
                         {group.completionPct}%
                       </span>
-                      <a
-                        href={buildWhatsAppUrl(group)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-[#20BD5A]"
-                        aria-label={`Contactar por WhatsApp sobre ${group.address}`}
-                      >
-                        <MessageCircle className="h-3.5 w-3.5" />
-                        Contactar
-                      </a>
+                      <WhatsAppButton group={group} onContact={handleContact} />
                     </div>
                   </div>
                 ))}
@@ -237,7 +242,7 @@ export function AdminTasksDashboard({ tasks, isLoading }: AdminTasksDashboardPro
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium">{group.address}</p>
-                  <p className="text-muted-foreground text-xs">{group.clientName}</p>
+                  <p className="text-muted-foreground text-xs">{group.city}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="bg-muted h-2 w-20 overflow-hidden rounded-full sm:w-32">
@@ -270,6 +275,44 @@ export function AdminTasksDashboard({ tasks, isLoading }: AdminTasksDashboardPro
         </Button>
       </div>
     </div>
+  );
+}
+
+function WhatsAppButton({
+  group,
+  onContact,
+}: {
+  group: PropertyGroup;
+  onContact: (group: PropertyGroup) => void;
+}) {
+  const lastContact = group.lastContactedAt ? new Date(group.lastContactedAt) : null;
+  const inCooldown = lastContact ? Date.now() - lastContact.getTime() < COOLDOWN_MS : false;
+
+  if (inCooldown && lastContact) {
+    const ago = formatDistanceToNow(lastContact, { addSuffix: true, locale: es });
+    return (
+      <span
+        className="text-muted-foreground inline-flex items-center gap-1.5 text-xs"
+        title={`Contactado ${ago}. Esperá unos días para no ser insistente.`}
+      >
+        <CheckCircle2 className="h-3.5 w-3.5" />
+        Contactado {ago}
+      </span>
+    );
+  }
+
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        onContact(group);
+      }}
+      className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-[#20BD5A]"
+      aria-label={`Contactar por WhatsApp sobre ${group.address}`}
+    >
+      <MessageCircle className="h-3.5 w-3.5" />
+      Contactar
+    </button>
   );
 }
 

@@ -126,6 +126,10 @@ export class PropertiesService {
     await this.propertiesRepository.softDeleteWithCascade(id);
   }
 
+  async markContacted(id: string): Promise<void> {
+    await this.propertiesRepository.markContacted(id);
+  }
+
   async getPropertyPhotos(id: string, currentUser: ServiceUser) {
     const property = await this.propertiesRepository.findById(id);
     if (!property) {
