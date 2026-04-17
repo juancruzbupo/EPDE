@@ -30,7 +30,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useBudgets } from '@/hooks/use-budgets';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useUrlFilters } from '@/hooks/use-url-filters';
@@ -182,18 +181,6 @@ function BudgetsPageContent() {
       {!isAdmin && (
         <div className="mb-3">
           <BudgetInlineHelper />
-        </div>
-      )}
-
-      {isAdmin && !budgetStats && isLoading && (
-        <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-4">
-                <Skeleton className="h-12 w-full" />
-              </CardContent>
-            </Card>
-          ))}
         </div>
       )}
 

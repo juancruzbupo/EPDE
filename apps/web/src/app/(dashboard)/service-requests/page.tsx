@@ -31,7 +31,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useServiceRequests } from '@/hooks/use-service-requests';
 import { useUrlFilters } from '@/hooks/use-url-filters';
@@ -205,18 +204,6 @@ function ServiceRequestsPageContent() {
       {!isAdmin && (
         <div className="mb-3">
           <ServiceRequestInlineHelper />
-        </div>
-      )}
-
-      {isAdmin && !srStats && isLoading && (
-        <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-4">
-                <Skeleton className="h-12 w-full" />
-              </CardContent>
-            </Card>
-          ))}
         </div>
       )}
 
