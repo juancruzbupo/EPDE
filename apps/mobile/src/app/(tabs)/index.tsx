@@ -8,7 +8,9 @@ import { AnalyticsSection } from '@/components/analytics-section';
 import { ErrorState } from '@/components/error-state';
 import { FirstTimeBanner } from '@/components/first-time-banner';
 import { HomeStatusCard } from '@/components/home-status-card';
+import { MonthlySummaryCard } from '@/components/monthly-summary-card';
 import { OnboardingCarousel, useOnboardingState } from '@/components/onboarding-carousel';
+import { ProtectedHomeBanner } from '@/components/protected-home-banner';
 import { StatCardSkeleton } from '@/components/skeleton-placeholder';
 import { StreakCard } from '@/components/streak-card';
 import { WelcomeCard } from '@/components/welcome-card';
@@ -260,6 +262,21 @@ function ClientDashboard() {
           />
         </>
       ) : null}
+
+      {/* All-clear status — relief dopamine, not celebration */}
+      {stats && !showWelcome && (
+        <ProtectedHomeBanner overdueTasks={stats.overdueTasks} urgentTasks={stats.urgentTasks} />
+      )}
+
+      {/* Monthly summary — professional management report tone */}
+      {stats && !showWelcome && (
+        <MonthlySummaryCard
+          completedThisMonth={stats.completedThisMonth}
+          isvDelta={stats.isvDelta}
+          healthScore={stats.healthScore ?? 0}
+          streak={stats.streak ?? 0}
+        />
+      )}
 
       {/* Streak & perfect week — prominent section */}
       {stats && !showWelcome && (

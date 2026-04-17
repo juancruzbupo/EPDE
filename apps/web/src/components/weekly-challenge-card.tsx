@@ -51,7 +51,7 @@ export function WeeklyChallengeCard() {
       <CardContent className="p-4">
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm font-semibold">
-            {completed ? '🎯 ¡Desafío completado!' : 'Desafío de la semana'}
+            {completed ? 'Objetivo cumplido' : 'Objetivo semanal'}
           </p>
           <span className="text-muted-foreground text-xs font-medium tabular-nums">
             {progress} de {target}
@@ -59,7 +59,7 @@ export function WeeklyChallengeCard() {
         </div>
         <p className="text-muted-foreground mt-1 text-xs">
           {completed
-            ? 'Completaste el desafío de esta semana.'
+            ? 'Completaste el objetivo de esta semana.'
             : challengeDescription(type, target)}
         </p>
         <div className="bg-muted mt-2 h-2 overflow-hidden rounded-full">

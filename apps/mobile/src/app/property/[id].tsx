@@ -37,6 +37,7 @@ import { haptics } from '@/lib/haptics';
 import { defaultScreenOptions } from '@/lib/screen-options';
 import { useAuthStore } from '@/stores/auth-store';
 
+import { PreventionROICard } from './components/prevention-roi-card';
 import type { ExpenseAnalytics } from './components/property-expense-section';
 import {
   PropertyExpenseSection,
@@ -335,6 +336,11 @@ export default function PropertyDetailScreen() {
                 items={expenses.items}
                 analytics={expenseAnalytics}
               />
+            )}
+
+            {/* Prevention ROI — Gen X data-driven reassurance */}
+            {expenses && expenses.totalCost > 0 && (
+              <PreventionROICard totalSpent={expenses.totalCost} />
             )}
 
             {/* Photos section */}
