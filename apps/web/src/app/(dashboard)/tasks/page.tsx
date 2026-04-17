@@ -18,6 +18,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { CompleteTaskDialog } from '../properties/[id]/complete-task-dialog';
 import { TaskDetailSheet } from '../properties/[id]/task-detail-sheet';
 import { CreateServiceDialog } from '../service-requests/create-service-dialog';
+import { AdminTasksDashboard } from './components/admin-tasks-dashboard';
 import { TaskFilters } from './components/task-filters';
 import { TaskGroupedList } from './components/task-grouped-list';
 import { TaskStatCards } from './components/task-stat-cards';
@@ -179,102 +180,113 @@ export default function TasksPage() {
   const hasActiveFilters = !!(debouncedSearch || priority !== 'all' || activeStatus);
 
   const role = useAuthStore((s) => s.user?.role);
-  const description =
-    role === UserRole.ADMIN
-      ? 'Todas las tareas de mantenimiento de las propiedades gestionadas. Filtrá por prioridad o sector.'
-      : 'Todas las tareas de mantenimiento de tus propiedades. Filtrá por prioridad o sector para encontrar lo que necesitás.';
+  const isAdmin = role === UserRole.ADMIN;
+  const viewParam = searchParams.get('view');
+  const showAdminDashboard = isAdmin && viewParam !== 'list';
+
+  const description = isAdmin
+    ? showAdminDashboard
+      ? 'Vista operativa de tareas por propiedad. Identificá qué clientes necesitan seguimiento.'
+      : 'Todas las tareas de mantenimiento de las propiedades gestionadas. Filtrá por prioridad o sector.'
+    : 'Todas las tareas de mantenimiento de tus propiedades. Filtrá por prioridad o sector para encontrar lo que necesitás.';
 
   return (
     <PageTransition>
       <TasksTour />
       <PageHeader title="Tareas" description={description} />
 
-      <div data-tour="task-stats">
-        <TaskStatCards
-          isLoading={isLoading || !tasks}
-          statusCounts={statusCounts}
-          activeStatus={activeStatus}
-          onToggleStatus={toggleStatus}
-        />
-      </div>
+      {showAdminDashboard ? (
+        <AdminTasksDashboard tasks={allTasksForCounts} isLoading={isLoading} />
+      ) : (
+        <>
+          <div data-tour="task-stats">
+            <TaskStatCards
+              isLoading={isLoading || !tasks}
+              statusCounts={statusCounts}
+              activeStatus={activeStatus}
+              onToggleStatus={toggleStatus}
+            />
+          </div>
 
-      <div data-tour="task-filters">
-        <TaskFilters
-          search={search}
-          onSearchChange={setSearch}
-          priority={priority}
-          onPriorityChange={setPriority}
-          sectorFilter={sectorFilter}
-          onSectorChange={setSectorFilter}
-          propertyFilter={propertyFilter}
-          onPropertyChange={setPropertyFilter}
-          propertyOptions={propertyOptions}
-        />
-      </div>
+          <div data-tour="task-filters">
+            <TaskFilters
+              search={search}
+              onSearchChange={setSearch}
+              priority={priority}
+              onPriorityChange={setPriority}
+              sectorFilter={sectorFilter}
+              onSectorChange={setSectorFilter}
+              propertyFilter={propertyFilter}
+              onPropertyChange={setPropertyFilter}
+              propertyOptions={propertyOptions}
+            />
+          </div>
 
-      <TaskGroupedList
-        isLoading={isLoading}
-        isError={isError}
-        onRetry={refetch}
-        filtered={filtered}
-        grouped={grouped}
-        displayStatuses={displayStatuses}
-        hasActiveFilters={hasActiveFilters}
-        onTaskClick={handleTaskClick}
-        onTaskComplete={handleTaskComplete}
-        onTaskPostpone={handleTaskPostpone}
-      />
+          <TaskGroupedList
+            isLoading={isLoading}
+            isError={isError}
+            onRetry={refetch}
+            filtered={filtered}
+            grouped={grouped}
+            displayStatuses={displayStatuses}
+            hasActiveFilters={hasActiveFilters}
+            onTaskClick={handleTaskClick}
+            onTaskComplete={handleTaskComplete}
+            onTaskPostpone={handleTaskPostpone}
+          />
 
-      {/* Task detail sheet — loads full task detail on demand */}
-      <TaskDetailSheet
-        open={!!selectedTask}
-        onOpenChange={(open) => {
-          if (!open) setSelectedTask(null);
-        }}
-        task={taskDetail ?? null}
-        planId={selectedTask?.maintenancePlan.id ?? ''}
-        isError={isTaskDetailError}
-        onRetry={() => void refetchTaskDetail()}
-        onComplete={(task) => {
-          setCompletingTask(task);
-        }}
-        onRequestService={() => {
-          if (!selectedTask) return;
-          setServiceDialogTask({
-            propertyId: selectedTask.maintenancePlan.property.id,
-            taskId: selectedTask.id,
-            title: `Solicitud: ${selectedTask.name}`,
-            description: `Tarea: ${selectedTask.name} — ${selectedTask.category.name}`,
-          });
-        }}
-      />
+          {/* Task detail sheet — loads full task detail on demand */}
+          <TaskDetailSheet
+            open={!!selectedTask}
+            onOpenChange={(open) => {
+              if (!open) setSelectedTask(null);
+            }}
+            task={taskDetail ?? null}
+            planId={selectedTask?.maintenancePlan.id ?? ''}
+            isError={isTaskDetailError}
+            onRetry={() => void refetchTaskDetail()}
+            onComplete={(task) => {
+              setCompletingTask(task);
+            }}
+            onRequestService={() => {
+              if (!selectedTask) return;
+              setServiceDialogTask({
+                propertyId: selectedTask.maintenancePlan.property.id,
+                taskId: selectedTask.id,
+                title: `Solicitud: ${selectedTask.name}`,
+                description: `Tarea: ${selectedTask.name} — ${selectedTask.category.name}`,
+              });
+            }}
+          />
 
-      <CompleteTaskDialog
-        open={!!completingTask}
-        onOpenChange={() => setCompletingTask(null)}
-        task={completingTask}
-        planId={selectedTask?.maintenancePlan.id ?? completingTask?.maintenancePlanId ?? ''}
-        onProblemDetected={(info) => {
-          if (!selectedTask) return;
-          setServiceDialogTask({
-            propertyId: selectedTask.maintenancePlan.property.id,
-            taskId: info.taskId,
-            title: `Solicitud: ${info.taskName}`,
-            description: `Problema detectado en: ${info.taskName} — ${selectedTask.category.name}`,
-          });
-        }}
-      />
+          <CompleteTaskDialog
+            open={!!completingTask}
+            onOpenChange={() => setCompletingTask(null)}
+            task={completingTask}
+            planId={selectedTask?.maintenancePlan.id ?? completingTask?.maintenancePlanId ?? ''}
+            onProblemDetected={(info) => {
+              if (!selectedTask) return;
+              setServiceDialogTask({
+                propertyId: selectedTask.maintenancePlan.property.id,
+                taskId: info.taskId,
+                title: `Solicitud: ${info.taskName}`,
+                description: `Problema detectado en: ${info.taskName} — ${selectedTask.category.name}`,
+              });
+            }}
+          />
 
-      <CreateServiceDialog
-        open={!!serviceDialogTask}
-        onOpenChange={(open) => {
-          if (!open) setServiceDialogTask(null);
-        }}
-        defaultPropertyId={serviceDialogTask?.propertyId}
-        defaultTaskId={serviceDialogTask?.taskId}
-        defaultTitle={serviceDialogTask?.title}
-        defaultDescription={serviceDialogTask?.description}
-      />
+          <CreateServiceDialog
+            open={!!serviceDialogTask}
+            onOpenChange={(open) => {
+              if (!open) setServiceDialogTask(null);
+            }}
+            defaultPropertyId={serviceDialogTask?.propertyId}
+            defaultTaskId={serviceDialogTask?.taskId}
+            defaultTitle={serviceDialogTask?.title}
+            defaultDescription={serviceDialogTask?.description}
+          />
+        </>
+      )}
     </PageTransition>
   );
 }
