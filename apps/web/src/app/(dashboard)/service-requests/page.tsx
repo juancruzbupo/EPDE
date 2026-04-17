@@ -175,7 +175,7 @@ function ServiceRequestsPageContent() {
       <ServicesListTour />
       <PageHeader
         title="Solicitudes de Servicio"
-        description="Gestión de solicitudes de servicio"
+        description="Problemas detectados que EPDE evalúa y resuelve."
         help={{
           term: 'Solicitud de Servicio',
           body: (

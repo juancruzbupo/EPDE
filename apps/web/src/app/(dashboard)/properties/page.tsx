@@ -179,7 +179,7 @@ export default function PropertiesPage() {
       <PropertiesListTour />
       <PageHeader
         title="Propiedades"
-        description="Gestión de propiedades"
+        description="Viviendas con plan de mantenimiento, estado de salud e inspecciones."
         action={
           isAdmin ? (
             <Button onClick={() => setCreateOpen(true)}>

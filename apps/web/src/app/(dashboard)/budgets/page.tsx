@@ -152,7 +152,7 @@ function BudgetsPageContent() {
       <BudgetsListTour />
       <PageHeader
         title="Presupuestos"
-        description="Gestión de presupuestos"
+        description="Cotizaciones para reparaciones que ya sabés que necesitás."
         help={{
           term: 'Presupuesto',
           body: (

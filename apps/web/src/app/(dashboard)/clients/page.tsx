@@ -106,7 +106,7 @@ export default function ClientsPage() {
       <ClientsTour />
       <PageHeader
         title="Clientes"
-        description="Gestión de clientes de la plataforma"
+        description="Propietarios que usan EPDE. Invitá nuevos, gestioná suscripciones."
         action={
           <Button data-tour="clients-invite" onClick={() => setInviteOpen(true)}>
             <Plus className="h-4 w-4 sm:mr-2" />
