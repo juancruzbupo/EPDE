@@ -50,15 +50,26 @@ function TaskItem({ task, showRegister }: { task: UpcomingTask; showRegister?: b
           <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
             {task.propertyAddress}
             {task.sector && ` · ${task.sector}`}
-            {' · '}
-            <span className={overdue ? 'text-destructive font-medium' : ''}>
-              {task.nextDueDate
-                ? overdue
-                  ? `Vencida ${formatRelativeDate(new Date(task.nextDueDate))}`
-                  : formatRelativeDate(new Date(task.nextDueDate))
-                : RECURRENCE_TYPE_LABELS.ON_DETECTION}
+            <span className="hidden sm:inline">
+              {' · '}
+              <span className={overdue ? 'text-destructive font-medium' : ''}>
+                {task.nextDueDate
+                  ? overdue
+                    ? `Vencida ${formatRelativeDate(new Date(task.nextDueDate))}`
+                    : formatRelativeDate(new Date(task.nextDueDate))
+                  : RECURRENCE_TYPE_LABELS.ON_DETECTION}
+              </span>
             </span>
           </p>
+          {task.nextDueDate && (
+            <p
+              className={`mt-1 text-xs sm:hidden ${overdue ? 'text-destructive font-medium' : 'text-muted-foreground'}`}
+            >
+              {overdue
+                ? `Vencida ${formatRelativeDate(new Date(task.nextDueDate))}`
+                : formatRelativeDate(new Date(task.nextDueDate))}
+            </p>
+          )}
         </Link>
         {showRegister ? (
           <Button
