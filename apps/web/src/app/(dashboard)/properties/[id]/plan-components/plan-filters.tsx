@@ -114,7 +114,7 @@ export const PlanFilters = React.memo(function PlanFilters({
             onValueChange={(v) => onStatusFilterChange(v as TaskStatus | 'all' | 'actionable')}
           >
             <SelectTrigger
-              className="h-9 w-auto min-w-[150px] gap-1.5 text-sm"
+              className="h-9 w-full gap-1.5 text-sm sm:w-auto sm:min-w-[150px]"
               aria-label="Filtrar por estado"
             >
               <SelectValue placeholder="Estado" />
@@ -133,7 +133,7 @@ export const PlanFilters = React.memo(function PlanFilters({
             onValueChange={(v) => onPriorityChange(v as TaskPriority | 'all')}
           >
             <SelectTrigger
-              className="h-9 w-auto min-w-[120px] gap-1.5 text-sm"
+              className="h-9 w-full gap-1.5 text-sm sm:w-auto sm:min-w-[120px]"
               aria-label="Filtrar por prioridad"
             >
               <SelectValue placeholder="Prioridad" />

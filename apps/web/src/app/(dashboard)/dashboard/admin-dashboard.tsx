@@ -88,7 +88,7 @@ export function AdminDashboard() {
       <div data-tour="admin-tabs" className="mb-6">
         <Tabs value={analyticsTab} onValueChange={setAnalyticsTab}>
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <TabsList>
+            <TabsList className="w-full sm:w-auto">
               <TabsTrigger value="operational">Operativo</TabsTrigger>
               <TabsTrigger value="trends">Tendencias</TabsTrigger>
               <TabsTrigger value="financial">Financiero</TabsTrigger>

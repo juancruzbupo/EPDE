@@ -186,7 +186,7 @@ function BudgetsPageContent() {
 
             <Select value={status} onValueChange={(v) => setStatus(v as BudgetStatus | 'all')}>
               <SelectTrigger
-                className="h-9 w-auto min-w-[120px] gap-1.5 text-sm"
+                className="h-9 w-full gap-1.5 text-sm sm:w-auto sm:min-w-[120px]"
                 aria-label="Filtrar por estado"
               >
                 <SelectValue>

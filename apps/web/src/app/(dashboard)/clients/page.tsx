@@ -127,7 +127,7 @@ export default function ClientsPage() {
             <SlidersHorizontal className="text-muted-foreground hidden h-4 w-4 sm:block" />
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger
-                className="h-9 w-auto min-w-[140px] gap-1.5 text-sm"
+                className="h-9 w-full gap-1.5 text-sm sm:w-auto sm:min-w-[140px]"
                 aria-label="Filtrar por estado"
               >
                 <SelectValue placeholder="Estado" />

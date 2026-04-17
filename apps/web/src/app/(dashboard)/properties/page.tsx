@@ -205,7 +205,7 @@ export default function PropertiesPage() {
 
             <Select value={type} onValueChange={setType}>
               <SelectTrigger
-                className="h-9 w-auto min-w-[120px] gap-1.5 text-sm"
+                className="h-9 w-full gap-1.5 text-sm sm:w-auto sm:min-w-[120px]"
                 aria-label="Filtrar por tipo"
               >
                 <SelectValue>
@@ -226,7 +226,7 @@ export default function PropertiesPage() {
 
             <Select value={planStatus} onValueChange={setPlanStatus}>
               <SelectTrigger
-                className="h-9 w-auto min-w-[150px] gap-1.5 text-sm"
+                className="h-9 w-full gap-1.5 text-sm sm:w-auto sm:min-w-[150px]"
                 aria-label="Filtrar por estado del plan"
               >
                 <SelectValue>

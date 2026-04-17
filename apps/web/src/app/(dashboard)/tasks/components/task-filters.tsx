@@ -111,7 +111,7 @@ export const TaskFilters = React.memo(function TaskFilters({
             onValueChange={(v) => onPriorityChange(v as TaskPriority | 'all')}
           >
             <SelectTrigger
-              className="h-9 w-auto min-w-[120px] gap-1.5 text-sm"
+              className="h-9 w-full gap-1.5 text-sm sm:w-auto sm:min-w-[120px]"
               aria-label="Filtrar por prioridad"
             >
               <SelectValue placeholder="Prioridad" />
@@ -130,7 +130,7 @@ export const TaskFilters = React.memo(function TaskFilters({
             onValueChange={(v) => onSectorChange(v as PropertySector | 'all')}
           >
             <SelectTrigger
-              className="h-9 w-auto min-w-[140px] gap-1.5 text-sm"
+              className="h-9 w-full gap-1.5 text-sm sm:w-auto sm:min-w-[140px]"
               aria-label="Filtrar por sector"
             >
               <SelectValue placeholder="Sector" />

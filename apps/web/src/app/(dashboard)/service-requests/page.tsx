@@ -202,7 +202,7 @@ function ServiceRequestsPageContent() {
 
             <Select value={status} onValueChange={(v) => setStatus(v as ServiceStatus | 'all')}>
               <SelectTrigger
-                className="h-9 w-auto min-w-[120px] gap-1.5 text-sm"
+                className="h-9 w-full gap-1.5 text-sm sm:w-auto sm:min-w-[120px]"
                 aria-label="Filtrar por estado"
               >
                 <SelectValue>
@@ -223,7 +223,7 @@ function ServiceRequestsPageContent() {
 
             <Select value={urgency} onValueChange={(v) => setUrgency(v as ServiceUrgency | 'all')}>
               <SelectTrigger
-                className="h-9 w-auto min-w-[120px] gap-1.5 text-sm"
+                className="h-9 w-full gap-1.5 text-sm sm:w-auto sm:min-w-[120px]"
                 aria-label="Filtrar por urgencia"
               >
                 <SelectValue>
