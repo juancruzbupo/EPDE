@@ -23,6 +23,7 @@ const mockDashboardRepository = {
 const mockISVSnapshotRepository = {
   createSnapshot: jest.fn().mockResolvedValue({}),
   findPrevious: jest.fn().mockResolvedValue(null),
+  findPreviousForProperties: jest.fn().mockResolvedValue(new Map()),
 };
 const mockLockService = {
   withLock: jest
@@ -153,7 +154,9 @@ describe('ISVSnapshotService', () => {
     mockDashboardRepository.getPropertyHealthIndexBatch.mockResolvedValue(
       new Map([['plan-1', makeHealthIndex(60)]]),
     );
-    mockISVSnapshotRepository.findPrevious.mockResolvedValue({ score: 80 });
+    mockISVSnapshotRepository.findPreviousForProperties.mockResolvedValue(
+      new Map([['prop-1', { score: 80 }]]),
+    );
     mockLockService.withLock.mockImplementation(
       async (_key: string, _ttl: number, fn: (signal: { lockLost: boolean }) => Promise<void>) => {
         await fn({ lockLost: false });

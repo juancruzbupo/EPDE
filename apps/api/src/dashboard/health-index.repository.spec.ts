@@ -47,7 +47,12 @@ describe('HealthIndexRepository', () => {
     });
 
     it('returns cached result on Redis hit', async () => {
-      const cached = { score: 75, label: 'Bueno', dimensions: {}, sectorScores: [] };
+      const cached = {
+        score: 75,
+        label: 'Bueno',
+        dimensions: { compliance: 80, condition: 75, coverage: 70, investment: 65, trend: 60 },
+        sectorScores: [],
+      };
       mockRedis.get.mockResolvedValue(JSON.stringify(cached));
       const result = await repo.getPropertyHealthIndex(['plan-1']);
       expect(result).toEqual(cached);
@@ -79,7 +84,17 @@ describe('HealthIndexRepository', () => {
     });
 
     it('returns cached batch on Redis hit', async () => {
-      const cached = [['plan-1', { score: 80, label: 'Bueno', dimensions: {}, sectorScores: [] }]];
+      const cached = [
+        [
+          'plan-1',
+          {
+            score: 80,
+            label: 'Bueno',
+            dimensions: { compliance: 85, condition: 80, coverage: 75, investment: 70, trend: 65 },
+            sectorScores: [],
+          },
+        ],
+      ];
       mockRedis.get.mockResolvedValue(JSON.stringify(cached));
       const result = await repo.getPropertyHealthIndexBatch(['plan-1']);
       expect(result.size).toBe(1);
