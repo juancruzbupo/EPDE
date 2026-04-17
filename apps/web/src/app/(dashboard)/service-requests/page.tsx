@@ -158,7 +158,7 @@ function ServiceRequestsPageContent() {
   const total = data?.pages[0]?.total;
 
   const srStats = useMemo(() => {
-    if (!isAdmin || allRequestsRaw.length === 0) return null;
+    if (!isAdmin) return null;
     let open = 0;
     let urgent = 0;
     let inProgress = 0;
@@ -167,9 +167,9 @@ function ServiceRequestsPageContent() {
       if (r.urgency === 'URGENT' || r.urgency === 'HIGH') urgent++;
       if (r.status === 'IN_PROGRESS') inProgress++;
     }
-    if (open === 0 && urgent === 0 && inProgress === 0) return null;
+    if (!isLoading && open === 0 && urgent === 0 && inProgress === 0) return null;
     return { open, urgent, inProgress };
-  }, [allRequestsRaw, isAdmin]);
+  }, [allRequestsRaw, isAdmin, isLoading]);
 
   return (
     <PageTransition>

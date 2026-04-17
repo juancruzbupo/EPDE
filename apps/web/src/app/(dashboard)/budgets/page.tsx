@@ -133,7 +133,7 @@ function BudgetsPageContent() {
 
   const isAdmin = user?.role === UserRole.ADMIN;
   const budgetStats = useMemo(() => {
-    if (!isAdmin || allBudgetsRaw.length === 0) return null;
+    if (!isAdmin) return null;
     let pending = 0;
     let quoted = 0;
     let approved = 0;
@@ -144,9 +144,9 @@ function BudgetsPageContent() {
       else if (b.status === 'APPROVED') approved++;
       if (b.response?.totalAmount) totalQuoted += Number(b.response.totalAmount);
     }
-    if (pending === 0 && quoted === 0 && approved === 0) return null;
+    if (!isLoading && pending === 0 && quoted === 0 && approved === 0) return null;
     return { pending, quoted, approved, totalQuoted };
-  }, [allBudgetsRaw, isAdmin]);
+  }, [allBudgetsRaw, isAdmin, isLoading]);
 
   return (
     <PageTransition>
