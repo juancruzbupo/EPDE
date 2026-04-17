@@ -8,6 +8,7 @@ import apiFactoryMustExist from './eslint-rules/api-factory-must-exist.mjs';
 import mobileQueryRequiresStaleTime from './eslint-rules/mobile-query-requires-stale-time.mjs';
 import noInlineRiskThreshold from './eslint-rules/no-inline-risk-threshold.mjs';
 import noPrismaInService from './eslint-rules/no-prisma-in-service.mjs';
+import noHardcodedRoutes from './eslint-rules/no-hardcoded-routes.mjs';
 import noRepositoryWithoutJustification from './eslint-rules/no-repository-without-justification.mjs';
 import noSoftDeletableIncludeWithoutFilter from './eslint-rules/no-soft-deletable-include-without-filter.mjs';
 import noTxWithoutSoftDeleteFilter from './eslint-rules/no-tx-without-soft-delete-filter.mjs';
@@ -23,6 +24,7 @@ export const localPlugin = {
     'repository-override-must-be-documented': repositoryOverrideMustBeDocumented,
     'no-repository-without-justification': noRepositoryWithoutJustification,
     'api-factory-must-exist': apiFactoryMustExist,
+    'no-hardcoded-routes': noHardcodedRoutes,
   },
 };
 
@@ -126,6 +128,27 @@ export default [
     },
     rules: {
       'local/no-inline-risk-threshold': 'error',
+    },
+  },
+  // ── Hardcoded routes guardrail (web + mobile) ────────────────────────────
+  // Route strings like '/properties/123' should use ROUTES.* from lib/routes.
+  // Starts as `warn` to surface existing hardcodes without blocking CI.
+  // Migrate existing hardcodes → ROUTES.*, then upgrade to `error`.
+  {
+    files: ['apps/web/src/**/*.{ts,tsx}', 'apps/mobile/src/**/*.{ts,tsx}'],
+    ignores: [
+      'apps/web/src/**/*.test.{ts,tsx}',
+      'apps/web/src/**/*.spec.{ts,tsx}',
+      'apps/mobile/src/**/*.test.{ts,tsx}',
+      'apps/mobile/src/**/*.spec.{ts,tsx}',
+      'apps/web/src/lib/routes.ts',
+      'apps/mobile/src/lib/routes.ts',
+    ],
+    plugins: {
+      local: localPlugin,
+    },
+    rules: {
+      'local/no-hardcoded-routes': 'warn',
     },
   },
   // ── API factory pattern guardrail (web + mobile) ─────────────────────────

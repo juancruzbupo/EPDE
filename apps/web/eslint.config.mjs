@@ -49,13 +49,20 @@ export default [
     },
   },
   {
-    // API factory pattern guardrail. Mirrors the activation in the root
-    // eslint.config.mjs (see header there for the duplication rationale —
-    // root-relative globs miss when running from this app's CWD).
+    // API factory pattern guardrail. Mirrors root config.
     files: ['src/lib/api/**/*.ts'],
     plugins: { local: localPlugin },
     rules: {
       'local/api-factory-must-exist': 'error',
+    },
+  },
+  {
+    // Hardcoded routes guardrail. Mirrors root config.
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/**/*.test.{ts,tsx}', 'src/**/*.spec.{ts,tsx}', 'src/lib/routes.ts'],
+    plugins: { local: localPlugin },
+    rules: {
+      'local/no-hardcoded-routes': 'warn',
     },
   },
   {
