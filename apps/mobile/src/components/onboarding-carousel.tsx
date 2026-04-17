@@ -20,7 +20,7 @@ const SLIDES: Slide[] = [
   {
     emoji: '🏠',
     title: 'Tu casa tiene un puntaje',
-    body: 'El ISV mide el estado de tu vivienda de 0 a 100. Sube cuando completás tareas a tiempo. Un puntaje bajo significa reparaciones más caras a futuro.',
+    body: 'El puntaje de tu casa (ISV) mide qué tan bien está, de 0 a 100. Arriba de 60 = está bien. Debajo de 40 = necesita atención. Sube cuando completás tareas a tiempo.',
   },
   {
     emoji: '✅',

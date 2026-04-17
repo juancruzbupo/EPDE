@@ -51,7 +51,7 @@ function SetPasswordForm() {
     setIsLoading(true);
     try {
       await setPassword(token, data.newPassword);
-      toast.success('Contraseña configurada exitosamente');
+      toast.success('Contraseña configurada. Ya podés ingresar.');
       router.push(ROUTES.login);
     } catch {
       setError('Token inválido o expirado.');

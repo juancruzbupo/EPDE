@@ -70,7 +70,7 @@ export const GLOSSARY: readonly GlossaryEntry[] = [
     term: 'Profesional matriculado',
     aka: 'Especialista certificado',
     definition:
-      'Un técnico inscripto en el colegio profesional de su rubro (gasista, electricista, plomero matriculado). Es obligatorio para trabajos donde la firma garantiza seguridad — por ejemplo, una habilitación de gas o una instalación eléctrica nueva.',
+      'Un técnico certificado y registrado en su área (electricista, plomero, gasista). Lo necesitás para trabajos que requieren garantía de seguridad, como instalar una línea eléctrica nueva o habilitar gas.',
   },
   {
     term: 'Estado de tarea',

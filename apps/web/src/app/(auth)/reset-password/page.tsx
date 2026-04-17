@@ -50,7 +50,7 @@ function ResetPasswordForm() {
     setIsLoading(true);
     try {
       await resetPassword(token, data.newPassword);
-      toast.success('Contraseña actualizada exitosamente');
+      toast.success('Contraseña actualizada. Ya podés ingresar.');
       router.push(ROUTES.login);
     } catch {
       setError('Token inválido o expirado.');

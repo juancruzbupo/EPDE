@@ -123,7 +123,7 @@ const PLAN_VIEWER_STEPS: Step[] = [
     target: '[data-tour="plan-title"]',
     title: 'Tu plan de mantenimiento',
     content:
-      'Este plan se generó a partir de la inspección visual de tu vivienda. Las tareas y prioridades se asignaron según lo que la arquitecta encontró en cada sector.',
+      'Este plan se creó después de que el equipo EPDE inspeccionó tu vivienda. Las tareas se ordenaron por prioridad según lo que encontraron en cada zona.',
     skipBeacon: true,
     ...SHARED_STEP_DEFAULTS,
   },

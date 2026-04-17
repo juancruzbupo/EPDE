@@ -22,7 +22,7 @@ export function WelcomeCard({
   const steps = [
     { label: 'Tu propiedad fue registrada por EPDE', done: hasProperties },
     {
-      label: 'La arquitecta inspecciona tu casa y crea el plan (puede tardar unos días)',
+      label: 'El equipo EPDE inspecciona tu casa y crea el plan (1-3 días hábiles)',
       done: hasActivePlan,
     },
     { label: 'Cuando el plan esté activo, completá tu primera tarea', done: !!hasCompletedTasks },

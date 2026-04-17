@@ -18,7 +18,7 @@ export function useCreateServiceRequest() {
     mutationFn: createServiceRequest,
     onSuccess: (response) => {
       const srId = response.data?.id;
-      toast.success('Solicitud creada. Este problema ya está en proceso.', {
+      toast.success('Solicitud creada. Podés ver el estado en Servicios.', {
         action: srId
           ? {
               label: 'Ver servicio',
