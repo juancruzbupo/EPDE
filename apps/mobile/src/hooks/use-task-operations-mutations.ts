@@ -7,6 +7,7 @@
  */
 import type { CompleteTaskInput, TaskNotePublic } from '@epde/shared';
 import { COMPLETION_MESSAGES, getErrorMessage, PREVENTION_SAVINGS, QUERY_KEYS } from '@epde/shared';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
 
@@ -17,6 +18,8 @@ import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 import { toast } from '@/lib/toast';
 import { useAuthStore } from '@/stores/auth-store';
 import { useMotivationStore } from '@/stores/motivation-store';
+
+const FIRST_TASK_KEY = 'epde-first-task-completed';
 
 /** Completes a task and shows rescheduling feedback.
  *  No optimistic status change — the server resets status to PENDING with a new nextDueDate
@@ -38,8 +41,18 @@ export function useCompleteTask(options?: {
       taskName?: string;
     } & CompleteTaskInput) => completeTask(planId, taskId, dto),
 
-    onSuccess: (response, variables) => {
+    onSuccess: async (response, variables) => {
       haptics.success();
+
+      // First-task celebration — fires once per device lifetime. The key
+      // persists forever in AsyncStorage so returning users don't re-see it.
+      const isFirstEver = (await AsyncStorage.getItem(FIRST_TASK_KEY).catch(() => null)) === null;
+      if (isFirstEver) {
+        AsyncStorage.setItem(FIRST_TASK_KEY, 'true').catch(() => {});
+        confettiEvent.fire();
+        toast.success('¡Primera tarea completada! Ya sabés cómo cuidar tu casa. Seguí así.', 6000);
+        return;
+      }
 
       if (wantsRewards) {
         confettiEvent.fire();

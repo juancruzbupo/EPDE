@@ -85,7 +85,7 @@ export function useRespondToBudget() {
 function getBudgetStatusChangeMessage(status: BudgetStatus): string {
   switch (status) {
     case 'APPROVED':
-      return '¡Aprobado! El trabajo va a comenzar pronto. Te avisamos cuando avance.';
+      return '¡Aprobado! Actuar ahora previene que el problema escale — las reparaciones correctivas cuestan entre 8x y 15x más.';
     case 'REJECTED':
       return 'Presupuesto rechazado. Si querés, comentá el motivo en el detalle.';
     case 'IN_PROGRESS':

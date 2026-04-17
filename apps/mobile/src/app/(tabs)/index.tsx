@@ -22,6 +22,7 @@ import { COLORS } from '@/lib/colors';
 import { useType } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
 import { ROUTES } from '@/lib/routes';
+import { toast } from '@/lib/toast';
 import { useAuthStore } from '@/stores/auth-store';
 
 export default function DashboardScreen() {
@@ -128,6 +129,22 @@ function ClientDashboard() {
       }
     }
   }, [isLoading, statsError, tasksError, stats, tasks]);
+
+  // ISV improvement narrative — one-shot toast per session when ISV
+  // climbed meaningfully (≥3 points). Avoids re-toasting on pull-to-refresh
+  // via a ref guard.
+  const isvToastFiredRef = useRef(false);
+  useEffect(() => {
+    if (!stats?.isvDelta || stats.isvDelta < 3 || isvToastFiredRef.current) return;
+    isvToastFiredRef.current = true;
+    const score = stats.healthScore ?? 0;
+    const delta = stats.isvDelta;
+    const projection = Math.min(100, score + delta * 3);
+    toast.success(
+      `Tu ISV subió ${delta} puntos. Mantené el ritmo y en 3 meses podrías llegar a ${projection}.`,
+      6000,
+    );
+  }, [stats?.isvDelta, stats?.healthScore]);
 
   // Show welcome card until client has properties with active tasks
   const hasTasks =
