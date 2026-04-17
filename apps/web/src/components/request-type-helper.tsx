@@ -19,11 +19,12 @@ export function ServiceRequestInlineHelper() {
   return (
     <div className="bg-muted/30 border-border mb-4 rounded-lg border p-3">
       <p className="text-muted-foreground type-body-sm">
-        <strong className="text-foreground">Solicitud de servicio:</strong> pedí que EPDE coordine
-        una tarea de mantenimiento que necesita un profesional.
+        <strong className="text-foreground">Solicitud de servicio:</strong> detectaste un problema
+        pero no sabés qué hacer. EPDE lo evalúa y te dice los pasos a seguir.
         <span className="italic">
           {' '}
-          Ej: reparar una canilla, sellar una fisura, limpiar canaletas.
+          Ej: &quot;Hay humedad en la pared, no sé de dónde viene&quot;, &quot;Apareció una grieta
+          en el techo&quot;.
         </span>
       </p>
     </div>
@@ -34,11 +35,12 @@ export function BudgetInlineHelper() {
   return (
     <div className="bg-muted/30 border-border mb-4 rounded-lg border p-3">
       <p className="text-muted-foreground type-body-sm">
-        <strong className="text-foreground">Presupuesto:</strong> pedí una cotización para un
-        trabajo de arquitectura fuera del mantenimiento preventivo.
+        <strong className="text-foreground">Presupuesto:</strong> ya sabés qué reparación necesitás
+        y querés saber cuánto cuesta.
         <span className="italic">
           {' '}
-          Ej: remodelación, ampliación, plano municipal, relevamiento.
+          Ej: &quot;Las canaletas están rotas, ¿cuánto sale repararlas?&quot;, &quot;Necesito pintar
+          la fachada&quot;.
         </span>
       </p>
     </div>
@@ -67,12 +69,12 @@ export function RequestTypeHelper() {
                 <p className="font-semibold">Solicitud de servicio</p>
               </div>
               <p className="text-muted-foreground mb-2 text-sm leading-relaxed">
-                Una tarea de mantenimiento que necesita un profesional. EPDE coordina la ejecución y
-                se encarga de resolverlo.
+                Detectaste un problema pero no sabés qué hacer. EPDE lo evalúa, te dice qué pasa y
+                coordina los pasos a seguir.
               </p>
               <p className="text-muted-foreground mb-3 text-xs italic">
-                Ej: reparar una canilla, sellar una fisura, limpiar canaletas, revisar la
-                instalación eléctrica.
+                Ej: &quot;Hay humedad en la pared, no sé de dónde viene&quot;, &quot;Apareció una
+                grieta en el techo&quot;.
               </p>
               <Button asChild size="sm" variant="outline" className="w-full">
                 <Link href={ROUTES.newServiceRequest}>Crear solicitud de servicio</Link>
@@ -87,12 +89,12 @@ export function RequestTypeHelper() {
                 <p className="font-semibold">Presupuesto</p>
               </div>
               <p className="text-muted-foreground mb-2 text-sm leading-relaxed">
-                Un trabajo de arquitectura que no es mantenimiento. EPDE te envía el detalle de
-                costos y alcance.
+                Ya sabés qué reparación necesitás y querés saber cuánto cuesta. EPDE te envía la
+                cotización con detalle de costos.
               </p>
               <p className="text-muted-foreground mb-3 text-xs italic">
-                Ej: remodelación, ampliación, plano para entrega municipal, habilitación,
-                relevamiento.
+                Ej: &quot;Las canaletas están rotas, ¿cuánto sale repararlas?&quot;, &quot;Necesito
+                pintar la fachada&quot;.
               </p>
               <Button asChild size="sm" className="w-full">
                 <Link href={ROUTES.newBudget}>Solicitar presupuesto</Link>
