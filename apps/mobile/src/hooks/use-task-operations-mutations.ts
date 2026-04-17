@@ -16,6 +16,7 @@ import { haptics } from '@/lib/haptics';
 import { invalidateDashboard } from '@/lib/invalidate-dashboard';
 import { toast } from '@/lib/toast';
 import { useAuthStore } from '@/stores/auth-store';
+import { useMotivationStore } from '@/stores/motivation-store';
 
 /** Completes a task and shows rescheduling feedback.
  *  No optimistic status change — the server resets status to PENDING with a new nextDueDate
@@ -24,6 +25,7 @@ export function useCompleteTask(options?: {
   onProblemDetected?: (info: { taskId: string; taskName: string }) => void;
 }) {
   const queryClient = useQueryClient();
+  const wantsRewards = useMotivationStore((s) => s.motivationStyle === 'rewards');
 
   return useMutation({
     mutationFn: ({
@@ -38,32 +40,55 @@ export function useCompleteTask(options?: {
 
     onSuccess: (response, variables) => {
       haptics.success();
-      confettiEvent.fire();
-      const msg = COMPLETION_MESSAGES[Math.floor(Math.random() * COMPLETION_MESSAGES.length)];
-      const nextDueDate = response.data?.task?.nextDueDate;
-      if (nextDueDate) {
-        const formatted = new Date(nextDueDate).toLocaleDateString('es-AR', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        });
-        toast.success(`${msg} Próxima: ${formatted}`, 4500);
+
+      if (wantsRewards) {
+        confettiEvent.fire();
+        const msg = COMPLETION_MESSAGES[Math.floor(Math.random() * COMPLETION_MESSAGES.length)];
+        const nextDueDate = response.data?.task?.nextDueDate;
+        if (nextDueDate) {
+          const formatted = new Date(nextDueDate).toLocaleDateString('es-AR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          });
+          toast.success(`${msg} Próxima: ${formatted}`, 4500);
+        } else {
+          toast.success(msg);
+        }
       } else {
-        toast.success(msg);
+        const nextDueDate = response.data?.task?.nextDueDate;
+        if (nextDueDate) {
+          const formatted = new Date(nextDueDate).toLocaleDateString('es-AR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          });
+          toast.success(`Tarea completada. Próxima: ${formatted}`);
+        } else {
+          toast.success('Tarea completada');
+        }
       }
 
-      // F6: "Evitaste un problema" — savings info is deliberately blocking so
-      // the user sees the prevention value before the problem dialog opens.
+      // "Evitaste un problema" — savings info fires regardless of
+      // motivationStyle because the value is functional (ROI awareness),
+      // not celebratory. But in minimal mode, delay longer + use toast
+      // instead of blocking Alert so it's less intrusive.
       if (response.data?.problemDetected) {
         const categoryName = response.data.task?.category?.name;
         const savings = categoryName ? PREVENTION_SAVINGS[categoryName] : undefined;
         if (savings) {
-          setTimeout(() => {
-            Alert.alert(
-              'Detectaste un problema a tiempo',
-              `Sin prevención, esto podría costarte ${savings}.`,
-            );
-          }, 2000);
+          if (wantsRewards) {
+            setTimeout(() => {
+              Alert.alert(
+                'Detectaste un problema a tiempo',
+                `Sin prevención, esto podría costarte ${savings}.`,
+              );
+            }, 2500);
+          } else {
+            setTimeout(() => {
+              toast.info(`Problema detectado — sin prevención costaba ${savings}`);
+            }, 1500);
+          }
         }
 
         options?.onProblemDetected?.({

@@ -37,6 +37,7 @@ import { ROUTES } from '@/lib/routes';
 import { darkTheme, lightTheme } from '@/lib/theme-tokens';
 import { useAuthStore } from '@/stores/auth-store';
 import { useFontScaleStore } from '@/stores/font-scale-store';
+import { useMotivationStore } from '@/stores/motivation-store';
 import { useThemeStore } from '@/stores/theme-store';
 
 SplashScreen.preventAutoHideAsync();
@@ -128,6 +129,11 @@ export default function RootLayout() {
   useEffect(() => {
     void loadSavedFontScale();
   }, [loadSavedFontScale]);
+
+  const loadSavedMotivationStyle = useMotivationStore((s) => s.loadSavedMotivationStyle);
+  useEffect(() => {
+    void loadSavedMotivationStyle();
+  }, [loadSavedMotivationStyle]);
 
   if (!fontsLoaded && !fontError) {
     return null;

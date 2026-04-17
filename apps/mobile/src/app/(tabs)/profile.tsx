@@ -8,6 +8,7 @@ import { GlossaryModal } from '@/components/glossary-modal';
 import { resetMobileOnboarding } from '@/components/onboarding-carousel';
 import { AppearanceSelector } from '@/components/profile/appearance-selector';
 import { FontScaleSelector } from '@/components/profile/font-scale-selector';
+import { MotivationSelector } from '@/components/profile/motivation-selector';
 import { PasswordChangeForm } from '@/components/profile/password-change-form';
 import { ReferralsCard } from '@/components/profile/referrals-card';
 import { UserInfoCard } from '@/components/profile/user-info-card';
@@ -20,6 +21,7 @@ import { queryClient } from '@/lib/query-client';
 import { toast } from '@/lib/toast';
 import { useAuthStore } from '@/stores/auth-store';
 import { useFontScaleStore } from '@/stores/font-scale-store';
+import { useMotivationStore } from '@/stores/motivation-store';
 import { useThemeStore } from '@/stores/theme-store';
 
 export default function ProfileScreen() {
@@ -29,6 +31,8 @@ export default function ProfileScreen() {
   const setMode = useThemeStore((s) => s.setMode);
   const fontScale = useFontScaleStore((s) => s.fontScale);
   const setFontScale = useFontScaleStore((s) => s.setFontScale);
+  const motivationStyle = useMotivationStore((s) => s.motivationStyle);
+  const setMotivationStyle = useMotivationStore((s) => s.setMotivationStyle);
 
   const [editingField, setEditingField] = useState<'name' | 'phone' | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -157,6 +161,11 @@ export default function ProfileScreen() {
       <AppearanceSelector mode={mode} onModeChange={setMode} />
 
       <FontScaleSelector fontScale={fontScale} onFontScaleChange={setFontScale} />
+
+      <MotivationSelector
+        motivationStyle={motivationStyle}
+        onMotivationStyleChange={setMotivationStyle}
+      />
 
       {/* Referral program — clients only */}
       {user?.role === 'CLIENT' && <ReferralsCard />}
