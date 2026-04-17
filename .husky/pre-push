@@ -1,0 +1,6 @@
+# Drift detection — warns on push but does NOT block.
+# Remove `|| true` once the known gaps in MODEL_TO_SCHEMA_FILE are
+# resolved (15 internal models without schema files — intentional for
+# sub-resources like audit logs, attachments, push tokens).
+node scripts/check-schema-drift.mjs || true
+node scripts/check-entity-drift.mjs || true
