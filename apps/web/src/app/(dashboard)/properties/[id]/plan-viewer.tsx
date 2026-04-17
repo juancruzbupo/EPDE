@@ -202,7 +202,7 @@ export function PlanViewer({ planId, propertyId, highlightTaskId }: PlanViewerPr
   const [sectorFilter, setSectorFilter] = useState<PropertySector | 'all'>('all');
   const debouncedSearch = useDebounce(search);
 
-  const tasks = plan?.tasks ?? [];
+  const tasks = useMemo(() => plan?.tasks ?? [], [plan?.tasks]);
 
   const filtered = useMemo(() => {
     let result = tasks;

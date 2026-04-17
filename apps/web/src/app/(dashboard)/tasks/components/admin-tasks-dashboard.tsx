@@ -135,7 +135,7 @@ export function AdminTasksDashboard({ tasks, isLoading }: AdminTasksDashboardPro
         propertiesWithOverdue: sortedGroups.filter((g) => g.overdue > 0).length,
       },
     };
-  }, [tasks]);
+  }, [tasks, contactUpdates]);
 
   if (isLoading) {
     return (

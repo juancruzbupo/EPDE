@@ -146,7 +146,7 @@ export function PlanEditor({ propertyId, planId, activeSectors }: PlanEditorProp
   const [categoryFilter, setCategoryFilter] = useState('all');
   const debouncedSearch = useDebounce(search);
 
-  const tasks = plan?.tasks ?? [];
+  const tasks = useMemo(() => plan?.tasks ?? [], [plan?.tasks]);
   const completableTasks = useMemo(() => tasks.filter(isCompletable), [tasks]);
 
   const handleMoveTask = useCallback(
