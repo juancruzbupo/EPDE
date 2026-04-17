@@ -94,7 +94,7 @@ export default [
     },
     rules: {
       'local/no-tx-without-soft-delete-filter': 'error',
-      'local/no-soft-deletable-include-without-filter': 'warn',
+      'local/no-soft-deletable-include-without-filter': 'error',
       'local/repository-override-must-be-documented': 'error',
       'local/no-repository-without-justification': 'error',
     },

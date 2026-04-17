@@ -61,6 +61,26 @@ const SOFT_DELETABLE_RELATIONS = new Set([
   'items',
 ]);
 
+/**
+ * Singular (belongsTo / hasOne) relations where Prisma does NOT support
+ * `where` in the include clause. Flagging these is a false positive because
+ * the only way to filter is post-query. The parent record is already
+ * filtered by the extension, so a soft-deleted parent with a non-deleted
+ * child won't appear anyway.
+ *
+ * Keep in sync with the Prisma schema @relation annotations.
+ */
+const SINGULAR_RELATIONS = new Set([
+  'user', 'inspector', 'requester',
+  'property',
+  'task',
+  'category',
+  'budgetRequest',
+  'serviceRequest',
+  'inspectionChecklist',
+  'inspectionItem',
+]);
+
 /** @type {import('eslint').Rule.RuleModule} */
 export default {
   meta: {
@@ -135,6 +155,11 @@ export default {
               ? prop.key.value
               : null;
         if (!name || !SOFT_DELETABLE_RELATIONS.has(name)) continue;
+        // Skip singular (belongsTo) relations — Prisma doesn't support
+        // `where` in includes for these. The parent is already filtered
+        // by the extension, so a soft-deleted related record only appears
+        // if the parent itself is visible.
+        if (SINGULAR_RELATIONS.has(name)) continue;
 
         const value = prop.value;
         if (value.type === 'Literal' && value.value === true) {

@@ -16,12 +16,14 @@ export class CategoryTemplatesRepository extends BaseRepository<
   async findByIdWithTasks(id: string) {
     return this.prisma.categoryTemplate.findUnique({
       where: { id },
+      // eslint-disable-next-line local/no-soft-deletable-include-without-filter -- tasks = TaskTemplate[], NOT soft-deletable
       include: { tasks: { orderBy: { displayOrder: 'asc' }, take: 100 } },
     });
   }
 
   async findAllWithTasks() {
     return this.prisma.categoryTemplate.findMany({
+      // eslint-disable-next-line local/no-soft-deletable-include-without-filter -- tasks = TaskTemplate[], NOT soft-deletable
       include: { tasks: { orderBy: { displayOrder: 'asc' } } },
       orderBy: { displayOrder: 'asc' },
     });

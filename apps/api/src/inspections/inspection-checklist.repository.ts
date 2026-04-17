@@ -66,7 +66,7 @@ export class InspectionChecklistRepository extends BaseRepository<
           })),
         },
       },
-      include: { items: { orderBy: { order: 'asc' } } },
+      include: { items: { where: { deletedAt: null }, orderBy: { order: 'asc' } } },
     });
   }
 

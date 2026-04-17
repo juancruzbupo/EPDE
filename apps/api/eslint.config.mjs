@@ -78,7 +78,7 @@ export default [
       local: localPlugin,
     },
     rules: {
-      'local/no-soft-deletable-include-without-filter': 'warn',
+      'local/no-soft-deletable-include-without-filter': 'error',
     },
   },
   {

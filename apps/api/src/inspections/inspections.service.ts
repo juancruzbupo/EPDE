@@ -458,7 +458,7 @@ export class InspectionsService {
           // re-reading the plan just created in this transaction.
           return tx.maintenancePlan.findUnique({
             where: { id: plan.id },
-            include: { tasks: { orderBy: { order: 'asc' } } },
+            include: { tasks: { where: { deletedAt: null }, orderBy: { order: 'asc' } } },
           });
         },
         { timeout: 30_000 },

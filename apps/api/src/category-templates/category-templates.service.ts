@@ -15,6 +15,7 @@ export class CategoryTemplatesService {
     return this.repository.findMany({
       cursor: filters.cursor,
       take: filters.take,
+      // eslint-disable-next-line local/no-soft-deletable-include-without-filter -- tasks = TaskTemplate[], NOT soft-deletable
       include: { tasks: { orderBy: { displayOrder: 'asc' } } },
       orderBy: { displayOrder: 'asc' },
     });
