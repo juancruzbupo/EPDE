@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { TasksTour } from '@/components/onboarding-tour';
 import { PageHeader } from '@/components/page-header';
+import { Button } from '@/components/ui/button';
 import { PageTransition } from '@/components/ui/page-transition';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useAllTasks } from '@/hooks/use-plans';
@@ -199,6 +200,21 @@ export default function TasksPage() {
         <AdminTasksDashboard tasks={allTasksForCounts} isLoading={isLoading} />
       ) : (
         <>
+          {isAdmin && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground mb-4 gap-1.5"
+              onClick={() => {
+                const url = new URL(window.location.href);
+                url.searchParams.delete('view');
+                window.history.replaceState(null, '', url.toString());
+                window.location.reload();
+              }}
+            >
+              ← Volver al panel operativo
+            </Button>
+          )}
           <div data-tour="task-stats">
             <TaskStatCards
               isLoading={isLoading || !tasks}
