@@ -144,6 +144,7 @@ function BudgetsPageContent() {
       else if (b.status === 'APPROVED') approved++;
       if (b.response?.totalAmount) totalQuoted += Number(b.response.totalAmount);
     }
+    if (pending === 0 && quoted === 0 && approved === 0) return null;
     return { pending, quoted, approved, totalQuoted };
   }, [allBudgetsRaw, isAdmin]);
 

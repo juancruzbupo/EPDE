@@ -167,6 +167,7 @@ function ServiceRequestsPageContent() {
       if (r.urgency === 'URGENT' || r.urgency === 'HIGH') urgent++;
       if (r.status === 'IN_PROGRESS') inProgress++;
     }
+    if (open === 0 && urgent === 0 && inProgress === 0) return null;
     return { open, urgent, inProgress };
   }, [allRequestsRaw, isAdmin]);
 
