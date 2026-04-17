@@ -35,7 +35,7 @@ function TaskItem({ task, showRegister }: { task: UpcomingTask; showRegister?: b
   return (
     <li>
       <div
-        className={`flex items-start gap-2 rounded-lg border p-3 transition-all sm:items-center sm:gap-3 ${overdue ? 'border-l-destructive hover:bg-destructive/5 border-l-4' : 'hover:bg-muted/40 hover:shadow-sm'}`}
+        className={`flex flex-col gap-2 rounded-lg border p-3 transition-all sm:flex-row sm:items-center sm:gap-3 ${overdue ? 'border-l-destructive hover:bg-destructive/5 border-l-4' : 'hover:bg-muted/40 hover:shadow-sm'}`}
       >
         <Link href={`/tasks?taskId=${task.id}`} className="min-w-0 flex-1">
           <p className="text-sm leading-snug font-medium" title={task.name}>
@@ -61,14 +61,19 @@ function TaskItem({ task, showRegister }: { task: UpcomingTask; showRegister?: b
           </p>
         </Link>
         {showRegister ? (
-          <Button size="sm" variant="destructive" className="shrink-0 gap-1.5" asChild>
+          <Button
+            size="sm"
+            variant="destructive"
+            className="w-full gap-1.5 sm:w-auto sm:shrink-0"
+            asChild
+          >
             <Link href={`/tasks?taskId=${task.id}&action=complete`}>
               <ClipboardCheck className="h-3.5 w-3.5" />
               Registrar
             </Link>
           </Button>
         ) : (
-          <ChevronRight className="text-muted-foreground h-4 w-4 shrink-0" />
+          <ChevronRight className="text-muted-foreground hidden h-4 w-4 shrink-0 sm:block" />
         )}
       </div>
     </li>
