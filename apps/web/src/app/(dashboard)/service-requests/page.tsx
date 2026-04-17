@@ -201,9 +201,11 @@ function ServiceRequestsPageContent() {
         }
       />
 
-      <div className="mb-3">
-        <ServiceRequestInlineHelper />
-      </div>
+      {!isAdmin && (
+        <div className="mb-3">
+          <ServiceRequestInlineHelper />
+        </div>
+      )}
 
       {srStats && (
         <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">

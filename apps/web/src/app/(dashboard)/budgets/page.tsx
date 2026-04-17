@@ -178,9 +178,11 @@ function BudgetsPageContent() {
         }
       />
 
-      <div className="mb-3">
-        <BudgetInlineHelper />
-      </div>
+      {!isAdmin && (
+        <div className="mb-3">
+          <BudgetInlineHelper />
+        </div>
+      )}
 
       {budgetStats && (
         <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
