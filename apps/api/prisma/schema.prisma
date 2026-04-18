@@ -206,6 +206,7 @@ model User {
   weeklyChallenges        WeeklyChallenge[]
   referralsMade           Referral[]               @relation("ReferralsMade")
   referralsReceived       Referral[]               @relation("ReferralsReceived")
+  technicalInspections    TechnicalInspection[]
 
   @@index([email])
   @@index([role, deletedAt])
@@ -232,12 +233,13 @@ model Property {
   updatedAt       DateTime         @updatedAt
   deletedAt       DateTime?
 
-  user            User                  @relation(fields: [userId], references: [id], onDelete: Restrict)
-  maintenancePlan MaintenancePlan?
-  budgetRequests  BudgetRequest[]
-  serviceRequests ServiceRequest[]
-  isvSnapshots    ISVSnapshot[]
-  inspections     InspectionChecklist[]
+  user                 User                  @relation(fields: [userId], references: [id], onDelete: Restrict)
+  maintenancePlan      MaintenancePlan?
+  budgetRequests       BudgetRequest[]
+  serviceRequests      ServiceRequest[]
+  isvSnapshots         ISVSnapshot[]
+  inspections          InspectionChecklist[]
+  technicalInspections TechnicalInspection[]
 
   @@index([userId])
   @@index([userId, deletedAt])
@@ -1089,4 +1091,83 @@ model ProfessionalPayment {
   @@index([professionalId, status])
   @@index([status, createdAt])
   @@index([serviceRequestId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Technical Inspections — paid professional service (ADR-019)
+// ─────────────────────────────────────────────────────────────
+//
+// Informe profesional firmado por la arquitecta matriculada. Servicio
+// distinto del Certificado de Mantenimiento (que es automático e incluido
+// en el plan). La inspección técnica es un deliverable manual con peso
+// legal — tiene precio y se factura aparte.
+
+enum TechnicalInspectionType {
+  BASIC
+  STRUCTURAL
+  SALE
+}
+
+enum TechnicalInspectionStatus {
+  REQUESTED
+  SCHEDULED
+  IN_PROGRESS
+  REPORT_READY
+  PAID
+  CANCELED
+}
+
+enum TechnicalInspectionPaymentStatus {
+  PENDING
+  PAID
+  CANCELED
+}
+
+model TechnicalInspection {
+  id               String                    @id @default(uuid())
+  /// INSP-YYYY-NNNN — formato humano legible, generado al crear
+  inspectionNumber String                    @unique @db.VarChar(20)
+  propertyId       String
+  requestedBy      String
+  type             TechnicalInspectionType
+  status           TechnicalInspectionStatus @default(REQUESTED)
+
+  clientNotes  String?   @db.VarChar(2000)
+  adminNotes   String?   @db.VarChar(4000)
+  scheduledFor DateTime?
+  completedAt  DateTime?
+
+  /// URL del PDF firmado (upload del admin tras visita + redacción)
+  deliverableUrl      String?
+  deliverableFileName String? @db.VarChar(200)
+
+  /// Facturación — precio congelado al crear para evitar cambios post-solicitud
+  feeAmount         Decimal                          @db.Decimal(12, 2)
+  feeStatus         TechnicalInspectionPaymentStatus @default(PENDING)
+  /// true si el cliente tenía plan activo al momento de solicitar (aplica -15%)
+  hadActivePlan     Boolean                          @default(false)
+  paidAt            DateTime?
+  paymentMethod     String?                          @db.VarChar(50)
+  paymentReceiptUrl String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  property  Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  requester User     @relation(fields: [requestedBy], references: [id], onDelete: Restrict)
+
+  @@index([propertyId])
+  @@index([requestedBy])
+  @@index([status])
+  @@index([deletedAt])
+  @@index([status, createdAt])
+}
+
+/// Counter singleton por año para generar INSP-YYYY-NNNN atómicamente.
+/// yearlyCounters: Record<string, number> ej: { "2026": 23, "2027": 0 }
+model TechnicalInspectionCounter {
+  id             String   @id @default("singleton")
+  yearlyCounters Json     @default("{}")
+  updatedAt      DateTime @updatedAt
 }

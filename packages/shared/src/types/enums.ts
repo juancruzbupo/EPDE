@@ -340,3 +340,44 @@ export const PROFESSIONAL_PAYMENT_STATUS_VALUES = Object.values(ProfessionalPaym
   ProfessionalPaymentStatus,
   ...ProfessionalPaymentStatus[],
 ];
+
+// ─── Technical Inspections (ADR-019) ─────────────────────
+
+export const TechnicalInspectionType = {
+  BASIC: 'BASIC',
+  STRUCTURAL: 'STRUCTURAL',
+  SALE: 'SALE',
+} as const;
+export type TechnicalInspectionType =
+  (typeof TechnicalInspectionType)[keyof typeof TechnicalInspectionType];
+
+export const TechnicalInspectionStatus = {
+  REQUESTED: 'REQUESTED',
+  SCHEDULED: 'SCHEDULED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  REPORT_READY: 'REPORT_READY',
+  PAID: 'PAID',
+  CANCELED: 'CANCELED',
+} as const;
+export type TechnicalInspectionStatus =
+  (typeof TechnicalInspectionStatus)[keyof typeof TechnicalInspectionStatus];
+
+export const TechnicalInspectionPaymentStatus = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  CANCELED: 'CANCELED',
+} as const;
+export type TechnicalInspectionPaymentStatus =
+  (typeof TechnicalInspectionPaymentStatus)[keyof typeof TechnicalInspectionPaymentStatus];
+
+export const TECHNICAL_INSPECTION_TYPE_VALUES = Object.values(TechnicalInspectionType) as [
+  TechnicalInspectionType,
+  ...TechnicalInspectionType[],
+];
+export const TECHNICAL_INSPECTION_STATUS_VALUES = Object.values(TechnicalInspectionStatus) as [
+  TechnicalInspectionStatus,
+  ...TechnicalInspectionStatus[],
+];
+export const TECHNICAL_INSPECTION_PAYMENT_STATUS_VALUES = Object.values(
+  TechnicalInspectionPaymentStatus,
+) as [TechnicalInspectionPaymentStatus, ...TechnicalInspectionPaymentStatus[]];

@@ -28,6 +28,9 @@ import {
   TaskResult,
   TaskStatus,
   TaskType,
+  TechnicalInspectionPaymentStatus,
+  TechnicalInspectionStatus,
+  TechnicalInspectionType,
   UserRole,
   UserStatus,
 } from '../types/enums';
@@ -88,6 +91,9 @@ const ENUM_MAP: Record<string, Record<string, string>> = {
   ProfessionalTier,
   ProfessionalAttachmentType,
   ProfessionalPaymentStatus,
+  TechnicalInspectionType,
+  TechnicalInspectionStatus,
+  TechnicalInspectionPaymentStatus,
 };
 
 function parsePrismaEnums(schemaPath: string): Map<string, string[]> {

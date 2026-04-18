@@ -10,4 +10,5 @@ export * from './property';
 export * from './referral';
 export * from './service-request';
 export * from './task';
+export * from './technical-inspection';
 export * from './user';

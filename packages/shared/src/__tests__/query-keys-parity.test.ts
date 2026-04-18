@@ -51,6 +51,7 @@ const KEYS_PENDING_IMPLEMENTATION = new Set([
   'professionalTimeline',
   'professionalAttachments',
   'professionalPayments',
+  'technicalInspections', // ADR-019 — web UI lands in PR-3
 ]);
 
 describe('QUERY_KEYS parity', () => {

@@ -11,3 +11,4 @@ export * from './milestones';
 export * from './query-keys';
 export * from './stale-times';
 export * from './status-hints';
+export * from './technical-inspection';

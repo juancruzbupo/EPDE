@@ -57,4 +57,6 @@ export const QUERY_KEYS = {
   professionalTimeline: 'timeline',
   professionalAttachments: 'attachments',
   professionalPayments: 'professional-payments',
+  // Technical inspections (admin-billable service)
+  technicalInspections: 'technical-inspections',
 } as const;

@@ -18,4 +18,5 @@ export * from './task';
 export * from './task-log';
 export * from './task-note';
 export * from './task-template';
+export * from './technical-inspection';
 export * from './user';

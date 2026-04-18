@@ -20,6 +20,9 @@ import type {
   TaskResult,
   TaskStatus,
   TaskType,
+  TechnicalInspectionPaymentStatus,
+  TechnicalInspectionStatus,
+  TechnicalInspectionType,
   UserStatus,
 } from '../types/enums';
 
@@ -357,3 +360,26 @@ export const PROFESSIONAL_PAYMENT_STATUS_LABELS = {
   PAID: 'Pagado',
   CANCELED: 'Cancelado',
 } satisfies Record<ProfessionalPaymentStatus, string>;
+
+// ─── Technical inspections (ADR-019) ─────────────────────
+
+export const TECHNICAL_INSPECTION_TYPE_ENUM_LABELS = {
+  BASIC: 'Básica',
+  STRUCTURAL: 'Estructural profunda',
+  SALE: 'Compraventa',
+} satisfies Record<TechnicalInspectionType, string>;
+
+export const TECHNICAL_INSPECTION_STATUS_ENUM_LABELS = {
+  REQUESTED: 'Solicitada',
+  SCHEDULED: 'Agendada',
+  IN_PROGRESS: 'En curso',
+  REPORT_READY: 'Informe listo',
+  PAID: 'Pagada',
+  CANCELED: 'Cancelada',
+} satisfies Record<TechnicalInspectionStatus, string>;
+
+export const TECHNICAL_INSPECTION_PAYMENT_STATUS_ENUM_LABELS = {
+  PENDING: 'Pendiente',
+  PAID: 'Pagado',
+  CANCELED: 'Cancelado',
+} satisfies Record<TechnicalInspectionPaymentStatus, string>;

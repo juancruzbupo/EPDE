@@ -50,3 +50,4 @@ export {
   type TaskListFilters,
   type UpdateTaskRequest,
 } from './tasks';
+export { createTechnicalInspectionQueries } from './technical-inspections';
