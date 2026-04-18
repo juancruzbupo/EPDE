@@ -32,12 +32,12 @@ export const GLOSSARY: readonly GlossaryEntry[] = [
     term: 'Presupuesto',
     aka: 'Cotización',
     definition:
-      'Pedís un precio para una reparación específica que ya sabés que necesitás. Ejemplo: "Las canaletas están rotas, ¿cuánto sale repararlas?"',
+      'Cotización para un trabajo de arquitectura que no es mantenimiento: ampliación, renovación, plano municipal, habilitación, relevamiento. Ejemplo: "Quiero ampliar la cocina, ¿cuánto sale?"',
   },
   {
     term: 'Solicitud de servicio',
     definition:
-      'Reportás un problema para que EPDE lo evalúe y te diga qué hacer. Ejemplo: "Hay humedad en la pared, no sé qué es."',
+      'Pedí que EPDE ejecute una tarea de mantenimiento por vos. Puede ser algo del plan que necesita profesional, algo que preferís que lo hagamos nosotros, o un problema nuevo. Ejemplo: "Necesito que revisen la instalación eléctrica."',
   },
   {
     term: 'Hallazgo',

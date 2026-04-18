@@ -470,11 +470,13 @@ Después de la inspección visual, la arquitecta debe decidir qué tareas adicio
 
 > **Presupuesto vs Solicitud de servicio — ¿cuándo es cada uno?**
 >
-> **Presupuesto**: el cliente ya sabe qué reparación necesita y quiere saber cuánto cuesta. Ej: "Las canaletas están rotas, ¿cuánto sale repararlas?", "Necesito pintar la fachada".
+> **Presupuesto**: cotización para un trabajo de **arquitectura fuera del mantenimiento**: ampliación, renovación, plano municipal, habilitación, relevamiento. Ej: "Quiero ampliar la cocina", "Necesito un plano para la municipalidad".
 >
-> **Solicitud de servicio**: el cliente detectó un problema pero no sabe qué hacer. EPDE lo evalúa y le dice los pasos a seguir. Ej: "Hay humedad en la pared, no sé de dónde viene", "Apareció una grieta en el techo".
+> **Solicitud de servicio**: pedido para que EPDE **ejecute una tarea de mantenimiento**. Puede ser algo del plan que requiere profesional, algo que el propietario prefiere delegar, o un problema nuevo. Ej: "Necesito que revisen la instalación eléctrica", "Quiero que limpien las canaletas".
 >
-> Regla simple: **¿sabe qué necesita?** Sí → Presupuesto. No → Solicitud.
+> Regla simple: **¿es mantenimiento?** Sí → Solicitud de servicio. No → Presupuesto.
+>
+> Ver [docs/presupuestos-vs-servicios.md](presupuestos-vs-servicios.md) para la definición completa.
 
 ### Flujo completo de un presupuesto
 

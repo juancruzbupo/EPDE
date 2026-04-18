@@ -19,12 +19,13 @@ export function ServiceRequestInlineHelper() {
   return (
     <div className="bg-muted/30 border-border mb-4 rounded-lg border p-3">
       <p className="text-muted-foreground type-body-sm">
-        <strong className="text-foreground">Solicitud de servicio:</strong> detectaste un problema
-        pero no sabés qué hacer. EPDE lo evalúa y te dice los pasos a seguir.
+        <strong className="text-foreground">Solicitud de servicio:</strong> pedí que EPDE ejecute
+        una tarea de mantenimiento por vos. Puede ser algo del plan, algo que requiere profesional,
+        o un problema nuevo.
         <span className="italic">
           {' '}
-          Ej: &quot;Hay humedad en la pared, no sé de dónde viene&quot;, &quot;Apareció una grieta
-          en el techo&quot;.
+          Ej: &quot;Necesito que revisen la instalación eléctrica&quot;, &quot;Quiero que limpien
+          las canaletas&quot;, &quot;Apareció humedad en la pared&quot;.
         </span>
       </p>
     </div>
@@ -35,12 +36,12 @@ export function BudgetInlineHelper() {
   return (
     <div className="bg-muted/30 border-border mb-4 rounded-lg border p-3">
       <p className="text-muted-foreground type-body-sm">
-        <strong className="text-foreground">Presupuesto:</strong> ya sabés qué reparación necesitás
-        y querés saber cuánto cuesta.
+        <strong className="text-foreground">Presupuesto:</strong> cotización para un trabajo de
+        arquitectura fuera del mantenimiento.
         <span className="italic">
           {' '}
-          Ej: &quot;Las canaletas están rotas, ¿cuánto sale repararlas?&quot;, &quot;Necesito pintar
-          la fachada&quot;.
+          Ej: &quot;Quiero ampliar la cocina&quot;, &quot;Necesito un plano para la
+          municipalidad&quot;, &quot;¿Cuánto sale remodelar el baño?&quot;.
         </span>
       </p>
     </div>
@@ -69,12 +70,12 @@ export function RequestTypeHelper() {
                 <p className="font-semibold">Solicitud de servicio</p>
               </div>
               <p className="text-muted-foreground mb-2 text-sm leading-relaxed">
-                Detectaste un problema pero no sabés qué hacer. EPDE lo evalúa, te dice qué pasa y
-                coordina los pasos a seguir.
+                Pedí que EPDE ejecute una tarea de mantenimiento por vos. Puede ser algo del plan
+                que necesita profesional, algo que preferís delegar, o un problema nuevo.
               </p>
               <p className="text-muted-foreground mb-3 text-xs italic">
-                Ej: &quot;Hay humedad en la pared, no sé de dónde viene&quot;, &quot;Apareció una
-                grieta en el techo&quot;.
+                Ej: &quot;Necesito que revisen la instalación eléctrica&quot;, &quot;Quiero que
+                limpien las canaletas&quot;, &quot;Apareció humedad en la pared&quot;.
               </p>
               <Button asChild size="sm" variant="outline" className="w-full">
                 <Link href={ROUTES.newServiceRequest}>Crear solicitud de servicio</Link>
@@ -89,12 +90,12 @@ export function RequestTypeHelper() {
                 <p className="font-semibold">Presupuesto</p>
               </div>
               <p className="text-muted-foreground mb-2 text-sm leading-relaxed">
-                Ya sabés qué reparación necesitás y querés saber cuánto cuesta. EPDE te envía la
-                cotización con detalle de costos.
+                Un trabajo de arquitectura que no es mantenimiento. EPDE te envía la cotización con
+                detalle de costos y alcance del proyecto.
               </p>
               <p className="text-muted-foreground mb-3 text-xs italic">
-                Ej: &quot;Las canaletas están rotas, ¿cuánto sale repararlas?&quot;, &quot;Necesito
-                pintar la fachada&quot;.
+                Ej: &quot;Quiero ampliar la cocina&quot;, &quot;Necesito un plano para la
+                municipalidad&quot;, &quot;¿Cuánto sale remodelar el baño?&quot;.
               </p>
               <Button asChild size="sm" className="w-full">
                 <Link href={ROUTES.newBudget}>Solicitar presupuesto</Link>

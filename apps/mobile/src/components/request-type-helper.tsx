@@ -54,13 +54,14 @@ export const RequestTypeHelper = memo(function RequestTypeHelper({
           accessibilityLabel="Solicitar presupuesto"
         >
           <Text style={TYPE.titleMd} className="text-foreground mb-1">
-            📋 Pedir cotización
+            📋 Presupuesto
           </Text>
           <Text style={TYPE.bodySm} className="text-muted-foreground mb-2 leading-5">
-            Sabés qué reparación necesitás y querés saber cuánto cuesta.
+            Un trabajo de arquitectura fuera del mantenimiento: ampliación, renovación, plano
+            municipal, habilitación.
           </Text>
           <Text style={TYPE.bodySm} className="text-muted-foreground italic">
-            Ejemplo: &ldquo;Las canaletas están rotas, ¿cuánto sale repararlas?&rdquo;
+            Ejemplo: &ldquo;Quiero ampliar la cocina, ¿cuánto sale?&rdquo;
           </Text>
         </Pressable>
 
@@ -75,13 +76,14 @@ export const RequestTypeHelper = memo(function RequestTypeHelper({
           accessibilityLabel="Crear solicitud de servicio"
         >
           <Text style={TYPE.titleMd} className="text-foreground mb-1">
-            🔧 Reportar un problema
+            🔧 Solicitud de servicio
           </Text>
           <Text style={TYPE.bodySm} className="text-muted-foreground mb-2 leading-5">
-            Detectaste algo raro y necesitás que EPDE lo eval��e y te diga qué hacer.
+            Pedí que EPDE ejecute una tarea de mantenimiento por vos. Algo del plan, algo que
+            requiere profesional, o un problema nuevo.
           </Text>
           <Text style={TYPE.bodySm} className="text-muted-foreground italic">
-            Ejemplo: &ldquo;Hay humedad en la pared, no sé de dónde viene.&rdquo;
+            Ejemplo: &ldquo;Necesito que revisen la instalación eléctrica.&rdquo;
           </Text>
         </Pressable>
       </View>

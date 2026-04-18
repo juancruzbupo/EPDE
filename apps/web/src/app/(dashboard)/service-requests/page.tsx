@@ -174,17 +174,18 @@ function ServiceRequestsPageContent() {
       <ServicesListTour />
       <PageHeader
         title="Solicitudes de Servicio"
-        description="Problemas detectados que EPDE evalúa y resuelve."
+        description="Pedí que EPDE ejecute tareas de mantenimiento por vos."
         help={{
           term: 'Solicitud de Servicio',
           body: (
             <>
               <p>
-                Reportás un problema para que EPDE lo evalúe y te diga qué hacer. Ejemplo: &quot;Hay
-                humedad en la pared, no sé qué es&quot;.
+                Pedí que EPDE haga una tarea de mantenimiento por vos: algo del plan que necesita
+                profesional, algo que preferís delegar, o un problema nuevo. Ejemplo: &quot;Necesito
+                que revisen la instalación eléctrica&quot;.
               </p>
               <p className="mt-1">
-                Si ya sabés qué reparación necesitás y solo querés un precio, usá{' '}
+                Si necesitás un trabajo de arquitectura (ampliación, plano, habilitación), usá{' '}
                 <strong>Presupuesto</strong> en su lugar.
               </p>
             </>

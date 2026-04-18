@@ -151,18 +151,18 @@ function BudgetsPageContent() {
       <BudgetsListTour />
       <PageHeader
         title="Presupuestos"
-        description="Cotizaciones para reparaciones que ya sabés que necesitás."
+        description="Trabajos de arquitectura fuera del plan de mantenimiento."
         help={{
           term: 'Presupuesto',
           body: (
             <>
               <p>
-                Pedís un precio para una reparación específica que <strong>ya sabés</strong> que
-                necesitás. Ejemplo: &quot;Las canaletas están rotas, ¿cuánto sale repararlas?&quot;
+                Cotización para un trabajo de arquitectura que <strong>no es mantenimiento</strong>:
+                ampliación, renovación, plano municipal, habilitación, relevamiento.
               </p>
               <p className="mt-1">
-                Si tenés un problema pero no sabés qué hacer, usá{' '}
-                <strong>Solicitud de Servicio</strong> en su lugar.
+                Si necesitás que EPDE ejecute una tarea de mantenimiento (reparación, limpieza,
+                revisión), usá <strong>Solicitud de Servicio</strong> en su lugar.
               </p>
             </>
           ),
