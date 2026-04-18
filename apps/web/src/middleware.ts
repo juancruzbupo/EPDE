@@ -24,6 +24,7 @@ const ADMIN_ONLY_PREFIXES = [
   ROUTES.categories,
   ROUTES.landingSettings,
   ROUTES.templates,
+  ROUTES.professionals,
 ];
 
 interface JwtPayload {

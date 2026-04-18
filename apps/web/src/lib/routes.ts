@@ -61,6 +61,9 @@ export const ROUTES = {
   categories: '/categories',
   templates: '/templates',
   landingSettings: '/landing-settings',
+  professionals: '/professionals',
+  professional: (id: string) => `/professionals/${id}`,
+  newProfessional: '/professionals?action=create',
 
   // Shared
   guide: '/guide',
