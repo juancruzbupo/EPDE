@@ -54,6 +54,10 @@ export const ROUTES = {
   maintenancePlans: '/maintenance-plans',
   notifications: '/notifications',
 
+  technicalInspections: '/technical-inspections',
+  technicalInspection: (id: string) => `/technical-inspections/${id}`,
+  newTechnicalInspection: '/technical-inspections?action=create',
+
   // Admin-only domain
   clients: '/clients',
   client: (id: string) => `/clients/${id}`,

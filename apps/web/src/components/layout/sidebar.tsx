@@ -6,6 +6,7 @@ import {
   CheckSquare,
   ChevronsLeft,
   ChevronsRight,
+  ClipboardCheck,
   FileEdit,
   FileText,
   HardHat,
@@ -32,6 +33,11 @@ const adminNavItems = [
   { label: 'Tareas', href: ROUTES.tasks, icon: CheckSquare },
   { label: 'Presupuestos', href: ROUTES.budgets, icon: FileText },
   { label: 'Servicios', href: ROUTES.serviceRequests, icon: Wrench },
+  {
+    label: 'Inspecciones técnicas',
+    href: ROUTES.technicalInspections,
+    icon: ClipboardCheck,
+  },
   { label: 'Profesionales', href: ROUTES.professionals, icon: HardHat },
   { label: 'Categorías', href: ROUTES.categories, icon: Tags },
   { label: 'Plantillas', href: ROUTES.templates, icon: LayoutTemplate },
@@ -46,6 +52,11 @@ const clientNavItems = [
   { label: 'Propiedades', href: ROUTES.properties, icon: Home },
   { label: 'Presupuestos', href: ROUTES.budgets, icon: FileText },
   { label: 'Servicios', href: ROUTES.serviceRequests, icon: Wrench },
+  {
+    label: 'Inspecciones técnicas',
+    href: ROUTES.technicalInspections,
+    icon: ClipboardCheck,
+  },
 ];
 
 export function Sidebar({
