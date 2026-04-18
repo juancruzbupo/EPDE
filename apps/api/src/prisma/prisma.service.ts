@@ -49,6 +49,7 @@ function softDeleteExtension() {
       inspectionChecklist: softDeleteHandlers(),
       inspectionItem: softDeleteHandlers(),
       professional: softDeleteHandlers(),
+      technicalInspection: softDeleteHandlers(),
     },
   });
 }
@@ -187,6 +188,7 @@ export const SOFT_DELETABLE_MODELS = [
   'inspectionChecklist',
   'inspectionItem',
   'professional',
+  'technicalInspection',
 ] as const;
 export type SoftDeletableModel = (typeof SOFT_DELETABLE_MODELS)[number];
 

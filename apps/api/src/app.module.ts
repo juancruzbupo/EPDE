@@ -24,6 +24,7 @@ import { ReferralsModule } from './referrals/referrals.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
 import { ServiceRequestsModule } from './service-requests/service-requests.module';
 import { TaskTemplatesModule } from './task-templates/task-templates.module';
+import { TechnicalInspectionsModule } from './technical-inspections/technical-inspections.module';
 import { UploadModule } from './upload/upload.module';
 import { UsersModule } from './users/users.module';
 
@@ -49,6 +50,7 @@ import { UsersModule } from './users/users.module';
     InspectionsModule,
     ReferralsModule,
     ProfessionalsModule,
+    TechnicalInspectionsModule,
   ],
   controllers: [],
   providers: [

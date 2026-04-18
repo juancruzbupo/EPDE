@@ -62,6 +62,9 @@ const SOFT_DELETABLE_RELATIONS = new Set([
   // Professional
   'professional',
   'professionals',
+  // TechnicalInspection
+  'technicalInspection',
+  'technicalInspections',
 ]);
 
 /**
@@ -83,6 +86,7 @@ const SINGULAR_RELATIONS = new Set([
   'inspectionChecklist',
   'inspectionItem',
   'professional',
+  'technicalInspection',
 ]);
 
 /** @type {import('eslint').Rule.RuleModule} */
