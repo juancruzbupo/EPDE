@@ -1,6 +1,6 @@
 # Modelo de Datos
 
-Base de datos PostgreSQL 16, ORM Prisma 6. **42 modelos**, 20 enums.
+Base de datos PostgreSQL 16, ORM Prisma 6. **43 modelos**, 26 enums.
 
 ## Diagrama de Relaciones
 
@@ -32,6 +32,14 @@ Category ─1:N─ Task
 
 CategoryTemplate ─1:N─ TaskTemplate
                          └─ referenced by InspectionItem.taskTemplateId
+
+Professional ─1:N─ ProfessionalSpecialtyAssignment
+             ─1:N─ ProfessionalAttachment (matrícula, seguro RC, cert)
+             ─1:N─ ProfessionalRating
+             ─1:N─ ProfessionalTimelineNote
+             ─1:N─ ProfessionalTag
+             ─1:N─ ServiceRequestAssignment ──1:1── ServiceRequest
+             ─1:N─ ProfessionalPayment
 ```
 
 **Flujo principal:** Inspección → Plan. La arquitecta inspecciona la propiedad usando items generados desde TaskTemplates. Al completar la inspección, genera el plan de mantenimiento con prioridades ajustadas según hallazgos.

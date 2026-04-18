@@ -261,7 +261,7 @@ Detalle completo de campos, enums, indices y constraints: ver `prisma/schema.pri
 
 ### Soft Delete
 
-Modelos con `deletedAt`: User, Property, Task, Category, BudgetRequest, ServiceRequest. Demas modelos usan cascade delete o son inmutables (audit trail).
+Modelos con `deletedAt`: User, Property, Task, Category, BudgetRequest, ServiceRequest, InspectionChecklist, InspectionItem, Professional. Demas modelos usan cascade delete o son inmutables (audit trail).
 
 ### Campos monetarios
 
