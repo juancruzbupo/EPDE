@@ -4,7 +4,12 @@ import type {
   ConditionFound,
   NotificationType,
   PlanStatus,
+  ProfessionalAttachmentType,
+  ProfessionalAvailability,
+  ProfessionalPaymentStatus,
   ProfessionalRequirement,
+  ProfessionalSpecialty,
+  ProfessionalTier,
   PropertySector,
   PropertyType,
   RecurrenceType,
@@ -301,3 +306,48 @@ export const SERVICE_AUDIT_ACTION_LABELS: Record<string, string> = {
   comment_added: 'Agregó comentario',
   attachments_added: 'Agregó adjuntos',
 };
+
+// ─── Professionals directory ────────────────────────────
+
+export const PROFESSIONAL_SPECIALTY_LABELS = {
+  ELECTRICIAN: 'Electricista matriculado',
+  PLUMBER_GASFITTER: 'Plomero / Gasista matriculado',
+  ARCHITECT_ENGINEER: 'Arquitecto / Ingeniero estructural',
+  ROOFER_WATERPROOFER: 'Techista / Impermeabilizador',
+  PEST_CONTROL: 'Fumigador / Control de plagas',
+  HVAC_TECHNICIAN: 'Técnico HVAC / Aires acondicionados',
+  FIRE_SAFETY: 'Seguridad contra incendios',
+  DOCUMENTATION_NORMATIVE: 'Documentación y normativa',
+  PAINTER: 'Pintor',
+  SOLAR_SPECIALIST: 'Especialista en energía solar',
+  WATER_TECHNICIAN: 'Técnico en agua potable',
+  CARPENTER: 'Carpintero / Ebanista',
+  LANDSCAPER: 'Jardinero / Paisajista',
+} satisfies Record<ProfessionalSpecialty, string>;
+
+export const PROFESSIONAL_AVAILABILITY_LABELS = {
+  AVAILABLE: 'Disponible',
+  BUSY: 'Ocupado',
+  UNAVAILABLE: 'No disponible',
+} satisfies Record<ProfessionalAvailability, string>;
+
+export const PROFESSIONAL_TIER_LABELS = {
+  A: 'A — Usar siempre',
+  B: 'B — Aceptable',
+  C: 'C — Último recurso',
+  BLOCKED: 'Bloqueado',
+} satisfies Record<ProfessionalTier, string>;
+
+export const PROFESSIONAL_ATTACHMENT_TYPE_LABELS = {
+  MATRICULA: 'Matrícula',
+  SEGURO_RC: 'Seguro de Responsabilidad Civil',
+  DNI: 'DNI',
+  CERTIFICADO_CURSO: 'Certificado de curso',
+  OTRO: 'Otro',
+} satisfies Record<ProfessionalAttachmentType, string>;
+
+export const PROFESSIONAL_PAYMENT_STATUS_LABELS = {
+  PENDING: 'Pendiente',
+  PAID: 'Pagado',
+  CANCELED: 'Cancelado',
+} satisfies Record<ProfessionalPaymentStatus, string>;

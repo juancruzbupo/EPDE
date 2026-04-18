@@ -39,13 +39,27 @@ function readAllSources(roots: string[]): string {
     .join('\n');
 }
 
+/**
+ * Keys that are declared ahead of implementation. Each entry must reference a
+ * tracking PR / issue and be removed once the consuming code lands. Anything
+ * stuck here for more than one release is a sign of a stalled feature.
+ */
+const KEYS_PENDING_IMPLEMENTATION = new Set([
+  'professionals', // ADR-018 — web UI lands in PR-5
+  'professionalSuggestions',
+  'professionalRatings',
+  'professionalTimeline',
+  'professionalAttachments',
+  'professionalPayments',
+]);
+
 describe('QUERY_KEYS parity', () => {
   const webSources = readAllSources([WEB_ROOT]);
   const mobileSources = readAllSources([MOBILE_ROOT]);
   const allSources = `${webSources}\n${mobileSources}`;
 
   describe('every defined key is used at least once', () => {
-    const keys = Object.keys(QUERY_KEYS);
+    const keys = Object.keys(QUERY_KEYS).filter((k) => !KEYS_PENDING_IMPLEMENTATION.has(k));
 
     it.each(keys)('QUERY_KEYS.%s is referenced in web or mobile', (key) => {
       const needle = `QUERY_KEYS.${key}`;

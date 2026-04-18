@@ -12,7 +12,12 @@ import {
   InspectionItemStatus,
   NotificationType,
   PlanStatus,
+  ProfessionalAttachmentType,
+  ProfessionalAvailability,
+  ProfessionalPaymentStatus,
   ProfessionalRequirement,
+  ProfessionalSpecialty,
+  ProfessionalTier,
   PropertySector,
   PropertyType,
   RecurrenceType,
@@ -78,6 +83,11 @@ const ENUM_MAP: Record<string, Record<string, string>> = {
   InspectionItemStatus,
   InspectionChecklistStatus,
   ReferralStatus,
+  ProfessionalSpecialty,
+  ProfessionalAvailability,
+  ProfessionalTier,
+  ProfessionalAttachmentType,
+  ProfessionalPaymentStatus,
 };
 
 function parsePrismaEnums(schemaPath: string): Map<string, string[]> {

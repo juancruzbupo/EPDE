@@ -5,6 +5,7 @@ export type { Serialized } from './common';
 export * from './inspection';
 export * from './maintenance-plan';
 export * from './notification';
+export * from './professional';
 export * from './property';
 export * from './referral';
 export * from './service-request';

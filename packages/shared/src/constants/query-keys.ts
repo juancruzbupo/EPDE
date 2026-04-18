@@ -50,4 +50,11 @@ export const QUERY_KEYS = {
   milestones: 'milestones',
   // Referral program
   referrals: 'referrals',
+  // Professionals directory (admin)
+  professionals: 'professionals',
+  professionalSuggestions: 'suggestions',
+  professionalRatings: 'ratings',
+  professionalTimeline: 'timeline',
+  professionalAttachments: 'attachments',
+  professionalPayments: 'professional-payments',
 } as const;

@@ -10,6 +10,7 @@ export * from './landing-settings';
 export * from './maintenance-plan';
 export * from './notification';
 export * from './pagination';
+export * from './professional';
 export * from './property';
 export * from './quote-template';
 export * from './service-request';

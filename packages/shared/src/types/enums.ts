@@ -259,3 +259,78 @@ export const INSPECTION_ITEM_STATUS_VALUES = Object.values(InspectionItemStatus)
   InspectionItemStatus,
   ...InspectionItemStatus[],
 ];
+
+// ─── Professionals directory ─────────────────────────────
+
+export const ProfessionalSpecialty = {
+  ELECTRICIAN: 'ELECTRICIAN',
+  PLUMBER_GASFITTER: 'PLUMBER_GASFITTER',
+  ARCHITECT_ENGINEER: 'ARCHITECT_ENGINEER',
+  ROOFER_WATERPROOFER: 'ROOFER_WATERPROOFER',
+  PEST_CONTROL: 'PEST_CONTROL',
+  HVAC_TECHNICIAN: 'HVAC_TECHNICIAN',
+  FIRE_SAFETY: 'FIRE_SAFETY',
+  DOCUMENTATION_NORMATIVE: 'DOCUMENTATION_NORMATIVE',
+  PAINTER: 'PAINTER',
+  SOLAR_SPECIALIST: 'SOLAR_SPECIALIST',
+  WATER_TECHNICIAN: 'WATER_TECHNICIAN',
+  CARPENTER: 'CARPENTER',
+  LANDSCAPER: 'LANDSCAPER',
+} as const;
+export type ProfessionalSpecialty =
+  (typeof ProfessionalSpecialty)[keyof typeof ProfessionalSpecialty];
+
+export const ProfessionalAvailability = {
+  AVAILABLE: 'AVAILABLE',
+  BUSY: 'BUSY',
+  UNAVAILABLE: 'UNAVAILABLE',
+} as const;
+export type ProfessionalAvailability =
+  (typeof ProfessionalAvailability)[keyof typeof ProfessionalAvailability];
+
+export const ProfessionalTier = {
+  A: 'A',
+  B: 'B',
+  C: 'C',
+  BLOCKED: 'BLOCKED',
+} as const;
+export type ProfessionalTier = (typeof ProfessionalTier)[keyof typeof ProfessionalTier];
+
+export const ProfessionalAttachmentType = {
+  MATRICULA: 'MATRICULA',
+  SEGURO_RC: 'SEGURO_RC',
+  DNI: 'DNI',
+  CERTIFICADO_CURSO: 'CERTIFICADO_CURSO',
+  OTRO: 'OTRO',
+} as const;
+export type ProfessionalAttachmentType =
+  (typeof ProfessionalAttachmentType)[keyof typeof ProfessionalAttachmentType];
+
+export const ProfessionalPaymentStatus = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  CANCELED: 'CANCELED',
+} as const;
+export type ProfessionalPaymentStatus =
+  (typeof ProfessionalPaymentStatus)[keyof typeof ProfessionalPaymentStatus];
+
+export const PROFESSIONAL_SPECIALTY_VALUES = Object.values(ProfessionalSpecialty) as [
+  ProfessionalSpecialty,
+  ...ProfessionalSpecialty[],
+];
+export const PROFESSIONAL_AVAILABILITY_VALUES = Object.values(ProfessionalAvailability) as [
+  ProfessionalAvailability,
+  ...ProfessionalAvailability[],
+];
+export const PROFESSIONAL_TIER_VALUES = Object.values(ProfessionalTier) as [
+  ProfessionalTier,
+  ...ProfessionalTier[],
+];
+export const PROFESSIONAL_ATTACHMENT_TYPE_VALUES = Object.values(ProfessionalAttachmentType) as [
+  ProfessionalAttachmentType,
+  ...ProfessionalAttachmentType[],
+];
+export const PROFESSIONAL_PAYMENT_STATUS_VALUES = Object.values(ProfessionalPaymentStatus) as [
+  ProfessionalPaymentStatus,
+  ...ProfessionalPaymentStatus[],
+];
