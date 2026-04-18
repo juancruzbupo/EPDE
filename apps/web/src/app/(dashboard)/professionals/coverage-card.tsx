@@ -19,19 +19,29 @@ import { useProfessionals } from '@/hooks/use-professionals';
  * Ver docs/adr/018 para el rationale.
  */
 const SPECIALTY_TIERS: Record<ProfessionalSpecialty, { tier: 1 | 2 | 3 | 4; priority: string }> = {
-  PLUMBER_GASFITTER: { tier: 1, priority: 'Crítico — 17 tareas, 10 obligatorias' },
+  // Tier 1 — críticos (sin estos no podemos cumplir tareas obligatorias)
+  PLUMBER: { tier: 1, priority: 'Crítico — agua, cloacas, sanitarios' },
+  GASFITTER: { tier: 1, priority: 'Crítico — gas natural/GLP, NAG-226 (ENARGAS)' },
   ELECTRICIAN: { tier: 1, priority: 'Crítico — 11 tareas, 8 obligatorias' },
-  ARCHITECT_ENGINEER: { tier: 2, priority: 'Alto — 10 tareas, 4 obligatorias' },
+  // Tier 2 — alta prioridad
+  ARCHITECT_ENGINEER: { tier: 2, priority: 'Alto — estructura, planos, habilitación municipal' },
+  MASON: { tier: 2, priority: 'Alto — revoques, contrapisos, mampostería' },
   ROOFER_WATERPROOFER: { tier: 2, priority: 'Alto — 6 tareas, 2 obligatorias' },
-  PEST_CONTROL: { tier: 3, priority: 'Medio — 4 tareas, 3 obligatorias' },
+  // Tier 3 — prioridad media
   HVAC_TECHNICIAN: { tier: 3, priority: 'Medio — 3 tareas, 2 obligatorias' },
-  FIRE_SAFETY: { tier: 3, priority: 'Medio — 2 tareas obligatorias' },
-  DOCUMENTATION_NORMATIVE: { tier: 3, priority: 'Medio — 2 tareas obligatorias' },
+  PEST_CONTROL: { tier: 3, priority: 'Medio — 4 tareas, 3 obligatorias' },
+  EXTINGUISHER_SERVICE: { tier: 3, priority: 'Medio — matafuegos obligatorios' },
+  DRAIN_CLEANER: { tier: 3, priority: 'Medio — urgencias cloacales, cámaras sépticas' },
+  // Tier 4 — complementarios
   PAINTER: { tier: 4, priority: 'Complementario — 3 tareas, 1 obligatoria' },
-  SOLAR_SPECIALIST: { tier: 4, priority: 'Complementario — 2 tareas' },
-  WATER_TECHNICIAN: { tier: 4, priority: 'Complementario — 2 tareas' },
   CARPENTER: { tier: 4, priority: 'Complementario — 4 tareas recomendadas' },
   LANDSCAPER: { tier: 4, priority: 'Complementario — 3 tareas recomendadas' },
+  SOLAR_SPECIALIST: { tier: 4, priority: 'Complementario — 2 tareas' },
+  WATER_TECHNICIAN: { tier: 4, priority: 'Complementario — pozos, agua no de red' },
+  LOCKSMITH: { tier: 4, priority: 'Complementario — cerraduras, emergencias' },
+  GLAZIER: { tier: 4, priority: 'Complementario — vidrios, aluminio, aberturas' },
+  IRONWORKER: { tier: 4, priority: 'Complementario — rejas, portones, soldadura' },
+  DRYWALL_INSTALLER: { tier: 4, priority: 'Complementario — durlock, cielorrasos' },
 };
 
 const TIER_LABELS: Record<1 | 2 | 3 | 4, string> = {

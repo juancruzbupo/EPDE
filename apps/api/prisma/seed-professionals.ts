@@ -57,10 +57,7 @@ const professionals: ProfessionalSeed[] = [
     phone: '+5491155551002',
     registrationNumber: 'CPIC-98765',
     registrationBody: 'CPIC',
-    specialties: [
-      { specialty: 'ARCHITECT_ENGINEER', isPrimary: true },
-      { specialty: 'DOCUMENTATION_NORMATIVE', isPrimary: false },
-    ],
+    specialties: [{ specialty: 'ARCHITECT_ENGINEER', isPrimary: true }],
     serviceAreas: ['Paraná Centro', 'Oro Verde', 'San Benito'],
     yearsOfExperience: 20,
     tier: 'A',
@@ -81,7 +78,10 @@ const professionals: ProfessionalSeed[] = [
     phone: '+5491155551003',
     registrationNumber: 'ENARGAS-4567',
     registrationBody: 'ENARGAS',
-    specialties: [{ specialty: 'PLUMBER_GASFITTER', isPrimary: true }],
+    specialties: [
+      { specialty: 'PLUMBER', isPrimary: true },
+      { specialty: 'GASFITTER', isPrimary: false },
+    ],
     serviceAreas: ['Paraná Centro', 'Paraná Sur'],
     yearsOfExperience: 12,
     tier: 'B',
@@ -102,7 +102,10 @@ const professionals: ProfessionalSeed[] = [
     phone: '+5491155551004',
     registrationNumber: 'ENARGAS-7891',
     registrationBody: 'ENARGAS',
-    specialties: [{ specialty: 'PLUMBER_GASFITTER', isPrimary: true }],
+    specialties: [
+      { specialty: 'PLUMBER', isPrimary: true },
+      { specialty: 'GASFITTER', isPrimary: false },
+    ],
     serviceAreas: ['Paraná Norte', 'Oro Verde', 'Colonia Avellaneda'],
     yearsOfExperience: 8,
     tier: 'A',
@@ -190,6 +193,63 @@ const professionals: ProfessionalSeed[] = [
     notes: ['🚨 NO VOLVER A CONTRATAR — abandono de trabajo confirmado.'],
     bio: null,
   },
+  {
+    name: 'Luis Benítez',
+    email: 'luis.benitez.pro.seed@epde.com',
+    phone: '+5491155551009',
+    registrationNumber: 'MMO-ER-2255',
+    registrationBody: 'Consejo Profesional de Maestros Mayores de Obra — ER',
+    specialties: [{ specialty: 'MASON', isPrimary: true }],
+    serviceAreas: ['Paraná Centro', 'Paraná Norte', 'Paraná Sur'],
+    yearsOfExperience: 18,
+    tier: 'A',
+    blockedReason: null,
+    availability: 'AVAILABLE',
+    matriculaExpiryDaysFromNow: 300,
+    ratings: [
+      { score: 5, comment: 'Excelente acabado, muy prolijo con la obra' },
+      { score: 4, comment: 'Trabajo bien hecho, plazos ajustados pero cumplió' },
+    ],
+    tags: ['#confiable', '#zona_centro'],
+    notes: ['Resuelve revoques y contrapisos rápido. Tiene equipo propio.'],
+    bio: 'Maestro mayor de obras, especializado en mantenimiento y reparaciones residenciales.',
+  },
+  {
+    name: 'Miguel Ángel Cáceres',
+    email: 'miguel.caceres.pro.seed@epde.com',
+    phone: '+5491155551010',
+    registrationNumber: 'CERR-ER-0128',
+    registrationBody: 'Cámara de Cerrajeros de Entre Ríos',
+    specialties: [{ specialty: 'LOCKSMITH', isPrimary: true }],
+    serviceAreas: ['Paraná Centro', 'Paraná Norte'],
+    yearsOfExperience: 10,
+    tier: 'B',
+    blockedReason: null,
+    availability: 'AVAILABLE',
+    matriculaExpiryDaysFromNow: 200,
+    ratings: [{ score: 4, comment: 'Responde rápido, precios razonables' }],
+    tags: ['#urgencias_24h'],
+    notes: ['Disponible 24/7 para urgencias. Cobra recargo nocturno después de las 22hs.'],
+    bio: null,
+  },
+  {
+    name: 'Pablo Gutiérrez',
+    email: 'pablo.gutierrez.pro.seed@epde.com',
+    phone: '+5491155551011',
+    registrationNumber: 'DES-ER-0034',
+    registrationBody: 'Registro Municipal de Desagotadores Paraná',
+    specialties: [{ specialty: 'DRAIN_CLEANER', isPrimary: true }],
+    serviceAreas: ['Paraná', 'Oro Verde', 'San Benito', 'Colonia Avellaneda'],
+    yearsOfExperience: 12,
+    tier: 'B',
+    blockedReason: null,
+    availability: 'AVAILABLE',
+    matriculaExpiryDaysFromNow: 150,
+    ratings: [{ score: 4, comment: 'Camión atmosférico propio, viene rápido' }],
+    tags: ['#camion_atmosferico', '#24h'],
+    notes: ['Único en zona norte con camión atmosférico disponible fines de semana.'],
+    bio: null,
+  },
 ];
 
 export async function seedProfessionals(prisma: PrismaClient, adminId: string): Promise<void> {
@@ -226,19 +286,25 @@ export async function seedProfessionals(prisma: PrismaClient, adminId: string): 
         specialties: {
           create: seed.specialties.map((s) => ({
             specialty: s.specialty as
+              | 'PLUMBER'
+              | 'GASFITTER'
               | 'ELECTRICIAN'
-              | 'PLUMBER_GASFITTER'
               | 'ARCHITECT_ENGINEER'
+              | 'MASON'
               | 'ROOFER_WATERPROOFER'
-              | 'PEST_CONTROL'
               | 'HVAC_TECHNICIAN'
-              | 'FIRE_SAFETY'
-              | 'DOCUMENTATION_NORMATIVE'
+              | 'PEST_CONTROL'
+              | 'EXTINGUISHER_SERVICE'
+              | 'DRAIN_CLEANER'
               | 'PAINTER'
+              | 'CARPENTER'
+              | 'LANDSCAPER'
               | 'SOLAR_SPECIALIST'
               | 'WATER_TECHNICIAN'
-              | 'CARPENTER'
-              | 'LANDSCAPER',
+              | 'LOCKSMITH'
+              | 'GLAZIER'
+              | 'IRONWORKER'
+              | 'DRYWALL_INSTALLER',
             isPrimary: s.isPrimary,
           })),
         },

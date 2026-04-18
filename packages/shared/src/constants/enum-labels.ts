@@ -310,19 +310,25 @@ export const SERVICE_AUDIT_ACTION_LABELS: Record<string, string> = {
 // ─── Professionals directory ────────────────────────────
 
 export const PROFESSIONAL_SPECIALTY_LABELS = {
+  PLUMBER: 'Plomero matriculado',
+  GASFITTER: 'Gasista matriculado (ENARGAS)',
   ELECTRICIAN: 'Electricista matriculado',
-  PLUMBER_GASFITTER: 'Plomero / Gasista matriculado',
-  ARCHITECT_ENGINEER: 'Arquitecto / Ingeniero estructural',
+  ARCHITECT_ENGINEER: 'Arquitecto / Ingeniero (incluye documentación)',
+  MASON: 'Albañil / Maestro Mayor de Obras',
   ROOFER_WATERPROOFER: 'Techista / Impermeabilizador',
-  PEST_CONTROL: 'Fumigador / Control de plagas',
   HVAC_TECHNICIAN: 'Técnico HVAC / Aires acondicionados',
-  FIRE_SAFETY: 'Seguridad contra incendios',
-  DOCUMENTATION_NORMATIVE: 'Documentación y normativa',
+  PEST_CONTROL: 'Fumigador / Control de plagas',
+  EXTINGUISHER_SERVICE: 'Servicio de matafuegos',
+  DRAIN_CLEANER: 'Desobstrucción / Desagote cloacal',
   PAINTER: 'Pintor',
-  SOLAR_SPECIALIST: 'Especialista en energía solar',
-  WATER_TECHNICIAN: 'Técnico en agua potable',
   CARPENTER: 'Carpintero / Ebanista',
   LANDSCAPER: 'Jardinero / Paisajista',
+  SOLAR_SPECIALIST: 'Especialista en energía solar',
+  WATER_TECHNICIAN: 'Técnico en agua potable (pozo)',
+  LOCKSMITH: 'Cerrajero',
+  GLAZIER: 'Vidriero / Carpintero de aluminio',
+  IRONWORKER: 'Herrero',
+  DRYWALL_INSTALLER: 'Yesero / Durloquista',
 } satisfies Record<ProfessionalSpecialty, string>;
 
 export const PROFESSIONAL_AVAILABILITY_LABELS = {
