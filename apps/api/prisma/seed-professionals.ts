@@ -29,7 +29,7 @@ const professionals: ProfessionalSeed[] = [
   {
     name: 'Marcelo López',
     email: 'marcelo.lopez.pro.seed@epde.com',
-    phone: '+5491155551001',
+    phone: '+54 343 455-1001',
     registrationNumber: 'COPIME-12345',
     registrationBody: 'COPIME',
     specialties: [{ specialty: 'ELECTRICIAN', isPrimary: true }],
@@ -54,7 +54,7 @@ const professionals: ProfessionalSeed[] = [
   {
     name: 'Julieta Ramírez',
     email: 'julieta.ramirez.pro.seed@epde.com',
-    phone: '+5491155551002',
+    phone: '+54 343 455-1002',
     registrationNumber: 'CPIC-98765',
     registrationBody: 'CPIC',
     specialties: [{ specialty: 'ARCHITECT_ENGINEER', isPrimary: true }],
@@ -75,7 +75,7 @@ const professionals: ProfessionalSeed[] = [
   {
     name: 'Roberto Díaz',
     email: 'roberto.diaz.pro.seed@epde.com',
-    phone: '+5491155551003',
+    phone: '+54 343 455-1003',
     registrationNumber: 'ENARGAS-4567',
     registrationBody: 'ENARGAS',
     specialties: [
@@ -99,7 +99,7 @@ const professionals: ProfessionalSeed[] = [
   {
     name: 'Natalia Fernández',
     email: 'natalia.fernandez.pro.seed@epde.com',
-    phone: '+5491155551004',
+    phone: '+54 343 455-1004',
     registrationNumber: 'ENARGAS-7891',
     registrationBody: 'ENARGAS',
     specialties: [
@@ -120,7 +120,7 @@ const professionals: ProfessionalSeed[] = [
   {
     name: 'Héctor Romero',
     email: 'hector.romero.pro.seed@epde.com',
-    phone: '+5491155551005',
+    phone: '+54 343 455-1005',
     registrationNumber: 'MATR-ROOF-2020',
     registrationBody: 'Cámara Argentina de Impermeabilización',
     specialties: [{ specialty: 'ROOFER_WATERPROOFER', isPrimary: true }],
@@ -138,9 +138,9 @@ const professionals: ProfessionalSeed[] = [
   {
     name: 'Ana Torres',
     email: 'ana.torres.pro.seed@epde.com',
-    phone: '+5491155551006',
-    registrationNumber: 'FUMIG-CABA-3344',
-    registrationBody: 'Registro CABA de Control de Plagas',
+    phone: '+54 343 455-1006',
+    registrationNumber: 'FUMIG-ER-3344',
+    registrationBody: 'Registro Provincial de Control de Plagas — Entre Ríos',
     specialties: [{ specialty: 'PEST_CONTROL', isPrimary: true }],
     serviceAreas: ['Paraná Centro', 'Paraná Sur', 'San Benito'],
     yearsOfExperience: 6,
@@ -156,7 +156,7 @@ const professionals: ProfessionalSeed[] = [
   {
     name: 'Diego Martínez',
     email: 'diego.martinez.pro.seed@epde.com',
-    phone: '+5491155551007',
+    phone: '+54 343 455-1007',
     registrationNumber: 'HVAC-CALA-2019',
     registrationBody: 'Cámara Argentina del Aire Acondicionado',
     specialties: [{ specialty: 'HVAC_TECHNICIAN', isPrimary: true }],
@@ -177,7 +177,7 @@ const professionals: ProfessionalSeed[] = [
   {
     name: 'Sergio Galván',
     email: 'sergio.galvan.pro.seed@epde.com',
-    phone: '+5491155551008',
+    phone: '+54 343 455-1008',
     registrationNumber: 'N/A',
     registrationBody: 'N/A',
     specialties: [{ specialty: 'PAINTER', isPrimary: true }],
@@ -196,7 +196,7 @@ const professionals: ProfessionalSeed[] = [
   {
     name: 'Luis Benítez',
     email: 'luis.benitez.pro.seed@epde.com',
-    phone: '+5491155551009',
+    phone: '+54 343 455-1009',
     registrationNumber: 'MMO-ER-2255',
     registrationBody: 'Consejo Profesional de Maestros Mayores de Obra — ER',
     specialties: [{ specialty: 'MASON', isPrimary: true }],
@@ -217,7 +217,7 @@ const professionals: ProfessionalSeed[] = [
   {
     name: 'Miguel Ángel Cáceres',
     email: 'miguel.caceres.pro.seed@epde.com',
-    phone: '+5491155551010',
+    phone: '+54 343 455-1010',
     registrationNumber: 'CERR-ER-0128',
     registrationBody: 'Cámara de Cerrajeros de Entre Ríos',
     specialties: [{ specialty: 'LOCKSMITH', isPrimary: true }],
@@ -235,7 +235,7 @@ const professionals: ProfessionalSeed[] = [
   {
     name: 'Pablo Gutiérrez',
     email: 'pablo.gutierrez.pro.seed@epde.com',
-    phone: '+5491155551011',
+    phone: '+54 343 455-1011',
     registrationNumber: 'DES-ER-0034',
     registrationBody: 'Registro Municipal de Desagotadores Paraná',
     specialties: [{ specialty: 'DRAIN_CLEANER', isPrimary: true }],

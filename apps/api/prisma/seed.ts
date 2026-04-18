@@ -342,7 +342,7 @@ async function main() {
       data: {
         userId: e2eLaura.id,
         address: E2E_ADDRESS,
-        city: 'CABA',
+        city: 'Paraná',
         type: 'APARTMENT',
         yearBuilt: 2020,
         squareMeters: 80,

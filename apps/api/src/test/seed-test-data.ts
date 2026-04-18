@@ -48,7 +48,7 @@ export async function seedTestData(prisma: PrismaService): Promise<TestData> {
     data: {
       userId: client.id,
       address: 'Av. Test 123',
-      city: 'Buenos Aires',
+      city: 'Paraná',
       type: 'HOUSE',
     },
   });
