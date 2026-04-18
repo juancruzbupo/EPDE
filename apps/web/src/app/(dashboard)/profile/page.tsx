@@ -102,12 +102,20 @@ export default function ProfilePage() {
        *  al segmento con menor agudeza visual. */}
       <AppearanceCard />
       <TextSizeCard />
-      <NotificationsCard />
-      <MotivationCard />
+      {user.role === UserRole.CLIENT && (
+        <>
+          <NotificationsCard />
+          <MotivationCard />
+        </>
+      )}
 
-      {/* Engagement / growth */}
-      {user.role === UserRole.CLIENT && <ReferralsSection />}
-      <MilestonesCardGuarded />
+      {/* Engagement / growth — solo cliente: referidos + milestones (gamification) */}
+      {user.role === UserRole.CLIENT && (
+        <>
+          <ReferralsSection />
+          <MilestonesCardGuarded />
+        </>
+      )}
 
       {/* Seguridad — poco frecuente, queda al final junto a ayuda. */}
       <ChangePasswordForm />
