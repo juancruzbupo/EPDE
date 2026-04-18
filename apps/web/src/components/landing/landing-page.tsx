@@ -77,12 +77,14 @@ export function LandingPage({ settings }: LandingPageProps) {
         <TestimonialsSection motionProps={motionProps} />
         {/* 8. Certificado — bonus de largo plazo, refuerza credibilidad final */}
         <CertificateSection motionProps={motionProps} />
-        {/* 9. Inspección técnica — add-on pago: exclusivo clientes activos con 15% off.
-         *    Marketing dual: fuerza a suscribirse para acceder + prueba autoridad de Noelia. */}
-        <TechnicalInspectionSection motionProps={motionProps} />
-        {/* 10. Inversión — precio recién acá, con motivación + autoridad + prueba
+        {/* 9. Inversión — precio recién acá, con motivación + autoridad + prueba
          *    social construidas. "Value-first evaluation" en vez de "price-first". */}
         <InvestmentSection motionProps={motionProps} pricing={settings?.pricing} />
+        {/* 10. Inspección técnica — add-on pago para clientes EPDE (15% off).
+         *    Post-precio a propósito: no compite con la decisión del plan principal.
+         *    Refuerza el valor para los que todavía dudan ("además tenés -15% aparte")
+         *    y queda registrado como servicio extra para los ya convencidos. */}
+        <TechnicalInspectionSection motionProps={motionProps} />
         {/* 11. FAQ — últimas objeciones antes del cierre */}
         <FaqSection motionProps={motionProps} faq={settings?.faq} />
         {/* 12. CTA final */}
