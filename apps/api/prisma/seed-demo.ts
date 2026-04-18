@@ -3031,6 +3031,85 @@ export async function seedDemo(prisma: PrismaClient) {
   );
 
   // ————————————————————————————————————————————————————————————————————————
+  // INSPECCIONES TÉCNICAS (ADR-019) — 3 estados demo
+  // ————————————————————————————————————————————————————————————————————————
+
+  // Counter singleton bumped para que los números sean realistas
+  await prisma.technicalInspectionCounter.upsert({
+    where: { id: 'singleton' },
+    create: { id: 'singleton', yearlyCounters: { '2026': 3 } },
+    update: { yearlyCounters: { '2026': 3 } },
+  });
+
+  // Carlos (activo): inspección para compraventa PAID con deliverable
+  await prisma.technicalInspection.create({
+    data: {
+      inspectionNumber: 'INSP-2026-0001',
+      propertyId: carlosProp.id,
+      requestedBy: carlos.id,
+      type: 'SALE',
+      status: 'PAID',
+      clientNotes:
+        'Estoy por vender la propiedad, necesito informe técnico firmado para escribano.',
+      adminNotes: 'Visita realizada. Todo conforme. Informe enviado por email + plataforma.',
+      scheduledFor: daysAgo(14),
+      completedAt: daysAgo(10),
+      deliverableUrl: 'https://demo.epde.ar/reports/insp-2026-0001.pdf',
+      deliverableFileName: 'inspeccion-carlos-compraventa.pdf',
+      feeAmount: 658750,
+      feeStatus: 'PAID',
+      hadActivePlan: true,
+      paidAt: daysAgo(5),
+      paymentMethod: 'transferencia',
+      paymentReceiptUrl: 'https://demo.epde.ar/receipts/insp-2026-0001-pago.pdf',
+      createdAt: daysAgo(20),
+    },
+  });
+
+  // María (activa): inspección estructural REPORT_READY — pendiente de pago
+  await prisma.technicalInspection.create({
+    data: {
+      inspectionNumber: 'INSP-2026-0002',
+      propertyId: mariaProp.id,
+      requestedBy: maria.id,
+      type: 'STRUCTURAL',
+      status: 'REPORT_READY',
+      clientNotes:
+        'La grieta que vengo monitoreando se hizo más marcada. Quiero informe profundo estructural.',
+      adminNotes:
+        'Visita completada. Grieta clasificada como no crítica, recomendación de sellado.',
+      scheduledFor: daysAgo(6),
+      completedAt: daysAgo(2),
+      deliverableUrl: 'https://demo.epde.ar/reports/insp-2026-0002.pdf',
+      deliverableFileName: 'inspeccion-maria-estructural.pdf',
+      feeAmount: 340000,
+      feeStatus: 'PENDING',
+      hadActivePlan: true,
+      createdAt: daysAgo(10),
+    },
+  });
+
+  // Laura (activa reciente): inspección básica REQUESTED — sin agendar aún
+  await prisma.technicalInspection.create({
+    data: {
+      inspectionNumber: 'INSP-2026-0003',
+      propertyId: lauraProp.id,
+      requestedBy: laura.id,
+      type: 'BASIC',
+      status: 'REQUESTED',
+      clientNotes: 'Recién mudada, quiero diagnóstico inicial antes de organizar mantenimiento.',
+      feeAmount: 114750,
+      feeStatus: 'PENDING',
+      hadActivePlan: true,
+      createdAt: daysAgo(1),
+    },
+  });
+
+  console.log(
+    '  ✓ 3 inspecciones técnicas (Carlos SALE pagada, María STRUCTURAL pendiente pago, Laura BASIC recién solicitada)',
+  );
+
+  // ————————————————————————————————————————————————————————————————————————
   // RESUMEN
   // ————————————————————————————————————————————————————————————————————————
 
@@ -3055,6 +3134,7 @@ export async function seedDemo(prisma: PrismaClient) {
   Quote Tmpl:   3 (techo, eléctrico, humedad)
   Sectores:     9 (asignados via CATEGORY_DEFAULT_SECTOR + overrides puntuales)
   ISV Snaps:    ${allSnapshotData.length} (María: ${mariaISVSnapshots.length}, Carlos: ${carlosISVSnapshots.length}, Laura: ${lauraISVSnapshots.length})
+  Insp. Téc.:   3 (Carlos SALE pagada, María STRUCTURAL pendiente pago, Laura BASIC solicitada)
   Notific.:     7
 
   👤 María González  (maria.gonzalez@demo.com / Demo123!)
