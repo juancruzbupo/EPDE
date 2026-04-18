@@ -3,12 +3,23 @@
 import {
   formatARSCompact,
   formatRelativeDate,
+  TECHNICAL_INSPECTION_ACTIVITIES,
   TECHNICAL_INSPECTION_DESCRIPTIONS,
   TECHNICAL_INSPECTION_ESTIMATED_DAYS,
   TECHNICAL_INSPECTION_LABELS,
   TECHNICAL_INSPECTION_STATUS_ENUM_LABELS,
+  TECHNICAL_INSPECTION_TOOLS,
 } from '@epde/shared';
-import { ArrowLeft, Building2, Calendar, Check, FileText, User } from 'lucide-react';
+import {
+  ArrowLeft,
+  Building2,
+  Calendar,
+  Check,
+  ClipboardList,
+  FileText,
+  User,
+  Wrench,
+} from 'lucide-react';
 import Link from 'next/link';
 
 import { ErrorState } from '@/components/error-state';
@@ -165,6 +176,48 @@ export function InspectionDetail({ id, isAdmin, isClient }: Props) {
           )}
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <ClipboardList className="text-primary h-4 w-4" />
+            Alcance de la inspección
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground mb-3 text-xs">
+            {isAdmin
+              ? 'Checklist operativo de referencia para la visita. Adaptar según lo observado en sitio.'
+              : 'Este es el alcance que relevará la arquitecta el día de la visita.'}
+          </p>
+          <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed">
+            {TECHNICAL_INSPECTION_ACTIVITIES[data.type].map((item, i) => (
+              <li key={i}>{item}</li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+
+      {isAdmin && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Wrench className="text-primary h-4 w-4" />
+              Equipamiento a llevar
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-3 text-xs">
+              Inventario mínimo. Confirmar estado y batería antes de salir.
+            </p>
+            <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed">
+              {TECHNICAL_INSPECTION_TOOLS[data.type].map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
 
       {isAdmin && <AdminActionsCard inspection={data} />}
       {isClient && <ClientPayCard inspection={data} />}

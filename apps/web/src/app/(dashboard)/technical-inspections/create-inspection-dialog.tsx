@@ -4,15 +4,17 @@ import {
   type CreateTechnicalInspectionInput,
   createTechnicalInspectionSchema,
   formatARSCompact,
+  TECHNICAL_INSPECTION_ACTIVITIES,
   TECHNICAL_INSPECTION_DESCRIPTIONS,
   TECHNICAL_INSPECTION_ESTIMATED_DAYS,
   TECHNICAL_INSPECTION_LABELS,
   TECHNICAL_INSPECTION_PRICES,
+  TECHNICAL_INSPECTION_TOOLS,
   TECHNICAL_INSPECTION_TYPE_VALUES,
   type TechnicalInspectionType,
 } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, Clock, Info } from 'lucide-react';
+import { Check, ClipboardList, Clock, Info, Wrench } from 'lucide-react';
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -169,13 +171,40 @@ export function CreateInspectionDialog({ open, onOpenChange, defaultPropertyId }
           </div>
 
           {selectedType && (
-            <Card className="bg-muted/30">
-              <CardContent className="p-3">
-                <p className="text-sm leading-relaxed">
-                  {TECHNICAL_INSPECTION_DESCRIPTIONS[selectedType]}
-                </p>
-              </CardContent>
-            </Card>
+            <div className="space-y-3">
+              <Card className="bg-muted/30">
+                <CardContent className="p-3">
+                  <p className="text-sm leading-relaxed">
+                    {TECHNICAL_INSPECTION_DESCRIPTIONS[selectedType]}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <details className="bg-card group rounded-lg border">
+                <summary className="text-foreground hover:bg-muted/40 flex cursor-pointer items-center gap-2 rounded-lg p-3 text-sm font-medium">
+                  <ClipboardList className="text-primary h-4 w-4" />
+                  Actividades incluidas ({TECHNICAL_INSPECTION_ACTIVITIES[selectedType].length})
+                </summary>
+                <ul className="text-muted-foreground list-disc space-y-1.5 px-8 pb-3 text-sm leading-relaxed">
+                  {TECHNICAL_INSPECTION_ACTIVITIES[selectedType].map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
+                </ul>
+              </details>
+
+              <details className="bg-card rounded-lg border">
+                <summary className="text-foreground hover:bg-muted/40 flex cursor-pointer items-center gap-2 rounded-lg p-3 text-sm font-medium">
+                  <Wrench className="text-primary h-4 w-4" />
+                  Equipamiento que trae la arquitecta (
+                  {TECHNICAL_INSPECTION_TOOLS[selectedType].length})
+                </summary>
+                <ul className="text-muted-foreground list-disc space-y-1.5 px-8 pb-3 text-sm leading-relaxed">
+                  {TECHNICAL_INSPECTION_TOOLS[selectedType].map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
+                </ul>
+              </details>
+            </div>
           )}
 
           <div className="space-y-2">
