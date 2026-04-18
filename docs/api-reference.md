@@ -198,18 +198,23 @@ Directorio interno de profesionales matriculados. Ver ADR-018. Todos los endpoin
 
 Retorna top N ordenado por tier (A>B>C), rating bayesiano (prior m=3.5, C=5), lastAssignedAt DESC (anti-fatiga). Filtra BLOCKED, UNAVAILABLE, y matrículas vencidas.
 
+**Valores válidos de `specialty`** (19 total, ver ADR-018 revisado): `PLUMBER`, `GASFITTER`, `ELECTRICIAN`, `ARCHITECT_ENGINEER`, `MASON`, `ROOFER_WATERPROOFER`, `HVAC_TECHNICIAN`, `PEST_CONTROL`, `EXTINGUISHER_SERVICE`, `DRAIN_CLEANER`, `PAINTER`, `CARPENTER`, `LANDSCAPER`, `SOLAR_SPECIALIST`, `WATER_TECHNICIAN`, `LOCKSMITH`, `GLAZIER`, `IRONWORKER`, `DRYWALL_INSTALLER`.
+
 **POST /professionals**:
 
 ```json
 {
-  "name": "Juan Pérez",
-  "email": "juan@ejemplo.com",
-  "phone": "+5491112345678",
-  "registrationNumber": "12345",
-  "registrationBody": "COPIME",
-  "specialties": [{ "specialty": "ELECTRICIAN", "isPrimary": true }],
-  "serviceAreas": ["CABA Norte", "Pilar"],
-  "yearsOfExperience": 10,
+  "name": "Roberto Díaz",
+  "email": "roberto@ejemplo.com",
+  "phone": "+5491155551003",
+  "registrationNumber": "ENARGAS-4567",
+  "registrationBody": "ENARGAS",
+  "specialties": [
+    { "specialty": "PLUMBER", "isPrimary": true },
+    { "specialty": "GASFITTER", "isPrimary": false }
+  ],
+  "serviceAreas": ["Paraná Centro", "Paraná Sur"],
+  "yearsOfExperience": 12,
   "hourlyRateMin": 5000,
   "hourlyRateMax": 8000
 }

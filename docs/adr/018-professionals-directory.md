@@ -108,7 +108,26 @@ Admin-only, requieren rol `ADMIN`. Todos bajo `/professionals/*` excepto asignac
 - **Contra**: 7 modelos + 11+ endpoints + UI completa = superficie grande para mantener. Mitigado por consistencia de patrones (repository + service + controller)
 - **Contra**: matrícula con `expiresAt` requiere disciplina operativa — si nadie actualiza el comprobante, el profesional termina unavailable y el admin se entera tarde. El cron mitiga pero no elimina
 
+## Revisión 2026-04-18 — Set de especialidades ajustado a Argentina
+
+La lista inicial de 13 especialidades estaba basada en una taxonomía genérica. Tras auditar contra la realidad de matrículas profesionales argentinas y especialmente el mercado de Paraná (Entre Ríos), se reshapea a **19 especialidades**.
+
+**Cambios aplicados** (migración `20260418160000_reshape_professional_specialties`):
+
+- **Split**: `PLUMBER_GASFITTER` → `PLUMBER` + `GASFITTER` — son matrículas distintas en AR. El gasista requiere matrícula ENARGAS (única habilitada para gas); el plomero no necesariamente. La migración duplica assignments existentes (Roberto Díaz y Natalia Fernández recibieron ambas).
+- **Rename**: `FIRE_SAFETY` → `EXTINGUISHER_SERVICE`. El servicio real que necesitamos es matafuegos (recarga + verificación), no "seguridad contra incendios" como disciplina.
+- **Drop**: `DOCUMENTATION_NORMATIVE` — absorbido por `ARCHITECT_ENGINEER`. En AR los planos/habilitaciones los firma un arquitecto o MMO matriculado; no es una especialidad separada.
+- **Add 6**: `MASON` (albañil/MMO — la más demandada en mantenimiento general), `LOCKSMITH` (cerrajero), `DRAIN_CLEANER` (desobstrucción cloacal — común por cámaras sépticas), `GLAZIER` (vidriero/aluminio), `IRONWORKER` (herrero), `DRYWALL_INSTALLER` (yesero/durloquista).
+
+**Tiers reorganizados:**
+
+- **Tier 1** (crítico — bloquea operación sin ellos): PLUMBER, GASFITTER, ELECTRICIAN
+- **Tier 2** (alta — cubren tareas obligatorias restantes + reparaciones frecuentes): ARCHITECT_ENGINEER, MASON, ROOFER_WATERPROOFER
+- **Tier 3** (media — cubren obligatorias específicas o urgencias frecuentes): HVAC_TECHNICIAN, PEST_CONTROL, EXTINGUISHER_SERVICE, DRAIN_CLEANER
+- **Tier 4** (complementarios): PAINTER, CARPENTER, LANDSCAPER, SOLAR_SPECIALIST, WATER_TECHNICIAN, LOCKSMITH, GLAZIER, IRONWORKER, DRYWALL_INSTALLER
+
+**CoverageCard** (agregada el 2026-04-18) consume estos tiers para alertar al admin sobre gaps — rojo si falta Tier 1, amarillo si <60%, verde si 100%.
+
 ## Siguiente
 
-- PR-9: seed demo data
 - Futuro (no committeado): portal del profesional (auth, vista de SRs asignadas, sync de availability), comisiones automáticas por SR cerrada, integración con calendario para bookings

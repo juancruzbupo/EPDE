@@ -100,4 +100,16 @@ export const GLOSSARY: readonly GlossaryEntry[] = [
     definition:
       'Escala interna de confianza del admin sobre un profesional: A (usar siempre), B (aceptable), C (último recurso), Bloqueado (no volver a contratar). No visible para el cliente.',
   },
+  {
+    term: 'Gasista matriculado',
+    aka: 'ENARGAS',
+    definition:
+      'Único profesional habilitado legalmente en Argentina para trabajar con instalaciones de gas natural o GLP. Requiere matrícula ENARGAS. Es una matrícula distinta a la de plomero — muchos son ambos, pero no todos.',
+  },
+  {
+    term: 'Maestro Mayor de Obras',
+    aka: 'MMO',
+    definition:
+      'Matriculado habilitado para ejecutar y dirigir obras menores, firmar planos municipales, y hacer reparaciones estructurales básicas. Equivalente operativo del arquitecto para mantenimiento.',
+  },
 ] as const;

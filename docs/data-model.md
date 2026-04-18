@@ -521,6 +521,30 @@ M:N entre profesional y especialidad. Máximo 1 por profesional tiene `isPrimary
 
 **Unique compuesto:** `[professionalId, specialty]`
 
+**19 valores de `ProfessionalSpecialty`** (alineados a Argentina — ver ADR-018 revisado):
+
+| Valor                  | Label                                    | Tier |
+| ---------------------- | ---------------------------------------- | ---- |
+| `PLUMBER`              | Plomero matriculado                      | 1    |
+| `GASFITTER`            | Gasista matriculado (ENARGAS)            | 1    |
+| `ELECTRICIAN`          | Electricista matriculado                 | 1    |
+| `ARCHITECT_ENGINEER`   | Arquitecto / Ingeniero (+ documentación) | 2    |
+| `MASON`                | Albañil / Maestro Mayor de Obras         | 2    |
+| `ROOFER_WATERPROOFER`  | Techista / Impermeabilizador             | 2    |
+| `HVAC_TECHNICIAN`      | Técnico HVAC / Aires acondicionados      | 3    |
+| `PEST_CONTROL`         | Fumigador / Control de plagas            | 3    |
+| `EXTINGUISHER_SERVICE` | Servicio de matafuegos                   | 3    |
+| `DRAIN_CLEANER`        | Desobstrucción / Desagote cloacal        | 3    |
+| `PAINTER`              | Pintor                                   | 4    |
+| `CARPENTER`            | Carpintero / Ebanista                    | 4    |
+| `LANDSCAPER`           | Jardinero / Paisajista                   | 4    |
+| `SOLAR_SPECIALIST`     | Especialista en energía solar            | 4    |
+| `WATER_TECHNICIAN`     | Técnico en agua potable (pozo)           | 4    |
+| `LOCKSMITH`            | Cerrajero                                | 4    |
+| `GLAZIER`              | Vidriero / Carpintero de aluminio        | 4    |
+| `IRONWORKER`           | Herrero                                  | 4    |
+| `DRYWALL_INSTALLER`    | Yesero / Durloquista                     | 4    |
+
 ### ProfessionalAttachment
 
 Documentos subidos: matrícula, seguro RC, DNI, certificados de curso.
