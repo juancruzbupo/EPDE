@@ -1,0 +1,133 @@
+import {
+  formatARSCompact,
+  TECHNICAL_INSPECTION_CLIENT_DISCOUNT_PCT,
+  TECHNICAL_INSPECTION_PRICES,
+} from '@epde/shared';
+import { motion } from 'framer-motion';
+import { ClipboardCheck, FileCheck2, Lock, ShieldCheck } from 'lucide-react';
+
+import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/motion';
+
+import type { SectionProps } from '../landing-data';
+
+const INSPECTION_TYPES = [
+  {
+    key: 'BASIC' as const,
+    name: 'Inspección básica',
+    summary:
+      'Visita corta e informe de estado general. Para propietarios que quieren un diagnóstico previo a alquiler o mudanza.',
+  },
+  {
+    key: 'STRUCTURAL' as const,
+    name: 'Estructural profunda',
+    summary:
+      'Relevamiento de humedad, fisuras, muros portantes, cubierta y fundaciones. Útil para herencias, divorcios o problemas acumulados.',
+  },
+  {
+    key: 'SALE' as const,
+    name: 'Para compraventa',
+    summary:
+      'Informe completo con verificación de instalaciones, estructura y cumplimiento normativo. Firmado por arquitecta matriculada.',
+  },
+];
+
+export function TechnicalInspectionSection({ motionProps }: SectionProps) {
+  return (
+    <section className="bg-background py-20 md:py-28">
+      <motion.div variants={STAGGER_CONTAINER} {...motionProps} className="mx-auto max-w-5xl px-4">
+        <motion.p
+          variants={FADE_IN}
+          className="type-label-md text-primary tracking-widest uppercase"
+        >
+          Servicio adicional
+        </motion.p>
+        <motion.h2
+          variants={FADE_IN_UP}
+          className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
+        >
+          Inspecciones técnicas firmadas.
+          <br />
+          <span className="text-muted-foreground">Con 15% off para clientes EPDE.</span>
+        </motion.h2>
+        <motion.p
+          variants={FADE_IN_UP}
+          className="text-muted-foreground mt-4 max-w-2xl text-lg leading-relaxed"
+        >
+          Cuando necesitás un informe profesional firmado — para compraventa, herencia, un problema
+          puntual — lo hace directamente la arquitecta responsable de EPDE, con matrícula
+          habilitante. Se paga aparte del plan de mantenimiento.
+        </motion.p>
+
+        <motion.div variants={FADE_IN_UP} className="mt-10 grid gap-4 sm:grid-cols-3">
+          {INSPECTION_TYPES.map((type) => {
+            const price = TECHNICAL_INSPECTION_PRICES[type.key];
+            return (
+              <motion.div
+                key={type.key}
+                variants={STAGGER_ITEM}
+                className="border-border bg-card rounded-xl border p-5"
+              >
+                <h3 className="font-heading text-foreground mb-2 text-lg">{type.name}</h3>
+                <div className="mb-3 flex items-baseline gap-2">
+                  <span className="text-primary text-2xl font-bold tabular-nums">
+                    {formatARSCompact(price.client)}
+                  </span>
+                  <span className="text-muted-foreground text-sm tabular-nums line-through">
+                    {formatARSCompact(price.public)}
+                  </span>
+                </div>
+                <p className="text-muted-foreground text-sm leading-relaxed">{type.summary}</p>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        <motion.div variants={FADE_IN_UP} className="mt-8 grid gap-4 sm:grid-cols-3">
+          <div className="flex gap-3">
+            <Lock className="text-primary mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+            <div>
+              <p className="text-foreground text-sm font-medium">Exclusivo clientes activos</p>
+              <p className="text-muted-foreground text-xs">
+                Tenés el {TECHNICAL_INSPECTION_CLIENT_DISCOUNT_PCT}% de descuento mientras tu
+                suscripción esté al día.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <ShieldCheck className="text-primary mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+            <div>
+              <p className="text-foreground text-sm font-medium">Firmado por arquitecta</p>
+              <p className="text-muted-foreground text-xs">
+                Profesional matriculada. Apto para presentar ante escribano o compra-venta.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <FileCheck2 className="text-primary mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+            <div>
+              <p className="text-foreground text-sm font-medium">Pagás al recibir</p>
+              <p className="text-muted-foreground text-xs">
+                Primero entregamos el informe firmado. Después transferís. Sin anticipos.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          variants={FADE_IN}
+          className="border-border/60 bg-muted/30 mt-8 rounded-lg border-l-2 p-4 text-sm"
+        >
+          <p className="text-muted-foreground flex items-start gap-2 leading-relaxed">
+            <ClipboardCheck className="text-primary mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+            <span>
+              <strong className="text-foreground">Aclaración:</strong> la inspección para
+              compraventa <strong>no incluye</strong> oblea NAG-226 de gasista matriculado ni
+              informe RE-7 de electricista matriculado (si tu trámite lo exige, se cotizan aparte
+              por el profesional habilitado correspondiente).
+            </span>
+          </p>
+        </motion.div>
+      </motion.div>
+    </section>
+  );
+}

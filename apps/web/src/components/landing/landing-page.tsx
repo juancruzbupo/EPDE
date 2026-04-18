@@ -21,6 +21,7 @@ import { HeroSection } from './sections/hero';
 import { HowItWorksSection } from './sections/how-it-works';
 import { InvestmentSection } from './sections/investment';
 import { ScrollToTop } from './sections/scroll-to-top';
+import { TechnicalInspectionSection } from './sections/technical-inspection';
 import { TestimonialsSection } from './sections/testimonials';
 import { WhatsAppFloat } from './sections/whatsapp-float';
 
@@ -76,12 +77,15 @@ export function LandingPage({ settings }: LandingPageProps) {
         <TestimonialsSection motionProps={motionProps} />
         {/* 8. Certificado — bonus de largo plazo, refuerza credibilidad final */}
         <CertificateSection motionProps={motionProps} />
-        {/* 9. Inversión — precio recién acá, con motivación + autoridad + prueba
+        {/* 9. Inspección técnica — add-on pago: exclusivo clientes activos con 15% off.
+         *    Marketing dual: fuerza a suscribirse para acceder + prueba autoridad de Noelia. */}
+        <TechnicalInspectionSection motionProps={motionProps} />
+        {/* 10. Inversión — precio recién acá, con motivación + autoridad + prueba
          *    social construidas. "Value-first evaluation" en vez de "price-first". */}
         <InvestmentSection motionProps={motionProps} pricing={settings?.pricing} />
-        {/* 10. FAQ — últimas objeciones antes del cierre */}
+        {/* 11. FAQ — últimas objeciones antes del cierre */}
         <FaqSection motionProps={motionProps} faq={settings?.faq} />
-        {/* 11. CTA final */}
+        {/* 12. CTA final */}
         <FinalCtaSection motionProps={motionProps} price={settings?.pricing?.price} />
       </main>
       <Footer general={settings?.general} />

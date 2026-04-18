@@ -90,7 +90,8 @@ describe('LandingPage smoke test', () => {
   });
 
   it('renders credentials section', () => {
-    expect(screen.getByText(/Arquitecta matriculada/i)).toBeInTheDocument();
+    const matches = screen.getAllByText(/Arquitecta matriculada/i);
+    expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders differentiation section', () => {
