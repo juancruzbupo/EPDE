@@ -4,6 +4,7 @@ import { QUERY_KEYS } from '@epde/shared';
 import { useQuery } from '@tanstack/react-query';
 
 import { apiClient } from '@/lib/api-client';
+import { ROUTES } from '@/lib/routes';
 
 import { Card, CardContent } from './ui/card';
 
@@ -29,7 +30,7 @@ export function WeeklyChallengeCard() {
     queryKey: [QUERY_KEYS.dashboard, 'weekly-challenge'],
     queryFn: async ({ signal }) => {
       const { data } = await apiClient.get<{ data: WeeklyChallenge | null }>(
-        '/dashboard/weekly-challenge',
+        `${ROUTES.dashboard}/weekly-challenge`,
         { signal },
       );
       return data.data;

@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useProperties } from '@/hooks/use-properties';
+import { ROUTES } from '@/lib/routes';
 
 interface ClientPropertiesSectionProps {
   clientId: string;
@@ -32,7 +33,7 @@ export const ClientPropertiesSection = memo(function ClientPropertiesSection({
           )}
         </CardTitle>
         <Button variant="outline" size="sm" asChild>
-          <Link href={`/properties?newFor=${clientId}`}>
+          <Link href={`${ROUTES.properties}?newFor=${clientId}`}>
             <Plus className="mr-2 h-4 w-4" />
             Agregar propiedad
           </Link>
@@ -49,7 +50,7 @@ export const ClientPropertiesSection = memo(function ClientPropertiesSection({
                 className="flex items-center justify-between py-2 first:pt-0 last:pb-0"
               >
                 <Link
-                  href={`/properties/${prop.id}`}
+                  href={ROUTES.property(prop.id)}
                   className="text-sm font-medium hover:underline"
                 >
                   {prop.address}, {prop.city}

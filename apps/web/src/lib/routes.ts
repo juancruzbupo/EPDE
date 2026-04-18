@@ -26,6 +26,9 @@ export const ROUTES = {
   resetPassword: '/reset-password',
   setPassword: '/set-password',
 
+  // Subscription
+  subscriptionExpired: '/subscription-expired',
+
   // Dashboard
   dashboard: '/dashboard',
 
@@ -33,6 +36,8 @@ export const ROUTES = {
   properties: '/properties',
   property: (id: string, options?: { tab?: string }) =>
     options?.tab ? `/properties/${id}?tab=${options.tab}` : `/properties/${id}`,
+  propertyReport: (id: string) => `/properties/${id}/report`,
+  propertyCertificate: (id: string) => `/properties/${id}/certificate`,
 
   tasks: '/tasks',
 

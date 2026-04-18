@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import type { ClientPublic } from '@/lib/api/clients';
+import { ROUTES } from '@/lib/routes';
 
 function daysFromNow(dateStr: string): number {
   return Math.ceil((new Date(dateStr).getTime() - Date.now()) / (24 * 60 * 60_000));
@@ -31,7 +32,7 @@ export function clientColumns({
       accessorKey: 'name',
       header: 'Nombre',
       cell: ({ row }) => (
-        <Link href={`/clients/${row.original.id}`} className="font-medium hover:underline">
+        <Link href={ROUTES.client(row.original.id)} className="font-medium hover:underline">
           {row.original.name}
         </Link>
       ),

@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/page-header';
 import { PageTransition } from '@/components/ui/page-transition';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { useLandingSettings, useUpdateLandingSetting } from '@/hooks/use-landing-settings';
+import { ROUTES } from '@/lib/routes';
 import { useAuthStore } from '@/stores/auth-store';
 import type {
   LandingConsequenceExample,
@@ -93,7 +94,10 @@ export default function LandingSettingsPage() {
 
   if (user?.role !== UserRole.ADMIN) {
     return (
-      <ErrorState message="Acceso denegado" onRetry={() => (window.location.href = '/dashboard')} />
+      <ErrorState
+        message="Acceso denegado"
+        onRetry={() => (window.location.href = ROUTES.dashboard)}
+      />
     );
   }
 

@@ -9,6 +9,7 @@ import { ErrorState } from '@/components/error-state';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/motion';
+import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 
 /** Resolve a dashboard activity item to an internal route. */
@@ -18,15 +19,15 @@ function getActivityHref(item: ActivityItem): string | null {
 
   switch (item.type) {
     case ActivityType.CLIENT_CREATED:
-      return m.clientId ? `/clients/${m.clientId}` : null;
+      return m.clientId ? ROUTES.client(m.clientId) : null;
     case ActivityType.PROPERTY_CREATED:
-      return m.propertyId ? `/properties/${m.propertyId}` : null;
+      return m.propertyId ? ROUTES.property(m.propertyId) : null;
     case ActivityType.TASK_COMPLETED:
-      return '/tasks';
+      return ROUTES.tasks;
     case ActivityType.BUDGET_REQUESTED:
-      return m.budgetId ? `/budgets/${m.budgetId}` : null;
+      return m.budgetId ? ROUTES.budget(m.budgetId) : null;
     case ActivityType.SERVICE_REQUESTED:
-      return m.serviceRequestId ? `/service-requests/${m.serviceRequestId}` : null;
+      return m.serviceRequestId ? ROUTES.serviceRequest(m.serviceRequestId) : null;
     default:
       return null;
   }

@@ -4,6 +4,7 @@ import { WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
 import { Clock } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { ROUTES } from '@/lib/routes';
 
 export default function SubscriptionExpiredPage() {
   return (
@@ -32,7 +33,7 @@ export default function SubscriptionExpiredPage() {
           <Button
             variant="ghost"
             onClick={() => {
-              window.location.href = '/login';
+              window.location.href = ROUTES.login;
             }}
           >
             Volver al inicio

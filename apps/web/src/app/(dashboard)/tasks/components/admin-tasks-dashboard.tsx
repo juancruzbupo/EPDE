@@ -271,7 +271,7 @@ export function AdminTasksDashboard({ tasks, isLoading }: AdminTasksDashboardPro
       {/* Link to full task list */}
       <div className="text-center">
         <Button variant="outline" size="sm" asChild>
-          <Link href="/tasks?view=list">Ver listado completo de tareas</Link>
+          <Link href={`${ROUTES.tasks}?view=list`}>Ver listado completo de tareas</Link>
         </Button>
       </div>
     </div>

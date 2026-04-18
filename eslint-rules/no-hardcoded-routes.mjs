@@ -19,7 +19,7 @@
  */
 
 const ROUTE_LIKE_PATTERN = /^\/[a-z]/;
-const IGNORED_PREFIXES = ['/api/', '/auth/', '/_next/', '/site.', '/favicon'];
+const IGNORED_PREFIXES = ['/api', '/auth/', '/_next/', '/site.', '/favicon', '/images/', '/upload'];
 
 /** @type {import('eslint').Rule.RuleModule} */
 export default {
@@ -39,6 +39,8 @@ export default {
     const filename = context.filename ?? context.getFilename();
     if (filename.includes('__tests__') || filename.includes('.test.') || filename.includes('.spec.')) return {};
     if (filename.includes('lib/routes')) return {};
+    if (filename.includes('lib/api/')) return {};
+    if (filename.includes('lib/api-client')) return {};
 
     return {
       Literal(node) {

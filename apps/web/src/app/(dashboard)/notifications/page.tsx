@@ -16,6 +16,7 @@ import { PageTransition } from '@/components/ui/page-transition';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMarkAllAsRead, useMarkAsRead, useNotifications } from '@/hooks/use-notifications';
 import type { NotificationPublic } from '@/lib/api/notifications';
+import { ROUTES } from '@/lib/routes';
 import { useUiPreferencesStore } from '@/stores/ui-preferences-store';
 
 const typeIcons: Record<NotificationType, typeof Bell> = {
@@ -28,10 +29,11 @@ const typeIcons: Record<NotificationType, typeof Bell> = {
 function getNotificationHref(n: NotificationPublic): string | null {
   const d = n.data as Record<string, string> | null;
   if (!d) return null;
-  if (n.type === 'BUDGET_UPDATE' && d.budgetId) return `/budgets/${d.budgetId}`;
+  if (n.type === 'BUDGET_UPDATE' && d.budgetId) return ROUTES.budget(d.budgetId);
   if (n.type === 'SERVICE_UPDATE' && d.serviceRequestId)
-    return `/service-requests/${d.serviceRequestId}`;
-  if (n.type === 'TASK_REMINDER' && d.planId && d.taskId) return `/tasks?taskId=${d.taskId}`;
+    return ROUTES.serviceRequest(d.serviceRequestId);
+  if (n.type === 'TASK_REMINDER' && d.planId && d.taskId)
+    return `${ROUTES.tasks}?taskId=${d.taskId}`;
   return null;
 }
 

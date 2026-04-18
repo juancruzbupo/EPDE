@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { decodeJwtPayload } from './jwt';
+import { ROUTES } from './routes';
 
 export interface ServerUser {
   id: string;
@@ -37,7 +38,7 @@ export async function getServerUser(): Promise<ServerUser | null> {
  */
 export async function requireAdmin(): Promise<ServerUser> {
   const user = await getServerUser();
-  if (!user) redirect('/login');
+  if (!user) redirect(ROUTES.login);
   if (user.role !== 'ADMIN') redirect('/');
   return user;
 }

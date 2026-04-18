@@ -7,6 +7,7 @@ import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ROUTES } from '@/lib/routes';
 
 import { HelpHint } from './help-hint';
 
@@ -217,7 +218,7 @@ export function HealthIndexCard({ index, history, address }: HealthIndexCardProp
                 return (
                   <Link
                     key={s.sector}
-                    href={`/tasks?sector=${s.sector}`}
+                    href={`${ROUTES.tasks}?sector=${s.sector}`}
                     className="hover:bg-muted/50 flex items-center justify-between rounded px-2 py-1 transition-colors"
                   >
                     <span className="type-body-sm">{label}</span>

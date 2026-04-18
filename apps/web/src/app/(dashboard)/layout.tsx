@@ -4,6 +4,7 @@ import { GlossaryModal } from '@/components/glossary-modal';
 import { Footer } from '@/components/layout/footer';
 import { Header } from '@/components/layout/header';
 import { Sidebar } from '@/components/layout/sidebar';
+import { ROUTES } from '@/lib/routes';
 import { getServerUser } from '@/lib/server-auth';
 import { ServerUserProvider } from '@/providers/server-user-provider';
 
@@ -14,7 +15,7 @@ import { ServerUserProvider } from '@/providers/server-user-provider';
  */
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await getServerUser();
-  if (!user) redirect('/login');
+  if (!user) redirect(ROUTES.login);
 
   return (
     <div className="flex min-h-screen">

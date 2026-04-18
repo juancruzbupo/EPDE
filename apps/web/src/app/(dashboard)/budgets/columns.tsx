@@ -11,13 +11,14 @@ import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
 import type { BudgetRequestPublic } from '@/lib/api/budgets';
+import { ROUTES } from '@/lib/routes';
 
 export const budgetColumns: ColumnDef<BudgetRequestPublic>[] = [
   {
     accessorKey: 'title',
     header: 'Título',
     cell: ({ row }) => (
-      <Link href={`/budgets/${row.original.id}`} className="font-medium hover:underline">
+      <Link href={ROUTES.budget(row.original.id)} className="font-medium hover:underline">
         {row.original.title}
       </Link>
     ),

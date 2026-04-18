@@ -1,12 +1,14 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
+import { ROUTES } from '@/lib/routes';
+
 const PUBLIC_PATHS = [
-  '/login',
-  '/set-password',
-  '/forgot-password',
-  '/reset-password',
-  '/subscription-expired',
+  ROUTES.login,
+  ROUTES.setPassword,
+  ROUTES.forgotPassword,
+  ROUTES.resetPassword,
+  ROUTES.subscriptionExpired,
 ];
 
 /**
@@ -17,7 +19,12 @@ const PUBLIC_PATHS = [
  * this is a UX/defense-in-depth layer that prevents shipping an admin shell
  * to a client browser where it would 403 on every API call anyway.
  */
-const ADMIN_ONLY_PREFIXES = ['/clients', '/categories', '/landing-settings', '/templates'];
+const ADMIN_ONLY_PREFIXES = [
+  ROUTES.clients,
+  ROUTES.categories,
+  ROUTES.landingSettings,
+  ROUTES.templates,
+];
 
 interface JwtPayload {
   sub?: string;
@@ -56,12 +63,12 @@ export function middleware(request: NextRequest) {
 
   const accessToken = request.cookies.get('access_token')?.value;
   if (!accessToken) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL(ROUTES.login, request.url));
   }
 
   const payload = parseToken(accessToken);
   if (isExpired(payload)) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL(ROUTES.login, request.url));
   }
 
   // CLIENT tokens are blocked from admin-only prefixes.

@@ -3,6 +3,7 @@ import { create } from 'zustand';
 
 import * as authApi from '@/lib/auth';
 import { queryClient } from '@/lib/query-client';
+import { ROUTES } from '@/lib/routes';
 
 /** Web auth state — extends BaseAuthState (@epde/shared) with no extra fields. */
 type AuthState = BaseAuthState;
@@ -36,7 +37,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     // Hard redirect to clear any stale client state and let the middleware
     // enforce the unauthenticated flow. Using window.location instead of
     // router.push to ensure a full page reload (no cached RSC payloads).
-    window.location.href = '/login';
+    window.location.href = ROUTES.login;
   },
 
   checkAuth: async () => {

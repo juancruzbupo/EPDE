@@ -148,7 +148,7 @@ export default [
       local: localPlugin,
     },
     rules: {
-      'local/no-hardcoded-routes': 'warn',
+      'local/no-hardcoded-routes': 'error',
     },
   },
   // ── API factory pattern guardrail (web + mobile) ─────────────────────────

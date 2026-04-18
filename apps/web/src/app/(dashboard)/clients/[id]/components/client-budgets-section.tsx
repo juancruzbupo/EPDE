@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useBudgets } from '@/hooks/use-budgets';
+import { ROUTES } from '@/lib/routes';
 
 interface ClientBudgetsSectionProps {
   clientId: string;
@@ -33,7 +34,7 @@ export const ClientBudgetsSection = memo(function ClientBudgetsSection({
           )}
         </CardTitle>
         <Link
-          href={`/budgets?search=${encodeURIComponent(clientName)}`}
+          href={`${ROUTES.budgets}?search=${encodeURIComponent(clientName)}`}
           className="text-muted-foreground hover:text-foreground text-xs transition-colors"
         >
           Ver todos
@@ -55,7 +56,7 @@ export const ClientBudgetsSection = memo(function ClientBudgetsSection({
                 key={b.id}
                 className="flex items-center justify-between py-2 first:pt-0 last:pb-0"
               >
-                <Link href={`/budgets/${b.id}`} className="text-sm font-medium hover:underline">
+                <Link href={ROUTES.budget(b.id)} className="text-sm font-medium hover:underline">
                   {b.title}
                 </Link>
                 <Badge variant={BUDGET_STATUS_VARIANT[b.status] ?? 'secondary'} className="text-xs">

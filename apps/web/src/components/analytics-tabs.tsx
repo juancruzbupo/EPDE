@@ -14,6 +14,7 @@ import { HealthIndexCard } from '@/components/health-index-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ROUTES } from '@/lib/routes';
 
 interface AnalyticsTabsProps {
   analytics: ClientAnalytics | undefined;
@@ -193,7 +194,7 @@ export function AnalyticsTabs({
                       return (
                         <Link
                           key={s.sector}
-                          href={`/tasks?sector=${s.sector}`}
+                          href={`${ROUTES.tasks}?sector=${s.sector}`}
                           className="bg-muted/40 hover:bg-muted rounded-lg p-3 transition-colors"
                         >
                           <div className="mb-1 flex items-center justify-between">

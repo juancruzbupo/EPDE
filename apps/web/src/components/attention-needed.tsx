@@ -7,6 +7,7 @@ import Link from 'next/link';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM, useMotionPreference } from '@/lib/motion';
+import { ROUTES } from '@/lib/routes';
 
 interface AttentionNeededProps {
   stats: DashboardStats;
@@ -26,7 +27,7 @@ function buildItems(stats: DashboardStats): AttentionItem[] {
     items.push({
       label: `${stats.pendingBudgets} presupuesto${stats.pendingBudgets !== 1 ? 's' : ''} pendiente${stats.pendingBudgets !== 1 ? 's' : ''} de respuesta`,
       count: stats.pendingBudgets,
-      href: '/budgets?status=PENDING',
+      href: `${ROUTES.budgets}?status=PENDING`,
       severity: 'warning',
     });
   }
@@ -35,7 +36,7 @@ function buildItems(stats: DashboardStats): AttentionItem[] {
     items.push({
       label: `${stats.pendingServices} solicitud${stats.pendingServices !== 1 ? 'es' : ''} de servicio abierta${stats.pendingServices !== 1 ? 's' : ''}`,
       count: stats.pendingServices,
-      href: '/service-requests?status=OPEN',
+      href: `${ROUTES.serviceRequests}?status=OPEN`,
       severity: 'warning',
     });
   }
@@ -44,7 +45,7 @@ function buildItems(stats: DashboardStats): AttentionItem[] {
     items.push({
       label: `${stats.overdueTasks} tarea${stats.overdueTasks !== 1 ? 's' : ''} vencida${stats.overdueTasks !== 1 ? 's' : ''}`,
       count: stats.overdueTasks,
-      href: '/tasks?status=OVERDUE',
+      href: `${ROUTES.tasks}?status=OVERDUE`,
       severity: 'urgent',
     });
   }

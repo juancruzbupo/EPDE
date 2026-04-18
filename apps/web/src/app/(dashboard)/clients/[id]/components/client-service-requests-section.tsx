@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useServiceRequests } from '@/hooks/use-service-requests';
+import { ROUTES } from '@/lib/routes';
 
 interface ClientServiceRequestsSectionProps {
   clientId: string;
@@ -33,7 +34,7 @@ export const ClientServiceRequestsSection = memo(function ClientServiceRequestsS
           )}
         </CardTitle>
         <Link
-          href={`/service-requests?search=${encodeURIComponent(clientName)}`}
+          href={`${ROUTES.serviceRequests}?search=${encodeURIComponent(clientName)}`}
           className="text-muted-foreground hover:text-foreground text-xs transition-colors"
         >
           Ver todos
@@ -56,7 +57,7 @@ export const ClientServiceRequestsSection = memo(function ClientServiceRequestsS
                 className="flex items-center justify-between py-2 first:pt-0 last:pb-0"
               >
                 <Link
-                  href={`/service-requests/${sr.id}`}
+                  href={ROUTES.serviceRequest(sr.id)}
                   className="text-sm font-medium hover:underline"
                 >
                   {sr.title}

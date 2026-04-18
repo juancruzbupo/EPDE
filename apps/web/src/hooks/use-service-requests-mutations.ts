@@ -11,6 +11,7 @@ import {
   updateServiceStatus,
 } from '@/lib/api/service-requests';
 import { invalidateDashboard } from '@/lib/invalidate-dashboard';
+import { ROUTES } from '@/lib/routes';
 
 export function useCreateServiceRequest() {
   const queryClient = useQueryClient();
@@ -22,7 +23,7 @@ export function useCreateServiceRequest() {
         action: srId
           ? {
               label: 'Ver servicio',
-              onClick: () => (window.location.href = `/service-requests/${srId}`),
+              onClick: () => (window.location.href = ROUTES.serviceRequest(srId)),
             }
           : undefined,
       });

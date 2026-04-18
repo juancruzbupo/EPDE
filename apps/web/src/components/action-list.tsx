@@ -37,7 +37,7 @@ function TaskItem({ task, showRegister }: { task: UpcomingTask; showRegister?: b
       <div
         className={`flex flex-col gap-2 rounded-lg border p-3 transition-all sm:flex-row sm:items-center sm:gap-3 ${overdue ? 'border-l-destructive hover:bg-destructive/5 border-l-4' : 'hover:bg-muted/40 hover:shadow-sm'}`}
       >
-        <Link href={`/tasks?taskId=${task.id}`} className="min-w-0 flex-1">
+        <Link href={`${ROUTES.tasks}?taskId=${task.id}`} className="min-w-0 flex-1">
           <p className="text-sm leading-snug font-medium" title={task.name}>
             {task.name}
           </p>
@@ -78,7 +78,7 @@ function TaskItem({ task, showRegister }: { task: UpcomingTask; showRegister?: b
             className="w-full gap-1.5 sm:w-auto sm:shrink-0"
             asChild
           >
-            <Link href={`/tasks?taskId=${task.id}&action=complete`}>
+            <Link href={`${ROUTES.tasks}?taskId=${task.id}&action=complete`}>
               <ClipboardCheck className="h-3.5 w-3.5" />
               Registrar
             </Link>
@@ -94,7 +94,7 @@ function TaskItem({ task, showRegister }: { task: UpcomingTask; showRegister?: b
 /** Highlighted card for the next upcoming inspection — shown above ActionList sections. */
 function NextInspectionCard({ task }: { task: UpcomingTask }) {
   return (
-    <Link href={`/tasks?taskId=${task.id}`} className="block">
+    <Link href={`${ROUTES.tasks}?taskId=${task.id}`} className="block">
       <Card className="border-status-upcoming/20 bg-status-upcoming/5 hover:bg-status-upcoming/10 mb-4 transition-colors">
         <CardContent className="p-4">
           <div className="flex items-center gap-3">

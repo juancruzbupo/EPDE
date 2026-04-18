@@ -13,13 +13,14 @@ import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
 import type { ServiceRequestPublic } from '@/lib/api/service-requests';
+import { ROUTES } from '@/lib/routes';
 
 export const serviceRequestColumns: ColumnDef<ServiceRequestPublic>[] = [
   {
     accessorKey: 'title',
     header: 'Título',
     cell: ({ row }) => (
-      <Link href={`/service-requests/${row.original.id}`} className="font-medium hover:underline">
+      <Link href={ROUTES.serviceRequest(row.original.id)} className="font-medium hover:underline">
         {row.original.title}
       </Link>
     ),

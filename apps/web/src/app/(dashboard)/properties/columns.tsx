@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
 import type { PropertyPublic } from '@/lib/api/properties';
+import { ROUTES } from '@/lib/routes';
 
 export function propertyColumns({ isAdmin }: { isAdmin: boolean }): ColumnDef<PropertyPublic>[] {
   const cols: ColumnDef<PropertyPublic>[] = [
@@ -13,7 +14,7 @@ export function propertyColumns({ isAdmin }: { isAdmin: boolean }): ColumnDef<Pr
       accessorKey: 'address',
       header: 'Dirección',
       cell: ({ row }) => (
-        <Link href={`/properties/${row.original.id}`} className="font-medium hover:underline">
+        <Link href={ROUTES.property(row.original.id)} className="font-medium hover:underline">
           {row.original.address}
         </Link>
       ),
