@@ -16,9 +16,17 @@ export const CertificateSignature = React.memo(function CertificateSignature({
     <section className="report-section mb-10">
       <div className="border-border border-t pt-8">
         <div className="mx-auto max-w-md text-center">
-          <div className="border-foreground mx-auto mb-2 w-48 border-b" />
+          <div
+            className="border-foreground mx-auto mb-2 h-16 w-48 border-b"
+            aria-label="Espacio para firma y sello profesional"
+          />
           <p className="text-foreground font-medium">{architect.name}</p>
-          <p className="text-muted-foreground text-sm">Arquitecto responsable — EPDE</p>
+          <p className="text-muted-foreground text-sm">
+            Arquitecta responsable — Dirección profesional EPDE
+          </p>
+          <p className="text-muted-foreground mt-1 text-xs italic">
+            (Firma, sello y matrícula profesional de la arquitecta responsable)
+          </p>
           <p className="text-muted-foreground mt-4 font-mono text-xs">
             {certificateNumber} · Emitido el{' '}
             {new Date(issuedAt).toLocaleDateString('es-AR', {

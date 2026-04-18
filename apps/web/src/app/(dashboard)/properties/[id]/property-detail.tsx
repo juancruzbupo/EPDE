@@ -182,9 +182,10 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
               </p>
             )}
             <p className="text-muted-foreground mt-2 text-xs italic">
-              El certificado acredita que tu vivienda recibió mantenimiento preventivo profesional.
-              Útil como respaldo documental al mostrarla a compradores, inmobiliarias o tasadores.
-              No reemplaza certificados oficiales requeridos por bancos, aseguradoras o escribanías.
+              El certificado deja constancia de las tareas de mantenimiento ejecutadas sobre tu
+              vivienda, emitido bajo dirección profesional de la arquitecta responsable. Útil como
+              historial documentado al mostrarla a compradores o inmobiliarias. No reemplaza
+              certificados oficiales requeridos por bancos, aseguradoras o escribanías.
             </p>
           </div>
         </div>

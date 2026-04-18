@@ -20,9 +20,9 @@ const BENEFITS = [
   },
   {
     icon: FileCheck,
-    title: 'Respaldo documental',
+    title: 'Historial documentado',
     description:
-      'Útil ante inmobiliarias, tasadores y compradores para respaldar el estado declarado de la vivienda.',
+      'Registro útil ante inmobiliarias y compradores para mostrar el estado declarado de la vivienda con contexto.',
   },
 ];
 
@@ -42,15 +42,15 @@ export function CertificateSection({ motionProps }: SectionProps) {
         >
           Tu casa mantenida,
           <br />
-          <span className="text-muted-foreground">con respaldo documental.</span>
+          <span className="text-muted-foreground">con historial documentado.</span>
         </motion.h2>
         <motion.p
           variants={FADE_IN_UP}
           className="text-muted-foreground mt-4 max-w-2xl text-lg leading-relaxed"
         >
           Después de 1 año de mantenimiento continuo y con un Índice de Salud (ISV) mayor a 60,
-          emitimos un certificado firmado por la arquitecta responsable. Es la prueba tangible de
-          que tu vivienda recibe cuidado profesional sostenido en el tiempo.
+          emitimos una constancia firmada por la arquitecta responsable. Es un registro profesional
+          sostenido en el tiempo del cuidado dado a tu vivienda.
         </motion.p>
 
         <motion.div variants={FADE_IN_UP} className="mt-10 grid gap-5 sm:grid-cols-3">
