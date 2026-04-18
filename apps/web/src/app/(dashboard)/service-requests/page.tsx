@@ -158,7 +158,7 @@ function ServiceRequestsPageContent() {
   const total = data?.pages[0]?.total;
 
   const srStats = useMemo(() => {
-    if (!isAdmin) return null;
+    if (allRequestsRaw.length === 0) return null;
     let open = 0;
     let urgent = 0;
     let inProgress = 0;
@@ -167,9 +167,9 @@ function ServiceRequestsPageContent() {
       if (r.urgency === 'URGENT' || r.urgency === 'HIGH') urgent++;
       if (r.status === 'IN_PROGRESS') inProgress++;
     }
-    if (!isLoading && open === 0 && urgent === 0 && inProgress === 0) return null;
+    if (open === 0 && urgent === 0 && inProgress === 0) return null;
     return { open, urgent, inProgress };
-  }, [allRequestsRaw, isAdmin, isLoading]);
+  }, [allRequestsRaw]);
 
   return (
     <PageTransition>
@@ -208,7 +208,7 @@ function ServiceRequestsPageContent() {
         </div>
       )}
 
-      {srStats && (
+      {isAdmin && srStats && (
         <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <Card className={srStats.open > 0 ? 'border-warning/30' : ''}>
             <CardContent className="flex items-center gap-3 p-4">
