@@ -38,6 +38,7 @@ const SOFT_DELETABLE_MODELS = new Set([
   'serviceRequest',
   'inspectionChecklist',
   'inspectionItem',
+  'professional',
 ]);
 
 const READ_OPERATIONS = new Set([

@@ -17,6 +17,7 @@ import { LandingSettingsModule } from './landing-settings/landing-settings.modul
 import { MaintenancePlansModule } from './maintenance-plans/maintenance-plans.module';
 import { MetricsInterceptor } from './metrics/metrics.interceptor';
 import { NotificationsModule } from './notifications/notifications.module';
+import { ProfessionalsModule } from './professionals/professionals.module';
 import { PropertiesModule } from './properties/properties.module';
 import { QuoteTemplatesModule } from './quote-templates/quote-templates.module';
 import { ReferralsModule } from './referrals/referrals.module';
@@ -47,6 +48,7 @@ import { UsersModule } from './users/users.module';
     QuoteTemplatesModule,
     InspectionsModule,
     ReferralsModule,
+    ProfessionalsModule,
   ],
   controllers: [],
   providers: [
