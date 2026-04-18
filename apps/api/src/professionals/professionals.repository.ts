@@ -107,6 +107,42 @@ export class ProfessionalsRepository extends BaseRepository<
     ]);
   }
 
+  /**
+   * Smart match: top N professionals for a (specialty, serviceArea) combo.
+   * Filters out BLOCKED tier and expired matrícula. Orders by tier (A first),
+   * then by rating descending (computed in service layer), then lastAssignedAt
+   * descending (freshest first as tie-breaker for anti-fatigue rotation).
+   */
+  async findSuggested(
+    specialty: ProfessionalSpecialty,
+    serviceArea: string | undefined,
+    limit: number,
+  ) {
+    const now = new Date();
+    return this.prisma.professional.findMany({
+      where: {
+        deletedAt: null,
+        tier: { not: 'BLOCKED' },
+        availability: { not: 'UNAVAILABLE' },
+        specialties: { some: { specialty } },
+        ...(serviceArea ? { serviceAreas: { has: serviceArea } } : {}),
+        attachments: {
+          some: {
+            type: 'MATRICULA',
+            OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+          },
+        },
+      },
+      include: {
+        specialties: true,
+        tags: true,
+        assignments: { orderBy: { assignedAt: 'desc' }, take: 1 },
+      },
+      orderBy: [{ tier: 'asc' }, { updatedAt: 'desc' }],
+      take: limit * 3, // over-fetch; service layer refines with bayesian rating
+    });
+  }
+
   async computeStats(id: string) {
     const [ratings, completedAssignments, activeAssignments, paymentAgg, lastAssignment] =
       await Promise.all([

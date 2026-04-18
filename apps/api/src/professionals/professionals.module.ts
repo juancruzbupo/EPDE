@@ -41,6 +41,12 @@ import { ProfessionalsService } from './professionals.service';
     PaymentsService,
     PaymentsRepository,
   ],
-  exports: [ProfessionalsService, ProfessionalsRepository, AssignmentsService, PaymentsService],
+  exports: [
+    ProfessionalsService,
+    ProfessionalsRepository,
+    ProfessionalSubRepository,
+    AssignmentsService,
+    PaymentsService,
+  ],
 })
 export class ProfessionalsModule {}

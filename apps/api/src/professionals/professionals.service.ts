@@ -2,6 +2,8 @@ import type {
   CreateProfessionalInput,
   ProfessionalFiltersInput,
   ProfessionalPublic,
+  ProfessionalSpecialty,
+  SuggestedProfessionalsQuery,
   UpdateAvailabilityInput,
   UpdateProfessionalInput,
   UpdateTierInput,
@@ -148,6 +150,58 @@ export class ProfessionalsService {
     } as never);
 
     return this.get(id);
+  }
+
+  /**
+   * Top N professionals sorted by: tier (A>B>C), bayesian rating avg,
+   * then lastAssignedAt descending to rotate against fatigue.
+   */
+  async getSuggested(query: SuggestedProfessionalsQuery) {
+    const candidates = await this.repo.findSuggested(
+      query.specialty as ProfessionalSpecialty,
+      query.serviceArea,
+      query.limit,
+    );
+
+    const withStats = await Promise.all(
+      candidates.map(async (p) => {
+        const stats = await this.repo.computeStats(p.id);
+        return { pro: p as ProfessionalWithIncludes, stats };
+      }),
+    );
+
+    const tierWeight: Record<string, number> = { A: 0, B: 1, C: 2, BLOCKED: 9 };
+    withStats.sort((a, b) => {
+      const tierDiff = (tierWeight[a.pro.tier] ?? 9) - (tierWeight[b.pro.tier] ?? 9);
+      if (tierDiff !== 0) return tierDiff;
+      const ratingDiff = (b.stats.ratingAvg ?? 0) - (a.stats.ratingAvg ?? 0);
+      if (ratingDiff !== 0) return ratingDiff;
+      const aLast = a.stats.lastAssignedAt?.getTime() ?? 0;
+      const bLast = b.stats.lastAssignedAt?.getTime() ?? 0;
+      return bLast - aLast;
+    });
+
+    return withStats.slice(0, query.limit).map(({ pro, stats }) => ({
+      professional: this.toPublic(pro, stats),
+      matchReason: this.buildMatchReason(pro, stats),
+    }));
+  }
+
+  private buildMatchReason(
+    p: ProfessionalWithIncludes,
+    stats: Awaited<ReturnType<ProfessionalsRepository['computeStats']>>,
+  ): string {
+    const parts: string[] = [`tier ${p.tier}`];
+    if (stats.ratingAvg !== null) {
+      parts.push(`rating ${stats.ratingAvg.toFixed(1)} (${stats.ratingCount})`);
+    }
+    if (stats.completedAssignments > 0) {
+      parts.push(`${stats.completedAssignments} trabajos completados`);
+    }
+    if (stats.activeAssignments > 0) {
+      parts.push(`${stats.activeAssignments} activos`);
+    }
+    return parts.join(' · ');
   }
 
   private toPublic(

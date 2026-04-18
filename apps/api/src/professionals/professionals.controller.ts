@@ -2,6 +2,7 @@ import type {
   CreateProfessionalInput,
   CurrentUser as CurrentUserPayload,
   ProfessionalFiltersInput,
+  SuggestedProfessionalsQuery,
   UpdateAvailabilityInput,
   UpdateProfessionalInput,
   UpdateTierInput,
@@ -9,6 +10,7 @@ import type {
 import {
   createProfessionalSchema,
   professionalFiltersSchema,
+  suggestedProfessionalsQuerySchema,
   updateAvailabilitySchema,
   updateProfessionalSchema,
   updateTierSchema,
@@ -50,6 +52,16 @@ export class ProfessionalsController {
     @Query(new ZodValidationPipe(professionalFiltersSchema)) filters: ProfessionalFiltersInput,
   ) {
     return this.service.list(filters);
+  }
+
+  @Get('suggested')
+  @Roles(UserRole.ADMIN)
+  async getSuggested(
+    @Query(new ZodValidationPipe(suggestedProfessionalsQuerySchema))
+    query: SuggestedProfessionalsQuery,
+  ) {
+    const data = await this.service.getSuggested(query);
+    return { data };
   }
 
   @Get(':id')

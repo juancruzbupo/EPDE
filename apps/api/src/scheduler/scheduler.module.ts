@@ -6,6 +6,7 @@ import { BudgetsModule } from '../budgets/budgets.module';
 import { DashboardModule } from '../dashboard/dashboard.module';
 import { EmailModule } from '../email/email.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { ProfessionalsModule } from '../professionals/professionals.module';
 import { PropertiesModule } from '../properties/properties.module';
 import { ServiceRequestsModule } from '../service-requests/service-requests.module';
 import { TasksModule } from '../tasks/tasks.module';
@@ -15,6 +16,7 @@ import { BudgetExpirationService } from './budget-expiration.service';
 import { DataCleanupRepository } from './data-cleanup.repository';
 import { DataCleanupService } from './data-cleanup.service';
 import { ISVSnapshotService } from './isv-snapshot.service';
+import { MatriculaExpiryService } from './matricula-expiry.service';
 import { NotificationCleanupService } from './notification-cleanup.service';
 import { NotificationRetryService } from './notification-retry.service';
 import { ServiceRequestAutoCloseService } from './service-request-auto-close.service';
@@ -49,6 +51,7 @@ import { WeeklySummaryService } from './weekly-summary.service';
     PropertiesModule,
     UsersModule,
     AuthModule,
+    ProfessionalsModule,
   ],
   providers: [
     TaskStatusService,
@@ -66,6 +69,7 @@ import { WeeklySummaryService } from './weekly-summary.service';
     AnniversaryService,
     WeeklyChallengeRepository,
     WeeklyChallengeService,
+    MatriculaExpiryService,
   ],
   exports: [WeeklyChallengeService],
 })
