@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, MessageCircle } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/motion';
@@ -84,21 +84,12 @@ export function InvestmentSection({ motionProps, pricing }: InvestmentSectionPro
             </p>
             <p className="type-body-sm text-primary mt-1 font-medium">Precio de lanzamiento</p>
 
-            <div className="mt-8 space-y-3">
+            <div className="mt-8">
               <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
                 <Button size="lg" className="w-full gap-2">
                   {PRIMARY_CTA_LABEL}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
-              </a>
-              <a
-                href={WHATSAPP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground flex items-center justify-center gap-1.5 text-sm transition-colors"
-              >
-                <MessageCircle className="h-4 w-4" />
-                Hablar por WhatsApp
               </a>
             </div>
 

@@ -24,7 +24,6 @@ import { MobileStickyCta } from './sections/mobile-sticky-cta';
 import { ScrollToTop } from './sections/scroll-to-top';
 import { TechnicalInspectionSection } from './sections/technical-inspection';
 import { TestimonialsSection } from './sections/testimonials';
-import { WhatsAppFloat } from './sections/whatsapp-float';
 
 interface LandingPageProps {
   settings?: {
@@ -92,9 +91,8 @@ export function LandingPage({ settings }: LandingPageProps) {
         <FinalCtaSection motionProps={motionProps} price={settings?.pricing?.price} />
       </main>
       <Footer general={settings?.general} />
-      {/* Floating buttons */}
+      {/* Floating buttons — header covers desktop, sticky bar covers mobile */}
       <ScrollToTop />
-      <WhatsAppFloat />
       <MobileStickyCta />
     </div>
   );

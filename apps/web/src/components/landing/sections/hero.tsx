@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowDown, ArrowRight, MessageCircle } from 'lucide-react';
+import { ArrowDown, ArrowRight } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER } from '@/lib/motion';
@@ -61,23 +61,10 @@ export function HeroSection({ motionProps, socialProof }: HeroSectionProps) {
           </a>
         </motion.div>
 
-        {/* WhatsApp direct link */}
-        <motion.div variants={FADE_IN} className="mt-4">
-          <a
-            href={WHATSAPP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-sm transition-colors"
-          >
-            <MessageCircle className="h-4 w-4" />
-            Hablar por WhatsApp
-          </a>
-        </motion.div>
-
         {/* Social proof */}
         <motion.p
           variants={FADE_IN}
-          className="type-body-sm text-primary mx-auto mt-6 max-w-md rounded-full border border-current/20 bg-current/5 px-4 py-1.5 font-medium"
+          className="type-body-sm text-primary mx-auto mt-8 max-w-md rounded-full border border-current/20 bg-current/5 px-4 py-1.5 font-medium"
         >
           {socialProof || DEFAULT_SOCIAL_PROOF}
         </motion.p>

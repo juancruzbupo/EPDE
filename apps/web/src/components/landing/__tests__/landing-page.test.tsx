@@ -64,8 +64,8 @@ describe('LandingPage smoke test', () => {
     expect(ctas.length).toBeGreaterThanOrEqual(3);
   });
 
-  it('renders WhatsApp links', () => {
-    const waLinks = screen.getAllByText(/Hablar por WhatsApp/i);
+  it('uses WhatsApp as primary destination', () => {
+    const waLinks = document.querySelectorAll('a[href*="wa.me"]');
     expect(waLinks.length).toBeGreaterThanOrEqual(2);
   });
 
@@ -102,8 +102,9 @@ describe('LandingPage smoke test', () => {
     expect(screen.getByText(/Tu casa necesita atención profesional/i)).toBeInTheDocument();
   });
 
-  it('renders WhatsApp floating button', () => {
-    expect(screen.getByLabelText(/Hablar por WhatsApp/i)).toBeInTheDocument();
+  it('renders primary cta across header/hero/final', () => {
+    const ctas = screen.getAllByText(/Pedir diagnóstico/i);
+    expect(ctas.length).toBeGreaterThanOrEqual(3);
   });
 
   it('renders cost disclaimer', () => {
