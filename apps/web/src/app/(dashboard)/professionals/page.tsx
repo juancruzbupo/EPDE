@@ -35,6 +35,7 @@ import { useUrlFilters } from '@/hooks/use-url-filters';
 import { ROUTES } from '@/lib/routes';
 
 import { professionalColumns } from './columns';
+import { CoverageCard } from './coverage-card';
 import { CreateProfessionalDialog } from './create-professional-dialog';
 
 const specialtyOptions = Object.entries(PROFESSIONAL_SPECIALTY_LABELS).map(([value, label]) => ({
@@ -184,6 +185,8 @@ export default function ProfessionalsPage() {
           </Button>
         }
       />
+
+      <CoverageCard />
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-2">
         <SearchInput
