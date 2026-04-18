@@ -3,6 +3,7 @@
 import {
   formatARSCompact,
   formatRelativeDate,
+  INSPECTION_PRICE_TIER_LABELS,
   TECHNICAL_INSPECTION_ACTIVITIES,
   TECHNICAL_INSPECTION_DESCRIPTIONS,
   TECHNICAL_INSPECTION_ESTIMATED_DAYS,
@@ -135,6 +136,10 @@ export function InspectionDetail({ id, isAdmin, isClient }: Props) {
                 {formatARSCompact(data.feeAmount)}
               </span>
             </div>
+            <p className="text-muted-foreground text-xs">
+              Tier {INSPECTION_PRICE_TIER_LABELS[data.priceTier]}
+              {data.propertySqm ? ` · ${data.propertySqm} m²` : ' (sin m² registrados)'}
+            </p>
             {data.hadActivePlan && (
               <p className="text-muted-foreground text-xs">Incluye 15% de descuento cliente EPDE</p>
             )}

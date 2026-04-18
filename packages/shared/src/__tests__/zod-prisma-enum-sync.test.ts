@@ -10,6 +10,7 @@ import {
   ConditionFound,
   InspectionChecklistStatus,
   InspectionItemStatus,
+  InspectionPriceTier,
   NotificationType,
   PlanStatus,
   ProfessionalAttachmentType,
@@ -94,6 +95,7 @@ const ENUM_MAP: Record<string, Record<string, string>> = {
   TechnicalInspectionType,
   TechnicalInspectionStatus,
   TechnicalInspectionPaymentStatus,
+  InspectionPriceTier,
 };
 
 function parsePrismaEnums(schemaPath: string): Map<string, string[]> {

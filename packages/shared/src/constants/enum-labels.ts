@@ -2,6 +2,7 @@ import type {
   ActionTaken,
   BudgetStatus,
   ConditionFound,
+  InspectionPriceTier,
   NotificationType,
   PlanStatus,
   ProfessionalAttachmentType,
@@ -383,3 +384,9 @@ export const TECHNICAL_INSPECTION_PAYMENT_STATUS_ENUM_LABELS = {
   PAID: 'Pagado',
   CANCELED: 'Cancelado',
 } satisfies Record<TechnicalInspectionPaymentStatus, string>;
+
+export const INSPECTION_PRICE_TIER_LABELS = {
+  SMALL: 'Hasta 120 m²',
+  MEDIUM: '120 a 250 m²',
+  LARGE: 'Más de 250 m²',
+} satisfies Record<InspectionPriceTier, string>;

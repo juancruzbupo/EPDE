@@ -23,15 +23,23 @@ Estos casos no encajan en el plan (son puntuales), ni en service requests (no se
 
 Creamos **Technical Inspection** como modelo aparte con tres tipos preconfigurados, pricing escalonado, y un flujo que va desde la solicitud del cliente hasta el pago post-entrega.
 
-### Pricing (ARS, abril 2026)
+### Pricing (ARS, abril 2026) — tiers por superficie
 
-| Tipo                 | Público | Cliente EPDE (−15%) |
-| -------------------- | ------- | ------------------- |
-| Básica               | 135.000 | 114.750             |
-| Estructural profunda | 400.000 | 340.000             |
-| Para compraventa     | 775.000 | 658.750             |
+Tres tiers según m² de la propiedad (cliente EPDE, −15% sobre público):
 
-Precios derivados de investigación de mercado (abril 2026): InspecThome mínimos + CheckHome USD 299-499 convertidos + CAPBA aranceles Informe Técnico + mediana del rango para interior (Paraná, ER). El descuento del 15% es un **retention perk** para clientes activos — refuerza el lock-in de la suscripción.
+| Tipo                 | Hasta 120 m² | 120–250 m² | Más de 250 m² |
+| -------------------- | ------------ | ---------- | ------------- |
+| Básica               | 114.750      | 153.000    | 212.500       |
+| Estructural profunda | 340.000      | 442.000    | 595.000       |
+| Para compraventa     | 658.750      | 850.000    | 1.190.000     |
+
+Precios derivados de investigación de mercado (abril 2026): InspecThome mínimos + CheckHome USD 299–499 convertidos + CAPBA aranceles Informe Técnico + mediana del rango para interior (Paraná, ER).
+
+**Por qué tiers en vez de precio único o cotización**: una casa de 80 m² en PB no implica las mismas horas que una casona de 300 m² en dos plantas. El precio único sub-cotiza casas grandes y sobre-cotiza chicas; la cotización manual mata el ancla de precio en landing (−30/40% en conversión). Tiers por m² captura ambos beneficios con costo operativo nulo: la superficie ya está en `Property.squareMeters`, el tier se resuelve automáticamente con `resolveInspectionPriceTier()`, y el precio se congela al crear.
+
+**Fallback**: si `squareMeters` es null o ≤0, cae a tier MEDIUM (conservador, el admin puede ajustar manualmente si la propiedad es atípica).
+
+El descuento del 15% es un **retention perk** para clientes activos — refuerza el lock-in de la suscripción.
 
 ### Flujo (state machine)
 
@@ -81,6 +89,8 @@ model TechnicalInspection {
   deliverableUrl    String?
   deliverableFileName String?                        @db.VarChar(200)
   feeAmount         Decimal                          @db.Decimal(12, 2)
+  priceTier         InspectionPriceTier              @default(MEDIUM)
+  propertySqm       Float?
   feeStatus         TechnicalInspectionPaymentStatus @default(PENDING)
   hadActivePlan     Boolean                          @default(false)
   paidAt            DateTime?
@@ -102,6 +112,7 @@ model TechnicalInspectionCounter {
 enum TechnicalInspectionType           { BASIC, STRUCTURAL, SALE }
 enum TechnicalInspectionStatus         { REQUESTED, SCHEDULED, IN_PROGRESS, REPORT_READY, PAID, CANCELED }
 enum TechnicalInspectionPaymentStatus  { PENDING, PAID, CANCELED }
+enum InspectionPriceTier               { SMALL, MEDIUM, LARGE }
 ```
 
 Soft-delete: sí (criterio "audit relevance": registro profesional firmado con valor legal). Incluido en `SOFT_DELETABLE_MODELS` + ESLint rules.

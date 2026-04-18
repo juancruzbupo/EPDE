@@ -1,18 +1,75 @@
+import type { InspectionPriceTier } from '../types/enums';
+
 /**
- * Technical Inspection pricing (ARS, abril 2026).
- * Public prices derived from market research:
- *  - InspecThome mínimos + CheckHome USD 299-499 convertidos
- *  - CAPBA Informe Técnico aranceles mínimos
- *  - Mediana del rango para interior (Paraná, ER)
- * EPDE client discount: 15% (retention perk).
+ * Technical Inspection pricing (ARS, abril 2026) — tiers por superficie.
+ *
+ * Justificación: una casa de 80 m² en PB no implica las mismas horas de
+ * trabajo que una casona de 300 m² en dos plantas. Tiers por m² evitan
+ * sub-cotizar casas grandes y sobre-cotizar casas chicas, y preservan el
+ * margen sin agregar un flujo de presupuesto manual.
+ *
+ * Cortes derivados del arancel CAPBA por superficie + observación de
+ * tiempos reales. Precio público es el tope por tier; EPDE cliente
+ * obtiene 15% off (retention perk).
  */
-export const TECHNICAL_INSPECTION_PRICES = {
-  BASIC: { public: 135000, client: 114750 },
-  STRUCTURAL: { public: 400000, client: 340000 },
-  SALE: { public: 775000, client: 658750 },
-} as const;
+export interface InspectionPriceEntry {
+  public: number;
+  client: number;
+  /** Inclusive upper bound in m² (null = sin tope). */
+  maxSqm: number | null;
+  label: string;
+}
+
+export const TECHNICAL_INSPECTION_PRICES: Record<
+  'BASIC' | 'STRUCTURAL' | 'SALE',
+  Record<InspectionPriceTier, InspectionPriceEntry>
+> = {
+  BASIC: {
+    SMALL: { public: 135000, client: 114750, maxSqm: 120, label: 'Hasta 120 m²' },
+    MEDIUM: { public: 180000, client: 153000, maxSqm: 250, label: '120 a 250 m²' },
+    LARGE: { public: 250000, client: 212500, maxSqm: null, label: 'Más de 250 m²' },
+  },
+  STRUCTURAL: {
+    SMALL: { public: 400000, client: 340000, maxSqm: 120, label: 'Hasta 120 m²' },
+    MEDIUM: { public: 520000, client: 442000, maxSqm: 250, label: '120 a 250 m²' },
+    LARGE: { public: 700000, client: 595000, maxSqm: null, label: 'Más de 250 m²' },
+  },
+  SALE: {
+    SMALL: { public: 775000, client: 658750, maxSqm: 120, label: 'Hasta 120 m²' },
+    MEDIUM: { public: 1000000, client: 850000, maxSqm: 250, label: '120 a 250 m²' },
+    LARGE: { public: 1400000, client: 1190000, maxSqm: null, label: 'Más de 250 m²' },
+  },
+};
 
 export const TECHNICAL_INSPECTION_CLIENT_DISCOUNT_PCT = 15;
+
+/**
+ * Resuelve el tier según la superficie de la propiedad. Si es null/0,
+ * devuelve MEDIUM como fallback conservador (el admin puede ajustar
+ * manualmente si la propiedad es atípica).
+ */
+export function resolveInspectionPriceTier(
+  squareMeters: number | null | undefined,
+): InspectionPriceTier {
+  if (!squareMeters || squareMeters <= 0) return 'MEDIUM';
+  if (squareMeters <= 120) return 'SMALL';
+  if (squareMeters <= 250) return 'MEDIUM';
+  return 'LARGE';
+}
+
+/**
+ * Calcula el precio congelado al crear una inspección.
+ * Cliente con plan activo obtiene el precio cliente; sin plan, el público.
+ */
+export function calculateInspectionFee(
+  type: 'BASIC' | 'STRUCTURAL' | 'SALE',
+  squareMeters: number | null | undefined,
+  hasActivePlan: boolean,
+): { amount: number; tier: InspectionPriceTier } {
+  const tier = resolveInspectionPriceTier(squareMeters);
+  const entry = TECHNICAL_INSPECTION_PRICES[type][tier];
+  return { amount: hasActivePlan ? entry.client : entry.public, tier };
+}
 
 export const TECHNICAL_INSPECTION_LABELS = {
   BASIC: 'Inspección técnica básica',

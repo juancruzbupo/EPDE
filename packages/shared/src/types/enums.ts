@@ -381,3 +381,14 @@ export const TECHNICAL_INSPECTION_STATUS_VALUES = Object.values(TechnicalInspect
 export const TECHNICAL_INSPECTION_PAYMENT_STATUS_VALUES = Object.values(
   TechnicalInspectionPaymentStatus,
 ) as [TechnicalInspectionPaymentStatus, ...TechnicalInspectionPaymentStatus[]];
+
+export const InspectionPriceTier = {
+  SMALL: 'SMALL',
+  MEDIUM: 'MEDIUM',
+  LARGE: 'LARGE',
+} as const;
+export type InspectionPriceTier = (typeof InspectionPriceTier)[keyof typeof InspectionPriceTier];
+export const INSPECTION_PRICE_TIER_VALUES = Object.values(InspectionPriceTier) as [
+  InspectionPriceTier,
+  ...InspectionPriceTier[],
+];

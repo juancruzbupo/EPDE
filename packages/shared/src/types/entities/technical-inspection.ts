@@ -1,4 +1,5 @@
 import type {
+  InspectionPriceTier,
   TechnicalInspectionPaymentStatus,
   TechnicalInspectionStatus,
   TechnicalInspectionType,
@@ -36,6 +37,8 @@ export interface TechnicalInspectionPublic {
   deliverableFileName: string | null;
 
   feeAmount: number;
+  priceTier: InspectionPriceTier;
+  propertySqm: number | null;
   feeStatus: TechnicalInspectionPaymentStatus;
   hadActivePlan: boolean;
   paidAt: string | null;

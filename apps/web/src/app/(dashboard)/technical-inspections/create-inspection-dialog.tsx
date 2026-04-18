@@ -4,6 +4,8 @@ import {
   type CreateTechnicalInspectionInput,
   createTechnicalInspectionSchema,
   formatARSCompact,
+  INSPECTION_PRICE_TIER_LABELS,
+  resolveInspectionPriceTier,
   TECHNICAL_INSPECTION_ACTIVITIES,
   TECHNICAL_INSPECTION_DESCRIPTIONS,
   TECHNICAL_INSPECTION_ESTIMATED_DAYS,
@@ -72,6 +74,11 @@ export function CreateInspectionDialog({ open, onOpenChange, defaultPropertyId }
   }, [open, defaultPropertyId, setValue]);
 
   const selectedType = watch('type');
+  const selectedPropertyId = watch('propertyId');
+  const selectedProperty = properties.find((p) => p.id === selectedPropertyId);
+  const selectedSqm = selectedProperty?.squareMeters ?? null;
+  const selectedTier = resolveInspectionPriceTier(selectedSqm);
+  const hasPropertyArea = selectedPropertyId && selectedSqm && selectedSqm > 0;
 
   const onSubmit = (data: CreateTechnicalInspectionInput) => {
     createInspection.mutate(data, {
@@ -94,9 +101,10 @@ export function CreateInspectionDialog({ open, onOpenChange, defaultPropertyId }
 
         <Alert className="border-primary/30 bg-primary/5">
           <Info aria-hidden="true" />
-          <AlertTitle>Precio exclusivo para clientes activos EPDE</AlertTitle>
+          <AlertTitle>Precio según superficie + 15% off clientes EPDE</AlertTitle>
           <AlertDescription>
-            Tenés un 15% de descuento sobre el precio público. Ya está aplicado debajo.
+            El precio varía según los m² de tu propiedad (chica / mediana / grande). Seleccioná
+            primero la propiedad para ver tu precio exacto.
           </AlertDescription>
         </Alert>
 
@@ -134,10 +142,22 @@ export function CreateInspectionDialog({ open, onOpenChange, defaultPropertyId }
             <Label>
               Tipo de inspección <span className="text-destructive">*</span>
             </Label>
+            {hasPropertyArea ? (
+              <p className="text-muted-foreground text-xs">
+                Tu propiedad: {selectedSqm} m² → tier{' '}
+                <strong>{INSPECTION_PRICE_TIER_LABELS[selectedTier]}</strong>
+              </p>
+            ) : (
+              <p className="text-muted-foreground text-xs">
+                {selectedPropertyId
+                  ? 'No registraste los m² de la propiedad. Mostramos precio de tier mediano; el admin puede ajustar.'
+                  : 'Seleccioná una propiedad arriba para ver tu precio exacto.'}
+              </p>
+            )}
             <div className="grid gap-3 sm:grid-cols-3">
               {TECHNICAL_INSPECTION_TYPE_VALUES.map((type) => {
                 const isSelected = selectedType === type;
-                const price = TECHNICAL_INSPECTION_PRICES[type];
+                const tierPrice = TECHNICAL_INSPECTION_PRICES[type][selectedTier];
                 return (
                   <button
                     key={type}
@@ -155,10 +175,10 @@ export function CreateInspectionDialog({ open, onOpenChange, defaultPropertyId }
                     )}
                     <p className="text-sm font-semibold">{TECHNICAL_INSPECTION_LABELS[type]}</p>
                     <p className="text-primary mt-2 text-lg font-bold tabular-nums">
-                      {formatARSCompact(price.client)}
+                      {formatARSCompact(tierPrice.client)}
                     </p>
                     <p className="text-muted-foreground text-xs tabular-nums line-through">
-                      Público {formatARSCompact(price.public)}
+                      Público {formatARSCompact(tierPrice.public)}
                     </p>
                     <p className="text-muted-foreground mt-1.5 flex items-center gap-1 text-xs">
                       <Clock className="h-3 w-3" />

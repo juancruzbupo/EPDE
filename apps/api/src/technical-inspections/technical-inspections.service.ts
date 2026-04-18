@@ -8,7 +8,7 @@ import type {
   UpdateInspectionStatusInput,
   UploadDeliverableInput,
 } from '@epde/shared';
-import { TECHNICAL_INSPECTION_PRICES, UserRole } from '@epde/shared';
+import { calculateInspectionFee, UserRole } from '@epde/shared';
 import {
   BadRequestException,
   ConflictException,
@@ -88,9 +88,12 @@ export class TechnicalInspectionsService {
       throw new ForbiddenException('Acceso denegado a esta propiedad');
     }
 
-    // Freeze price at request time (client price since they're active)
-    const priceConfig = TECHNICAL_INSPECTION_PRICES[dto.type];
-    const feeAmount = hasActivePlan ? priceConfig.client : priceConfig.public;
+    // Freeze price at request time — tier by property surface (SMALL/MEDIUM/LARGE)
+    const { amount: feeAmount, tier: priceTier } = calculateInspectionFee(
+      dto.type,
+      property.squareMeters ?? null,
+      hasActivePlan,
+    );
 
     // Generate sequential inspection number
     const year = new Date().getFullYear();
@@ -103,6 +106,8 @@ export class TechnicalInspectionsService {
       type: dto.type,
       clientNotes: dto.clientNotes ?? null,
       feeAmount,
+      priceTier,
+      propertySqm: property.squareMeters ?? null,
       hadActivePlan: hasActivePlan,
     });
 
@@ -245,6 +250,8 @@ export class TechnicalInspectionsService {
       deliverableUrl: i.deliverableUrl,
       deliverableFileName: i.deliverableFileName,
       feeAmount: Number(i.feeAmount),
+      priceTier: i.priceTier,
+      propertySqm: i.propertySqm,
       feeStatus: i.feeStatus,
       hadActivePlan: i.hadActivePlan,
       paidAt: i.paidAt?.toISOString() ?? null,

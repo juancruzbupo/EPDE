@@ -60,23 +60,35 @@ export function TechnicalInspectionSection({ motionProps }: SectionProps) {
 
         <motion.div variants={FADE_IN_UP} className="mt-10 grid gap-4 sm:grid-cols-3">
           {INSPECTION_TYPES.map((type) => {
-            const price = TECHNICAL_INSPECTION_PRICES[type.key];
+            const tiers = TECHNICAL_INSPECTION_PRICES[type.key];
             return (
               <motion.div
                 key={type.key}
                 variants={STAGGER_ITEM}
                 className="border-border bg-card rounded-xl border p-5"
               >
-                <h3 className="font-heading text-foreground mb-2 text-lg">{type.name}</h3>
-                <div className="mb-3 flex items-baseline gap-2">
-                  <span className="text-primary text-2xl font-bold tabular-nums">
-                    {formatARSCompact(price.client)}
-                  </span>
-                  <span className="text-muted-foreground text-sm tabular-nums line-through">
-                    {formatARSCompact(price.public)}
-                  </span>
+                <h3 className="font-heading text-foreground mb-1 text-lg">{type.name}</h3>
+                <p className="text-primary mb-3 text-2xl font-bold tabular-nums">
+                  desde {formatARSCompact(tiers.SMALL.client)}
+                </p>
+                <p className="text-muted-foreground mb-3 text-sm leading-relaxed">{type.summary}</p>
+                <div className="border-border/50 mt-3 space-y-1 border-t pt-3 text-xs">
+                  <p className="text-foreground font-semibold">Precio cliente EPDE</p>
+                  <div className="text-muted-foreground space-y-0.5">
+                    <div className="flex justify-between tabular-nums">
+                      <span>Hasta 120 m²</span>
+                      <span>{formatARSCompact(tiers.SMALL.client)}</span>
+                    </div>
+                    <div className="flex justify-between tabular-nums">
+                      <span>120–250 m²</span>
+                      <span>{formatARSCompact(tiers.MEDIUM.client)}</span>
+                    </div>
+                    <div className="flex justify-between tabular-nums">
+                      <span>Más de 250 m²</span>
+                      <span>{formatARSCompact(tiers.LARGE.client)}</span>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-muted-foreground text-sm leading-relaxed">{type.summary}</p>
               </motion.div>
             );
           })}

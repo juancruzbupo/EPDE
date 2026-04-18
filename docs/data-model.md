@@ -1,6 +1,6 @@
 # Modelo de Datos
 
-Base de datos PostgreSQL 16, ORM Prisma 6. **45 modelos**, 29 enums.
+Base de datos PostgreSQL 16, ORM Prisma 6. **45 modelos**, 30 enums.
 
 ## Diagrama de Relaciones
 
@@ -248,6 +248,16 @@ Property ─1:N─ TechnicalInspection ─N:1─ User (requester)
 | `PENDING`  | Sin pagar todavía                 |
 | `PAID`     | Pago recibido y registrado        |
 | `CANCELED` | Inspección cancelada, no se cobra |
+
+### InspectionPriceTier
+
+Tier de superficie que define el precio al crear una inspección técnica. Snapshot congelado en `TechnicalInspection.priceTier`.
+
+| Valor    | Rango      | Notas                                                        |
+| -------- | ---------- | ------------------------------------------------------------ |
+| `SMALL`  | ≤ 120 m²   | Casas chicas en PB                                           |
+| `MEDIUM` | 120–250 m² | Default. También fallback si `Property.squareMeters` es null |
+| `LARGE`  | > 250 m²   | Casas grandes o en varios niveles                            |
 
 ## Entidades
 
@@ -630,7 +640,9 @@ Inspección técnica firmada por la arquitecta matriculada (servicio pagado apar
 | completedAt           | DateTime?                        | Set automáticamente al pasar a REPORT_READY         |
 | deliverableUrl        | String?                          | URL del PDF firmado                                 |
 | deliverableFileName   | String(200)?                     | Nombre original del archivo                         |
-| feeAmount             | Decimal(12,2)                    | Precio congelado al crear                           |
+| feeAmount             | Decimal(12,2)                    | Precio congelado al crear (tier-dependiente)        |
+| priceTier             | InspectionPriceTier              | Snapshot del tier de superficie aplicado            |
+| propertySqm           | Float?                           | Snapshot de `Property.squareMeters` al crear        |
 | feeStatus             | TechnicalInspectionPaymentStatus | PENDING / PAID / CANCELED                           |
 | hadActivePlan         | Boolean                          | Snapshot: si tenía plan activo al solicitar         |
 | paidAt                | DateTime?                        | Set al registrar pago                               |
