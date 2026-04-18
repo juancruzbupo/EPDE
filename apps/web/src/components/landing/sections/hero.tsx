@@ -39,8 +39,8 @@ export function HeroSection({ motionProps, socialProof }: HeroSectionProps) {
           variants={FADE_IN}
           className="type-body-lg text-foreground/80 mx-auto mt-6 max-w-2xl font-medium"
         >
-          Una arquitecta inspecciona tu vivienda, detecta problemas ocultos y te arma un plan claro
-          de mantenimiento. Vos decidís, nosotros hacemos el seguimiento.
+          Una arquitecta diagnostica el estado de tu vivienda, detecta problemas ocultos y te arma
+          un plan claro de mantenimiento. Vos decidís, nosotros hacemos el seguimiento.
         </motion.p>
 
         <motion.div

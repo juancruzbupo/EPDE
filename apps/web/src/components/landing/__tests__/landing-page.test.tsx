@@ -51,7 +51,7 @@ describe('LandingPage smoke test', () => {
   });
 
   it('renders hero subtitle', () => {
-    const matches = screen.getAllByText(/arquitecta inspecciona tu vivienda/i);
+    const matches = screen.getAllByText(/arquitecta diagnostica el estado de tu vivienda/i);
     expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 

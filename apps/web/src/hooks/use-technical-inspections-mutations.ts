@@ -31,10 +31,10 @@ export function useCreateTechnicalInspection() {
   return useMutation({
     mutationFn: (dto: CreateTechnicalInspectionInput) => createTechnicalInspection(dto),
     onSuccess: () => {
-      toast.success('Inspección solicitada. Te contactaremos para agendar la visita.');
+      toast.success('Informe solicitado. Te contactaremos para agendar la visita.');
       invalidate();
     },
-    onError: (err) => toast.error(getErrorMessage(err, 'Error al solicitar inspección')),
+    onError: (err) => toast.error(getErrorMessage(err, 'Error al solicitar informe')),
   });
 }
 
@@ -43,7 +43,7 @@ export function useScheduleTechnicalInspection(id: string) {
   return useMutation({
     mutationFn: (dto: ScheduleInspectionInput) => scheduleTechnicalInspection(id, dto),
     onSuccess: () => {
-      toast.success('Inspección agendada');
+      toast.success('Visita agendada');
       invalidate();
     },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al agendar')),
@@ -82,7 +82,7 @@ export function useMarkTechnicalInspectionPaid(id: string) {
       toast.success('Pago registrado');
       invalidate();
     },
-    onError: (err) => toast.error(getErrorMessage(err, 'Error al marcar pagada')),
+    onError: (err) => toast.error(getErrorMessage(err, 'Error al marcar pagado')),
   });
 }
 
@@ -91,7 +91,7 @@ export function useCancelTechnicalInspection() {
   return useMutation({
     mutationFn: (id: string) => cancelTechnicalInspection(id),
     onSuccess: () => {
-      toast.success('Inspección cancelada');
+      toast.success('Informe cancelado');
       invalidate();
     },
     onError: (err) => toast.error(getErrorMessage(err, 'Error al cancelar')),

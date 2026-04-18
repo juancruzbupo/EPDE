@@ -98,9 +98,10 @@ export function CreateInspectionDialog({ open, onOpenChange, defaultPropertyId }
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Solicitar inspección técnica</DialogTitle>
+          <DialogTitle>Solicitar informe técnico firmado</DialogTitle>
           <DialogDescription>
-            Servicio profesional firmado por Arq. Noelia Yuskowich. Se paga al entregar el informe.
+            Distinto del diagnóstico inicial incluido en tu plan. Este es un informe pago, firmado
+            por Arq. Noelia Yuskowich. Se abona al recibir el PDF.
           </DialogDescription>
         </DialogHeader>
 
@@ -145,7 +146,7 @@ export function CreateInspectionDialog({ open, onOpenChange, defaultPropertyId }
 
           <div className="space-y-2">
             <Label>
-              Tipo de inspección <span className="text-destructive">*</span>
+              Tipo de informe <span className="text-destructive">*</span>
             </Label>
             {hasPropertyArea ? (
               <p className="text-muted-foreground text-xs">
@@ -281,7 +282,7 @@ export function CreateInspectionDialog({ open, onOpenChange, defaultPropertyId }
               Cancelar
             </Button>
             <Button type="submit" disabled={createInspection.isPending || oversized}>
-              {createInspection.isPending ? 'Enviando...' : 'Solicitar inspección'}
+              {createInspection.isPending ? 'Enviando...' : 'Solicitar informe'}
             </Button>
           </div>
         </form>

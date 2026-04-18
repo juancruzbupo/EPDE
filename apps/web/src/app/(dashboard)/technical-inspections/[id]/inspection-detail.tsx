@@ -54,7 +54,7 @@ export function InspectionDetail({ id, isAdmin, isClient }: Props) {
   if (isError || !data) {
     return (
       <ErrorState
-        message="No se pudo cargar la inspección"
+        message="No se pudo cargar el informe"
         onRetry={refetch}
         className="justify-center py-24"
       />
@@ -186,7 +186,7 @@ export function InspectionDetail({ id, isAdmin, isClient }: Props) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <ClipboardList className="text-primary h-4 w-4" />
-            Alcance de la inspección
+            Alcance del informe
           </CardTitle>
         </CardHeader>
         <CardContent>

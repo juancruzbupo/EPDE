@@ -149,7 +149,7 @@ export const STEPS: Step[] = [
     icon: Search,
     title: 'Relevamos tu vivienda',
     description:
-      'Inspección profesional completa: estructura, instalaciones, envolvente y estado general. Toda la información se carga en el sistema.',
+      'Diagnóstico profesional completo: estructura, instalaciones, envolvente y estado general. Toda la información se carga en el sistema.',
   },
   {
     number: '02',
@@ -177,7 +177,7 @@ export const SYSTEM_FEATURES: IconTextItem[] = [
 ];
 
 export const INVESTMENT_FEATURES = [
-  'Inspección visual completa de la vivienda',
+  'Diagnóstico inicial completo de la vivienda',
   'Informe técnico imprimible',
   'Índice de Salud de la Vivienda (ISV)',
   'Plan de mantenimiento preventivo',

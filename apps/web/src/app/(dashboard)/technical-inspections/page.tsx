@@ -75,7 +75,7 @@ function InspectionCard({
 
 function TechnicalInspectionsPageContent() {
   useEffect(() => {
-    document.title = 'Inspecciones técnicas | EPDE';
+    document.title = 'Informes técnicos | EPDE';
   }, []);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -101,17 +101,17 @@ function TechnicalInspectionsPageContent() {
   return (
     <PageTransition>
       <PageHeader
-        title="Inspecciones técnicas"
+        title="Informes técnicos"
         description={
           isClient
-            ? 'Informe profesional firmado por arquitecta matriculada. Servicio pago aparte del plan EPDE.'
-            : 'Inspecciones solicitadas por clientes activos. Pagan al recibir el informe.'
+            ? 'Informe profesional firmado por arquitecta matriculada. Servicio pago aparte del diagnóstico inicial del plan.'
+            : 'Informes técnicos solicitados por clientes activos. Pagan al recibir el PDF firmado.'
         }
         action={
           isClient ? (
             <Button onClick={() => setCreateOpen(true)} size="sm">
               <Plus className="h-4 w-4 sm:mr-1.5" />
-              <span className="hidden sm:inline">Solicitar inspección</span>
+              <span className="hidden sm:inline">Solicitar informe</span>
             </Button>
           ) : undefined
         }
@@ -119,7 +119,7 @@ function TechnicalInspectionsPageContent() {
 
       {isError && (
         <ErrorState
-          message="No se pudieron cargar las inspecciones"
+          message="No se pudieron cargar los informes"
           onRetry={refetch}
           className="justify-center py-24"
         />
@@ -136,7 +136,7 @@ function TechnicalInspectionsPageContent() {
           <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
             <ClipboardCheck className="text-muted-foreground h-10 w-10" />
             <p className="text-sm font-medium">
-              {isClient ? 'Todavía no solicitaste ninguna inspección' : 'Sin inspecciones aún'}
+              {isClient ? 'Todavía no solicitaste ningún informe' : 'Sin informes aún'}
             </p>
             {isClient && (
               <>
@@ -146,7 +146,7 @@ function TechnicalInspectionsPageContent() {
                 </p>
                 <Button onClick={() => setCreateOpen(true)} size="sm">
                   <Plus className="mr-1.5 h-4 w-4" />
-                  Solicitar inspección
+                  Solicitar informe
                 </Button>
               </>
             )}

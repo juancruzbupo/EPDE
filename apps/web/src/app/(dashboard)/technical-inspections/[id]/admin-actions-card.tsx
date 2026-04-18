@@ -131,7 +131,7 @@ export function AdminActionsCard({ inspection }: Props) {
             <div className="space-y-2 rounded-md border p-3">
               <p className="text-sm font-medium">Marcar visita en curso</p>
               <p className="text-muted-foreground text-xs">
-                Úselo cuando estés realizando la inspección en sitio.
+                Úselo cuando estés realizando la visita en sitio.
               </p>
               <Button
                 size="sm"
@@ -148,8 +148,7 @@ export function AdminActionsCard({ inspection }: Props) {
             <div className="space-y-2 rounded-md border p-3">
               <p className="text-sm font-medium">Subir informe firmado (PDF)</p>
               <p className="text-muted-foreground text-xs">
-                Al subirlo, la inspección pasa a &laquo;Informe listo&raquo; y el cliente puede
-                pagar.
+                Al subirlo, pasa a &laquo;Informe listo&raquo; y el cliente puede pagar.
               </p>
               <Input
                 type="file"
@@ -187,7 +186,7 @@ export function AdminActionsCard({ inspection }: Props) {
                 onClick={handleMarkPaid}
                 disabled={!paymentMethod || markPaid.isPending}
               >
-                {markPaid.isPending ? 'Registrando...' : 'Marcar como pagada'}
+                {markPaid.isPending ? 'Registrando...' : 'Marcar como pagado'}
               </Button>
             </div>
           )}
@@ -195,7 +194,7 @@ export function AdminActionsCard({ inspection }: Props) {
           {canCancel && (
             <div className="border-t pt-3">
               <Button variant="ghost" size="sm" onClick={() => setCancelOpen(true)}>
-                Cancelar inspección
+                Cancelar informe
               </Button>
             </div>
           )}
@@ -205,7 +204,7 @@ export function AdminActionsCard({ inspection }: Props) {
       <ConfirmDialog
         open={cancelOpen}
         onOpenChange={setCancelOpen}
-        title="Cancelar inspección"
+        title="Cancelar informe"
         description="Esta acción no se puede deshacer. El cliente será notificado."
         onConfirm={handleCancel}
         isLoading={cancel.isPending}

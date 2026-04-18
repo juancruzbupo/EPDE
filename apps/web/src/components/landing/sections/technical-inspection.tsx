@@ -14,19 +14,19 @@ import type { SectionProps } from '../landing-data';
 const INSPECTION_TYPES = [
   {
     key: 'BASIC' as const,
-    name: 'Inspección básica',
+    name: 'Informe técnico básico',
     summary:
-      'Visita corta e informe de estado general. Para propietarios que quieren un diagnóstico previo a alquiler o mudanza.',
+      'Visita corta e informe de estado general. Para propietarios que quieren un parecer profesional previo a alquiler o mudanza.',
   },
   {
     key: 'STRUCTURAL' as const,
-    name: 'Estructural profunda',
+    name: 'Informe estructural profundo',
     summary:
       'Relevamiento de humedad, fisuras, muros portantes, cubierta y fundaciones. Útil para herencias, divorcios o problemas acumulados.',
   },
   {
     key: 'SALE' as const,
-    name: 'Para compraventa',
+    name: 'Informe para compraventa',
     summary:
       'Informe completo con verificación de instalaciones, estructura y cumplimiento normativo. Firmado por arquitecta matriculada.',
   },
@@ -40,13 +40,13 @@ export function TechnicalInspectionSection({ motionProps }: SectionProps) {
           variants={FADE_IN}
           className="type-label-md text-primary tracking-widest uppercase"
         >
-          Servicio adicional
+          Servicio adicional · aparte del plan
         </motion.p>
         <motion.h2
           variants={FADE_IN_UP}
           className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
         >
-          Inspecciones técnicas firmadas.
+          Informes técnicos firmados.
           <br />
           <span className="text-muted-foreground">Con 15% off para clientes EPDE.</span>
         </motion.h2>
@@ -56,8 +56,20 @@ export function TechnicalInspectionSection({ motionProps }: SectionProps) {
         >
           Cuando necesitás un informe profesional firmado — para compraventa, herencia, un problema
           puntual — lo hace directamente la arquitecta responsable de EPDE, con matrícula
-          habilitante. Se paga aparte del plan de mantenimiento.
+          habilitante.
         </motion.p>
+        <motion.div
+          variants={FADE_IN}
+          className="border-primary/30 bg-primary/5 mt-5 max-w-2xl rounded-lg border-l-2 p-3"
+        >
+          <p className="text-foreground text-sm leading-relaxed">
+            <strong>No confundir:</strong> el <strong>diagnóstico inicial</strong> de tu vivienda
+            está incluido en el plan mensual EPDE (es el relevamiento que hacemos al empezar). Los{' '}
+            <strong>informes técnicos firmados</strong> de esta sección son un servicio distinto,
+            pago aparte, para cuando necesitás un PDF con firma de matrícula habilitante (escribano,
+            herencia, banco).
+          </p>
+        </motion.div>
 
         <motion.div variants={FADE_IN_UP} className="mt-10 grid gap-4 sm:grid-cols-3">
           {INSPECTION_TYPES.map((type) => {
@@ -150,10 +162,10 @@ export function TechnicalInspectionSection({ motionProps }: SectionProps) {
           <p className="text-muted-foreground flex items-start gap-2 leading-relaxed">
             <ClipboardCheck className="text-primary mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
             <span>
-              <strong className="text-foreground">Aclaración:</strong> la inspección para
-              compraventa <strong>no incluye</strong> oblea NAG-226 de gasista matriculado ni
-              informe RE-7 de electricista matriculado (si tu trámite lo exige, se cotizan aparte
-              por el profesional habilitado correspondiente).
+              <strong className="text-foreground">Aclaración:</strong> el informe para compraventa{' '}
+              <strong>no incluye</strong> oblea NAG-226 de gasista matriculado ni informe RE-7 de
+              electricista matriculado (si tu trámite lo exige, se cotizan aparte por el profesional
+              habilitado correspondiente).
             </span>
           </p>
         </motion.div>

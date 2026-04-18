@@ -58,8 +58,8 @@ export function FinalCtaSection({ motionProps, price }: FinalCtaSectionProps) {
           variants={FADE_IN}
           className="type-body-lg text-background/70 mx-auto mt-6 max-w-lg text-center"
         >
-          Por {price ?? LAUNCH_PRICE}, una arquitecta inspecciona tu vivienda y te arma un plan
-          completo de mantenimiento.
+          Por {price ?? LAUNCH_PRICE}, una arquitecta diagnostica el estado de tu vivienda y te arma
+          un plan completo de mantenimiento.
         </motion.p>
 
         <motion.div variants={FADE_IN} className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-2">

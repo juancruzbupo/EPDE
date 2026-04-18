@@ -36,8 +36,8 @@ const STATUS_COPY: Record<
     description: 'Gracias por tu pago. El informe queda archivado en esta propiedad.',
   },
   CANCELED: {
-    title: 'Cancelada',
-    description: 'La inspección fue cancelada.',
+    title: 'Cancelado',
+    description: 'El informe fue cancelado.',
   },
 };
 
@@ -66,7 +66,7 @@ export function ClientPayCard({ inspection }: Props) {
             <AlertDescription>
               <p>
                 Realizá la transferencia a la cuenta bancaria de EPDE (te la enviamos por email al
-                emitir el informe). Una vez acreditada, marcamos la inspección como pagada.
+                emitir el informe). Una vez acreditada, marcamos el informe como pagado.
               </p>
               <p className="mt-2">
                 <strong>Dudas:</strong> respondé al email con el comprobante adjunto.

@@ -34,7 +34,7 @@ const adminNavItems = [
   { label: 'Presupuestos', href: ROUTES.budgets, icon: FileText },
   { label: 'Servicios', href: ROUTES.serviceRequests, icon: Wrench },
   {
-    label: 'Inspecciones técnicas',
+    label: 'Informes técnicos',
     href: ROUTES.technicalInspections,
     icon: ClipboardCheck,
   },
@@ -53,7 +53,7 @@ const clientNavItems = [
   { label: 'Presupuestos', href: ROUTES.budgets, icon: FileText },
   { label: 'Servicios', href: ROUTES.serviceRequests, icon: Wrench },
   {
-    label: 'Inspecciones técnicas',
+    label: 'Informes técnicos',
     href: ROUTES.technicalInspections,
     icon: ClipboardCheck,
   },

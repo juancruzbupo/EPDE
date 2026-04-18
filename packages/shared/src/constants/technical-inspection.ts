@@ -91,9 +91,9 @@ export function calculateInspectionFee(
 }
 
 export const TECHNICAL_INSPECTION_LABELS = {
-  BASIC: 'Inspección técnica básica',
-  STRUCTURAL: 'Inspección estructural profunda',
-  SALE: 'Inspección para compraventa',
+  BASIC: 'Informe técnico básico',
+  STRUCTURAL: 'Informe estructural profundo',
+  SALE: 'Informe para compraventa',
 } as const;
 
 export const TECHNICAL_INSPECTION_DESCRIPTIONS = {
@@ -111,12 +111,12 @@ export const TECHNICAL_INSPECTION_ESTIMATED_DAYS = {
 } as const;
 
 export const TECHNICAL_INSPECTION_STATUS_LABELS = {
-  REQUESTED: 'Solicitada',
-  SCHEDULED: 'Agendada',
-  IN_PROGRESS: 'En curso',
+  REQUESTED: 'Solicitado',
+  SCHEDULED: 'Visita agendada',
+  IN_PROGRESS: 'En preparación',
   REPORT_READY: 'Informe listo — pendiente de pago',
-  PAID: 'Pagada',
-  CANCELED: 'Cancelada',
+  PAID: 'Pagado',
+  CANCELED: 'Cancelado',
 } as const;
 
 export const TECHNICAL_INSPECTION_TYPE_LABELS = TECHNICAL_INSPECTION_LABELS;
