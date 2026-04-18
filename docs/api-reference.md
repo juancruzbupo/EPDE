@@ -162,6 +162,59 @@ Ver `docs/adr/017-security-fail-mode-policy.md` para la matriz completa de compo
 
 ---
 
+### Profesionales (ADMIN only)
+
+Directorio interno de profesionales matriculados. Ver ADR-018. Todos los endpoints requieren rol `ADMIN`.
+
+| Metodo | Ruta                                        | Descripcion                                    |
+| ------ | ------------------------------------------- | ---------------------------------------------- |
+| GET    | `/professionals`                            | Listar profesionales (search, specialty, tier) |
+| GET    | `/professionals/suggested`                  | Top N sugeridos por specialty + área           |
+| GET    | `/professionals/:id`                        | Detalle con stats, attachments, ratings, notes |
+| POST   | `/professionals`                            | Crear (matrícula + órgano obligatorios)        |
+| PATCH  | `/professionals/:id`                        | Actualizar datos básicos + especialidades      |
+| DELETE | `/professionals/:id`                        | Soft-delete                                    |
+| PATCH  | `/professionals/:id/tier`                   | Cambiar tier (BLOCKED requiere razón)          |
+| PATCH  | `/professionals/:id/availability`           | AVAILABLE/BUSY/UNAVAILABLE                     |
+| POST   | `/professionals/:id/ratings`                | Crear valoración                               |
+| DELETE | `/professionals/:id/ratings/:ratingId`      | Eliminar valoración                            |
+| POST   | `/professionals/:id/notes`                  | Agregar nota al timeline                       |
+| POST   | `/professionals/:id/tags`                   | Agregar tag operativo                          |
+| DELETE | `/professionals/:id/tags/:tag`              | Quitar tag                                     |
+| POST   | `/professionals/:id/attachments`            | Subir documento (MATRICULA requiere expiresAt) |
+| PATCH  | `/professionals/:id/attachments/:id/verify` | Marcar documento como verificado               |
+| DELETE | `/professionals/:id/attachments/:id`        | Eliminar documento                             |
+| POST   | `/service-requests/:id/assign`              | Asignar profesional a SR                       |
+| DELETE | `/service-requests/:id/assign`              | Quitar asignación                              |
+| GET    | `/professionals/:id/payments`               | Listar pagos del profesional                   |
+| POST   | `/professionals/:id/payments`               | Registrar pago                                 |
+| PATCH  | `/professional-payments/:paymentId`         | Actualizar status (PENDING → PAID)             |
+
+**GET /professionals/suggested** — Query params:
+
+- `specialty` (enum, requerido)
+- `serviceArea` (string, opcional)
+- `limit` (1-10, default: 3)
+
+Retorna top N ordenado por tier (A>B>C), rating bayesiano (prior m=3.5, C=5), lastAssignedAt DESC (anti-fatiga). Filtra BLOCKED, UNAVAILABLE, y matrículas vencidas.
+
+**POST /professionals**:
+
+```json
+{
+  "name": "Juan Pérez",
+  "email": "juan@ejemplo.com",
+  "phone": "+5491112345678",
+  "registrationNumber": "12345",
+  "registrationBody": "COPIME",
+  "specialties": [{ "specialty": "ELECTRICIAN", "isPrimary": true }],
+  "serviceAreas": ["CABA Norte", "Pilar"],
+  "yearsOfExperience": 10,
+  "hourlyRateMin": 5000,
+  "hourlyRateMax": 8000
+}
+```
+
 ### Propiedades
 
 | Metodo | Ruta                             | Auth | Rol   | Descripcion                                        |

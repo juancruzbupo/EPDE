@@ -89,4 +89,15 @@ export const GLOSSARY: readonly GlossaryEntry[] = [
     definition:
       'Documento que certifica que una vivienda recibió mantenimiento preventivo profesional bajo supervisión de EPDE. Requiere un ISV mínimo de 60 puntos y al menos 1 año de antigüedad del plan de mantenimiento. Útil para venta, seguros, alquiler o créditos hipotecarios.',
   },
+  {
+    term: 'Profesional matriculado',
+    aka: 'Especialista EPDE',
+    definition:
+      'Técnico certificado y registrado en un órgano profesional (COPIME, CPIC, etc.) al que EPDE deriva tareas de mantenimiento que requieren habilitación (electricistas, plomeros, arquitectos). Los profesionales de la red EPDE tienen matrícula y seguro RC verificados.',
+  },
+  {
+    term: 'Tier de profesional',
+    definition:
+      'Escala interna de confianza del admin sobre un profesional: A (usar siempre), B (aceptable), C (último recurso), Bloqueado (no volver a contratar). No visible para el cliente.',
+  },
 ] as const;

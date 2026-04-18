@@ -1,6 +1,6 @@
 # Modelo de Datos
 
-Base de datos PostgreSQL 16, ORM Prisma 6. **35 modelos**, 15 enums.
+Base de datos PostgreSQL 16, ORM Prisma 6. **42 modelos**, 20 enums.
 
 ## Diagrama de Relaciones
 
@@ -480,6 +480,76 @@ Singleton para numeración secuencial atómica de certificados de mantenimiento 
 
 **Patrón:** Upsert atómico — `create: { lastNumber: 1 }` / `update: { lastNumber: { increment: 1 } }`. Retorna `CERT-NNNN` con zero-padding a 4 dígitos.
 **No tiene relaciones:** Es un contador independiente. Los certificados no se persisten como entidad — se generan on-demand desde datos existentes (ISV, TaskLogs, InspectionChecklists).
+
+### Professional
+
+Directorio interno de profesionales matriculados al que EPDE deriva service requests. Admin-only, sin auth. Ver ADR-018.
+
+| Campo              | Tipo                     | Notas                               |
+| ------------------ | ------------------------ | ----------------------------------- |
+| id                 | UUID                     | PK                                  |
+| name               | VarChar(200)             |                                     |
+| email              | VarChar(254)             |                                     |
+| phone              | VarChar(30)              |                                     |
+| registrationNumber | VarChar(50)              | Matrícula profesional (obligatoria) |
+| registrationBody   | VarChar(200)             | COPIME, CPIC, etc. (obligatorio)    |
+| serviceAreas       | String[]                 | Zonas que atiende                   |
+| yearsOfExperience  | Int?                     |                                     |
+| hourlyRateMin/Max  | Decimal(10,2)?           | Rango tarifario                     |
+| availability       | ProfessionalAvailability | AVAILABLE/BUSY/UNAVAILABLE          |
+| availableUntil     | DateTime?                | Para estado BUSY                    |
+| tier               | ProfessionalTier         | A/B/C/BLOCKED (default: B)          |
+| blockedReason      | VarChar(500)?            | Obligatoria cuando tier=BLOCKED     |
+| notes              | VarChar(4000)?           | Notas libres del admin              |
+| createdBy          | String                   | Admin que lo cargó                  |
+| deletedAt          | DateTime?                | Soft delete                         |
+
+**Soft delete**: sí — extension enforce filter en reads
+**Índices**: `[deletedAt]`, `[availability, deletedAt]`, `[tier, deletedAt]`
+
+### ProfessionalSpecialtyAssignment
+
+M:N entre profesional y especialidad. Máximo 1 por profesional tiene `isPrimary: true`.
+
+**Unique compuesto:** `[professionalId, specialty]`
+
+### ProfessionalAttachment
+
+Documentos subidos: matrícula, seguro RC, DNI, certificados de curso.
+
+| Campo      | Tipo                       | Notas                                |
+| ---------- | -------------------------- | ------------------------------------ |
+| id         | UUID                       | PK                                   |
+| type       | ProfessionalAttachmentType | MATRICULA/SEGURO_RC/DNI/CERT/OTRO    |
+| url        | String                     | URL en Cloudflare R2                 |
+| fileName   | VarChar(200)               |                                      |
+| expiresAt  | DateTime?                  | Obligatorio para MATRICULA/SEGURO_RC |
+| verifiedAt | DateTime?                  | Admin marcó como verificado          |
+| verifiedBy | String?                    | Admin que lo verificó                |
+
+**Cron `matricula-expiry`**: diariamente a las 11:00 UTC escanea attachments con `expiresAt ≤ 30d`, notifica al admin. Si vence, flipea availability del profesional a UNAVAILABLE.
+
+### ProfessionalRating
+
+Valoraciones del admin (1-5) con 3 sub-ratings opcionales (punctuality, quality, priceValue). El campo `clientComment` es capturado post-SR pero NO participa del score.
+
+**Score agregado**: calculado bayesianamente en el service layer (prior m=3.5, pseudocount C=5). No persistido.
+
+### ProfessionalTimelineNote / ProfessionalTag
+
+Notas privadas del admin (feed cronológico) + tags operativos (#confiable, #caro, etc.). Tags son únicos por profesional, normalizados a lowercase con prefijo `#`.
+
+### ServiceRequestAssignment
+
+Link 1:1 entre ServiceRequest y Professional (unique constraint en `serviceRequestId`).
+
+- Profesionales `tier=BLOCKED` rechazan asignaciones nuevas
+- SRs `CLOSED` rechazan asignaciones nuevas
+- Las asignaciones existentes se mantienen aunque el profesional sea bloqueado posteriormente
+
+### ProfessionalPayment
+
+Pagos que EPDE le hace al profesional. Status machine: `PENDING → PAID` (o `CANCELED`). Al marcar PAID se setea `paidAt`.
 
 ### InspectionChecklist
 

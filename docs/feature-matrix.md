@@ -92,6 +92,13 @@ Actualizar cuando se agrega o modifica una feature en cualquier plataforma.
 | ISV reporte imprimible                  |     ✅      |      ✅       |        ❌        |                 ❌                 | window.print()                                                                    |
 | Informe técnico completo                |     ✅      | ✅ (web link) |        ✅        |                 ✅                 | /properties/{id}/report                                                           |
 | Certificado de Mantenimiento Preventivo |     ✅      |      ✅       |        🚧        |                 ✅                 | /properties/{id}/certificate. Requiere ISV ≥60 + 1 año antigüedad plan. CERT-NNNN |
+| **Profesionales matriculados (admin)**  |             |               |                  |                                    |                                                                                   |
+| Directorio CRUD                         |     ✅      |      ❌       |        ❌        |                 ❌                 | /professionals. Admin-only, gated por middleware                                  |
+| Smart match top-3 para SRs              |     ✅      |      ❌       |        ❌        |                 ❌                 | Tier + rating bayesiano + anti-fatiga                                             |
+| Valoraciones + tags + timeline          |     ✅      |      ❌       |        ❌        |                 ❌                 | Admin score 1-5 + 3 sub-ratings + comentario cliente separado                     |
+| Adjuntos (matrícula, seguro RC)         |     ✅      |      ❌       |        ❌        |                 ❌                 | Matrícula requiere expiresAt. Cron notifica 30d antes                             |
+| Pagos EPDE → profesional                |     ✅      |      ❌       |        ❌        |                 ❌                 | PENDING → PAID status machine                                                     |
+| Asignación 1:1 con Service Request      |     ✅      |      ❌       |        ❌        |                 ❌                 | Cliente nunca ve el nombre del profesional (lock-in)                              |
 | ISV alertas (caída >15 pts)             |     ✅      |      ✅       |        ✅        |     Notificación in-app + push     |
 | ISV snapshots mensuales                 |   Backend   |    Backend    |     Backend      | Cron job 1ro de cada mes 02:00 UTC |
 | **Suscripción**                         |             |               |                  |                                    |                                                                                   |
