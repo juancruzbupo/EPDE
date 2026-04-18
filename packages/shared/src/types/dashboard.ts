@@ -186,6 +186,40 @@ export interface ISVSnapshotPublic {
   trend: number;
 }
 
+/** Aggregated data for the Certificado de Mantenimiento Preventivo. */
+export interface PropertyCertificateData {
+  certificateNumber: string;
+  issuedAt: string;
+  coveragePeriod: { from: string; to: string };
+  property: {
+    id: string;
+    address: string;
+    city: string;
+    type: PropertyType;
+    yearBuilt: number | null;
+    squareMeters: number | null;
+    owner: { name: string; email: string };
+  };
+  healthIndex: PropertyHealthIndex;
+  isvHistory: ISVSnapshotPublic[];
+  summary: {
+    totalTasksCompleted: number;
+    totalInspections: number;
+    sectorsInspected: number;
+    totalSectors: number;
+    complianceRate: number;
+    totalInvested: number;
+  };
+  highlights: Array<{
+    taskName: string;
+    categoryName: string;
+    sector: string | null;
+    completedAt: string;
+    conditionFound: ConditionFound;
+  }>;
+  architect: { name: string };
+}
+
 /** Aggregated data for generating a property technical report (PDF). */
 export interface PropertyReportData {
   property: {

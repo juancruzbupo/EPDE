@@ -35,6 +35,7 @@ export const QUERY_KEYS = {
   propertyHealthIndex: 'health-index',
   propertyHealthHistory: 'health-history',
   propertyProblems: 'problems',
+  propertyCertificate: 'certificate',
   // Plan sub-keys
   plansList: 'list',
   plansTasks: 'tasks',
