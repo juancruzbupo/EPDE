@@ -56,29 +56,32 @@ export function LandingPage({ settings }: LandingPageProps) {
       <main id="main-content">
         {/* 1. Hero — qué es EPDE + CTA */}
         <HeroSection motionProps={motionProps} socialProof={settings?.general?.socialProof} />
-        {/* 2. Cómo funciona — 3 pasos claros */}
-        <HowItWorksSection motionProps={motionProps} />
-        {/* 3. Demo — así se ve la herramienta */}
-        <DemoSection motionProps={motionProps} />
-        {/* 4. Inversión — beneficios + precio lado a lado */}
-        <InvestmentSection motionProps={motionProps} pricing={settings?.pricing} />
-        {/* 5. Consecuencias — por qué prevenir */}
+        {/* 2. Consecuencias — activa el dolor temprano (PAS: Problem + Agitation).
+         *    Scroll-depth ~85% alcanza esta posición vs 50% si va más abajo. */}
         <ConsequenceSection
           motionProps={motionProps}
           consequences={settings?.consequences}
           costDisclaimer={settings?.pricing?.costDisclaimer}
         />
-        {/* 6. Testimonios — prueba social real */}
-        <TestimonialsSection motionProps={motionProps} />
-        {/* 7. Credenciales — quién está detrás */}
-        <CredentialsSection motionProps={motionProps} />
-        {/* 8. Certificado — respaldo documental tras 1 año de uso */}
-        <CertificateSection motionProps={motionProps} />
-        {/* 9. Comparación — tradicional vs EPDE */}
+        {/* 3. Cómo funciona — ahora que sintió el dolor, mostramos la solución */}
+        <HowItWorksSection motionProps={motionProps} />
+        {/* 4. Demo — así se ve la herramienta */}
+        <DemoSection motionProps={motionProps} />
+        {/* 5. Diferenciación — responde la objeción "¿para qué pago si llamo al
+         *    plomero cuando se rompe algo?" en el momento que aparece mentalmente */}
         <DifferentiationSection motionProps={motionProps} />
-        {/* 7. FAQ */}
+        {/* 6. Credenciales — autoridad (Noelia matriculada) antes del pedido monetario */}
+        <CredentialsSection motionProps={motionProps} />
+        {/* 7. Testimonios — prueba social */}
+        <TestimonialsSection motionProps={motionProps} />
+        {/* 8. Certificado — bonus de largo plazo, refuerza credibilidad final */}
+        <CertificateSection motionProps={motionProps} />
+        {/* 9. Inversión — precio recién acá, con motivación + autoridad + prueba
+         *    social construidas. "Value-first evaluation" en vez de "price-first". */}
+        <InvestmentSection motionProps={motionProps} pricing={settings?.pricing} />
+        {/* 10. FAQ — últimas objeciones antes del cierre */}
         <FaqSection motionProps={motionProps} faq={settings?.faq} />
-        {/* 8. CTA final */}
+        {/* 11. CTA final */}
         <FinalCtaSection motionProps={motionProps} price={settings?.pricing?.price} />
       </main>
       <Footer general={settings?.general} />
