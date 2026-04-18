@@ -124,7 +124,7 @@ describe('BudgetsScreen', () => {
 
     const { getByText } = render(<BudgetsScreen />);
 
-    expect(getByText('Sin presupuestos')).toBeTruthy();
+    expect(getByText('Sin presupuestos todavía')).toBeTruthy();
   });
 
   it('shows error state when query fails', () => {

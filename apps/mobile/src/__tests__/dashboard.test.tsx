@@ -31,6 +31,11 @@ jest.mock('@/hooks/use-dashboard', () => ({
   useClientAnalytics: () => mockUseClientAnalytics(),
 }));
 
+jest.mock('@/hooks/use-milestones', () => ({
+  useMilestones: () => ({ data: null, isLoading: false }),
+  useStreakFreeze: () => ({ mutate: jest.fn(), isPending: false }),
+}));
+
 // Mock chart components to avoid react-native-svg issues in test environment
 jest.mock('@/components/charts/mini-donut-chart', () => ({
   MiniDonutChart: () => null,

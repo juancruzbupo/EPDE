@@ -208,7 +208,7 @@ describe('ServiceRequestsScreen', () => {
 
     const { getByText } = render(<ServiceRequestsScreen />);
 
-    expect(getByText('Sin solicitudes')).toBeTruthy();
+    expect(getByText('Sin solicitudes todavía')).toBeTruthy();
   });
 
   it('renders status filter chips', () => {

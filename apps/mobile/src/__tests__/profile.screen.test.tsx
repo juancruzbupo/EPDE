@@ -17,6 +17,15 @@ jest.mock('@/stores/auth-store', () => ({
   useAuthStore: (selector: (state: unknown) => unknown) => mockAuthStore(selector),
 }));
 
+jest.mock('@/hooks/use-milestones', () => ({
+  useMilestones: () => ({ data: null, isLoading: false }),
+  useStreakFreeze: () => ({ mutate: jest.fn(), isPending: false }),
+}));
+
+jest.mock('@/hooks/use-referrals', () => ({
+  useReferrals: () => ({ data: null, isLoading: false }),
+}));
+
 // ---------------------------------------------------------------------------
 // Import the component under test *after* mocks are set up
 // ---------------------------------------------------------------------------

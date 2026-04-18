@@ -4,12 +4,19 @@ import { act } from 'react';
 let mockListener: ((state: { isConnected: boolean | null }) => void) | null = null;
 const mockUnsubscribe = jest.fn();
 
-jest.mock('@react-native-community/netinfo', () => ({
-  addEventListener: (cb: (state: { isConnected: boolean | null }) => void) => {
+jest.mock('@react-native-community/netinfo', () => {
+  const addEventListener = (cb: (state: { isConnected: boolean | null }) => void) => {
     mockListener = cb;
     return mockUnsubscribe;
-  },
-}));
+  };
+  const fetch = jest.fn().mockResolvedValue({ isConnected: true, isInternetReachable: true });
+  return {
+    __esModule: true,
+    default: { addEventListener, fetch },
+    addEventListener,
+    fetch,
+  };
+});
 
 import { useNetworkStatus } from '../use-network-status';
 

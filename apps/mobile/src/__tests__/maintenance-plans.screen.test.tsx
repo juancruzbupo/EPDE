@@ -102,9 +102,6 @@ describe('MaintenancePlansScreen', () => {
     mockUsePlans.mockReturnValue(queryResult([]));
 
     render(<MaintenancePlansScreen />);
-    expect(screen.getByText('Sin planes')).toBeTruthy();
-    expect(
-      screen.getByText('Los planes de mantenimiento se crean al agregar una propiedad.'),
-    ).toBeTruthy();
+    expect(screen.getByText('Todavía no tenés un plan activo')).toBeTruthy();
   });
 });

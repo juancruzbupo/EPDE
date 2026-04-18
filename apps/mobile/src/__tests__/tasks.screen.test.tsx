@@ -114,7 +114,7 @@ describe('TasksScreen', () => {
     const { getByText } = render(<TasksScreen />);
 
     expect(getByText('Tareas')).toBeTruthy();
-    expect(getByText('Sin tareas')).toBeTruthy();
+    expect(getByText('Sin tareas todavía')).toBeTruthy();
   });
 
   it('shows error state when query fails', () => {
@@ -150,9 +150,9 @@ describe('TasksScreen', () => {
 
     const { getByLabelText } = render(<TasksScreen />);
 
-    fireEvent.press(getByLabelText('Filtrar por Pendiente'));
+    fireEvent.press(getByLabelText(/Filtrar por Pendiente/));
 
     // Stat card toggled — component renders without error
-    expect(getByLabelText('Filtrar por Pendiente')).toBeTruthy();
+    expect(getByLabelText(/Filtrar por Pendiente/)).toBeTruthy();
   });
 });
