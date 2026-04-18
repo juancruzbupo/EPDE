@@ -20,6 +20,7 @@ import { Header } from './sections/header';
 import { HeroSection } from './sections/hero';
 import { HowItWorksSection } from './sections/how-it-works';
 import { InvestmentSection } from './sections/investment';
+import { MobileStickyCta } from './sections/mobile-sticky-cta';
 import { ScrollToTop } from './sections/scroll-to-top';
 import { TechnicalInspectionSection } from './sections/technical-inspection';
 import { TestimonialsSection } from './sections/testimonials';
@@ -94,6 +95,7 @@ export function LandingPage({ settings }: LandingPageProps) {
       {/* Floating buttons */}
       <ScrollToTop />
       <WhatsAppFloat />
+      <MobileStickyCta />
     </div>
   );
 }

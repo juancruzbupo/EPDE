@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import type { LandingGeneral } from '@/types/landing-settings';
 
-import { PHONE_DISPLAY, PHONE_NUMBER } from '../landing-data';
+import { PHONE_DISPLAY, PHONE_NUMBER, PRIMARY_CTA_LABEL, WHATSAPP_URL } from '../landing-data';
 
 const NAV_LINKS = [
   { label: 'Cómo funciona', href: '#como-funciona' },
@@ -71,8 +71,8 @@ export function Header({ general }: HeaderProps) {
           ))}
         </nav>
 
-        {/* Desktop action — phone only */}
-        <div className="hidden items-center md:flex">
+        {/* Desktop action — phone + primary CTA */}
+        <div className="hidden items-center gap-2 md:flex">
           <a
             href={`tel:+${phone}`}
             className="text-muted-foreground hover:text-foreground group relative flex h-9 w-9 items-center justify-center rounded-full transition-colors"
@@ -82,6 +82,14 @@ export function Header({ general }: HeaderProps) {
             <span className="bg-foreground text-background pointer-events-none absolute top-full mt-2 rounded px-2 py-1 text-xs whitespace-nowrap opacity-0 transition-opacity group-hover:opacity-100">
               {phoneDisplay}
             </span>
+          </a>
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center rounded-md px-4 text-sm font-medium shadow-sm transition-colors"
+          >
+            {PRIMARY_CTA_LABEL}
           </a>
         </div>
 
@@ -124,7 +132,16 @@ export function Header({ general }: HeaderProps) {
                 {link.label}
               </a>
             ))}
-            <div className="mt-3 pb-2">
+            <div className="mt-3 space-y-3 pb-2">
+              <a
+                href={WHATSAPP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={closeMenu}
+                className="bg-primary text-primary-foreground hover:bg-primary/90 flex h-11 w-full items-center justify-center rounded-md text-sm font-medium shadow-sm transition-colors"
+              >
+                {PRIMARY_CTA_LABEL}
+              </a>
               <a
                 href={`tel:+${phone}`}
                 className="text-muted-foreground hover:text-foreground flex items-center gap-2 py-1 text-sm transition-colors"
