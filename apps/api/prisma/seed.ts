@@ -14,6 +14,7 @@ const { generateReferralCode } = require('../../../packages/shared/dist/index.cj
   generateReferralCode: (firstName: string) => string;
 };
 import { seedDemo } from './seed-demo';
+import { seedProfessionals } from './seed-professionals';
 
 const prisma = new PrismaClient();
 
@@ -324,6 +325,9 @@ async function main() {
   } else {
     console.log('Demo data already exists, skipping');
   }
+
+  // Professionals directory seed (ADR-018). Idempotent via .pro.seed@epde.com marker.
+  await seedProfessionals(prisma, admin.id);
 
   // Idempotent fixture used by the inspection→plan E2E spec. Runs on every seed
   // pass so it survives re-runs and stays in a pristine no-plan state. If the
