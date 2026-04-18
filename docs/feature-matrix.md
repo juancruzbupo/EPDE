@@ -100,6 +100,11 @@ Actualizar cuando se agrega o modifica una feature en cualquier plataforma.
 | Adjuntos (matrícula, seguro RC)            |     ✅      |      ❌       |        ❌        |                 ❌                 | Matrícula requiere expiresAt. Cron notifica 30d antes                               |
 | Pagos EPDE → profesional                   |     ✅      |      ❌       |        ❌        |                 ❌                 | PENDING → PAID status machine                                                       |
 | Asignación 1:1 con Service Request         |     ✅      |      ❌       |        ❌        |                 ❌                 | Cliente nunca ve el nombre del profesional (lock-in)                                |
+| **Inspecciones técnicas (ADR-019)**        |             |               |                  |                                    |                                                                                     |
+| Solicitar (3 tipos: BASIC/STRUCTURAL/SALE) |     ❌      |      ✅       |        ❌        |                 ❌                 | Solo clientes activos. Precio congelado al crear con 15% off                        |
+| Agendar visita + subir informe firmado     |     ✅      |      ❌       |        ❌        |                 ❌                 | Admin coordina fecha y sube PDF firmado con matrícula                               |
+| Pagar tras recibir informe (transferencia) |     ❌      |      ✅       |        ❌        |                 ❌                 | Pago manual, sin pasarela. Admin registra `paidAt`                                  |
+| Sección en landing (−15% clientes activos) |     N/A     |      ✅       |        ❌        |                 ❌                 | Disclaimer oblea NAG-226 / RE-7 explícito. Ver ADR-019                              |
 | ISV alertas (caída >15 pts)                |     ✅      |      ✅       |        ✅        |     Notificación in-app + push     |
 | ISV snapshots mensuales                    |   Backend   |    Backend    |     Backend      | Cron job 1ro de cada mes 02:00 UTC |
 | **Suscripción**                            |             |               |                  |                                    |                                                                                     |

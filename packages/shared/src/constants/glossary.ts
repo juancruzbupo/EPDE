@@ -112,4 +112,22 @@ export const GLOSSARY: readonly GlossaryEntry[] = [
     definition:
       'Matriculado habilitado para ejecutar y dirigir obras menores, firmar planos municipales, y hacer reparaciones estructurales básicas. Equivalente operativo del arquitecto para mantenimiento.',
   },
+  {
+    term: 'Inspección técnica',
+    aka: 'Informe técnico firmado',
+    definition:
+      'Servicio pagado aparte del plan en el que la arquitecta responsable de EPDE ejecuta personalmente un relevamiento firmado (no se deriva a terceros). Tres tipos: básica, estructural profunda y para compraventa. Exclusivo para clientes activos con 15% de descuento sobre el precio público. Ver ADR-019.',
+  },
+  {
+    term: 'Oblea NAG-226',
+    aka: 'Oblea de gas',
+    definition:
+      'Certificado de seguridad de la instalación de gas firmado por gasista matriculado ENARGAS. Exigido por distribuidoras de gas (ECOGAS, Metrogas, etc.) ante cambios de titularidad o instalación nueva. NO está incluido en la inspección técnica de EPDE — requiere otro matriculado habilitado.',
+  },
+  {
+    term: 'Informe RE-7',
+    aka: 'Informe técnico eléctrico',
+    definition:
+      'Declaración de seguridad de la instalación eléctrica firmada por electricista matriculado con habilitación del Colegio provincial. Exigido en compraventas y algunas habilitaciones municipales. NO está incluido en la inspección técnica de EPDE.',
+  },
 ] as const;

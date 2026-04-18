@@ -761,6 +761,45 @@ Rate limit: 3 requests/minuto. Genera MaintenancePlan + Tasks con prioridades aj
 
 ---
 
+### Inspecciones técnicas (ADR-019)
+
+Servicio pagado aparte del plan, ejecutado personalmente por la arquitecta matriculada. Cliente solicita, admin agenda + sube informe firmado + registra pago.
+
+| Metodo | Ruta                                     | Auth | Rol    | Descripcion                                   |
+| ------ | ---------------------------------------- | ---- | ------ | --------------------------------------------- |
+| GET    | `/technical-inspections`                 | Si   | Ambos  | Lista (CLIENT solo ve las suyas)              |
+| GET    | `/technical-inspections/:id`             | Si   | Ambos  | Detalle con ownership check                   |
+| POST   | `/technical-inspections`                 | Si   | CLIENT | Crear (requiere subscripción activa)          |
+| PATCH  | `/technical-inspections/:id/schedule`    | Si   | ADMIN  | Agendar visita (REQUESTED → SCHEDULED)        |
+| PATCH  | `/technical-inspections/:id/status`      | Si   | ADMIN  | Cambiar estado con validación de transiciones |
+| POST   | `/technical-inspections/:id/deliverable` | Si   | ADMIN  | Subir PDF firmado → REPORT_READY              |
+| POST   | `/technical-inspections/:id/mark-paid`   | Si   | ADMIN  | Registrar pago → PAID (terminal)              |
+| DELETE | `/technical-inspections/:id`             | Si   | ADMIN  | Cancelar (soft-delete, no si ya PAID)         |
+
+**POST /technical-inspections** (cliente activo):
+
+```json
+{
+  "propertyId": "<uuid>",
+  "type": "BASIC",
+  "clientNotes": "Visita sugerida en horario matutino"
+}
+```
+
+Precio se congela automáticamente con descuento cliente EPDE (15%) si la suscripción está activa. Devuelve `TechnicalInspectionPublic` con `inspectionNumber` (`INSP-YYYY-NNNN`), `feeAmount` y `feeStatus=PENDING`.
+
+**Transiciones válidas** (enforceadas en `updateStatus`):
+
+- `REQUESTED → SCHEDULED | CANCELED`
+- `SCHEDULED → IN_PROGRESS | CANCELED`
+- `IN_PROGRESS → REPORT_READY | CANCELED`
+- `REPORT_READY → PAID | CANCELED`
+- `PAID`, `CANCELED`: terminal
+
+**POST /technical-inspections/:id/mark-paid** requiere `deliverableUrl` ≠ null (enforced).
+
+---
+
 ### Upload
 
 | Metodo | Ruta      | Auth | Rol   | Descripcion                           |

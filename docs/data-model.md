@@ -1,6 +1,6 @@
 # Modelo de Datos
 
-Base de datos PostgreSQL 16, ORM Prisma 6. **43 modelos**, 26 enums.
+Base de datos PostgreSQL 16, ORM Prisma 6. **45 modelos**, 29 enums.
 
 ## Diagrama de Relaciones
 
@@ -40,6 +40,8 @@ Professional ─1:N─ ProfessionalSpecialtyAssignment
              ─1:N─ ProfessionalTag
              ─1:N─ ServiceRequestAssignment ──1:1── ServiceRequest
              ─1:N─ ProfessionalPayment
+
+Property ─1:N─ TechnicalInspection ─N:1─ User (requester)
 ```
 
 **Flujo principal:** Inspección → Plan. La arquitecta inspecciona la propiedad usando items generados desde TaskTemplates. Al completar la inspección, genera el plan de mantenimiento con prioridades ajustadas según hallazgos.
@@ -219,6 +221,33 @@ Professional ─1:N─ ProfessionalSpecialtyAssignment
 | `BUDGET_UPDATE`  | Cambio de estado en presupuesto       |
 | `SERVICE_UPDATE` | Cambio de estado en solicitud         |
 | `SYSTEM`         | Notificacion del sistema              |
+
+### TechnicalInspectionType
+
+| Valor        | Descripcion                                 |
+| ------------ | ------------------------------------------- |
+| `BASIC`      | Inspección técnica básica (informe general) |
+| `STRUCTURAL` | Inspección estructural profunda             |
+| `SALE`       | Inspección para compraventa                 |
+
+### TechnicalInspectionStatus
+
+| Valor          | Descripcion                           |
+| -------------- | ------------------------------------- |
+| `REQUESTED`    | Cliente la solicitó                   |
+| `SCHEDULED`    | Visita agendada                       |
+| `IN_PROGRESS`  | Relevamiento en curso                 |
+| `REPORT_READY` | PDF firmado subido, pendiente de pago |
+| `PAID`         | Pago registrado. Terminal.            |
+| `CANCELED`     | Soft-deleted. Terminal.               |
+
+### TechnicalInspectionPaymentStatus
+
+| Valor      | Descripcion                       |
+| ---------- | --------------------------------- |
+| `PENDING`  | Sin pagar todavía                 |
+| `PAID`     | Pago recibido y registrado        |
+| `CANCELED` | Inspección cancelada, no se cobra |
 
 ## Entidades
 
@@ -582,6 +611,46 @@ Link 1:1 entre ServiceRequest y Professional (unique constraint en `serviceReque
 ### ProfessionalPayment
 
 Pagos que EPDE le hace al profesional. Status machine: `PENDING → PAID` (o `CANCELED`). Al marcar PAID se setea `paidAt`.
+
+### TechnicalInspection
+
+Inspección técnica firmada por la arquitecta matriculada (servicio pagado aparte del plan). Ver ADR-019 para pricing, flujo y motivación.
+
+| Campo                 | Tipo                             | Notas                                               |
+| --------------------- | -------------------------------- | --------------------------------------------------- |
+| id                    | UUID                             | PK                                                  |
+| inspectionNumber      | String(20)                       | `INSP-YYYY-NNNN`, único, counter atómico por año    |
+| propertyId            | UUID                             | FK → Property (cascade)                             |
+| requestedBy           | UUID                             | FK → User (restrict — requester no se puede borrar) |
+| type                  | TechnicalInspectionType          | BASIC / STRUCTURAL / SALE                           |
+| status                | TechnicalInspectionStatus        | Default: REQUESTED                                  |
+| clientNotes           | String(2000)?                    | Notas del cliente al solicitar                      |
+| adminNotes            | String(4000)?                    | Notas internas del admin                            |
+| scheduledFor          | DateTime?                        | Fecha coordinada para la visita                     |
+| completedAt           | DateTime?                        | Set automáticamente al pasar a REPORT_READY         |
+| deliverableUrl        | String?                          | URL del PDF firmado                                 |
+| deliverableFileName   | String(200)?                     | Nombre original del archivo                         |
+| feeAmount             | Decimal(12,2)                    | Precio congelado al crear                           |
+| feeStatus             | TechnicalInspectionPaymentStatus | PENDING / PAID / CANCELED                           |
+| hadActivePlan         | Boolean                          | Snapshot: si tenía plan activo al solicitar         |
+| paidAt                | DateTime?                        | Set al registrar pago                               |
+| paymentMethod         | String(50)?                      | transferencia / efectivo / mercadopago / otro       |
+| paymentReceiptUrl     | String?                          | Comprobante del cliente (opcional)                  |
+| createdAt / updatedAt | DateTime                         |                                                     |
+| deletedAt             | DateTime?                        | Soft delete                                         |
+
+**Indices:** `[propertyId]`, `[requestedBy]`, `[status]`, `[deletedAt]`, `[status, createdAt]`
+**Soft delete:** Sí — criterio audit relevance (registro profesional firmado con valor legal).
+**Invariantes:**
+
+- `feeAmount` inmutable post-create (precio congelado).
+- `status=PAID` requiere `deliverableUrl ≠ null`.
+- Solo CLIENT con `subscriptionExpiresAt >= now` puede crear.
+- Transiciones permitidas: `REQUESTED → SCHEDULED → IN_PROGRESS → REPORT_READY → PAID`, cualquier no-terminal puede ir a `CANCELED`.
+
+### TechnicalInspectionCounter
+
+Singleton (`id = "singleton"`) que sostiene el counter atómico por año para generar `inspectionNumber`. Campo `yearlyCounters: Json` tipo `{ "2026": 42, "2027": 0 }`. Mismo pattern que BudgetRequest.
 
 ### InspectionChecklist
 
