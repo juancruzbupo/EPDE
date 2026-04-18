@@ -21,9 +21,9 @@ export function triggerConfetti() {
   const colors = [
     DESIGN_TOKENS_LIGHT.primary,
     DESIGN_TOKENS_LIGHT.secondary,
-    '#4ade80',
-    '#facc15',
-    '#60a5fa',
+    DESIGN_TOKENS_LIGHT.success,
+    DESIGN_TOKENS_LIGHT.warning,
+    DESIGN_TOKENS_LIGHT.statusUpcoming,
   ];
 
   (function frame() {

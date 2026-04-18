@@ -387,7 +387,7 @@ export default function PropertyDetailScreen() {
                 value={search}
                 onChangeText={setSearch}
                 placeholder="Buscar tarea..."
-                placeholderTextColor="#999"
+                placeholderTextColor={COLORS.mutedForeground}
                 accessibilityLabel="Buscar tareas"
                 className="border-border bg-card text-foreground mb-3 rounded-xl border px-4 py-3 text-sm"
               />

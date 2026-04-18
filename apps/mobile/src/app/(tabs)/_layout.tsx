@@ -92,7 +92,11 @@ export default function TabLayout() {
               <AnimatedTabIcon emoji="🔔" color={color} focused={focused} />
             ),
             tabBarBadge: unreadCount && unreadCount > 0 ? unreadCount : undefined,
-            tabBarBadgeStyle: { backgroundColor: COLORS.destructive, color: '#fff', fontSize: 12 },
+            tabBarBadgeStyle: {
+              backgroundColor: COLORS.destructive,
+              color: COLORS.destructiveForeground,
+              fontSize: 12,
+            },
           }}
         />
         <Tabs.Screen
