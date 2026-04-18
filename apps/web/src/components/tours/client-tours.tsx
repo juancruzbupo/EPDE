@@ -97,7 +97,7 @@ const PROPERTY_STEPS: Step[] = [
     target: '[data-tour="certificate-btn"]',
     title: 'Certificado de Mantenimiento',
     content:
-      'Cuando tu vivienda lleve 1 año de mantenimiento y tenga un ISV mayor a 60, vas a poder emitir un certificado profesional. Es útil para venta, seguros, alquiler o créditos.',
+      'Cuando tu vivienda lleve 1 año de mantenimiento y tenga un ISV mayor a 60, vas a poder emitir un certificado profesional. Útil como respaldo documental al mostrarla a compradores, inmobiliarias o tasadores.',
     ...SHARED_STEP_DEFAULTS,
   },
 ];

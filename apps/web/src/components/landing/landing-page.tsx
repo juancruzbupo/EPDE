@@ -8,6 +8,7 @@ import type {
   LandingPricing,
 } from '@/types/landing-settings';
 
+import { CertificateSection } from './sections/certificate';
 import { ConsequenceSection } from './sections/consequence';
 import { CredentialsSection } from './sections/credentials';
 import { DemoSection } from './sections/demo';
@@ -71,7 +72,9 @@ export function LandingPage({ settings }: LandingPageProps) {
         <TestimonialsSection motionProps={motionProps} />
         {/* 7. Credenciales — quién está detrás */}
         <CredentialsSection motionProps={motionProps} />
-        {/* 6. Comparación — tradicional vs EPDE */}
+        {/* 8. Certificado — respaldo documental tras 1 año de uso */}
+        <CertificateSection motionProps={motionProps} />
+        {/* 9. Comparación — tradicional vs EPDE */}
         <DifferentiationSection motionProps={motionProps} />
         {/* 7. FAQ */}
         <FaqSection motionProps={motionProps} faq={settings?.faq} />

@@ -87,7 +87,7 @@ export const GLOSSARY: readonly GlossaryEntry[] = [
     term: 'Certificado de Mantenimiento Preventivo',
     aka: 'Certificado EPDE',
     definition:
-      'Documento que certifica que una vivienda recibió mantenimiento preventivo profesional bajo supervisión de EPDE. Requiere un ISV mínimo de 60 puntos y al menos 1 año de antigüedad del plan de mantenimiento. Útil para venta, seguros, alquiler o créditos hipotecarios.',
+      'Documento privado que acredita que una vivienda recibió mantenimiento preventivo profesional bajo supervisión de EPDE. Requiere un ISV mínimo de 60 puntos y al menos 1 año de antigüedad del plan. Útil como respaldo documental al mostrar la vivienda a compradores, inmobiliarias o tasadores. No reemplaza certificados oficiales exigidos por bancos, aseguradoras o escribanías.',
   },
   {
     term: 'Profesional matriculado',
