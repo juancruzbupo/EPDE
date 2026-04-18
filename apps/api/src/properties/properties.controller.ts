@@ -163,4 +163,14 @@ export class PropertiesController {
     await this.propertiesService.markContacted(id);
     return { data: null, message: 'Contacto registrado' };
   }
+
+  @Get(':id/certificate')
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  async getCertificate(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    const data = await this.propertiesService.getCertificateData(id, user);
+    return { data, message: 'Certificado generado' };
+  }
 }

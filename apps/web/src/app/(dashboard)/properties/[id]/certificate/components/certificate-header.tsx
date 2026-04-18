@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/lib/routes';
 
-export const ReportHeader = React.memo(function ReportHeader({
+export const CertificateHeader = React.memo(function CertificateHeader({
   propertyId,
 }: {
   propertyId: string;
@@ -33,15 +33,6 @@ export const ReportHeader = React.memo(function ReportHeader({
           }}
         >
           Copiar link
-        </Button>
-        <Button variant="outline" size="sm" asChild>
-          <a
-            href={`https://wa.me/?text=${encodeURIComponent('Informe técnico de tu vivienda: ' + (typeof window !== 'undefined' ? window.location.href : ''))}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            WhatsApp
-          </a>
         </Button>
         <Button onClick={() => window.print()}>
           <Printer className="mr-2 h-4 w-4" aria-hidden="true" />

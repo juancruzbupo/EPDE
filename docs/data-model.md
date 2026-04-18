@@ -1,6 +1,6 @@
 # Modelo de Datos
 
-Base de datos PostgreSQL 16, ORM Prisma 6. **30 modelos**, 15 enums.
+Base de datos PostgreSQL 16, ORM Prisma 6. **35 modelos**, 15 enums.
 
 ## Diagrama de Relaciones
 
@@ -467,6 +467,19 @@ Snapshot mensual del Índice de Salud de la Vivienda (ISV). Generado por cron jo
 **Cascade:** onDelete de Property elimina sus ISVSnapshots
 **ISV Label:** score ≥80 "Excelente", ≥60 "Bueno", ≥40 "Regular", ≥20 "Necesita atención", <20 "Crítico"
 **Legacy `trend`:** Snapshots creados antes del commit `43f624b` tienen `trend=50` porque el batch no computaba tendencia correctamente. Hoy ningún consumidor lee trend histórico (`findLatestForProperties` solo selecciona `score`/`label`). Si una feature futura lo consume, requiere backfill time-machine (reconstruir estado a la fecha del snapshot).
+
+### CertificateCounter
+
+Singleton para numeración secuencial atómica de certificados de mantenimiento preventivo (CERT-0001, CERT-0002...).
+
+| Campo      | Tipo     | Notas                              |
+| ---------- | -------- | ---------------------------------- |
+| id         | String   | PK, siempre "singleton"            |
+| lastNumber | Int      | Último número emitido (default: 0) |
+| updatedAt  | DateTime | Auto-updated                       |
+
+**Patrón:** Upsert atómico — `create: { lastNumber: 1 }` / `update: { lastNumber: { increment: 1 } }`. Retorna `CERT-NNNN` con zero-padding a 4 dígitos.
+**No tiene relaciones:** Es un contador independiente. Los certificados no se persisten como entidad — se generan on-demand desde datos existentes (ISV, TaskLogs, InspectionChecklists).
 
 ### InspectionChecklist
 

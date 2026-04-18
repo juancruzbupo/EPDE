@@ -31,7 +31,7 @@ export default function PropertyReportPage({ params }: { params: Promise<{ id: s
     isError,
     refetch,
   } = useQuery({
-    queryKey: [QUERY_KEYS.properties, id, 'report'],
+    queryKey: [QUERY_KEYS.properties, id, QUERY_KEYS.propertyReport],
     queryFn: ({ signal }) => getPropertyReport(id, signal).then((r) => r.data),
     staleTime: 5 * 60_000,
   });

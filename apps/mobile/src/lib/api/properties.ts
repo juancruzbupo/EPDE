@@ -14,4 +14,5 @@ export const {
   getPropertyHealthHistory,
   getPropertyReport,
   getPropertyProblems,
+  getPropertyCertificate,
 } = queries;

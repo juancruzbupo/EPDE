@@ -1,7 +1,7 @@
 import type { AxiosInstance } from 'axios';
 
 import type { ApiResponse, PaginatedResponse, PropertyPublic } from '../types';
-import type { PropertyReportData } from '../types/dashboard';
+import type { PropertyCertificateData, PropertyReportData } from '../types/dashboard';
 import type { PropertyType } from '../types/enums';
 
 export interface PropertyFilters {
@@ -100,6 +100,14 @@ export function createPropertyQueries(apiClient: AxiosInstance) {
       signal?: AbortSignal,
     ): Promise<ApiResponse<PropertyReportData>> {
       const { data } = await apiClient.get(`/properties/${id}/report-data`, { signal });
+      return data;
+    },
+
+    async getPropertyCertificate(
+      id: string,
+      signal?: AbortSignal,
+    ): Promise<ApiResponse<PropertyCertificateData>> {
+      const { data } = await apiClient.get(`/properties/${id}/certificate`, { signal });
       return data;
     },
   };

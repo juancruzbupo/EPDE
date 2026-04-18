@@ -56,7 +56,7 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
       where,
       include: {
         user: { select: { id: true, name: true, email: true } },
-        maintenancePlan: { select: { id: true, name: true, status: true } },
+        maintenancePlan: { select: { id: true, name: true, status: true, createdAt: true } },
       },
       count: false,
     };
@@ -142,6 +142,73 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
         data: { deletedAt: now },
       }),
     ]);
+  }
+
+  async getCertificateStats(planId: string) {
+    const plan = await this.prisma.maintenancePlan.findUnique({
+      where: { id: planId },
+      select: { propertyId: true },
+    });
+
+    const [completedCount, inspectionCount, sectorCount, expenses] = await Promise.all([
+      this.prisma.taskLog.count({
+        where: { task: { maintenancePlanId: planId, deletedAt: null } },
+      }),
+      this.prisma.inspectionChecklist.count({
+        where: { propertyId: plan?.propertyId ?? '', status: 'COMPLETED', deletedAt: null },
+      }),
+      this.prisma.task.groupBy({
+        by: ['sector'],
+        where: { maintenancePlanId: planId, deletedAt: null, sector: { not: null } },
+      }),
+      this.prisma.taskLog.aggregate({
+        where: { task: { maintenancePlanId: planId, deletedAt: null }, cost: { not: null } },
+        _sum: { cost: true },
+      }),
+    ]);
+
+    const totalTasks = await this.prisma.task.count({
+      where: { maintenancePlanId: planId, deletedAt: null },
+    });
+
+    return {
+      totalTasksCompleted: completedCount,
+      totalInspections: inspectionCount,
+      sectorsInspected: sectorCount.length,
+      complianceRate: totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0,
+      totalInvested: expenses._sum.cost ?? 0,
+    };
+  }
+
+  async getCertificateHighlights(planId: string) {
+    return this.prisma.taskLog.findMany({
+      where: {
+        task: { maintenancePlanId: planId, deletedAt: null },
+        conditionFound: { in: ['EXCELLENT', 'GOOD', 'FAIR'] },
+      },
+      orderBy: { completedAt: 'desc' },
+      take: 5,
+      select: {
+        completedAt: true,
+        conditionFound: true,
+        task: {
+          select: {
+            name: true,
+            sector: true,
+            category: { select: { name: true } },
+          },
+        },
+      },
+    });
+  }
+
+  async getNextCertificateNumber(): Promise<string> {
+    const result = await this.prisma.certificateCounter.upsert({
+      where: { id: 'singleton' },
+      create: { id: 'singleton', lastNumber: 1 },
+      update: { lastNumber: { increment: 1 } },
+    });
+    return `CERT-${String(result.lastNumber).padStart(4, '0')}`;
   }
 
   /** Aggregates expenses for a property from TaskLog costs + approved BudgetResponse amounts. */

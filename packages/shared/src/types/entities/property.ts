@@ -18,6 +18,6 @@ export interface Property extends BaseEntity, SoftDeletable {
 
 export type PropertyPublic = Serialized<Omit<Property, 'deletedAt'>> & {
   user?: UserBriefWithEmail;
-  maintenancePlan?: { id: string; name: string; status: PlanStatus } | null;
+  maintenancePlan?: { id: string; name: string; status: PlanStatus; createdAt: string } | null;
   latestISV?: { score: number; label: string } | null;
 };

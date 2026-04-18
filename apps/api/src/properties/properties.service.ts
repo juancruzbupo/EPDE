@@ -5,8 +5,14 @@ import type {
   UpdatePropertyInput,
 } from '@epde/shared';
 import { UserRole } from '@epde/shared';
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
+import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
 import { DashboardRepository } from '../dashboard/dashboard.repository';
 import { ISVSnapshotRepository } from '../dashboard/isv-snapshot.repository';
 import { RedisService } from '../redis/redis.service';
@@ -23,6 +29,7 @@ export class PropertiesService {
     private readonly dashboardRepository: DashboardRepository,
     private readonly isvSnapshotRepository: ISVSnapshotRepository,
     private readonly redis: RedisService,
+    private readonly userLookup: UserLookupRepository,
   ) {}
 
   private async getCachedReportTasks(planId: string) {
@@ -124,6 +131,95 @@ export class PropertiesService {
     this.assertOwnership(property.userId, currentUser);
 
     await this.propertiesRepository.softDeleteWithCascade(id);
+  }
+
+  async getCertificateData(id: string, currentUser: ServiceUser) {
+    const property = await this.propertiesRepository.findWithPlan(id);
+    if (!property) throw new NotFoundException('Propiedad no encontrada');
+    this.assertOwnership(property.userId, currentUser);
+
+    const plan = property.maintenancePlan;
+    if (!plan) throw new BadRequestException('La propiedad no tiene plan de mantenimiento');
+
+    const planId = plan.id;
+    const planCreatedAt = new Date(plan.createdAt);
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+    if (planCreatedAt > oneYearAgo) {
+      const eligibleDate = new Date(planCreatedAt);
+      eligibleDate.setFullYear(eligibleDate.getFullYear() + 1);
+      throw new BadRequestException(
+        `El certificado requiere al menos 1 año de uso de la herramienta. ` +
+          `Disponible a partir del ${eligibleDate.toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' })}.`,
+      );
+    }
+
+    const [healthBatch, isvHistory, adminInfo] = await Promise.all([
+      this.dashboardRepository.getPropertyHealthIndexBatch([planId]),
+      this.isvSnapshotRepository.findByProperty(id),
+      this.userLookup.findEmailInfo(currentUser.id),
+    ]);
+
+    const healthIndex = healthBatch.get(planId);
+    if (!healthIndex || healthIndex.score < 60) {
+      throw new BadRequestException(
+        'El certificado requiere un Índice de Salud (ISV) de al menos 60. ISV actual: ' +
+          (healthIndex?.score ?? 0),
+      );
+    }
+
+    const [stats, highlights, certNumber] = await Promise.all([
+      this.propertiesRepository.getCertificateStats(planId),
+      this.propertiesRepository.getCertificateHighlights(planId),
+      this.propertiesRepository.getNextCertificateNumber(),
+    ]);
+
+    const firstSnapshot = isvHistory.length > 0 ? isvHistory[isvHistory.length - 1] : null;
+
+    return {
+      certificateNumber: certNumber,
+      issuedAt: new Date().toISOString(),
+      coveragePeriod: {
+        from: firstSnapshot?.snapshotDate.toISOString() ?? new Date().toISOString(),
+        to: new Date().toISOString(),
+      },
+      property: {
+        id: property.id,
+        address: property.address,
+        city: property.city,
+        type: property.type,
+        yearBuilt: property.yearBuilt,
+        squareMeters: property.squareMeters,
+        owner: {
+          name: property.user?.name ?? 'Propietario',
+          email: property.user?.email ?? '',
+        },
+      },
+      healthIndex,
+      isvHistory: isvHistory.slice(0, 12).map((s) => ({
+        month: s.snapshotDate.toISOString().slice(0, 7),
+        score: s.score,
+        label: s.label,
+        compliance: s.compliance,
+        condition: s.condition,
+        coverage: s.coverage,
+        investment: s.investment,
+        trend: s.trend,
+      })),
+      summary: {
+        ...stats,
+        totalSectors: property.activeSectors?.length ?? 9,
+      },
+      highlights: highlights.map((h) => ({
+        taskName: h.task.name,
+        categoryName: h.task.category.name,
+        sector: h.task.sector,
+        completedAt: h.completedAt.toISOString(),
+        conditionFound: h.conditionFound,
+      })),
+      architect: { name: adminInfo?.name ?? 'EPDE' },
+    };
   }
 
   async markContacted(id: string): Promise<void> {

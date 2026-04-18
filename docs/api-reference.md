@@ -176,6 +176,9 @@ Ver `docs/adr/017-security-fail-mode-policy.md` para la matriz completa de compo
 | GET    | `/properties/:id/problems`       | Si   | Ambos | Problemas detectados (POOR/CRITICAL sin SR activo) |
 | GET    | `/properties/:id/expenses`       | Si   | Ambos | Gastos de la propiedad                             |
 | GET    | `/properties/:id/photos`         | Si   | Ambos | Galería de fotos                                   |
+| GET    | `/properties/:id/report-data`    | Si   | Ambos | Datos para informe técnico                         |
+| GET    | `/properties/:id/certificate`    | Si   | Ambos | Certificado de mantenimiento preventivo (ISV ≥60)  |
+| PATCH  | `/properties/:id/contact-log`    | Si   | ADMIN | Registrar contacto WhatsApp                        |
 
 **GET /properties** — Query params:
 
@@ -266,6 +269,77 @@ Derivado de TaskLog + ServiceRequest existentes. No requiere entidades adicional
       "trend": 50
     }
   ]
+}
+```
+
+**GET /properties/:id/certificate** — Certificado de Mantenimiento Preventivo:
+
+- Requiere mínimo 1 año de antigüedad del plan de mantenimiento (desde `createdAt` del plan). Si no se cumple, retorna 400 con la fecha exacta de disponibilidad
+- Requiere ISV ≥ 60 (si no, retorna 400 con mensaje descriptivo)
+- Requiere plan de mantenimiento
+- CLIENT solo puede acceder a certificados de sus propiedades
+- El nombre del arquitecto se obtiene del usuario logueado
+- Número de certificado secuencial atómico (CERT-0001, CERT-0002...)
+
+```json
+{
+  "data": {
+    "certificateNumber": "CERT-0001",
+    "issuedAt": "2026-04-18T...",
+    "coveragePeriod": { "from": "2025-05-01T...", "to": "2026-04-18T..." },
+    "property": {
+      "id": "uuid",
+      "address": "Av. Corrientes 1234",
+      "city": "CABA",
+      "type": "APARTMENT",
+      "yearBuilt": 1990,
+      "squareMeters": 85,
+      "owner": { "name": "Juan Perez", "email": "juan@email.com" }
+    },
+    "healthIndex": {
+      "score": 72,
+      "label": "Bueno",
+      "dimensions": {
+        "compliance": 80,
+        "condition": 70,
+        "coverage": 65,
+        "investment": 60,
+        "trend": 52
+      },
+      "sectorScores": [{ "sector": "INTERIOR", "score": 80, "overdue": 1, "total": 12 }]
+    },
+    "isvHistory": [
+      {
+        "month": "2026-03",
+        "score": 72,
+        "label": "Bueno",
+        "compliance": 80,
+        "condition": 70,
+        "coverage": 65,
+        "investment": 60,
+        "trend": 52
+      }
+    ],
+    "summary": {
+      "totalTasksCompleted": 15,
+      "totalInspections": 2,
+      "sectorsInspected": 7,
+      "totalSectors": 9,
+      "complianceRate": 85,
+      "totalInvested": 45000
+    },
+    "highlights": [
+      {
+        "taskName": "Inspección de cubierta",
+        "categoryName": "Techos",
+        "sector": "ROOF",
+        "completedAt": "2026-03-15T...",
+        "conditionFound": "EXCELLENT"
+      }
+    ],
+    "architect": { "name": "Admin EPDE" }
+  },
+  "message": "Certificado generado"
 }
 ```
 

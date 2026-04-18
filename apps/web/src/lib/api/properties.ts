@@ -21,6 +21,7 @@ export const {
   getPropertyHealthIndex,
   getPropertyHealthHistory,
   getPropertyProblems,
+  getPropertyCertificate,
 } = queries;
 
 export async function getPropertyReport(

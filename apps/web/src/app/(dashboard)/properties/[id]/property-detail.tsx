@@ -2,10 +2,10 @@
 
 import type { PropertyPublic, PropertySector } from '@epde/shared';
 import { PROPERTY_TYPE_LABELS } from '@epde/shared';
-import { ArrowLeft, Check, ClipboardList, Copy, Pencil } from 'lucide-react';
+import { ArrowLeft, Check, ClipboardList, Copy, Pencil, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import { ErrorState } from '@/components/error-state';
@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useProperty, usePropertyProblems } from '@/hooks/use-properties';
+import { useProperty, usePropertyHealthIndex, usePropertyProblems } from '@/hooks/use-properties';
 import { ROUTES } from '@/lib/routes';
 
 import { EditPropertyDialog } from './edit-property-dialog';
@@ -35,6 +35,30 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
   const { data, isLoading, isError, refetch } = useProperty(id, { initialData });
   const property = data;
   const { data: problemsCount } = usePropertyProblems(id);
+  const { data: healthIndex } = usePropertyHealthIndex(id);
+
+  const certEligibility = useMemo(() => {
+    if (!property?.maintenancePlan) return { eligible: false as const, reason: 'no-plan' as const };
+    const planCreated = new Date(property.maintenancePlan.createdAt);
+    const oneYearLater = new Date(planCreated);
+    oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+    const now = new Date();
+    if (now < oneYearLater) {
+      return {
+        eligible: false as const,
+        reason: 'time' as const,
+        eligibleDate: oneYearLater,
+        monthsRemaining: Math.ceil(
+          (oneYearLater.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30),
+        ),
+      };
+    }
+    if ((healthIndex?.score ?? 0) < 60) {
+      return { eligible: false as const, reason: 'isv' as const, score: healthIndex?.score ?? 0 };
+    }
+    return { eligible: true as const };
+  }, [property?.maintenancePlan, healthIndex?.score]);
+
   const [editOpen, setEditOpen] = useState(false);
   const [highlightTaskId, setHighlightTaskId] = useState<string | null>(null);
   const [addressCopied, setAddressCopied] = useState(false);
@@ -113,8 +137,16 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
             </p>
           </div>
           <div className="flex shrink-0 gap-2">
+            {certEligibility.eligible && (
+              <Button variant="outline" size="sm" asChild data-tour="certificate-btn">
+                <Link href={ROUTES.propertyCertificate(id)}>
+                  <Shield className="mr-1.5 h-4 w-4" />
+                  Certificado
+                </Link>
+              </Button>
+            )}
             <Button variant="outline" size="sm" asChild>
-              <Link href={`/properties/${id}/report`}>Informe</Link>
+              <Link href={ROUTES.propertyReport(id)}>Informe</Link>
             </Button>
             {isAdmin && (
               <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
@@ -126,6 +158,37 @@ export function PropertyDetail({ id, isAdmin, initialData }: PropertyDetailProps
       </div>
 
       <PropertyTour />
+
+      {!isAdmin && property.maintenancePlan && !certEligibility.eligible && (
+        <div className="bg-muted/30 border-border flex items-start gap-3 rounded-lg border p-4">
+          <Shield className="text-muted-foreground mt-0.5 h-5 w-5 shrink-0" />
+          <div>
+            <p className="type-body-sm text-foreground font-medium">
+              Certificado de Mantenimiento Preventivo
+            </p>
+            {certEligibility.reason === 'time' && (
+              <p className="text-muted-foreground type-body-sm mt-1">
+                Tu vivienda necesita al menos <strong>1 año de mantenimiento continuo</strong> para
+                obtener el certificado.{' '}
+                {certEligibility.monthsRemaining <= 3
+                  ? `¡Falta poco! Disponible en ${certEligibility.eligibleDate.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}.`
+                  : `Disponible a partir de ${certEligibility.eligibleDate.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}.`}
+              </p>
+            )}
+            {certEligibility.reason === 'isv' && (
+              <p className="text-muted-foreground type-body-sm mt-1">
+                El certificado requiere un <strong>ISV de al menos 60</strong> (tu puntaje actual es{' '}
+                {certEligibility.score}). Completá las tareas pendientes para mejorar tu puntaje.
+              </p>
+            )}
+            <p className="text-muted-foreground mt-2 text-xs italic">
+              El certificado acredita que tu vivienda recibió mantenimiento preventivo profesional.
+              Es útil para venta, seguros, alquiler o créditos hipotecarios.
+            </p>
+          </div>
+        </div>
+      )}
+
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList data-tour="property-tabs">
           <TabsTrigger value="health">

@@ -60,7 +60,7 @@ core/                  # @Global: Sentry, Config, Throttler, Logger, BullMQ, Pri
 auth/                  # JWT + Local strategy + Token Rotation (Redis)
 users/                 # User CRUD base (sin controller — expuesto via clients/)
 clients/               # Gestion de clientes (ADMIN)
-properties/            # CRUD propiedades + health-index + expenses + photos
+properties/            # CRUD propiedades + health-index + expenses + photos + certificate
 maintenance-plans/     # Planes + tareas + logs + notas + reorder
 tasks/                 # TaskLifecycleService + TaskNotesService (extraido de maintenance-plans)
 categories/            # Categorias de mantenimiento
@@ -245,6 +245,7 @@ User -1:N- Property -1:1- MaintenancePlan -1:N- Task -1:N- TaskAuditLog
 Category -1:N- Task
 CategoryTemplate -1:N- TaskTemplate
 QuoteTemplate -1:N- QuoteTemplateItem
+CertificateCounter (singleton — numeración CERT-NNNN)
 ```
 
 Detalle completo de campos, enums, indices y constraints: ver `prisma/schema.prisma` y `docs/data-model.md`.
