@@ -1,10 +1,11 @@
 import {
   formatARSCompact,
   TECHNICAL_INSPECTION_CLIENT_DISCOUNT_PCT,
+  TECHNICAL_INSPECTION_PRICE_DISCLAIMER,
   TECHNICAL_INSPECTION_PRICES,
 } from '@epde/shared';
 import { motion } from 'framer-motion';
-import { ClipboardCheck, FileCheck2, Lock, ShieldCheck } from 'lucide-react';
+import { ClipboardCheck, FileCheck2, Info, Lock, ShieldCheck } from 'lucide-react';
 
 import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/motion';
 
@@ -84,14 +85,31 @@ export function TechnicalInspectionSection({ motionProps }: SectionProps) {
                       <span>{formatARSCompact(tiers.MEDIUM.client)}</span>
                     </div>
                     <div className="flex justify-between tabular-nums">
-                      <span>Más de 250 m²</span>
+                      <span>250–400 m²</span>
                       <span>{formatARSCompact(tiers.LARGE.client)}</span>
+                    </div>
+                    <div className="text-muted-foreground/80 flex justify-between text-[11px] italic">
+                      <span>Más de 400 m²</span>
+                      <span>consultar</span>
                     </div>
                   </div>
                 </div>
               </motion.div>
             );
           })}
+        </motion.div>
+
+        <motion.div
+          variants={FADE_IN}
+          className="border-border/60 bg-muted/20 mt-4 rounded-lg border p-3 text-xs"
+        >
+          <p className="text-muted-foreground flex items-start gap-2 leading-relaxed">
+            <Info
+              className="text-muted-foreground/70 mt-0.5 h-3.5 w-3.5 shrink-0"
+              aria-hidden="true"
+            />
+            <span>{TECHNICAL_INSPECTION_PRICE_DISCLAIMER}</span>
+          </p>
         </motion.div>
 
         <motion.div variants={FADE_IN_UP} className="mt-8 grid gap-4 sm:grid-cols-3">

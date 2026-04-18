@@ -3084,7 +3084,7 @@ export async function seedDemo(prisma: PrismaClient) {
       completedAt: daysAgo(2),
       deliverableUrl: 'https://demo.epde.ar/reports/insp-2026-0002.pdf',
       deliverableFileName: 'inspeccion-maria-estructural.pdf',
-      feeAmount: 442000,
+      feeAmount: 493000,
       priceTier: 'MEDIUM',
       propertySqm: 220,
       feeStatus: 'PENDING',

@@ -4,19 +4,22 @@ import {
   type CreateTechnicalInspectionInput,
   createTechnicalInspectionSchema,
   formatARSCompact,
+  INSPECTION_OVERSIZED_THRESHOLD_SQM,
   INSPECTION_PRICE_TIER_LABELS,
+  isOversizedForInspection,
   resolveInspectionPriceTier,
   TECHNICAL_INSPECTION_ACTIVITIES,
   TECHNICAL_INSPECTION_DESCRIPTIONS,
   TECHNICAL_INSPECTION_ESTIMATED_DAYS,
   TECHNICAL_INSPECTION_LABELS,
+  TECHNICAL_INSPECTION_PRICE_DISCLAIMER,
   TECHNICAL_INSPECTION_PRICES,
   TECHNICAL_INSPECTION_TOOLS,
   TECHNICAL_INSPECTION_TYPE_VALUES,
   type TechnicalInspectionType,
 } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, ClipboardList, Clock, Info, Wrench } from 'lucide-react';
+import { Check, ClipboardList, Clock, Info, MessageCircle, Wrench } from 'lucide-react';
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -79,6 +82,8 @@ export function CreateInspectionDialog({ open, onOpenChange, defaultPropertyId }
   const selectedSqm = selectedProperty?.squareMeters ?? null;
   const selectedTier = resolveInspectionPriceTier(selectedSqm);
   const hasPropertyArea = selectedPropertyId && selectedSqm && selectedSqm > 0;
+  const oversized = isOversizedForInspection(selectedSqm);
+  const whatsappUrl = process.env.NEXT_PUBLIC_WHATSAPP_URL ?? '#';
 
   const onSubmit = (data: CreateTechnicalInspectionInput) => {
     createInspection.mutate(data, {
@@ -153,6 +158,28 @@ export function CreateInspectionDialog({ open, onOpenChange, defaultPropertyId }
                   ? 'No registraste los m² de la propiedad. Mostramos precio de tier mediano; el admin puede ajustar.'
                   : 'Seleccioná una propiedad arriba para ver tu precio exacto.'}
               </p>
+            )}
+
+            {oversized && (
+              <Alert className="border-warning/50 bg-warning/5">
+                <Info aria-hidden="true" />
+                <AlertTitle>
+                  Tu propiedad supera los {INSPECTION_OVERSIZED_THRESHOLD_SQM} m²
+                </AlertTitle>
+                <AlertDescription>
+                  Los precios por tier cubren hasta 400 m². Para propiedades más grandes cotizamos a
+                  medida. Contactanos por WhatsApp y te pasamos el presupuesto ajustado.{' '}
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary inline-flex items-center gap-1 font-medium hover:underline"
+                  >
+                    <MessageCircle className="h-3.5 w-3.5" />
+                    Consultar por WhatsApp
+                  </a>
+                </AlertDescription>
+              </Alert>
             )}
             <div className="grid gap-3 sm:grid-cols-3">
               {TECHNICAL_INSPECTION_TYPE_VALUES.map((type) => {
@@ -245,11 +272,15 @@ export function CreateInspectionDialog({ open, onOpenChange, defaultPropertyId }
             </AlertDescription>
           </Alert>
 
+          <p className="text-muted-foreground text-xs leading-relaxed">
+            {TECHNICAL_INSPECTION_PRICE_DISCLAIMER}
+          </p>
+
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={createInspection.isPending}>
+            <Button type="submit" disabled={createInspection.isPending || oversized}>
               {createInspection.isPending ? 'Enviando...' : 'Solicitar inspección'}
             </Button>
           </div>

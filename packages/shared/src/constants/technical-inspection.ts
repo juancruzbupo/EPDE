@@ -30,16 +30,26 @@ export const TECHNICAL_INSPECTION_PRICES: Record<
     LARGE: { public: 250000, client: 212500, maxSqm: null, label: 'Más de 250 m²' },
   },
   STRUCTURAL: {
-    SMALL: { public: 400000, client: 340000, maxSqm: 120, label: 'Hasta 120 m²' },
-    MEDIUM: { public: 520000, client: 442000, maxSqm: 250, label: '120 a 250 m²' },
-    LARGE: { public: 700000, client: 595000, maxSqm: null, label: 'Más de 250 m²' },
+    SMALL: { public: 450000, client: 382500, maxSqm: 120, label: 'Hasta 120 m²' },
+    MEDIUM: { public: 580000, client: 493000, maxSqm: 250, label: '120 a 250 m²' },
+    LARGE: { public: 780000, client: 663000, maxSqm: 400, label: '250 a 400 m²' },
   },
   SALE: {
     SMALL: { public: 775000, client: 658750, maxSqm: 120, label: 'Hasta 120 m²' },
     MEDIUM: { public: 1000000, client: 850000, maxSqm: 250, label: '120 a 250 m²' },
-    LARGE: { public: 1400000, client: 1190000, maxSqm: null, label: 'Más de 250 m²' },
+    LARGE: { public: 1400000, client: 1190000, maxSqm: 400, label: '250 a 400 m²' },
   },
 };
+
+/** Superficie máxima para tier-pricing. Propiedades más grandes requieren cotización manual. */
+export const INSPECTION_OVERSIZED_THRESHOLD_SQM = 400;
+
+/**
+ * Disclaimer legal/comercial para mostrar en landing y dialog.
+ * Basado en Ley 24.240 (Defensa del Consumidor) + transparencia de fuentes.
+ */
+export const TECHNICAL_INSPECTION_PRICE_DISCLAIMER =
+  'Precios orientativos actualizados a abril 2026 y basados en aranceles profesionales de CAPER / CAPBA / CPAU + valores de mercado para Paraná y Gran Paraná. Los tiers se aplican según la superficie declarada de la propiedad. Casos con características atípicas (vivienda en altura, más de 2 plantas, superficie mayor a 400 m² o acceso dificultoso) pueden requerir cotización ajustada — te lo avisamos al recibir tu solicitud.';
 
 export const TECHNICAL_INSPECTION_CLIENT_DISCOUNT_PCT = 15;
 
@@ -55,6 +65,15 @@ export function resolveInspectionPriceTier(
   if (squareMeters <= 120) return 'SMALL';
   if (squareMeters <= 250) return 'MEDIUM';
   return 'LARGE';
+}
+
+/**
+ * Indica si la propiedad excede el tope de tier-pricing. En ese caso el
+ * cliente debe pedir cotización manual por WhatsApp — la UI bloquea el
+ * submit para evitar sub-cotizar.
+ */
+export function isOversizedForInspection(squareMeters: number | null | undefined): boolean {
+  return typeof squareMeters === 'number' && squareMeters > INSPECTION_OVERSIZED_THRESHOLD_SQM;
 }
 
 /**

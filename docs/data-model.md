@@ -251,13 +251,13 @@ Property ─1:N─ TechnicalInspection ─N:1─ User (requester)
 
 ### InspectionPriceTier
 
-Tier de superficie que define el precio al crear una inspección técnica. Snapshot congelado en `TechnicalInspection.priceTier`.
+Tier de superficie que define el precio al crear una inspección técnica. Snapshot congelado en `TechnicalInspection.priceTier`. Propiedades mayores a 400 m² requieren cotización manual por WhatsApp (ver `INSPECTION_OVERSIZED_THRESHOLD_SQM` en `@epde/shared`).
 
 | Valor    | Rango      | Notas                                                        |
 | -------- | ---------- | ------------------------------------------------------------ |
 | `SMALL`  | ≤ 120 m²   | Casas chicas en PB                                           |
 | `MEDIUM` | 120–250 m² | Default. También fallback si `Property.squareMeters` es null |
-| `LARGE`  | > 250 m²   | Casas grandes o en varios niveles                            |
+| `LARGE`  | 250–400 m² | Casas grandes o en varios niveles                            |
 
 ## Entidades
 

@@ -27,17 +27,23 @@ Creamos **Technical Inspection** como modelo aparte con tres tipos preconfigurad
 
 Tres tiers según m² de la propiedad (cliente EPDE, −15% sobre público):
 
-| Tipo                 | Hasta 120 m² | 120–250 m² | Más de 250 m² |
-| -------------------- | ------------ | ---------- | ------------- |
-| Básica               | 114.750      | 153.000    | 212.500       |
-| Estructural profunda | 340.000      | 442.000    | 595.000       |
-| Para compraventa     | 658.750      | 850.000    | 1.190.000     |
+| Tipo                 | Hasta 120 m² | 120–250 m² | 250–400 m² | +400 m²   |
+| -------------------- | ------------ | ---------- | ---------- | --------- |
+| Básica               | 114.750      | 153.000    | 212.500    | consultar |
+| Estructural profunda | 382.500      | 493.000    | 663.000    | consultar |
+| Para compraventa     | 658.750      | 850.000    | 1.190.000  | consultar |
 
-Precios derivados de investigación de mercado (abril 2026): InspecThome mínimos + CheckHome USD 299–499 convertidos + CAPBA aranceles Informe Técnico + mediana del rango para interior (Paraná, ER).
+**Fuentes de precio (abril 2026):**
+
+- **Aranceles de colegios profesionales** — CAPER (Entre Ríos), CAPBA (Buenos Aires), CPAU (CABA), CAUPSF (Santa Fe). Todos usan módulos K trimestrales × coeficiente por tipo de informe. El módulo K promedio Q1 2026 está en ARS 4.800–5.200.
+- **Mercado comercial visible** — InspecThome ($150–220k express / $650–950k compraventa), CheckHome (USD 299–499 convertidos), consultoras residenciales GBA.
+- **Ajuste por geografía** — Paraná tiene un salario promedio ~40% debajo de CABA; aplicar el arancel puro de CPAU sería inviable localmente, aplicar el mínimo sub-cotizaría.
 
 **Por qué tiers en vez de precio único o cotización**: una casa de 80 m² en PB no implica las mismas horas que una casona de 300 m² en dos plantas. El precio único sub-cotiza casas grandes y sobre-cotiza chicas; la cotización manual mata el ancla de precio en landing (−30/40% en conversión). Tiers por m² captura ambos beneficios con costo operativo nulo: la superficie ya está en `Property.squareMeters`, el tier se resuelve automáticamente con `resolveInspectionPriceTier()`, y el precio se congela al crear.
 
-**Fallback**: si `squareMeters` es null o ≤0, cae a tier MEDIUM (conservador, el admin puede ajustar manualmente si la propiedad es atípica).
+**Tope de 400 m² (`INSPECTION_OVERSIZED_THRESHOLD_SQM`)**: propiedades mayores no caen automáticamente en LARGE porque la dispersión real de horas (casa de 250 m² vs casona histórica de 600 m²) vuelve inutilizable el tier-pricing. El dialog detecta el caso con `isOversizedForInspection()` y redirige a WhatsApp para cotización manual; no genera un nuevo estado `QUOTED`.
+
+**Fallback cuando `squareMeters` es null**: cae a tier MEDIUM (conservador). El admin puede ajustar manualmente si la propiedad es atípica.
 
 El descuento del 15% es un **retention perk** para clientes activos — refuerza el lock-in de la suscripción.
 
