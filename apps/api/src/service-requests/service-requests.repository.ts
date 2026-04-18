@@ -32,6 +32,13 @@ const SERVICE_REQUEST_DETAIL_INCLUDE = {
   ...SERVICE_REQUEST_LIST_INCLUDE,
   photos: true,
   attachments: true,
+  assignment: {
+    include: {
+      professional: {
+        include: { specialties: { where: { isPrimary: true }, take: 1 } },
+      },
+    },
+  },
 } as const;
 
 export type ServiceRequestWithDetails = ServiceRequest & {

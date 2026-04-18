@@ -1,4 +1,4 @@
-import type { ServiceStatus, ServiceUrgency } from '../enums';
+import type { ProfessionalSpecialty, ServiceStatus, ServiceUrgency } from '../enums';
 import type { BaseEntity, SoftDeletable } from '../index';
 import type { PropertyBriefWithOwner, Serialized, UserBriefWithEmail } from './common';
 
@@ -29,12 +29,20 @@ export interface ServiceRequestPhoto {
 
 export type ServiceRequestPhotoPublic = Serialized<Omit<ServiceRequestPhoto, 'serviceRequestId'>>;
 
+export interface ServiceRequestAssignmentBrief {
+  professionalId: string;
+  professionalName: string;
+  professionalSpecialty: ProfessionalSpecialty | null;
+  assignedAt: string;
+}
+
 export type ServiceRequestPublic = Serialized<ServiceRequest> & {
   property: PropertyBriefWithOwner;
   requester: UserBriefWithEmail;
   task: ServiceRequestTaskBrief | null;
   photos: ServiceRequestPhotoPublic[];
   attachments: ServiceRequestAttachmentPublic[];
+  assignment?: ServiceRequestAssignmentBrief | null;
 };
 
 export interface ServiceRequestAuditLogPublic {

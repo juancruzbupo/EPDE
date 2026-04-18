@@ -41,6 +41,7 @@ import { useServiceRequest, useUpdateServiceStatus } from '@/hooks/use-service-r
 import { ROUTES } from '@/lib/routes';
 
 import { CreateBudgetDialog } from '../../budgets/create-budget-dialog';
+import { AssignProfessionalCard } from './assign-professional-card';
 import { EditServiceRequestDialog } from './edit-service-request-dialog';
 import { ServiceRequestAttachments } from './service-request-attachments';
 import { ServiceRequestComments } from './service-request-comments';
@@ -246,6 +247,14 @@ export function ServiceRequestDetail({
             Tu solicitud fue recibida. El equipo de EPDE la revisará y te notificará cuando haya
             novedades.
           </div>
+        )}
+
+        {isAdmin && (
+          <AssignProfessionalCard
+            serviceRequestId={id}
+            status={request.status}
+            assignment={request.assignment ?? null}
+          />
         )}
 
         {isAdmin && nextStatus && (
