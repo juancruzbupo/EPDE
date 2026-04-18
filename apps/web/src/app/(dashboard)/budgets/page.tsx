@@ -133,7 +133,6 @@ function BudgetsPageContent() {
 
   const isAdmin = user?.role === UserRole.ADMIN;
   const budgetStats = useMemo(() => {
-    if (allBudgetsRaw.length === 0) return null;
     let pending = 0;
     let quoted = 0;
     let approved = 0;
@@ -144,7 +143,6 @@ function BudgetsPageContent() {
       else if (b.status === 'APPROVED') approved++;
       if (b.response?.totalAmount) totalQuoted += Number(b.response.totalAmount);
     }
-    if (pending === 0 && quoted === 0 && approved === 0) return null;
     return { pending, quoted, approved, totalQuoted };
   }, [allBudgetsRaw]);
 
@@ -185,7 +183,7 @@ function BudgetsPageContent() {
         </div>
       )}
 
-      {isAdmin && budgetStats && (
+      {isAdmin && (
         <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Card className={budgetStats.pending > 0 ? 'border-warning/30' : ''}>
             <CardContent className="flex items-center gap-3 p-4">
