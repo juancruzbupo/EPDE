@@ -236,7 +236,7 @@ export default function ProfessionalsPage() {
             type="text"
             value={serviceArea}
             onChange={(e) => setServiceArea(e.target.value)}
-            placeholder="Zona (ej. Pilar)"
+            placeholder="Zona (ej. Paraná Centro)"
             className="border-border bg-background text-foreground placeholder:text-muted-foreground w-full rounded-md border px-3 py-2 text-sm sm:w-[140px]"
           />
         </div>

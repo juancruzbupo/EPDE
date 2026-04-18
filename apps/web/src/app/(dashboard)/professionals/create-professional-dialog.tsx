@@ -211,7 +211,7 @@ export function CreateProfessionalDialog({ open, onOpenChange }: CreateProfessio
                     addArea();
                   }
                 }}
-                placeholder="CABA Norte, Pilar, Tigre..."
+                placeholder="Paraná Centro, Oro Verde, San Benito..."
               />
               <Button type="button" variant="outline" onClick={addArea}>
                 Agregar
