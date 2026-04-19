@@ -9,6 +9,7 @@ export default [
     plugins: { local: localPlugin },
     rules: {
       'local/api-factory-must-exist': 'error',
+      'local/no-ad-hoc-api-read': 'error',
     },
   },
   {

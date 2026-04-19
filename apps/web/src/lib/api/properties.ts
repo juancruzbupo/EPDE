@@ -1,7 +1,6 @@
 import type {
   ApiResponse,
   PropertyPublic,
-  PropertyReportData,
   PropertySector,
   PropertyType,
   UpdatePropertyInput,
@@ -22,18 +21,8 @@ export const {
   getPropertyHealthHistory,
   getPropertyProblems,
   getPropertyCertificate,
+  getPropertyReport,
 } = queries;
-
-export async function getPropertyReport(
-  id: string,
-  signal?: AbortSignal,
-): Promise<{ data: PropertyReportData }> {
-  const { data } = await apiClient.get<{ data: PropertyReportData }>(
-    `/properties/${id}/report-data`,
-    { signal },
-  );
-  return data;
-}
 
 // Admin-only
 export async function createProperty(dto: {

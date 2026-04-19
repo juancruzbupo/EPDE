@@ -6,6 +6,7 @@ import simpleImportSort from 'eslint-plugin-simple-import-sort';
 
 import apiFactoryMustExist from './eslint-rules/api-factory-must-exist.mjs';
 import mobileQueryRequiresStaleTime from './eslint-rules/mobile-query-requires-stale-time.mjs';
+import noAdHocApiRead from './eslint-rules/no-ad-hoc-api-read.mjs';
 import noInlineRiskThreshold from './eslint-rules/no-inline-risk-threshold.mjs';
 import noPrismaInService from './eslint-rules/no-prisma-in-service.mjs';
 import noHardcodedRoutes from './eslint-rules/no-hardcoded-routes.mjs';
@@ -24,6 +25,7 @@ export const localPlugin = {
     'repository-override-must-be-documented': repositoryOverrideMustBeDocumented,
     'no-repository-without-justification': noRepositoryWithoutJustification,
     'api-factory-must-exist': apiFactoryMustExist,
+    'no-ad-hoc-api-read': noAdHocApiRead,
     'no-hardcoded-routes': noHardcodedRoutes,
   },
 };
@@ -154,8 +156,10 @@ export default [
   // ── API factory pattern guardrail (web + mobile) ─────────────────────────
   // Files in apps/*/src/lib/api/ must consume a `createXxxQueries(apiClient)`
   // factory from @epde/shared, or be in the documented exception list.
-  // See ADR-012 for the factory pattern; eslint-rules/api-factory-must-exist.mjs
-  // for the exception list. Closes audit drift-zone d3.
+  // See ADR-020 for the factory pattern; eslint-rules/api-factory-must-exist.mjs
+  // + eslint-rules/no-ad-hoc-api-read.mjs together enforce the convention:
+  // (a) factory exists, (b) reads use it. Writes (POST/PATCH/DELETE) remain
+  // free so transport-specific payloads (FormData vs JSON) stay idiomatic.
   {
     files: ['apps/web/src/lib/api/**/*.ts', 'apps/mobile/src/lib/api/**/*.ts'],
     plugins: {
@@ -163,6 +167,7 @@ export default [
     },
     rules: {
       'local/api-factory-must-exist': 'error',
+      'local/no-ad-hoc-api-read': 'error',
     },
   },
   // ── Mobile query staleTime guardrail ─────────────────────────────────────
