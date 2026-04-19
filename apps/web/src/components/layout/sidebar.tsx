@@ -124,7 +124,9 @@ export function Sidebar({
               key={item.href}
               href={item.href}
               aria-current={isActive ? 'page' : undefined}
-              aria-label={item.label}
+              // aria-label solo cuando el ícono queda solo (colapsado); con
+              // texto visible sería duplicación para screen readers.
+              aria-label={collapsed ? item.label : undefined}
               title={collapsed ? item.label : undefined}
               className={cn(
                 'relative flex items-center rounded-md text-sm font-medium transition-all duration-300 motion-reduce:transition-none',

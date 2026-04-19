@@ -7,15 +7,16 @@ describe('SearchInput', () => {
   const defaultProps = {
     value: '',
     onChange: vi.fn(),
+    placeholder: 'Buscar por nombre...',
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('renders input with default placeholder', () => {
+  it('renders input with provided placeholder', () => {
     render(<SearchInput {...defaultProps} />);
-    expect(screen.getByPlaceholderText('Buscar...')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Buscar por nombre...')).toBeInTheDocument();
   });
 
   it('renders input with custom placeholder', () => {
@@ -27,7 +28,7 @@ describe('SearchInput', () => {
     const user = userEvent.setup();
     render(<SearchInput {...defaultProps} />);
 
-    const input = screen.getByPlaceholderText('Buscar...');
+    const input = screen.getByPlaceholderText('Buscar por nombre...');
     await user.type(input, 'a');
 
     expect(defaultProps.onChange).toHaveBeenCalledWith('a');

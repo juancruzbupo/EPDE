@@ -7,16 +7,16 @@ import { Input } from '@/components/ui/input';
 interface SearchInputProps {
   value: string;
   onChange: (value: string) => void;
-  placeholder?: string;
+  /**
+   * Contextualizá qué se puede buscar (ej. "Buscar por nombre o email...").
+   * Genérico "Buscar..." está prohibido — los consumers deben declarar el
+   * dominio para que el usuario sepa qué campos alimenta el filtro.
+   */
+  placeholder: string;
   className?: string;
 }
 
-export function SearchInput({
-  value,
-  onChange,
-  placeholder = 'Buscar...',
-  className,
-}: SearchInputProps) {
+export function SearchInput({ value, onChange, placeholder, className }: SearchInputProps) {
   return (
     <div className={`relative w-full sm:min-w-[280px] ${className ?? ''}`}>
       <Search

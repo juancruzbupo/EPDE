@@ -43,7 +43,7 @@ function SetPasswordForm() {
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
-    mode: 'onBlur',
+    mode: 'onTouched',
   });
 
   async function onSubmit(data: FormData) {

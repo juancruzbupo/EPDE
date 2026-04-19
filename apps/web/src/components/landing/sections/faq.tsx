@@ -59,29 +59,45 @@ export function FaqSection({ motionProps, faq }: FaqSectionProps) {
         </motion.h2>
 
         <div className="mt-10 space-y-3">
-          {items.map((faqItem, i) => (
-            <motion.div key={i} variants={STAGGER_ITEM} className="border-border rounded-xl border">
-              <button
-                onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                className="flex w-full items-center justify-between p-4 text-left"
-                aria-expanded={openIndex === i}
+          {items.map((faqItem, i) => {
+            const panelId = `faq-answer-${i}`;
+            const buttonId = `faq-trigger-${i}`;
+            const isOpen = openIndex === i;
+            return (
+              <motion.div
+                key={i}
+                variants={STAGGER_ITEM}
+                className="border-border rounded-xl border"
               >
-                <span className="type-body-lg text-foreground pr-4 font-medium">{faqItem.q}</span>
-                <span
-                  className="text-muted-foreground shrink-0 text-xl transition-transform"
-                  style={{ transform: openIndex === i ? 'rotate(45deg)' : 'none' }}
-                  aria-hidden="true"
+                <button
+                  id={buttonId}
+                  onClick={() => setOpenIndex(isOpen ? null : i)}
+                  className="flex w-full items-center justify-between p-4 text-left"
+                  aria-expanded={isOpen}
+                  aria-controls={panelId}
                 >
-                  +
-                </span>
-              </button>
-              {openIndex === i && (
-                <div className="border-border border-t px-4 pt-3 pb-4">
-                  <p className="type-body-md text-muted-foreground">{faqItem.a}</p>
-                </div>
-              )}
-            </motion.div>
-          ))}
+                  <span className="type-body-lg text-foreground pr-4 font-medium">{faqItem.q}</span>
+                  <span
+                    className="text-muted-foreground shrink-0 text-xl transition-transform"
+                    style={{ transform: isOpen ? 'rotate(45deg)' : 'none' }}
+                    aria-hidden="true"
+                  >
+                    +
+                  </span>
+                </button>
+                {isOpen && (
+                  <div
+                    id={panelId}
+                    role="region"
+                    aria-labelledby={buttonId}
+                    className="border-border border-t px-4 pt-3 pb-4"
+                  >
+                    <p className="type-body-md text-muted-foreground">{faqItem.a}</p>
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
         </div>
       </motion.div>
     </section>
