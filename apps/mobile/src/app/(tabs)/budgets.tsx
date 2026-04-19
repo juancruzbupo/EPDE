@@ -216,6 +216,7 @@ export default function BudgetsScreen() {
                   onPress={() => setSearch('')}
                   accessibilityLabel="Limpiar búsqueda"
                   accessibilityRole="button"
+                  hitSlop={16}
                 >
                   <Text className="text-muted-foreground text-lg">✕</Text>
                 </Pressable>

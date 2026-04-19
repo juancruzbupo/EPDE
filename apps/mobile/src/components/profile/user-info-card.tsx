@@ -62,6 +62,7 @@ export const UserInfoCard = React.memo(function UserInfoCard({
                 disabled={isSaving}
                 accessibilityLabel="Guardar"
                 accessibilityRole="button"
+                hitSlop={12}
               >
                 <Text style={TYPE.labelMd} className="text-primary">
                   {isSaving ? '...' : 'OK'}
@@ -71,6 +72,7 @@ export const UserInfoCard = React.memo(function UserInfoCard({
                 onPress={onCancelEdit}
                 accessibilityLabel="Cancelar"
                 accessibilityRole="button"
+                hitSlop={12}
               >
                 <Text style={TYPE.labelMd} className="text-muted-foreground">
                   X
@@ -124,6 +126,7 @@ export const UserInfoCard = React.memo(function UserInfoCard({
                 disabled={isSaving}
                 accessibilityLabel="Guardar"
                 accessibilityRole="button"
+                hitSlop={12}
               >
                 <Text style={TYPE.labelMd} className="text-primary">
                   {isSaving ? '...' : 'OK'}
@@ -133,6 +136,7 @@ export const UserInfoCard = React.memo(function UserInfoCard({
                 onPress={onCancelEdit}
                 accessibilityLabel="Cancelar"
                 accessibilityRole="button"
+                hitSlop={12}
               >
                 <Text style={TYPE.labelMd} className="text-muted-foreground">
                   X

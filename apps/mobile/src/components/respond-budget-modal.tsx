@@ -237,6 +237,7 @@ export function RespondBudgetModal({
                     accessibilityLabel="Eliminar item"
                     onPress={() => remove(index)}
                     className="mt-2 self-end"
+                    hitSlop={12}
                   >
                     <Text style={TYPE.labelSm} className="text-destructive">
                       Eliminar
