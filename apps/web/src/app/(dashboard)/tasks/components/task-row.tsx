@@ -106,9 +106,15 @@ export const TaskRow = React.memo(function TaskRow({
               e.stopPropagation();
               onComplete(task);
             }}
+            aria-label={`Registrar inspección de ${task.name}`}
+            title="Registrar inspección"
           >
             <CheckCircle className="mr-1.5 h-3.5 w-3.5" />
-            Registrar inspección
+            {/* En phones <380px el texto "Registrar inspección" se
+                quiebra y rompe la altura de la row. "Registrar" alcanza;
+                aria-label completo preserva contexto para screen readers. */}
+            <span className="sm:hidden">Registrar</span>
+            <span className="hidden sm:inline">Registrar inspección</span>
           </Button>
         )}
       </div>

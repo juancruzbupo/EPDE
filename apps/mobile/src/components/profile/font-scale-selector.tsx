@@ -1,9 +1,13 @@
 import { FONT_SCALE_LABELS, FONT_SCALE_VALUES, type FontScale } from '@epde/shared';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { TYPE } from '@/lib/fonts';
+import { isFontScaleClamped, TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
+import { toast } from '@/lib/toast';
+
+const CLAMP_NOTICE_KEY = 'font-scale-clamp-notice-shown';
 
 interface FontScaleSelectorProps {
   fontScale: FontScale;
@@ -42,6 +46,28 @@ export const FontScaleSelector = React.memo(function FontScaleSelector({
               onPress={() => {
                 onFontScaleChange(option);
                 haptics.selection();
+                // Si al elegir este tier + el setting del OS se combinan
+                // por encima del tope (1.5×), avisamos una sola vez —
+                // evita sensación de "la app no respeta mi preferencia".
+                if (isFontScaleClamped(multiplier)) {
+                  void (async () => {
+                    try {
+                      const shown = await AsyncStorage.getItem(CLAMP_NOTICE_KEY);
+                      if (shown) return;
+                      toast.info(
+                        'Combinaste el tamaño grande de la app con el del sistema — ajusté un poco para que no desborde.',
+                        6000,
+                      );
+                      await AsyncStorage.setItem(CLAMP_NOTICE_KEY, '1');
+                    } catch {
+                      // Sin AsyncStorage igual mostramos el toast, sin dedup.
+                      toast.info(
+                        'Combinaste el tamaño grande de la app con el del sistema — ajusté un poco para que no desborde.',
+                        6000,
+                      );
+                    }
+                  })();
+                }
               }}
               className={`flex-row items-center justify-between rounded-lg p-3 ${
                 selected ? 'bg-primary/10' : 'bg-muted/50'

@@ -22,6 +22,18 @@ function clampMultiplier(appMultiplier: number): number {
 }
 
 /**
+ * Devuelve true si combinando el tier de la app con el escalado del OS
+ * superamos el tope (1.5×) y el clamp se activó. Lo usa el
+ * FontScaleSelector para avisar al usuario por única vez que "ajustó el
+ * tamaño para que quepa" — evita que piense que la app está ignorando
+ * su setting.
+ */
+export function isFontScaleClamped(appMultiplier: number): boolean {
+  const osScale = PixelRatio.getFontScale();
+  return appMultiplier * osScale > MAX_COMBINED_SCALE;
+}
+
+/**
  * Base typography tokens — unscaled (multiplier = 1).
  *
  * Consumers that want to respect the user's font-scale preference should
