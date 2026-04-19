@@ -1,6 +1,9 @@
 import '@testing-library/jest-dom/vitest';
 
-import { vi } from 'vitest';
+import { expect, vi } from 'vitest';
+import * as matchers from 'vitest-axe/matchers';
+
+expect.extend(matchers);
 
 // Mock next/navigation — required by pages that use usePathname, useRouter, etc.
 vi.mock('next/navigation', () => ({
