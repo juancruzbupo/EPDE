@@ -31,7 +31,8 @@ export class DashboardService {
           'technicalInspections' in parsed &&
           'planLaunch' in parsed &&
           'revenue' in parsed &&
-          'collections' in parsed
+          'collections' in parsed &&
+          'portfolioIsv' in parsed
         )
           return parsed;
         await this.redis.del(cacheKey);
@@ -40,15 +41,24 @@ export class DashboardService {
       /* Redis unavailable */
     }
 
-    const [core, technicalInspections, planLaunch, revenue, collections] = await Promise.all([
-      this.dashboardRepository.getAdminStats(),
-      this.dashboardStatsRepository.getTechnicalInspectionsSummary(),
-      this.dashboardStatsRepository.getPlanLaunchSummary(),
-      this.dashboardStatsRepository.getRevenueConsolidated(),
-      this.dashboardStatsRepository.getCollectionsPending(),
-    ]);
+    const [core, technicalInspections, planLaunch, revenue, collections, portfolioIsv] =
+      await Promise.all([
+        this.dashboardRepository.getAdminStats(),
+        this.dashboardStatsRepository.getTechnicalInspectionsSummary(),
+        this.dashboardStatsRepository.getPlanLaunchSummary(),
+        this.dashboardStatsRepository.getRevenueConsolidated(),
+        this.dashboardStatsRepository.getCollectionsPending(),
+        this.dashboardStatsRepository.getPortfolioIsvSummary(),
+      ]);
 
-    const result = { ...core, technicalInspections, planLaunch, revenue, collections };
+    const result = {
+      ...core,
+      technicalInspections,
+      planLaunch,
+      revenue,
+      collections,
+      portfolioIsv,
+    };
 
     try {
       await this.redis.setex(cacheKey, ANALYTICS_TTL, JSON.stringify(result));

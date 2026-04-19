@@ -22,6 +22,30 @@ export interface DashboardStats {
   planLaunch: PlanLaunchTracking;
   revenue: RevenueConsolidated;
   collections: CollectionsPending;
+  portfolioIsv: PortfolioIsvSummary;
+}
+
+/**
+ * ISV agregado del portfolio de propiedades. Responde "¿cómo está el
+ * estado general de todas las casas que gestionamos?" con distribución,
+ * promedio y trend mensual.
+ */
+export interface PortfolioIsvSummary {
+  /** Propiedades con al menos un snapshot de ISV. */
+  propertiesWithIsv: number;
+  /** Promedio ponderado del último snapshot de cada propiedad (0-100). */
+  avgScore: number;
+  /** Distribución en buckets del último snapshot por propiedad. */
+  distribution: {
+    critical: number; // <40
+    warning: number; // 40-59
+    fair: number; // 60-79
+    good: number; // 80+
+  };
+  /** Propiedades elegibles para certificado (ISV≥60 + plan ≥1 año). */
+  certificateEligible: number;
+  /** Trend últimos 6 meses — promedio de ISV mes a mes. */
+  trend: Array<{ month: string; label: string; avgScore: number }>;
 }
 
 /**

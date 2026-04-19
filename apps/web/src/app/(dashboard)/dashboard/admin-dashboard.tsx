@@ -20,6 +20,7 @@ import { KpiSummaryCard } from './components/kpi-summary-card';
 import { LaunchTrackingCard } from './components/launch-tracking-card';
 import { MonthSelector } from './components/month-selector';
 import { OperationalTab } from './components/operational-tab';
+import { PortfolioIsvCard } from './components/portfolio-isv-card';
 import { RevenueConsolidatedCard } from './components/revenue-consolidated-card';
 import { TechnicalInspectionsCard } from './components/technical-inspections-card';
 import { TrendsTab } from './components/trends-tab';
@@ -103,6 +104,13 @@ export function AdminDashboard() {
             <TechnicalInspectionsCard summary={stats.technicalInspections} />
           )}
           {stats?.planLaunch && <LaunchTrackingCard summary={stats.planLaunch} />}
+        </div>
+      )}
+
+      {/* Level 2d: Portfolio ISV health */}
+      {stats?.portfolioIsv && (
+        <div className="mb-6">
+          <PortfolioIsvCard summary={stats.portfolioIsv} />
         </div>
       )}
 

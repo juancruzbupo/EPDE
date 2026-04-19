@@ -340,6 +340,93 @@ export class DashboardStatsRepository {
     };
   }
 
+  /**
+   * ISV del portfolio: último snapshot por propiedad + distribución en
+   * buckets + trend últimos 6 meses. Usa ventana de 12 meses para el
+   * promedio (suficiente para capturar estacionalidad).
+   *
+   * Query compleja: (a) último snapshot por propiedad via DISTINCT ON,
+   * (b) agregado mensual de promedio con DATE_TRUNC.
+   */
+  async getPortfolioIsvSummary() {
+    const now = new Date();
+    const startTrendWindow = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+    const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+
+    type LatestRow = { propertyId: string; score: number };
+    const latestRaw = await this.prisma.$queryRaw<LatestRow[]>`
+      SELECT DISTINCT ON ("propertyId") "propertyId", score
+      FROM "ISVSnapshot"
+      ORDER BY "propertyId", "snapshotDate" DESC
+    `;
+
+    const propertiesWithIsv = latestRaw.length;
+    const avgScore =
+      propertiesWithIsv > 0 ? latestRaw.reduce((s, r) => s + r.score, 0) / propertiesWithIsv : 0;
+
+    const distribution = { critical: 0, warning: 0, fair: 0, good: 0 };
+    for (const row of latestRaw) {
+      if (row.score < 40) distribution.critical++;
+      else if (row.score < 60) distribution.warning++;
+      else if (row.score < 80) distribution.fair++;
+      else distribution.good++;
+    }
+
+    // Certificados elegibles: ISV ≥ 60 + plan ≥ 1 año (createdAt)
+    const eligiblePropertyIds = latestRaw.filter((r) => r.score >= 60).map((r) => r.propertyId);
+
+    const certificateEligible = eligiblePropertyIds.length
+      ? await this.prisma.maintenancePlan.count({
+          where: {
+            propertyId: { in: eligiblePropertyIds },
+            createdAt: { lte: oneYearAgo },
+          },
+        })
+      : 0;
+
+    type TrendRow = { month: Date; avg_score: number };
+    const trendRaw = await this.prisma.$queryRaw<TrendRow[]>`
+      SELECT
+        DATE_TRUNC('month', "snapshotDate") AS month,
+        AVG(score)::float AS avg_score
+      FROM "ISVSnapshot"
+      WHERE "snapshotDate" >= ${startTrendWindow}
+      GROUP BY month
+      ORDER BY month ASC
+    `;
+
+    const monthLabels = [
+      'Ene',
+      'Feb',
+      'Mar',
+      'Abr',
+      'May',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dic',
+    ];
+    const trend = trendRaw.map((r) => {
+      const d = new Date(r.month);
+      return {
+        month: d.toISOString().slice(0, 7),
+        label: monthLabels[d.getMonth()] ?? '',
+        avgScore: Math.round(r.avg_score),
+      };
+    });
+
+    return {
+      propertiesWithIsv,
+      avgScore: Math.round(avgScore),
+      distribution,
+      certificateEligible,
+      trend,
+    };
+  }
+
   async getRecentActivity() {
     const [recentClients, recentProperties, recentTasks, recentBudgets, recentServices] =
       await Promise.all([
