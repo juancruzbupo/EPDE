@@ -1,4 +1,5 @@
 import { DAILY_TIPS, formatRelativeDate, UserRole, WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Linking, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
@@ -132,20 +133,45 @@ function ClientDashboard() {
     }
   }, [isLoading, statsError, tasksError, stats, tasks]);
 
-  // ISV improvement narrative — one-shot toast per session when ISV
-  // climbed meaningfully (≥3 points). Avoids re-toasting on pull-to-refresh
-  // via a ref guard.
+  // ISV improvement narrative — toast cuando el ISV subió ≥3 puntos.
+  // Ref guard protege contra re-toast en la misma sesión (pull-to-refresh);
+  // AsyncStorage con TTL 24h protege contra re-toast en sesiones nuevas
+  // durante el mismo día (Mariana 38 abre la app 5× al día — el toast
+  // perdía valor celebratorio al repetirse).
   const isvToastFiredRef = useRef(false);
   useEffect(() => {
     if (!stats?.isvDelta || stats.isvDelta < 3 || isvToastFiredRef.current) return;
-    isvToastFiredRef.current = true;
-    const score = stats.healthScore ?? 0;
-    const delta = stats.isvDelta;
-    const projection = Math.min(100, score + delta * 3);
-    toast.success(
-      `Tu ISV subió ${delta} puntos. Mantené el ritmo y en 3 meses podrías llegar a ${projection}.`,
-      6000,
-    );
+
+    const key = `isv-toast:${stats.isvDelta}:${stats.healthScore ?? 0}`;
+    const TTL_MS = 24 * 60 * 60_000;
+
+    void (async () => {
+      try {
+        const lastShownAt = await AsyncStorage.getItem(key);
+        if (lastShownAt && Date.now() - Number(lastShownAt) < TTL_MS) return;
+        isvToastFiredRef.current = true;
+        const score = stats.healthScore ?? 0;
+        const delta = stats.isvDelta ?? 0;
+        const projection = Math.min(100, score + delta * 3);
+        toast.success(
+          `Tu ISV subió ${delta} puntos. Mantené el ritmo y en 3 meses podrías llegar a ${projection}.`,
+          6000,
+        );
+        await AsyncStorage.setItem(key, String(Date.now()));
+      } catch {
+        // AsyncStorage puede fallar; fallback: usar solo el ref guard.
+        if (!isvToastFiredRef.current) {
+          isvToastFiredRef.current = true;
+          const score = stats.healthScore ?? 0;
+          const delta = stats.isvDelta ?? 0;
+          const projection = Math.min(100, score + delta * 3);
+          toast.success(
+            `Tu ISV subió ${delta} puntos. Mantené el ritmo y en 3 meses podrías llegar a ${projection}.`,
+            6000,
+          );
+        }
+      }
+    })();
   }, [stats?.isvDelta, stats?.healthScore]);
 
   // Show welcome card until client has properties with active tasks
