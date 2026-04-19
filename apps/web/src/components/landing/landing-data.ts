@@ -180,10 +180,13 @@ export const INVESTMENT_FEATURES = [
   'Diagnóstico inicial completo de tu casa (visita + análisis)',
   'Informe técnico imprimible',
   'Puntaje ISV (Índice de Salud de tu Vivienda, del 0 al 100)',
-  'Plan de mantenimiento preventivo',
+  'Plan de mantenimiento preventivo personalizado',
   'Detección de riesgos y tareas urgentes',
   'Recomendaciones técnicas',
-  'Acceso al sistema EPDE',
+  '6 meses de acceso al sistema EPDE',
+  'Llamada de seguimiento a los 30 días',
+  'Re-diagnóstico + actualización del ISV a los 6 meses',
+  'Certificado de Mantenimiento al cumplir 1 año (bonus)',
 ];
 
 export const TARGET_PROFILES = [
@@ -229,19 +232,71 @@ export const COMPARISON_ROWS: ComparisonRow[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Pricing
+// Pricing — tiers por superficie (igual lógica que inspecciones técnicas)
 // ---------------------------------------------------------------------------
 
-export const LAUNCH_PRICE = '$35.000';
+/**
+ * Tiers del plan EPDE según superficie. Cortes alineados con los de
+ * inspecciones técnicas para consistencia. Precio launch = introductorio
+ * (primeros 20 clientes); precio target = post-validación.
+ *
+ * Justificación: un plan único $35k sub-cotizaba casas grandes (6h+ de
+ * trabajo) y sobre-cotizaba deptos chicos. Además estaba por debajo del
+ * precio de la Inspección básica ($114k aparte), generando incoherencia
+ * comercial interna. Esta estructura alinea valor↔precio↔complejidad.
+ */
+export interface PlanPriceTier {
+  id: 'SMALL' | 'MEDIUM' | 'LARGE';
+  label: string;
+  range: string;
+  maxSqm: number | null;
+  launch: number;
+  target: number;
+}
+
+export const PLAN_PRICE_TIERS: PlanPriceTier[] = [
+  {
+    id: 'SMALL',
+    label: 'Plan Chico',
+    range: 'Hasta 100 m²',
+    maxSqm: 100,
+    launch: 55000,
+    target: 85000,
+  },
+  {
+    id: 'MEDIUM',
+    label: 'Plan Estándar',
+    range: '100 a 200 m²',
+    maxSqm: 200,
+    launch: 75000,
+    target: 120000,
+  },
+  {
+    id: 'LARGE',
+    label: 'Plan Amplio',
+    range: '200 a 350 m²',
+    maxSqm: 350,
+    launch: 110000,
+    target: 180000,
+  },
+];
+
+export const PLAN_OVERSIZED_THRESHOLD_SQM = 350;
+
+/** Backwards compat — sigue usándose como "desde" en CTAs hero/final. */
+export const LAUNCH_PRICE = '$55.000';
 
 export const PRICE_NOTE =
-  'Válido para casas de tamaño estándar. Propiedades muy grandes o con accesos complicados pueden requerir una cotización especial.';
+  'El precio final depende de la superficie de tu propiedad. Casas de más de 350 m² o con accesos complicados se cotizan aparte.';
 
 export const SUBSCRIPTION_MICROCOPY =
   'Pasados los 6 meses, podés continuar con un plan mensual opcional si querés seguir con el seguimiento. No es obligatorio.';
 
 export const COST_DISCLAIMER =
   'Costos estimados a partir de valores promedio del mercado en Paraná (Entre Ríos), actualizados a abril 2026. Los valores finales pueden variar según cada caso.';
+
+export const LAUNCH_URGENCY_BANNER =
+  'Precio de lanzamiento vigente hasta completar los primeros 20 clientes. Después: +60%.';
 
 // ---------------------------------------------------------------------------
 // CTA labels (unified across sections)

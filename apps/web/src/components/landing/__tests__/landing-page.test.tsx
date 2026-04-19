@@ -81,8 +81,18 @@ describe('LandingPage smoke test', () => {
   });
 
   it('renders pricing with benefits', () => {
-    expect(screen.getByText('$35.000')).toBeInTheDocument();
-    expect(screen.getByText(/Tu diagnóstico incluye/i)).toBeInTheDocument();
+    const matches = screen.getAllByText(/Todo lo que incluye/i);
+    expect(matches.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('renders tier-based pricing', () => {
+    expect(screen.getByText(/Plan Chico/i)).toBeInTheDocument();
+    expect(screen.getByText(/Plan Estándar/i)).toBeInTheDocument();
+    expect(screen.getByText(/Plan Amplio/i)).toBeInTheDocument();
+  });
+
+  it('renders launch urgency banner', () => {
+    expect(screen.getByText(/primeros 20 clientes/i)).toBeInTheDocument();
   });
 
   it('renders consequence section', () => {
