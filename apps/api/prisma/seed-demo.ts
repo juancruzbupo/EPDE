@@ -47,18 +47,28 @@ const ids = {
   maria: randomUUID(),
   carlos: randomUUID(),
   laura: randomUUID(),
+  jorge: randomUUID(),
 
   mariaProp: randomUUID(),
   carlosProp: randomUUID(),
   lauraProp: randomUUID(),
+  jorgePropCasa: randomUUID(),
+  jorgePropDepto1: randomUUID(),
+  jorgePropDepto2: randomUUID(),
 
   mariaInspection: randomUUID(),
   carlosInspection: randomUUID(),
   lauraInspection: randomUUID(),
+  jorgeInspectionCasa: randomUUID(),
+  jorgeInspectionDepto1: randomUUID(),
+  jorgeInspectionDepto2: randomUUID(),
 
   mariaPlan: randomUUID(),
   carlosPlan: randomUUID(),
   lauraPlan: randomUUID(),
+  jorgePlanCasa: randomUUID(),
+  jorgePlanDepto1: randomUUID(),
+  jorgePlanDepto2: randomUUID(),
 };
 
 // ============================================================================
@@ -2714,6 +2724,268 @@ export async function seedDemo(prisma: PrismaClient) {
   console.log('  ✓ 1 notificación de bienvenida');
 
   // ————————————————————————————————————————————————————————————————————————
+  // USUARIO 4: JORGE MÉNDEZ — Inversor multi-propiedad (8 meses)
+  // 3 propiedades (casa + 2 deptos en alquiler). Caso para testear
+  // Portfolio, property switch mobile, y dashboards con datos
+  // divergentes entre propiedades.
+  // ————————————————————————————————————————————————————————————————————————
+
+  console.log('\n👤 Jorge Méndez — Inversor con 3 propiedades (8 meses de uso)');
+
+  const jorge = await prisma.user.create({
+    data: {
+      id: ids.jorge,
+      email: 'jorge.mendez@demo.com',
+      name: 'Jorge Méndez',
+      phone: '+54 343 512-8800',
+      passwordHash,
+      role: 'CLIENT',
+      status: 'ACTIVE',
+      createdAt: monthsAgo(8),
+      lastLoginAt: daysAgo(1),
+      activatedAt: monthsAgo(8),
+      subscriptionExpiresAt: monthsFromNow(4),
+    },
+  });
+
+  // —— Propiedad 1: Casa principal (Jorge vive acá) ——
+  const jorgePropCasa = await prisma.property.create({
+    data: {
+      id: ids.jorgePropCasa,
+      userId: jorge.id,
+      address: 'Villa Urquiza, Av. Rivadavia 2845',
+      city: 'Paraná',
+      type: 'HOUSE',
+      yearBuilt: 2008,
+      squareMeters: 200,
+      createdAt: monthsAgo(8),
+      createdBy: admin.id,
+    },
+  });
+
+  await prisma.inspectionChecklist.create({
+    data: {
+      id: ids.jorgeInspectionCasa,
+      propertyId: jorgePropCasa.id,
+      inspectedBy: admin.id,
+      inspectedAt: monthsAgo(8),
+      notes: 'Casa familiar en buen estado. Cubierta con 3 años, instalaciones originales.',
+      items: {
+        create: [
+          { sector: 'ROOF', name: 'Cubierta y canaletas', status: 'OK', order: 0 },
+          {
+            sector: 'INSTALLATIONS',
+            name: 'Instalación eléctrica',
+            status: 'OBSERVATIONS',
+            order: 1,
+            notes: 'Tablero antiguo, recomendable actualizar protecciones en 12 meses',
+          },
+          { sector: 'EXTERIOR', name: 'Fachada', status: 'OK', order: 2 },
+          { sector: 'INTERIOR', name: 'Interior general', status: 'OK', order: 3 },
+        ],
+      },
+    },
+  });
+
+  const jorgePlanCasa = await prisma.maintenancePlan.create({
+    data: {
+      id: ids.jorgePlanCasa,
+      propertyId: jorgePropCasa.id,
+      name: 'Plan de Mantenimiento Preventivo',
+      status: 'ACTIVE',
+      sourceInspectionId: ids.jorgeInspectionCasa,
+      createdAt: monthsAgo(8),
+      createdBy: admin.id,
+    },
+  });
+
+  // Casa principal: ~15% overdue, el resto distribuido. ISV medio ~68.
+  await createTasksForPlan(
+    prisma,
+    jorgePlanCasa.id,
+    categoryIds,
+    (def, i) => {
+      if (def.recurrenceType === 'ON_DETECTION') return { nextDueDate: null, status: 'PENDING' };
+      const mod = i % 7;
+      if (mod === 0) return { nextDueDate: daysAgo(12), status: 'OVERDUE' };
+      if (mod <= 2) return { nextDueDate: daysAgo(-20), status: 'UPCOMING' };
+      return {
+        nextDueDate: monthsFromNow(Math.max(1, (def.recurrenceMonths || 6) - 3)),
+        status: 'PENDING',
+      };
+    },
+    monthsAgo(8),
+  );
+  console.log(`  ✓ Casa principal: ${jorgePropCasa.address} — 71 tareas`);
+
+  // —— Propiedad 2: Depto alquiler céntrico (bien mantenido) ——
+  const jorgePropDepto1 = await prisma.property.create({
+    data: {
+      id: ids.jorgePropDepto1,
+      userId: jorge.id,
+      address: 'Centro, Urquiza 1220, 5°B',
+      city: 'Paraná',
+      type: 'APARTMENT',
+      yearBuilt: 2018,
+      squareMeters: 85,
+      createdAt: monthsAgo(6),
+      createdBy: admin.id,
+    },
+  });
+
+  await prisma.inspectionChecklist.create({
+    data: {
+      id: ids.jorgeInspectionDepto1,
+      propertyId: jorgePropDepto1.id,
+      inspectedBy: admin.id,
+      inspectedAt: monthsAgo(6),
+      notes: 'Depto en alquiler, inquilino colaborativo. Todo en buen estado.',
+      items: {
+        create: [
+          { sector: 'INSTALLATIONS', name: 'Instalaciones', status: 'OK', order: 0 },
+          { sector: 'INTERIOR', name: 'Interior', status: 'OK', order: 1 },
+          { sector: 'EXTERIOR', name: 'Balcón y frente', status: 'OK', order: 2 },
+        ],
+      },
+    },
+  });
+
+  const jorgePlanDepto1 = await prisma.maintenancePlan.create({
+    data: {
+      id: ids.jorgePlanDepto1,
+      propertyId: jorgePropDepto1.id,
+      name: 'Plan de Mantenimiento Preventivo',
+      status: 'ACTIVE',
+      sourceInspectionId: ids.jorgeInspectionDepto1,
+      createdAt: monthsAgo(6),
+      createdBy: admin.id,
+    },
+  });
+
+  // Depto 1: 0 overdue, pocas upcoming, casi todo futuro. ISV alto ~85.
+  await createTasksForPlan(
+    prisma,
+    jorgePlanDepto1.id,
+    categoryIds,
+    (def, i) => {
+      if (def.recurrenceType === 'ON_DETECTION') return { nextDueDate: null, status: 'PENDING' };
+      const mod = i % 8;
+      if (mod === 0) return { nextDueDate: daysAgo(-15), status: 'UPCOMING' };
+      return { nextDueDate: monthsFromNow(def.recurrenceMonths || 6), status: 'PENDING' };
+    },
+    monthsAgo(6),
+  );
+  console.log(`  ✓ Depto 1: ${jorgePropDepto1.address} — 71 tareas`);
+
+  // —— Propiedad 3: Depto viejo en ruta descuidada (el "problemático") ——
+  const jorgePropDepto2 = await prisma.property.create({
+    data: {
+      id: ids.jorgePropDepto2,
+      userId: jorge.id,
+      address: 'Barrio Yrigoyen, 25 de Mayo 1650, PB',
+      city: 'Paraná',
+      type: 'APARTMENT',
+      yearBuilt: 1985,
+      squareMeters: 65,
+      createdAt: monthsAgo(4),
+      createdBy: admin.id,
+    },
+  });
+
+  await prisma.inspectionChecklist.create({
+    data: {
+      id: ids.jorgeInspectionDepto2,
+      propertyId: jorgePropDepto2.id,
+      inspectedBy: admin.id,
+      inspectedAt: monthsAgo(4),
+      notes:
+        'Depto viejo con varios problemas acumulados. Humedad en baño, instalación eléctrica precaria. Prioridad alta.',
+      items: {
+        create: [
+          {
+            sector: 'INSTALLATIONS',
+            name: 'Instalación eléctrica',
+            status: 'POOR',
+            order: 0,
+            notes: 'Disyuntor ausente, cables sin protección térmica adecuada',
+          },
+          {
+            sector: 'INTERIOR',
+            name: 'Humedad en baño',
+            status: 'POOR',
+            order: 1,
+            notes: 'Filtración activa desde piso superior',
+          },
+          { sector: 'EXTERIOR', name: 'Fachada', status: 'OBSERVATIONS', order: 2 },
+        ],
+      },
+    },
+  });
+
+  const jorgePlanDepto2 = await prisma.maintenancePlan.create({
+    data: {
+      id: ids.jorgePlanDepto2,
+      propertyId: jorgePropDepto2.id,
+      name: 'Plan de Mantenimiento Preventivo',
+      status: 'ACTIVE',
+      sourceInspectionId: ids.jorgeInspectionDepto2,
+      createdAt: monthsAgo(4),
+      createdBy: admin.id,
+    },
+  });
+
+  // Depto 2: ~30% overdue (realistic para propiedad descuidada). ISV ~48.
+  await createTasksForPlan(
+    prisma,
+    jorgePlanDepto2.id,
+    categoryIds,
+    (def, i) => {
+      if (def.recurrenceType === 'ON_DETECTION') return { nextDueDate: null, status: 'PENDING' };
+      const mod = i % 5;
+      if (mod < 2) return { nextDueDate: daysAgo(25 + (i % 30)), status: 'OVERDUE' };
+      if (mod === 2) return { nextDueDate: daysAgo(-14), status: 'UPCOMING' };
+      return {
+        nextDueDate: monthsFromNow(Math.max(1, (def.recurrenceMonths || 6) - 4)),
+        status: 'PENDING',
+      };
+    },
+    monthsAgo(4),
+  );
+  console.log(`  ✓ Depto 2: ${jorgePropDepto2.address} — 71 tareas (descuidado, muchas vencidas)`);
+
+  // —— Notificaciones de Jorge (contextuales al portfolio) ——
+  await prisma.notification.createMany({
+    data: [
+      {
+        userId: jorge.id,
+        type: 'TASK_REMINDER',
+        title: 'Depto Yrigoyen: 8 tareas vencidas',
+        message:
+          'Tu depto en 25 de Mayo tiene tareas acumuladas. Revisá el portfolio para ver el detalle.',
+        read: false,
+        createdAt: daysAgo(3),
+      },
+      {
+        userId: jorge.id,
+        type: 'SYSTEM',
+        title: 'Portfolio habilitado',
+        message: 'Ya podés ver tus 3 propiedades lado a lado desde la vista Portfolio del panel.',
+        read: false,
+        createdAt: daysAgo(1),
+      },
+      {
+        userId: jorge.id,
+        type: 'TASK_REMINDER',
+        title: 'Casa Rivadavia: inspección semestral próxima',
+        message: 'Revisión semestral del tablero eléctrico está próxima a vencer.',
+        read: true,
+        createdAt: daysAgo(15),
+      },
+    ],
+  });
+  console.log('  ✓ 3 notificaciones (2 no leídas) contextualizadas al portfolio');
+
+  // ————————————————————————————————————————————————————————————————————————
   // PLANTILLAS DE COTIZACIÓN
   // ————————————————————————————————————————————————————————————————————————
 
@@ -3172,9 +3444,9 @@ export async function seedDemo(prisma: PrismaClient) {
   console.log('📊 RESUMEN SEED DEMO');
   console.log('═'.repeat(60));
   console.log(`
-  Usuarios:     4 (1 admin + 3 clientes)
-  Propiedades:  3
-  Planes:       3 (todos ACTIVE)
+  Usuarios:     5 (1 admin + 4 clientes)
+  Propiedades:  6 (María 1 + Carlos 1 + Laura 1 + Jorge 3)
+  Planes:       6 (todos ACTIVE)
   Categorías:   ${CATEGORIES.length} (compartidas)
   Tareas:       ${3 * TASK_DEFS.length} (${TASK_DEFS.length} × 3 propiedades)
   Task Logs:    ${mariaLogCount + 14} (María: ${mariaLogCount} (incl. 5 últimos 30 días), Carlos: 14, Laura: 0)
@@ -3190,7 +3462,7 @@ export async function seedDemo(prisma: PrismaClient) {
   Sectores:     9 (asignados via CATEGORY_DEFAULT_SECTOR + overrides puntuales)
   ISV Snaps:    ${allSnapshotData.length} (María: ${mariaISVSnapshots.length}, Carlos: ${carlosISVSnapshots.length}, Laura: ${lauraISVSnapshots.length})
   Insp. Téc.:   3 (Carlos SALE pagada, María STRUCTURAL pendiente pago, Laura BASIC solicitada)
-  Notific.:     12 (María: 5/3-unread, Carlos: 5/3-unread, Laura: 0)
+  Notific.:     15 (María: 5/3-unread, Carlos: 5/3-unread, Jorge: 3/2-unread, Laura: 1)
   Certificados: 1 (María — CERT-0001, ISV 62, emitido hace 2 días)
 
   👤 María González  (maria.gonzalez@demo.com / Demo123!)
@@ -3210,5 +3482,12 @@ export async function seedDemo(prisma: PrismaClient) {
      → Todas las tareas pendientes, sin historial
      → Caso de onboarding limpio
      → ISV: 85 (1 snapshot, baseline alto)
+
+  👤 Jorge Méndez     (jorge.mendez@demo.com / Demo123!)
+     Inversor con 3 propiedades, 8 meses de uso
+     → Casa Rivadavia (bien mantenida), Depto Centro (ISV alto),
+       Depto Yrigoyen (descuidado, varios OVERDUE)
+     → Perfil ideal para testear Portfolio + mobile PropertyPicker
+     → ISV por propiedad: ~68 / ~85 / ~48
   `);
 }
