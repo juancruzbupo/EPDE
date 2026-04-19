@@ -18,6 +18,7 @@ import { FinancialTab } from './components/financial-tab';
 import { KpiSummaryCard } from './components/kpi-summary-card';
 import { MonthSelector } from './components/month-selector';
 import { OperationalTab } from './components/operational-tab';
+import { TechnicalInspectionsCard } from './components/technical-inspections-card';
 import { TrendsTab } from './components/trends-tab';
 
 export function AdminDashboard() {
@@ -83,6 +84,13 @@ export function AdminDashboard() {
       <div data-tour="admin-attention" className="mb-6">
         {stats && <AttentionNeeded stats={stats} />}
       </div>
+
+      {/* Level 2b: Technical Inspections pipeline */}
+      {stats?.technicalInspections && (
+        <div className="mb-6">
+          <TechnicalInspectionsCard summary={stats.technicalInspections} />
+        </div>
+      )}
 
       {/* Level 3: Admin Analytics Tabs */}
       <div data-tour="admin-tabs" className="mb-6">

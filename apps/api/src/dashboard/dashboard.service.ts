@@ -4,6 +4,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { RedisService } from '../redis/redis.service';
 import { DashboardRepository } from './dashboard.repository';
+import { DashboardStatsRepository } from './dashboard-stats.repository';
 
 const ANALYTICS_TTL = 300; // 5 minutes
 const RECENT_ACTIVITY_TTL = 60; // 1 minute — fresh enough for an activity feed, cheap to serve
@@ -14,20 +15,31 @@ export class DashboardService {
 
   constructor(
     private readonly dashboardRepository: DashboardRepository,
+    private readonly dashboardStatsRepository: DashboardStatsRepository,
     private readonly redis: RedisService,
   ) {}
 
-  /** Admin overview stats (property/task/budget/service counts). Cached ${ANALYTICS_TTL}s. */
+  /** Admin overview stats (property/task/budget/service counts + inspections). Cached ${ANALYTICS_TTL}s. */
   async getStats() {
     const cacheKey = 'dashboard:admin:stats';
     try {
       const cached = await this.redis.get(cacheKey);
-      if (cached) return JSON.parse(cached);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        // Invalidate stale cache missing technicalInspections (added in this release)
+        if ('technicalInspections' in parsed) return parsed;
+        await this.redis.del(cacheKey);
+      }
     } catch {
       /* Redis unavailable */
     }
 
-    const result = await this.dashboardRepository.getAdminStats();
+    const [core, technicalInspections] = await Promise.all([
+      this.dashboardRepository.getAdminStats(),
+      this.dashboardStatsRepository.getTechnicalInspectionsSummary(),
+    ]);
+
+    const result = { ...core, technicalInspections };
 
     try {
       await this.redis.setex(cacheKey, ANALYTICS_TTL, JSON.stringify(result));

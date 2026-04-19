@@ -33,6 +33,72 @@ export class DashboardStatsRepository {
     return { totalClients, totalProperties, overdueTasks, pendingBudgets, pendingServices };
   }
 
+  /**
+   * Agregado operativo de inspecciones técnicas para el dashboard admin.
+   * Vive acá (y no en TechnicalInspectionsRepository) para evitar la dependencia
+   * circular DashboardModule → TechnicalInspectionsModule → PropertiesModule →
+   * DashboardModule. Lógicamente es una query "dashboard", no de dominio.
+   */
+  async getTechnicalInspectionsSummary() {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const [
+      awaitingSchedule,
+      scheduledCount,
+      inProgressCount,
+      awaitingPayment,
+      oldestReportReady,
+      paidThisMonth,
+      mixByType,
+    ] = await Promise.all([
+      this.prisma.softDelete.technicalInspection.count({ where: { status: 'REQUESTED' } }),
+      this.prisma.softDelete.technicalInspection.count({ where: { status: 'SCHEDULED' } }),
+      this.prisma.softDelete.technicalInspection.count({ where: { status: 'IN_PROGRESS' } }),
+      this.prisma.softDelete.technicalInspection.count({ where: { status: 'REPORT_READY' } }),
+      this.prisma.softDelete.technicalInspection.findFirst({
+        where: { status: 'REPORT_READY' },
+        orderBy: { completedAt: 'asc' },
+        select: { completedAt: true },
+      }),
+      this.prisma.softDelete.technicalInspection.findMany({
+        where: { feeStatus: 'PAID', paidAt: { gte: startOfMonth } },
+        select: { feeAmount: true },
+      }),
+      this.prisma.softDelete.technicalInspection.groupBy({
+        by: ['type'],
+        _count: { _all: true },
+        where: { status: { not: 'CANCELED' } },
+      }),
+    ]);
+
+    const revenueThisMonth = paidThisMonth.reduce((sum, r) => sum + Number(r.feeAmount), 0);
+    const oldestAwaitingPaymentDays =
+      oldestReportReady?.completedAt != null
+        ? Math.floor(
+            (now.getTime() - oldestReportReady.completedAt.getTime()) / (1000 * 60 * 60 * 24),
+          )
+        : null;
+
+    const mix = { BASIC: 0, STRUCTURAL: 0, SALE: 0 };
+    for (const row of mixByType) {
+      mix[row.type as 'BASIC' | 'STRUCTURAL' | 'SALE'] = row._count._all;
+    }
+
+    const inProgress = scheduledCount + inProgressCount;
+    const totalActive = awaitingSchedule + inProgress + awaitingPayment;
+
+    return {
+      totalActive,
+      awaitingSchedule,
+      inProgress,
+      awaitingPayment,
+      oldestAwaitingPaymentDays,
+      revenueThisMonth,
+      mixByType: mix,
+    };
+  }
+
   async getRecentActivity() {
     const [recentClients, recentProperties, recentTasks, recentBudgets, recentServices] =
       await Promise.all([

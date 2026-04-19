@@ -91,8 +91,17 @@ function TechnicalInspectionsPageContent() {
     }
   }, [searchParams, isClient]);
 
+  const statusFilter = searchParams.get('status') as
+    | 'REQUESTED'
+    | 'SCHEDULED'
+    | 'IN_PROGRESS'
+    | 'REPORT_READY'
+    | 'PAID'
+    | 'CANCELED'
+    | null;
+
   const { data, isLoading, isError, refetch, hasNextPage, fetchNextPage } = useTechnicalInspections(
-    {},
+    statusFilter ? { status: statusFilter } : {},
   );
 
   const inspections = useMemo(() => data?.pages.flatMap((p) => p.data) ?? [], [data]);

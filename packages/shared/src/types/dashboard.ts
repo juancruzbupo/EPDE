@@ -18,6 +18,29 @@ export interface DashboardStats {
   overdueTasks: number;
   pendingBudgets: number;
   pendingServices: number;
+  technicalInspections: TechnicalInspectionsSummary;
+}
+
+/**
+ * Agregado operativo de inspecciones técnicas para el dashboard admin.
+ * Pensado para responder "¿qué inspecciones necesitan mi atención esta semana?"
+ * sin abrir la lista.
+ */
+export interface TechnicalInspectionsSummary {
+  /** Count de no-CANCELED, no-PAID. */
+  totalActive: number;
+  /** REQUESTED — cliente espera que agendemos. */
+  awaitingSchedule: number;
+  /** SCHEDULED + IN_PROGRESS. */
+  inProgress: number;
+  /** REPORT_READY — informe subido, cliente puede pagar. Cuello de cobranza. */
+  awaitingPayment: number;
+  /** Días desde que la más vieja REPORT_READY está esperando pago (null si no hay). */
+  oldestAwaitingPaymentDays: number | null;
+  /** Sum de feeAmount con paidAt en mes calendario actual. */
+  revenueThisMonth: number;
+  /** Distribución por tipo (no incluye CANCELED). */
+  mixByType: { BASIC: number; STRUCTURAL: number; SALE: number };
 }
 
 export interface ClientDashboardStats {
