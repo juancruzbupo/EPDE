@@ -48,6 +48,8 @@ const ids = {
   carlos: randomUUID(),
   laura: randomUUID(),
   jorge: randomUUID(),
+  susana: randomUUID(),
+  roberto: randomUUID(),
 
   mariaProp: randomUUID(),
   carlosProp: randomUUID(),
@@ -55,6 +57,8 @@ const ids = {
   jorgePropCasa: randomUUID(),
   jorgePropDepto1: randomUUID(),
   jorgePropDepto2: randomUUID(),
+  susanaProp: randomUUID(),
+  robertoProp: randomUUID(),
 
   mariaInspection: randomUUID(),
   carlosInspection: randomUUID(),
@@ -62,6 +66,8 @@ const ids = {
   jorgeInspectionCasa: randomUUID(),
   jorgeInspectionDepto1: randomUUID(),
   jorgeInspectionDepto2: randomUUID(),
+  susanaInspection: randomUUID(),
+  robertoInspection: randomUUID(),
 
   mariaPlan: randomUUID(),
   carlosPlan: randomUUID(),
@@ -69,6 +75,8 @@ const ids = {
   jorgePlanCasa: randomUUID(),
   jorgePlanDepto1: randomUUID(),
   jorgePlanDepto2: randomUUID(),
+  susanaPlan: randomUUID(),
+  robertoPlan: randomUUID(),
 };
 
 // ============================================================================
@@ -2986,6 +2994,255 @@ export async function seedDemo(prisma: PrismaClient) {
   console.log('  ✓ 3 notificaciones (2 no leídas) contextualizadas al portfolio');
 
   // ————————————————————————————————————————————————————————————————————————
+  // USUARIO 5: SUSANA LÓPEZ — Suscripción vencida (paywall)
+  // Cliente histórica cuyo plan venció hace 5 días. Al loguearse la
+  // app la redirige al paywall /subscription-expired. Sirve para
+  // testear el flujo de renovación sin borrar datos (el histórico
+  // queda, sólo se bloquea el acceso).
+  // ————————————————————————————————————————————————————————————————————————
+
+  console.log('\n👤 Susana López — Suscripción vencida (paywall)');
+
+  const susana = await prisma.user.create({
+    data: {
+      id: ids.susana,
+      email: 'susana.expired@demo.com',
+      name: 'Susana López',
+      phone: '+54 343 488-5500',
+      passwordHash,
+      role: 'CLIENT',
+      status: 'ACTIVE',
+      createdAt: monthsAgo(13),
+      lastLoginAt: daysAgo(20),
+      activatedAt: monthsAgo(13),
+      // Vencida hace 5 días — al loguear la app redirige a
+      // /subscription-expired. La banner del dashboard si se renueva
+      // vuelve a estar accesible.
+      subscriptionExpiresAt: daysAgo(5),
+    },
+  });
+
+  const susanaProp = await prisma.property.create({
+    data: {
+      id: ids.susanaProp,
+      userId: susana.id,
+      address: 'Paraná XIII, Monseñor Tavella 850',
+      city: 'Paraná',
+      type: 'HOUSE',
+      yearBuilt: 1998,
+      squareMeters: 175,
+      createdAt: monthsAgo(13),
+      createdBy: admin.id,
+    },
+  });
+
+  await prisma.inspectionChecklist.create({
+    data: {
+      id: ids.susanaInspection,
+      propertyId: susanaProp.id,
+      inspectedBy: admin.id,
+      inspectedAt: monthsAgo(13),
+      notes:
+        'Casa en buen estado general. Plan activo durante 12 meses con buen cumplimiento antes de dejar de renovar.',
+      items: {
+        create: [
+          { sector: 'ROOF', name: 'Cubierta', status: 'OK', order: 0 },
+          { sector: 'INTERIOR', name: 'Interior', status: 'OK', order: 1 },
+        ],
+      },
+    },
+  });
+
+  const susanaPlan = await prisma.maintenancePlan.create({
+    data: {
+      id: ids.susanaPlan,
+      propertyId: susanaProp.id,
+      name: 'Plan de Mantenimiento Preventivo',
+      status: 'ACTIVE',
+      sourceInspectionId: ids.susanaInspection,
+      createdAt: monthsAgo(13),
+      createdBy: admin.id,
+    },
+  });
+
+  // Tareas con muchas vencidas (lleva 5 días sin renovar + historial real).
+  await createTasksForPlan(
+    prisma,
+    susanaPlan.id,
+    categoryIds,
+    (def, i) => {
+      if (def.recurrenceType === 'ON_DETECTION') return { nextDueDate: null, status: 'PENDING' };
+      const mod = i % 4;
+      if (mod < 2) return { nextDueDate: daysAgo(10 + (i % 20)), status: 'OVERDUE' };
+      return { nextDueDate: monthsFromNow((def.recurrenceMonths || 6) - 1), status: 'PENDING' };
+    },
+    monthsAgo(13),
+  );
+  console.log(`  ✓ Propiedad: ${susanaProp.address} — 71 tareas`);
+  console.log('  ℹ️  Al loguear con susana.expired@demo.com → paywall /subscription-expired');
+
+  // ————————————————————————————————————————————————————————————————————————
+  // USUARIO 6: ROBERTO SILVA — Inspecciones técnicas variadas (add-on)
+  // Cliente con plan activo que además contrató 3 inspecciones
+  // técnicas en distintos estados para poder testear el flujo completo
+  // de add-ons pagos: REQUESTED, REPORT_READY (falta pagar) y PAID.
+  // ————————————————————————————————————————————————————————————————————————
+
+  console.log('\n👤 Roberto Silva — Inspecciones técnicas (add-on pagos)');
+
+  const roberto = await prisma.user.create({
+    data: {
+      id: ids.roberto,
+      email: 'roberto.silva@demo.com',
+      name: 'Roberto Silva',
+      phone: '+54 343 499-2211',
+      passwordHash,
+      role: 'CLIENT',
+      status: 'ACTIVE',
+      createdAt: monthsAgo(5),
+      lastLoginAt: daysAgo(1),
+      activatedAt: monthsAgo(5),
+      subscriptionExpiresAt: monthsFromNow(7),
+    },
+  });
+
+  const robertoProp = await prisma.property.create({
+    data: {
+      id: ids.robertoProp,
+      userId: roberto.id,
+      address: 'Barrio Mosconi, Don Bosco 1225',
+      city: 'Paraná',
+      type: 'HOUSE',
+      yearBuilt: 2000,
+      squareMeters: 240,
+      createdAt: monthsAgo(5),
+      createdBy: admin.id,
+    },
+  });
+
+  await prisma.inspectionChecklist.create({
+    data: {
+      id: ids.robertoInspection,
+      propertyId: robertoProp.id,
+      inspectedBy: admin.id,
+      inspectedAt: monthsAgo(5),
+      notes:
+        'Casa en buen estado. Roberto suele contratar inspecciones firmadas por trámites familiares.',
+      items: {
+        create: [
+          { sector: 'ROOF', name: 'Cubierta', status: 'OK', order: 0 },
+          { sector: 'INTERIOR', name: 'Interior', status: 'OK', order: 1 },
+        ],
+      },
+    },
+  });
+
+  const robertoPlan = await prisma.maintenancePlan.create({
+    data: {
+      id: ids.robertoPlan,
+      propertyId: robertoProp.id,
+      name: 'Plan de Mantenimiento Preventivo',
+      status: 'ACTIVE',
+      sourceInspectionId: ids.robertoInspection,
+      createdAt: monthsAgo(5),
+      createdBy: admin.id,
+    },
+  });
+
+  await createTasksForPlan(
+    prisma,
+    robertoPlan.id,
+    categoryIds,
+    (def) => {
+      if (def.recurrenceType === 'ON_DETECTION') return { nextDueDate: null, status: 'PENDING' };
+      return { nextDueDate: monthsFromNow(def.recurrenceMonths || 6), status: 'PENDING' };
+    },
+    monthsAgo(5),
+  );
+  console.log(`  ✓ Propiedad: ${robertoProp.address} — 71 tareas`);
+
+  // —— 3 inspecciones técnicas en distintos estados ——
+  await prisma.technicalInspection.createMany({
+    data: [
+      // 1. SALE pagada (histórico) — Roberto tiene un informe firmado que
+      //    puede descargar. Testea la vista de histórico + PDF.
+      {
+        inspectionNumber: 'INSP-2026-0101',
+        propertyId: robertoProp.id,
+        requestedBy: roberto.id,
+        type: 'SALE',
+        status: 'PAID',
+        clientNotes: 'Necesito informe para gestión sucesoria del inmueble.',
+        adminNotes: 'Informe entregado y pagado. Todo OK.',
+        scheduledFor: monthsAgo(3),
+        completedAt: monthsAgo(3),
+        deliverableUrl: 'https://demo.epde.ar/reports/insp-2026-0101.pdf',
+        deliverableFileName: 'inspeccion-roberto-compraventa.pdf',
+        feeAmount: 850000,
+        priceTier: 'MEDIUM',
+        propertySqm: 240,
+        feeStatus: 'PAID',
+        hadActivePlan: true,
+        createdAt: monthsAgo(4),
+      },
+      // 2. STRUCTURAL REPORT_READY (pendiente pago) — Testea el flujo
+      //    "informe listo, acción requerida: pagar".
+      {
+        inspectionNumber: 'INSP-2026-0102',
+        propertyId: robertoProp.id,
+        requestedBy: roberto.id,
+        type: 'STRUCTURAL',
+        status: 'REPORT_READY',
+        clientNotes: 'Aparecieron grietas en la pared medianera, necesito evaluación profunda.',
+        adminNotes: 'Grietas evaluadas. Informe subido, pendiente cobro.',
+        scheduledFor: daysAgo(8),
+        completedAt: daysAgo(3),
+        deliverableUrl: 'https://demo.epde.ar/reports/insp-2026-0102.pdf',
+        deliverableFileName: 'inspeccion-roberto-estructural.pdf',
+        feeAmount: 493000,
+        priceTier: 'MEDIUM',
+        propertySqm: 240,
+        feeStatus: 'PENDING',
+        hadActivePlan: true,
+        createdAt: daysAgo(15),
+      },
+      // 3. BASIC SCHEDULED — Testea estado intermedio del workflow.
+      {
+        inspectionNumber: 'INSP-2026-0103',
+        propertyId: robertoProp.id,
+        requestedBy: roberto.id,
+        type: 'BASIC',
+        status: 'SCHEDULED',
+        clientNotes: 'Revisión general antes de la venida de mis hijos.',
+        scheduledFor: daysAgo(-4),
+        feeAmount: 153000,
+        priceTier: 'MEDIUM',
+        propertySqm: 240,
+        feeStatus: 'PENDING',
+        hadActivePlan: true,
+        createdAt: daysAgo(2),
+      },
+    ],
+  });
+  console.log(
+    '  ✓ 3 inspecciones técnicas (PAID histórica, REPORT_READY pendiente pago, SCHEDULED próxima)',
+  );
+
+  // —— Notificación sobre el informe listo ——
+  await prisma.notification.create({
+    data: {
+      userId: roberto.id,
+      type: 'SYSTEM',
+      title: 'Tu informe estructural está listo',
+      message:
+        'Subimos el informe firmado de tu inspección estructural. Podés descargarlo y coordinar el pago por transferencia.',
+      read: false,
+      createdAt: daysAgo(3),
+    },
+  });
+  console.log('  ✓ 1 notificación (informe estructural listo)');
+
+  // ————————————————————————————————————————————————————————————————————————
   // PLANTILLAS DE COTIZACIÓN
   // ————————————————————————————————————————————————————————————————————————
 
@@ -3444,9 +3701,9 @@ export async function seedDemo(prisma: PrismaClient) {
   console.log('📊 RESUMEN SEED DEMO');
   console.log('═'.repeat(60));
   console.log(`
-  Usuarios:     5 (1 admin + 4 clientes)
-  Propiedades:  6 (María 1 + Carlos 1 + Laura 1 + Jorge 3)
-  Planes:       6 (todos ACTIVE)
+  Usuarios:     7 (1 admin + 6 clientes)
+  Propiedades:  8 (María 1 + Carlos 1 + Laura 1 + Jorge 3 + Susana 1 + Roberto 1)
+  Planes:       8 (todos ACTIVE)
   Categorías:   ${CATEGORIES.length} (compartidas)
   Tareas:       ${3 * TASK_DEFS.length} (${TASK_DEFS.length} × 3 propiedades)
   Task Logs:    ${mariaLogCount + 14} (María: ${mariaLogCount} (incl. 5 últimos 30 días), Carlos: 14, Laura: 0)
@@ -3462,8 +3719,10 @@ export async function seedDemo(prisma: PrismaClient) {
   Sectores:     9 (asignados via CATEGORY_DEFAULT_SECTOR + overrides puntuales)
   ISV Snaps:    ${allSnapshotData.length} (María: ${mariaISVSnapshots.length}, Carlos: ${carlosISVSnapshots.length}, Laura: ${lauraISVSnapshots.length})
   Insp. Téc.:   3 (Carlos SALE pagada, María STRUCTURAL pendiente pago, Laura BASIC solicitada)
-  Notific.:     15 (María: 5/3-unread, Carlos: 5/3-unread, Jorge: 3/2-unread, Laura: 1)
+  Notific.:     16 (María 5/3u + Carlos 5/3u + Jorge 3/2u + Laura 1 + Roberto 1/1u + Susana 0)
   Certificados: 1 (María — CERT-0001, ISV 62, emitido hace 2 días)
+  Insp. Téc.:   6 (Carlos PAID + María REPORT_READY + Laura REQUESTED +
+                   Roberto × 3 PAID/REPORT_READY/SCHEDULED)
 
   👤 María González  (maria.gonzalez@demo.com / Demo123!)
      Casa 1985, 18 meses de uso, historial rico, problemas reales
@@ -3489,5 +3748,18 @@ export async function seedDemo(prisma: PrismaClient) {
        Depto Yrigoyen (descuidado, varios OVERDUE)
      → Perfil ideal para testear Portfolio + mobile PropertyPicker
      → ISV por propiedad: ~68 / ~85 / ~48
+
+  👤 Susana López     (susana.expired@demo.com / Demo123!)
+     Suscripción VENCIDA hace 5 días (plan histórico 13 meses)
+     → Al loguear redirige a /subscription-expired (paywall)
+     → Sirve para testear flujo de renovación + banner destructive
+     → 71 tareas (muchas OVERDUE por falta de uso reciente)
+
+  👤 Roberto Silva    (roberto.silva@demo.com / Demo123!)
+     Cliente con 3 inspecciones técnicas (add-on pago)
+     → INSP-2026-0101 SALE PAID (hay informe firmado descargable)
+     → INSP-2026-0102 STRUCTURAL REPORT_READY (pendiente pago)
+     → INSP-2026-0103 BASIC SCHEDULED (visita próxima)
+     → Sirve para testear flujo completo inspecciones técnicas
   `);
 }
