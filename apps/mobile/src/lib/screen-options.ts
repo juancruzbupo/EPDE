@@ -6,6 +6,11 @@ export const defaultScreenOptions = {
   headerStyle: { backgroundColor: COLORS.background },
   headerTintColor: COLORS.foreground,
   headerTitleStyle: { fontFamily: TYPE.titleLg.fontFamily },
+  // gestureEnabled es default true en iOS pero no en Android — lo
+  // explicitamos para que usuarios mayores ("Norma") puedan volver
+  // con gesto desde el borde izquierdo en detail screens, no solo
+  // apretando el botón Volver del header.
+  gestureEnabled: true,
 } as const;
 
 /** Shared tab bar screen options */

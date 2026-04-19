@@ -116,7 +116,13 @@ export const OnboardingCarousel = memo(function OnboardingCarousel({
     <View className="bg-background flex-1 justify-between pt-20 pb-12">
       {/* Skip */}
       <View className="items-end px-6">
-        <Pressable accessibilityRole="button" accessibilityLabel="Cerrar guía" onPress={handleSkip}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Cerrar guía"
+          onPress={handleSkip}
+          hitSlop={12}
+          style={{ minHeight: 44, minWidth: 44, justifyContent: 'center' }}
+        >
           <Text style={TYPE.labelLg} className="text-muted-foreground">
             Cerrar
           </Text>
@@ -143,17 +149,21 @@ export const OnboardingCarousel = memo(function OnboardingCarousel({
 
       {/* Dots + button */}
       <View className="items-center gap-6 px-6">
-        {/* Dots */}
+        {/* Dots — h-3 (antes h-2) para que sean más fáciles de ver en
+            pantallas chicas y con Dynamic Type alto. Label dinámico para
+            screen readers. */}
         <View
           className="flex-row gap-2"
+          accessibilityRole="progressbar"
           accessibilityLabel={`Paso ${activeIndex + 1} de ${SLIDES.length}`}
+          accessibilityValue={{ now: activeIndex + 1, min: 1, max: SLIDES.length }}
         >
           {SLIDES.map((_, i) => (
             <View
               key={i}
-              className="h-2 rounded-full"
+              className="h-3 rounded-full"
               style={{
-                width: i === activeIndex ? 24 : 8,
+                width: i === activeIndex ? 28 : 10,
                 backgroundColor: i === activeIndex ? COLORS.primary : COLORS.border,
               }}
             />

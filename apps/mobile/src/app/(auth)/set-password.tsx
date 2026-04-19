@@ -113,8 +113,8 @@ export default function SetPasswordScreen() {
                   accessibilityRole="button"
                   accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   onPress={() => setShowPassword(!showPassword)}
-                  className="absolute top-3 right-3"
-                  hitSlop={8}
+                  className="absolute top-2 right-2 items-center justify-center px-2 py-2"
+                  hitSlop={12}
                 >
                   <Text className="text-muted-foreground text-sm">
                     {showPassword ? 'Ocultar' : 'Mostrar'}
@@ -166,8 +166,8 @@ export default function SetPasswordScreen() {
                     showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
                   }
                   onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute top-3 right-3"
-                  hitSlop={8}
+                  className="absolute top-2 right-2 items-center justify-center px-2 py-2"
+                  hitSlop={12}
                 >
                   <Text className="text-muted-foreground text-sm">
                     {showConfirmPassword ? 'Ocultar' : 'Mostrar'}

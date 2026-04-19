@@ -82,8 +82,8 @@ export const PasswordChangeForm = React.memo(function PasswordChangeForm({
         <Pressable
           onPress={onSubmit}
           disabled={isChangingPassword}
-          className="bg-primary items-center rounded-lg py-2.5"
-          style={{ opacity: isChangingPassword ? 0.5 : 1 }}
+          className="bg-primary items-center justify-center rounded-lg py-3"
+          style={{ opacity: isChangingPassword ? 0.5 : 1, minHeight: 44 }}
           accessibilityLabel="Cambiar contraseña"
           accessibilityRole="button"
           accessibilityState={{ disabled: isChangingPassword }}

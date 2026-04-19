@@ -65,9 +65,9 @@ const NotificationCard = memo(function NotificationCard({
                   haptics.light();
                   onMarkRead();
                 }}
-                hitSlop={8}
-                style={{ minHeight: 32 }}
-                className="bg-success/10 ml-2 items-center justify-center rounded-full px-2.5 py-1"
+                hitSlop={16}
+                style={{ minHeight: 44 }}
+                className="bg-success/10 ml-2 items-center justify-center rounded-full px-3 py-2"
                 accessibilityRole="button"
                 accessibilityLabel="Marcar como leída"
               >
