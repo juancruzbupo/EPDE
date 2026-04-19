@@ -2,20 +2,13 @@ import { isServiceRequestTerminal, ServiceStatus, ServiceUrgency, UserRole } fro
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  RefreshControl,
-  Text,
-  View,
-} from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, RefreshControl, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { CreateBudgetModal } from '@/components/create-budget-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
+import { Spinner } from '@/components/spinner';
 import {
   useAddServiceRequestAttachments,
   useAddServiceRequestComment,
@@ -144,7 +137,7 @@ export default function ServiceRequestDetailScreen() {
         <Stack.Screen
           options={{ headerShown: true, title: 'Solicitud', headerBackTitle: 'Volver' }}
         />
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Spinner size="large" color={COLORS.primary} label="Cargando solicitud" />
       </View>
     );
   }

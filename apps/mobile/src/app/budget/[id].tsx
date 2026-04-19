@@ -2,13 +2,14 @@ import { BudgetStatus, isBudgetTerminal, UserRole } from '@epde/shared';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, RefreshControl, View } from 'react-native';
+import { Alert, RefreshControl, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { EditBudgetModal } from '@/components/edit-budget-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { RespondBudgetModal } from '@/components/respond-budget-modal';
+import { Spinner } from '@/components/spinner';
 import {
   useAddBudgetAttachments,
   useAddBudgetComment,
@@ -175,7 +176,7 @@ export default function BudgetDetailScreen() {
         <Stack.Screen
           options={{ headerShown: true, title: 'Presupuesto', headerBackTitle: 'Volver' }}
         />
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Spinner size="large" color={COLORS.primary} label="Cargando presupuesto" />
       </View>
     );
   }

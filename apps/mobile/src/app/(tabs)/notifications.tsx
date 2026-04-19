@@ -2,11 +2,12 @@ import type { NotificationPublic, NotificationType } from '@epde/shared';
 import { formatRelativeDate, NOTIFICATION_TYPE_LABELS } from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { memo, useCallback, useMemo } from 'react';
-import { ActivityIndicator, FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
 
 import { AnimatedListItem } from '@/components/animated-list-item';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
+import { Spinner } from '@/components/spinner';
 import { SwipeableRow } from '@/components/swipeable-row';
 import {
   useMarkAllAsRead,
@@ -17,6 +18,7 @@ import {
 import { COLORS } from '@/lib/colors';
 import { TYPE } from '@/lib/fonts';
 import { haptics } from '@/lib/haptics';
+import { ROUTES } from '@/lib/routes';
 
 const NOTIF_TYPE_ICONS: Record<NotificationType, string> = {
   TASK_REMINDER: '\u{1F552}',
@@ -106,11 +108,11 @@ const NotificationCard = memo(function NotificationCard({
 function getNotificationRoute(n: NotificationPublic): string | null {
   const d = n.data as Record<string, string> | null;
   if (!d) return null;
-  if (n.type === 'BUDGET_UPDATE' && d.budgetId) return `/budget/${d.budgetId}`;
+  if (n.type === 'BUDGET_UPDATE' && d.budgetId) return ROUTES.budgetDetail(d.budgetId);
   if (n.type === 'SERVICE_UPDATE' && d.serviceRequestId)
-    return `/service-requests/${d.serviceRequestId}`;
-  if (n.type === 'TASK_REMINDER' && d.planId && d.taskId) return `/task/${d.planId}/${d.taskId}`;
-  if (n.type === 'TASK_REMINDER' && d.propertyId) return `/property/${d.propertyId}`;
+    return ROUTES.serviceRequest(d.serviceRequestId);
+  if (n.type === 'TASK_REMINDER' && d.planId && d.taskId) return ROUTES.task(d.planId, d.taskId);
+  if (n.type === 'TASK_REMINDER' && d.propertyId) return ROUTES.property(d.propertyId);
   return null;
 }
 
@@ -161,7 +163,7 @@ export default function NotificationsScreen() {
   if (isLoading && !data) {
     return (
       <View className="bg-background flex-1 items-center justify-center">
-        <ActivityIndicator size="large" />
+        <Spinner size="large" label="Cargando notificaciones" />
       </View>
     );
   }
@@ -230,7 +232,7 @@ export default function NotificationsScreen() {
       ListFooterComponent={
         isFetchingNextPage ? (
           <View className="items-center py-4">
-            <ActivityIndicator size="small" />
+            <Spinner size="small" label="Cargando más notificaciones" />
           </View>
         ) : null
       }

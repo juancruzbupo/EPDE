@@ -6,7 +6,6 @@ import { CONDITION_FOUND_LABELS, ProfessionalRequirement, TaskStatus } from '@ep
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -21,6 +20,7 @@ import { CompleteTaskModal } from '@/components/complete-task-modal';
 import { CreateServiceRequestModal } from '@/components/create-service-request-modal';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
+import { Spinner } from '@/components/spinner';
 import { usePlan } from '@/hooks/use-plans';
 import {
   useAddTaskNote,
@@ -76,7 +76,7 @@ export default function TaskDetailScreen() {
     return (
       <View className="bg-background flex-1 items-center justify-center">
         <Stack.Screen options={{ headerShown: true, title: 'Tarea', headerBackTitle: 'Volver' }} />
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Spinner size="large" color={COLORS.primary} label="Cargando tarea" />
       </View>
     );
   }

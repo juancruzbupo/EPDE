@@ -2,15 +2,7 @@ import type { TaskPublic } from '@epde/shared';
 import { PlanStatus, PROPERTY_SECTOR_LABELS, TaskStatus, UserRole } from '@epde/shared';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  RefreshControl,
-  SectionList,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Pressable, RefreshControl, SectionList, Text, TextInput, View } from 'react-native';
 
 import { AnimatedListItem } from '@/components/animated-list-item';
 import { CompleteTaskModal } from '@/components/complete-task-modal';
@@ -18,6 +10,7 @@ import { CreateServiceRequestModal } from '@/components/create-service-request-m
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { PropertyTaskCard } from '@/components/property-task-card';
+import { Spinner } from '@/components/spinner';
 import { PlanStatusBadge } from '@/components/status-badge';
 import { SwipeableRow } from '@/components/swipeable-row';
 import { usePlan, useUpdatePlan } from '@/hooks/use-plans';
@@ -190,7 +183,7 @@ export default function PropertyDetailScreen() {
         <Stack.Screen
           options={{ headerShown: true, title: 'Propiedad', headerBackTitle: 'Volver' }}
         />
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Spinner size="large" color={COLORS.primary} label="Cargando propiedad" />
       </View>
     );
   }

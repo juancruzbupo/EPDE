@@ -1,20 +1,13 @@
 import { PLAN_STATUS_LABELS, PlanStatus, WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
 import { useRouter } from 'expo-router';
 import { memo, useCallback, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  RefreshControl,
-  SectionList,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Pressable, RefreshControl, SectionList, Text, TextInput, View } from 'react-native';
 
 import { AnimatedListItem } from '@/components/animated-list-item';
 import { ContextualEmptyState } from '@/components/contextual-empty-state';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
+import { Spinner } from '@/components/spinner';
 import { PlanStatusBadge } from '@/components/status-badge';
 import { useDebounce } from '@/hooks/use-debounce';
 import { usePlans } from '@/hooks/use-plans';
@@ -88,7 +81,7 @@ export default function MaintenancePlansScreen() {
   if (isLoading && !plans) {
     return (
       <View className="bg-background flex-1 items-center justify-center">
-        <ActivityIndicator size="large" />
+        <Spinner size="large" label="Cargando planes" />
       </View>
     );
   }
