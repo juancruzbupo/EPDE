@@ -198,9 +198,23 @@ export const TARGET_PROFILES = [
 
 export const CREDENTIALS: IconTextItem[] = [
   { icon: Award, text: 'Arquitecta matriculada' },
-  { icon: Search, text: 'Especialista en fallas y deterioros de vivienda' },
   { icon: Home, text: 'Enfocada en casas y departamentos' },
   { icon: ClipboardList, text: 'Cada diagnóstico lo hago yo' },
+];
+
+/**
+ * Competencias del posgrado oficial (Facultad de Arquitectura, UBA).
+ * Usadas en el popover de la credencial "Especialista en Patologías y
+ * Terapéuticas de la Construcción" para que el cliente crítico pueda
+ * verificar qué enseña exactamente esa formación.
+ */
+export const PATOLOGIAS_COMPETENCIAS: string[] = [
+  'Diagnosticar las causas de las lesiones, daños o deterioros en las construcciones.',
+  'Evaluar el grado de deterioro de las construcciones.',
+  'Diseñar procedimientos de intervención para corregir los problemas identificados.',
+  'Valorar y respetar desde el punto de vista patrimonial los bienes en los que interviene.',
+  'Asesorar en la prevención y el mantenimiento de obras civiles.',
+  'Incorporar el conocimiento de patologías en proyectos nuevos, con carácter preventivo.',
 ];
 
 export const COMPARISON_ROWS: ComparisonRow[] = [

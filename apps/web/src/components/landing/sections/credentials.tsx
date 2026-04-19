@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
+import { GraduationCap, Info } from 'lucide-react';
 import Image from 'next/image';
 
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   FADE_IN,
   FADE_IN_UP,
@@ -10,7 +12,7 @@ import {
 } from '@/lib/motion';
 
 import type { SectionProps } from '../landing-data';
-import { CREDENTIALS } from '../landing-data';
+import { CREDENTIALS, PATOLOGIAS_COMPETENCIAS } from '../landing-data';
 
 export function CredentialsSection({ motionProps }: SectionProps) {
   return (
@@ -67,6 +69,15 @@ export function CredentialsSection({ motionProps }: SectionProps) {
               genéricas.
             </p>
 
+            <p className="type-body-md text-foreground">
+              Además de arquitecta, soy{' '}
+              <span className="font-medium">
+                Especialista en Patologías y Terapéuticas de la Construcción
+              </span>
+              : un posgrado enfocado en diagnosticar causas de lesiones y deterioros, diseñar
+              intervenciones correctivas y prevenir fallas en obras nuevas.
+            </p>
+
             <p className="type-body-sm text-primary/70 font-medium">
               Método afinado con los primeros clientes de Paraná y años de experiencia
               diagnosticando viviendas.
@@ -79,6 +90,38 @@ export function CredentialsSection({ motionProps }: SectionProps) {
                   <span className="type-body-sm text-foreground">{cred.text}</span>
                 </div>
               ))}
+              {/* Credencial con popover — el bullet ancla "Especialista en
+                  Patologías…" es googleable/verificable; el ⓘ expone las
+                  competencias oficiales para el lector crítico sin inflar
+                  el grid con 6 líneas académicas. */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="hover:bg-muted/40 focus-visible:ring-ring flex items-center gap-2 rounded-md text-left transition-colors focus-visible:ring-2 focus-visible:outline-none sm:col-span-2"
+                    aria-label="Ver competencias del título de Especialista en Patologías y Terapéuticas de la Construcción"
+                  >
+                    <GraduationCap className="text-primary h-4 w-4 shrink-0" strokeWidth={1.5} />
+                    <span className="type-body-sm text-foreground">
+                      Especialista en Patologías y Terapéuticas de la Construcción
+                    </span>
+                    <Info className="text-muted-foreground h-3.5 w-3.5 shrink-0" aria-hidden />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="max-w-sm" side="top">
+                  <p className="type-label-md text-foreground mb-2 font-semibold">
+                    Qué incluye esta especialización
+                  </p>
+                  <ul className="text-muted-foreground type-body-sm space-y-1.5 leading-relaxed">
+                    {PATOLOGIAS_COMPETENCIAS.map((item) => (
+                      <li key={item} className="flex gap-2">
+                        <span aria-hidden>•</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </PopoverContent>
+              </Popover>
             </div>
 
             <p className="text-foreground/80 type-body-md pt-2 italic">
