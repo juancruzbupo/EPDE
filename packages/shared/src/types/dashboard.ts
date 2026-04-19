@@ -217,6 +217,25 @@ export interface AdminAnalytics {
   completionRate: number;
   slaMetrics: SlaMetrics;
   problematicSectors: { sector: string; overdueCount: number }[];
+  technicalInspectionCycle: TechnicalInspectionCycleMetrics;
+}
+
+/**
+ * Tiempo promedio por tramo del state machine de inspecciones técnicas.
+ * Responde "¿dónde se traba mi operación?" — ayuda a detectar cuellos
+ * de botella operativos (no cobranza — eso se cubre en CollectionsPending).
+ */
+export interface TechnicalInspectionCycleMetrics {
+  /** Días promedio desde REQUESTED hasta SCHEDULED (capacidad de agendar). */
+  avgDaysRequestedToScheduled: number | null;
+  /** Días promedio desde SCHEDULED hasta REPORT_READY (ejecución + redacción). */
+  avgDaysScheduledToReportReady: number | null;
+  /** Días promedio desde REPORT_READY hasta PAID (ciclo de cobranza). */
+  avgDaysReportReadyToPaid: number | null;
+  /** Días promedio total REQUESTED → PAID (ciclo entero). */
+  avgDaysTotal: number | null;
+  /** Nº de inspecciones pagadas consideradas para el cálculo. */
+  sampleSize: number;
 }
 
 /** Category breakdown for client dashboard */

@@ -276,6 +276,7 @@ export class DashboardService {
       completionRate,
       slaMetrics,
       problematicSectors,
+      technicalInspectionCycle,
     ] = await Promise.all([
       this.dashboardRepository.getCompletionTrend(months),
       this.dashboardRepository.getConditionDistribution(),
@@ -287,6 +288,7 @@ export class DashboardService {
       this.dashboardRepository.getCompletionRate(),
       this.dashboardRepository.getSlaMetrics(),
       this.dashboardRepository.getProblematicSectors(),
+      this.dashboardStatsRepository.getTechnicalInspectionCycleMetrics(),
     ]);
 
     const result: AdminAnalytics = {
@@ -300,6 +302,7 @@ export class DashboardService {
       completionRate,
       slaMetrics,
       problematicSectors,
+      technicalInspectionCycle,
     };
 
     try {

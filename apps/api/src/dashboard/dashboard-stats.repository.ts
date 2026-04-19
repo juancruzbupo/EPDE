@@ -279,6 +279,67 @@ export class DashboardStatsRepository {
     };
   }
 
+  /**
+   * Ciclo operativo de inspecciones técnicas: días promedio por tramo del
+   * state machine. Solo considera inspecciones PAID (ciclo completo) para
+   * evitar sesgos. Si no hay datos suficientes, devuelve null por métrica.
+   */
+  async getTechnicalInspectionCycleMetrics() {
+    const paid = await this.prisma.softDelete.technicalInspection.findMany({
+      where: { feeStatus: 'PAID', paidAt: { not: null } },
+      select: {
+        createdAt: true,
+        scheduledFor: true,
+        completedAt: true,
+        paidAt: true,
+      },
+    });
+
+    if (paid.length === 0) {
+      return {
+        avgDaysRequestedToScheduled: null,
+        avgDaysScheduledToReportReady: null,
+        avgDaysReportReadyToPaid: null,
+        avgDaysTotal: null,
+        sampleSize: 0,
+      };
+    }
+
+    const MS_PER_DAY = 1000 * 60 * 60 * 24;
+    const diffDays = (a: Date, b: Date) => (a.getTime() - b.getTime()) / MS_PER_DAY;
+
+    const avg = (vals: number[]) =>
+      vals.length > 0 ? vals.reduce((s, v) => s + v, 0) / vals.length : null;
+
+    const requestedToScheduled: number[] = [];
+    const scheduledToReportReady: number[] = [];
+    const reportReadyToPaid: number[] = [];
+    const total: number[] = [];
+
+    for (const i of paid) {
+      if (i.scheduledFor) {
+        requestedToScheduled.push(diffDays(i.scheduledFor, i.createdAt));
+      }
+      if (i.scheduledFor && i.completedAt) {
+        scheduledToReportReady.push(diffDays(i.completedAt, i.scheduledFor));
+      }
+      if (i.completedAt && i.paidAt) {
+        reportReadyToPaid.push(diffDays(i.paidAt, i.completedAt));
+      }
+      if (i.paidAt) {
+        total.push(diffDays(i.paidAt, i.createdAt));
+      }
+    }
+
+    return {
+      avgDaysRequestedToScheduled: avg(requestedToScheduled),
+      avgDaysScheduledToReportReady: avg(scheduledToReportReady),
+      avgDaysReportReadyToPaid: avg(reportReadyToPaid),
+      avgDaysTotal: avg(total),
+      sampleSize: paid.length,
+    };
+  }
+
   async getRecentActivity() {
     const [recentClients, recentProperties, recentTasks, recentBudgets, recentServices] =
       await Promise.all([

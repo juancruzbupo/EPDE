@@ -8,6 +8,8 @@ import { SectionErrorBoundary } from '@/components/section-error-boundary';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { ROUTES } from '@/lib/routes';
 
+import { InspectionCycleCard } from './inspection-cycle-card';
+
 const CompletionTrendChart = dynamic(
   () => import('@/components/charts/completion-trend-chart').then((m) => m.CompletionTrendChart),
   { ssr: false },
@@ -89,6 +91,12 @@ export const OperationalTab = React.memo(function OperationalTab({
           {analytics && <ProblematicCategoriesChart data={analytics.problematicCategories} />}
         </ChartCard>
       </SectionErrorBoundary>
+
+      {analytics?.technicalInspectionCycle && (
+        <SectionErrorBoundary>
+          <InspectionCycleCard metrics={analytics.technicalInspectionCycle} />
+        </SectionErrorBoundary>
+      )}
     </div>
   );
 });
