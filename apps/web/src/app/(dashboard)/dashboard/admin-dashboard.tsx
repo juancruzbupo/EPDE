@@ -16,6 +16,7 @@ import { FADE_IN_UP, useMotionPreference } from '@/lib/motion';
 import { ActivityFeed } from './components/activity-feed';
 import { FinancialTab } from './components/financial-tab';
 import { KpiSummaryCard } from './components/kpi-summary-card';
+import { LaunchTrackingCard } from './components/launch-tracking-card';
 import { MonthSelector } from './components/month-selector';
 import { OperationalTab } from './components/operational-tab';
 import { TechnicalInspectionsCard } from './components/technical-inspections-card';
@@ -85,10 +86,13 @@ export function AdminDashboard() {
         {stats && <AttentionNeeded stats={stats} />}
       </div>
 
-      {/* Level 2b: Technical Inspections pipeline */}
-      {stats?.technicalInspections && (
-        <div className="mb-6">
-          <TechnicalInspectionsCard summary={stats.technicalInspections} />
+      {/* Level 2b: Technical Inspections + Plan Launch (side by side en desktop) */}
+      {(stats?.technicalInspections || stats?.planLaunch) && (
+        <div className="mb-6 grid gap-4 lg:grid-cols-2">
+          {stats?.technicalInspections && (
+            <TechnicalInspectionsCard summary={stats.technicalInspections} />
+          )}
+          {stats?.planLaunch && <LaunchTrackingCard summary={stats.planLaunch} />}
         </div>
       )}
 

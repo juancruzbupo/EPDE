@@ -261,6 +261,16 @@ model MaintenancePlan {
 
   sourceInspectionId String?
 
+  /// Tier de superficie al crear el plan (SMALL/MEDIUM/LARGE).
+  /// Nullable: planes pre-tiering (abril 2026) quedan sin tier asignado
+  /// y se excluyen del launch tracking.
+  priceTier InspectionPriceTier?
+
+  /// Monto efectivamente cobrado al crear el plan (snapshot congelado).
+  /// Pensado para revenue tracking del dashboard admin sin tocar el precio
+  /// vigente. Null para planes anteriores al tiering (abril 2026).
+  priceAmount Decimal? @db.Decimal(12, 2)
+
   // Restrict: Properties use soft-delete, never hard-deleted. Restrict prevents accidental cascade.
   property Property @relation(fields: [propertyId], references: [id], onDelete: Restrict)
   tasks    Task[]
@@ -268,6 +278,7 @@ model MaintenancePlan {
   @@index([status])
   @@index([createdBy])
   @@index([sourceInspectionId])
+  @@index([priceTier, createdAt])
 }
 
 model Category {

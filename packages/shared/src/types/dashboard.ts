@@ -19,6 +19,31 @@ export interface DashboardStats {
   pendingBudgets: number;
   pendingServices: number;
   technicalInspections: TechnicalInspectionsSummary;
+  planLaunch: PlanLaunchTracking;
+}
+
+/**
+ * Tracking del precio de lanzamiento del plan EPDE.
+ * Cuenta clientes onboarded post-tiering (solo los que tienen priceTier
+ * asignado) para saber cuándo disparar la subida de precio target.
+ */
+export interface PlanLaunchTracking {
+  /** Clientes con plan en tiering activo (priceTier ≠ null). */
+  clientsOnboarded: number;
+  /** Target de lanzamiento (hardcoded 20; futuro: landing settings). */
+  launchTarget: number;
+  /** Ratio 0-1. */
+  progressPct: number;
+  /** Mix por tier del pool onboarded. */
+  tierMix: { SMALL: number; MEDIUM: number; LARGE: number };
+  /** Revenue del mes calendario actual (solo planes tiering). */
+  revenueThisMonth: number;
+  /** Precio promedio efectivo cobrado (0 si no hay clientes). */
+  avgEffectivePrice: number;
+  /** true cuando faltan ≤2 clientes para alcanzar el target. */
+  priceIncreaseWarning: boolean;
+  /** true cuando se alcanzó o superó el target — actuá ya. */
+  targetReached: boolean;
 }
 
 /**

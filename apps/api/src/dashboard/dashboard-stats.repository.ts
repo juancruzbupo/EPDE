@@ -99,6 +99,57 @@ export class DashboardStatsRepository {
     };
   }
 
+  /**
+   * Launch tracking del plan EPDE: cuenta clientes con priceTier asignado
+   * (post-tiering abril 2026), breakdown por tier, revenue del mes, y
+   * warning al acercarse al target (20 clientes).
+   */
+  async getPlanLaunchSummary() {
+    const LAUNCH_TARGET = 20;
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const [tieredPlans, monthlyPlans] = await Promise.all([
+      this.prisma.maintenancePlan.findMany({
+        where: { priceTier: { not: null } },
+        select: { priceTier: true, priceAmount: true },
+      }),
+      this.prisma.maintenancePlan.findMany({
+        where: { priceTier: { not: null }, createdAt: { gte: startOfMonth } },
+        select: { priceAmount: true },
+      }),
+    ]);
+
+    const mix = { SMALL: 0, MEDIUM: 0, LARGE: 0 };
+    let totalAmount = 0;
+    for (const plan of tieredPlans) {
+      if (plan.priceTier) {
+        mix[plan.priceTier as 'SMALL' | 'MEDIUM' | 'LARGE']++;
+      }
+      if (plan.priceAmount) totalAmount += Number(plan.priceAmount);
+    }
+
+    const revenueThisMonth = monthlyPlans.reduce(
+      (sum, p) => sum + (p.priceAmount ? Number(p.priceAmount) : 0),
+      0,
+    );
+
+    const clientsOnboarded = tieredPlans.length;
+    const avgEffectivePrice = clientsOnboarded > 0 ? totalAmount / clientsOnboarded : 0;
+
+    return {
+      clientsOnboarded,
+      launchTarget: LAUNCH_TARGET,
+      progressPct: Math.min(clientsOnboarded / LAUNCH_TARGET, 1),
+      tierMix: mix,
+      revenueThisMonth,
+      avgEffectivePrice,
+      priceIncreaseWarning:
+        clientsOnboarded >= LAUNCH_TARGET - 2 && clientsOnboarded < LAUNCH_TARGET,
+      targetReached: clientsOnboarded >= LAUNCH_TARGET,
+    };
+  }
+
   async getRecentActivity() {
     const [recentClients, recentProperties, recentTasks, recentBudgets, recentServices] =
       await Promise.all([
