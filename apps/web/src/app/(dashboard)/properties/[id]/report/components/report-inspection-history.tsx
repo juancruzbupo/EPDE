@@ -41,17 +41,17 @@ export const ReportInspectionHistory = React.memo(function ReportInspectionHisto
             <div className="flex items-start justify-between gap-2">
               <div>
                 <p className="text-sm font-medium">{l.task.name}</p>
-                <p className="text-muted-foreground text-xs">
+                <p className="text-muted-foreground text-sm">
                   {l.task.category.name}
                   {l.task.sector &&
                     ` · ${PROPERTY_SECTOR_LABELS[l.task.sector as keyof typeof PROPERTY_SECTOR_LABELS] ?? l.task.sector}`}
                 </p>
               </div>
-              <p className="text-muted-foreground shrink-0 text-xs">
+              <p className="text-muted-foreground shrink-0 text-sm">
                 {new Date(l.completedAt).toLocaleDateString('es-AR')}
               </p>
             </div>
-            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
               <span>
                 Resultado: <strong>{TASK_RESULT_LABELS[l.result] ?? l.result}</strong>
               </span>
@@ -64,7 +64,7 @@ export const ReportInspectionHistory = React.memo(function ReportInspectionHisto
               <span>Acción: {ACTION_TAKEN_LABELS[l.actionTaken] ?? l.actionTaken}</span>
               {l.cost != null && <span>Costo: ${l.cost.toLocaleString('es-AR')}</span>}
             </div>
-            {l.notes && <p className="text-muted-foreground mt-1 text-xs italic">{l.notes}</p>}
+            {l.notes && <p className="text-muted-foreground mt-1 text-sm italic">{l.notes}</p>}
             {l.photoUrl && (
               <img
                 src={l.photoUrl}

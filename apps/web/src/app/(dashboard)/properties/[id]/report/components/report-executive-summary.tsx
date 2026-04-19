@@ -56,7 +56,7 @@ export const ReportExecutiveSummary = React.memo(function ReportExecutiveSummary
                 <p className={`text-sm font-bold ${scoreColor(v)}`}>{v}/100</p>
               </div>
               <Bar value={v} />
-              <p className="text-muted-foreground text-xs">{d.hint}</p>
+              <p className="text-muted-foreground text-sm">{d.hint}</p>
             </div>
           );
         })}
@@ -65,7 +65,7 @@ export const ReportExecutiveSummary = React.memo(function ReportExecutiveSummary
         {STAT_CARDS.map((st) => (
           <div key={st.key} className={`report-item rounded-lg p-3 text-center ${st.color}`}>
             <p className="text-2xl font-bold">{taskStats[st.key]}</p>
-            <p className="text-xs">{st.label}</p>
+            <p className="text-sm">{st.label}</p>
           </div>
         ))}
       </div>

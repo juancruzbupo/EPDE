@@ -40,7 +40,7 @@ export const ReportCover = React.memo(function ReportCover({
         {property.user && (
           <p className="text-muted-foreground mt-1 text-sm">Propietario: {property.user.name}</p>
         )}
-        <p className="text-muted-foreground mt-2 text-xs">
+        <p className="text-muted-foreground mt-2 text-sm">
           Generado el{' '}
           {new Date().toLocaleDateString('es-AR', {
             year: 'numeric',

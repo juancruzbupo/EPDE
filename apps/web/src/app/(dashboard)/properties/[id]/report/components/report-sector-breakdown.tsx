@@ -34,7 +34,7 @@ export const ReportSectorBreakdown = React.memo(function ReportSectorBreakdown({
               <span className={`text-sm font-bold ${scoreColor(s.score)}`}>{s.score}%</span>
             </div>
             <Bar value={s.score} />
-            <div className="text-muted-foreground mt-2 flex justify-between text-xs">
+            <div className="text-muted-foreground mt-2 flex justify-between text-sm">
               <span>{s.total} tareas</span>
               {s.overdue > 0 && (
                 <span className="text-destructive font-medium">{s.overdue} vencidas</span>

@@ -38,7 +38,7 @@ export const ReportMaintenancePlan = React.memo(function ReportMaintenancePlan({
               <td className="py-2 text-center">
                 {t.nextDueDate ? new Date(t.nextDueDate).toLocaleDateString('es-AR') : '—'}
               </td>
-              <td className="py-2 text-center text-xs">
+              <td className="py-2 text-center text-sm">
                 {PROFESSIONAL_REQUIREMENT_LABELS[t.professionalRequirement]}
               </td>
             </tr>

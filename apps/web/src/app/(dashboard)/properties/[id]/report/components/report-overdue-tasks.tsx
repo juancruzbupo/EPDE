@@ -41,13 +41,13 @@ export const ReportOverdueTasks = React.memo(function ReportOverdueTasks({
             <div className="flex items-start justify-between gap-2">
               <div>
                 <p className="font-medium">{t.name}</p>
-                <p className="text-muted-foreground text-xs">
+                <p className="text-muted-foreground text-sm">
                   {t.category.name}
                   {t.sector &&
                     ` · ${PROPERTY_SECTOR_LABELS[t.sector as keyof typeof PROPERTY_SECTOR_LABELS] ?? t.sector}`}
                 </p>
               </div>
-              <div className="text-right text-xs">
+              <div className="text-right text-sm">
                 <p className="text-destructive font-medium">
                   {t.nextDueDate ? formatRelativeDate(new Date(t.nextDueDate)) : 'Sin fecha'}
                 </p>

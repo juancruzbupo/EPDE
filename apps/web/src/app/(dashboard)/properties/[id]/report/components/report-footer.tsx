@@ -6,10 +6,10 @@ export const ReportFooter = React.memo(function ReportFooter() {
       <div className="border-border border-t pt-6 text-center">
         <p className="type-title-md font-heading text-primary">EPDE</p>
         <p className="text-muted-foreground text-sm">Estudio Profesional de Diagnóstico Edilicio</p>
-        <p className="text-muted-foreground mt-2 text-xs">
+        <p className="text-muted-foreground mt-2 text-sm">
           Informe generado el {new Date().toLocaleString('es-AR')}
         </p>
-        <p className="text-muted-foreground mt-1 text-xs italic">
+        <p className="text-muted-foreground mt-1 text-sm italic">
           Este informe refleja el estado de la vivienda al momento de su generación.
         </p>
       </div>
