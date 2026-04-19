@@ -10,6 +10,7 @@ import { PHONE_DISPLAY, PHONE_NUMBER, PRIMARY_CTA_LABEL, WHATSAPP_URL } from '..
 const NAV_LINKS = [
   { label: 'Cómo funciona', href: '#como-funciona' },
   { label: 'Qué incluye', href: '#inversion' },
+  { label: 'Quién está detrás', href: '#quien-esta-detras' },
   { label: 'Contacto', href: '#contacto' },
 ];
 

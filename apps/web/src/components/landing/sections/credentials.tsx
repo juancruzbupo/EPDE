@@ -16,7 +16,7 @@ import { CREDENTIALS, PATOLOGIAS_COMPETENCIAS } from '../landing-data';
 
 export function CredentialsSection({ motionProps }: SectionProps) {
   return (
-    <section className="py-20 md:py-28">
+    <section id="quien-esta-detras" className="py-20 md:py-28">
       <motion.div variants={STAGGER_CONTAINER} {...motionProps} className="mx-auto max-w-3xl px-4">
         <motion.p
           variants={FADE_IN}
