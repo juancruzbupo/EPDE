@@ -150,6 +150,135 @@ export class DashboardStatsRepository {
     };
   }
 
+  /**
+   * Revenue consolidado mensual: suma plan + inspecciones técnicas + suscripción
+   * (placeholder = 0 hasta que exista modelo formal). Compara mes actual vs mes
+   * anterior y expone YTD para contexto anual.
+   */
+  async getRevenueConsolidated() {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const startOfThisMonth = startOfMonth;
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+    const [planThisMonth, planLastMonth, planYtd, inspThisMonth, inspLastMonth, inspYtd] =
+      await Promise.all([
+        this.prisma.maintenancePlan.findMany({
+          where: { priceAmount: { not: null }, createdAt: { gte: startOfThisMonth } },
+          select: { priceAmount: true },
+        }),
+        this.prisma.maintenancePlan.findMany({
+          where: {
+            priceAmount: { not: null },
+            createdAt: { gte: startOfLastMonth, lt: startOfThisMonth },
+          },
+          select: { priceAmount: true },
+        }),
+        this.prisma.maintenancePlan.findMany({
+          where: { priceAmount: { not: null }, createdAt: { gte: startOfYear } },
+          select: { priceAmount: true },
+        }),
+        this.prisma.softDelete.technicalInspection.findMany({
+          where: { feeStatus: 'PAID', paidAt: { gte: startOfThisMonth } },
+          select: { feeAmount: true },
+        }),
+        this.prisma.softDelete.technicalInspection.findMany({
+          where: { feeStatus: 'PAID', paidAt: { gte: startOfLastMonth, lt: startOfThisMonth } },
+          select: { feeAmount: true },
+        }),
+        this.prisma.softDelete.technicalInspection.findMany({
+          where: { feeStatus: 'PAID', paidAt: { gte: startOfYear } },
+          select: { feeAmount: true },
+        }),
+      ]);
+
+    const sum = (
+      rows: { priceAmount?: unknown; feeAmount?: unknown }[],
+      key: 'priceAmount' | 'feeAmount',
+    ) => rows.reduce((acc, r) => acc + (r[key] ? Number(r[key]) : 0), 0);
+
+    const planSum = sum(planThisMonth, 'priceAmount');
+    const inspSum = sum(inspThisMonth, 'feeAmount');
+    const subscriptionSum = 0; // futuro — reservado para modelo suscripción mensual
+    const thisMonth = planSum + inspSum + subscriptionSum;
+
+    const lastMonth = sum(planLastMonth, 'priceAmount') + sum(inspLastMonth, 'feeAmount');
+    const ytd = sum(planYtd, 'priceAmount') + sum(inspYtd, 'feeAmount');
+
+    const deltaAbsolute = thisMonth - lastMonth;
+    const deltaPct = lastMonth > 0 ? (deltaAbsolute / lastMonth) * 100 : 0;
+
+    return {
+      thisMonth,
+      lastMonth,
+      deltaAbsolute,
+      deltaPct,
+      ytd,
+      bySource: {
+        plan: planSum,
+        technicalInspections: inspSum,
+        subscription: subscriptionSum,
+      },
+    };
+  }
+
+  /**
+   * Cobranza pendiente: agrega inspecciones REPORT_READY no pagadas +
+   * suscripciones vencidas / por vencer. Devuelve los 5 items más viejos
+   * para acción inmediata del admin.
+   */
+  async getCollectionsPending() {
+    const now = new Date();
+    const in7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+    const [pendingInspections, expired, expiringSoon] = await Promise.all([
+      this.prisma.softDelete.technicalInspection.findMany({
+        where: { status: 'REPORT_READY' },
+        include: {
+          requester: { select: { name: true } },
+          property: { select: { address: true } },
+        },
+        orderBy: { completedAt: 'asc' },
+      }),
+      this.prisma.softDelete.user.count({
+        where: { role: UserRole.CLIENT, subscriptionExpiresAt: { lt: now } },
+      }),
+      this.prisma.softDelete.user.count({
+        where: {
+          role: UserRole.CLIENT,
+          subscriptionExpiresAt: { gte: now, lte: in7Days },
+        },
+      }),
+    ]);
+
+    const totalPendingAmount = pendingInspections.reduce((sum, i) => sum + Number(i.feeAmount), 0);
+    const itemsCount = pendingInspections.length;
+
+    const topOldest = pendingInspections.slice(0, 5).map((i) => {
+      const completedAt = i.completedAt ?? i.createdAt;
+      return {
+        id: i.id,
+        kind: 'technical-inspection' as const,
+        clientName: i.requester?.name ?? 'Cliente',
+        propertyAddress: i.property?.address ?? null,
+        amount: Number(i.feeAmount),
+        daysOld: Math.floor((now.getTime() - completedAt.getTime()) / (1000 * 60 * 60 * 24)),
+      };
+    });
+
+    const oldestItemDays = topOldest.length > 0 ? (topOldest[0]?.daysOld ?? null) : null;
+
+    return {
+      totalPendingAmount,
+      itemsCount,
+      oldestItemDays,
+      topOldest,
+      subscriptionsAlreadyExpired: expired,
+      subscriptionsExpiringIn7d: expiringSoon,
+    };
+  }
+
   async getRecentActivity() {
     const [recentClients, recentProperties, recentTasks, recentBudgets, recentServices] =
       await Promise.all([

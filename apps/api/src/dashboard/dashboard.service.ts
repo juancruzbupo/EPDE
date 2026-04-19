@@ -27,20 +27,28 @@ export class DashboardService {
       if (cached) {
         const parsed = JSON.parse(cached);
         // Invalidate stale cache missing new fields added in recent releases
-        if ('technicalInspections' in parsed && 'planLaunch' in parsed) return parsed;
+        if (
+          'technicalInspections' in parsed &&
+          'planLaunch' in parsed &&
+          'revenue' in parsed &&
+          'collections' in parsed
+        )
+          return parsed;
         await this.redis.del(cacheKey);
       }
     } catch {
       /* Redis unavailable */
     }
 
-    const [core, technicalInspections, planLaunch] = await Promise.all([
+    const [core, technicalInspections, planLaunch, revenue, collections] = await Promise.all([
       this.dashboardRepository.getAdminStats(),
       this.dashboardStatsRepository.getTechnicalInspectionsSummary(),
       this.dashboardStatsRepository.getPlanLaunchSummary(),
+      this.dashboardStatsRepository.getRevenueConsolidated(),
+      this.dashboardStatsRepository.getCollectionsPending(),
     ]);
 
-    const result = { ...core, technicalInspections, planLaunch };
+    const result = { ...core, technicalInspections, planLaunch, revenue, collections };
 
     try {
       await this.redis.setex(cacheKey, ANALYTICS_TTL, JSON.stringify(result));

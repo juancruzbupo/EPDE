@@ -14,11 +14,13 @@ import { useAdminActivity, useAdminAnalytics, useAdminDashboardStats } from '@/h
 import { FADE_IN_UP, useMotionPreference } from '@/lib/motion';
 
 import { ActivityFeed } from './components/activity-feed';
+import { CollectionsPendingCard } from './components/collections-pending-card';
 import { FinancialTab } from './components/financial-tab';
 import { KpiSummaryCard } from './components/kpi-summary-card';
 import { LaunchTrackingCard } from './components/launch-tracking-card';
 import { MonthSelector } from './components/month-selector';
 import { OperationalTab } from './components/operational-tab';
+import { RevenueConsolidatedCard } from './components/revenue-consolidated-card';
 import { TechnicalInspectionsCard } from './components/technical-inspections-card';
 import { TrendsTab } from './components/trends-tab';
 
@@ -86,7 +88,15 @@ export function AdminDashboard() {
         {stats && <AttentionNeeded stats={stats} />}
       </div>
 
-      {/* Level 2b: Technical Inspections + Plan Launch (side by side en desktop) */}
+      {/* Level 2b: Revenue + Collections (financial pulse) */}
+      {(stats?.revenue || stats?.collections) && (
+        <div className="mb-6 grid gap-4 lg:grid-cols-2">
+          {stats?.revenue && <RevenueConsolidatedCard summary={stats.revenue} />}
+          {stats?.collections && <CollectionsPendingCard summary={stats.collections} />}
+        </div>
+      )}
+
+      {/* Level 2c: Technical Inspections + Plan Launch (operational) */}
       {(stats?.technicalInspections || stats?.planLaunch) && (
         <div className="mb-6 grid gap-4 lg:grid-cols-2">
           {stats?.technicalInspections && (

@@ -20,6 +20,56 @@ export interface DashboardStats {
   pendingServices: number;
   technicalInspections: TechnicalInspectionsSummary;
   planLaunch: PlanLaunchTracking;
+  revenue: RevenueConsolidated;
+  collections: CollectionsPending;
+}
+
+/**
+ * Facturación consolidada mensual de EPDE. Suma 3 fuentes actuales:
+ * - Plan EPDE (MaintenancePlan.priceAmount snapshot)
+ * - Inspecciones técnicas (TechnicalInspection.feeAmount donde paidAt en mes)
+ * - Suscripción mensual post-6m (futuro — hoy 0)
+ */
+export interface RevenueConsolidated {
+  thisMonth: number;
+  lastMonth: number;
+  deltaAbsolute: number;
+  /** Percentaje (-100 a +infinity). 0 si lastMonth=0. */
+  deltaPct: number;
+  /** Year-to-date (todo el año calendario actual). */
+  ytd: number;
+  bySource: {
+    plan: number;
+    technicalInspections: number;
+    subscription: number;
+  };
+}
+
+/**
+ * Cobranza pendiente agregada: inspecciones con informe entregado sin pagar,
+ * más suscripciones venciendo/vencidas. Diseñado para responder "¿cuánta
+ * plata me deben?" de un vistazo + priorizar cobros urgentes.
+ */
+export interface CollectionsPending {
+  /** Suma total pendiente (inspecciones REPORT_READY sin PAID). */
+  totalPendingAmount: number;
+  /** Número de items pendientes. */
+  itemsCount: number;
+  /** Días del item más viejo pendiente (null si no hay). */
+  oldestItemDays: number | null;
+  /** Top 5 items más viejos para acción rápida. */
+  topOldest: Array<{
+    id: string;
+    kind: 'technical-inspection' | 'subscription';
+    clientName: string;
+    propertyAddress: string | null;
+    amount: number;
+    daysOld: number;
+  }>;
+  /** Suscripciones vencidas al día de hoy. */
+  subscriptionsAlreadyExpired: number;
+  /** Suscripciones que vencen en los próximos 7 días. */
+  subscriptionsExpiringIn7d: number;
 }
 
 /**
