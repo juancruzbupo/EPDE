@@ -200,10 +200,9 @@ export const TARGET_PROFILES = [
 
 export const CREDENTIALS: IconTextItem[] = [
   { icon: Award, text: 'Arquitecta matriculada' },
-  { icon: Building2, text: 'Matrícula municipal habilitada (presentaciones en la muni)' },
-  { icon: HardHat, text: 'Experiencia como representante técnica de obras' },
+  { icon: Building2, text: 'Matrícula municipal habilitada' },
+  { icon: HardHat, text: 'Representante técnica con experiencia' },
   { icon: Home, text: 'Enfocada en casas y departamentos' },
-  { icon: ClipboardList, text: 'Cada diagnóstico lo hago yo' },
 ];
 
 /**

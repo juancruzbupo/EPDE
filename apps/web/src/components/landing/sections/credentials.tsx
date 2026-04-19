@@ -83,29 +83,30 @@ export function CredentialsSection({ motionProps }: SectionProps) {
               diagnosticando viviendas.
             </p>
 
-            <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-2">
-              {CREDENTIALS.map((cred) => (
-                <div key={cred.text} className="flex items-center gap-2">
-                  <cred.icon className="text-primary h-4 w-4 shrink-0" strokeWidth={1.5} />
-                  <span className="type-body-sm text-foreground">{cred.text}</span>
-                </div>
-              ))}
-              {/* Credencial con popover — el bullet ancla "Especialista en
-                  Patologías…" es googleable/verificable; el ⓘ expone las
-                  competencias oficiales para el lector crítico sin inflar
-                  el grid con 6 líneas académicas. */}
+            {/* Credenciales en jerarquía visual:
+                1) Posgrado como card destacado arriba (credencial más
+                   diferenciadora + acción: ⓘ abre popover con las 6
+                   competencias del plan de estudios oficial).
+                2) Grid 2×2 debajo con credenciales formales
+                   complementarias (Colegio, muni, rep. técnica, foco). */}
+            <div className="space-y-3 pt-2">
               <Popover>
                 <PopoverTrigger asChild>
                   <button
                     type="button"
-                    className="hover:bg-muted/40 focus-visible:ring-ring flex items-center gap-2 rounded-md text-left transition-colors focus-visible:ring-2 focus-visible:outline-none sm:col-span-2"
+                    className="border-primary/20 bg-primary/5 hover:bg-primary/10 focus-visible:ring-ring flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors focus-visible:ring-2 focus-visible:outline-none"
                     aria-label="Ver competencias del título de Especialista en Patologías y Terapéuticas de la Construcción"
                   >
-                    <GraduationCap className="text-primary h-4 w-4 shrink-0" strokeWidth={1.5} />
-                    <span className="type-body-sm text-foreground">
-                      Especialista en Patologías y Terapéuticas de la Construcción
+                    <GraduationCap className="text-primary h-5 w-5 shrink-0" strokeWidth={1.5} />
+                    <span className="min-w-0 flex-1">
+                      <span className="type-label-md text-foreground block font-medium">
+                        Especialista en Patologías y Terapéuticas de la Construcción
+                      </span>
+                      <span className="type-body-sm text-muted-foreground">
+                        Posgrado — tocá para ver las competencias oficiales
+                      </span>
                     </span>
-                    <Info className="text-muted-foreground h-3.5 w-3.5 shrink-0" aria-hidden />
+                    <Info className="text-muted-foreground h-4 w-4 shrink-0" aria-hidden />
                   </button>
                 </PopoverTrigger>
                 <PopoverContent className="max-w-sm" side="top">
@@ -122,6 +123,15 @@ export function CredentialsSection({ motionProps }: SectionProps) {
                   </ul>
                 </PopoverContent>
               </Popover>
+
+              <div className="grid grid-cols-1 gap-x-4 gap-y-2.5 sm:grid-cols-2">
+                {CREDENTIALS.map((cred) => (
+                  <div key={cred.text} className="flex items-center gap-2">
+                    <cred.icon className="text-primary h-4 w-4 shrink-0" strokeWidth={1.5} />
+                    <span className="type-body-sm text-foreground">{cred.text}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <p className="text-foreground/80 type-body-md pt-2 italic">
