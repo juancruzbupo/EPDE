@@ -169,16 +169,20 @@ export class PropertiesService {
       );
     }
 
-    const [stats, highlights, certNumber] = await Promise.all([
+    const [stats, highlights, cert] = await Promise.all([
       this.propertiesRepository.getCertificateStats(planId),
       this.propertiesRepository.getCertificateHighlights(planId),
-      this.propertiesRepository.getNextCertificateNumber(),
+      this.propertiesRepository.issueCertificate({
+        propertyId: id,
+        issuedBy: currentUser.id,
+        healthIndexScore: healthIndex.score,
+      }),
     ]);
 
     const firstSnapshot = isvHistory.length > 0 ? isvHistory[isvHistory.length - 1] : null;
 
     return {
-      certificateNumber: certNumber,
+      certificateNumber: cert.formattedNumber,
       issuedAt: new Date().toISOString(),
       coveragePeriod: {
         from: firstSnapshot?.snapshotDate.toISOString() ?? new Date().toISOString(),

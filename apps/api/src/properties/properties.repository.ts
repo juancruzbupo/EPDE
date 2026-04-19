@@ -202,6 +202,44 @@ export class PropertiesRepository extends BaseRepository<Property, 'property'> {
     });
   }
 
+  /**
+   * Atómico: bumpea counter + inserta registro de emisión en la misma tx
+   * para que ambos queden sincronizados. El número devuelto es el que debe
+   * aparecer en el PDF firmado + en todas las referencias futuras.
+   */
+  async issueCertificate(input: {
+    propertyId: string;
+    issuedBy: string;
+    healthIndexScore: number;
+    pdfUrl?: string | null;
+  }): Promise<{ certificateNumber: number; formattedNumber: string }> {
+    return this.prisma.$transaction(async (tx) => {
+      const counter = await tx.certificateCounter.upsert({
+        where: { id: 'singleton' },
+        create: { id: 'singleton', lastNumber: 1 },
+        update: { lastNumber: { increment: 1 } },
+      });
+      await tx.certificateEmission.create({
+        data: {
+          certificateNumber: counter.lastNumber,
+          propertyId: input.propertyId,
+          issuedBy: input.issuedBy,
+          healthIndexScore: input.healthIndexScore,
+          pdfUrl: input.pdfUrl ?? null,
+        },
+      });
+      return {
+        certificateNumber: counter.lastNumber,
+        formattedNumber: `CERT-${String(counter.lastNumber).padStart(4, '0')}`,
+      };
+    });
+  }
+
+  /**
+   * @deprecated Use `issueCertificate` to bump counter + persist emission atomically.
+   * Kept only for migrations/scripts that just need a number. Producer callers
+   * (properties.service.generateCertificate) must use issueCertificate.
+   */
   async getNextCertificateNumber(): Promise<string> {
     const result = await this.prisma.certificateCounter.upsert({
       where: { id: 'singleton' },

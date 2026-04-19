@@ -240,6 +240,7 @@ model Property {
   isvSnapshots         ISVSnapshot[]
   inspections          InspectionChecklist[]
   technicalInspections TechnicalInspection[]
+  certificateEmissions CertificateEmission[]
 
   @@index([userId])
   @@index([userId, deletedAt])
@@ -888,6 +889,35 @@ model CertificateCounter {
   id         String   @id @default("singleton")
   lastNumber Int      @default(0)
   updatedAt  DateTime @updatedAt
+}
+
+/// Registro por emisión de Certificado de Mantenimiento Preventivo. Snapshot
+/// inmutable del momento de emisión, usado por el dashboard admin para
+/// reporting histórico (certificados/mes, trend anual, correlación con ISV).
+///
+/// Por qué no solo `CertificateCounter`: el counter garantiza numeración
+/// atómica pero no preserva historia — imposible saber "cuántos certificados
+/// emitimos en marzo 2026" ni correlacionar con snapshots de ISV.
+model CertificateEmission {
+  id                String   @id @default(uuid())
+  /// Número secuencial asignado (CERT-NNNN) al momento de emitir
+  certificateNumber Int      @unique
+  propertyId        String
+  /// User (admin) que disparó la generación
+  issuedBy          String
+  issuedAt          DateTime @default(now())
+  /// Snapshot del ISV al momento de emisión (score 0-100). Permite auditar
+  /// elegibilidad retroactivamente sin depender de ISVSnapshot que puede
+  /// cambiar si el scoring algorithm evoluciona.
+  healthIndexScore  Int
+  /// URL del PDF firmado subido a R2 (opcional — hoy se genera on-demand
+  /// client-side, pero cuando exista server-side PDF gen será obligatorio)
+  pdfUrl            String?
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, issuedAt(sort: Desc)])
+  @@index([issuedAt])
 }
 
 // ─────────────────────────────────────────────────────────────

@@ -429,25 +429,34 @@ export class DashboardStatsRepository {
 
   /**
    * Certificados de Mantenimiento emitidos + elegibles sin emitir.
-   * Usa CertificateCounter.lastNumber como total emitido (counter atómico).
-   * issuedThisMonth no es trackeable hasta que haya una tabla por emisión —
-   * se devuelve 0 como placeholder honesto.
+   * Desde PR-B.2 (abril 2026) existe tabla `CertificateEmission` que permite
+   * tracking mes a mes. Previamente `totalIssued` dependía del counter
+   * atómico y `issuedThisMonth` era placeholder.
    */
   async getCertificatesSummary() {
     const now = new Date();
     const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const [counter, latestPerProperty] = await Promise.all([
-      this.prisma.certificateCounter.findUnique({ where: { id: 'singleton' } }),
-      this.prisma.$queryRaw<{ propertyId: string; score: number }[]>`
-        SELECT DISTINCT ON ("propertyId") "propertyId", score
-        FROM "ISVSnapshot"
-        ORDER BY "propertyId", "snapshotDate" DESC
-      `,
-    ]);
+    const [totalIssued, issuedThisMonth, latestPerProperty, emittedPropertyIds] = await Promise.all(
+      [
+        this.prisma.certificateEmission.count(),
+        this.prisma.certificateEmission.count({ where: { issuedAt: { gte: startOfMonth } } }),
+        this.prisma.$queryRaw<{ propertyId: string; score: number }[]>`
+          SELECT DISTINCT ON ("propertyId") "propertyId", score
+          FROM "ISVSnapshot"
+          ORDER BY "propertyId", "snapshotDate" DESC
+        `,
+        this.prisma.certificateEmission.findMany({
+          select: { propertyId: true },
+          distinct: ['propertyId'],
+        }),
+      ],
+    );
 
+    const emittedSet = new Set(emittedPropertyIds.map((e) => e.propertyId));
     const eligiblePropertyIds = latestPerProperty
-      .filter((r) => r.score >= 60)
+      .filter((r) => r.score >= 60 && !emittedSet.has(r.propertyId))
       .map((r) => r.propertyId);
 
     const eligibleNotIssued = eligiblePropertyIds.length
@@ -460,8 +469,8 @@ export class DashboardStatsRepository {
       : 0;
 
     return {
-      totalIssued: counter?.lastNumber ?? 0,
-      issuedThisMonth: 0, // requiere tabla CertificateEmission (futuro)
+      totalIssued,
+      issuedThisMonth,
       eligibleNotIssued,
     };
   }
