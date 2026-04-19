@@ -53,14 +53,22 @@ export function Header({ general }: HeaderProps) {
 
   return (
     <header className="border-border/50 bg-background/80 fixed top-0 z-50 w-full border-b backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+      <div className="relative mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         {/* Logo */}
         <a href="#hero" className="font-heading text-primary text-xl" aria-label="Volver al inicio">
           EPDE
         </a>
 
-        {/* Desktop nav — centered */}
-        <nav aria-label="Navegación principal" className="hidden items-center gap-8 md:flex">
+        {/* Desktop nav — posicionado en absoluto + translate para quedar
+            perfectamente centrado respecto al contenedor, independiente
+            del ancho del logo (izq) y el bloque de acciones (der). Con
+            flex justify-between solo, el nav se siente desplazado a la
+            izquierda porque la CTA a la derecha es ~5× más ancha que
+            el logo. */}
+        <nav
+          aria-label="Navegación principal"
+          className="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-8 md:flex"
+        >
           {NAV_LINKS.map((link) => (
             <a
               key={link.href}
