@@ -310,3 +310,63 @@ Cuando pase **cualquiera de estas tres**, abrí este backlog y elegí el PR más
 2. Factories `createXQueries(apiClient)` añaden `.safeParse()` internamente y logean drift a Sentry en dev; fallan duro en tests.
 3. Hooks siguen igual — el cambio es transparente.
 4. Documentar SIEMPRE rule para nuevos factories.
+
+### Módulo de propiedades alquiladas
+
+**Qué es**: Soporte explícito para dueños que alquilan total o parcialmente sus propiedades a terceros. Hoy el modelo asume dueño-residente — el inversor con propiedades alquiladas puede usar EPDE, pero coordina visitas y acceso por fuera (WhatsApp personal) sin que la app reconozca el contexto.
+
+**Por qué está diferido**:
+
+- El MVP se posiciona hacia dueños-residentes ("cuidá tu casa con sistema"). Abrir al segmento alquiler al lanzamiento ensanchar scope de marketing, FAQs y onboarding sin validar primero el core.
+- Paraná probablemente es 80-90% dueño-residente en el target de EPDE (clase media/media-alta que paga $35k de diagnóstico). El inversor con alquileres es un segmento más chico con ciclo de venta distinto (compite con gestores de propiedad horizontal).
+- La feature toca conceptos no resueltos: ¿el ISV debe penalizar igual al landlord por tareas OWNER_CAN_DO que el inquilino podría hacer?, ¿quién recibe oficialmente el informe firmado?, ¿el certificado preventivo sirve como argumento de suba de alquiler?
+- Hoy el inversor con alquileres puede igualmente operar — con fricción, no con bloqueo.
+
+**Trigger para activar**:
+
+- > 20% de los clientes onboarded reportan tener al menos 1 propiedad en alquiler Y mencionan fricción para coordinar visitas / servicios.
+- Aparición de un competidor que ofrezca gestión de alquileres integrada y se lleve leads de segmento inversor.
+- Decisión estratégica de expandir al segmento inmobiliaria / gestor de propiedades.
+
+**Shape propuesto cuando se active (Fase 1 — Opción B lean)**:
+
+1. `Property.occupancy` enum: `OWNER_OCCUPIED` / `RENTED` / `VACANT`.
+2. `Property.tenantContactName` + `Property.tenantContactPhone` (opcional, sin cuenta asociada).
+3. Badge "🔑 Alquilada" / "🚪 Vacía" en property cards + detail + portfolio column.
+4. Copy contextual en task detail: "Esta propiedad está alquilada — coordiná acceso con [nombre]" + botón WhatsApp pre-poblado al inquilino.
+5. Service request dialog suma campo "ventana horaria del inquilino".
+6. Reporte y certificado destacan argumento del landlord ("propiedad con mantenimiento profesional documentado").
+
+**Fase 2 (solo si Fase 1 valida demanda)**: rol TENANT con cuenta limitada para completar tareas delegadas por el dueño, cálculo de ISV ajustado por ocupación, invitation flow al inquilino.
+
+**Costo estimado Fase 1**: 1-2 días (migration + DTOs + UI web + UI mobile + seed + tests).
+
+### Módulo de consorcios / PH
+
+**Qué es**: Soporte para propiedades horizontales (PH) donde partes del mantenimiento son responsabilidad del consorcio (fachada, ascensores, techos comunes, cañerías maestras, tanques de agua) y otras del propietario individual (interior de la unidad, instalaciones privativas). Hoy EPDE asume propiedad integral: una casa donde el dueño controla todo.
+
+**Por qué está diferido**:
+
+- Los departamentos en PH son una porción del mercado. En Paraná capital hay, pero el target primario de EPDE (plan $35k + suscripción) es más afín al dueño de casa con autonomía sobre la propiedad completa.
+- Introducir "consorcio" abre una capa de abstracción grande: tareas comunes vs privativas, administrador como stakeholder externo, expensas vs gasto propio, documentación del consorcio (liquidación, reglamento, actas) fuera del alcance de EPDE.
+- La plataforma hoy no modela: `Consorcio` (entidad), `CommonAreaTask` (tareas comunes con responsables externos), `Expensa` (gasto compartido). Todos requerirían schema y UI nuevos.
+- Los dueños de PH que usen EPDE al lanzamiento pueden registrar solo la unidad privativa; las tareas comunes quedan fuera del plan hasta que haya soporte formal.
+
+**Trigger para activar**:
+
+- > 15% de clientes tienen Property.type=APARTMENT y reportan necesidad de gestionar tareas comunes.
+- Alianza comercial con 1+ administrador de consorcios en Paraná que quiera usar EPDE como herramienta.
+- Validación de que el administrador pagaría (distinto del dueño individual) como cliente B2B.
+
+**Shape propuesto cuando se active**:
+
+1. Entidad `Consorcio` con admin user opcional (rol nuevo `CONSORCIO_ADMIN`).
+2. `Property.consorcioId` FK opcional — vincula unidad al consorcio.
+3. Tareas se etiquetan `scope: 'PRIVATE' | 'COMMON'`. Las COMMON son visibles pero read-only para el dueño individual (las opera el admin del consorcio).
+4. Sección nueva en property detail: "Áreas comunes del edificio" con estado resumido.
+5. Vista de admin de consorcio (separada del admin EPDE): panel con múltiples propiedades del mismo consorcio, coordinación de visitas a áreas comunes, documentación compartida.
+6. Pricing B2B: el consorcio paga plan único mensual, los propietarios privativos pagan su plan individual.
+
+**Costo estimado**: 3-4 semanas (schema nuevo, rol nuevo, UI diferenciada, pricing B2B, onboarding de administrador). Es un mini-producto dentro de EPDE, no un feature.
+
+**Dependencias**: antes de esto conviene tener Módulo de alquileres resuelto (los deptos en PH suelen ser también alquilados) + validación del modelo single-owner en producción.

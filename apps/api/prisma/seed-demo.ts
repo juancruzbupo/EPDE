@@ -2732,13 +2732,19 @@ export async function seedDemo(prisma: PrismaClient) {
   console.log('  ✓ 1 notificación de bienvenida');
 
   // ————————————————————————————————————————————————————————————————————————
-  // USUARIO 4: JORGE MÉNDEZ — Inversor multi-propiedad (8 meses)
-  // 3 propiedades (casa + 2 deptos en alquiler). Caso para testear
-  // Portfolio, property switch mobile, y dashboards con datos
-  // divergentes entre propiedades.
+  // USUARIO 4: JORGE MÉNDEZ — Dueño multi-propiedad (8 meses)
+  // 3 propiedades propias: casa familiar + depto (uso esporádico) +
+  // depto heredado. Caso típico de dueño con varias propiedades en
+  // distintos estados. Sirve para testear Portfolio, property switch
+  // mobile, y dashboards con datos divergentes entre propiedades.
+  //
+  // Nota: alquileres y consorcios (PH) están en backlog — ver
+  // docs/backlog.md. Hoy el modelo asume dueño-residente; propiedades
+  // alquiladas las operaría el dueño como si fueran propias,
+  // coordinando por fuera (WhatsApp personal).
   // ————————————————————————————————————————————————————————————————————————
 
-  console.log('\n👤 Jorge Méndez — Inversor con 3 propiedades (8 meses de uso)');
+  console.log('\n👤 Jorge Méndez — Dueño con 3 propiedades (8 meses de uso)');
 
   const jorge = await prisma.user.create({
     data: {
@@ -2756,7 +2762,7 @@ export async function seedDemo(prisma: PrismaClient) {
     },
   });
 
-  // —— Propiedad 1: Casa principal (Jorge vive acá) ——
+  // —— Propiedad 1: Casa familiar (residencia principal) ——
   const jorgePropCasa = await prisma.property.create({
     data: {
       id: ids.jorgePropCasa,
@@ -2826,7 +2832,9 @@ export async function seedDemo(prisma: PrismaClient) {
   );
   console.log(`  ✓ Casa principal: ${jorgePropCasa.address} — 71 tareas`);
 
-  // —— Propiedad 2: Depto alquiler céntrico (bien mantenido) ——
+  // —— Propiedad 2: Depto céntrico uso esporádico (bien mantenido) ——
+  // Jorge lo usa como pied-à-terre cuando se queda a trabajar en el centro.
+  // Baja ocupación explica el bajo desgaste y el ISV alto.
   const jorgePropDepto1 = await prisma.property.create({
     data: {
       id: ids.jorgePropDepto1,
@@ -2847,7 +2855,7 @@ export async function seedDemo(prisma: PrismaClient) {
       propertyId: jorgePropDepto1.id,
       inspectedBy: admin.id,
       inspectedAt: monthsAgo(6),
-      notes: 'Depto en alquiler, inquilino colaborativo. Todo en buen estado.',
+      notes: 'Depto de uso esporádico, bajo desgaste. Todo en buen estado.',
       items: {
         create: [
           { sector: 'INSTALLATIONS', name: 'Instalaciones', status: 'OK', order: 0 },
@@ -2885,7 +2893,10 @@ export async function seedDemo(prisma: PrismaClient) {
   );
   console.log(`  ✓ Depto 1: ${jorgePropDepto1.address} — 71 tareas`);
 
-  // —— Propiedad 3: Depto viejo en ruta descuidada (el "problemático") ——
+  // —— Propiedad 3: Depto heredado viejo (el "problemático") ——
+  // Jorge lo heredó hace poco de un familiar. Edificio antiguo con
+  // problemas acumulados — el dueño anterior no hacía mantenimiento
+  // preventivo. Hoy está vacío mientras Jorge decide qué hacer.
   const jorgePropDepto2 = await prisma.property.create({
     data: {
       id: ids.jorgePropDepto2,
@@ -3743,9 +3754,10 @@ export async function seedDemo(prisma: PrismaClient) {
      → ISV: 85 (1 snapshot, baseline alto)
 
   👤 Jorge Méndez     (jorge.mendez@demo.com / Demo123!)
-     Inversor con 3 propiedades, 8 meses de uso
-     → Casa Rivadavia (bien mantenida), Depto Centro (ISV alto),
-       Depto Yrigoyen (descuidado, varios OVERDUE)
+     Dueño con 3 propiedades propias, 8 meses de uso
+     → Casa familiar (Rivadavia, bien mantenida)
+     → Depto pied-à-terre (Centro, uso esporádico, ISV alto)
+     → Depto heredado (Yrigoyen, descuidado por el anterior dueño)
      → Perfil ideal para testear Portfolio + mobile PropertyPicker
      → ISV por propiedad: ~68 / ~85 / ~48
 
