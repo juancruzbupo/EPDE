@@ -7,10 +7,16 @@ import type { LandingGeneral } from '@/types/landing-settings';
 
 import { PHONE_DISPLAY, PHONE_NUMBER, PRIMARY_CTA_LABEL, WHATSAPP_URL } from '../landing-data';
 
+/**
+ * Orden del nav = orden de scroll de la landing. La arquitectura PAS
+ * coloca credenciales (autoridad) ANTES del precio (value-first), por
+ * lo que "Quién está detrás" va antes de "Qué incluye". Romper este
+ * orden haría que el usuario salte arriba-abajo al clickear anchors.
+ */
 const NAV_LINKS = [
   { label: 'Cómo funciona', href: '#como-funciona' },
-  { label: 'Qué incluye', href: '#inversion' },
   { label: 'Quién está detrás', href: '#quien-esta-detras' },
+  { label: 'Qué incluye', href: '#inversion' },
   { label: 'Contacto', href: '#contacto' },
 ];
 
