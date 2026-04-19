@@ -100,6 +100,165 @@
 8. **Notificaciones por WhatsApp** — Integración WhatsApp Business API (Twilio o Meta). Recordatorios, resumen semanal, presupuestos cotizados. Preferencias por usuario. Campo `phone` en User.
 9. **Galería de fotos en el dashboard** — Sección "Estado visual" con últimas 4-6 fotos (inspecciones + tareas). Click abre foto con contexto. En mobile: carrusel horizontal.
 
+## Dashboard admin — Fase 3 (métricas avanzadas)
+
+> **Fases 1 y 2 IMPLEMENTADAS** (abril 2026) — ver commits `0c6a147d..2da7b005`. El dashboard responde 9 preguntas ejecutivas en 60 segundos (revenue, cobranza, inspecciones, launch tracking, ISV, certificados, profesionales, clientes en riesgo, ciclo operativo).
+>
+> La Fase 3 son 8 features que quedan diferidas porque hoy se ejecutarían sobre data insuficiente. Cada una tiene un **trigger cuantitativo** que indica cuándo vale la pena implementarla.
+
+### PR-3.1 Cohort analysis por mes de ingreso
+
+**Qué es:** Matriz de retención por cohorte mensual. Compara si los clientes que entraron en enero siguen activos vs los de marzo.
+
+**Trigger para implementar:**
+
+- ≥50 clientes total con plan activo
+- ≥6 cohortes mensuales distintas (6+ meses operando)
+- Alguien pregunta "¿los clientes de qué mes retienen más?" al menos una vez
+
+**Shape propuesto:**
+
+1. Backend: query agregando `MaintenancePlan.createdAt` por mes × `subscriptionExpiresAt` por mes.
+2. Frontend: heatmap con `@visx/heatmap` (cohort × months-active).
+3. Cacheable 1h — el dato cambia lento.
+
+**Tiempo estimado:** 2h
+
+### PR-3.2 Conversion funnel desde landing
+
+**Qué es:** Tracking de `landing visit → WhatsApp click → conversación → cliente creado → plan pagado`. Responde "¿qué parte de la landing pierde usuarios?".
+
+**Trigger para implementar:**
+
+- Tráfico mensual estable ≥200 visitas/mes a la landing
+- ≥3 conversiones/mes para tener data estadística
+- Presupuesto para una herramienta de analytics (Plausible ≈ USD 9/mes, PostHog free tier)
+
+**Shape propuesto:**
+
+1. Integrar Plausible self-hosted o free tier PostHog.
+2. Eventos: `landing_view`, `cta_whatsapp_click`, `whatsapp_redirect_opened`.
+3. Correlacionar con `User.createdAt` y `MaintenancePlan.createdAt` en dashboard analytics tab.
+
+**Tiempo estimado:** 3h (setup + eventos + UI)
+
+### PR-3.3 Churn post-6 meses
+
+**Qué es:** Tasa de renovación al cumplir 6 meses del plan (pasan a suscripción mensual vs se van silenciosamente).
+
+**Trigger para implementar:**
+
+- ≥10 clientes con plan que hayan cumplido 6m desde `createdAt`
+- Modelo `Subscription` con periodicidad mensual (no existe hoy — el plan es pago único + 6m sistema)
+
+**Shape propuesto:**
+
+1. Primero: agregar modelo `Subscription { userId, startDate, endDate, status }` para trackear renovaciones mensuales.
+2. Query: clientes con plan +6m sin suscripción activa = churned.
+3. Card en dashboard: "6 de 10 clientes renovaron (60%)" + tendencia.
+
+**Tiempo estimado:** 1.5h una vez que exista el modelo (dependencia)
+
+### PR-3.4 Costo operativo vs revenue (margen bruto)
+
+**Qué es:** Revenue mensual − costos directos = margen bruto. Costos directos incluyen: pagos a profesionales, salario estimado arquitecta, operativos fijos (hosting, herramientas).
+
+**Trigger para implementar:**
+
+- Revenue mensual estable ≥$500k (sentido costear cuando hay plata real)
+- Decisión de contratar (2da arquitecta, asistente) que requiera ver margen
+- Al cumplir 1 año de operación (balance de cierre)
+
+**Shape propuesto:**
+
+1. Nuevo modelo `OperationalCost { month, category, amount, notes }` — admin carga manualmente.
+2. Query: revenue consolidado − SUM(OperationalCost + ProfessionalPayment) del mismo mes.
+3. Card en dashboard con margen + % sobre revenue. Alert si margen cae bajo 30%.
+
+**Tiempo estimado:** 2.5h
+
+### PR-3.5 Tiempo WhatsApp → primer contacto
+
+**Qué es:** Métrica de customer experience — cuánto tarda EPDE en responder el primer WhatsApp que recibe.
+
+**Trigger para implementar:**
+
+- Integración WhatsApp Business API formal (Twilio/Meta) — ver Fase 3 de "Mejoras UX" arriba, PR-8
+- O: tolerancia a métrica aproximada (tiempo `User.createdAt` → `MaintenancePlan.createdAt` como proxy)
+
+**Shape propuesto (aproximado sin API):**
+
+- Query: `AVG(MaintenancePlan.createdAt - User.createdAt)` filtrado a casos con ambos en misma semana (descarta outliers).
+- Card con promedio + meta configurable.
+
+**Shape propuesto (con API):** webhook de WhatsApp registra primer mensaje inbound + primer reply; diferencia = SLA.
+
+**Tiempo estimado:** 1h aproximado / 4h con API completa
+
+### PR-3.6 Distribución geográfica
+
+**Qué es:** Mapa de calor de propiedades por ciudad/barrio. Útil para escalar fuera de Paraná y detectar concentración.
+
+**Trigger para implementar:**
+
+- ≥30 propiedades total
+- ≥3 ciudades o ≥5 barrios distintos en el portfolio
+- Decisión estratégica de expandir (Santa Fe, Rosario, etc.)
+
+**Shape propuesto:**
+
+1. Sin mapa: tabla ordenada por count(property) per `Property.city` + per barrio extraído de `Property.address`.
+2. Con mapa (futuro): Leaflet + geocoding de direcciones. Clusters por zoom level.
+
+**Tiempo estimado:** 3h (sin mapa) / 5h (con mapa interactivo)
+
+### PR-3.7 Notifications delivery rate
+
+**Qué es:** % de notificaciones leídas vs enviadas, por tipo. Valida si los recordatorios automáticos sirven o se ignoran.
+
+**Trigger para implementar:**
+
+- ≥100 notificaciones enviadas total (muestra suficiente)
+- Sospecha de que las notifs se ignoran ("nadie responde mis recordatorios")
+
+**Shape propuesto:**
+
+1. Data ya existe (`Notification.readAt`).
+2. Query: `(count(readAt not null) / count(*)) × 100` por `Notification.type`.
+3. Card en dashboard analytics: barras horizontales con rate por tipo.
+
+**Tiempo estimado:** 1h
+
+### PR-3.8 Acumulación horaria del admin
+
+**Qué es:** Tracking manual de horas de Noelia dedicadas a cada tipo de trabajo (diagnóstico, inspección, admin overhead, respuesta WhatsApp). Input: admin logea horas al finalizar tareas clave.
+
+**Trigger para implementar:**
+
+- Decisión de contratar ayuda (segunda arquitecta, asistente)
+- Sensación de "no me alcanzan las horas" — medir antes de delegar
+- Facturación mensual ≥$400k que justifique optimización operativa
+
+**Shape propuesto:**
+
+1. Nuevo modelo `AdminTimeLog { userId, category, hours, date, notes }`.
+2. UI simple: admin va al final de cada semana y logea horas por categoría.
+3. Chart en dashboard: distribución semanal + tendencia mensual.
+
+**Tiempo estimado:** 4h (modelo + migración + UI admin + chart)
+
+### Señales generales "es hora de Fase 3"
+
+Independientes de un trigger específico:
+
+- Abriste el dashboard y sentiste que te faltaba una pregunta respondida
+- Tomaste una decisión empresarial en base a gut feeling en vez de data
+- Un cliente/socio pregunta "¿cuántos clientes tienen?" y dudás el número
+
+Cuando pase **cualquiera de estas tres**, abrí este backlog y elegí el PR más relevante.
+
+---
+
 ## Deuda técnica arquitectónica (audit round 2 — Fase C diferida)
 
 > Ambos items fueron identificados en la auditoría arquitectónica de 2026-04-14 (ver commits `a989491`..`af56fe8`). Son riesgos hipotéticos que hoy NO han causado incidentes; el backlog los captura para cuando una feature real los fuerce al frente.
