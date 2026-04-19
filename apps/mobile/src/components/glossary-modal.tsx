@@ -35,9 +35,10 @@ export const GlossaryModal = memo(function GlossaryModal({ visible, onClose }: G
           </Text>
           <Pressable
             onPress={onClose}
-            hitSlop={8}
+            hitSlop={12}
             accessibilityRole="button"
-            accessibilityLabel="Cerrar"
+            accessibilityLabel="Cerrar glosario"
+            style={{ minHeight: 44, minWidth: 44, justifyContent: 'center' }}
           >
             <Text style={TYPE.bodyLg} className="text-primary">
               Cerrar
