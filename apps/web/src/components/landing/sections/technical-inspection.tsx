@@ -3,10 +3,19 @@ import {
   TECHNICAL_INSPECTION_CLIENT_DISCOUNT_PCT,
   TECHNICAL_INSPECTION_PRICE_DISCLAIMER,
   TECHNICAL_INSPECTION_PRICES,
+  WHATSAPP_CONTACT_NUMBER,
 } from '@epde/shared';
 import { motion } from 'framer-motion';
-import { ClipboardCheck, FileCheck2, Info, Lock, ShieldCheck } from 'lucide-react';
+import {
+  ClipboardCheck,
+  FileCheck2,
+  Info,
+  MessageCircle,
+  ShieldCheck,
+  Sparkles,
+} from 'lucide-react';
 
+import { Button } from '@/components/ui/button';
 import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/motion';
 
 import type { SectionProps } from '../landing-data';
@@ -32,6 +41,20 @@ const INSPECTION_TYPES = [
   },
 ];
 
+/**
+ * Construye un link a WhatsApp prellenado con el interés del lead.
+ * El tipo de informe viaja en el texto para que la arquitecta pueda
+ * priorizar la respuesta sin preguntar de vuelta.
+ */
+function buildInspectionWhatsAppUrl(type: (typeof INSPECTION_TYPES)[number]): string {
+  const text = `Hola, quisiera contratar un ${type.name.toLowerCase()} para mi vivienda. ¿Podemos coordinar?`;
+  return `https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=${encodeURIComponent(text)}`;
+}
+
+const GENERAL_WHATSAPP_URL = `https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=${encodeURIComponent(
+  'Hola, me interesa un informe técnico firmado. ¿Me podrían asesorar sobre cuál necesito?',
+)}`;
+
 export function TechnicalInspectionSection({ motionProps }: SectionProps) {
   return (
     <section className="bg-background py-20 md:py-28">
@@ -40,7 +63,7 @@ export function TechnicalInspectionSection({ motionProps }: SectionProps) {
           variants={FADE_IN}
           className="type-label-md text-primary tracking-widest uppercase"
         >
-          Servicio adicional · aparte del plan
+          Servicio adicional · abierto al público
         </motion.p>
         <motion.h2
           variants={FADE_IN_UP}
@@ -48,7 +71,10 @@ export function TechnicalInspectionSection({ motionProps }: SectionProps) {
         >
           Informes técnicos firmados.
           <br />
-          <span className="text-muted-foreground">Con 15% de descuento para clientes EPDE.</span>
+          <span className="text-muted-foreground">
+            Disponibles para cualquiera — clientes EPDE pagan{' '}
+            {TECHNICAL_INSPECTION_CLIENT_DISCOUNT_PCT}% menos.
+          </span>
         </motion.h2>
         <motion.p
           variants={FADE_IN_UP}
@@ -56,7 +82,7 @@ export function TechnicalInspectionSection({ motionProps }: SectionProps) {
         >
           Cuando necesitás un informe profesional firmado —para una compraventa, una herencia o un
           problema específico— lo hace directamente la arquitecta responsable de EPDE, con matrícula
-          habilitante.
+          habilitante. No hace falta ser cliente: lo podés contratar una sola vez.
         </motion.p>
         <motion.div
           variants={FADE_IN}
@@ -78,34 +104,54 @@ export function TechnicalInspectionSection({ motionProps }: SectionProps) {
               <motion.div
                 key={type.key}
                 variants={STAGGER_ITEM}
-                className="border-border bg-card rounded-xl border p-5"
+                className="border-border bg-card flex flex-col rounded-xl border p-5"
               >
                 <h3 className="font-heading text-foreground mb-1 text-lg">{type.name}</h3>
                 <p className="text-primary mb-3 text-2xl font-bold tabular-nums">
-                  desde {formatARSCompact(tiers.SMALL.client)}
+                  desde {formatARSCompact(tiers.SMALL.public)}
                 </p>
                 <p className="text-muted-foreground mb-3 text-sm leading-relaxed">{type.summary}</p>
-                <div className="border-border/50 mt-3 space-y-1 border-t pt-3 text-xs">
-                  <p className="text-foreground font-semibold">Precio cliente EPDE</p>
-                  <div className="text-muted-foreground space-y-0.5">
-                    <div className="flex justify-between tabular-nums">
-                      <span>Hasta 120 m²</span>
-                      <span>{formatARSCompact(tiers.SMALL.client)}</span>
-                    </div>
-                    <div className="flex justify-between tabular-nums">
-                      <span>120–250 m²</span>
-                      <span>{formatARSCompact(tiers.MEDIUM.client)}</span>
-                    </div>
-                    <div className="flex justify-between tabular-nums">
-                      <span>250–400 m²</span>
-                      <span>{formatARSCompact(tiers.LARGE.client)}</span>
-                    </div>
+
+                {/* Ambos precios por tier — público (sin descuento) y cliente EPDE.
+                 *  Mostrar el par hace visible el ahorro concreto del plan. */}
+                <div className="border-border/50 mt-auto space-y-2 border-t pt-3 text-xs">
+                  <div className="flex items-center justify-between">
+                    <p className="text-foreground font-semibold">Precios por superficie</p>
+                    <span className="text-muted-foreground text-[10px] tracking-wide uppercase">
+                      Público · Cliente
+                    </span>
+                  </div>
+                  <div className="text-muted-foreground space-y-1">
+                    {(['SMALL', 'MEDIUM', 'LARGE'] as const).map((tier) => (
+                      <div key={tier} className="flex justify-between tabular-nums">
+                        <span>{tiers[tier].label}</span>
+                        <span className="flex items-center gap-1.5">
+                          <span className="line-through opacity-60">
+                            {formatARSCompact(tiers[tier].public)}
+                          </span>
+                          <span className="text-foreground font-medium">
+                            {formatARSCompact(tiers[tier].client)}
+                          </span>
+                        </span>
+                      </div>
+                    ))}
                     <div className="text-muted-foreground/80 flex justify-between text-[11px] italic">
                       <span>Más de 400 m²</span>
                       <span>consultar</span>
                     </div>
                   </div>
                 </div>
+
+                <Button asChild size="sm" variant="outline" className="mt-4 w-full">
+                  <a
+                    href={buildInspectionWhatsAppUrl(type)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <MessageCircle className="mr-2 h-4 w-4" aria-hidden="true" />
+                    Pedir este informe
+                  </a>
+                </Button>
               </motion.div>
             );
           })}
@@ -126,12 +172,13 @@ export function TechnicalInspectionSection({ motionProps }: SectionProps) {
 
         <motion.div variants={FADE_IN_UP} className="mt-8 grid gap-4 sm:grid-cols-3">
           <div className="flex gap-3">
-            <Lock className="text-primary mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+            <Sparkles className="text-primary mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
             <div>
-              <p className="text-foreground text-sm font-medium">Sólo para clientes activos</p>
+              <p className="text-foreground text-sm font-medium">
+                {TECHNICAL_INSPECTION_CLIENT_DISCOUNT_PCT}% de descuento para clientes EPDE
+              </p>
               <p className="text-muted-foreground text-xs">
-                Tenés {TECHNICAL_INSPECTION_CLIENT_DISCOUNT_PCT}% de descuento mientras tu plan EPDE
-                esté al día.
+                Si tenés el plan EPDE activo, el descuento se aplica automáticamente al cotizar.
               </p>
             </div>
           </div>
@@ -168,6 +215,31 @@ export function TechnicalInspectionSection({ motionProps }: SectionProps) {
               los cotiza aparte el gasista o electricista habilitado, según el caso.
             </span>
           </p>
+        </motion.div>
+
+        {/* CTA genérico + upsell al plan. Cross-sell sutil: después del
+         *  informe, sumarse al plan EPDE queda automáticamente con 15% en
+         *  futuros informes. No forzado, es una invitación. */}
+        <motion.div
+          variants={FADE_IN_UP}
+          className="border-primary/20 bg-primary/5 mt-8 flex flex-col items-start gap-4 rounded-xl border p-6 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div className="flex-1">
+            <p className="text-foreground type-title-sm font-semibold">
+              ¿No estás seguro de cuál informe necesitás?
+            </p>
+            <p className="text-muted-foreground type-body-sm mt-1">
+              Escribinos por WhatsApp y la arquitecta te orienta sin compromiso. Si después del
+              informe querés seguimiento continuo, sumate al plan EPDE y en tu próximo informe el{' '}
+              {TECHNICAL_INSPECTION_CLIENT_DISCOUNT_PCT}% de descuento se aplica solo.
+            </p>
+          </div>
+          <Button asChild size="lg" className="shrink-0">
+            <a href={GENERAL_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+              <MessageCircle className="mr-2 h-4 w-4" aria-hidden="true" />
+              Consultar por WhatsApp
+            </a>
+          </Button>
         </motion.div>
       </motion.div>
     </section>
