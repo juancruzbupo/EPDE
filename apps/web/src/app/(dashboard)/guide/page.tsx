@@ -3,9 +3,12 @@
 import {
   AlertTriangle,
   ArrowRight,
+  Award,
   BarChart3,
+  Briefcase,
   CheckCircle,
   ClipboardList,
+  CreditCard,
   DollarSign,
   FileText,
   Heart,
@@ -105,6 +108,24 @@ export default function GuiaPage() {
             Un ISV alto significa que tu casa está bien mantenida. Uno bajo indica que los problemas
             se acumulan y las reparaciones futuras van a ser más caras.
           </p>
+          <p className="text-foreground/90 font-medium">Cómo interpretar el puntaje:</p>
+          <ul className="list-inside list-disc space-y-1 pl-1">
+            <li>
+              <strong>80 a 100 — Excelente:</strong> pocos ajustes pendientes, tu casa está en buen
+              camino.
+            </li>
+            <li>
+              <strong>60 a 79 — Bueno:</strong> mantenimiento al día, seguí así.
+            </li>
+            <li>
+              <strong>40 a 59 — Regular:</strong> hay atención pendiente, conviene poner el día
+              algunas tareas.
+            </li>
+            <li>
+              <strong>0 a 39 — Crítico:</strong> requiere intervención pronta para evitar
+              reparaciones costosas.
+            </li>
+          </ul>
         </Section>
 
         {/* Tareas */}
@@ -116,19 +137,20 @@ export default function GuiaPage() {
           </p>
           <ul className="list-inside list-disc space-y-1 pl-1">
             <li>
-              <strong>Prioridad:</strong> Alta = requiere atención pronto. Media = mantenimiento
-              regular. Baja = mejoras opcionales.
+              <strong>Prioridad:</strong> Urgente = riesgo de daño mayor si se posterga. Alta =
+              requiere atención pronto. Media = mantenimiento regular. Baja = mejoras opcionales.
             </li>
             <li>
-              <strong>Estado:</strong> Vencida = pasó la fecha. Pendiente = programada a más de 30
-              días. Próxima = vence en menos de 30 días.
+              <strong>Estado:</strong> Vencida = pasó la fecha. Pendiente = ya toca hacerla. Próxima
+              = todavía no es momento pero viene pronto. Completada = registrada con o sin foto.
             </li>
             <li>
               <strong>Recurrencia:</strong> Cada cuánto hay que repetirla (mensual, trimestral,
-              anual, etc.).
+              anual, etc.) o &quot;al detectar&quot; si sólo aparece cuando hay un hallazgo.
             </li>
             <li>
-              <strong>Profesional:</strong> Si necesitás contratar a alguien o la podés hacer vos.
+              <strong>Requisito profesional:</strong> Propietario puede, Profesional recomendado o
+              Profesional obligatorio — según herramientas, seguridad y exigencia legal.
             </li>
             <li>
               <strong>Índice de riesgo:</strong> Número que indica qué tan urgente es resolver cada
@@ -147,7 +169,8 @@ export default function GuiaPage() {
           <p>Hacé click en cualquier tarea y después en &quot;Registrar&quot;. Solo necesitás:</p>
           <ol className="list-inside list-decimal space-y-1 pl-1">
             <li>
-              <strong>¿En qué estado está?</strong> — Excelente, bueno, aceptable, malo o crítico.
+              <strong>¿En qué estado está?</strong> — Excelente, Bueno, Aceptable, Deteriorado o
+              Crítico.
             </li>
             <li>
               <strong>¿Quién lo hizo?</strong> — Vos, un profesional contratado, o EPDE.
@@ -158,8 +181,8 @@ export default function GuiaPage() {
             detalles&quot;. Pero no es obligatorio.
           </p>
           <p>
-            Cuando reportás un estado <strong>malo o crítico</strong>, el sistema te sugiere crear
-            una solicitud de servicio para que EPDE intervenga.
+            Cuando reportás un estado <strong>Deteriorado o Crítico</strong>, el sistema lo marca
+            como hallazgo y te sugiere crear una solicitud de servicio para que EPDE intervenga.
           </p>
         </Section>
 
@@ -237,6 +260,51 @@ export default function GuiaPage() {
           </p>
         </Section>
 
+        {/* Portfolio (multi-propiedad) */}
+        <Section icon={Briefcase} title="Portfolio — si tenés varias propiedades">
+          <p>
+            Si EPDE gestiona más de una propiedad tuya, aparece la vista <strong>Portfolio</strong>{' '}
+            — una tabla comparativa que muestra de un vistazo el estado de cada casa: puntaje ISV,
+            tareas vencidas, pendientes y completadas.
+          </p>
+          <p>
+            Te sirve para decidir qué propiedad atender primero sin entrar a cada una. El acceso
+            aparece automáticamente en el dashboard cuando tenés 2 o más propiedades activas.
+          </p>
+          <p>
+            <QuickLink href={ROUTES.portfolio} label="Ir a Portfolio" />
+          </p>
+        </Section>
+
+        {/* Inspecciones técnicas (add-on) */}
+        <Section icon={Award} title="Inspecciones técnicas firmadas">
+          <p>
+            Además del plan de mantenimiento, podés contratar una{' '}
+            <strong>inspección técnica firmada</strong> por la arquitecta responsable de EPDE. Son
+            relevamientos que firma ella personalmente (no se derivan a terceros) y sirven como
+            informe oficial.
+          </p>
+          <p>Tres tipos disponibles:</p>
+          <ul className="list-inside list-disc space-y-1 pl-1">
+            <li>
+              <strong>Básica:</strong> estado general de la vivienda, 2-4 hs, informe en 48-72 hs.
+            </li>
+            <li>
+              <strong>Estructural profunda:</strong> foco en cimientos, muros portantes, techos —
+              útil ante grietas o dudas estructurales.
+            </li>
+            <li>
+              <strong>Compraventa:</strong> informe orientado a transacción inmobiliaria, con
+              valoración de patologías y costos estimados de intervención.
+            </li>
+          </ul>
+          <p>
+            Los clientes activos tienen 15% de descuento sobre el precio público. Importante: NO
+            incluye obleas de gas (NAG-226) ni informes eléctricos (RE-7) — eso requiere otros
+            matriculados específicos.
+          </p>
+        </Section>
+
         {/* Notificaciones */}
         <Section icon={AlertTriangle} title="Notificaciones y recordatorios">
           <p>El sistema te avisa automáticamente cuando:</p>
@@ -248,6 +316,26 @@ export default function GuiaPage() {
           <p>
             Los avisos llegan por notificación push (si tenés la app), por email (resumen semanal
             los lunes), y dentro del sistema (campana arriba a la derecha).
+          </p>
+        </Section>
+
+        {/* Suscripción */}
+        <Section icon={CreditCard} title="Suscripción y renovación">
+          <p>Tu acceso a EPDE tiene una fecha de vencimiento. Mientras esté activa podés:</p>
+          <ul className="list-inside list-disc space-y-1 pl-1">
+            <li>Ver el plan y completar tareas.</li>
+            <li>Recibir recordatorios y notificaciones.</li>
+            <li>Solicitar servicios y presupuestos.</li>
+            <li>Descargar el informe técnico y el certificado (si corresponde).</li>
+          </ul>
+          <p>
+            <strong>Cuando se acerca el vencimiento</strong> (faltan 7 días o menos), aparece un
+            aviso en el panel. Si faltan ≤1 día, el aviso pasa a rojo.
+          </p>
+          <p>
+            <strong>Si vence sin renovar,</strong> el acceso se bloquea hasta que renoves por
+            WhatsApp. Tus datos y el historial de tareas quedan guardados — al renovar volvés a ver
+            todo intacto.
           </p>
         </Section>
 
