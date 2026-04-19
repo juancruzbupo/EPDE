@@ -86,18 +86,13 @@ export function Header({ general }: HeaderProps) {
           ))}
         </nav>
 
-        {/* Desktop action — phone + primary CTA */}
+        {/* Desktop action — primary CTA solamente.
+            Phone icon removido: el tel: link no funciona bien en desktop
+            (abre FaceTime/Skype o nada), competía con la CTA por atención
+            y el tooltip con el número era poco descubrible. El número
+            sigue disponible en el footer para quien lo busque. Mobile
+            conserva el ícono porque ahí sí el tel: es one-tap útil. */}
         <div className="hidden items-center gap-2 md:flex">
-          <a
-            href={`tel:+${phone}`}
-            className="text-muted-foreground hover:text-foreground group relative flex h-9 w-9 items-center justify-center rounded-full transition-colors"
-            aria-label={`Llamar al ${phoneDisplay}`}
-          >
-            <Phone className="h-4 w-4" />
-            <span className="bg-foreground text-background pointer-events-none absolute top-full mt-2 rounded px-2 py-1 text-xs whitespace-nowrap opacity-0 transition-opacity group-hover:opacity-100">
-              {phoneDisplay}
-            </span>
-          </a>
           <a
             href={WHATSAPP_URL}
             target="_blank"
