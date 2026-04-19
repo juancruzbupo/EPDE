@@ -3,7 +3,7 @@ import type {
   CreateInspectionInput,
   UpdateInspectionItemInput,
 } from '@epde/shared';
-import { getErrorMessage, QUERY_KEYS } from '@epde/shared';
+import { buildKey, getErrorMessage, QUERY_KEYS, QUERY_SUB_KEYS } from '@epde/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -71,7 +71,7 @@ export function useAddInspectionItem(propertyId: string) {
 
 export function useInspectionTemplates(propertyId: string) {
   return useQuery({
-    queryKey: [QUERY_KEYS.inspections, 'templates', propertyId],
+    queryKey: buildKey('inspections', QUERY_SUB_KEYS.templates, propertyId),
     queryFn: ({ signal }) => getInspectionTemplates(propertyId, signal).then((r) => r.data),
     enabled: !!propertyId,
   });

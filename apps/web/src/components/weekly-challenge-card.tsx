@@ -1,6 +1,6 @@
 'use client';
 
-import { QUERY_KEYS } from '@epde/shared';
+import { buildKey, QUERY_SUB_KEYS } from '@epde/shared';
 import { useQuery } from '@tanstack/react-query';
 
 import { apiClient } from '@/lib/api-client';
@@ -27,7 +27,7 @@ function challengeDescription(type: string, target: number): string {
 
 export function WeeklyChallengeCard() {
   const { data: challenge } = useQuery({
-    queryKey: [QUERY_KEYS.dashboard, 'weekly-challenge'],
+    queryKey: buildKey('dashboard', QUERY_SUB_KEYS.weeklyChallenge),
     queryFn: async ({ signal }) => {
       const { data } = await apiClient.get<{ data: WeeklyChallenge | null }>(
         `${ROUTES.dashboard}/weekly-challenge`,
