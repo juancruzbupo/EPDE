@@ -1,7 +1,25 @@
 import { FONT_SCALE_VALUES } from '@epde/shared';
 import { useMemo } from 'react';
+import { PixelRatio } from 'react-native';
 
 import { useFontScaleStore } from '@/stores/font-scale-store';
+
+/**
+ * Tope máximo combinado (app × OS). Sin cap, un usuario con iOS Dynamic
+ * Type al 150% + nuestro tier `xl` (1.3×) llega a ~2× y los cards
+ * desbordan en 375px. 1.5× es el máximo aceptable para los layouts
+ * actuales; más que eso requiere refactor responsive dedicado.
+ */
+const MAX_COMBINED_SCALE = 1.5;
+
+function clampMultiplier(appMultiplier: number): number {
+  // PixelRatio.getFontScale() refleja el setting del OS (iOS Display &
+  // Brightness → Text Size, Android Accessibility → Font size). Lo
+  // respetamos pero topado para no romper layouts.
+  const osScale = PixelRatio.getFontScale();
+  const combined = appMultiplier * osScale;
+  return Math.min(combined, MAX_COMBINED_SCALE);
+}
 
 /**
  * Base typography tokens — unscaled (multiplier = 1).
@@ -56,7 +74,8 @@ export type TypeStyle = (typeof TYPE)[keyof typeof TYPE];
 export function useType(): typeof TYPE {
   const scale = useFontScaleStore((s) => s.fontScale);
   return useMemo(() => {
-    const multiplier = FONT_SCALE_VALUES[scale];
+    const appMultiplier = FONT_SCALE_VALUES[scale];
+    const multiplier = clampMultiplier(appMultiplier);
     if (multiplier === 1) return TYPE;
     // Use a plain object literal so the return type still satisfies `typeof TYPE`.
     return Object.fromEntries(
@@ -80,7 +99,7 @@ export function useType(): typeof TYPE {
 export function useScaledStyle<S extends TypeStyle>(style: S): S {
   const scale = useFontScaleStore((s) => s.fontScale);
   return useMemo(() => {
-    const multiplier = FONT_SCALE_VALUES[scale];
+    const multiplier = clampMultiplier(FONT_SCALE_VALUES[scale]);
     if (multiplier === 1) return style;
     return {
       ...style,
