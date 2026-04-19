@@ -11,6 +11,7 @@ import { FirstTimeBanner } from '@/components/first-time-banner';
 import { HomeStatusCard } from '@/components/home-status-card';
 import { MonthlySummaryCard } from '@/components/monthly-summary-card';
 import { OnboardingCarousel, useOnboardingState } from '@/components/onboarding-carousel';
+import { PropertyPicker } from '@/components/property-picker';
 import { ProtectedHomeBanner } from '@/components/protected-home-banner';
 import { StatCardSkeleton } from '@/components/skeleton-placeholder';
 import { StreakCard } from '@/components/streak-card';
@@ -273,6 +274,9 @@ function ClientDashboard() {
             title="Lo importante arriba"
             message="El puntaje que ves es el Índice de Salud (ISV) de tus propiedades — del 0 al 100, más alto es mejor. Abajo van las tareas que más urge atender."
           />
+          {/* Property picker — solo visible con 2+ propiedades (Jorge inversor).
+              El componente se auto-oculta cuando hay 0-1 propiedades. */}
+          <PropertyPicker />
           <HomeStatusCard
             score={stats.healthScore ?? 0}
             label={stats.healthLabel ?? ''}

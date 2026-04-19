@@ -39,6 +39,7 @@ import { darkTheme, lightTheme } from '@/lib/theme-tokens';
 import { useAuthStore } from '@/stores/auth-store';
 import { useFontScaleStore } from '@/stores/font-scale-store';
 import { useMotivationStore } from '@/stores/motivation-store';
+import { useSelectedPropertyStore } from '@/stores/selected-property-store';
 import { useThemeStore } from '@/stores/theme-store';
 
 SplashScreen.preventAutoHideAsync();
@@ -135,6 +136,11 @@ export default function RootLayout() {
   useEffect(() => {
     void loadSavedMotivationStyle();
   }, [loadSavedMotivationStyle]);
+
+  const loadSavedSelectedProperty = useSelectedPropertyStore((s) => s.loadSavedSelection);
+  useEffect(() => {
+    void loadSavedSelectedProperty();
+  }, [loadSavedSelectedProperty]);
 
   if (!fontsLoaded && !fontError) {
     return null;
