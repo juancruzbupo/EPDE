@@ -2,7 +2,16 @@ import { changePasswordSchema, WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useCallback, useMemo, useState } from 'react';
-import { Alert, Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Linking,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 
 import { GlossaryModal } from '@/components/glossary-modal';
 import { resetMobileOnboarding } from '@/components/onboarding-carousel';
@@ -131,138 +140,146 @@ export default function ProfileScreen() {
   }, [currentPassword, newPassword, confirmPassword]);
 
   return (
-    <ScrollView className="bg-background flex-1" contentContainerStyle={{ padding: 16 }}>
-      <Text style={TYPE.displaySm} className="text-foreground mb-6">
-        Mi Perfil
-      </Text>
-
-      <UserInfoCard
-        name={user?.name}
-        email={user?.email}
-        phone={user?.phone ?? undefined}
-        editingField={editingField}
-        editValue={editValue}
-        isSaving={isSaving}
-        onEditValueChange={setEditValue}
-        onStartEdit={startEdit}
-        onSaveEdit={saveEdit}
-        onCancelEdit={cancelEdit}
-      />
-
-      {/* Subscription info — clients only */}
-      {user?.role === 'CLIENT' && user.subscriptionExpiresAt && (
-        <MobileSubscriptionInfo expiresAt={user.subscriptionExpiresAt} />
-      )}
-
-      {/* Accesibilidad: tema + tamaño de texto arriba porque son los ajustes
-       *  que más usa el segmento boomer. Antes vivían después de password y
-       *  del referral program, demasiado enterrados para el caso de uso
-       *  principal ("vengo a agrandar el texto"). */}
-      <AppearanceSelector mode={mode} onModeChange={setMode} />
-
-      <FontScaleSelector fontScale={fontScale} onFontScaleChange={setFontScale} />
-
-      <MotivationSelector
-        motivationStyle={motivationStyle}
-        onMotivationStyleChange={setMotivationStyle}
-      />
-
-      {/* Referral program — clients only */}
-      {user?.role === 'CLIENT' && <ReferralsCard />}
-
-      <PasswordChangeForm
-        currentPassword={currentPassword}
-        newPassword={newPassword}
-        confirmPassword={confirmPassword}
-        isChangingPassword={isChangingPassword}
-        onCurrentPasswordChange={setCurrentPassword}
-        onNewPasswordChange={setNewPassword}
-        onConfirmPasswordChange={setConfirmPassword}
-        onSubmit={handleChangePassword}
-      />
-
-      {/* App info */}
-      <View className="border-border bg-card mb-6 rounded-xl border p-4">
-        <Text style={TYPE.titleSm} className="text-foreground mb-2">
-          Información de la App
+    // KeyboardAvoidingView: el form de cambio de contraseña tiene 3
+    // inputs cerca del final del scroll. Sin este wrapper el teclado
+    // tapa el botón "Cambiar Contraseña" en iPhones chicos.
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      className="flex-1"
+    >
+      <ScrollView className="bg-background flex-1" contentContainerStyle={{ padding: 16 }}>
+        <Text style={TYPE.displaySm} className="text-foreground mb-6">
+          Mi Perfil
         </Text>
-        <View className="gap-2">
-          <View className="flex-row justify-between">
-            <Text style={TYPE.bodyMd} className="text-muted-foreground">
-              Versión
-            </Text>
-            <Text style={TYPE.labelLg} className="text-foreground">
-              {Constants.expoConfig?.version ?? '1.0.0'}
-            </Text>
+
+        <UserInfoCard
+          name={user?.name}
+          email={user?.email}
+          phone={user?.phone ?? undefined}
+          editingField={editingField}
+          editValue={editValue}
+          isSaving={isSaving}
+          onEditValueChange={setEditValue}
+          onStartEdit={startEdit}
+          onSaveEdit={saveEdit}
+          onCancelEdit={cancelEdit}
+        />
+
+        {/* Subscription info — clients only */}
+        {user?.role === 'CLIENT' && user.subscriptionExpiresAt && (
+          <MobileSubscriptionInfo expiresAt={user.subscriptionExpiresAt} />
+        )}
+
+        {/* Accesibilidad: tema + tamaño de texto arriba porque son los ajustes
+         *  que más usa el segmento boomer. Antes vivían después de password y
+         *  del referral program, demasiado enterrados para el caso de uso
+         *  principal ("vengo a agrandar el texto"). */}
+        <AppearanceSelector mode={mode} onModeChange={setMode} />
+
+        <FontScaleSelector fontScale={fontScale} onFontScaleChange={setFontScale} />
+
+        <MotivationSelector
+          motivationStyle={motivationStyle}
+          onMotivationStyleChange={setMotivationStyle}
+        />
+
+        {/* Referral program — clients only */}
+        {user?.role === 'CLIENT' && <ReferralsCard />}
+
+        <PasswordChangeForm
+          currentPassword={currentPassword}
+          newPassword={newPassword}
+          confirmPassword={confirmPassword}
+          isChangingPassword={isChangingPassword}
+          onCurrentPasswordChange={setCurrentPassword}
+          onNewPasswordChange={setNewPassword}
+          onConfirmPasswordChange={setConfirmPassword}
+          onSubmit={handleChangePassword}
+        />
+
+        {/* App info */}
+        <View className="border-border bg-card mb-6 rounded-xl border p-4">
+          <Text style={TYPE.titleSm} className="text-foreground mb-2">
+            Información de la App
+          </Text>
+          <View className="gap-2">
+            <View className="flex-row justify-between">
+              <Text style={TYPE.bodyMd} className="text-muted-foreground">
+                Versión
+              </Text>
+              <Text style={TYPE.labelLg} className="text-foreground">
+                {Constants.expoConfig?.version ?? '1.0.0'}
+              </Text>
+            </View>
+            <View className="flex-row justify-between">
+              <Text style={TYPE.bodyMd} className="text-muted-foreground">
+                Plataforma
+              </Text>
+              <Text style={TYPE.labelLg} className="text-foreground">
+                EPDE Mobile
+              </Text>
+            </View>
           </View>
-          <View className="flex-row justify-between">
-            <Text style={TYPE.bodyMd} className="text-muted-foreground">
-              Plataforma
+          <Pressable
+            onPress={handleClearCache}
+            className="border-border mt-3 items-center rounded-lg border py-2"
+            accessibilityLabel="Limpiar caché de la aplicación"
+            accessibilityRole="button"
+            style={{ minHeight: 44 }}
+          >
+            <Text style={TYPE.labelMd} className="text-muted-foreground">
+              Limpiar caché
             </Text>
-            <Text style={TYPE.labelLg} className="text-foreground">
-              EPDE Mobile
-            </Text>
-          </View>
+          </Pressable>
         </View>
+
+        {/* Glossary */}
         <Pressable
-          onPress={handleClearCache}
-          className="border-border mt-3 items-center rounded-lg border py-2"
-          accessibilityLabel="Limpiar caché de la aplicación"
+          onPress={() => setGlossaryOpen(true)}
+          className="border-border mb-3 items-center rounded-xl border py-3"
+          accessibilityLabel="Glosario de términos"
           accessibilityRole="button"
           style={{ minHeight: 44 }}
         >
-          <Text style={TYPE.labelMd} className="text-muted-foreground">
-            Limpiar caché
+          <Text style={TYPE.labelLg} className="text-foreground">
+            📖 Glosario de términos
           </Text>
         </Pressable>
-      </View>
+        <GlossaryModal visible={glossaryOpen} onClose={() => setGlossaryOpen(false)} />
 
-      {/* Glossary */}
-      <Pressable
-        onPress={() => setGlossaryOpen(true)}
-        className="border-border mb-3 items-center rounded-xl border py-3"
-        accessibilityLabel="Glosario de términos"
-        accessibilityRole="button"
-        style={{ minHeight: 44 }}
-      >
-        <Text style={TYPE.labelLg} className="text-foreground">
-          📖 Glosario de términos
-        </Text>
-      </Pressable>
-      <GlossaryModal visible={glossaryOpen} onClose={() => setGlossaryOpen(false)} />
+        {/* Replay onboarding */}
+        <Pressable
+          onPress={async () => {
+            await resetMobileOnboarding();
+            haptics.success();
+            Alert.alert(
+              'Listo',
+              'La próxima vez que abras la pestaña Inicio vas a volver a ver el tutorial.',
+            );
+          }}
+          className="border-border mb-3 items-center rounded-xl border py-3"
+          accessibilityLabel="Volver a ver el tutorial"
+          accessibilityRole="button"
+          style={{ minHeight: 44 }}
+        >
+          <Text style={TYPE.labelLg} className="text-foreground">
+            👋 Ver tutorial de nuevo
+          </Text>
+        </Pressable>
 
-      {/* Replay onboarding */}
-      <Pressable
-        onPress={async () => {
-          await resetMobileOnboarding();
-          haptics.success();
-          Alert.alert(
-            'Listo',
-            'La próxima vez que abras la pestaña Inicio vas a volver a ver el tutorial.',
-          );
-        }}
-        className="border-border mb-3 items-center rounded-xl border py-3"
-        accessibilityLabel="Volver a ver el tutorial"
-        accessibilityRole="button"
-        style={{ minHeight: 44 }}
-      >
-        <Text style={TYPE.labelLg} className="text-foreground">
-          👋 Ver tutorial de nuevo
-        </Text>
-      </Pressable>
-
-      {/* Logout button */}
-      <Pressable
-        onPress={handleLogout}
-        className="bg-destructive items-center rounded-xl py-3"
-        accessibilityLabel="Cerrar sesión"
-        accessibilityRole="button"
-      >
-        <Text style={TYPE.titleMd} className="text-destructive-foreground">
-          Cerrar Sesión
-        </Text>
-      </Pressable>
-    </ScrollView>
+        {/* Logout button */}
+        <Pressable
+          onPress={handleLogout}
+          className="bg-destructive items-center rounded-xl py-3"
+          accessibilityLabel="Cerrar sesión"
+          accessibilityRole="button"
+        >
+          <Text style={TYPE.titleMd} className="text-destructive-foreground">
+            Cerrar Sesión
+          </Text>
+        </Pressable>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
