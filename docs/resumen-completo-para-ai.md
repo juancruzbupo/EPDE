@@ -307,7 +307,7 @@ Marketing page con 16 secciones optimizadas para conversión:
 9. Comparación tradicional vs EPDE
 10. Credenciales (arquitecta)
 11. Para quién
-12. Pricing ($35.000 pago único, 6 meses acceso)
+12. Pricing por tier según m² ($55k/$75k/$110k launch, 6 meses acceso)
 13. Urgencia (cupos limitados)
 14. CTA final
 15. Footer
@@ -317,11 +317,18 @@ Marketing page con 16 secciones optimizadas para conversión:
 
 ## 10. Modelo de negocio
 
-- **Producto:** Diagnóstico EPDE — $35.000 (pago único)
-- **Incluye:** inspección completa, ISV, plan de mantenimiento, acceso al sistema por 6 meses
-- **Continuidad:** suscripción mensual opcional después de los 6 meses
-- **Revenue adicional:** servicios profesionales y presupuestos (se cotizan aparte)
-- **Mercado:** propietarios de viviendas residenciales en Paraná, Argentina
+- **Producto:** Plan EPDE — pago único con tiers por superficie (launch):
+  - Plan Chico (≤100 m²): $55.000 / target $85k
+  - Plan Estándar (100–200 m²): $75.000 / target $120k
+  - Plan Amplio (200–350 m²): $110.000 / target $180k
+  - +350 m² o atípicos: cotización manual
+  - Precio launch vigente hasta los primeros 20 clientes tiering
+- **Incluye:** diagnóstico inicial completo, ISV, plan de mantenimiento, 6 meses de acceso al sistema, llamada de seguimiento a los 30 días, re-diagnóstico a los 6 meses, certificado de mantenimiento al cumplir 1 año
+- **Continuidad:** plan mensual opcional post 6 meses
+- **Revenue adicional:**
+  - Informes técnicos firmados (ADR-019): BASIC/STRUCTURAL/SALE × 3 tiers × 15% off clientes
+  - Service requests y presupuestos de terceros (se cotizan aparte)
+- **Mercado:** propietarios de casas y departamentos en Paraná (Entre Ríos), Argentina
 
 ---
 

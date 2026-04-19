@@ -564,10 +564,11 @@ Desde **Landing** en el menú lateral, se pueden editar cuatro secciones:
 
 ### Precios
 
-- **Precio de lanzamiento** — el precio que se muestra en la sección de inversión (ej: "$35.000")
-- **Nota de precio** — texto aclaratorio debajo del precio (ej: "Válido para viviendas de tamaño estándar...")
-- **Texto de suscripción** — microcopy sobre la suscripción incluida
-- **Disclaimer de costos** — texto legal sobre los costos estimados
+- **Tiers por superficie** — tres tiers hardcoded en `packages/shared/src/components/landing/landing-data.ts` (`PLAN_PRICE_TIERS`): Chico ($55k/$85k), Estándar ($75k/$120k), Amplio ($110k/$180k). Cada tier tiene precio launch + precio target; la landing muestra launch tachado cuando aplica.
+- **Target de lanzamiento** — 20 clientes onboarded con tier asignado. Hardcoded en `DashboardStatsRepository.getPlanLaunchSummary()`. Cuando el dashboard admin muestra `X/20 alcanzado`, es momento de pasar a precio target.
+- **Nota de precio** — texto aclaratorio debajo del precio (ej: "El precio final depende de la superficie de tu propiedad...")
+- **Texto de suscripción** — microcopy sobre la suscripción mensual opcional post-6 meses
+- **Disclaimer de costos** — texto legal sobre los costos estimados, actualizado trimestralmente
 
 ### Preguntas frecuentes
 

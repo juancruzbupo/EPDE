@@ -21,3 +21,5 @@ Decisiones arquitectónicas clave del proyecto EPDE. Cada ADR documenta una deci
 | [015](015-mobile-admin-readiness.md)             | Mobile admin: trigger + checklist preventivo                               | Aceptada |
 | [016](016-loading-state-divergence.md)           | Loading: web Skeleton vs mobile ActivityIndicator (divergence by design)   | Aceptada |
 | [017](017-security-fail-mode-policy.md)          | Security fail-mode policy: cuándo fail-open vs fail-closed                 | Aceptada |
+| [018](018-professionals-directory.md)            | Directorio interno de profesionales matriculados (admin tool)              | Aceptada |
+| [019](019-technical-inspections.md)              | Informes técnicos firmados — servicio profesional pago con tiers por m²    | Aceptada |

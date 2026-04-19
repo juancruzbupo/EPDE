@@ -305,21 +305,25 @@ Tier de superficie que define el precio al crear una inspección técnica. Snaps
 
 ### MaintenancePlan
 
-| Campo              | Tipo       | Notas                             |
-| ------------------ | ---------- | --------------------------------- |
-| id                 | UUID       | PK                                |
-| propertyId         | String     | FK → Property, Unique (1:1)       |
-| name               | String     |                                   |
-| status             | PlanStatus | Default: DRAFT                    |
-| sourceInspectionId | String?    | FK → InspectionChecklist (origen) |
-| createdBy          | String?    | Auditoria                         |
-| updatedBy          | String?    | Auditoria                         |
-| createdAt          | DateTime   |                                   |
-| updatedAt          | DateTime   |                                   |
+| Campo              | Tipo                 | Notas                                                                 |
+| ------------------ | -------------------- | --------------------------------------------------------------------- |
+| id                 | UUID                 | PK                                                                    |
+| propertyId         | String               | FK → Property, Unique (1:1)                                           |
+| name               | String               |                                                                       |
+| status             | PlanStatus           | Default: DRAFT                                                        |
+| sourceInspectionId | String?              | FK → InspectionChecklist (origen)                                     |
+| priceTier          | InspectionPriceTier? | Tier de superficie al crear (SMALL/MEDIUM/LARGE). Null = pre-tiering. |
+| priceAmount        | Decimal(12,2)?       | Precio cobrado al crear (snapshot congelado). Null = pre-tiering.     |
+| createdBy          | String?              | Auditoria                                                             |
+| updatedBy          | String?              | Auditoria                                                             |
+| createdAt          | DateTime             |                                                                       |
+| updatedAt          | DateTime             |                                                                       |
 
 **Relaciones:** `property`, `tasks`
+**Indices:** `[status]`, `[createdBy]`, `[sourceInspectionId]`, `[priceTier, createdAt]`
 **Flujo:** El plan se genera desde una inspección completada via `POST /inspections/:id/generate-plan`. La transacción crea plan + tasks + baseline TaskLogs + marca checklist COMPLETED, con timeout de 30s (P2028 → `InternalServerErrorException`).
 **Back-reference:** Cuando el `InspectionChecklist` origen se soft-deletea, `sourceInspectionId` se nulla en este plan (ver InspectionChecklist).
+**Pricing:** Abril 2026 en adelante, al crear el plan se setea `priceTier` + `priceAmount` según superficie de la propiedad (ver `resolveInspectionPriceTier` en `@epde/shared`). Planes pre-existentes quedan NULL y se excluyen del launch tracking + revenue consolidado del dashboard admin.
 
 ### Category
 

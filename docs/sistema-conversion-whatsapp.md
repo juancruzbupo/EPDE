@@ -101,14 +101,23 @@ qué priorizar y cómo mantenerla bajo control.
 **"¿Cuánto sale?"**
 
 ```
-El diagnóstico completo tiene un valor de $35.000, pago único.
-Incluye la inspección, el ISV (índice de salud de tu vivienda),
-plan de mantenimiento y acceso al sistema por 6 meses.
+El diagnóstico completo tiene tres tiers según la superficie de tu
+casa (precio de lanzamiento, vigente hasta los primeros 20 clientes):
+
+• Hasta 100 m²:     $55.000
+• 100 a 200 m²:     $75.000  (más común)
+• 200 a 350 m²:     $110.000
+• Más de 350 m²:    cotizamos aparte
+
+Es un único pago al empezar. Incluye el diagnóstico visual, el ISV
+(índice de salud de tu vivienda), plan de mantenimiento, 6 meses de
+acceso al sistema, llamada de seguimiento a los 30 días y
+re-diagnóstico a los 6 meses.
 
 Es una inversión que puede evitarte problemas de cientos de miles
 o millones más adelante.
 
-¿Te queda mejor esta semana o la próxima para coordinar?
+¿Cuántos m² tiene tu casa para confirmarte el tier exacto?
 ```
 
 **"Lo voy a pensar"**
@@ -182,7 +191,7 @@ Te paso un resumen:
 📍 Dirección: [confirmar]
 🕐 Horario: [hora]
 📋 Duración estimada: 1.5 a 2 horas
-💰 Valor: $35.000 (pago único)
+💰 Valor: $[55/75/110].000 (tier confirmado, pago único al empezar)
 
 El día del diagnóstico voy personalmente.
 Cualquier consulta previa, escribime por acá. 👍
