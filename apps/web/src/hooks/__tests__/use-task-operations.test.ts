@@ -108,10 +108,16 @@ describe('useRemoveTask', () => {
     renderHook(() => useRemoveTask());
 
     const config = vi.mocked(useMutation).mock.calls[0][0];
-    (config.onSuccess as () => void)();
+    (config.onSuccess as (data: unknown, vars: { planId: string; taskId: string }) => void)(
+      undefined,
+      { planId: 'p-1', taskId: 't-1' },
+    );
 
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
-      queryKey: [QUERY_KEYS.plans],
+      queryKey: [QUERY_KEYS.plans, 'p-1'],
+    });
+    expect(mockInvalidateQueries).toHaveBeenCalledWith({
+      queryKey: [QUERY_KEYS.plans, QUERY_KEYS.plansTasks],
     });
   });
 });

@@ -14,6 +14,7 @@ vi.mock('@/hooks/use-plans', () => ({
 
 vi.mock('@/hooks/use-task-operations', () => ({
   useTaskDetail: vi.fn(() => ({ data: undefined })),
+  useUpdateTask: vi.fn(() => ({ mutate: vi.fn(), mutateAsync: vi.fn() })),
 }));
 
 vi.mock('@/app/(dashboard)/service-requests/create-service-dialog', () => ({
@@ -35,7 +36,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('@/stores/auth-store', () => ({
-  useAuthStore: vi.fn((selector) => selector({ user: { id: 'admin-1', role: UserRole.ADMIN } })),
+  useAuthStore: vi.fn((selector) => selector({ user: { id: 'client-1', role: UserRole.CLIENT } })),
 }));
 
 vi.mock('@/components/ui/page-transition', () => ({
@@ -141,7 +142,9 @@ describe('TasksPage', () => {
     const user = userEvent.setup();
     render(<TasksPage />);
 
-    expect(screen.getByText('No se pudieron cargar las tareas')).toBeInTheDocument();
+    expect(screen.getAllByText('No se pudieron cargar las tareas').length).toBeGreaterThanOrEqual(
+      1,
+    );
 
     await user.click(screen.getByText('Reintentar'));
     expect(refetch).toHaveBeenCalledTimes(1);
@@ -156,7 +159,7 @@ describe('TasksPage', () => {
     } as unknown as ReturnType<typeof useAllTasks>);
 
     render(<TasksPage />);
-    expect(screen.getByText('Sin tareas')).toBeInTheDocument();
+    expect(screen.getAllByText('Sin tareas').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders page title and task data', () => {
@@ -173,8 +176,8 @@ describe('TasksPage', () => {
     } as unknown as ReturnType<typeof useAllTasks>);
 
     render(<TasksPage />);
-    expect(screen.getByText('Tareas')).toBeInTheDocument();
-    expect(screen.getByText('Revisar membrana')).toBeInTheDocument();
-    expect(screen.getByText('Pintar paredes')).toBeInTheDocument();
+    expect(screen.getAllByText('Tareas').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Revisar membrana').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Pintar paredes').length).toBeGreaterThanOrEqual(1);
   });
 });

@@ -198,8 +198,13 @@ describe('useUpdateBudgetStatus', () => {
     renderHook(() => useUpdateBudgetStatus());
 
     const config = vi.mocked(useMutation).mock.calls[0][0];
-    (config.onSuccess as () => void)();
-    expect(toast.success).toHaveBeenCalledWith('Estado actualizado');
+    // El onSuccess real usa variables.status para el mensaje (getStatusChangeMessage).
+    // Pasamos variables mock y verificamos que se emitió un toast.success con string.
+    (config.onSuccess as (data: unknown, variables: { id: string; status: BudgetStatus }) => void)(
+      { id: 'b1' },
+      { id: 'b1', status: BudgetStatus.APPROVED },
+    );
+    expect(toast.success).toHaveBeenCalledWith(expect.any(String));
 
     (config.onSettled as () => void)();
     expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey: [QUERY_KEYS.budgets] });

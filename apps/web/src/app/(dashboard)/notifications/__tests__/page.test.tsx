@@ -119,7 +119,9 @@ describe('NotificationsPage', () => {
     const user = userEvent.setup();
     render(<NotificationsPage />);
 
-    expect(screen.getByText('No se pudieron cargar las notificaciones')).toBeInTheDocument();
+    expect(
+      screen.getAllByText('No se pudieron cargar las notificaciones').length,
+    ).toBeGreaterThanOrEqual(1);
 
     await user.click(screen.getByText('Reintentar'));
     expect(refetch).toHaveBeenCalledTimes(1);
@@ -136,7 +138,7 @@ describe('NotificationsPage', () => {
     } as unknown as ReturnType<typeof useNotifications>);
 
     render(<NotificationsPage />);
-    expect(screen.getByText('No tenés notificaciones por ahora.')).toBeInTheDocument();
+    expect(screen.getAllByText('Sin notificaciones').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders page title and notification data', () => {
@@ -155,8 +157,8 @@ describe('NotificationsPage', () => {
     } as unknown as ReturnType<typeof useNotifications>);
 
     render(<NotificationsPage />);
-    expect(screen.getByText('Notificaciones')).toBeInTheDocument();
-    expect(screen.getByText('Tarea vencida')).toBeInTheDocument();
-    expect(screen.getByText('Presupuesto actualizado')).toBeInTheDocument();
+    expect(screen.getAllByText('Notificaciones').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Tarea vencida').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Presupuesto actualizado').length).toBeGreaterThanOrEqual(1);
   });
 });

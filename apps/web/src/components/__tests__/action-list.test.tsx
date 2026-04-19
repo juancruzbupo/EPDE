@@ -93,7 +93,9 @@ describe('ActionList', () => {
       nextDueDate: new Date(Date.now() - 86400000).toISOString(),
     });
     render(<ActionList tasks={[proTask]} />);
-    expect(screen.getByText('Requiere profesional')).toBeInTheDocument();
+    // Text vive concatenado ("Categoría · Prioridad · Requiere profesional")
+    // dentro de un solo <p>, así que usamos regex substring.
+    expect(screen.getByText(/Requiere profesional/)).toBeInTheDocument();
   });
 
   it('links to correct task detail URL', () => {

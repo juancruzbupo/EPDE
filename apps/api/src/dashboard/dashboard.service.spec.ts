@@ -4,6 +4,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RedisService } from '../redis/redis.service';
 import { DashboardRepository } from './dashboard.repository';
 import { DashboardService } from './dashboard.service';
+import { DashboardStatsRepository } from './dashboard-stats.repository';
+import { FinancialQueriesRepository } from './queries/financial.repository';
+import { OperationalQueriesRepository } from './queries/operational.repository';
+import { PortfolioQueriesRepository } from './queries/portfolio.repository';
 
 const mockRedisService = {
   get: jest.fn().mockResolvedValue(null),
@@ -49,6 +53,31 @@ describe('DashboardService', () => {
       providers: [
         DashboardService,
         { provide: DashboardRepository, useValue: mockDashboardRepository },
+        { provide: DashboardStatsRepository, useValue: {} },
+        {
+          provide: FinancialQueriesRepository,
+          useValue: {
+            getPlanLaunchSummary: jest.fn().mockResolvedValue({}),
+            getRevenueConsolidated: jest.fn().mockResolvedValue({}),
+            getCollectionsPending: jest.fn().mockResolvedValue({}),
+          },
+        },
+        {
+          provide: OperationalQueriesRepository,
+          useValue: {
+            getTechnicalInspectionsSummary: jest.fn().mockResolvedValue({}),
+            getProfessionalsSummary: jest.fn().mockResolvedValue({}),
+            getInactiveClientsSummary: jest.fn().mockResolvedValue({}),
+            getTechnicalInspectionCycleMetrics: jest.fn().mockResolvedValue({}),
+          },
+        },
+        {
+          provide: PortfolioQueriesRepository,
+          useValue: {
+            getPortfolioIsvSummary: jest.fn().mockResolvedValue({}),
+            getCertificatesSummary: jest.fn().mockResolvedValue({}),
+          },
+        },
         { provide: RedisService, useValue: mockRedisService },
       ],
     }).compile();
@@ -73,7 +102,8 @@ describe('DashboardService', () => {
       const result = await service.getStats();
 
       expect(repository.getAdminStats).toHaveBeenCalledTimes(1);
-      expect(result).toEqual(stats);
+      // getStats() merges planLaunch sub-stats into the admin stats payload.
+      expect(result).toEqual({ ...stats, planLaunch: {} });
     });
   });
 

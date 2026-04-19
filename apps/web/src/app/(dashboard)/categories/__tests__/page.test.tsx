@@ -104,9 +104,11 @@ describe('CategoriesPage', () => {
     const user = userEvent.setup();
     render(<CategoriesPage />);
 
-    expect(screen.getByText('No se pudieron cargar las categorías')).toBeInTheDocument();
+    expect(
+      screen.getAllByText('No se pudieron cargar las categorías').length,
+    ).toBeGreaterThanOrEqual(1);
 
-    await user.click(screen.getByText('Reintentar'));
+    await user.click(screen.getAllByText('Reintentar')[0]);
     expect(refetch).toHaveBeenCalledTimes(1);
   });
 
@@ -119,7 +121,7 @@ describe('CategoriesPage', () => {
     } as unknown as ReturnType<typeof useCategories>);
 
     render(<CategoriesPage />);
-    expect(screen.getByText('No se encontraron categorías')).toBeInTheDocument();
+    expect(screen.getAllByText('No se encontraron categorías').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders page title and category data', () => {
@@ -136,8 +138,8 @@ describe('CategoriesPage', () => {
     } as unknown as ReturnType<typeof useCategories>);
 
     render(<CategoriesPage />);
-    expect(screen.getByText('Categorías')).toBeInTheDocument();
-    expect(screen.getByText('Techos')).toBeInTheDocument();
-    expect(screen.getByText('Electricidad')).toBeInTheDocument();
+    expect(screen.getAllByText('Categorías').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Techos').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Electricidad').length).toBeGreaterThanOrEqual(1);
   });
 });

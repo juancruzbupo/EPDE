@@ -2,6 +2,7 @@ import { UserRole } from '@epde/shared';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { UserLookupRepository } from '../common/repositories/user-lookup.repository';
 import { DashboardRepository } from '../dashboard/dashboard.repository';
 import { ISVSnapshotRepository } from '../dashboard/isv-snapshot.repository';
 import { RedisService } from '../redis/redis.service';
@@ -33,6 +34,11 @@ const mockISVSnapshotRepository = {
   findLatestForProperties: jest.fn().mockResolvedValue([]),
 };
 
+const mockUserLookupRepository = {
+  findByIds: jest.fn().mockResolvedValue(new Map()),
+  findById: jest.fn(),
+};
+
 const adminUser = { id: 'admin-1', role: UserRole.ADMIN };
 const clientUser = { id: 'client-1', role: UserRole.CLIENT };
 const otherClient = { id: 'client-2', role: UserRole.CLIENT };
@@ -61,6 +67,7 @@ describe('PropertiesService', () => {
         { provide: PropertiesRepository, useValue: mockPropertiesRepository },
         { provide: DashboardRepository, useValue: mockDashboardRepository },
         { provide: ISVSnapshotRepository, useValue: mockISVSnapshotRepository },
+        { provide: UserLookupRepository, useValue: mockUserLookupRepository },
         { provide: RedisService, useValue: { get: jest.fn(), set: jest.fn(), del: jest.fn() } },
       ],
     }).compile();

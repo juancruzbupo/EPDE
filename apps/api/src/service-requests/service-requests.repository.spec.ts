@@ -107,6 +107,13 @@ describe('ServiceRequestsRepository', () => {
           },
           photos: true,
           attachments: true,
+          assignment: {
+            include: {
+              professional: {
+                include: { specialties: { where: { isPrimary: true }, take: 1 } },
+              },
+            },
+          },
         },
       });
     });

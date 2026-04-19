@@ -94,7 +94,9 @@ describe('PlansPage', () => {
     const user = userEvent.setup();
     render(<PlansPage />);
 
-    expect(screen.getByText('No se pudieron cargar los planes')).toBeInTheDocument();
+    expect(screen.getAllByText('No se pudieron cargar los planes').length).toBeGreaterThanOrEqual(
+      1,
+    );
 
     await user.click(screen.getByText('Reintentar'));
     expect(refetch).toHaveBeenCalledTimes(1);
@@ -109,7 +111,9 @@ describe('PlansPage', () => {
     } as unknown as ReturnType<typeof usePlans>);
 
     render(<PlansPage />);
-    expect(screen.getByText('Sin planes')).toBeInTheDocument();
+    expect(screen.getAllByText(/Todavía no tenés un plan activo/i).length).toBeGreaterThanOrEqual(
+      1,
+    );
   });
 
   it('renders plans when data is available', () => {
@@ -126,9 +130,9 @@ describe('PlansPage', () => {
     } as unknown as ReturnType<typeof usePlans>);
 
     render(<PlansPage />);
-    expect(screen.getByText('Planes de Mantenimiento')).toBeInTheDocument();
-    expect(screen.getByText('Plan Casa Centro')).toBeInTheDocument();
-    expect(screen.getByText('Plan Departamento Norte')).toBeInTheDocument();
-    expect(screen.getByText('2 planes')).toBeInTheDocument();
+    expect(screen.getAllByText('Planes de Mantenimiento').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Plan Casa Centro').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Plan Departamento Norte').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('2 planes').length).toBeGreaterThanOrEqual(1);
   });
 });

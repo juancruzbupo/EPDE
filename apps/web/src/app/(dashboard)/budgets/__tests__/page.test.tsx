@@ -150,11 +150,9 @@ describe('BudgetsPage', () => {
     } as unknown as ReturnType<typeof useBudgets>);
 
     render(<BudgetsPage />);
-    expect(
-      screen.getByText(
-        'Todavía no tenés presupuestos. Se generan cuando solicitás un servicio profesional.',
-      ),
-    ).toBeInTheDocument();
+    // Empty message: use partial match — exact copy evoluciona, pero el
+    // anchor "Todavía no tenés presupuestos" es estable.
+    expect(screen.getAllByText(/Todavía no tenés presupuestos/i).length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders page title and budget data', () => {
@@ -174,7 +172,8 @@ describe('BudgetsPage', () => {
 
     render(<BudgetsPage />);
     expect(screen.getByText('Presupuestos')).toBeInTheDocument();
-    expect(screen.getByText('Reparación de Techos')).toBeInTheDocument();
-    expect(screen.getByText('Pintura Exterior')).toBeInTheDocument();
+    // Con mobile cards + desktop table, cada budget aparece 2 veces.
+    expect(screen.getAllByText('Reparación de Techos').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Pintura Exterior').length).toBeGreaterThanOrEqual(1);
   });
 });

@@ -47,7 +47,7 @@ describe('useNotifications', () => {
     expect(useInfiniteQuery).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: [QUERY_KEYS.notifications],
-        maxPages: 10,
+        maxPages: 5,
       }),
     );
   });

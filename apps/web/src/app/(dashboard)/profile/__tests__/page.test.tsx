@@ -25,6 +25,32 @@ vi.mock('@/lib/auth', () => ({
   changePassword: vi.fn(),
 }));
 
+vi.mock('../referrals-section', () => ({
+  ReferralsSection: () => null,
+}));
+
+vi.mock('../milestones-section', () => ({
+  MilestonesSection: () => null,
+}));
+
+vi.mock('../subscription-info', () => ({
+  SubscriptionInfo: () => null,
+}));
+
+vi.mock('@/stores/ui-preferences-store', () => ({
+  useUiPreferencesStore: vi.fn((selector: (s: unknown) => unknown) =>
+    selector({
+      fontScale: 'base',
+      setFontScale: vi.fn(),
+      motivationStyle: 'rewards',
+      setMotivationStyle: vi.fn(),
+      hiddenNotificationTypes: [],
+      toggleHiddenNotificationType: vi.fn(),
+    }),
+  ),
+  FONT_SCALE_LABELS: { sm: 'Pequeño', base: 'Normal', lg: 'Grande', xl: 'Extra grande' },
+}));
+
 vi.mock('@/components/ui/page-transition', () => ({
   PageTransition: ({ children }: React.PropsWithChildren) => <div>{children}</div>,
 }));
@@ -74,20 +100,20 @@ describe('ProfilePage', () => {
 
   it('renders user name and email', () => {
     render(<ProfilePage />);
-    expect(screen.getByText('Juan García')).toBeInTheDocument();
-    expect(screen.getByText('juan@epde.ar')).toBeInTheDocument();
+    expect(screen.getAllByText('Juan García').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('juan@epde.ar').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders user phone and role', () => {
     render(<ProfilePage />);
-    expect(screen.getByText('+5491112345678')).toBeInTheDocument();
-    expect(screen.getByText('Cliente')).toBeInTheDocument();
+    expect(screen.getAllByText('+5491112345678').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Cliente').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders edit profile form', () => {
     render(<ProfilePage />);
-    expect(screen.getByText('Editar perfil')).toBeInTheDocument();
-    expect(screen.getByText('Guardar cambios')).toBeInTheDocument();
+    expect(screen.getAllByText('Editar perfil').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Guardar cambios').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders change password section', () => {
@@ -97,8 +123,8 @@ describe('ProfilePage', () => {
 
   it('shows password requirements', () => {
     render(<ProfilePage />);
-    expect(screen.getByText('Mínimo 8 caracteres')).toBeInTheDocument();
-    expect(screen.getByText('Al menos una mayúscula')).toBeInTheDocument();
-    expect(screen.getByText('Al menos un número')).toBeInTheDocument();
+    expect(screen.getAllByText('Mínimo 8 caracteres').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Al menos una mayúscula').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Al menos un número').length).toBeGreaterThanOrEqual(1);
   });
 });

@@ -126,7 +126,9 @@ describe('ClientsPage', () => {
     const user = userEvent.setup();
     render(<ClientsPage />);
 
-    expect(screen.getByText('No se pudieron cargar los clientes')).toBeInTheDocument();
+    expect(screen.getAllByText('No se pudieron cargar los clientes').length).toBeGreaterThanOrEqual(
+      1,
+    );
 
     await user.click(screen.getByText('Reintentar'));
     expect(refetch).toHaveBeenCalledTimes(1);
@@ -143,7 +145,7 @@ describe('ClientsPage', () => {
     } as unknown as ReturnType<typeof useClients>);
 
     render(<ClientsPage />);
-    expect(screen.getByText('No se encontraron clientes')).toBeInTheDocument();
+    expect(screen.getAllByText('No se encontraron clientes').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders page title and client data', () => {
@@ -162,8 +164,8 @@ describe('ClientsPage', () => {
     } as unknown as ReturnType<typeof useClients>);
 
     render(<ClientsPage />);
-    expect(screen.getByText('Clientes')).toBeInTheDocument();
-    expect(screen.getByText('María López')).toBeInTheDocument();
-    expect(screen.getByText('Carlos Pérez')).toBeInTheDocument();
+    expect(screen.getAllByText('Clientes').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('María López').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Carlos Pérez').length).toBeGreaterThanOrEqual(1);
   });
 });

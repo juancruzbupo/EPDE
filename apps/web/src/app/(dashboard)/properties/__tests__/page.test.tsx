@@ -133,7 +133,9 @@ describe('PropertiesPage', () => {
     const user = userEvent.setup();
     render(<PropertiesPage />);
 
-    expect(screen.getByText('No se pudieron cargar las propiedades')).toBeInTheDocument();
+    expect(
+      screen.getAllByText('No se pudieron cargar las propiedades').length,
+    ).toBeGreaterThanOrEqual(1);
 
     await user.click(screen.getByText('Reintentar'));
     expect(refetch).toHaveBeenCalledTimes(1);
@@ -150,7 +152,7 @@ describe('PropertiesPage', () => {
     } as unknown as ReturnType<typeof useProperties>);
 
     render(<PropertiesPage />);
-    expect(screen.getByText('No se encontraron propiedades')).toBeInTheDocument();
+    expect(screen.getAllByText('No se encontraron propiedades').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders page title and property data', () => {
@@ -169,8 +171,8 @@ describe('PropertiesPage', () => {
     } as unknown as ReturnType<typeof useProperties>);
 
     render(<PropertiesPage />);
-    expect(screen.getByText('Propiedades')).toBeInTheDocument();
-    expect(screen.getByText('Av. Corrientes 500')).toBeInTheDocument();
-    expect(screen.getByText('Calle Falsa 123')).toBeInTheDocument();
+    expect(screen.getAllByText('Propiedades').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Av. Corrientes 500').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Calle Falsa 123').length).toBeGreaterThanOrEqual(1);
   });
 });

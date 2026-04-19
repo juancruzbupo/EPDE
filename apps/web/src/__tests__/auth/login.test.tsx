@@ -34,10 +34,13 @@ describe('LoginPage', () => {
     expect(screen.getByRole('button', { name: 'Ingresar' })).toBeInTheDocument();
   });
 
-  it('shows validation errors for empty fields on submit attempt', async () => {
+  it('shows validation errors for invalid fields on submit attempt', async () => {
     const user = userEvent.setup();
     render(<LoginPage />);
 
+    // HTML `required` blocks submit on empty — type invalid values so Zod runs.
+    await user.type(screen.getByLabelText('Email'), 'not-an-email');
+    await user.type(screen.getByLabelText('Contraseña'), 'short');
     await user.click(screen.getByRole('button', { name: 'Ingresar' }));
 
     await waitFor(() => {

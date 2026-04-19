@@ -134,7 +134,9 @@ describe('ServiceRequestsPage', () => {
     const user = userEvent.setup();
     render(<ServiceRequestsPage />);
 
-    expect(screen.getByText('No se pudieron cargar las solicitudes')).toBeInTheDocument();
+    expect(
+      screen.getAllByText('No se pudieron cargar las solicitudes').length,
+    ).toBeGreaterThanOrEqual(1);
 
     await user.click(screen.getByText('Reintentar'));
     expect(refetch).toHaveBeenCalledTimes(1);
@@ -152,10 +154,8 @@ describe('ServiceRequestsPage', () => {
 
     render(<ServiceRequestsPage />);
     expect(
-      screen.getByText(
-        "Todavía no tenés solicitudes. Podés crear una desde el botón 'Nueva Solicitud' o desde el detalle de una tarea.",
-      ),
-    ).toBeInTheDocument();
+      screen.getAllByText(/Si detectás un problema en tu casa/i).length,
+    ).toBeGreaterThanOrEqual(1);
   });
 
   it('renders page title and service request data', () => {
@@ -178,8 +178,8 @@ describe('ServiceRequestsPage', () => {
     } as unknown as ReturnType<typeof useServiceRequests>);
 
     render(<ServiceRequestsPage />);
-    expect(screen.getByText('Solicitudes de Servicio')).toBeInTheDocument();
-    expect(screen.getByText('Reparación de cañería')).toBeInTheDocument();
-    expect(screen.getByText('Fuga de gas en cocina')).toBeInTheDocument();
+    expect(screen.getAllByText('Solicitudes de Servicio').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Reparación de cañería').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Fuga de gas en cocina').length).toBeGreaterThanOrEqual(1);
   });
 });
