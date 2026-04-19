@@ -2,7 +2,7 @@
 
 import { resetPasswordSchema } from '@epde/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff } from 'lucide-react';
+import { Check, Eye, EyeOff, X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -40,10 +40,24 @@ function ResetPasswordForm() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
+    mode: 'onTouched',
   });
+
+  // Checklist live de requisitos — ver set-password/page.tsx para el
+  // razonamiento (Carlos quiere saber qué le falta, Norma necesita
+  // confirmación visual antes de enviar).
+  const password = watch('newPassword') ?? '';
+  const rules = [
+    { label: 'Mínimo 8 caracteres', ok: password.length >= 8 },
+    { label: 'Al menos una mayúscula', ok: /[A-Z]/.test(password) },
+    { label: 'Al menos una minúscula', ok: /[a-z]/.test(password) },
+    { label: 'Al menos un número', ok: /\d/.test(password) },
+  ];
+  const allRulesOk = rules.every((r) => r.ok);
 
   async function onSubmit(data: FormData) {
     setError(null);
@@ -99,11 +113,22 @@ function ResetPasswordForm() {
                   {errors.newPassword.message}
                 </p>
               )}
-              <ul className="text-muted-foreground type-body-sm space-y-1">
-                <li>Mínimo 8 caracteres</li>
-                <li>Al menos una mayúscula</li>
-                <li>Al menos una minúscula</li>
-                <li>Al menos un número</li>
+              <ul className="type-body-sm space-y-1" aria-label="Requisitos de la contraseña">
+                {rules.map((rule) => (
+                  <li
+                    key={rule.label}
+                    className={`flex items-center gap-2 ${
+                      rule.ok ? 'text-success' : 'text-muted-foreground'
+                    }`}
+                  >
+                    {rule.ok ? (
+                      <Check className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                    ) : (
+                      <X className="h-3.5 w-3.5 shrink-0 opacity-50" aria-hidden="true" />
+                    )}
+                    <span>{rule.label}</span>
+                  </li>
+                ))}
               </ul>
             </div>
 
@@ -149,7 +174,11 @@ function ResetPasswordForm() {
               </p>
             )}
 
-            <Button type="submit" className="w-full" disabled={isLoading || !hasToken}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading || !hasToken || !allRulesOk}
+            >
               {isLoading ? 'Actualizando...' : 'Restablecer Contraseña'}
             </Button>
           </form>

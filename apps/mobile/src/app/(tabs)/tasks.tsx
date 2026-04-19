@@ -376,7 +376,18 @@ export default function TasksScreen() {
               ))}
             </ScrollView>
 
-            {/* Property filter — only shown when >1 property */}
+            {/* Property filter — only shown when >1 property.
+                FirstTimeBanner: cuando Jorge (inversor con múltiples
+                propiedades) suma la segunda, el filtro aparece sin
+                explicación. El banner one-shot le dice para qué sirve. */}
+            {propertyOptions.length > 1 && (
+              <FirstTimeBanner
+                id="tasks-property-filter"
+                title="Filtrá tareas por propiedad"
+                message="Tocá una propiedad para ver solo sus tareas. Seleccioná 'Todas' para ver el conjunto."
+                emoji="🏠"
+              />
+            )}
             {propertyOptions.length > 1 && (
               <ScrollView
                 horizontal

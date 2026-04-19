@@ -74,36 +74,45 @@ export function WelcomeCard({
           {completedSteps} de {steps.length} completados
         </p>
 
-        <div className="flex flex-wrap gap-2">
+        {/* Jerarquía de CTAs: el primary corresponde al step activo y
+         *  ocupa full-width en mobile para que Mariana (38, mobile-first
+         *  e impaciente) sepa sin dudar qué tocar. Los secundarios viven
+         *  debajo con tipografía más chica, separados visualmente. */}
+        <div className="flex flex-col gap-3">
           {hasProperties ? (
-            <Button asChild size="sm">
+            <Button asChild size="default" className="w-full sm:w-auto">
               <Link href={ROUTES.properties}>
                 <Home className="mr-2 h-4 w-4" />
                 Ver mi propiedad
               </Link>
             </Button>
           ) : (
-            <Button asChild size="sm" variant="outline" disabled>
+            <Button asChild size="default" variant="outline" disabled className="w-full sm:w-auto">
               <span>
                 <Home className="mr-2 h-4 w-4" />
                 Esperando registro de propiedad
               </span>
             </Button>
           )}
-          {hasActivePlan && (
-            <Button asChild size="sm" variant="outline">
-              <Link href={ROUTES.tasks}>
-                <ListChecks className="mr-2 h-4 w-4" />
+
+          <div className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1">
+            {hasActivePlan && (
+              <Link
+                href={ROUTES.tasks}
+                className="hover:text-foreground inline-flex items-center gap-1.5 text-sm underline-offset-4 hover:underline"
+              >
+                <ListChecks className="h-3.5 w-3.5" />
                 Ver tareas
               </Link>
-            </Button>
-          )}
-          <Button asChild size="sm" variant="outline">
-            <Link href={ROUTES.guide}>
-              <HelpCircle className="mr-2 h-4 w-4" />
+            )}
+            <Link
+              href={ROUTES.guide}
+              className="hover:text-foreground inline-flex items-center gap-1.5 text-sm underline-offset-4 hover:underline"
+            >
+              <HelpCircle className="h-3.5 w-3.5" />
               Guía de uso
             </Link>
-          </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
