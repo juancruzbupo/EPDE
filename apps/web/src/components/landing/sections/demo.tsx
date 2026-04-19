@@ -26,8 +26,8 @@ export function DemoSection({ motionProps }: SectionProps) {
             variants={FADE_IN}
             className="type-body-lg text-muted-foreground mx-auto mt-4 max-w-2xl"
           >
-            El sistema EPDE te muestra el estado de tu vivienda, las tareas pendientes y te avisa
-            cuándo actuar.
+            El sistema EPDE te muestra el estado de tu casa, las tareas pendientes y te avisa cuándo
+            actuar.
           </motion.p>
         </div>
 
@@ -43,7 +43,7 @@ export function DemoSection({ motionProps }: SectionProps) {
                 Video de demostración
               </p>
               <p className="type-body-sm text-muted-foreground/70 max-w-sm text-center">
-                Noelia mostrando cómo funciona el sistema con una vivienda real — 60 segundos
+                Noelia mostrando el sistema con una casa real
               </p>
             </div>
           </div>
@@ -55,9 +55,9 @@ export function DemoSection({ motionProps }: SectionProps) {
           className="mx-auto mt-10 grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3"
         >
           {[
-            { label: 'Dashboard de salud', desc: 'Puntaje ISV de tu vivienda' },
-            { label: 'Tareas programadas', desc: 'Qué hacer y cuándo hacerlo' },
-            { label: 'Alertas automáticas', desc: 'Notificaciones en tu celular' },
+            { label: 'Panel de salud', desc: 'Puntaje ISV de tu casa (0 al 100)' },
+            { label: 'Tareas agendadas', desc: 'Qué hacer y cuándo hacerlo' },
+            { label: 'Alertas automáticas', desc: 'Avisos en tu celular' },
           ].map((item) => (
             <div key={item.label} className="flex items-start gap-3 rounded-xl p-3">
               <div className="bg-primary/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">

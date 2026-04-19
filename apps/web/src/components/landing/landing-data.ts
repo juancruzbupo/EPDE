@@ -137,79 +137,79 @@ export const CONSEQUENCE_EXAMPLES: ConsequenceExample[] = [
 ];
 
 export const SOLUTION_POINTS: IconTextItem[] = [
-  { icon: Search, text: 'Diagnostica el estado real de tu vivienda' },
+  { icon: Search, text: 'Diagnostica el estado real de tu casa' },
   { icon: ClipboardList, text: 'Organiza todo el mantenimiento que necesita' },
   { icon: Shield, text: 'Te ayuda a prevenir problemas antes de que aparezcan' },
-  { icon: BarChart3, text: 'Te guía con datos para tomar mejores decisiones' },
+  { icon: BarChart3, text: 'Te da datos claros para tomar mejores decisiones' },
 ];
 
 export const STEPS: Step[] = [
   {
     number: '01',
     icon: Search,
-    title: 'Relevamos tu vivienda',
+    title: 'Visitamos tu casa',
     description:
-      'Diagnóstico profesional completo: estructura, instalaciones, envolvente y estado general. Toda la información se carga en el sistema.',
+      'La arquitecta recorre y documenta todo: estructura, instalaciones (agua, luz, gas), paredes, techos y estado general. Cargamos la información en el sistema.',
   },
   {
     number: '02',
     icon: BarChart3,
     title: 'Analizamos el estado real',
     description:
-      'Calculamos el Índice de Salud de la Vivienda (ISV): un indicador claro del estado actual y las prioridades de intervención.',
+      'Calculamos el ISV (Índice de Salud de tu Vivienda): un puntaje del 0 al 100 que muestra de un vistazo cómo está tu casa y qué conviene hacer primero.',
   },
   {
     number: '03',
     icon: ClipboardList,
     title: 'Organizamos todo el mantenimiento',
     description:
-      'El sistema te dice qué hacer y cuándo hacerlo. Tareas programadas, recordatorios automáticos y seguimiento continuo.',
+      'El sistema te avisa qué hacer y cuándo. Tareas agendadas, recordatorios automáticos y seguimiento continuo mes a mes.',
   },
 ];
 
 export const SYSTEM_FEATURES: IconTextItem[] = [
-  { icon: BarChart3, text: 'Dashboard de estado de la vivienda' },
-  { icon: ClipboardList, text: 'Historial de intervenciones' },
+  { icon: BarChart3, text: 'Panel con el estado general de tu casa' },
+  { icon: ClipboardList, text: 'Historial de trabajos realizados' },
   { icon: Bell, text: 'Alertas y recordatorios automáticos' },
-  { icon: Wrench, text: 'Tareas programadas de mantenimiento' },
-  { icon: Smartphone, text: 'Acceso web y mobile' },
-  { icon: Search, text: 'Seguimiento del ISV mes a mes' },
+  { icon: Wrench, text: 'Tareas de mantenimiento agendadas' },
+  { icon: Smartphone, text: 'Acceso desde computadora o celular' },
+  { icon: Search, text: 'Seguimiento del puntaje ISV mes a mes' },
 ];
 
 export const INVESTMENT_FEATURES = [
-  'Diagnóstico inicial completo de la vivienda',
+  'Diagnóstico inicial completo de tu casa (visita + análisis)',
   'Informe técnico imprimible',
-  'Índice de Salud de la Vivienda (ISV)',
+  'Puntaje ISV (Índice de Salud de tu Vivienda, del 0 al 100)',
   'Plan de mantenimiento preventivo',
-  'Detección de riesgos y tareas críticas',
+  'Detección de riesgos y tareas urgentes',
   'Recomendaciones técnicas',
   'Acceso al sistema EPDE',
 ];
 
 export const TARGET_PROFILES = [
-  'Propietarios que quieren cuidar su casa sin tener que entender de construcción',
+  'Propietarios que quieren cuidar su casa sin tener que saber de construcción',
   'Familias que prefieren prevenir antes que reparar de urgencia',
-  'Inversores que necesitan proteger el valor de sus propiedades',
-  'Personas ocupadas que buscan delegar el seguimiento de su vivienda',
+  'Quienes tienen más de una propiedad y quieren proteger su valor',
+  'Personas ocupadas que no quieren estar encima del mantenimiento',
 ];
 
 export const CREDENTIALS: IconTextItem[] = [
   { icon: Award, text: 'Arquitecta matriculada' },
-  { icon: Search, text: 'Especialista en patologías edilicias' },
-  { icon: Home, text: 'Foco en viviendas residenciales' },
-  { icon: ClipboardList, text: 'Cada diagnóstico realizado personalmente' },
+  { icon: Search, text: 'Especialista en fallas y deterioros de vivienda' },
+  { icon: Home, text: 'Enfocada en casas y departamentos' },
+  { icon: ClipboardList, text: 'Cada diagnóstico lo hago yo' },
 ];
 
 export const COMPARISON_ROWS: ComparisonRow[] = [
   {
-    aspect: 'Cuándo se actúa',
+    aspect: 'Cuándo intervenir',
     traditional: 'Cuando algo se rompe',
     epde: 'Antes de que ocurra',
   },
   {
     aspect: 'Costo típico',
-    traditional: 'Reparaciones de emergencia caras',
-    epde: 'Intervenciones preventivas económicas',
+    traditional: 'Reparaciones de urgencia caras',
+    epde: 'Trabajos preventivos de bajo costo',
   },
   {
     aspect: 'Planificación',
@@ -219,11 +219,11 @@ export const COMPARISON_ROWS: ComparisonRow[] = [
   {
     aspect: 'Seguimiento',
     traditional: 'No existe',
-    epde: 'Dashboard digital con historial e ISV',
+    epde: 'Panel digital con historial y puntaje ISV',
   },
   {
     aspect: 'Criterio técnico',
-    traditional: 'Se consulta al albañil cuando ya hay daño',
+    traditional: 'Se busca un profesional cuando ya hay daño',
     epde: 'Diagnóstico profesional desde el día uno',
   },
 ];
@@ -235,13 +235,13 @@ export const COMPARISON_ROWS: ComparisonRow[] = [
 export const LAUNCH_PRICE = '$35.000';
 
 export const PRICE_NOTE =
-  'Válido para viviendas de tamaño estándar. Casas grandes o complejas pueden requerir evaluación adicional.';
+  'Válido para casas de tamaño estándar. Propiedades muy grandes o con accesos complicados pueden requerir una cotización especial.';
 
 export const SUBSCRIPTION_MICROCOPY =
-  'Luego podés continuar con el monitoreo mensual si querés seguir manteniendo tu casa bajo control.';
+  'Pasados los 6 meses, podés continuar con un plan mensual opcional si querés seguir con el seguimiento. No es obligatorio.';
 
 export const COST_DISCLAIMER =
-  'Costos estimados en base a valores promedio de mercado en Paraná actualizados a marzo 2026. Los valores pueden variar según cada caso.';
+  'Costos estimados a partir de valores promedio del mercado en Paraná (Entre Ríos), actualizados a abril 2026. Los valores finales pueden variar según cada caso.';
 
 // ---------------------------------------------------------------------------
 // CTA labels (unified across sections)

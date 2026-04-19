@@ -28,12 +28,12 @@ export function Footer({ general }: FooterProps) {
               Alcance del servicio
             </p>
             <p className="type-body-sm text-muted-foreground/70 max-w-3xl">
-              EPDE realiza un diagnóstico edilicio basado en inspección visual con fines
+              EPDE realiza un diagnóstico de vivienda basado en inspección visual, con fines
               informativos y preventivos. No reemplaza estudios técnicos especializados (como
               análisis estructural o de suelos) ni garantiza la detección de todos los problemas
-              existentes o futuros. Los trabajos de inspección, reparación o mejora se presupuestan
-              y contratan de forma independiente al diagnóstico inicial. Las decisiones tomadas a
-              partir del informe son responsabilidad del propietario.
+              existentes o futuros. Las reparaciones o mejoras se cotizan y contratan por separado,
+              independientemente del diagnóstico inicial. Las decisiones que tome el propietario a
+              partir del informe son de su responsabilidad.
             </p>
           </div>
 
@@ -42,7 +42,7 @@ export function Footer({ general }: FooterProps) {
             <div>
               <span className="font-heading text-primary text-lg">EPDE</span>
               <p className="type-body-sm text-foreground/70 mt-0.5 font-medium">
-                Tu casa, bajo control.
+                Tu casa, siempre cuidada.
               </p>
               <p className="type-body-sm text-muted-foreground mt-0.5">
                 por Arq. Noelia E. Yuskowich

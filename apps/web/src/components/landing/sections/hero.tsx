@@ -7,7 +7,7 @@ import { FADE_IN, FADE_IN_UP, STAGGER_CONTAINER } from '@/lib/motion';
 import type { SectionProps } from '../landing-data';
 import { PRIMARY_CTA_LABEL, WHATSAPP_URL } from '../landing-data';
 
-const DEFAULT_SOCIAL_PROOF = 'Ya estamos trabajando con las primeras viviendas en Paraná';
+const DEFAULT_SOCIAL_PROOF = 'Ya trabajamos con las primeras casas de Paraná (Entre Ríos)';
 
 interface HeroSectionProps extends SectionProps {
   socialProof?: string;
@@ -23,7 +23,7 @@ export function HeroSection({ motionProps, socialProof }: HeroSectionProps) {
       >
         {/* What is EPDE — immediate clarity */}
         <motion.p variants={FADE_IN} className="type-body-md text-primary mb-4 font-medium">
-          Diagnóstico profesional + plan de mantenimiento para tu vivienda
+          Diagnóstico profesional + plan de mantenimiento para tu casa
         </motion.p>
 
         <motion.h1
@@ -39,8 +39,9 @@ export function HeroSection({ motionProps, socialProof }: HeroSectionProps) {
           variants={FADE_IN}
           className="type-body-lg text-foreground/80 mx-auto mt-6 max-w-2xl font-medium"
         >
-          Una arquitecta diagnostica el estado de tu vivienda, detecta problemas ocultos y te arma
-          un plan claro de mantenimiento. Vos decidís, nosotros hacemos el seguimiento.
+          Una arquitecta recorre tu casa, detecta problemas ocultos y te arma un plan claro de
+          mantenimiento. Vos decidís qué hacer y cuándo; nosotros te avisamos y llevamos el
+          registro.
         </motion.p>
 
         <motion.div

@@ -8,21 +8,21 @@ import type { SectionProps } from '../landing-data';
 const BENEFITS = [
   {
     icon: ShieldCheck,
-    title: 'Demostrá cuidado',
+    title: 'Demostrás que la cuidaste',
     description:
-      'Evidencia tangible de que tu vivienda está mantenida profesionalmente, no abandonada.',
+      'Es una prueba en papel de que tu casa estuvo mantenida profesionalmente, no abandonada.',
   },
   {
     icon: TrendingUp,
-    title: 'Argumento de venta',
+    title: 'Te ayuda a vender mejor',
     description:
-      'Funciona como historial de servicio de un auto: suma confianza al comprador y justifica precio.',
+      'Funciona como el historial de service de un auto: suma confianza al comprador y te ayuda a defender el precio.',
   },
   {
     icon: FileCheck,
     title: 'Historial documentado',
     description:
-      'Registro útil ante inmobiliarias y compradores para mostrar el estado declarado de la vivienda con contexto.',
+      'Registro útil ante inmobiliarias y compradores para mostrar el estado real de tu casa con contexto.',
   },
 ];
 
@@ -48,9 +48,9 @@ export function CertificateSection({ motionProps }: SectionProps) {
           variants={FADE_IN_UP}
           className="text-muted-foreground mt-4 max-w-2xl text-lg leading-relaxed"
         >
-          Después de 1 año de mantenimiento continuo y con un Índice de Salud (ISV) mayor a 60,
-          emitimos una constancia firmada por la arquitecta responsable. Es un registro profesional
-          sostenido en el tiempo del cuidado dado a tu vivienda.
+          Después de 1 año de mantenimiento continuo, y con un puntaje ISV mayor a 60, te emitimos
+          una constancia firmada por la arquitecta. Es un registro profesional del cuidado que le
+          diste a tu casa a lo largo del tiempo.
         </motion.p>
 
         <motion.div variants={FADE_IN_UP} className="mt-10 grid gap-5 sm:grid-cols-3">
@@ -68,10 +68,11 @@ export function CertificateSection({ motionProps }: SectionProps) {
           className="border-border/60 bg-background/60 mt-8 rounded-lg border-l-2 p-4 text-sm"
         >
           <p className="text-muted-foreground leading-relaxed">
-            <strong className="text-foreground">Aclaración honesta:</strong> es un documento
-            privado. <strong>No reemplaza</strong> los certificados oficiales que pide un banco para
-            crédito hipotecario, una aseguradora para póliza de hogar, o una escribanía en la
-            compraventa. Sirve como respaldo complementario — como el historial de un auto.
+            <strong className="text-foreground">Para ser claros:</strong> este certificado es un
+            documento privado. <strong>No reemplaza</strong> los certificados oficiales que pide un
+            banco para crédito hipotecario, una aseguradora para el seguro de hogar o una escribanía
+            al momento de la compraventa. Sirve como respaldo adicional — como el historial de
+            service de un auto.
           </p>
         </motion.div>
       </motion.div>

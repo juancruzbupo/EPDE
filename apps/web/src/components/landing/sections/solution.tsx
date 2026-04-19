@@ -26,9 +26,8 @@ export function SolutionSection({ motionProps }: SectionProps) {
             variants={FADE_IN}
             className="type-body-lg text-muted-foreground mx-auto mt-4 max-w-2xl"
           >
-            No es una inspección técnica tradicional. No es un servicio de reparación. Es un sistema
-            profesional que te muestra el estado real de tu vivienda y te ayuda a mantenerla bajo
-            control con seguimiento continuo.
+            Es un sistema de prevención continuo: una arquitecta diagnostica el estado real de tu
+            casa, y el sistema te acompaña mes a mes para que nada quede olvidado.
           </motion.p>
         </div>
 

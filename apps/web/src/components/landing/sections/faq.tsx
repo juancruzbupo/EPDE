@@ -11,23 +11,23 @@ import type { SectionProps } from '../landing-data';
 const FAQS = [
   {
     q: '¿Cuánto dura la visita?',
-    a: 'Entre 2 y 4 horas según la vivienda. El informe completo se entrega en 48-72 horas.',
+    a: 'Entre 2 y 4 horas según la casa. El informe completo lo recibís en 48 a 72 horas.',
   },
   {
-    q: '¿Tengo que estar presente?',
-    a: 'Sí, para poder comentar el estado de la vivienda y resolver dudas en el momento.',
+    q: '¿Tengo que estar presente durante la visita?',
+    a: 'Sí, para que puedas contarnos el estado real de tu casa y resolver dudas en el momento.',
   },
   {
     q: '¿Incluye reparaciones?',
-    a: 'No. EPDE diagnostica y organiza. Las intervenciones se cotizan aparte desde la plataforma.',
+    a: 'No. EPDE diagnostica y organiza todo, pero las reparaciones se cotizan aparte y las podés contratar por otro lado o a través de la plataforma.',
   },
   {
-    q: '¿Qué pasa después de los 6 meses?',
-    a: 'Podés renovar la suscripción y seguir usando el sistema. El informe inicial es tuyo para siempre.',
+    q: '¿Qué pasa después de los 6 meses de acceso?',
+    a: 'Podés seguir con un plan mensual opcional para continuar con el seguimiento. El informe inicial queda tuyo para siempre, aunque no renueves.',
   },
   {
     q: '¿Sirve para departamentos?',
-    a: 'Sí. Casas, departamentos, dúplex y casas de campo. Adaptamos el diagnóstico a cada tipo.',
+    a: 'Sí. Sirve para casas, departamentos, dúplex y casas de campo. Adaptamos el diagnóstico a cada tipo de propiedad.',
   },
 ];
 

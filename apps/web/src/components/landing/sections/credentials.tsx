@@ -26,9 +26,9 @@ export function CredentialsSection({ motionProps }: SectionProps) {
           variants={FADE_IN_UP}
           className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
         >
-          Criterio profesional,
+          Cada casa la analiza
           <br />
-          <span className="text-muted-foreground">no un algoritmo.</span>
+          <span className="text-muted-foreground">una arquitecta matriculada.</span>
         </motion.h2>
 
         <div className="mt-10 flex flex-col gap-8 md:flex-row md:items-start md:gap-12">
@@ -49,25 +49,27 @@ export function CredentialsSection({ motionProps }: SectionProps) {
           <motion.div variants={SLIDE_IN_RIGHT} className="space-y-4">
             <div>
               <p className="type-body-lg text-foreground">
-                Soy <span className="font-medium">Noelia E. Yuskowich</span>, arquitecta. Creé EPDE
-                porque no existía un sistema profesional de prevención para viviendas residenciales.
+                Soy <span className="font-medium">Noelia E. Yuskowich</span>, arquitecta matriculada
+                (habilitada por el Colegio de Arquitectos para firmar planos e informes oficiales).
+                Creé EPDE porque no existía un sistema profesional de prevención pensado para casas
+                y departamentos particulares.
               </p>
               <div className="text-muted-foreground mt-2 flex flex-wrap gap-x-3 gap-y-1">
                 <span className="type-body-sm">Arquitecta</span>
                 <span className="type-body-sm text-border">|</span>
-                <span className="type-body-sm">Diagnóstico edilicio</span>
+                <span className="type-body-sm">Diagnóstico de viviendas</span>
                 <span className="type-body-sm text-border">|</span>
-                <span className="type-body-sm">Evaluación de patologías constructivas</span>
+                <span className="type-body-sm">Análisis de fallas y deterioros</span>
               </div>
             </div>
             <p className="type-body-md text-muted-foreground">
-              Cada diagnóstico lo realizo personalmente con criterio arquitectónico, adaptado a cada
-              vivienda. Sin checklists genéricos.
+              Cada diagnóstico lo hago yo personalmente, adaptándolo a cada casa. Nada de listas
+              genéricas.
             </p>
 
             <p className="type-body-sm text-primary/70 font-medium">
-              Sistema desarrollado a partir de años de experiencia en diagnóstico edilicio y
-              validado con propietarios reales en Paraná.
+              Método afinado con los primeros clientes de Paraná y años de experiencia
+              diagnosticando viviendas.
             </p>
 
             <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-2">

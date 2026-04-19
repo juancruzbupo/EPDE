@@ -46,11 +46,11 @@ export function ConsequenceSection({
               <h3 className="type-title-md text-foreground">{example.problem}</h3>
               <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="bg-success/5 rounded-lg px-3 py-2">
-                  <p className="type-body-sm text-muted-foreground">Detectado a tiempo</p>
+                  <p className="type-body-sm text-muted-foreground">Si se arregla a tiempo</p>
                   <p className="type-body-md text-success font-semibold">{example.preventive}</p>
                 </div>
                 <div className="bg-destructive/5 rounded-lg px-3 py-2">
-                  <p className="type-body-sm text-muted-foreground">Sin prevención</p>
+                  <p className="type-body-sm text-muted-foreground">Si se descubre tarde</p>
                   <p className="type-body-md text-destructive font-semibold">{example.emergency}</p>
                 </div>
               </div>

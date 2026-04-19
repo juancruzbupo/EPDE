@@ -38,7 +38,7 @@ export function InvestmentSection({ motionProps, pricing }: InvestmentSectionPro
             variants={FADE_IN_UP}
             className="font-heading text-foreground mt-4 text-3xl tracking-tight sm:text-4xl"
           >
-            Todo esto por un pago único.
+            Todo esto, por un solo pago al empezar.
           </motion.h2>
         </div>
 
@@ -63,7 +63,7 @@ export function InvestmentSection({ motionProps, pricing }: InvestmentSectionPro
             </div>
             <div className="border-border space-y-2 border-t pt-4">
               <p className="type-body-sm text-foreground/80">
-                Incluye acceso al sistema EPDE por 6 meses.
+                Incluye 6 meses de acceso al sistema EPDE (sin cargo adicional).
               </p>
               <p className="type-body-sm text-muted-foreground">{subscriptionMicrocopy}</p>
             </div>
@@ -74,7 +74,9 @@ export function InvestmentSection({ motionProps, pricing }: InvestmentSectionPro
             variants={FADE_IN_UP}
             className="border-primary/20 bg-primary/[0.03] rounded-2xl border-2 p-8 text-center"
           >
-            <p className="type-label-md text-primary tracking-widest uppercase">Pago único</p>
+            <p className="type-label-md text-primary tracking-widest uppercase">
+              Un solo pago al empezar
+            </p>
             <p className="type-body-md text-muted-foreground mt-4">
               <span className="line-through">$120.000</span>{' '}
               <span className="type-body-sm">(valor de mercado)</span>
@@ -102,7 +104,7 @@ export function InvestmentSection({ motionProps, pricing }: InvestmentSectionPro
           variants={FADE_IN}
           className="type-body-sm text-muted-foreground mx-auto mt-8 max-w-md text-center"
         >
-          ¿Tenés más de una propiedad? Consultanos por planes multi-vivienda.
+          ¿Tenés más de una propiedad? Consultanos por un plan adaptado.
         </motion.p>
       </motion.div>
     </section>

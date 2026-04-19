@@ -51,12 +51,12 @@ describe('LandingPage smoke test', () => {
   });
 
   it('renders hero subtitle', () => {
-    const matches = screen.getAllByText(/arquitecta diagnostica el estado de tu vivienda/i);
+    const matches = screen.getAllByText(/Una arquitecta recorre tu casa/i);
     expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders social proof badge', () => {
-    expect(screen.getByText(/primeras viviendas en Paraná/i)).toBeInTheDocument();
+    expect(screen.getByText(/primeras casas de Paraná/i)).toBeInTheDocument();
   });
 
   it('renders unified CTA label', () => {
@@ -74,7 +74,7 @@ describe('LandingPage smoke test', () => {
   });
 
   it('renders how it works with 3 steps', () => {
-    expect(screen.getByText(/Relevamos tu vivienda/i)).toBeInTheDocument();
+    expect(screen.getByText(/Visitamos tu casa/i)).toBeInTheDocument();
     expect(screen.getByText(/Analizamos el estado real/i)).toBeInTheDocument();
     const matches = screen.getAllByText(/Organizamos todo el mantenimiento/i);
     expect(matches.length).toBeGreaterThanOrEqual(1);
@@ -108,7 +108,7 @@ describe('LandingPage smoke test', () => {
   });
 
   it('renders cost disclaimer', () => {
-    const disclaimers = screen.getAllByText(/Costos estimados en base a valores promedio/i);
+    const disclaimers = screen.getAllByText(/Costos estimados a partir de valores promedio/i);
     expect(disclaimers.length).toBeGreaterThanOrEqual(1);
   });
 });
