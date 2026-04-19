@@ -2,8 +2,9 @@
 
 import { DAILY_TIPS, QUERY_KEYS, WHATSAPP_CONTACT_NUMBER } from '@epde/shared';
 import { useQuery } from '@tanstack/react-query';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Briefcase } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { ActionList } from '@/components/action-list';
@@ -26,6 +27,7 @@ import { WelcomeCard } from '@/components/welcome-card';
 import { useClientDashboardStats, useClientUpcomingTasks } from '@/hooks/use-dashboard';
 import { useStreakFreeze } from '@/hooks/use-milestones';
 import { getClientAnalytics } from '@/lib/api/dashboard';
+import { ROUTES } from '@/lib/routes';
 import { useAuthStore } from '@/stores/auth-store';
 import { useUiPreferencesStore } from '@/stores/ui-preferences-store';
 
@@ -217,6 +219,20 @@ export function ClientDashboard({ userName }: { userName: string }) {
           />
         ) : null}
       </div>
+
+      {/* Portfolio CTA — solo para clientes con 2+ propiedades (Jorge
+          inversor). El dashboard muestra métricas agregadas de toda
+          la cartera; el portfolio da la vista comparativa por unidad. */}
+      {stats && stats.totalProperties > 1 && (
+        <div className="mb-4">
+          <Button asChild variant="outline" size="sm">
+            <Link href={ROUTES.portfolio}>
+              <Briefcase className="mr-2 h-4 w-4" />
+              Ver mi portfolio ({stats.totalProperties} propiedades)
+            </Link>
+          </Button>
+        </div>
+      )}
 
       {/* Tip of the day */}
       <div className="bg-muted/50 border-border/60 mb-4 flex items-start gap-2.5 rounded-lg border px-4 py-3">

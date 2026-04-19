@@ -36,6 +36,8 @@ export const ROUTES = {
   properties: '/properties',
   property: (id: string, options?: { tab?: string }) =>
     options?.tab ? `/properties/${id}?tab=${options.tab}` : `/properties/${id}`,
+  /** Vista comparativa para clientes con 2+ propiedades (persona D: Jorge inversor). */
+  portfolio: '/portfolio',
   propertyReport: (id: string) => `/properties/${id}/report`,
   propertyCertificate: (id: string) => `/properties/${id}/certificate`,
 
