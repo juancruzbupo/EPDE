@@ -2175,9 +2175,34 @@ export async function seedDemo(prisma: PrismaClient) {
         read: false,
         createdAt: daysAgo(10),
       },
+      {
+        userId: maria.id,
+        type: 'SYSTEM',
+        title: 'Certificado de mantenimiento emitido',
+        message:
+          'Emitimos el Certificado de Mantenimiento Preventivo de tu casa. Descargalo desde la vista de propiedad.',
+        read: false,
+        createdAt: daysAgo(2),
+      },
     ],
   });
-  console.log('  ✓ 4 notificaciones (2 no leídas)');
+  console.log('  ✓ 5 notificaciones (3 no leídas)');
+
+  // —— Certificado de Mantenimiento Preventivo para María ——
+  // María califica (ISV ≥60, plan ≥1 año de antigüedad). Sirve para
+  // testear el flujo de descarga + reutilización de certificate number +
+  // estado "elegible e issued" en el dashboard admin.
+  await prisma.certificateEmission.create({
+    data: {
+      certificateNumber: 1,
+      propertyId: mariaProp.id,
+      issuedBy: admin.id,
+      issuedAt: daysAgo(2),
+      healthIndexScore: 62,
+      pdfUrl: 'https://demo.epde.ar/certificates/CERT-0001-maria.pdf',
+    },
+  });
+  console.log('  ✓ 1 certificado de mantenimiento preventivo emitido');
 
   // ————————————————————————————————————————————————————————————————————————
   // USUARIO 2: CARLOS RODRÍGUEZ — Intermedio (6 meses)
@@ -2563,9 +2588,33 @@ export async function seedDemo(prisma: PrismaClient) {
         read: false,
         createdAt: daysAgo(7),
       },
+      {
+        userId: carlos.id,
+        type: 'SERVICE_UPDATE',
+        title: 'Solicitud asignada',
+        message: 'Tu solicitud fue asignada a un profesional de la red EPDE.',
+        read: false,
+        createdAt: daysAgo(2),
+      },
+      {
+        userId: carlos.id,
+        type: 'TASK_REMINDER',
+        title: 'Revisión anual del tablero eléctrico',
+        message: 'La revisión anual del tablero eléctrico está por vencer (próxima semana).',
+        read: false,
+        createdAt: daysAgo(1),
+      },
+      {
+        userId: carlos.id,
+        type: 'SYSTEM',
+        title: 'Cambios en tu plan',
+        message: 'Actualizamos tu plan de mantenimiento con 2 tareas nuevas recomendadas.',
+        read: true,
+        createdAt: daysAgo(15),
+      },
     ],
   });
-  console.log('  ✓ 2 notificaciones');
+  console.log('  ✓ 5 notificaciones (3 no leídas)');
 
   // ————————————————————————————————————————————————————————————————————————
   // USUARIO 3: LAURA FERNÁNDEZ — Nueva (1 mes)
@@ -3141,7 +3190,8 @@ export async function seedDemo(prisma: PrismaClient) {
   Sectores:     9 (asignados via CATEGORY_DEFAULT_SECTOR + overrides puntuales)
   ISV Snaps:    ${allSnapshotData.length} (María: ${mariaISVSnapshots.length}, Carlos: ${carlosISVSnapshots.length}, Laura: ${lauraISVSnapshots.length})
   Insp. Téc.:   3 (Carlos SALE pagada, María STRUCTURAL pendiente pago, Laura BASIC solicitada)
-  Notific.:     7
+  Notific.:     12 (María: 5/3-unread, Carlos: 5/3-unread, Laura: 0)
+  Certificados: 1 (María — CERT-0001, ISV 62, emitido hace 2 días)
 
   👤 María González  (maria.gonzalez@demo.com / Demo123!)
      Casa 1985, 18 meses de uso, historial rico, problemas reales
