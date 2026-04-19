@@ -12,20 +12,36 @@ import type {
   TaskStatus,
 } from './enums';
 
+/**
+ * Core admin stats — carga inmediata del dashboard. No incluye groups lazy-
+ * loaded. Ver `DashboardFinancial`, `DashboardOperational`, `DashboardPortfolio`.
+ */
 export interface DashboardStats {
   totalClients: number;
   totalProperties: number;
   overdueTasks: number;
   pendingBudgets: number;
   pendingServices: number;
-  technicalInspections: TechnicalInspectionsSummary;
   planLaunch: PlanLaunchTracking;
+}
+
+/** Financial pulse del admin (revenue + cobranza). Endpoint `/dashboard/financial`. */
+export interface DashboardFinancial {
   revenue: RevenueConsolidated;
   collections: CollectionsPending;
-  portfolioIsv: PortfolioIsvSummary;
-  certificates: CertificatesSummary;
+}
+
+/** Operativa del admin (inspecciones + profesionales + clientes en riesgo). */
+export interface DashboardOperational {
+  technicalInspections: TechnicalInspectionsSummary;
   professionals: ProfessionalsSummary;
   inactiveClients: InactiveClientsSummary;
+}
+
+/** Portfolio del admin (ISV + certificados). */
+export interface DashboardPortfolio {
+  portfolioIsv: PortfolioIsvSummary;
+  certificates: CertificatesSummary;
 }
 
 /**

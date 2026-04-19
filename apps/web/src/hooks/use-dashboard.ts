@@ -7,6 +7,9 @@ import {
   getClientDashboardStats,
   getClientUpcomingTasks,
   getDashboardActivity,
+  getDashboardFinancial,
+  getDashboardOperational,
+  getDashboardPortfolio,
   getDashboardStats,
 } from '@/lib/api/dashboard';
 
@@ -21,6 +24,33 @@ export function useAdminActivity() {
   return useQuery({
     queryKey: [QUERY_KEYS.dashboard, QUERY_KEYS.dashboardActivity],
     queryFn: ({ signal }) => getDashboardActivity(signal).then((r) => r.data),
+  });
+}
+
+/** Financial pulse — lazy-loaded. Ver ADR-012 + PR-B.4. */
+export function useAdminDashboardFinancial() {
+  return useQuery({
+    queryKey: [QUERY_KEYS.dashboard, 'financial'],
+    queryFn: ({ signal }) => getDashboardFinancial(signal).then((r) => r.data),
+    staleTime: 60_000,
+  });
+}
+
+/** Operativa (inspecciones + profesionales + churn) — lazy-loaded. */
+export function useAdminDashboardOperational() {
+  return useQuery({
+    queryKey: [QUERY_KEYS.dashboard, 'operational'],
+    queryFn: ({ signal }) => getDashboardOperational(signal).then((r) => r.data),
+    staleTime: 60_000,
+  });
+}
+
+/** ISV del portfolio + certificados — lazy-loaded. */
+export function useAdminDashboardPortfolio() {
+  return useQuery({
+    queryKey: [QUERY_KEYS.dashboard, 'portfolio'],
+    queryFn: ({ signal }) => getDashboardPortfolio(signal).then((r) => r.data),
+    staleTime: 60_000,
   });
 }
 

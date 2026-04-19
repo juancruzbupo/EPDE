@@ -6,6 +6,9 @@ import type {
   ApiResponse,
   ClientAnalytics,
   ClientDashboardStats,
+  DashboardFinancial,
+  DashboardOperational,
+  DashboardPortfolio,
   DashboardStats,
   UpcomingTask,
 } from '../types';
@@ -47,6 +50,23 @@ export function createDashboardQueries(apiClient: AxiosInstance) {
 
     async getDashboardStats(signal?: AbortSignal): Promise<ApiResponse<DashboardStats>> {
       const { data } = await apiClient.get('/dashboard/stats', { signal });
+      return data;
+    },
+
+    async getDashboardFinancial(signal?: AbortSignal): Promise<ApiResponse<DashboardFinancial>> {
+      const { data } = await apiClient.get('/dashboard/financial', { signal });
+      return data;
+    },
+
+    async getDashboardOperational(
+      signal?: AbortSignal,
+    ): Promise<ApiResponse<DashboardOperational>> {
+      const { data } = await apiClient.get('/dashboard/operational', { signal });
+      return data;
+    },
+
+    async getDashboardPortfolio(signal?: AbortSignal): Promise<ApiResponse<DashboardPortfolio>> {
+      const { data } = await apiClient.get('/dashboard/portfolio', { signal });
       return data;
     },
 

@@ -10,7 +10,14 @@ import { PageHeader } from '@/components/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAdminActivity, useAdminAnalytics, useAdminDashboardStats } from '@/hooks/use-dashboard';
+import {
+  useAdminActivity,
+  useAdminAnalytics,
+  useAdminDashboardFinancial,
+  useAdminDashboardOperational,
+  useAdminDashboardPortfolio,
+  useAdminDashboardStats,
+} from '@/hooks/use-dashboard';
 import { FADE_IN_UP, useMotionPreference } from '@/lib/motion';
 
 import { ActivityFeed } from './components/activity-feed';
@@ -39,6 +46,9 @@ export function AdminDashboard() {
     isError: activityError,
     refetch: refetchActivity,
   } = useAdminActivity();
+  const { data: financial } = useAdminDashboardFinancial();
+  const { data: operational } = useAdminDashboardOperational();
+  const { data: portfolio } = useAdminDashboardPortfolio();
   const [chartMonths, setChartMonths] = useState(6);
   const [analyticsTab, setAnalyticsTab] = useState('operational');
   // Defer analytics fetch until after stats + activity render (reduces FCP by ~2s)
@@ -90,38 +100,38 @@ export function AdminDashboard() {
         {stats && <AttentionNeeded stats={stats} />}
       </div>
 
-      {/* Level 2b: Revenue + Collections (financial pulse) */}
-      {(stats?.revenue || stats?.collections) && (
+      {/* Level 2b: Revenue + Collections (financial pulse — lazy) */}
+      {(financial?.revenue || financial?.collections) && (
         <div className="mb-6 grid gap-4 lg:grid-cols-2">
-          {stats?.revenue && <RevenueConsolidatedCard summary={stats.revenue} />}
-          {stats?.collections && <CollectionsPendingCard summary={stats.collections} />}
+          {financial?.revenue && <RevenueConsolidatedCard summary={financial.revenue} />}
+          {financial?.collections && <CollectionsPendingCard summary={financial.collections} />}
         </div>
       )}
 
       {/* Level 2c: Technical Inspections + Plan Launch (operational) */}
-      {(stats?.technicalInspections || stats?.planLaunch) && (
+      {(operational?.technicalInspections || stats?.planLaunch) && (
         <div className="mb-6 grid gap-4 lg:grid-cols-2">
-          {stats?.technicalInspections && (
-            <TechnicalInspectionsCard summary={stats.technicalInspections} />
+          {operational?.technicalInspections && (
+            <TechnicalInspectionsCard summary={operational.technicalInspections} />
           )}
           {stats?.planLaunch && <LaunchTrackingCard summary={stats.planLaunch} />}
         </div>
       )}
 
-      {/* Level 2d: Portfolio ISV health */}
-      {stats?.portfolioIsv && (
+      {/* Level 2d: Portfolio ISV health (lazy) */}
+      {portfolio?.portfolioIsv && (
         <div className="mb-6">
-          <PortfolioIsvCard summary={stats.portfolioIsv} />
+          <PortfolioIsvCard summary={portfolio.portfolioIsv} />
         </div>
       )}
 
-      {/* Level 2e: Operational extras (certificates, professionals, churn) */}
-      {stats?.certificates && stats?.professionals && stats?.inactiveClients && (
+      {/* Level 2e: Operational extras (lazy) */}
+      {portfolio?.certificates && operational?.professionals && operational?.inactiveClients && (
         <div className="mb-6">
           <OperationalExtrasCard
-            certificates={stats.certificates}
-            professionals={stats.professionals}
-            inactiveClients={stats.inactiveClients}
+            certificates={portfolio.certificates}
+            professionals={operational.professionals}
+            inactiveClients={operational.inactiveClients}
           />
         </div>
       )}

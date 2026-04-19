@@ -32,6 +32,33 @@ export class DashboardController {
     return { data };
   }
 
+  /**
+   * Financial pulse — revenue consolidado + cobranza pendiente. Lazy-loaded
+   * desde el frontend para no bloquear la carga inicial del dashboard.
+   */
+  @Get('financial')
+  @Roles(UserRole.ADMIN)
+  async getFinancial() {
+    const data = await this.dashboardService.getFinancial();
+    return { data };
+  }
+
+  /** Operational — inspecciones técnicas + profesionales + clientes en riesgo. */
+  @Get('operational')
+  @Roles(UserRole.ADMIN)
+  async getOperational() {
+    const data = await this.dashboardService.getOperational();
+    return { data };
+  }
+
+  /** Portfolio — ISV del stock + certificados de mantenimiento. */
+  @Get('portfolio')
+  @Roles(UserRole.ADMIN)
+  async getPortfolio() {
+    const data = await this.dashboardService.getPortfolio();
+    return { data };
+  }
+
   @Get('activity')
   @Roles(UserRole.ADMIN)
   async getRecentActivity() {

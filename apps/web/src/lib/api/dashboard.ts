@@ -8,6 +8,9 @@ export const {
   getClientUpcomingTasks,
   getClientAnalytics,
   getDashboardStats,
+  getDashboardFinancial,
+  getDashboardOperational,
+  getDashboardPortfolio,
   getDashboardActivity,
   getAdminAnalytics,
 } = queries;

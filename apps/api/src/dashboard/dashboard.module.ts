@@ -7,6 +7,9 @@ import { DashboardService } from './dashboard.service';
 import { DashboardStatsRepository } from './dashboard-stats.repository';
 import { HealthIndexRepository } from './health-index.repository';
 import { ISVSnapshotRepository } from './isv-snapshot.repository';
+import { FinancialQueriesRepository } from './queries/financial.repository';
+import { OperationalQueriesRepository } from './queries/operational.repository';
+import { PortfolioQueriesRepository } from './queries/portfolio.repository';
 
 @Module({
   controllers: [DashboardController],
@@ -17,6 +20,9 @@ import { ISVSnapshotRepository } from './isv-snapshot.repository';
     HealthIndexRepository,
     AnalyticsRepository,
     ISVSnapshotRepository,
+    FinancialQueriesRepository,
+    OperationalQueriesRepository,
+    PortfolioQueriesRepository,
   ],
   exports: [
     DashboardRepository,

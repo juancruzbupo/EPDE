@@ -5,9 +5,17 @@ import { Injectable, Logger } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
 import { DashboardRepository } from './dashboard.repository';
 import { DashboardStatsRepository } from './dashboard-stats.repository';
+import { FinancialQueriesRepository } from './queries/financial.repository';
+import { OperationalQueriesRepository } from './queries/operational.repository';
+import { PortfolioQueriesRepository } from './queries/portfolio.repository';
 
 const ANALYTICS_TTL = 300; // 5 minutes
 const RECENT_ACTIVITY_TTL = 60; // 1 minute — fresh enough for an activity feed, cheap to serve
+/**
+ * Bump this when a stats group's shape changes to force cache invalidation.
+ * PR-B.4 (abril 2026) replaced field-presence checks with versioned keys.
+ */
+const STATS_CACHE_VERSION = 'v1';
 
 @Injectable()
 export class DashboardService {
@@ -16,75 +24,95 @@ export class DashboardService {
   constructor(
     private readonly dashboardRepository: DashboardRepository,
     private readonly dashboardStatsRepository: DashboardStatsRepository,
+    private readonly financialQueries: FinancialQueriesRepository,
+    private readonly operationalQueries: OperationalQueriesRepository,
+    private readonly portfolioQueries: PortfolioQueriesRepository,
     private readonly redis: RedisService,
   ) {}
 
-  /** Admin overview stats (property/task/budget/service counts + inspections). Cached ${ANALYTICS_TTL}s. */
-  async getStats() {
-    const cacheKey = 'dashboard:admin:stats';
+  private async cached<T>(cacheKey: string, ttl: number, fetcher: () => Promise<T>): Promise<T> {
     try {
-      const cached = await this.redis.get(cacheKey);
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        // Invalidate stale cache missing new fields added in recent releases
-        if (
-          'technicalInspections' in parsed &&
-          'planLaunch' in parsed &&
-          'revenue' in parsed &&
-          'collections' in parsed &&
-          'portfolioIsv' in parsed &&
-          'certificates' in parsed &&
-          'professionals' in parsed &&
-          'inactiveClients' in parsed
-        )
-          return parsed;
-        await this.redis.del(cacheKey);
-      }
+      const hit = await this.redis.get(cacheKey);
+      if (hit) return JSON.parse(hit) as T;
     } catch {
       /* Redis unavailable */
     }
-
-    const [
-      core,
-      technicalInspections,
-      planLaunch,
-      revenue,
-      collections,
-      portfolioIsv,
-      certificates,
-      professionals,
-      inactiveClients,
-    ] = await Promise.all([
-      this.dashboardRepository.getAdminStats(),
-      this.dashboardStatsRepository.getTechnicalInspectionsSummary(),
-      this.dashboardStatsRepository.getPlanLaunchSummary(),
-      this.dashboardStatsRepository.getRevenueConsolidated(),
-      this.dashboardStatsRepository.getCollectionsPending(),
-      this.dashboardStatsRepository.getPortfolioIsvSummary(),
-      this.dashboardStatsRepository.getCertificatesSummary(),
-      this.dashboardStatsRepository.getProfessionalsSummary(),
-      this.dashboardStatsRepository.getInactiveClientsSummary(),
-    ]);
-
-    const result = {
-      ...core,
-      technicalInspections,
-      planLaunch,
-      revenue,
-      collections,
-      portfolioIsv,
-      certificates,
-      professionals,
-      inactiveClients,
-    };
-
+    const result = await fetcher();
     try {
-      await this.redis.setex(cacheKey, ANALYTICS_TTL, JSON.stringify(result));
+      await this.redis.setex(cacheKey, ttl, JSON.stringify(result));
     } catch {
       /* Redis unavailable */
     }
-
     return result;
+  }
+
+  /**
+   * Core admin stats (fast): counts + plan launch tracking.
+   * Dashboard lazy-loads the 3 grupos siguientes por separado para mejorar
+   * FCP — el core ya tiene el pulso del negocio en un solo round-trip.
+   */
+  async getStats() {
+    return this.cached(`dashboard:admin:stats:${STATS_CACHE_VERSION}`, ANALYTICS_TTL, async () => {
+      const [core, planLaunch] = await Promise.all([
+        this.dashboardRepository.getAdminStats(),
+        this.financialQueries.getPlanLaunchSummary(),
+      ]);
+      return { ...core, planLaunch };
+    });
+  }
+
+  /**
+   * Métricas financieras del admin: revenue consolidado + cobranza pendiente.
+   * Lazy-load — el dashboard puede renderizar el core sin bloquearse acá.
+   */
+  async getFinancial() {
+    return this.cached(
+      `dashboard:admin:financial:${STATS_CACHE_VERSION}`,
+      ANALYTICS_TTL,
+      async () => {
+        const [revenue, collections] = await Promise.all([
+          this.financialQueries.getRevenueConsolidated(),
+          this.financialQueries.getCollectionsPending(),
+        ]);
+        return { revenue, collections };
+      },
+    );
+  }
+
+  /**
+   * Métricas operativas del admin: inspecciones técnicas + profesionales +
+   * clientes inactivos (riesgo de churn).
+   */
+  async getOperational() {
+    return this.cached(
+      `dashboard:admin:operational:${STATS_CACHE_VERSION}`,
+      ANALYTICS_TTL,
+      async () => {
+        const [technicalInspections, professionals, inactiveClients] = await Promise.all([
+          this.operationalQueries.getTechnicalInspectionsSummary(),
+          this.operationalQueries.getProfessionalsSummary(),
+          this.operationalQueries.getInactiveClientsSummary(),
+        ]);
+        return { technicalInspections, professionals, inactiveClients };
+      },
+    );
+  }
+
+  /**
+   * Métricas del portfolio: ISV agregado + certificados de mantenimiento.
+   */
+  async getPortfolio() {
+    return this.cached(
+      `dashboard:admin:portfolio:${STATS_CACHE_VERSION}`,
+      ANALYTICS_TTL,
+      async () => {
+        const [portfolioIsv, certificates] = await Promise.all([
+          this.portfolioQueries.getPortfolioIsvSummary(),
+          this.portfolioQueries.getCertificatesSummary(),
+        ]);
+        return { portfolioIsv, certificates };
+      },
+    );
   }
 
   /** Recent activity feed (last 10 items). Cached ${RECENT_ACTIVITY_TTL}s — 5 aggregation
@@ -316,7 +344,7 @@ export class DashboardService {
       this.dashboardRepository.getCompletionRate(),
       this.dashboardRepository.getSlaMetrics(),
       this.dashboardRepository.getProblematicSectors(),
-      this.dashboardStatsRepository.getTechnicalInspectionCycleMetrics(),
+      this.operationalQueries.getTechnicalInspectionCycleMetrics(),
     ]);
 
     const result: AdminAnalytics = {
