@@ -37,26 +37,41 @@ function SubscriptionWarningBanner() {
   );
   if (daysLeft > 7) return null;
 
+  const isUrgent = daysLeft <= 1;
+
   return (
+    // Banner de renovación: antes era bg-warning/5 con link inline — Norma
+    // (persona mayor) lo pasaba por alto hasta que se le vencía el acceso.
+    // Ahora: bg más sólido (warning/10), título más grande, Button destacado
+    // en lugar de link, y variant destructive si está a ≤1 día.
     <div
       role="alert"
-      className="border-warning/30 bg-warning/5 mb-4 flex items-center gap-3 rounded-lg border p-3"
+      className={`mb-4 flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:gap-4 sm:p-5 ${
+        isUrgent ? 'border-destructive/40 bg-destructive/10' : 'border-warning/40 bg-warning/10'
+      }`}
     >
-      <AlertTriangle className="text-warning h-5 w-5 shrink-0" aria-hidden="true" />
+      <AlertTriangle
+        className={`h-6 w-6 shrink-0 ${isUrgent ? 'text-destructive' : 'text-warning'}`}
+        aria-hidden="true"
+      />
       <div className="flex-1">
-        <p className="type-body-sm text-foreground font-medium">
+        <p className="type-title-sm text-foreground font-semibold">
           Tu suscripción vence{' '}
           {daysLeft <= 0 ? 'hoy' : daysLeft === 1 ? 'mañana' : `en ${daysLeft} días`}
         </p>
+        <p className="type-body-sm text-muted-foreground mt-1">
+          Renovala para no perder acceso al diagnóstico, tareas y recordatorios.
+        </p>
+      </div>
+      <Button asChild variant={isUrgent ? 'destructive' : 'default'} size="default">
         <a
           href={`https://wa.me/${WHATSAPP_CONTACT_NUMBER}?text=Hola, quiero renovar mi suscripción a EPDE`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-primary hover:text-primary/80 type-body-sm font-medium"
         >
-          Contactar para renovar →
+          Renovar por WhatsApp
         </a>
-      </div>
+      </Button>
     </div>
   );
 }
