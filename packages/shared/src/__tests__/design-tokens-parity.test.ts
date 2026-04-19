@@ -24,6 +24,11 @@ const MOBILE_THEME = readFileSync(
   'utf-8',
 );
 
+const MOBILE_CSS = readFileSync(
+  resolve(__dirname, '../../../../apps/mobile/src/global.css'),
+  'utf-8',
+);
+
 /** Converts a camelCase token key to its kebab-case CSS variable suffix. */
 function toCssVar(key: string): string {
   return key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
@@ -93,5 +98,41 @@ describe('Design token parity', () => {
     it('imports TASK_TYPE_TOKENS_DARK from @epde/shared', () => {
       expect(MOBILE_THEME).toContain('TASK_TYPE_TOKENS_DARK');
     });
+  });
+
+  /**
+   * Mobile `global.css` usa NativeWind v4 `@theme` + `.dark` con prefijo
+   * `--color-<token>` (distinto al web `--<token>`). Solo un subset de
+   * tokens se expone acá (los que NativeWind traduce a Tailwind classes);
+   * el resto viven en `theme-tokens.ts` ya validado arriba.
+   *
+   * Drift guard: tokens presentes en mobile global.css deben matchear
+   * el valor canónico de shared. No forzamos presencia — solo consistencia
+   * cuando están definidos.
+   */
+  describe('Mobile global.css @theme matches DESIGN_TOKENS_LIGHT where present', () => {
+    const themeBody = extractBlock(MOBILE_CSS, /@theme\s*\{/);
+
+    for (const [key, expected] of Object.entries(DESIGN_TOKENS_LIGHT)) {
+      const cssVar = `color-${toCssVar(key)}`;
+      const actual = readVar(themeBody, cssVar);
+      if (actual === null) continue; // token no expuesto a NativeWind — OK
+      it(`mobile --${cssVar} matches shared`, () => {
+        expect(actual).toBe(expected);
+      });
+    }
+  });
+
+  describe('Mobile global.css .dark matches DESIGN_TOKENS_DARK where present', () => {
+    const darkBody = extractBlock(MOBILE_CSS, /\.dark\s*\{/);
+
+    for (const [key, expected] of Object.entries(DESIGN_TOKENS_DARK)) {
+      const cssVar = `color-${toCssVar(key)}`;
+      const actual = readVar(darkBody, cssVar);
+      if (actual === null) continue;
+      it(`mobile .dark --${cssVar} matches shared`, () => {
+        expect(actual).toBe(expected);
+      });
+    }
   });
 });
