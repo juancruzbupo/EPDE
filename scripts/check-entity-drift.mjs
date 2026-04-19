@@ -61,8 +61,42 @@ const MODEL_TO_FILE = {
  * type (e.g. security-sensitive columns, internal audit columns).
  */
 const KNOWN_OMISSIONS = {
-  // passwordHash is stripped via UserPublic = Omit<User, 'passwordHash'>
-  User: new Set(['passwordHash']),
+  User: new Set([
+    // Stripped via UserPublic = Omit<User, 'passwordHash'>.
+    'passwordHash',
+    // Referral program fields. Exposed only via ReferralStatePublic
+    // (returned by GET /users/me/referrals), not on the User entity
+    // to keep the client session payload lean. See ADR-010.
+    'referralCode',
+    'referredByCode',
+    'referralCount',
+    'convertedCount',
+    'referralCreditMonths',
+    'referralCreditAnnualDiagnosis',
+    'referralCreditBiannualDiagnosis',
+  ]),
+  Task: new Set([
+    // Dormant column — see schema.prisma comment. Not used by UI.
+    // Will be replaced by assignedToId FK when the assignment
+    // feature ships for tasks.
+    'assignedToName',
+  ]),
+  MaintenancePlan: new Set([
+    // Pricing tier + amount snapshot taken at plan creation.
+    // Consumed only by admin dashboard (plan-launch tracking),
+    // never surfaced to clients.
+    'sourceInspectionId',
+    'priceTier',
+    'priceAmount',
+  ]),
+  ServiceRequest: new Set([
+    // Dormant column — same pattern as Task.assignedToName.
+    'assignedToName',
+    // SLA timestamps alimentando admin dashboard (SlaMetrics).
+    // Clientes no consumen estos valores directamente.
+    'firstResponseAt',
+    'resolvedAt',
+  ]),
 };
 
 /**
@@ -81,6 +115,7 @@ const KNOWN_OMISSIONS = {
  */
 const KNOWN_RELATION_OMISSIONS = {
   User: new Set([
+    // Core inverse arrays — never surfaced on the User entity.
     'properties',
     'taskLogs',
     'taskNotes',
@@ -93,12 +128,30 @@ const KNOWN_RELATION_OMISSIONS = {
     'serviceRequestComments',
     'notifications',
     'authAuditLogs',
+    // Feature-scoped inverse arrays — cada uno tiene su propio DTO/endpoint
+    // cuando corresponde (ej. referrals → ReferralStatePublic, milestones →
+    // MilestoneState[]). No se incluyen en el shape base de User.
+    'quoteTemplates',
+    'pushTokens',
+    'inspections',
+    'milestones',
+    'weeklyChallenges',
+    'referralsMade',
+    'referralsReceived',
+    'technicalInspections',
   ]),
   Property: new Set([
     'user',
     'maintenancePlan',
     'budgetRequests',
     'serviceRequests',
+    // Feature-scoped inverse arrays: health history (ISVSnapshot), inspecciones
+    // técnicas (add-on), checklists de inspección, certificados emitidos.
+    // Cada uno tiene su endpoint/DTO dedicado; no viven en Property base.
+    'isvSnapshots',
+    'inspections',
+    'technicalInspections',
+    'certificateEmissions',
   ]),
   MaintenancePlan: new Set([
     'property',
@@ -111,6 +164,10 @@ const KNOWN_RELATION_OMISSIONS = {
     'taskNotes',
     'auditLogs',
     'serviceRequests',
+    // Items granulares del checklist de inspección — se exponen via
+    // InspectionChecklistItemPublic cuando el admin edita un checklist,
+    // no forman parte del shape base de Task.
+    'inspectionItems',
   ]),
   BudgetRequest: new Set([
     'property',
@@ -129,6 +186,9 @@ const KNOWN_RELATION_OMISSIONS = {
     'auditLogs',
     'comments',
     'attachments',
+    // Asignación de profesional — solo se expone en ServiceRequestWithDetails
+    // (flujo de assignment del admin); no en el shape base público.
+    'assignment',
   ]),
 };
 
