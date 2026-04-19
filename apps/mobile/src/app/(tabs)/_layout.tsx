@@ -1,8 +1,9 @@
 // UserRole removed — all tabs now visible to all roles
 import { Tabs } from 'expo-router';
 import { useEffect } from 'react';
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { OfflineBanner } from '@/components/offline-banner';
 import { useUnreadCount } from '@/hooks/use-notifications';
@@ -46,7 +47,10 @@ export default function TabLayout() {
   // Role check removed — all tabs visible to all roles (Planes hidden via href: null)
 
   return (
-    <View className="flex-1">
+    // edges=['top'] — la tab bar maneja el inset inferior vía insets del
+    // navigator; el top inset antes no se respetaba y el OfflineBanner
+    // quedaba debajo del notch en iPhones con Dynamic Island.
+    <SafeAreaView className="flex-1" edges={['top']}>
       <OfflineBanner />
       <Tabs
         screenListeners={{
@@ -109,6 +113,6 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-    </View>
+    </SafeAreaView>
   );
 }

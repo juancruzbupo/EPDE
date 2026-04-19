@@ -20,6 +20,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
 import { useColorScheme, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ConfettiBurst, type ConfettiBurstRef } from '@/components/confetti-burst';
 import { ConfirmHost } from '@/components/confirm-host';
@@ -149,33 +150,35 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View style={themeVars} className="bg-background flex-1">
-        <ConfettiBurst ref={confettiRef} />
-        <ErrorBoundary>
-          <PersistQueryClientProvider
-            client={queryClient}
-            persistOptions={{
-              persister: asyncStoragePersister,
-              maxAge: PERSISTER_MAX_AGE,
-              // Never persist PII-containing domains to AsyncStorage (plaintext on Android
-              // `/data/data/...`). Dashboard, notifications, categories and templates are
-              // safe to persist. Tokens live in SecureStore, not in this cache.
-              dehydrateOptions: {
-                shouldDehydrateQuery: (query) => {
-                  const key = query.queryKey[0];
-                  if (typeof key !== 'string') return false;
-                  return !(SENSITIVE_PERSIST_DENY as readonly string[]).includes(key);
+      <SafeAreaProvider>
+        <View style={themeVars} className="bg-background flex-1">
+          <ConfettiBurst ref={confettiRef} />
+          <ErrorBoundary>
+            <PersistQueryClientProvider
+              client={queryClient}
+              persistOptions={{
+                persister: asyncStoragePersister,
+                maxAge: PERSISTER_MAX_AGE,
+                // Never persist PII-containing domains to AsyncStorage (plaintext on Android
+                // `/data/data/...`). Dashboard, notifications, categories and templates are
+                // safe to persist. Tokens live in SecureStore, not in this cache.
+                dehydrateOptions: {
+                  shouldDehydrateQuery: (query) => {
+                    const key = query.queryKey[0];
+                    if (typeof key !== 'string') return false;
+                    return !(SENSITIVE_PERSIST_DENY as readonly string[]).includes(key);
+                  },
                 },
-              },
-            }}
-          >
-            <AuthGate />
-            <ToastHost />
-            <ConfirmHost />
-            <StatusBar style={effectiveTheme === 'dark' ? 'light' : 'dark'} />
-          </PersistQueryClientProvider>
-        </ErrorBoundary>
-      </View>
+              }}
+            >
+              <AuthGate />
+              <ToastHost />
+              <ConfirmHost />
+              <StatusBar style={effectiveTheme === 'dark' ? 'light' : 'dark'} />
+            </PersistQueryClientProvider>
+          </ErrorBoundary>
+        </View>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }
