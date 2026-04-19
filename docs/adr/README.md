@@ -23,3 +23,6 @@ Decisiones arquitectónicas clave del proyecto EPDE. Cada ADR documenta una deci
 | [017](017-security-fail-mode-policy.md)          | Security fail-mode policy: cuándo fail-open vs fail-closed                 | Aceptada |
 | [018](018-professionals-directory.md)            | Directorio interno de profesionales matriculados (admin tool)              | Aceptada |
 | [019](019-technical-inspections.md)              | Informes técnicos firmados — servicio profesional pago con tiers por m²    | Aceptada |
+| [020](020-shared-api-factories-pattern.md)       | Shared API factories como SSoT — reads vía factory, writes libres          | Aceptada |
+| [021](021-repository-export-policy.md)           | Exportar repositorio solo si 2+ módulos externos lo consumen               | Aceptada |
+| [022](022-mobile-store-split.md)                 | Mobile split UI preferences stores — async granular vs sync combinado web  | Aceptada |
