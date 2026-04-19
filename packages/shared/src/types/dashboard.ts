@@ -23,6 +23,56 @@ export interface DashboardStats {
   revenue: RevenueConsolidated;
   collections: CollectionsPending;
   portfolioIsv: PortfolioIsvSummary;
+  certificates: CertificatesSummary;
+  professionals: ProfessionalsSummary;
+  inactiveClients: InactiveClientsSummary;
+}
+
+/**
+ * Certificados de Mantenimiento Preventivo emitidos + elegibles.
+ * Responde "¿estoy emitiendo los certificados que debo?".
+ */
+export interface CertificatesSummary {
+  /** Certificados emitidos total (Property.certificateIssuedAt ≠ null). */
+  totalIssued: number;
+  /** Emitidos en mes calendario actual. */
+  issuedThisMonth: number;
+  /** Propiedades elegibles sin certificado emitido (ISV≥60, plan ≥1 año). */
+  eligibleNotIssued: number;
+}
+
+/**
+ * Métricas agregadas del directorio de profesionales matriculados.
+ * Responde "¿mi red de profesionales está operativa?".
+ */
+export interface ProfessionalsSummary {
+  totalActive: number;
+  blocked: number;
+  /** Matrículas vencidas o que vencen en ≤30 días. */
+  matriculasExpiringSoon: number;
+  /** Count de pagos PENDING que EPDE debe liquidar. */
+  pendingPaymentsCount: number;
+  /** Suma $ ARS de pagos pendientes. */
+  pendingPaymentsAmount: number;
+  /** Profesionales con más SRs asignadas último trimestre (top 3). */
+  topPerformers: Array<{ id: string; name: string; assignmentsCount: number; rating: number }>;
+}
+
+/**
+ * Clientes potencialmente inactivos (riesgo de churn).
+ * Responde "¿hay clientes que pagaron y no usan el producto?".
+ */
+export interface InactiveClientsSummary {
+  /** Clientes sin ningún TaskLog en últimos 60 días. */
+  noActivityLast60Days: number;
+  /** Top 5 clientes con >40% de tareas vencidas (riesgo de abandono). */
+  highOverdueRatio: Array<{
+    id: string;
+    name: string;
+    overdueTasks: number;
+    totalTasks: number;
+    overdueRatio: number;
+  }>;
 }
 
 /**

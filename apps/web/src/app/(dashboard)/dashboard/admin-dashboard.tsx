@@ -19,6 +19,7 @@ import { FinancialTab } from './components/financial-tab';
 import { KpiSummaryCard } from './components/kpi-summary-card';
 import { LaunchTrackingCard } from './components/launch-tracking-card';
 import { MonthSelector } from './components/month-selector';
+import { OperationalExtrasCard } from './components/operational-extras-card';
 import { OperationalTab } from './components/operational-tab';
 import { PortfolioIsvCard } from './components/portfolio-isv-card';
 import { RevenueConsolidatedCard } from './components/revenue-consolidated-card';
@@ -111,6 +112,17 @@ export function AdminDashboard() {
       {stats?.portfolioIsv && (
         <div className="mb-6">
           <PortfolioIsvCard summary={stats.portfolioIsv} />
+        </div>
+      )}
+
+      {/* Level 2e: Operational extras (certificates, professionals, churn) */}
+      {stats?.certificates && stats?.professionals && stats?.inactiveClients && (
+        <div className="mb-6">
+          <OperationalExtrasCard
+            certificates={stats.certificates}
+            professionals={stats.professionals}
+            inactiveClients={stats.inactiveClients}
+          />
         </div>
       )}
 

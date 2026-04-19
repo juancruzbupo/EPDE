@@ -427,6 +427,202 @@ export class DashboardStatsRepository {
     };
   }
 
+  /**
+   * Certificados de Mantenimiento emitidos + elegibles sin emitir.
+   * Usa CertificateCounter.lastNumber como total emitido (counter atómico).
+   * issuedThisMonth no es trackeable hasta que haya una tabla por emisión —
+   * se devuelve 0 como placeholder honesto.
+   */
+  async getCertificatesSummary() {
+    const now = new Date();
+    const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+
+    const [counter, latestPerProperty] = await Promise.all([
+      this.prisma.certificateCounter.findUnique({ where: { id: 'singleton' } }),
+      this.prisma.$queryRaw<{ propertyId: string; score: number }[]>`
+        SELECT DISTINCT ON ("propertyId") "propertyId", score
+        FROM "ISVSnapshot"
+        ORDER BY "propertyId", "snapshotDate" DESC
+      `,
+    ]);
+
+    const eligiblePropertyIds = latestPerProperty
+      .filter((r) => r.score >= 60)
+      .map((r) => r.propertyId);
+
+    const eligibleNotIssued = eligiblePropertyIds.length
+      ? await this.prisma.maintenancePlan.count({
+          where: {
+            propertyId: { in: eligiblePropertyIds },
+            createdAt: { lte: oneYearAgo },
+          },
+        })
+      : 0;
+
+    return {
+      totalIssued: counter?.lastNumber ?? 0,
+      issuedThisMonth: 0, // requiere tabla CertificateEmission (futuro)
+      eligibleNotIssued,
+    };
+  }
+
+  /**
+   * Resumen del directorio de profesionales para el dashboard.
+   * Agrega activos/bloqueados, matrículas por vencer, pagos pendientes, y
+   * top 3 profesionales por volumen de asignaciones último trimestre.
+   */
+  async getProfessionalsSummary() {
+    const now = new Date();
+    const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+
+    const [totalActive, blocked, expiringMatriculas, pendingPayments, topPerformersRaw] =
+      await Promise.all([
+        this.prisma.softDelete.professional.count({
+          where: { tier: { not: 'BLOCKED' } },
+        }),
+        this.prisma.softDelete.professional.count({ where: { tier: 'BLOCKED' } }),
+        this.prisma.professionalAttachment.count({
+          where: {
+            type: 'MATRICULA',
+            expiresAt: { lte: in30Days },
+          },
+        }),
+        this.prisma.professionalPayment.findMany({
+          where: { status: 'PENDING' },
+          select: { amount: true },
+        }),
+        this.prisma.softDelete.professional.findMany({
+          where: { tier: { not: 'BLOCKED' } },
+          select: {
+            id: true,
+            name: true,
+            ratings: { select: { score: true } },
+            assignments: {
+              where: { assignedAt: { gte: threeMonthsAgo } },
+              select: { id: true },
+            },
+          },
+        }),
+      ]);
+
+    const pendingPaymentsAmount = pendingPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+
+    const topPerformers = topPerformersRaw
+      .map((p) => {
+        const avgRating =
+          p.ratings.length > 0
+            ? p.ratings.reduce((sum, r) => sum + r.score, 0) / p.ratings.length
+            : 0;
+        return {
+          id: p.id,
+          name: p.name,
+          assignmentsCount: p.assignments.length,
+          rating: Number(avgRating.toFixed(1)),
+        };
+      })
+      .filter((p) => p.assignmentsCount > 0)
+      .sort((a, b) => b.assignmentsCount - a.assignmentsCount)
+      .slice(0, 3);
+
+    return {
+      totalActive,
+      blocked,
+      matriculasExpiringSoon: expiringMatriculas,
+      pendingPaymentsCount: pendingPayments.length,
+      pendingPaymentsAmount,
+      topPerformers,
+    };
+  }
+
+  /**
+   * Clientes con potencial riesgo de churn: sin actividad reciente o con
+   * alto ratio de tareas vencidas. Pensado para que el admin priorice
+   * outreach antes de que se den de baja silenciosamente.
+   */
+  async getInactiveClientsSummary() {
+    const now = new Date();
+    const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
+    const [inactiveClients, plansWithTasks] = await Promise.all([
+      this.prisma.softDelete.user.findMany({
+        where: {
+          role: UserRole.CLIENT,
+          properties: {
+            some: {
+              maintenancePlan: {
+                tasks: {
+                  none: { taskLogs: { some: { completedAt: { gte: sixtyDaysAgo } } } },
+                },
+              },
+            },
+          },
+        },
+        select: { id: true },
+      }),
+      this.prisma.softDelete.user.findMany({
+        where: { role: UserRole.CLIENT },
+        select: {
+          id: true,
+          name: true,
+          properties: {
+            select: {
+              maintenancePlan: {
+                select: {
+                  tasks: {
+                    select: {
+                      status: true,
+                      nextDueDate: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+    ]);
+
+    type HighRisk = {
+      id: string;
+      name: string;
+      overdueTasks: number;
+      totalTasks: number;
+      overdueRatio: number;
+    };
+    const highOverdueRatio: HighRisk[] = [];
+
+    for (const user of plansWithTasks) {
+      let overdue = 0;
+      let total = 0;
+      for (const prop of user.properties) {
+        const tasks = prop.maintenancePlan?.tasks ?? [];
+        for (const t of tasks) {
+          total++;
+          if (t.status !== TaskStatus.COMPLETED && t.nextDueDate && t.nextDueDate < now) {
+            overdue++;
+          }
+        }
+      }
+      if (total >= 5 && overdue / total > 0.4) {
+        highOverdueRatio.push({
+          id: user.id,
+          name: user.name,
+          overdueTasks: overdue,
+          totalTasks: total,
+          overdueRatio: overdue / total,
+        });
+      }
+    }
+
+    highOverdueRatio.sort((a, b) => b.overdueRatio - a.overdueRatio);
+
+    return {
+      noActivityLast60Days: inactiveClients.length,
+      highOverdueRatio: highOverdueRatio.slice(0, 5),
+    };
+  }
+
   async getRecentActivity() {
     const [recentClients, recentProperties, recentTasks, recentBudgets, recentServices] =
       await Promise.all([

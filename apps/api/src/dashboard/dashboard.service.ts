@@ -32,7 +32,10 @@ export class DashboardService {
           'planLaunch' in parsed &&
           'revenue' in parsed &&
           'collections' in parsed &&
-          'portfolioIsv' in parsed
+          'portfolioIsv' in parsed &&
+          'certificates' in parsed &&
+          'professionals' in parsed &&
+          'inactiveClients' in parsed
         )
           return parsed;
         await this.redis.del(cacheKey);
@@ -41,15 +44,27 @@ export class DashboardService {
       /* Redis unavailable */
     }
 
-    const [core, technicalInspections, planLaunch, revenue, collections, portfolioIsv] =
-      await Promise.all([
-        this.dashboardRepository.getAdminStats(),
-        this.dashboardStatsRepository.getTechnicalInspectionsSummary(),
-        this.dashboardStatsRepository.getPlanLaunchSummary(),
-        this.dashboardStatsRepository.getRevenueConsolidated(),
-        this.dashboardStatsRepository.getCollectionsPending(),
-        this.dashboardStatsRepository.getPortfolioIsvSummary(),
-      ]);
+    const [
+      core,
+      technicalInspections,
+      planLaunch,
+      revenue,
+      collections,
+      portfolioIsv,
+      certificates,
+      professionals,
+      inactiveClients,
+    ] = await Promise.all([
+      this.dashboardRepository.getAdminStats(),
+      this.dashboardStatsRepository.getTechnicalInspectionsSummary(),
+      this.dashboardStatsRepository.getPlanLaunchSummary(),
+      this.dashboardStatsRepository.getRevenueConsolidated(),
+      this.dashboardStatsRepository.getCollectionsPending(),
+      this.dashboardStatsRepository.getPortfolioIsvSummary(),
+      this.dashboardStatsRepository.getCertificatesSummary(),
+      this.dashboardStatsRepository.getProfessionalsSummary(),
+      this.dashboardStatsRepository.getInactiveClientsSummary(),
+    ]);
 
     const result = {
       ...core,
@@ -58,6 +73,9 @@ export class DashboardService {
       revenue,
       collections,
       portfolioIsv,
+      certificates,
+      professionals,
+      inactiveClients,
     };
 
     try {
